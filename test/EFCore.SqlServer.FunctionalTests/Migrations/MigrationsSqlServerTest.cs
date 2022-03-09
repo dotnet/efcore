@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 
+// ReSharper disable StringLiteralTypo
+// ReSharper disable UnusedParameter.Local
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+
 #nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
@@ -160,6 +164,136 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             @"CREATE TABLE [People] (
     [IdentityColumn] smallint NOT NULL IDENTITY
 );");
+    }
+
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    public virtual async Task Create_memory_optimized_table()
+    {
+        await Test(
+            _ => { },
+            builder => builder.UseIdentityColumns().Entity("People", b =>
+            {
+                b.IsMemoryOptimized();
+                b.Property<int>("Id");
+            }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.True((bool)table[SqlServerAnnotationNames.MemoryOptimized]!);
+            });
+
+        AssertSql(
+            @"IF SERVERPROPERTY('IsXTPSupported') = 1 AND SERVERPROPERTY('EngineEdition') <> 5
+    BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM [sys].[filegroups] [FG] JOIN [sys].[database_files] [F] ON [FG].[data_space_id] = [F].[data_space_id] WHERE [FG].[type] = N'FX' AND [F].[type] = 2)
+        BEGIN
+        ALTER DATABASE CURRENT SET AUTO_CLOSE OFF;
+        DECLARE @db_name nvarchar(max) = DB_NAME();
+        DECLARE @fg_name nvarchar(max);
+        SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';
+
+        IF @fg_name IS NULL
+            BEGIN
+            SET @fg_name = @db_name + N'_MODFG';
+            EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');
+            END
+
+        DECLARE @path nvarchar(max);
+        SELECT TOP(1) @path = [physical_name] FROM [sys].[database_files] WHERE charindex('\', [physical_name]) > 0 ORDER BY [file_id];
+        IF (@path IS NULL)
+            SET @path = '\' + @db_name;
+
+        DECLARE @filename nvarchar(max) = right(@path, charindex('\', reverse(@path)) - 1);
+        SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';
+        DECLARE @new_path nvarchar(max) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(max)), '''', '''''') + @filename;
+
+        EXEC(N'
+            ALTER DATABASE CURRENT
+            ADD FILE (NAME=''' + @filename + ''', filename=''' + @new_path + ''')
+            TO FILEGROUP [' + @fg_name + '];')
+        END
+    END
+
+IF SERVERPROPERTY('IsXTPSupported') = 1
+EXEC(N'
+    ALTER DATABASE CURRENT
+    SET MEMORY_OPTIMIZED_ELEVATE_TO_SNAPSHOT ON;')",
+            //
+            @"CREATE TABLE [People] (
+    [Id] int NOT NULL IDENTITY,
+    CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([Id])
+) WITH (MEMORY_OPTIMIZED = ON);");
+    }
+
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    public virtual async Task Create_memory_optimized_temporal_table()
+    {
+        await Test(
+            _ => { },
+            builder => builder.UseIdentityColumns().Entity("People", b =>
+            {
+                b.ToTable("Customers", tb => tb.IsTemporal());
+                b.IsMemoryOptimized();
+                b.Property<int>("Id");
+            }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.True((bool)table[SqlServerAnnotationNames.MemoryOptimized]!);
+            });
+
+        AssertSql(
+            @"IF SERVERPROPERTY('IsXTPSupported') = 1 AND SERVERPROPERTY('EngineEdition') <> 5
+    BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM [sys].[filegroups] [FG] JOIN [sys].[database_files] [F] ON [FG].[data_space_id] = [F].[data_space_id] WHERE [FG].[type] = N'FX' AND [F].[type] = 2)
+        BEGIN
+        ALTER DATABASE CURRENT SET AUTO_CLOSE OFF;
+        DECLARE @db_name nvarchar(max) = DB_NAME();
+        DECLARE @fg_name nvarchar(max);
+        SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';
+
+        IF @fg_name IS NULL
+            BEGIN
+            SET @fg_name = @db_name + N'_MODFG';
+            EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');
+            END
+
+        DECLARE @path nvarchar(max);
+        SELECT TOP(1) @path = [physical_name] FROM [sys].[database_files] WHERE charindex('\', [physical_name]) > 0 ORDER BY [file_id];
+        IF (@path IS NULL)
+            SET @path = '\' + @db_name;
+
+        DECLARE @filename nvarchar(max) = right(@path, charindex('\', reverse(@path)) - 1);
+        SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';
+        DECLARE @new_path nvarchar(max) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(max)), '''', '''''') + @filename;
+
+        EXEC(N'
+            ALTER DATABASE CURRENT
+            ADD FILE (NAME=''' + @filename + ''', filename=''' + @new_path + ''')
+            TO FILEGROUP [' + @fg_name + '];')
+        END
+    END
+
+IF SERVERPROPERTY('IsXTPSupported') = 1
+EXEC(N'
+    ALTER DATABASE CURRENT
+    SET MEMORY_OPTIMIZED_ELEVATE_TO_SNAPSHOT ON;')",
+                //
+                @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+EXEC(N'CREATE TABLE [Customers] (
+    [Id] int NOT NULL IDENTITY,
+    [PeriodEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [PeriodStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
+    CONSTRAINT [PK_Customers] PRIMARY KEY NONCLUSTERED ([Id]),
+    PERIOD FOR SYSTEM_TIME([PeriodStart], [PeriodEnd])
+) WITH (
+    SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomersHistory]),
+    MEMORY_OPTIMIZED = ON
+)');");
     }
 
     public override async Task Drop_table()
