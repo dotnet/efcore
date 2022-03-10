@@ -90,6 +90,8 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
         var param1 = Expression.Parameter(type, "v1");
         var param2 = Expression.Parameter(type, "v2");
 
+        // We exclude multi-dimensional arrays even though they're IStructuralEquatable because of
+        // https://github.com/dotnet/runtime/issues/66472
         if (typeof(IStructuralEquatable).IsAssignableFrom(type))
         {
             return Expression.Lambda<Func<T?, T?, bool>>(
@@ -172,7 +174,8 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
     protected static Expression<Func<T, T>> CreateDefaultSnapshotExpression(bool favorStructuralComparisons)
     {
         if (!favorStructuralComparisons
-            || !typeof(T).IsArray)
+            || !typeof(T).IsArray
+            || typeof(T).GetArrayRank() != 1)
         {
             return v => v;
         }
