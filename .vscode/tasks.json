@@ -1,0 +1,56 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Restore projects",
+      "type": "shell",
+      "command": "./restore.sh",
+      "windows": {
+        "command": ".\\restore.cmd"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Build entire repository",
+      "type": "shell",
+      "command": "./build.sh",
+      "windows": {
+        "command": ".\\build.cmd"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Build and run all tests",
+      "type": "shell",
+      "command": "/test.sh -test",
+      "windows": {
+        "command": ".\\test.cmd -test"
+      },
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Pack assets",
+      "type": "shell",
+      "command": "./eng/build.sh --pack",
+      "windows": {
+        "command": ".\\eng\\build.cmd -pack"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}
