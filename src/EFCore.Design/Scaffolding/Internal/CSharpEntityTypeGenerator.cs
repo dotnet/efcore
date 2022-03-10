@@ -444,7 +444,7 @@ public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
                 _sb.AppendLine(
                     !_useNullableReferenceTypes || navigation.IsCollection
                         ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }}"
-                        : navigation.ForeignKey.IsRequired
+                        : navigation.ForeignKey.IsRequired && navigation.IsOnDependent
                             ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }} = null!;"
                             : $"public virtual {navigationType}? {navigation.Name} {{ get; set; }}");
             }
