@@ -8,3 +8,4 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 [assembly: TypeForwardedTo(typeof(ObservableCollectionExtensions))]
 [assembly: TypeForwardedTo(typeof(ObservableCollectionListSource<>))]
 [assembly: TypeForwardedTo(typeof(SortableBindingList<>))]
+[assembly: TypeForwardedTo(typeof(DeleteBehavior))]
