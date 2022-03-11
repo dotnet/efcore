@@ -2023,6 +2023,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
         // Add standard EF references, a reference to the provider's assembly, and any extra references added by the provider's test suite
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore"));
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"));
 
         var databaseProvider = Fixture.TestHelpers.CreateContextServices().GetRequiredService<IDatabaseProvider>();
