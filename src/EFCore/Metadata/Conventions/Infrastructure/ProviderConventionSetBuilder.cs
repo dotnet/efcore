@@ -150,6 +150,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.ForeignKeyAddedConventions.Add(valueGeneratorConvention);
         conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
         conventionSet.ForeignKeyAddedConventions.Add(foreignKeyIndexConvention);
+        conventionSet.ForeignKeyAddedConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.ForeignKeyRemovedConventions.Add(baseTypeDiscoveryConvention);
         conventionSet.ForeignKeyRemovedConventions.Add(relationshipDiscoveryConvention);
