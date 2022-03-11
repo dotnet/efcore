@@ -752,10 +752,27 @@ namespace TestNamespace
                     {
                         x.Property<int>("Id");
 
-                        x.HasOne("Dependent1", "RequiredNavigationWithReferenceForeignKey").WithOne("Entity").IsRequired();
-                        x.HasOne("Dependent2", "OptionalNavigationWithReferenceForeignKey").WithOne("Entity");
-                        x.HasOne("Dependent3", "RequiredNavigationWithValueForeignKey").WithOne("Entity").IsRequired();
-                        x.HasOne("Dependent4", "OptionalNavigationWithValueForeignKey").WithOne("Entity");
+                        x
+                            .HasOne("Dependent1", "RequiredNavigationWithReferenceForeignKey")
+                            .WithOne("Entity")
+                            .HasForeignKey("Dependent1", "RequiredNavigationWithReferenceForeignKey")
+                            .IsRequired();
+
+                        x
+                            .HasOne("Dependent2", "OptionalNavigationWithReferenceForeignKey")
+                            .WithOne("Entity")
+                            .HasForeignKey("Dependent2", "OptionalNavigationWithReferenceForeignKey");
+
+                        x
+                            .HasOne("Dependent3", "RequiredNavigationWithValueForeignKey")
+                            .WithOne("Entity")
+                            .HasForeignKey("Dependent3", "RequiredNavigationWithValueForeignKey")
+                            .IsRequired();
+
+                        x
+                            .HasOne("Dependent4", "OptionalNavigationWithValueForeignKey")
+                            .WithOne("Entity")
+                            .HasForeignKey("Dependent4", "OptionalNavigationWithValueForeignKey");
                     })
                 .Entity("Dependent1", x => x.Property<string>("Id"))
                 .Entity("Dependent2", x => x.Property<string>("Id"))
@@ -777,23 +794,15 @@ namespace TestNamespace
     {
         [Key]
         public int Id { get; set; }
-        public string? OptionalNavigationWithReferenceForeignKeyId { get; set; }
-        public int? OptionalNavigationWithValueForeignKeyId { get; set; }
-        public string RequiredNavigationWithReferenceForeignKeyId { get; set; } = null!;
-        public int RequiredNavigationWithValueForeignKeyId { get; set; }
 
-        [ForeignKey(""OptionalNavigationWithReferenceForeignKeyId"")]
         [InverseProperty(""Entity"")]
         public virtual Dependent2? OptionalNavigationWithReferenceForeignKey { get; set; }
-        [ForeignKey(""OptionalNavigationWithValueForeignKeyId"")]
         [InverseProperty(""Entity"")]
         public virtual Dependent4? OptionalNavigationWithValueForeignKey { get; set; }
-        [ForeignKey(""RequiredNavigationWithReferenceForeignKeyId"")]
         [InverseProperty(""Entity"")]
-        public virtual Dependent1 RequiredNavigationWithReferenceForeignKey { get; set; } = null!;
-        [ForeignKey(""RequiredNavigationWithValueForeignKeyId"")]
+        public virtual Dependent1? RequiredNavigationWithReferenceForeignKey { get; set; }
         [InverseProperty(""Entity"")]
-        public virtual Dependent3 RequiredNavigationWithValueForeignKey { get; set; } = null!;
+        public virtual Dependent3? RequiredNavigationWithValueForeignKey { get; set; }
     }
 }
 ",
@@ -802,11 +811,6 @@ namespace TestNamespace
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Entity");
-
-                Assert.False(entityType.GetProperty("RequiredNavigationWithReferenceForeignKeyId").IsNullable);
-                Assert.True(entityType.GetProperty("OptionalNavigationWithReferenceForeignKeyId").IsNullable);
-                Assert.False(entityType.GetProperty("RequiredNavigationWithValueForeignKeyId").IsNullable);
-                Assert.True(entityType.GetProperty("OptionalNavigationWithValueForeignKeyId").IsNullable);
 
                 Assert.True(entityType.FindNavigation("RequiredNavigationWithReferenceForeignKey")!.ForeignKey.IsRequired);
                 Assert.False(entityType.FindNavigation("OptionalNavigationWithReferenceForeignKey")!.ForeignKey.IsRequired);
