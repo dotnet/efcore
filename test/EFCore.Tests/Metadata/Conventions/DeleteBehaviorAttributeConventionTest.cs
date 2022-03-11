@@ -176,7 +176,7 @@ public class DeleteBehaviorAttributeConventionTest
     }
 
     [ConditionalFact]
-    public void Correctly_set_restrict_delete_behavior_on_foreign_key_declared_by_FluentAPI()
+    public void Correctly_set_delete_behavior_on_foreign_key_declared_by_FluentAPI()
     {
         var modelBuilder = CreateModelBuilder();
 
@@ -187,6 +187,21 @@ public class DeleteBehaviorAttributeConventionTest
             .HasMany(e => e.Posts)
             .WithOne(e => e.Blog_Restrict)
             .HasForeignKey(e => e.BlogId).Metadata;
+
+        Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
+    }
+
+    [ConditionalFact]
+    public void Correctly_set_delete_behavior_on_implicit_foreign_key()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_Restrict>()
+            .Property(e => e.BlogId);
+
+        var fk = modelBuilder.Entity<Blog_Restrict>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_Restrict).Metadata;
 
         Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
     }
@@ -416,6 +431,24 @@ public class DeleteBehaviorAttributeConventionTest
         public int Id { get; set; }
 
         public Blog_Restrict_Fluent Blog_Restrict_Fluent { get; set; }
+
+        [DeleteBehavior((int)DeleteBehavior.Restrict)]
+        public int? BlogId { get; set; }
+    }
+    #endregion
+    #region DeleteBehaviourAttribute set to Restrict and implicit foreign key
+    private class Blog_Restrict_Implicit
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_Restrict_Implicit> Posts { get; set; }
+    }
+
+    private class Post_Restrict_Implicit
+    {
+        public int Id { get; set; }
+
+        public Blog_Restrict_Implicit Blog_Restrict_Implicit { get; set; }
 
         [DeleteBehavior((int)DeleteBehavior.Restrict)]
         public int? BlogId { get; set; }
