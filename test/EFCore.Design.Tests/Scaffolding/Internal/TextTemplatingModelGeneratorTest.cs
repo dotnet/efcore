@@ -16,7 +16,7 @@ public class TextTemplatingModelGeneratorTest
     {
         using var projectDir = new TempDirectory();
 
-        var template = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(template));
         File.Create(template).Close();
 
@@ -44,14 +44,14 @@ public class TextTemplatingModelGeneratorTest
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
             "My DbContext template");
 
         File.WriteAllText(
-            Path.Combine(projectDir, "Templates", "EFCore", "EntityType.t4"),
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
             "My entity type template");
 
         var generator = CreateGenerator();
@@ -81,7 +81,7 @@ public class TextTemplatingModelGeneratorTest
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
@@ -112,7 +112,7 @@ public class TextTemplatingModelGeneratorTest
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
@@ -122,7 +122,7 @@ NamespaceHint: <#= Session[""NamespaceHint""] #>
 ProjectDefaultNamespace: <#= Session[""ProjectDefaultNamespace""] #>");
 
         File.WriteAllText(
-            Path.Combine(projectDir, "Templates", "EFCore", "EntityType.t4"),
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
             @"EntityType not null: <#= Session[""EntityType""] != null #>
 Options not null: <#= Session[""Options""] != null #>
 NamespaceHint: <#= Session[""NamespaceHint""] #>
@@ -166,7 +166,7 @@ ProjectDefaultNamespace: RootNamespace",
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
@@ -196,14 +196,14 @@ ProjectDefaultNamespace: RootNamespace",
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
             @"<#@ output extension="".vb"" #>");
 
         File.WriteAllText(
-            Path.Combine(projectDir, "Templates", "EFCore", "EntityType.t4"),
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
             @"<#@ output extension="".fs"" #>
 My entity type template");
 
@@ -232,7 +232,7 @@ My entity type template");
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
@@ -266,7 +266,7 @@ My entity type template");
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "Templates", "EFCore", "DbContext.t4");
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
