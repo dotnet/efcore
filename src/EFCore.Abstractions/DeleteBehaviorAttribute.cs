@@ -4,13 +4,13 @@
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Configures the class to indicate how a delete operation is applied to dependent entities
+///     Configures the Property or Field to indicate how a delete operation is applied to dependent entities
 ///     in a relationship when it is deleted or the relationship is severed.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
 public sealed class DeleteBehaviorAttribute : Attribute
 {
     /// <summary>
