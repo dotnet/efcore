@@ -141,9 +141,6 @@ public class DeleteBehaviorAttributeConventionTest
     {
         var modelBuilder = CreateModelBuilder();
 
-        modelBuilder.Entity<Blog_Compound>()
-            .HasKey(e => new { e.Id, e.Id2 });
-
         modelBuilder.Entity<Post_Compound>()
             .Property(e => e.BlogId);
         modelBuilder.Entity<Post_Compound>()
@@ -151,8 +148,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         var fk = modelBuilder.Entity<Blog_Compound>()
             .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_Compound)
-            .HasForeignKey(e => new {e.BlogId, e.BlogId2}).Metadata;
+            .WithOne(e => e.Blog_Compound).Metadata;
 
         Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
     }
@@ -169,16 +165,30 @@ public class DeleteBehaviorAttributeConventionTest
 
         var fk_One = modelBuilder.Entity<Blog_One>()
             .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_One)
-            .HasForeignKey(e => e.Blog_OneId).Metadata;
+            .WithOne(e => e.Blog_One).Metadata;
 
         var fk_Two = modelBuilder.Entity<Blog_Two>()
             .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_Two)
-            .HasForeignKey(e => e.Blog_TwoId).Metadata;
+            .WithOne(e => e.Blog_Two).Metadata;
 
         Assert.Equal(DeleteBehavior.Restrict, fk_One.DeleteBehavior);
         Assert.Equal(DeleteBehavior.Cascade, fk_Two.DeleteBehavior);
+    }
+
+    [ConditionalFact]
+    public void Correctly_set_restrict_delete_behavior_on_foreign_key_declared_by_FluentAPI()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_Restrict>()
+            .Property(e => e.BlogId);
+
+        var fk = modelBuilder.Entity<Blog_Restrict>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_Restrict)
+            .HasForeignKey(e => e.BlogId).Metadata;
+
+        Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
     }
 
     #region DeleteBehaviorAttribute not set
@@ -212,6 +222,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_Cascade Blog_Cascade { get; set; }
 
+        [ForeignKey("Blog_Cascade")]
         [DeleteBehavior((int)DeleteBehavior.Cascade)]
         public int? BlogId { get; set; }
     }
@@ -230,6 +241,8 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_Restrict Blog_Restrict { get; set; }
 
+
+        [ForeignKey("Blog_Restrict")]
         [DeleteBehavior((int)DeleteBehavior.Restrict)]
         public int? BlogId { get; set; }
     }
@@ -248,6 +261,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_ClientCascade Blog_ClientCascade { get; set; }
 
+        [ForeignKey("Blog_ClientCascade")]
         [DeleteBehavior((int)DeleteBehavior.ClientCascade)]
         public int? BlogId { get; set; }
     }
@@ -266,6 +280,8 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_NoAction Blog_NoAction { get; set; }
 
+
+        [ForeignKey("Blog_NoAction")]
         [DeleteBehavior((int)DeleteBehavior.NoAction)]
         public int? BlogId { get; set; }
     }
@@ -284,6 +300,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_SetNull Blog_SetNull { get; set; }
 
+        [ForeignKey("Blog_SetNull")]
         [DeleteBehavior((int)DeleteBehavior.SetNull)]
         public int? BlogId { get; set; }
     }
@@ -302,6 +319,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_ClientNoAction Blog_ClientNoAction { get; set; }
 
+        [ForeignKey("Blog_ClientNoAction")]
         [DeleteBehavior((int)DeleteBehavior.ClientNoAction)]
         public int? BlogId { get; set; }
     }
@@ -320,6 +338,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_ClientSetNull Blog_ClientSetNull { get; set; }
 
+        [ForeignKey("Blog_ClientSetNull")]
         [DeleteBehavior((int)DeleteBehavior.ClientSetNull)]
         public int? BlogId { get; set; }
     }
@@ -327,7 +346,11 @@ public class DeleteBehaviorAttributeConventionTest
     #region DeleteBehaviourAttribute set on compound key
     private class Blog_Compound
     {
+        [Key]
+        [Column(Order=0)]
         public int Id { get; set; }
+        [Key]
+        [Column(Order=1)]
         public int Id2 { get; set; }
 
         public ICollection<Post_Compound> Posts { get; set; }
@@ -337,12 +360,14 @@ public class DeleteBehaviorAttributeConventionTest
     {
         public int Id { get; set; }
 
-
+        [ForeignKey("BlogId, BlogId2")]
         public Blog_Compound Blog_Compound { get; set; }
 
+        [Column(Order = 0)]
         [DeleteBehavior((int)DeleteBehavior.Cascade)]
         public int? BlogId { get; set; }
 
+        [Column(Order = 1)]
         [DeleteBehavior((int)DeleteBehavior.Cascade)]
         public int? BlogId2 { get; set; }
     }
@@ -369,11 +394,31 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_One Blog_One { get; set; }
         public Blog_Two Blog_Two { get; set; }
 
+        [ForeignKey("Blog_One")]
         [DeleteBehavior((int)DeleteBehavior.Restrict)]
         public int? Blog_OneId { get; set; }
 
+        [ForeignKey("Blog_Two")]
         [DeleteBehavior((int)DeleteBehavior.Cascade)]
         public int? Blog_TwoId { get; set; }
+    }
+    #endregion
+    #region DeleteBehaviourAttribute set to Restrict and foreign key defined by FluentApi
+    private class Blog_Restrict_Fluent
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_Restrict_Fluent> Posts { get; set; }
+    }
+
+    private class Post_Restrict_Fluent
+    {
+        public int Id { get; set; }
+
+        public Blog_Restrict_Fluent Blog_Restrict_Fluent { get; set; }
+
+        [DeleteBehavior((int)DeleteBehavior.Restrict)]
+        public int? BlogId { get; set; }
     }
     #endregion
 
