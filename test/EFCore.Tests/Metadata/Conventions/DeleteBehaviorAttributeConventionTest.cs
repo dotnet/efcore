@@ -146,6 +146,8 @@ public class DeleteBehaviorAttributeConventionTest
 
         modelBuilder.Entity<Post_Compound>()
             .Property(e => e.BlogId);
+        modelBuilder.Entity<Post_Compound>()
+            .Property(e => e.BlogId2);
 
         var fk = modelBuilder.Entity<Blog_Compound>()
             .HasMany(e => e.Posts)
@@ -153,6 +155,30 @@ public class DeleteBehaviorAttributeConventionTest
             .HasForeignKey(e => new {e.BlogId, e.BlogId2}).Metadata;
 
         Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
+    }
+
+    [ConditionalFact]
+    public void Correctly_set_delete_behavior_on_two_different_foreign_keys()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_Both>()
+            .Property(e => e.Blog_OneId);
+        modelBuilder.Entity<Post_Both>()
+            .Property(e => e.Blog_TwoId);
+
+        var fk_One = modelBuilder.Entity<Blog_One>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_One)
+            .HasForeignKey(e => e.Blog_OneId).Metadata;
+
+        var fk_Two = modelBuilder.Entity<Blog_Two>()
+            .HasMany(e => e.Posts)
+            .WithOne(e => e.Blog_Two)
+            .HasForeignKey(e => e.Blog_TwoId).Metadata;
+
+        Assert.Equal(DeleteBehavior.Restrict, fk_One.DeleteBehavior);
+        Assert.Equal(DeleteBehavior.Cascade, fk_Two.DeleteBehavior);
     }
 
     #region DeleteBehaviorAttribute not set
@@ -311,12 +337,43 @@ public class DeleteBehaviorAttributeConventionTest
     {
         public int Id { get; set; }
 
+
         public Blog_Compound Blog_Compound { get; set; }
 
         [DeleteBehavior((int)DeleteBehavior.Cascade)]
         public int? BlogId { get; set; }
+
         [DeleteBehavior((int)DeleteBehavior.Cascade)]
         public int? BlogId2 { get; set; }
+    }
+    #endregion
+    #region DeleteBehaviourAttribute set on two different foreign keys
+    private class Blog_One
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_Both> Posts { get; set; }
+    }
+    private class Blog_Two
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_Both> Posts { get; set; }
+    }
+
+    private class Post_Both
+    {
+        public int Id { get; set; }
+
+
+        public Blog_One Blog_One { get; set; }
+        public Blog_Two Blog_Two { get; set; }
+
+        [DeleteBehavior((int)DeleteBehavior.Restrict)]
+        public int? Blog_OneId { get; set; }
+
+        [DeleteBehavior((int)DeleteBehavior.Cascade)]
+        public int? Blog_TwoId { get; set; }
     }
     #endregion
 
