@@ -17,18 +17,13 @@ public sealed class DeleteBehaviorAttribute : Attribute
     ///     Initializes a new instance of the <see cref="DeleteBehaviorAttribute" /> class.
     /// </summary>
     /// <param name="behavior">The DeleteBehavior value of entity</param>
-    public DeleteBehaviorAttribute(int behavior)
+    public DeleteBehaviorAttribute(DeleteBehavior behavior)
     {
-        if ( behavior < 0 || behavior > 6) // Valid values for DeleteBehavior enum
-        {
-            throw new ArgumentException("This behavior is not defined in DeleteBehavior Enum.");
-        }
-
         Behavior = behavior;
     }
     
     /// <summary>
     ///     The DeleteBehavior value
     /// </summary>
-    public int Behavior { get; }
+    public DeleteBehavior Behavior { get; }
 }

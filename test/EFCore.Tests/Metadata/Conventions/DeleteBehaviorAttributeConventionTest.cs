@@ -238,7 +238,7 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_Cascade Blog_Cascade { get; set; }
 
         [ForeignKey("Blog_Cascade")]
-        [DeleteBehavior((int)DeleteBehavior.Cascade)]
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -258,7 +258,7 @@ public class DeleteBehaviorAttributeConventionTest
 
 
         [ForeignKey("Blog_Restrict")]
-        [DeleteBehavior((int)DeleteBehavior.Restrict)]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -277,7 +277,7 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_ClientCascade Blog_ClientCascade { get; set; }
 
         [ForeignKey("Blog_ClientCascade")]
-        [DeleteBehavior((int)DeleteBehavior.ClientCascade)]
+        [DeleteBehavior(DeleteBehavior.ClientCascade)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -297,7 +297,7 @@ public class DeleteBehaviorAttributeConventionTest
 
 
         [ForeignKey("Blog_NoAction")]
-        [DeleteBehavior((int)DeleteBehavior.NoAction)]
+        [DeleteBehavior(DeleteBehavior.NoAction)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -316,7 +316,7 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_SetNull Blog_SetNull { get; set; }
 
         [ForeignKey("Blog_SetNull")]
-        [DeleteBehavior((int)DeleteBehavior.SetNull)]
+        [DeleteBehavior(DeleteBehavior.SetNull)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -335,7 +335,7 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_ClientNoAction Blog_ClientNoAction { get; set; }
 
         [ForeignKey("Blog_ClientNoAction")]
-        [DeleteBehavior((int)DeleteBehavior.ClientNoAction)]
+        [DeleteBehavior(DeleteBehavior.ClientNoAction)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -354,7 +354,7 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_ClientSetNull Blog_ClientSetNull { get; set; }
 
         [ForeignKey("Blog_ClientSetNull")]
-        [DeleteBehavior((int)DeleteBehavior.ClientSetNull)]
+        [DeleteBehavior(DeleteBehavior.ClientSetNull)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -379,11 +379,11 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_Compound Blog_Compound { get; set; }
 
         [Column(Order = 0)]
-        [DeleteBehavior((int)DeleteBehavior.Cascade)]
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? BlogId { get; set; }
 
         [Column(Order = 1)]
-        [DeleteBehavior((int)DeleteBehavior.Cascade)]
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? BlogId2 { get; set; }
     }
     #endregion
@@ -410,11 +410,11 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_Two Blog_Two { get; set; }
 
         [ForeignKey("Blog_One")]
-        [DeleteBehavior((int)DeleteBehavior.Restrict)]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
         public int? Blog_OneId { get; set; }
 
         [ForeignKey("Blog_Two")]
-        [DeleteBehavior((int)DeleteBehavior.Cascade)]
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? Blog_TwoId { get; set; }
     }
     #endregion
@@ -432,7 +432,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_Restrict_Fluent Blog_Restrict_Fluent { get; set; }
 
-        [DeleteBehavior((int)DeleteBehavior.Restrict)]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -450,7 +450,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_Restrict_Implicit Blog_Restrict_Implicit { get; set; }
 
-        [DeleteBehavior((int)DeleteBehavior.Restrict)]
+        [DeleteBehavior(DeleteBehavior.Restrict)]
         public int? BlogId { get; set; }
     }
     #endregion

@@ -30,7 +30,7 @@ public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
     /// </summary>
     /// <param name="foreignKeyBuilder">The builder for the foreign key.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public void ProcessForeignKeyAdded(IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+    public virtual void ProcessForeignKeyAdded(IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
     {
         var foreignKey = foreignKeyBuilder.Metadata;
         var properties = foreignKey.Properties;
@@ -39,8 +39,7 @@ public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
             var attribute = property?.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
             if (attribute != null)
             {
-                var deleteBehavior = (DeleteBehavior)attribute.Behavior;
-                foreignKey.SetDeleteBehavior(deleteBehavior);
+                foreignKey.SetDeleteBehavior(attribute.Behavior);
             }
         }
     }
