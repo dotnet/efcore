@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>
+public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>, IForeignKeyAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="UnicodeAttributeConvention" />.
@@ -33,18 +34,24 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         MemberInfo clrMember,
         IConventionContext context)
     {
-        if (Enum.IsDefined(typeof(DeleteBehavior), attribute.Behavior))
+        if (!Enum.IsDefined(typeof(DeleteBehavior), attribute.Behavior))
         {
             throw new InvalidEnumArgumentException("This behavior is not defined in DeleteBehavior Enum.");
         }
 
-        var deleteBehavior = (DeleteBehavior)attribute.Behavior;
-
-        var propertyForeignKeys = propertyBuilder.Metadata.GetContainingForeignKeys();
-        foreach (var foreignKey in propertyForeignKeys)
-        {
-            foreignKey.SetDeleteBehavior(deleteBehavior, fromDataAnnotation: true);
-        }
-
+        _deleteBehavior = (DeleteBehavior)attribute.Behavior;
     }
+
+    /// <summary>
+    ///     Called after a foreign key is added to the entity type.
+    /// </summary>
+    /// <param name="foreignKeyBuilder">The builder for the foreign key.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    public void ProcessForeignKeyAdded(IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+    {
+        // TODO: Add check does this foreign key contains DeleteBehavior attribute and only then set it
+        foreignKeyBuilder.Metadata.SetDeleteBehavior(_deleteBehavior);
+    }
+
+    private DeleteBehavior _deleteBehavior;
 }
