@@ -991,7 +991,7 @@ public abstract partial class ModelBuilderTest
 
             var wierd = entityType.FindProperty("Wierd");
             Assert.IsType<NumberToStringConverter<int>>(wierd.GetValueConverter());
-            Assert.IsType<CustomValueComparer<int>>(wierd.GetValueComparer());
+            Assert.IsType<ValueComparer<int?>>(wierd.GetValueComparer());
         }
 
         [ConditionalFact]

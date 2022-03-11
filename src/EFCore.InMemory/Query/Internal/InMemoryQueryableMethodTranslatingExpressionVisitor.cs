@@ -594,10 +594,11 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         }
 
         if (joinCondition is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.IsStatic
-            && methodCallExpression.Method.DeclaringType == typeof(object)
             && methodCallExpression.Method.Name == nameof(object.Equals)
-            && methodCallExpression.Arguments.Count == 2)
+            && methodCallExpression.Arguments.Count == 2
+            && ((methodCallExpression.Method.IsStatic
+                    && methodCallExpression.Method.DeclaringType == typeof(object))
+                || typeof(ValueComparer).IsAssignableFrom(methodCallExpression.Method.DeclaringType)))
         {
             leftExpressions.Add(methodCallExpression.Arguments[0]);
             rightExpressions.Add(methodCallExpression.Arguments[1]);
