@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
@@ -94,59 +95,12 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData(false, SqliteType.Integer)]
-        [InlineData((byte)0, SqliteType.Integer)]
-        [InlineData(new byte[0], SqliteType.Blob)]
-        [InlineData('A', SqliteType.Text)]
-        [InlineData(0.0, SqliteType.Real)]
-        [InlineData(0f, SqliteType.Real)]
-        [InlineData(0, SqliteType.Integer)]
-        [InlineData(0L, SqliteType.Integer)]
-        [InlineData((sbyte)0, SqliteType.Integer)]
-        [InlineData((short)0, SqliteType.Integer)]
-        [InlineData("", SqliteType.Text)]
-        [InlineData(0u, SqliteType.Integer)]
-        [InlineData(0ul, SqliteType.Integer)]
-        [InlineData((ushort)0, SqliteType.Integer)]
-        public void SqliteType_is_inferred_from_value(object value, SqliteType expected)
+        [MemberData(nameof(TypesData))]
+        public void SqliteType_is_inferred_from_value(object value, SqliteType expectedType)
         {
             var parameter = new SqliteParameter { Value = value };
-            Assert.Equal(expected, parameter.SqliteType);
+            Assert.Equal(expectedType, parameter.SqliteType);
         }
-
-        [Fact]
-        public void SqliteType_is_inferred_from_DateTime_value()
-            => SqliteType_is_inferred_from_value(default(DateTime), SqliteType.Text);
-
-        [Fact]
-        public void SqliteType_is_inferred_from_DateTimeOffset_value()
-            => SqliteType_is_inferred_from_value(default(DateTimeOffset), SqliteType.Text);
-
-#if NET6_0_OR_GREATER
-        [Fact]
-        public void SqliteType_is_inferred_from_DateOnly_value()
-            => SqliteType_is_inferred_from_value(default(DateOnly), SqliteType.Text);
-
-        [Fact]
-        public void SqliteType_is_inferred_from_TimeOnly_value()
-            => SqliteType_is_inferred_from_value(default(TimeOnly), SqliteType.Text);
-#endif
-
-        [Fact]
-        public void SqliteType_is_inferred_from_DBNull()
-            => SqliteType_is_inferred_from_value(DBNull.Value, SqliteType.Text);
-
-        [Fact]
-        public void SqliteType_is_inferred_from_decimal_value()
-            => SqliteType_is_inferred_from_value(0m, SqliteType.Text);
-
-        [Fact]
-        public void SqliteType_is_inferred_from_Guid_value()
-            => SqliteType_is_inferred_from_value(default(Guid), SqliteType.Text);
-
-        [Fact]
-        public void SqliteType_is_inferred_from_TimeSpan_value()
-            => SqliteType_is_inferred_from_value(default(TimeSpan), SqliteType.Text);
 
         [Fact]
         public void SqliteType_overrides_inferred_value()
@@ -628,6 +582,36 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
+
+        public static IEnumerable<object[]> TypesData
+        => new List<object[]>
+        {
+            new object[] { default(DateTime), SqliteType.Text },
+            new object[] { default(DateTimeOffset), SqliteType.Text },
+            new object[] { DBNull.Value, SqliteType.Text },
+            new object[] { 0m, SqliteType.Text },
+            new object[] { default(Guid), SqliteType.Text },
+            new object[] { default(TimeSpan), SqliteType.Text },
+            new object[] { default(TimeSpan), SqliteType.Text },
+#if NET6_0_OR_GREATER
+            new object[] { default(DateOnly), SqliteType.Text },
+            new object[] { default(TimeOnly), SqliteType.Text },
+#endif
+            new object[] { 'A', SqliteType.Text },
+            new object[] { "", SqliteType.Text },
+            new object[] { false, SqliteType.Integer },
+            new object[] { (byte)0, SqliteType.Integer },
+            new object[] { 0, SqliteType.Integer },
+            new object[] { 0L, SqliteType.Integer },
+            new object[] { (sbyte)0, SqliteType.Integer },
+            new object[] { (short)0, SqliteType.Integer },
+            new object[] { 0u, SqliteType.Integer },
+            new object[] { 0ul, SqliteType.Integer },
+            new object[] { (ushort)0, SqliteType.Integer },
+            new object[] { 0.0, SqliteType.Real },
+            new object[] { 0f, SqliteType.Real },
+            new object[] { new byte[0], SqliteType.Blob },
+        };
 
         private enum MyEnum
         {
