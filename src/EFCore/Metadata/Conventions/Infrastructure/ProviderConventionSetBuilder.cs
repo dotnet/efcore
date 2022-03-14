@@ -60,6 +60,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         var foreignKeyAttributeConvention = new ForeignKeyAttributeConvention(Dependencies);
         var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention(Dependencies);
         var servicePropertyDiscoveryConvention = new ServicePropertyDiscoveryConvention(Dependencies);
+        var keyAttributeConvention = new KeyAttributeConvention(Dependencies);
         var indexAttributeConvention = new IndexAttributeConvention(Dependencies);
         var baseTypeDiscoveryConvention = new BaseTypeDiscoveryConvention(Dependencies);
         conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention(Dependencies));
@@ -70,6 +71,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.EntityTypeAddedConventions.Add(baseTypeDiscoveryConvention);
         conventionSet.EntityTypeAddedConventions.Add(propertyDiscoveryConvention);
         conventionSet.EntityTypeAddedConventions.Add(servicePropertyDiscoveryConvention);
+        conventionSet.EntityTypeAddedConventions.Add(keyAttributeConvention);
         conventionSet.EntityTypeAddedConventions.Add(keyDiscoveryConvention);
         conventionSet.EntityTypeAddedConventions.Add(indexAttributeConvention);
         conventionSet.EntityTypeAddedConventions.Add(inversePropertyAttributeConvention);
@@ -87,6 +89,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
 
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(propertyDiscoveryConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(servicePropertyDiscoveryConvention);
+        conventionSet.EntityTypeBaseTypeChangedConventions.Add(keyAttributeConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(keyDiscoveryConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(indexAttributeConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(inversePropertyAttributeConvention);
@@ -102,7 +105,6 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.EntityTypeMemberIgnoredConventions.Add(keyDiscoveryConvention);
         conventionSet.EntityTypeMemberIgnoredConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
-        var keyAttributeConvention = new KeyAttributeConvention(Dependencies);
         var backingFieldConvention = new BackingFieldConvention(Dependencies);
         var concurrencyCheckAttributeConvention = new ConcurrencyCheckAttributeConvention(Dependencies);
         var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention(Dependencies);

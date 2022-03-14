@@ -3309,6 +3309,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
+    [PrimaryKey("PartnerId", "ProviderId")]
     protected abstract class ProviderContract : NotifyingEntity
     {
         private Partner _partner;
