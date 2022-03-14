@@ -102,7 +102,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                 parameters.CoreParameters,
                 parameters.StoreType,
                 parameters.StoreTypePostfix,
-                System.Data.DbType.String,
+                GetDbType(parameters.Unicode, parameters.FixedLength),
                 parameters.Unicode,
                 parameters.Size,
                 parameters.FixedLength,
