@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// <remarks>
 ///     <para>
 ///         This attribute can be used for both keys made up of a
-///         single property, and for composite keys made up of multiple properties. `System.ComponentModel.DataAnnotations.KeyAttribute`
+///         single property, and for composite keys made up of multiple properties. <see cref="KeyAttribute" />
 ///         can be used instead for single-property keys, in which case the behavior is identical. If both attributes are used, then
 ///         this attribute takes precedence.
 ///     </para>

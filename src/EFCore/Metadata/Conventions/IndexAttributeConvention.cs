@@ -100,30 +100,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
                 }
                 catch (InvalidOperationException exception)
                 {
-                    foreach (var propertyName in indexAttribute.PropertyNames)
-                    {
-                        var property = entityType.FindProperty(propertyName);
-                        if (property == null)
-                        {
-                            if (indexAttribute.Name == null)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.UnnamedIndexDefinedOnNonExistentProperty(
-                                        entityType.DisplayName(),
-                                        indexAttribute.PropertyNames.Format(),
-                                        propertyName),
-                                    exception);
-                            }
-
-                            throw new InvalidOperationException(
-                                CoreStrings.NamedIndexDefinedOnNonExistentProperty(
-                                    indexAttribute.Name,
-                                    entityType.DisplayName(),
-                                    indexAttribute.PropertyNames.Format(),
-                                    propertyName),
-                                exception);
-                        }
-                    }
+                    CheckMissingProperties(entityType, indexAttribute, exception);
 
                     throw;
                 }
@@ -133,27 +110,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
             {
                 if (shouldThrow)
                 {
-                    foreach (var propertyName in indexAttribute.PropertyNames)
-                    {
-                        if (entityType.Builder.IsIgnored(propertyName, fromDataAnnotation: true))
-                        {
-                            if (indexAttribute.Name == null)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.UnnamedIndexDefinedOnIgnoredProperty(
-                                        entityType.DisplayName(),
-                                        indexAttribute.PropertyNames.Format(),
-                                        propertyName));
-                            }
-
-                            throw new InvalidOperationException(
-                                CoreStrings.NamedIndexDefinedOnIgnoredProperty(
-                                    indexAttribute.Name,
-                                    entityType.DisplayName(),
-                                    indexAttribute.PropertyNames.Format(),
-                                    propertyName));
-                        }
-                    }
+                    CheckIgnoredProperties(entityType, indexAttribute);
                 }
             }
             else
@@ -167,6 +124,62 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
                 {
                     indexBuilder.IsDescending(indexAttribute.IsDescending, fromDataAnnotation: true);
                 }
+            }
+        }
+    }
+
+    private static void CheckIgnoredProperties(IConventionEntityType entityType, IndexAttribute indexAttribute)
+    {
+        foreach (var propertyName in indexAttribute.PropertyNames)
+        {
+            if (entityType.Builder.IsIgnored(propertyName, fromDataAnnotation: true))
+            {
+                if (indexAttribute.Name == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.UnnamedIndexDefinedOnIgnoredProperty(
+                            entityType.DisplayName(),
+                            indexAttribute.PropertyNames.Format(),
+                            propertyName));
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.NamedIndexDefinedOnIgnoredProperty(
+                        indexAttribute.Name,
+                        entityType.DisplayName(),
+                        indexAttribute.PropertyNames.Format(),
+                        propertyName));
+            }
+        }
+    }
+
+    private static void CheckMissingProperties(
+        IConventionEntityType entityType,
+        IndexAttribute indexAttribute,
+        InvalidOperationException exception)
+    {
+        foreach (var propertyName in indexAttribute.PropertyNames)
+        {
+            var property = entityType.FindProperty(propertyName);
+            if (property == null)
+            {
+                if (indexAttribute.Name == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.UnnamedIndexDefinedOnNonExistentProperty(
+                            entityType.DisplayName(),
+                            indexAttribute.PropertyNames.Format(),
+                            propertyName),
+                        exception);
+                }
+
+                throw new InvalidOperationException(
+                    CoreStrings.NamedIndexDefinedOnNonExistentProperty(
+                        indexAttribute.Name,
+                        entityType.DisplayName(),
+                        indexAttribute.PropertyNames.Format(),
+                        propertyName),
+                    exception);
             }
         }
     }
