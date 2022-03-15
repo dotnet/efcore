@@ -109,6 +109,57 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.UseTpcMappingStrategy();
+                break;
+            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.UseTpcMappingStrategy();
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseTphMappingStrategy<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.UseTphMappingStrategy();
+                break;
+            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.UseTphMappingStrategy();
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseTptMappingStrategy<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.UseTptMappingStrategy();
+                break;
+            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.UseTptMappingStrategy();
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToTable<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
         string? name)

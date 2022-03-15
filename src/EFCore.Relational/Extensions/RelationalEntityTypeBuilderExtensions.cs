@@ -16,6 +16,79 @@ namespace Microsoft.EntityFrameworkCore;
 public static class RelationalEntityTypeBuilderExtensions
 {
     /// <summary>
+    ///     Configures TPC as the mapping strategy for the derived types. Each type will be mapped to a different database object.
+    ///     All properties will be mapped to columns on the corresponding object.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder UseTpcMappingStrategy(this EntityTypeBuilder entityTypeBuilder)
+    {
+        entityTypeBuilder.Metadata.SetMappingStrategy(RelationalAnnotationNames.TpcMappingStrategy);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Configures TPH as the mapping strategy for the derived types. All types will be mapped to the same database object.
+    ///     This is the default mapping strategy.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder UseTphMappingStrategy(this EntityTypeBuilder entityTypeBuilder)
+    {
+        entityTypeBuilder.Metadata.SetMappingStrategy(RelationalAnnotationNames.TphMappingStrategy);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Configures TPT as the mapping strategy for the derived types. Each type will be mapped to a different database object.
+    ///     Only the declared properties will be mapped to columns on the corresponding object.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder UseTptMappingStrategy(this EntityTypeBuilder entityTypeBuilder)
+    {
+        entityTypeBuilder.Metadata.SetMappingStrategy(RelationalAnnotationNames.TptMappingStrategy);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Configures TPC as the mapping strategy for the derived types. Each type will be mapped to a different database object.
+    ///     All properties will be mapped to columns on the corresponding object.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
+        where TEntity : class
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).UseTpcMappingStrategy();
+
+    /// <summary>
+    ///     Configures TPH as the mapping strategy for the derived types. All types will be mapped to the same database object.
+    ///     This is the default mapping strategy.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder<TEntity> UseTphMappingStrategy<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
+        where TEntity : class
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).UseTphMappingStrategy();
+
+    /// <summary>
+    ///     Configures TPT as the mapping strategy for the derived types. Each type will be mapped to a different database object.
+    ///     Only the declared properties will be mapped to columns on the corresponding object.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder<TEntity> UseTptMappingStrategy<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
+        where TEntity : class
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).UseTptMappingStrategy();
+
+    /// <summary>
     ///     Configures the table that the entity type maps to when targeting a relational database.
     /// </summary>
     /// <remarks>

@@ -34,7 +34,9 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
             typeof(RelationalAnnotationNames)
                 .GetRuntimeFields()
                 .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
-                .Select(p => ((string)p.GetValue(null)!)[(RelationalAnnotationNames.Prefix.Length - 1)..]));
+                .Select(p => (string)p.GetValue(null)!)
+                .Where(v => v.IndexOf(':') > 0)
+                .Select(v => v[(RelationalAnnotationNames.Prefix.Length - 1)..]));
         _modelRuntimeInitializer = modelRuntimeInitializer;
     }
 

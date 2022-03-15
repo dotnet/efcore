@@ -58,9 +58,42 @@ public static class RelationalPropertyExtensions
                     return null;
                 }
             }
-            else if (StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) != storeObject)
+            else if (property.DeclaringEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
             {
-                return null;
+                var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType);
+                if (declaringStoreObject == null)
+                {
+                    var tableFound = false;
+                    var queue = new Queue<IReadOnlyEntityType>();
+                    queue.Enqueue(property.DeclaringEntityType);
+                    while (queue.Count > 0 && !tableFound)
+                    {
+                        foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
+                        {
+                            declaringStoreObject = StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType);
+                            if (declaringStoreObject == null)
+                            {
+                                queue.Enqueue(containingType);
+                                continue;
+                            }
+
+                            if (declaringStoreObject == storeObject)
+                            {
+                                tableFound = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!tableFound)
+                    {
+                        return null;
+                    }
+                }
+                else if (declaringStoreObject != storeObject)
+                {
+                    return null;
+                }
             }
         }
 
@@ -1278,7 +1311,6 @@ public static class RelationalPropertyExtensions
     private static IReadOnlyProperty? FindSharedObjectRootProperty(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var column = property.GetColumnName(storeObject);
-
         if (column == null)
         {
             throw new InvalidOperationException(

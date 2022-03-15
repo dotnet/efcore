@@ -245,65 +245,80 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     private static void AddDefaultMappings(RelationalModel databaseModel, IEntityType entityType)
     {
-        var rootType = entityType.GetRootType();
-        var name = rootType.Name;
-        if (!databaseModel.DefaultTables.TryGetValue(name, out var defaultTable))
-        {
-            defaultTable = new TableBase(name, null, databaseModel);
-            databaseModel.DefaultTables.Add(name, defaultTable);
-        }
+        var mappedType = entityType;
+        Check.DebugAssert(entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings) == null, "not null");
+        var tableMappings = new List<TableMappingBase>();
+        entityType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
 
-        var tableMapping = new TableMappingBase(entityType, defaultTable, includesDerivedTypes: true)
+        var isTpc = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
+        var isTph = entityType.FindDiscriminatorProperty() != null;
+        while (mappedType != null)
         {
-            IsSharedTablePrincipal = true, IsSplitEntityTypePrincipal = true
-        };
-
-        foreach (var property in entityType.GetProperties())
-        {
-            var columnName = property.GetColumnBaseName();
-            if (columnName == null)
+            var mappedTableName = isTph ? entityType.GetRootType().Name : mappedType.Name;
+            if (!databaseModel.DefaultTables.TryGetValue(mappedTableName, out var defaultTable))
             {
-                continue;
+                defaultTable = new TableBase(mappedTableName, null, databaseModel);
+                databaseModel.DefaultTables.Add(mappedTableName, defaultTable);
             }
 
-            var column = (ColumnBase?)defaultTable.FindColumn(columnName);
-            if (column == null)
+            var tableMapping = new TableMappingBase(entityType, defaultTable, includesDerivedTypes: !isTpc && mappedType == entityType)
             {
-                column = new ColumnBase(columnName, property.GetColumnType(), defaultTable);
-                column.IsNullable = property.IsColumnNullable();
-                defaultTable.Columns.Add(columnName, column);
-            }
-            else if (!property.IsColumnNullable())
+                // Table splitting is not supported for default mapping
+                IsSharedTablePrincipal = true,
+                IsSplitEntityTypePrincipal = true
+            };
+
+            foreach (var property in entityType.GetProperties())
             {
-                column.IsNullable = false;
+                var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringEntityType == mappedType
+                    ? property.GetColumnBaseName()
+                    : null;
+                if (columnName == null)
+                {
+                    continue;
+                }
+
+                var column = (ColumnBase?)defaultTable.FindColumn(columnName);
+                if (column == null)
+                {
+                    column = new ColumnBase(columnName, property.GetColumnType(), defaultTable)
+                    {
+                        IsNullable = property.IsColumnNullable()
+                    };
+                    defaultTable.Columns.Add(columnName, column);
+                }
+                else if (!property.IsColumnNullable())
+                {
+                    column.IsNullable = false;
+                }
+
+                var columnMapping = new ColumnMappingBase(property, column, tableMapping);
+                tableMapping.ColumnMappings.Add(columnMapping);
+                column.PropertyMappings.Add(columnMapping);
+
+                if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
+                    is not SortedSet<ColumnMappingBase> columnMappings)
+                {
+                    columnMappings = new SortedSet<ColumnMappingBase>(ColumnMappingBaseComparer.Instance);
+                    property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
+                }
+
+                columnMappings.Add(columnMapping);
             }
 
-            var columnMapping = new ColumnMappingBase(property, column, tableMapping);
-            tableMapping.ColumnMappings.Add(columnMapping);
-            column.PropertyMappings.Add(columnMapping);
-
-            if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
-                is not SortedSet<ColumnMappingBase> columnMappings)
+            if (tableMapping.ColumnMappings.Count != 0
+                || tableMappings.Count == 0)
             {
-                columnMappings = new SortedSet<ColumnMappingBase>(ColumnMappingBaseComparer.Instance);
-                property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
+                tableMappings.Add(tableMapping);
+                defaultTable.EntityTypeMappings.Add(tableMapping);
             }
 
-            columnMappings.Add(columnMapping);
-        }
+            if (isTpc || isTph)
+            {
+                break;
+            }
 
-        if (entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings)
-            is not List<TableMappingBase> tableMappings)
-        {
-            tableMappings = new List<TableMappingBase>();
-            entityType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
-        }
-
-        if (tableMapping.ColumnMappings.Count != 0
-            || tableMappings.Count == 0)
-        {
-            tableMappings.Add(tableMapping);
-            defaultTable.EntityTypeMappings.Add(tableMapping);
+            mappedType = mappedType.BaseType;
         }
 
         tableMappings.Reverse();
@@ -312,89 +327,98 @@ public class RelationalModel : Annotatable, IRelationalModel
     private static void AddTables(RelationalModel databaseModel, IEntityType entityType)
     {
         var tableName = entityType.GetTableName();
-        if (tableName != null)
+        if (tableName == null)
         {
-            var schema = entityType.GetSchema();
-            var mappedType = entityType;
-            List<TableMapping>? tableMappings = null;
-            while (mappedType != null)
-            {
-                var mappedTableName = mappedType.GetTableName();
-                var mappedSchema = mappedType.GetSchema();
+            return;
+        }
 
-                if (mappedTableName == null
-                    || (mappedTableName == tableName
-                        && mappedSchema == schema
-                        && mappedType != entityType))
+        var mappedType = entityType;
+
+        Check.DebugAssert(entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings) == null, "not null");
+        var tableMappings = new List<TableMapping>();
+        entityType.SetRuntimeAnnotation(RelationalAnnotationNames.TableMappings, tableMappings);
+
+        var isTpc = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
+        var isTph = entityType.FindDiscriminatorProperty() != null;
+        while (mappedType != null)
+        {
+            var mappedTableName = mappedType.GetTableName();
+            var mappedSchema = mappedType.GetSchema();
+
+            if (mappedTableName == null)
+            {
+                if (isTpc)
                 {
                     break;
                 }
 
-                var mappedTable = StoreObjectIdentifier.Table(mappedTableName, mappedSchema);
-                if (!databaseModel.Tables.TryGetValue((mappedTableName, mappedSchema), out var table))
-                {
-                    table = new Table(mappedTableName, mappedSchema, databaseModel);
-                    databaseModel.Tables.Add((mappedTableName, mappedSchema), table);
-                }
-
-                var tableMapping = new TableMapping(entityType, table, includesDerivedTypes: mappedType == entityType)
-                {
-                    IsSplitEntityTypePrincipal = true
-                };
-                foreach (var property in mappedType.GetProperties())
-                {
-                    var columnName = property.GetColumnName(mappedTable);
-                    if (columnName == null)
-                    {
-                        continue;
-                    }
-
-                    var column = (Column?)table.FindColumn(columnName);
-                    if (column == null)
-                    {
-                        column = new Column(columnName, property.GetColumnType(mappedTable), table);
-                        column.IsNullable = property.IsColumnNullable(mappedTable);
-                        table.Columns.Add(columnName, column);
-                    }
-                    else if (!property.IsColumnNullable(mappedTable))
-                    {
-                        column.IsNullable = false;
-                    }
-
-                    var columnMapping = new ColumnMapping(property, column, tableMapping);
-                    tableMapping.ColumnMappings.Add(columnMapping);
-                    column.PropertyMappings.Add(columnMapping);
-
-                    if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
-                        is not SortedSet<ColumnMapping> columnMappings)
-                    {
-                        columnMappings = new SortedSet<ColumnMapping>(ColumnMappingBaseComparer.Instance);
-                        property.AddRuntimeAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
-                    }
-
-                    columnMappings.Add(columnMapping);
-                }
-
                 mappedType = mappedType.BaseType;
-
-                tableMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings)
-                    as List<TableMapping>;
-                if (tableMappings == null)
-                {
-                    tableMappings = new List<TableMapping>();
-                    entityType.AddRuntimeAnnotation(RelationalAnnotationNames.TableMappings, tableMappings);
-                }
-
-                if (tableMapping.ColumnMappings.Count != 0
-                    || tableMappings.Count == 0)
-                {
-                    tableMappings.Add(tableMapping);
-                    table.EntityTypeMappings.Add(tableMapping);
-                }
+                continue;
             }
 
-            tableMappings?.Reverse();
+            if (!databaseModel.Tables.TryGetValue((mappedTableName, mappedSchema), out var table))
+            {
+                table = new Table(mappedTableName, mappedSchema, databaseModel);
+                databaseModel.Tables.Add((mappedTableName, mappedSchema), table);
+            }
+
+            var mappedTable = StoreObjectIdentifier.Table(mappedTableName, mappedSchema);
+            var tableMapping = new TableMapping(entityType, table, includesDerivedTypes: !isTpc && mappedType == entityType)
+            {
+                IsSplitEntityTypePrincipal = true
+            };
+            foreach (var property in mappedType.GetProperties())
+            {
+                var columnName = property.GetColumnName(mappedTable);
+                if (columnName == null)
+                {
+                    continue;
+                }
+
+                var column = (Column?)table.FindColumn(columnName);
+                if (column == null)
+                {
+                    column = new(columnName, property.GetColumnType(mappedTable), table)
+                    {
+                        IsNullable = property.IsColumnNullable(mappedTable)
+                    };
+                    table.Columns.Add(columnName, column);
+                }
+                else if (!property.IsColumnNullable(mappedTable))
+                {
+                    column.IsNullable = false;
+                }
+
+                var columnMapping = new ColumnMapping(property, column, tableMapping);
+                tableMapping.ColumnMappings.Add(columnMapping);
+                column.PropertyMappings.Add(columnMapping);
+
+                if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
+                    is not SortedSet<ColumnMapping> columnMappings)
+                {
+                    columnMappings = new SortedSet<ColumnMapping>(ColumnMappingBaseComparer.Instance);
+                    property.AddRuntimeAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
+                }
+
+                columnMappings.Add(columnMapping);
+            }
+
+            if (tableMapping.ColumnMappings.Count != 0
+                || tableMappings.Count == 0)
+            {
+                tableMappings.Add(tableMapping);
+                table.EntityTypeMappings.Add(tableMapping);
+            }
+
+            if (isTpc || isTph)
+            {
+                break;
+            }
+
+            mappedType = mappedType.BaseType;
         }
+
+        tableMappings.Reverse();
     }
 
     private static void AddViews(RelationalModel databaseModel, IEntityType entityType)
@@ -405,20 +429,28 @@ public class RelationalModel : Annotatable, IRelationalModel
             return;
         }
 
-        var schema = entityType.GetViewSchema();
-        List<ViewMapping>? viewMappings = null;
         var mappedType = entityType;
+
+        Check.DebugAssert(entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewMappings) == null, "not null");
+        var viewMappings = new List<ViewMapping>();
+        entityType.SetRuntimeAnnotation(RelationalAnnotationNames.ViewMappings, viewMappings);
+
+        var isTpc = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
+        var isTph = entityType.FindDiscriminatorProperty() != null;
         while (mappedType != null)
         {
             var mappedViewName = mappedType.GetViewName();
             var mappedSchema = mappedType.GetViewSchema();
 
-            if (mappedViewName == null
-                || (mappedViewName == viewName
-                    && mappedSchema == schema
-                    && mappedType != entityType))
+            if (mappedViewName == null)
             {
-                break;
+                if (isTpc)
+                {
+                    break;
+                }
+
+                mappedType = mappedType.BaseType;
+                continue;
             }
 
             if (!databaseModel.Views.TryGetValue((mappedViewName, mappedSchema), out var view))
@@ -428,7 +460,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             var mappedView = StoreObjectIdentifier.View(mappedViewName, mappedSchema);
-            var viewMapping = new ViewMapping(entityType, view, includesDerivedTypes: mappedType == entityType)
+            var viewMapping = new ViewMapping(entityType, view, includesDerivedTypes: !isTpc && mappedType == entityType)
             {
                 IsSplitEntityTypePrincipal = true
             };
@@ -443,8 +475,10 @@ public class RelationalModel : Annotatable, IRelationalModel
                 var column = (ViewColumn?)view.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new ViewColumn(columnName, property.GetColumnType(mappedView), view);
-                    column.IsNullable = property.IsColumnNullable(mappedView);
+                    column = new ViewColumn(columnName, property.GetColumnType(mappedView), view)
+                    {
+                        IsNullable = property.IsColumnNullable(mappedView)
+                    };
                     view.Columns.Add(columnName, column);
                 }
                 else if (!property.IsColumnNullable(mappedView))
@@ -466,24 +500,22 @@ public class RelationalModel : Annotatable, IRelationalModel
                 columnMappings.Add(columnMapping);
             }
 
-            mappedType = mappedType.BaseType;
-
-            viewMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewMappings) as List<ViewMapping>;
-            if (viewMappings == null)
-            {
-                viewMappings = new List<ViewMapping>();
-                entityType.AddRuntimeAnnotation(RelationalAnnotationNames.ViewMappings, viewMappings);
-            }
-
             if (viewMapping.ColumnMappings.Count != 0
                 || viewMappings.Count == 0)
             {
                 viewMappings.Add(viewMapping);
                 view.EntityTypeMappings.Add(viewMapping);
             }
+
+            if (isTpc || isTph)
+            {
+                break;
+            }
+
+            mappedType = mappedType.BaseType;
         }
 
-        viewMappings?.Reverse();
+        viewMappings.Reverse();
     }
 
     private static void AddSqlQueries(RelationalModel databaseModel, IEntityType entityType)
@@ -770,9 +802,10 @@ public class RelationalModel : Annotatable, IRelationalModel
                 {
                     if (firstPrincipalMapping
                         && !principalMapping.IncludesDerivedTypes
-                        && foreignKey.PrincipalEntityType.GetDirectlyDerivedTypes().Any())
+                        && foreignKey.PrincipalEntityType.GetDirectlyDerivedTypes().Any(e => e.GetTableMappings().Any()))
                     {
                         // Derived principal entity types are mapped to different tables, so the constraint is not enforceable
+                        // TODO: Allow this to be overriden #15854
                         break;
                     }
 
@@ -1059,23 +1092,14 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
         }
 
-        // Re-add the mapping to update the order
-        if (mainMapping is TableMapping mainTableMapping)
-        {
-            ((Table)mainMapping.Table).EntityTypeMappings.Remove(mainTableMapping);
-            mainMapping.IsSharedTablePrincipal = true;
-            ((Table)mainMapping.Table).EntityTypeMappings.Add(mainTableMapping);
-        }
-        else if (mainMapping is ViewMapping mainViewMapping)
-        {
-            ((View)mainMapping.Table).EntityTypeMappings.Remove(mainViewMapping);
-            mainMapping.IsSharedTablePrincipal = true;
-            ((View)mainMapping.Table).EntityTypeMappings.Add(mainViewMapping);
-        }
-
         Check.DebugAssert(
             mainMapping is not null,
             $"{nameof(mainMapping)} is neither a {nameof(TableMapping)} nor a {nameof(ViewMapping)}");
+
+        // Re-add the mapping to update the order
+        mainMapping.Table.EntityTypeMappings.Remove(mainMapping);
+        mainMapping.IsSharedTablePrincipal = true;
+        mainMapping.Table.EntityTypeMappings.Add(mainMapping);
 
         if (referencingInternalForeignKeyMap != null)
         {

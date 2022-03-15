@@ -74,6 +74,10 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.IsFixedLength,
             RelationalAnnotationNames.Collation,
             RelationalAnnotationNames.IsStored,
+            RelationalAnnotationNames.MappingStrategy, // Will be handled in the next PR
+            RelationalAnnotationNames.TpcMappingStrategy,
+            RelationalAnnotationNames.TphMappingStrategy,
+            RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies
         };
@@ -198,6 +202,10 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.Filter,
             RelationalAnnotationNames.DbFunctions,
             RelationalAnnotationNames.MaxIdentifierLength,
+            RelationalAnnotationNames.MappingStrategy,
+            RelationalAnnotationNames.TpcMappingStrategy,
+            RelationalAnnotationNames.TphMappingStrategy,
+            RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies
         };

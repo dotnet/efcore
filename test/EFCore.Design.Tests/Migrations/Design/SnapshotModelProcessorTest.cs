@@ -232,8 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                          .Where(
                              a => a != RelationalAnnotationNames.MaxIdentifierLength
 #pragma warning disable CS0618 // Type or member is obsolete
-                                 && a != RelationalAnnotationNames.SequencePrefix)
+                                 && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
+                                 && a.IndexOf(':') > 0)
                          .Select(a => "Unicorn" + a.Substring(RelationalAnnotationNames.Prefix.Length - 1)))
             {
                 element[annotationName] = "Value";
@@ -261,8 +262,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                  && a != RelationalAnnotationNames.UniqueConstraintMappings
                                  && a != RelationalAnnotationNames.RelationalOverrides
 #pragma warning disable CS0618 // Type or member is obsolete
-                                 && a != RelationalAnnotationNames.SequencePrefix))
+                                 && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
+                                 && a.IndexOf(':') > 0))
             {
                 Assert.Equal("Value", (string)element[annotationName]);
             }

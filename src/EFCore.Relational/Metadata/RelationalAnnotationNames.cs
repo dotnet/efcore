@@ -150,6 +150,26 @@ public static class RelationalAnnotationNames
     public const string IsTableExcludedFromMigrations = Prefix + "IsTableExcludedFromMigrations";
 
     /// <summary>
+    ///     The name for the annotation determining the mapping strategy for inherited properties.
+    /// </summary>
+    public const string MappingStrategy = Prefix + "MappingStrategy";
+
+    /// <summary>
+    ///     The value for the annotation corresponding to the TPC mapping strategy.
+    /// </summary>
+    public const string TpcMappingStrategy = "TPC";
+
+    /// <summary>
+    ///     The value for the annotation corresponding to the TPH mapping strategy.
+    /// </summary>
+    public const string TphMappingStrategy = "TPH";
+
+    /// <summary>
+    ///     The value for the annotation corresponding to the TPT mapping strategy.
+    /// </summary>
+    public const string TptMappingStrategy = "TPT";
+
+    /// <summary>
     ///     The name for database model annotation.
     /// </summary>
     public const string RelationalModel = Prefix + "RelationalModel";

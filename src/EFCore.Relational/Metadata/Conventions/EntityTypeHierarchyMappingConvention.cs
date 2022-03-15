@@ -49,29 +49,57 @@ public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var tableName = entityType.GetTableName();
-            var schema = entityType.GetSchema();
-            if (tableName != null
-                && (tableName != entityType.BaseType.GetTableName()
-                    || schema != entityType.BaseType.GetSchema()))
+            var mappingStrategy = entityType.GetMappingStrategy();
+            if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
             {
-                var pk = entityType.FindPrimaryKey();
-                if (pk != null
-                    && !entityType.FindDeclaredForeignKeys(pk.Properties)
-                        .Any(fk => fk.PrincipalKey.IsPrimaryKey() && fk.PrincipalEntityType.IsAssignableFrom(entityType)))
+                nonTphRoots.Add(entityType.GetRootType());
+                continue;
+            }
+
+            var tableName = entityType.GetTableName();
+            if (tableName != null)
+            {
+                if (mappingStrategy == null)
                 {
-                    entityType.Builder.HasRelationship(entityType.BaseType, pk.Properties, pk)?
-                        .IsUnique(true);
+                    if (tableName != entityType.BaseType.GetTableName()
+                        || entityType.GetSchema() != entityType.BaseType.GetSchema())
+                    {
+                        mappingStrategy = RelationalAnnotationNames.TptMappingStrategy;
+                    }
                 }
 
-                nonTphRoots.Add(entityType.GetRootType());
+                if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
+                {
+                    var pk = entityType.FindPrimaryKey();
+                    if (pk != null
+                        && !entityType.FindDeclaredForeignKeys(pk.Properties)
+                            .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                            && fk.PrincipalEntityType.IsAssignableFrom(entityType)
+                            && fk.PrincipalEntityType != entityType))
+                    {
+                        var closestMappedType = entityType.BaseType;
+                        while (closestMappedType != null
+                            && closestMappedType.GetTableName() == null)
+                        {
+                            closestMappedType = closestMappedType.BaseType;
+                        }
+
+                        if (closestMappedType != null)
+                        {
+                            entityType.Builder.HasRelationship(closestMappedType, pk.Properties, pk)?
+                                .IsUnique(true);
+                        }
+                    }
+
+                    nonTphRoots.Add(entityType.GetRootType());
+                    continue;
+                }
             }
 
             var viewName = entityType.GetViewName();
-            var viewSchema = entityType.GetViewSchema();
             if (viewName != null
                 && (viewName != entityType.BaseType.GetViewName()
-                    || viewSchema != entityType.BaseType.GetViewSchema()))
+                    || entityType.GetViewSchema() != entityType.BaseType.GetViewSchema()))
             {
                 nonTphRoots.Add(entityType.GetRootType());
             }

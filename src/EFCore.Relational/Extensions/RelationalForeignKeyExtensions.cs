@@ -72,6 +72,12 @@ public static class RelationalForeignKeyExtensions
             return null;
         }
 
+        if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && foreignKey.PrincipalEntityType.GetDerivedTypes().Any(et => StoreObjectIdentifier.Create(et, StoreObjectType.Table) != null))
+        {
+            return null;
+        }
+
         var name = new StringBuilder()
             .Append("FK_")
             .Append(tableName)
@@ -148,6 +154,12 @@ public static class RelationalForeignKeyExtensions
         if (rootForeignKey != foreignKey)
         {
             return rootForeignKey.GetConstraintName(storeObject, principalStoreObject);
+        }
+
+        if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && foreignKey.PrincipalEntityType.GetDerivedTypes().Any(et => StoreObjectIdentifier.Create(et, StoreObjectType.Table) != null))
+        {
+            return null;
         }
 
         var baseName = new StringBuilder()
