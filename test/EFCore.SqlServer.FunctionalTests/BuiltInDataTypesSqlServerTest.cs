@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 // ReSharper disable PossibleInvalidOperationException
 namespace Microsoft.EntityFrameworkCore;
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.SupportsUtf8)]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;
@@ -688,24 +688,29 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p35='887876' (DbType = Object)
 @p36='Bang!' (Nullable = false) (Size = 5) (DbType = Object)
 @p37='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p38='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p39='help' (Nullable = false) (Size = 4000)
-@p40='anyone!' (Nullable = false) (Size = 4000)
-@p41='Gumball Rules OK!' (Nullable = false) (Size = 4000)
-@p42='"
+@p38='And now' (Nullable = false) (Size = 4000)
+@p39='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p40='this...' (Nullable = false) (Size = 4000)
+@p41='help' (Nullable = false) (Size = 4000)
+@p42='anyone!' (Nullable = false) (Size = 4000)
+@p43='Gumball Rules OK!' (Nullable = false) (Size = 4000)
+@p44='"
             + entity.StringAsNvarcharMax
             + @"' (Nullable = false) (Size = -1)
-@p43='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p44='"
+@p45='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p46='"
             + entity.StringAsVarcharMax
             + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
-@p45='11:15:12'
-@p46='65535'
-@p47='-1'
-@p48='4294967295'
-@p49='-1'
+@p47='"
+            + entity.StringAsVarcharMaxUtf8
+            + @"' (Nullable = false) (Size = -1)
+@p48='11:15:12'
+@p49='65535'
 @p50='-1'
-@p51='18446744073709551615' (Precision = 20)",
+@p51='4294967295'
+@p52='-1'
+@p53='-1'
+@p54='18446744073709551615' (Precision = 20)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -744,11 +749,14 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Equal(new DateTime(2019, 1, 2, 14, 11, 12), entity.DateTimeAsDatetime);
         Assert.Equal(new TimeSpan(11, 15, 12), entity.TimeSpanAsTime);
         Assert.Equal(expected.StringAsVarcharMax, entity.StringAsVarcharMax);
-        Assert.Equal("Your", entity.StringAsAsCharVaryingMax);
+        Assert.Equal("Your", entity.StringAsCharVaryingMax);
         Assert.Equal("strong", entity.StringAsCharacterVaryingMax);
         Assert.Equal(expected.StringAsNvarcharMax, entity.StringAsNvarcharMax);
         Assert.Equal("help", entity.StringAsNationalCharVaryingMax);
         Assert.Equal("anyone!", entity.StringAsNationalCharacterVaryingMax);
+        Assert.Equal(expected.StringAsVarcharMaxUtf8, entity.StringAsVarcharMaxUtf8);
+        Assert.Equal("And now", entity.StringAsCharVaryingMaxUtf8);
+        Assert.Equal("this...", entity.StringAsCharacterVaryingMaxUtf8);
         Assert.Equal("Gumball Rules!", entity.StringAsText);
         Assert.Equal("Gumball Rules OK!", entity.StringAsNtext);
         Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.BytesAsVarbinaryMax);
@@ -801,11 +809,14 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             DateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12),
             TimeSpanAsTime = new TimeSpan(11, 15, 12),
             StringAsVarcharMax = string.Concat(Enumerable.Repeat("C", 8001)),
-            StringAsAsCharVaryingMax = "Your",
+            StringAsCharVaryingMax = "Your",
             StringAsCharacterVaryingMax = "strong",
             StringAsNvarcharMax = string.Concat(Enumerable.Repeat("D", 4001)),
             StringAsNationalCharVaryingMax = "help",
             StringAsNationalCharacterVaryingMax = "anyone!",
+            StringAsVarcharMaxUtf8 = string.Concat(Enumerable.Repeat("E", 4001)),
+            StringAsCharVaryingMaxUtf8 = "And now",
+            StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
@@ -1048,20 +1059,23 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p35='887876' (Nullable = true) (DbType = Object)
 @p36='Bang!' (Size = 5) (DbType = Object)
 @p37='Your' (Size = 8000) (DbType = AnsiString)
-@p38='strong' (Size = 8000) (DbType = AnsiString)
-@p39='help' (Size = 4000)
-@p40='anyone!' (Size = 4000)
-@p41='Gumball Rules OK!' (Size = 4000)
-@p42='don't' (Size = 4000)
-@p43='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p44='C' (Size = 8000) (DbType = AnsiString)
-@p45='11:15:12' (Nullable = true)
-@p46='65535' (Nullable = true)
-@p47='-1' (Nullable = true)
-@p48='4294967295' (Nullable = true)
-@p49='-1' (Nullable = true)
+@p38='And now' (Size = 4000)
+@p39='strong' (Size = 8000) (DbType = AnsiString)
+@p40='this...' (Size = 4000)
+@p41='help' (Size = 4000)
+@p42='anyone!' (Size = 4000)
+@p43='Gumball Rules OK!' (Size = 4000)
+@p44='don't' (Size = 4000)
+@p45='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p46='C' (Size = 8000) (DbType = AnsiString)
+@p47='short' (Size = 4000)
+@p48='11:15:12' (Nullable = true)
+@p49='65535' (Nullable = true)
 @p50='-1' (Nullable = true)
-@p51='18446744073709551615' (Nullable = true) (Precision = 20)",
+@p51='4294967295' (Nullable = true)
+@p52='-1' (Nullable = true)
+@p53='-1' (Nullable = true)
+@p54='18446744073709551615' (Nullable = true) (Precision = 20)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -1158,6 +1172,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             StringAsNvarcharMax = "don't",
             StringAsNationalCharVaryingMax = "help",
             StringAsNationalCharacterVaryingMax = "anyone!",
+            StringAsVarcharMaxUtf8 = "short",
+            StringAsCharVaryingMaxUtf8 = "And now",
+            StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
@@ -1236,20 +1253,23 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p35=NULL (DbType = Object)
 @p36=NULL (DbType = Object)
 @p37=NULL (Size = 8000) (DbType = AnsiString)
-@p38=NULL (Size = 8000) (DbType = AnsiString)
-@p39=NULL (Size = 4000)
+@p38=NULL (Size = 4000)
+@p39=NULL (Size = 8000) (DbType = AnsiString)
 @p40=NULL (Size = 4000)
 @p41=NULL (Size = 4000)
 @p42=NULL (Size = 4000)
-@p43=NULL (Size = 8000) (DbType = AnsiString)
-@p44=NULL (Size = 8000) (DbType = AnsiString)
-@p45=NULL (DbType = Time)
-@p46=NULL (DbType = Int32)
-@p47=NULL (DbType = Int16)
-@p48=NULL (DbType = Int64)
+@p43=NULL (Size = 4000)
+@p44=NULL (Size = 4000)
+@p45=NULL (Size = 8000) (DbType = AnsiString)
+@p46=NULL (Size = 8000) (DbType = AnsiString)
+@p47=NULL (Size = 4000)
+@p48=NULL (DbType = Time)
 @p49=NULL (DbType = Int32)
-@p50=NULL (DbType = Int64)
-@p51=NULL (Precision = 20) (DbType = Decimal)",
+@p50=NULL (DbType = Int16)
+@p51=NULL (DbType = Int64)
+@p52=NULL (DbType = Int32)
+@p53=NULL (DbType = Int64)
+@p54=NULL (Precision = 20) (DbType = Decimal)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -1338,15 +1358,20 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p8='D' (Size = 3)
 @p9='A' (Size = 3) (DbType = AnsiString)
 @p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
-@p11='Thr' (Size = 3) (DbType = AnsiString)
-@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
-@p13='Let' (Size = 3) (DbType = AnsiString)
-@p14='The' (Size = 3)
-@p15='Squ' (Size = 3) (DbType = StringFixedLength)
-@p16='Col' (Size = 3)
-@p17='Won' (Size = 3) (DbType = StringFixedLength)
-@p18='Int' (Size = 3)
-@p19='Tha' (Size = 3) (DbType = AnsiString)",
+@p11='Wha' (Size = 3) (DbType = StringFixedLength)
+@p12='Thr' (Size = 3) (DbType = AnsiString)
+@p13='tex' (Size = 3)
+@p14='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
+@p15='doe' (Size = 3) (DbType = StringFixedLength)
+@p16='Let' (Size = 3) (DbType = AnsiString)
+@p17='men' (Size = 3)
+@p18='The' (Size = 3)
+@p19='Squ' (Size = 3) (DbType = StringFixedLength)
+@p20='Col' (Size = 3)
+@p21='Won' (Size = 3) (DbType = StringFixedLength)
+@p22='Int' (Size = 3)
+@p23='Tha' (Size = 3) (DbType = AnsiString)
+@p24='the' (Size = 3)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -1369,6 +1394,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Equal("Int", entity.StringAsNvarchar3);
         Assert.Equal("The", entity.StringAsNationalCharVarying3);
         Assert.Equal("Col", entity.StringAsNationalCharacterVarying3);
+        Assert.Equal("Wha", entity.StringAsChar3Utf8);
+        Assert.Equal("doe", entity.StringAsCharacter3Utf8);
+        Assert.Equal("the", entity.StringAsVarchar3Utf8);
+        Assert.Equal("tex", entity.StringAsCharVarying3Utf8);
+        Assert.Equal("men", entity.StringAsCharacterVarying3Utf8);
         Assert.Equal(new byte[] { 10, 11, 12 }, entity.BytesAsBinary3);
         Assert.Equal(new byte[] { 11, 12, 13 }, entity.BytesAsVarbinary3);
         Assert.Equal(new byte[] { 12, 13, 14 }, entity.BytesAsBinaryVarying3);
@@ -1394,6 +1424,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             StringAsNvarchar3 = "Int",
             StringAsNationalCharVarying3 = "The",
             StringAsNationalCharacterVarying3 = "Col",
+            StringAsChar3Utf8 = "Wha",
+            StringAsCharacter3Utf8 = "doe",
+            StringAsVarchar3Utf8 = "the",
+            StringAsCharVarying3Utf8 = "tex",
+            StringAsCharacterVarying3Utf8 = "men",
             BytesAsBinary3 = new byte[] { 10, 11, 12 },
             BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
             BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
@@ -1428,15 +1463,20 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p8=NULL (Size = 3)
 @p9=NULL (Size = 3) (DbType = AnsiString)
 @p10=NULL (Size = 3) (DbType = AnsiStringFixedLength)
-@p11=NULL (Size = 3) (DbType = AnsiString)
-@p12=NULL (Size = 3) (DbType = AnsiStringFixedLength)
-@p13=NULL (Size = 3) (DbType = AnsiString)
-@p14=NULL (Size = 3)
+@p11=NULL (Size = 3) (DbType = StringFixedLength)
+@p12=NULL (Size = 3) (DbType = AnsiString)
+@p13=NULL (Size = 3)
+@p14=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p15=NULL (Size = 3) (DbType = StringFixedLength)
-@p16=NULL (Size = 3)
-@p17=NULL (Size = 3) (DbType = StringFixedLength)
+@p16=NULL (Size = 3) (DbType = AnsiString)
+@p17=NULL (Size = 3)
 @p18=NULL (Size = 3)
-@p19=NULL (Size = 3) (DbType = AnsiString)",
+@p19=NULL (Size = 3) (DbType = StringFixedLength)
+@p20=NULL (Size = 3)
+@p21=NULL (Size = 3) (DbType = StringFixedLength)
+@p22=NULL (Size = 3)
+@p23=NULL (Size = 3) (DbType = AnsiString)
+@p24=NULL (Size = 3)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -1459,6 +1499,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Null(entity.StringAsNvarchar3);
         Assert.Null(entity.StringAsNationalCharVarying3);
         Assert.Null(entity.StringAsNationalCharacterVarying3);
+        Assert.Null(entity.StringAsChar3Utf8);
+        Assert.Null(entity.StringAsCharacter3Utf8);
+        Assert.Null(entity.StringAsVarchar3Utf8);
+        Assert.Null(entity.StringAsCharVarying3Utf8);
+        Assert.Null(entity.StringAsCharacterVarying3Utf8);
         Assert.Null(entity.BytesAsBinary3);
         Assert.Null(entity.BytesAsVarbinary3);
         Assert.Null(entity.BytesAsBinaryVarying3);
@@ -1493,15 +1538,20 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p8='D' (Size = 3)
 @p9='A' (Size = 3) (DbType = AnsiString)
 @p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
-@p11='Thr' (Size = 3) (DbType = AnsiString)
-@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
-@p13='Let' (Size = 3) (DbType = AnsiString)
-@p14='The' (Size = 3)
-@p15='Squ' (Size = 3) (DbType = StringFixedLength)
-@p16='Col' (Size = 3)
-@p17='Won' (Size = 3) (DbType = StringFixedLength)
-@p18='Int' (Size = 3)
-@p19='Tha' (Size = 3) (DbType = AnsiString)",
+@p11='Wha' (Size = 3) (DbType = AnsiStringFixedLength)
+@p12='Thr' (Size = 3) (DbType = AnsiString)
+@p13='tex' (Size = 3) (DbType = AnsiString)
+@p14='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
+@p15='doe' (Size = 3) (DbType = AnsiStringFixedLength)
+@p16='Let' (Size = 3) (DbType = AnsiString)
+@p17='men' (Size = 3) (DbType = AnsiString)
+@p18='The' (Size = 3)
+@p19='Squ' (Size = 3) (DbType = StringFixedLength)
+@p20='Col' (Size = 3)
+@p21='Won' (Size = 3) (DbType = StringFixedLength)
+@p22='Int' (Size = 3)
+@p23='Tha' (Size = 3) (DbType = AnsiString)
+@p24='the' (Size = 3) (DbType = AnsiString)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -1549,6 +1599,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             StringAsNvarchar3 = "Int",
             StringAsNationalCharVarying3 = "The",
             StringAsNationalCharacterVarying3 = "Col",
+            StringAsChar3Utf8 = "Wha",
+            StringAsCharacter3Utf8 = "doe",
+            StringAsVarchar3Utf8 = "the",
+            StringAsCharVarying3Utf8 = "tex",
+            StringAsCharacterVarying3Utf8 = "men",
             BytesAsBinary3 = new byte[] { 10, 11, 12 },
             BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
             BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
@@ -1862,20 +1917,23 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p35='887876' (DbType = Object)
 @p36='Bang!' (Nullable = false) (Size = 5) (DbType = Object)
 @p37='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p38='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p39='help' (Nullable = false) (Size = 4000)
-@p40='anyone!' (Nullable = false) (Size = 4000)
-@p41='Gumball Rules OK!' (Nullable = false) (Size = 4000)
-@p42='don't' (Nullable = false) (Size = 4000)
-@p43='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p44='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p45='11:15:12'
-@p46='65535'
-@p47='-1'
-@p48='4294967295'
-@p49='-1'
+@p38='And now' (Nullable = false) (Size = 4000)
+@p39='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p40='this...' (Nullable = false) (Size = 4000)
+@p41='help' (Nullable = false) (Size = 4000)
+@p42='anyone!' (Nullable = false) (Size = 4000)
+@p43='Gumball Rules OK!' (Nullable = false) (Size = 4000)
+@p44='don't' (Nullable = false) (Size = 4000)
+@p45='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p46='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p47='short' (Nullable = false) (Size = 4000)
+@p48='11:15:12'
+@p49='65535'
 @p50='-1'
-@p51='18446744073709551615' (Precision = 20)",
+@p51='4294967295'
+@p52='-1'
+@p53='-1'
+@p54='18446744073709551615' (Precision = 20)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -1915,6 +1973,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Equal("don't", entity.StringAsNvarcharMax);
         Assert.Equal("help", entity.StringAsNationalCharVaryingMax);
         Assert.Equal("anyone!", entity.StringAsNationalCharacterVaryingMax);
+        Assert.Equal("short", entity.StringAsVarcharMaxUtf8);
+        Assert.Equal("And now", entity.StringAsCharVaryingMaxUtf8);
+        Assert.Equal("this...", entity.StringAsCharacterVaryingMaxUtf8);
         Assert.Equal("Gumball Rules!", entity.StringAsText);
         Assert.Equal("Gumball Rules OK!", entity.StringAsNtext);
         Assert.Equal(new byte[] { 89, 90, 91, 92 }, entity.BytesAsVarbinaryMax);
@@ -1972,6 +2033,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             StringAsNvarcharMax = "don't",
             StringAsNationalCharVaryingMax = "help",
             StringAsNationalCharacterVaryingMax = "anyone!",
+            StringAsVarcharMaxUtf8 = "short",
+            StringAsCharVaryingMaxUtf8 = "And now",
+            StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
@@ -2050,20 +2114,23 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p35='887876' (Nullable = true) (DbType = Object)
 @p36='Bang!' (Size = 5) (DbType = Object)
 @p37='Your' (Size = 8000) (DbType = AnsiString)
-@p38='strong' (Size = 8000) (DbType = AnsiString)
-@p39='help' (Size = 4000)
-@p40='anyone!' (Size = 4000)
-@p41='Gumball Rules OK!' (Size = 4000)
-@p42='don't' (Size = 4000)
-@p43='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p44='C' (Size = 8000) (DbType = AnsiString)
-@p45='11:15:12' (Nullable = true)
-@p46='65535' (Nullable = true)
-@p47='4294967295' (Nullable = true)
-@p48='-1' (Nullable = true)
-@p49='-1' (Nullable = true)
-@p50='18446744073709551615' (Nullable = true) (Precision = 20)
-@p51='-1' (Nullable = true)",
+@p38='And now' (Size = 4000)
+@p39='strong' (Size = 8000) (DbType = AnsiString)
+@p40='this...' (Size = 4000)
+@p41='help' (Size = 4000)
+@p42='anyone!' (Size = 4000)
+@p43='Gumball Rules OK!' (Size = 4000)
+@p44='don't' (Size = 4000)
+@p45='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p46='C' (Size = 8000) (DbType = AnsiString)
+@p47='short' (Size = 4000)
+@p48='11:15:12' (Nullable = true)
+@p49='65535' (Nullable = true)
+@p50='4294967295' (Nullable = true)
+@p51='-1' (Nullable = true)
+@p52='-1' (Nullable = true)
+@p53='18446744073709551615' (Nullable = true) (Precision = 20)
+@p54='-1' (Nullable = true)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -2160,6 +2227,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             StringAsNvarcharMax = "don't",
             StringAsNationalCharVaryingMax = "help",
             StringAsNationalCharacterVaryingMax = "anyone!",
+            StringAsVarcharMaxUtf8 = "short",
+            StringAsCharVaryingMaxUtf8 = "And now",
+            StringAsCharacterVaryingMaxUtf8 = "this...",
             StringAsText = "Gumball Rules!",
             StringAsNtext = "Gumball Rules OK!",
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
@@ -2238,20 +2308,23 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p35=NULL (DbType = Object)
 @p36=NULL (DbType = Object)
 @p37=NULL (Size = 8000) (DbType = AnsiString)
-@p38=NULL (Size = 8000) (DbType = AnsiString)
-@p39=NULL (Size = 4000)
+@p38=NULL (Size = 4000)
+@p39=NULL (Size = 8000) (DbType = AnsiString)
 @p40=NULL (Size = 4000)
 @p41=NULL (Size = 4000)
 @p42=NULL (Size = 4000)
-@p43=NULL (Size = 8000) (DbType = AnsiString)
-@p44=NULL (Size = 8000) (DbType = AnsiString)
-@p45=NULL (DbType = Time)
-@p46=NULL (DbType = Int32)
-@p47=NULL (DbType = Int64)
-@p48=NULL (DbType = Int32)
-@p49=NULL (DbType = Int64)
-@p50=NULL (Precision = 20) (DbType = Decimal)
-@p51=NULL (DbType = Int16)",
+@p43=NULL (Size = 4000)
+@p44=NULL (Size = 4000)
+@p45=NULL (Size = 8000) (DbType = AnsiString)
+@p46=NULL (Size = 8000) (DbType = AnsiString)
+@p47=NULL (Size = 4000)
+@p48=NULL (DbType = Time)
+@p49=NULL (DbType = Int32)
+@p50=NULL (DbType = Int64)
+@p51=NULL (DbType = Int32)
+@p52=NULL (DbType = Int64)
+@p53=NULL (Precision = 20) (DbType = Decimal)
+@p54=NULL (DbType = Int16)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -2343,15 +2416,20 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p8='A' (Size = 3) (DbType = AnsiString)
 @p9='77'
 @p10='Wor' (Size = 3) (DbType = AnsiStringFixedLength)
-@p11='Thr' (Size = 3) (DbType = AnsiString)
-@p12='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
-@p13='Let' (Size = 3) (DbType = AnsiString)
-@p14='The' (Size = 3)
-@p15='Squ' (Size = 3) (DbType = StringFixedLength)
-@p16='Col' (Size = 3)
-@p17='Won' (Size = 3) (DbType = StringFixedLength)
-@p18='Int' (Size = 3)
-@p19='Tha' (Size = 3) (DbType = AnsiString)",
+@p11='Wha' (Size = 3) (DbType = StringFixedLength)
+@p12='Thr' (Size = 3) (DbType = AnsiString)
+@p13='tex' (Size = 3)
+@p14='Lon' (Size = 3) (DbType = AnsiStringFixedLength)
+@p15='doe' (Size = 3) (DbType = StringFixedLength)
+@p16='Let' (Size = 3) (DbType = AnsiString)
+@p17='men' (Size = 3)
+@p18='The' (Size = 3)
+@p19='Squ' (Size = 3) (DbType = StringFixedLength)
+@p20='Col' (Size = 3)
+@p21='Won' (Size = 3) (DbType = StringFixedLength)
+@p22='Int' (Size = 3)
+@p23='Tha' (Size = 3) (DbType = AnsiString)
+@p24='the' (Size = 3)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -2374,6 +2452,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Equal("Int", entity.StringAsNvarchar3);
         Assert.Equal("The", entity.StringAsNationalCharVarying3);
         Assert.Equal("Col", entity.StringAsNationalCharacterVarying3);
+        Assert.Equal("Wha", entity.StringAsChar3Utf8);
+        Assert.Equal("doe", entity.StringAsCharacter3Utf8);
+        Assert.Equal("the", entity.StringAsVarchar3Utf8);
+        Assert.Equal("tex", entity.StringAsCharVarying3Utf8);
+        Assert.Equal("men", entity.StringAsCharacterVarying3Utf8);
         Assert.Equal(new byte[] { 10, 11, 12 }, entity.BytesAsBinary3);
         Assert.Equal(new byte[] { 11, 12, 13 }, entity.BytesAsVarbinary3);
         Assert.Equal(new byte[] { 12, 13, 14 }, entity.BytesAsBinaryVarying3);
@@ -2399,6 +2482,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             StringAsNvarchar3 = "Int",
             StringAsNationalCharVarying3 = "The",
             StringAsNationalCharacterVarying3 = "Col",
+            StringAsChar3Utf8 = "Wha",
+            StringAsCharacter3Utf8 = "doe",
+            StringAsVarchar3Utf8 = "the",
+            StringAsCharVarying3Utf8 = "tex",
+            StringAsCharacterVarying3Utf8 = "men",
             BytesAsBinary3 = new byte[] { 10, 11, 12 },
             BytesAsVarbinary3 = new byte[] { 11, 12, 13 },
             BytesAsBinaryVarying3 = new byte[] { 12, 13, 14 },
@@ -2433,15 +2521,20 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p8=NULL (Size = 3) (DbType = AnsiString)
 @p9='78'
 @p10=NULL (Size = 3) (DbType = AnsiStringFixedLength)
-@p11=NULL (Size = 3) (DbType = AnsiString)
-@p12=NULL (Size = 3) (DbType = AnsiStringFixedLength)
-@p13=NULL (Size = 3) (DbType = AnsiString)
-@p14=NULL (Size = 3)
+@p11=NULL (Size = 3) (DbType = StringFixedLength)
+@p12=NULL (Size = 3) (DbType = AnsiString)
+@p13=NULL (Size = 3)
+@p14=NULL (Size = 3) (DbType = AnsiStringFixedLength)
 @p15=NULL (Size = 3) (DbType = StringFixedLength)
-@p16=NULL (Size = 3)
-@p17=NULL (Size = 3) (DbType = StringFixedLength)
+@p16=NULL (Size = 3) (DbType = AnsiString)
+@p17=NULL (Size = 3)
 @p18=NULL (Size = 3)
-@p19=NULL (Size = 3) (DbType = AnsiString)",
+@p19=NULL (Size = 3) (DbType = StringFixedLength)
+@p20=NULL (Size = 3)
+@p21=NULL (Size = 3) (DbType = StringFixedLength)
+@p22=NULL (Size = 3)
+@p23=NULL (Size = 3) (DbType = AnsiString)
+@p24=NULL (Size = 3)",
             parameters,
             ignoreLineEndingDifferences: true);
 
@@ -2464,6 +2557,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Null(entity.StringAsNvarchar3);
         Assert.Null(entity.StringAsNationalCharVarying3);
         Assert.Null(entity.StringAsNationalCharacterVarying3);
+        Assert.Null(entity.StringAsChar3Utf8);
+        Assert.Null(entity.StringAsCharacter3Utf8);
+        Assert.Null(entity.StringAsVarchar3Utf8);
+        Assert.Null(entity.StringAsCharVarying3Utf8);
+        Assert.Null(entity.StringAsCharacterVarying3Utf8);
         Assert.Null(entity.BytesAsBinary3);
         Assert.Null(entity.BytesAsVarbinary3);
         Assert.Null(entity.BytesAsBinaryVarying3);
@@ -3044,14 +3142,17 @@ MappedDataTypes.SByteAsTinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypes.ShortAsSmallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypes.SqlVariantInt ---> [sql_variant] [MaxLength = 0]
 MappedDataTypes.SqlVariantString ---> [sql_variant] [MaxLength = 0]
-MappedDataTypes.StringAsAsCharVaryingMax ---> [varchar] [MaxLength = -1]
 MappedDataTypes.StringAsCharacterVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypes.StringAsCharacterVaryingMaxUtf8 ---> [varchar] [MaxLength = -1]
+MappedDataTypes.StringAsCharVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypes.StringAsCharVaryingMaxUtf8 ---> [varchar] [MaxLength = -1]
 MappedDataTypes.StringAsNationalCharacterVaryingMax ---> [nvarchar] [MaxLength = -1]
 MappedDataTypes.StringAsNationalCharVaryingMax ---> [nvarchar] [MaxLength = -1]
 MappedDataTypes.StringAsNtext ---> [ntext] [MaxLength = 1073741823]
 MappedDataTypes.StringAsNvarcharMax ---> [nvarchar] [MaxLength = -1]
 MappedDataTypes.StringAsText ---> [text] [MaxLength = 2147483647]
 MappedDataTypes.StringAsVarcharMax ---> [varchar] [MaxLength = -1]
+MappedDataTypes.StringAsVarcharMaxUtf8 ---> [varchar] [MaxLength = -1]
 MappedDataTypes.TimeSpanAsTime ---> [time] [Precision = 7]
 MappedDataTypes.UintAsBigint ---> [bigint] [Precision = 19 Scale = 0]
 MappedDataTypes.UintAsInt ---> [int] [Precision = 10 Scale = 0]
@@ -3098,13 +3199,16 @@ MappedDataTypesWithIdentity.ShortAsSmallint ---> [smallint] [Precision = 5 Scale
 MappedDataTypesWithIdentity.SqlVariantInt ---> [sql_variant] [MaxLength = 0]
 MappedDataTypesWithIdentity.SqlVariantString ---> [sql_variant] [MaxLength = 0]
 MappedDataTypesWithIdentity.StringAsCharacterVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsCharacterVaryingMaxUtf8 ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.StringAsCharVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsCharVaryingMaxUtf8 ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.StringAsNationalCharacterVaryingMax ---> [nvarchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.StringAsNationalCharVaryingMax ---> [nvarchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.StringAsNtext ---> [ntext] [MaxLength = 1073741823]
 MappedDataTypesWithIdentity.StringAsNvarcharMax ---> [nvarchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.StringAsText ---> [text] [MaxLength = 2147483647]
 MappedDataTypesWithIdentity.StringAsVarcharMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsVarcharMaxUtf8 ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.TimeSpanAsTime ---> [time] [Precision = 7]
 MappedDataTypesWithIdentity.UintAsBigint ---> [bigint] [Precision = 19 Scale = 0]
 MappedDataTypesWithIdentity.UintAsInt ---> [int] [Precision = 10 Scale = 0]
@@ -3150,13 +3254,16 @@ MappedNullableDataTypes.ShortAsSmallint ---> [nullable smallint] [Precision = 5 
 MappedNullableDataTypes.SqlVariantInt ---> [nullable sql_variant] [MaxLength = 0]
 MappedNullableDataTypes.SqlVariantString ---> [nullable sql_variant] [MaxLength = 0]
 MappedNullableDataTypes.StringAsCharacterVaryingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypes.StringAsCharacterVaryingMaxUtf8 ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.StringAsCharVaryingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypes.StringAsCharVaryingMaxUtf8 ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.StringAsNationalCharacterVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypes.StringAsNationalCharVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypes.StringAsNtext ---> [nullable ntext] [MaxLength = 1073741823]
 MappedNullableDataTypes.StringAsNvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypes.StringAsText ---> [nullable text] [MaxLength = 2147483647]
 MappedNullableDataTypes.StringAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypes.StringAsVarcharMaxUtf8 ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.TimeSpanAsTime ---> [nullable time] [Precision = 7]
 MappedNullableDataTypes.UintAsBigint ---> [nullable bigint] [Precision = 19 Scale = 0]
 MappedNullableDataTypes.UintAsInt ---> [nullable int] [Precision = 10 Scale = 0]
@@ -3203,13 +3310,16 @@ MappedNullableDataTypesWithIdentity.ShortAsSmallint ---> [nullable smallint] [Pr
 MappedNullableDataTypesWithIdentity.SqlVariantInt ---> [nullable sql_variant] [MaxLength = 0]
 MappedNullableDataTypesWithIdentity.SqlVariantString ---> [nullable sql_variant] [MaxLength = 0]
 MappedNullableDataTypesWithIdentity.StringAsCharacterVaryingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.StringAsCharacterVaryingMaxUtf8 ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.StringAsCharVaryingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.StringAsCharVaryingMaxUtf8 ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.StringAsNationalCharacterVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.StringAsNationalCharVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.StringAsNtext ---> [nullable ntext] [MaxLength = 1073741823]
 MappedNullableDataTypesWithIdentity.StringAsNvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.StringAsText ---> [nullable text] [MaxLength = 2147483647]
 MappedNullableDataTypesWithIdentity.StringAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.StringAsVarcharMaxUtf8 ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.TimeSpanAsTime ---> [nullable time] [Precision = 7]
 MappedNullableDataTypesWithIdentity.UintAsBigint ---> [nullable bigint] [Precision = 19 Scale = 0]
 MappedNullableDataTypesWithIdentity.UintAsInt ---> [nullable int] [Precision = 10 Scale = 0]
@@ -3275,15 +3385,20 @@ MappedSizedDataTypes.CharAsNvarchar3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypes.CharAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MappedSizedDataTypes.StringAsChar3 ---> [nullable char] [MaxLength = 3]
+MappedSizedDataTypes.StringAsChar3Utf8 ---> [nullable char] [MaxLength = 3]
 MappedSizedDataTypes.StringAsCharacter3 ---> [nullable char] [MaxLength = 3]
+MappedSizedDataTypes.StringAsCharacter3Utf8 ---> [nullable char] [MaxLength = 3]
 MappedSizedDataTypes.StringAsCharacterVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypes.StringAsCharacterVarying3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedDataTypes.StringAsCharVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypes.StringAsCharVarying3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedDataTypes.StringAsNationalCharacter3 ---> [nullable nchar] [MaxLength = 3]
 MappedSizedDataTypes.StringAsNationalCharacterVarying3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypes.StringAsNationalCharVarying3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypes.StringAsNchar3 ---> [nullable nchar] [MaxLength = 3]
 MappedSizedDataTypes.StringAsNvarchar3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypes.StringAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypes.StringAsVarchar3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.BytesAsBinary3 ---> [nullable binary] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.BytesAsBinaryVarying3 ---> [nullable varbinary] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.BytesAsVarbinary3 ---> [nullable varbinary] [MaxLength = 3]
@@ -3296,15 +3411,20 @@ MappedSizedDataTypesWithIdentity.CharAsVarchar3 ---> [nullable varchar] [MaxLeng
 MappedSizedDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
 MappedSizedDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
 MappedSizedDataTypesWithIdentity.StringAsChar3 ---> [nullable char] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.StringAsChar3Utf8 ---> [nullable char] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsCharacter3 ---> [nullable char] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.StringAsCharacter3Utf8 ---> [nullable char] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsCharacterVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.StringAsCharacterVarying3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsCharVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.StringAsCharVarying3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsNationalCharacter3 ---> [nullable nchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsNationalCharacterVarying3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsNationalCharVarying3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsNchar3 ---> [nullable nchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsNvarchar3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedDataTypesWithIdentity.StringAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedDataTypesWithIdentity.StringAsVarchar3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.BytesAsBinary3 ---> [nullable binary] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.BytesAsBinaryVarying3 ---> [nullable varbinary] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.BytesAsVarbinary3 ---> [nullable varbinary] [MaxLength = 3]
@@ -3316,15 +3436,20 @@ MappedSizedSeparatelyDataTypes.CharAsNvarchar3 ---> [nullable nvarchar] [MaxLeng
 MappedSizedSeparatelyDataTypes.CharAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MappedSizedSeparatelyDataTypes.StringAsChar3 ---> [nullable char] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsChar3Utf8 ---> [nullable char] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsCharacter3 ---> [nullable char] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsCharacter3Utf8 ---> [nullable char] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsCharacterVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsCharacterVarying3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsCharVarying3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsCharVarying3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsNationalCharacter3 ---> [nullable nchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsNationalCharacterVarying3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsNationalCharVarying3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsNchar3 ---> [nullable nchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsNvarchar3 ---> [nullable nvarchar] [MaxLength = 3]
 MappedSizedSeparatelyDataTypes.StringAsVarchar3 ---> [nullable varchar] [MaxLength = 3]
+MappedSizedSeparatelyDataTypes.StringAsVarchar3Utf8 ---> [nullable varchar] [MaxLength = 3]
 MappedSquareDataTypes.BoolAsBit ---> [bit]
 MappedSquareDataTypes.ByteAsTinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedSquareDataTypes.BytesAsImage ---> [image] [MaxLength = 2147483647]
@@ -3560,6 +3685,9 @@ WHERE [b].[Id] = 13");
                 {
                     b.HasKey(e => e.Int);
                     b.Property(e => e.Int).ValueGeneratedNever();
+                    b.Property(e => e.StringAsVarcharMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                    b.Property(e => e.StringAsCharVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                    b.Property(e => e.StringAsCharacterVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
                 });
 
             modelBuilder.Entity<MappedSquareDataTypes>(
@@ -3619,6 +3747,11 @@ WHERE [b].[Id] = 13");
                     b.Property(e => e.StringAsNvarchar3).HasMaxLength(3);
                     b.Property(e => e.StringAsNationalCharVarying3).HasMaxLength(3);
                     b.Property(e => e.StringAsNationalCharacterVarying3).HasMaxLength(3);
+                    b.Property(e => e.StringAsChar3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                    b.Property(e => e.StringAsCharacter3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                    b.Property(e => e.StringAsVarchar3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                    b.Property(e => e.StringAsCharVarying3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                    b.Property(e => e.StringAsCharacterVarying3Utf8).HasMaxLength(3).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
                     b.Property(e => e.BytesAsBinary3).HasMaxLength(3);
                     b.Property(e => e.BytesAsVarbinary3).HasMaxLength(3);
                     b.Property(e => e.BytesAsBinaryVarying3).HasMaxLength(3);
@@ -3762,7 +3895,7 @@ WHERE [b].[Id] = 13");
         public string StringAsVarcharMax { get; set; }
 
         [Column(TypeName = "char varying(max)")]
-        public string StringAsAsCharVaryingMax { get; set; }
+        public string StringAsCharVaryingMax { get; set; }
 
         [Column(TypeName = "character varying(max)")]
         public string StringAsCharacterVaryingMax { get; set; }
@@ -3775,6 +3908,18 @@ WHERE [b].[Id] = 13");
 
         [Column(TypeName = "national character varying(max)")]
         public string StringAsNationalCharacterVaryingMax { get; set; }
+
+        [Column(TypeName = "varchar(max)")]
+        [Unicode]
+        public string StringAsVarcharMaxUtf8 { get; set; }
+
+        [Column(TypeName = "char varying(max)")]
+        [Unicode]
+        public string StringAsCharVaryingMaxUtf8 { get; set; }
+
+        [Column(TypeName = "character varying(max)")]
+        [Unicode]
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
         public string StringAsText { get; set; }
@@ -4018,6 +4163,26 @@ WHERE [b].[Id] = 13");
         [Column(TypeName = "national character varying(3)")]
         public string StringAsNationalCharacterVarying3 { get; set; }
 
+        [Column(TypeName = "char(3)")]
+        [Unicode]
+        public string StringAsChar3Utf8 { get; set; }
+
+        [Column(TypeName = "character(3)")]
+        [Unicode]
+        public string StringAsCharacter3Utf8 { get; set; }
+
+        [Column(TypeName = "varchar(3)")]
+        [Unicode]
+        public string StringAsVarchar3Utf8 { get; set; }
+
+        [Column(TypeName = "char varying(3)")]
+        [Unicode]
+        public string StringAsCharVarying3Utf8 { get; set; }
+
+        [Column(TypeName = "character varying(3)")]
+        [Unicode]
+        public string StringAsCharacterVarying3Utf8 { get; set; }
+
         [Column(TypeName = "binary(3)")]
         public byte[] BytesAsBinary3 { get; set; }
 
@@ -4079,6 +4244,21 @@ WHERE [b].[Id] = 13");
 
         [Column(TypeName = "national character varying")]
         public string StringAsNationalCharacterVarying3 { get; set; }
+
+        [Column(TypeName = "char")]
+        public string StringAsChar3Utf8 { get; set; }
+
+        [Column(TypeName = "character")]
+        public string StringAsCharacter3Utf8 { get; set; }
+
+        [Column(TypeName = "varchar")]
+        public string StringAsVarchar3Utf8 { get; set; }
+
+        [Column(TypeName = "char varying")]
+        public string StringAsCharVarying3Utf8 { get; set; }
+
+        [Column(TypeName = "character varying")]
+        public string StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary")]
         public byte[] BytesAsBinary3 { get; set; }
@@ -4294,6 +4474,18 @@ WHERE [b].[Id] = 13");
         [Column(TypeName = "national character varying(max)")]
         public string StringAsNationalCharacterVaryingMax { get; set; }
 
+        [Column(TypeName = "varchar(max)")]
+        [Unicode]
+        public string StringAsVarcharMaxUtf8 { get; set; }
+
+        [Column(TypeName = "char varying(max)")]
+        [Unicode]
+        public string StringAsCharVaryingMaxUtf8 { get; set; }
+
+        [Column(TypeName = "character varying(max)")]
+        [Unicode]
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+
         [Column(TypeName = "text")]
         public string StringAsText { get; set; }
 
@@ -4455,6 +4647,18 @@ WHERE [b].[Id] = 13");
         [Column(TypeName = "national character varying(max)")]
         public string StringAsNationalCharacterVaryingMax { get; set; }
 
+        [Column(TypeName = "varchar(max)")]
+        [Unicode]
+        public string StringAsVarcharMaxUtf8 { get; set; }
+
+        [Column(TypeName = "char varying(max)")]
+        [Unicode]
+        public string StringAsCharVaryingMaxUtf8 { get; set; }
+
+        [Column(TypeName = "character varying(max)")]
+        [Unicode]
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
+
         [Column(TypeName = "text")]
         public string StringAsText { get; set; }
 
@@ -4568,6 +4772,26 @@ WHERE [b].[Id] = 13");
 
         [Column(TypeName = "national character varying(3)")]
         public string StringAsNationalCharacterVarying3 { get; set; }
+
+        [Column(TypeName = "char(3)")]
+        [Unicode]
+        public string StringAsChar3Utf8 { get; set; }
+
+        [Column(TypeName = "character(3)")]
+        [Unicode]
+        public string StringAsCharacter3Utf8 { get; set; }
+
+        [Column(TypeName = "varchar(3)")]
+        [Unicode]
+        public string StringAsVarchar3Utf8 { get; set; }
+
+        [Column(TypeName = "char varying(3)")]
+        [Unicode]
+        public string StringAsCharVarying3Utf8 { get; set; }
+
+        [Column(TypeName = "character varying(3)")]
+        [Unicode]
+        public string StringAsCharacterVarying3Utf8 { get; set; }
 
         [Column(TypeName = "binary(3)")]
         public byte[] BytesAsBinary3 { get; set; }
@@ -4729,6 +4953,18 @@ WHERE [b].[Id] = 13");
 
         [Column(TypeName = "national character varying(max)")]
         public string StringAsNationalCharacterVaryingMax { get; set; }
+
+        [Column(TypeName = "varchar(max)")]
+        [Unicode]
+        public string StringAsVarcharMaxUtf8 { get; set; }
+
+        [Column(TypeName = "char varying(max)")]
+        [Unicode]
+        public string StringAsCharVaryingMaxUtf8 { get; set; }
+
+        [Column(TypeName = "character varying(max)")]
+        [Unicode]
+        public string StringAsCharacterVaryingMaxUtf8 { get; set; }
 
         [Column(TypeName = "text")]
         public string StringAsText { get; set; }

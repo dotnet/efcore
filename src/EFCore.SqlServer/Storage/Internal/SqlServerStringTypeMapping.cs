@@ -18,6 +18,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     private const int UnicodeMax = 4000;
     private const int AnsiMax = 8000;
 
+    private readonly bool _isUtf16;
     private readonly SqlDbType? _sqlDbType;
     private readonly int _maxSpecificSize;
     private readonly int _maxSize;
@@ -38,7 +39,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         : this(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(typeof(string)),
-                storeType ?? GetStoreName(unicode, fixedLength),
+                storeType ?? GetDefaultStoreName(unicode, fixedLength),
                 storeTypePostfix ?? StoreTypePostfix.Size,
                 GetDbType(unicode, fixedLength),
                 unicode,
@@ -48,7 +49,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     {
     }
 
-    private static string GetStoreName(bool unicode, bool fixedLength)
+    private static string GetDefaultStoreName(bool unicode, bool fixedLength)
         => unicode
             ? fixedLength ? "nchar" : "nvarchar"
             : fixedLength
@@ -84,6 +85,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             _maxSize = AnsiMax;
         }
 
+        _isUtf16 = parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase);
         _sqlDbType = sqlDbType;
     }
 
@@ -93,7 +95,23 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     /// <param name="parameters">The parameters for this mapping.</param>
     /// <returns>The newly created mapping.</returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqlServerStringTypeMapping(parameters, _sqlDbType);
+    {
+        if (parameters.Unicode)
+        {
+            parameters = new(
+                parameters.CoreParameters,
+                parameters.StoreType,
+                parameters.StoreTypePostfix,
+                GetDbType(parameters.Unicode, parameters.FixedLength),
+                parameters.Unicode,
+                parameters.Size,
+                parameters.FixedLength,
+                parameters.Precision,
+                parameters.Scale);
+        }
+
+        return new SqlServerStringTypeMapping(parameters, _sqlDbType);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -184,7 +202,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                     {
                         AddConcatOperatorIfNeeded();
 
-                        if (IsUnicode)
+                        if (_isUtf16)
                         {
                             builder.Append('N');
                         }
@@ -206,7 +224,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 
                     AddConcatOperatorIfNeeded();
 
-                    if (IsUnicode)
+                    if (_isUtf16)
                     {
                         builder.Append('n');
                     }
@@ -222,7 +240,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                     {
                         AddConcatOperatorIfNeeded();
 
-                        if (IsUnicode)
+                        if (_isUtf16)
                         {
                             builder.Append('N');
                         }
@@ -245,7 +263,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             {
                 AddConcatOperatorIfNeeded();
 
-                if (IsUnicode)
+                if (_isUtf16)
                 {
                     builder.Append('N');
                 }
@@ -275,7 +293,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 
         if (builder.Length == 0)
         {
-            if (IsUnicode)
+            if (_isUtf16)
             {
                 builder.Append('N');
             }
@@ -292,7 +310,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                 if (!castApplied)
                 {
                     builder.Append(" AS ");
-                    if (IsUnicode)
+                    if (_isUtf16)
                     {
                         builder.Append('n');
                     }
