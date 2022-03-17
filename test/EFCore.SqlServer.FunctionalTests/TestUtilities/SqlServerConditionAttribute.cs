@@ -67,6 +67,11 @@ public sealed class SqlServerConditionAttribute : Attribute, ITestCondition
             isMet &= TestEnvironment.IsTemporalTablesCascadeDeleteSupported;
         }
 
+        if (Conditions.HasFlag(SqlServerCondition.SupportsUtf8))
+        {
+            isMet &= TestEnvironment.IsUtf8Supported;
+        }
+
         return new ValueTask<bool>(isMet);
     }
 

@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 // ReSharper disable PossibleInvalidOperationException
 namespace Microsoft.EntityFrameworkCore;
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.SupportsUtf8)]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;
