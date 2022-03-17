@@ -195,12 +195,11 @@ SELECT @@ROWCOUNT;");
 @p5='Third Name' (Size = 4000)
 @p6='0' (Nullable = true)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
-SELECT [Unique_No]
-FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
+OUTPUT INSERTED.[Unique_No]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
     }
 
     public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -216,12 +215,11 @@ WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
 @p5='Third Name' (Size = 4000)
 @p6='0' (Nullable = true)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
-SELECT [Unique_No]
-FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();",
+OUTPUT INSERTED.[Unique_No]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
             //
             @"@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = 4000)
 @p1='ValidString' (Nullable = false) (Size = 4000)
@@ -231,12 +229,11 @@ WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();",
 @p5='Third Name' (Size = 4000)
 @p6='0' (Nullable = true)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
-SELECT [Unique_No]
-FROM [Sample]
-WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
+OUTPUT INSERTED.[Unique_No]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
     }
 
     public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -246,21 +243,19 @@ WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
         AssertSql(
             @"@p0='ValidString' (Size = 16)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
-VALUES (@p0);
-SELECT [Id], [Timestamp]
-FROM [Two]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
+OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
+VALUES (@p0);",
             //
             @"@p0='ValidButLongString' (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
-VALUES (@p0);
-SELECT [Id], [Timestamp]
-FROM [Two]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
+OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
+VALUES (@p0);");
     }
 
     public override void TimestampAttribute_throws_if_value_in_database_changed()

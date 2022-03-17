@@ -284,6 +284,12 @@
   <data name="NoSavepointRelease" xml:space="preserve">
     <value>SQL Server does not support releasing a savepoint.</value>
   </data>
+  <data name="SaveChangesFailedBecauseOfComputedColumnWithFunction" xml:space="preserve">
+    <value>Could not save changes because the target table has computed column with a function that performs data access. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-computed-columns for more information.</value>
+  </data>
+  <data name="SaveChangesFailedBecauseOfTriggers" xml:space="preserve">
+    <value>Could not save changes because the target table has database triggers. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-triggers for more information.</value>
+  </data>
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
   </data>

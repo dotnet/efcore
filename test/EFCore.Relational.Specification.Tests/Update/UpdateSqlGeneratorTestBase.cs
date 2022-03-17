@@ -74,65 +74,17 @@ public abstract class UpdateSqlGeneratorTestBase
     }
 
     [ConditionalFact]
-    public virtual void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist()
+    public virtual void AppendInsertOperation_insert_if_store_generated_columns_exist()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand();
 
         CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
-        AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(stringBuilder);
+        AppendInsertOperation_insert_if_store_generated_columns_exist_verification(stringBuilder);
     }
 
-    protected virtual void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(
-        StringBuilder stringBuilder)
-        => Assert.Equal(
-            "INSERT INTO "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + " ("
-            + OpenDelimiter
-            + "Name"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "Quacks"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + ")"
-            + Environment.NewLine
-            + "VALUES (@p0, @p1, @p2);"
-            + Environment.NewLine
-            + "SELECT "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "Computed"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + RowsAffected
-            + " = 1 AND "
-            + GetIdentityWhereCondition("Id")
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+    protected abstract void AppendInsertOperation_insert_if_store_generated_columns_exist_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
     public virtual void
@@ -173,217 +125,56 @@ public abstract class UpdateSqlGeneratorTestBase
     }
 
     [ConditionalFact]
-    public virtual void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity()
+    public virtual void AppendInsertOperation_for_store_generated_columns_but_no_identity()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand(false);
 
         CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
-        AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(stringBuilder);
+        AppendInsertOperation_for_store_generated_columns_but_no_identity_verification(stringBuilder);
     }
 
-    protected virtual void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(
-        StringBuilder stringBuilder)
-        => Assert.Equal(
-            "INSERT INTO "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + " ("
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "Name"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "Quacks"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + ")"
-            + Environment.NewLine
-            + "VALUES (@p0, @p1, @p2, @p3);"
-            + Environment.NewLine
-            + "SELECT "
-            + OpenDelimiter
-            + "Computed"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + RowsAffected
-            + " = 1 AND "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p0;"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+    protected abstract void AppendInsertOperation_for_store_generated_columns_but_no_identity_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
-    public virtual void AppendInsertOperation_appends_insert_and_select_for_only_identity()
+    public virtual void AppendInsertOperation_for_only_identity()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand(true, false);
 
         CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
-        AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(stringBuilder);
+        AppendInsertOperation_for_only_identity_verification(stringBuilder);
     }
 
-    protected virtual void AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(StringBuilder stringBuilder)
-        => Assert.Equal(
-            "INSERT INTO "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + " ("
-            + OpenDelimiter
-            + "Name"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "Quacks"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + ")"
-            + Environment.NewLine
-            + "VALUES (@p0, @p1, @p2);"
-            + Environment.NewLine
-            + "SELECT "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + RowsAffected
-            + " = 1 AND "
-            + GetIdentityWhereCondition("Id")
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+    protected abstract void AppendInsertOperation_for_only_identity_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
-    public virtual void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns()
+    public virtual void AppendInsertOperation_for_all_store_generated_columns()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand(true, true, true);
 
         CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
-        AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(stringBuilder);
+        AppendInsertOperation_for_all_store_generated_columns_verification(stringBuilder);
     }
 
-    protected virtual void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(
-        StringBuilder stringBuilder)
-        => Assert.Equal(
-            "INSERT INTO "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "DEFAULT VALUES;"
-            + Environment.NewLine
-            + "SELECT "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + ", "
-            + OpenDelimiter
-            + "Computed"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + RowsAffected
-            + " = 1 AND "
-            + GetIdentityWhereCondition("Id")
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+    protected abstract void AppendInsertOperation_for_all_store_generated_columns_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
-    public virtual void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns()
+    public virtual void AppendInsertOperation_for_only_single_identity_columns()
     {
         var stringBuilder = new StringBuilder();
-        var command = CreateInsertCommand(true, false, true);
+        var command = CreateInsertCommand(identityKey: true, isComputed: false, defaultsOnly: true);
 
         CreateSqlGenerator().AppendInsertOperation(stringBuilder, command, 0);
 
-        AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(stringBuilder);
+        AppendInsertOperation_for_only_single_identity_columns_verification(stringBuilder);
     }
 
-    protected virtual void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(
-        StringBuilder stringBuilder)
-        => Assert.Equal(
-            "INSERT INTO "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "DEFAULT VALUES;"
-            + Environment.NewLine
-            + "SELECT "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + RowsAffected
-            + " = 1 AND "
-            + GetIdentityWhereCondition("Id")
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+    protected abstract void AppendInsertOperation_for_only_single_identity_columns_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
     public virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
@@ -652,6 +443,7 @@ public abstract class UpdateSqlGeneratorTestBase
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
         var entry = stateManager.GetOrCreateEntry(new Duck());
+        entry.SetEntityState(EntityState.Added);
         var generator = new ParameterNameGenerator();
 
         var duckType = model.FindEntityType(typeof(Duck));
@@ -685,7 +477,7 @@ public abstract class UpdateSqlGeneratorTestBase
             columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
         }
 
-        return CreateModificationCommand("Ducks", Schema, columnModifications, false);
+        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
     }
 
     protected IModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
@@ -693,6 +485,7 @@ public abstract class UpdateSqlGeneratorTestBase
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
         var entry = stateManager.GetOrCreateEntry(new Duck());
+        entry.SetEntityState(EntityState.Modified);
         var generator = new ParameterNameGenerator();
 
         var duckType = model.FindEntityType(typeof(Duck));
@@ -721,7 +514,7 @@ public abstract class UpdateSqlGeneratorTestBase
                 concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true)
         };
 
-        return CreateModificationCommand("Ducks", Schema, columnModifications, false);
+        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
     }
 
     protected IModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
@@ -729,6 +522,7 @@ public abstract class UpdateSqlGeneratorTestBase
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
         var entry = stateManager.GetOrCreateEntry(new Duck());
+        entry.SetEntityState(EntityState.Deleted);
         var generator = new ParameterNameGenerator();
 
         var duckType = model.FindEntityType(typeof(Duck));
@@ -745,7 +539,7 @@ public abstract class UpdateSqlGeneratorTestBase
                 concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true)
         };
 
-        return CreateModificationCommand("Ducks", Schema, columnModifications, false);
+        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
     }
 
     protected abstract TestHelpers TestHelpers { get; }
@@ -769,6 +563,7 @@ public abstract class UpdateSqlGeneratorTestBase
     private IModificationCommand CreateModificationCommand(
         string name,
         string schema,
+        InternalEntityEntry entry,
         IReadOnlyList<ColumnModificationParameters> columnModifications,
         bool sensitiveLoggingEnabled)
     {
@@ -776,6 +571,8 @@ public abstract class UpdateSqlGeneratorTestBase
             name, schema, sensitiveLoggingEnabled);
         var modificationCommand = CreateMutableModificationCommandFactory().CreateModificationCommand(
             modificationCommandParameters);
+
+        modificationCommand.AddEntry(entry, mainEntry: true);
 
         foreach (var columnModification in columnModifications)
         {

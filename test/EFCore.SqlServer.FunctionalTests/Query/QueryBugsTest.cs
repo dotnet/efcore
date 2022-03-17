@@ -3985,12 +3985,11 @@ ORDER BY [p].[Id]");
             AssertSql(
                 @"@p0='BaseEntity13079' (Nullable = false) (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [BaseEntities] ([Discriminator])
-VALUES (@p0);
-SELECT [Id]
-FROM [BaseEntities]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
+OUTPUT INSERTED.[Id]
+VALUES (@p0);");
         }
     }
 
@@ -9134,8 +9133,8 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
 @p2='String Value' (Size = 12) (DbType = Object)
 @p3='2020-01-01T00:00:00.0000000' (Nullable = true) (DbType = Object)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int, [_Position] [int]);
 MERGE [BaseEntities] USING (
 VALUES (@p0, 0),
 (@p1, 1),
@@ -9144,11 +9143,7 @@ VALUES (@p0, 0),
 WHEN NOT MATCHED THEN
 INSERT ([Value])
 VALUES (i.[Value])
-OUTPUT INSERTED.[Id], i._Position
-INTO @inserted0;
-
-SELECT [i].[Id] FROM @inserted0 i
-ORDER BY [i].[_Position];");
+OUTPUT INSERTED.[Id], i._Position;");
         }
     }
 

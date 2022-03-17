@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -59,6 +60,22 @@ public class TableBuilder
 
         return this;
     }
+
+    /// <summary>
+    ///     Configures a database trigger on the table.
+    /// </summary>
+    /// <param name="name">The name of the trigger.</param>
+    /// <returns>A builder that can be used to configure the database trigger.</returns>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    public virtual TriggerBuilder HasTrigger(string name)
+        => new((Trigger)InternalTriggerBuilder.HasTrigger(
+            (IConventionEntityType)Metadata,
+            name,
+            Name,
+            Schema,
+            ConfigurationSource.Explicit)!);
 
     #region Hidden System.Object members
 

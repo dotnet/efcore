@@ -151,7 +151,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         foreach (var table in databaseModel.Tables.Values)
         {
             PopulateRowInternalForeignKeys(table);
-            PopulateConstraints(table, designTime);
+            PopulateTableConfiguration(table, designTime);
 
             if (relationalAnnotationProvider != null)
             {
@@ -179,9 +179,13 @@ public class RelationalModel : Annotatable, IRelationalModel
                 {
                     foreach (var checkConstraint in table.CheckConstraints.Values)
                     {
-                        checkConstraint.AddAnnotations(
-                            relationalAnnotationProvider.For(checkConstraint, designTime));
+                        checkConstraint.AddAnnotations(relationalAnnotationProvider.For(checkConstraint, designTime));
                     }
+                }
+
+                foreach (var trigger in table.Triggers.Values)
+                {
+                    ((AnnotatableBase)trigger).AddAnnotations(relationalAnnotationProvider.For(trigger, designTime));
                 }
 
                 table.AddAnnotations(relationalAnnotationProvider.For(table, designTime));
@@ -783,7 +787,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         return storeFunction;
     }
 
-    private static void PopulateConstraints(Table table, bool designTime)
+    private static void PopulateTableConfiguration(Table table, bool designTime)
     {
         var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
         foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
@@ -1015,6 +1019,23 @@ public class RelationalModel : Annotatable, IRelationalModel
                     {
                         table.CheckConstraints.Add(name, (CheckConstraint)checkConstraint);
                     }
+                }
+            }
+
+            foreach (var trigger in entityType.GetTriggers())
+            {
+                var name = trigger.GetName(storeObject);
+                if (name == null)
+                {
+                    continue;
+                }
+
+                Check.DebugAssert(trigger.TableName == table.Name, "Mismatch in trigger table name");
+                Check.DebugAssert(trigger.TableSchema is null || trigger.TableSchema == table.Schema, "Mismatch in trigger table schema");
+
+                if (!table.Triggers.ContainsKey(name))
+                {
+                    table.Triggers.Add(name, trigger);
                 }
             }
         }

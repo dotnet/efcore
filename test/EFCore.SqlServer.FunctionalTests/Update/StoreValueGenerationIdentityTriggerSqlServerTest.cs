@@ -1,17 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
-
 namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public class StoreValueGenerationIdentitySqlServerTest : StoreValueGenerationTestBase<
-    StoreValueGenerationIdentitySqlServerTest.StoreValueGenerationIdentitySqlServerFixture>
+public class StoreValueGenerationIdentityTriggerSqlServerTest : StoreValueGenerationTriggerSqlServerTestBase<
+    StoreValueGenerationIdentityTriggerSqlServerTest.StoreValueGenerationIdentityWithTriggerSqlServerFixture>
 {
-    public StoreValueGenerationIdentitySqlServerTest(
-        StoreValueGenerationIdentitySqlServerFixture fixture,
+    public StoreValueGenerationIdentityTriggerSqlServerTest(
+        StoreValueGenerationIdentityWithTriggerSqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
@@ -25,24 +23,21 @@ public class StoreValueGenerationIdentitySqlServerTest : StoreValueGenerationTes
         GeneratedValues generatedValues,
         bool withSameEntityType)
     {
-        // Updates with generated values currently use SELECT to retrieve them, and so require transactions
-        if (firstOperationType == EntityState.Modified && generatedValues != GeneratedValues.None)
+        // We have triggers, so any insert/update retrieving a database-generated value must be enclosed in a transaction
+        // (we use INSERT+SELECT or INSERT ... OUTPUT INTO+SELECT)
+        if (generatedValues is GeneratedValues.Some or GeneratedValues.All
+            && firstOperationType is EntityState.Added or EntityState.Modified)
         {
             return true;
         }
 
-        // For multiple operations, we specifically optimize multiple insertions of the same entity type with a single command (e.g. MERGE)
-        // (as long as there are writable columns)
-        if (firstOperationType is EntityState.Added
-            && secondOperationType is EntityState.Added
-            && withSameEntityType
-            && generatedValues != GeneratedValues.All)
+        if (secondOperationType is null)
         {
             return false;
         }
 
-        // Other single operations should never be in a transaction (always executed in a single SQL command)
-        return secondOperationType is not null;
+        // For multiple operations, we specifically optimize multiple insertions of the same entity type with a single MERGE.
+        return !(firstOperationType is EntityState.Added && secondOperationType is EntityState.Added && withSameEntityType);
     }
 
     #region Single operation
@@ -54,11 +49,12 @@ public class StoreValueGenerationIdentitySqlServerTest : StoreValueGenerationTes
         AssertSql(
             @"@p0='1000'
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
-OUTPUT INSERTED.[Id], INSERTED.[Data1]
-VALUES (@p0);");
+VALUES (@p0);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Add_with_no_generated_values(bool async)
@@ -81,11 +77,12 @@ VALUES (@p0, @p1, @p2);");
         await base.Add_with_all_generated_values(async);
 
         AssertSql(
-            @"SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
+            @"SET NOCOUNT ON;
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id], INSERTED.[Data1], INSERTED.[Data2]
-DEFAULT VALUES;");
+DEFAULT VALUES;
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Modify_with_generated_values(bool async)
@@ -146,15 +143,18 @@ SELECT @@ROWCOUNT;");
             @"@p0='1000'
 @p1='1001'
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-MERGE [WithSomeDatabaseGenerated] USING (
-VALUES (@p0, 0),
-(@p1, 1)) AS i ([Data2], _Position) ON 1=0
-WHEN NOT MATCHED THEN
-INSERT ([Data2])
-VALUES (i.[Data2])
-OUTPUT INSERTED.[Id], INSERTED.[Data1], i._Position;");
+INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
+VALUES (@p0);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
+
+INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
+VALUES (@p1);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Add_Add_with_same_entity_type_and_no_generated_values(bool async)
@@ -183,11 +183,16 @@ VALUES (@p0, @p1, @p2),
         AssertSql(
             @"SET NOCOUNT ON;
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id], INSERTED.[Data1], INSERTED.[Data2]
 DEFAULT VALUES;
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
+
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id], INSERTED.[Data1], INSERTED.[Data2]
-DEFAULT VALUES;");
+DEFAULT VALUES;
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Modify_Modify_with_same_entity_type_and_generated_values(bool async)
@@ -268,11 +273,16 @@ SELECT @@ROWCOUNT;");
 
 SET NOCOUNT ON;
 INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
-OUTPUT INSERTED.[Id], INSERTED.[Data1]
 VALUES (@p0);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
+
 INSERT INTO [WithSomeDatabaseGenerated2] ([Data2])
-OUTPUT INSERTED.[Id], INSERTED.[Data1]
-VALUES (@p1);");
+VALUES (@p1);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated2]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Add_Add_with_different_entity_types_and_no_generated_values(bool async)
@@ -301,12 +311,18 @@ VALUES (@p3, @p4, @p5);");
         AssertSql(
             @"SET NOCOUNT ON;
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id], INSERTED.[Data1], INSERTED.[Data2]
 DEFAULT VALUES;
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
+
 INSERT INTO [WithAllDatabaseGenerated2]
-OUTPUT INSERTED.[Id], INSERTED.[Data1], INSERTED.[Data2]
-DEFAULT VALUES;");
+DEFAULT VALUES;
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated2]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
+
 
     public override async Task Modify_Modify_with_different_entity_types_and_generated_values(bool async)
     {
@@ -335,8 +351,9 @@ WHERE @@ROWCOUNT = 1 AND [Id] = @p3;");
     public override async Task Modify_Modify_with_different_entity_types_and_no_generated_values(bool async)
     {
         await base.Modify_Modify_with_different_entity_types_and_no_generated_values(async);
-AssertSql(
-    @"@p2='1'
+
+        AssertSql(
+            @"@p2='1'
 @p0='1000'
 @p1='1000'
 @p5='2'
@@ -373,6 +390,35 @@ SELECT @@ROWCOUNT;");
 
     #endregion Two operations with different entity types
 
+    public override async Task Three_Add_use_batched_inserts(bool async)
+    {
+        await base.Three_Add_use_batched_inserts(async);
+
+        AssertSql(
+            @"@p0='0'
+@p1='0'
+@p2='0'
+
+SET NOCOUNT ON;
+INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
+VALUES (@p0);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
+
+INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
+VALUES (@p1);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
+
+INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
+VALUES (@p2);
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
+    }
+
     protected override async Task Test(
         EntityState firstOperationType,
         EntityState? secondOperationType,
@@ -388,11 +434,11 @@ SELECT @@ROWCOUNT;");
         }
     }
 
-    public class StoreValueGenerationIdentitySqlServerFixture : StoreValueGenerationFixtureBase
+    public class StoreValueGenerationIdentityWithTriggerSqlServerFixture : StoreValueGenerationTriggerSqlServerFixture
     {
         private string? _identityResetCommand;
 
-        protected override string StoreName { get; } = "StoreValueGenerationIdentityTest";
+        protected override string StoreName { get; } = "StoreValueGenerationIdentityWithTriggerTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

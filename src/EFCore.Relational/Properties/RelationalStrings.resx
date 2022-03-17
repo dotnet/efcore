@@ -319,6 +319,9 @@
   <data name="DuplicateKeyTableMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{keyName}', but on different tables ('{table1}' and '{table2}').</value>
   </data>
+  <data name="DuplicateTrigger" xml:space="preserve">
+    <value>The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.</value>
+  </data>
   <data name="EitherOfTwoValuesMustBeNull" xml:space="preserve">
     <value>Either {param1} or {param2} must be null.</value>
   </data>
@@ -814,6 +817,12 @@
   </data>
   <data name="TransactionSuppressedMigrationInUserTransaction" xml:space="preserve">
     <value>User transaction is not supported with a TransactionSuppressed migrations.</value>
+  </data>
+  <data name="TriggerOnUnmappedEntityType" xml:space="preserve">
+    <value>Trigger '{trigger}' cannot be defined on entity type '{entityType}' since that entity type isn't mapped to a database table. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>
+  </data>
+  <data name="TriggerWithMismatchedTable" xml:space="preserve">
+    <value>Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.</value>

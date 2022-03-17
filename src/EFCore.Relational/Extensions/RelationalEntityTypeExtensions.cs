@@ -20,6 +20,8 @@ public static class RelationalEntityTypeExtensions
     /// </summary>
     public static readonly string DefaultQueryNameBase = "MappedSqlQuery";
 
+    #region Table mapping
+
     /// <summary>
     ///     Returns the name of the table to which the entity type is mapped
     ///     or <see langword="null" /> if not mapped to a table.
@@ -273,6 +275,10 @@ public static class RelationalEntityTypeExtensions
                 RelationalAnnotationNames.TableMappings)
             ?? Enumerable.Empty<ITableMapping>();
 
+    #endregion Table mapping
+
+    #region View mapping
+
     /// <summary>
     ///     Returns the name of the view to which the entity type is mapped or <see langword="null" /> if not mapped to a view.
     /// </summary>
@@ -438,6 +444,10 @@ public static class RelationalEntityTypeExtensions
                 RelationalAnnotationNames.ViewMappings)
             ?? Enumerable.Empty<IViewMapping>();
 
+    #endregion View mapping
+
+    #region SQL query mapping
+
     /// <summary>
     ///     Gets the default SQL query name that would be used for this entity type when mapped using
     ///     <see cref="O:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
@@ -503,6 +513,10 @@ public static class RelationalEntityTypeExtensions
                 RelationalAnnotationNames.SqlQueryMappings)
             ?? Enumerable.Empty<ISqlQueryMapping>();
 
+    #endregion SQL query mapping
+
+    #region Function mapping
+
     /// <summary>
     ///     Returns the name of the function to which the entity type is mapped or <see langword="null" /> if not mapped to a function.
     /// </summary>
@@ -558,6 +572,10 @@ public static class RelationalEntityTypeExtensions
         => (IEnumerable<IFunctionMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.FunctionMappings)
             ?? Enumerable.Empty<IFunctionMapping>();
+
+    #endregion Function mapping
+
+    #region Check constraint
 
     /// <summary>
     ///     Finds an <see cref="IReadOnlyCheckConstraint" /> with the given name.
@@ -760,6 +778,10 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<ICheckConstraint> GetDeclaredCheckConstraints(this IEntityType entityType)
         => CheckConstraint.GetDeclaredCheckConstraints(entityType).Cast<ICheckConstraint>();
 
+    #endregion Check constraint
+
+    #region Comment
+
     /// <summary>
     ///     Returns the comment for the table this entity is mapped to.
     /// </summary>
@@ -803,6 +825,8 @@ public static class RelationalEntityTypeExtensions
     public static ConfigurationSource? GetCommentConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(RelationalAnnotationNames.Comment)
             ?.GetConfigurationSource();
+
+    #endregion Comment
 
     /// <summary>
     ///     Gets the foreign keys for the given entity type that point to other entity types
@@ -900,6 +924,8 @@ public static class RelationalEntityTypeExtensions
         // ReSharper disable once RedundantCast
         => ((IReadOnlyEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IForeignKey>();
 
+    #region IsTableExcludedFromMigrations
+
     /// <summary>
     ///     Gets a value indicating whether the associated table is ignored by Migrations.
     /// </summary>
@@ -987,6 +1013,10 @@ public static class RelationalEntityTypeExtensions
         return null;
     }
 
+    #endregion IsTableExcludedFromMigrations
+
+    #region Mapping strategy
+
     /// <summary>
     ///     Sets the mapping strategy for the derived types.
     /// </summary>
@@ -1019,4 +1049,218 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType)
         => entityType.FindAnnotation(RelationalAnnotationNames.MappingStrategy)
             ?.GetConfigurationSource();
+
+    #endregion Mapping strategy
+
+    #region Trigger
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="entityType">The entity type to find the sequence on.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    public static IReadOnlyTrigger? FindTrigger(this IReadOnlyEntityType entityType, string name)
+        => Trigger.FindTrigger(entityType, Check.NotEmpty(name, nameof(name)));
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="entityType">The entity type to find the sequence on.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    public static IMutableTrigger? FindTrigger(this IMutableEntityType entityType, string name)
+        => (IMutableTrigger?)((IReadOnlyEntityType)entityType).FindTrigger(name);
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="entityType">The entity type to find the sequence on.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    public static IConventionTrigger? FindTrigger(this IConventionEntityType entityType, string name)
+        => (IConventionTrigger?)((IReadOnlyEntityType)entityType).FindTrigger(name);
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="entityType">The entity type to find the sequence on.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    public static ITrigger? FindTrigger(this IEntityType entityType, string name)
+        => (ITrigger?)((IReadOnlyEntityType)entityType).FindTrigger(name);
+
+    /// <summary>
+    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
+    ///     entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to add the trigger to.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger.</returns>
+    public static IMutableTrigger AddTrigger(this IMutableEntityType entityType, string name)
+    {
+        Check.NotEmpty(name, nameof(name));
+
+        return new Trigger(entityType, name, tableName: null, tableSchema: null, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
+    ///     entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to add the trigger to.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <param name="tableName">The name of the table on which this trigger is defined.</param>
+    /// <param name="tableSchema">The schema of the table on which this trigger is defined.</param>
+    /// <returns>The trigger.</returns>
+    public static IMutableTrigger AddTrigger(this IMutableEntityType entityType, string name, string tableName, string? tableSchema = null)
+    {
+        Check.NotEmpty(name, nameof(name));
+
+        return new Trigger(entityType, name, tableName, tableSchema, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
+    ///     entity type.
+    /// </summary>
+    /// <param name="entityType">The entityType to add the trigger to.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The trigger.</returns>
+    public static IConventionTrigger AddTrigger(
+        this IConventionEntityType entityType,
+        string name,
+        bool fromDataAnnotation = false)
+    {
+        Check.NotEmpty(name, nameof(name));
+
+        return new Trigger(
+            (IMutableEntityType)entityType, name, tableName: null, tableSchema: null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    }
+
+    /// <summary>
+    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
+    ///     entity type.
+    /// </summary>
+    /// <param name="entityType">The entityType to add the trigger to.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <param name="tableName">The name of the table on which this trigger is defined.</param>
+    /// <param name="tableSchema">The schema of the table on which this trigger is defined.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The trigger.</returns>
+    public static IConventionTrigger AddTrigger(
+        this IConventionEntityType entityType,
+        string name,
+        string tableName,
+        string? tableSchema,
+        bool fromDataAnnotation = false)
+    {
+        Check.NotEmpty(name, nameof(name));
+
+        return new Trigger(
+            (IMutableEntityType)entityType, name, tableName, tableSchema,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    }
+
+    /// <summary>
+    ///     Removes the <see cref="IMutableTrigger" /> with the given name.
+    /// </summary>
+    /// <param name="entityType">The entityType to find the trigger in.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>
+    ///     The removed <see cref="IMutableTrigger" /> or <see langword="null" /> if no trigger with the given name was found.
+    /// </returns>
+    public static IMutableTrigger? RemoveTrigger(this IMutableEntityType entityType, string name)
+        => Trigger.RemoveTrigger(entityType, name);
+
+    /// <summary>
+    ///     Removes the <see cref="IConventionTrigger" /> with the given name.
+    /// </summary>
+    /// <param name="entityType">The entityType to find the trigger in.</param>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>
+    ///     The removed <see cref="IMutableTrigger" /> or <see langword="null" /> if no trigger with the given name was found.
+    /// </returns>
+    public static IConventionTrigger? RemoveTrigger(this IConventionEntityType entityType, string name)
+        => Trigger.RemoveTrigger((IMutableEntityType)entityType, name);
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    public static IEnumerable<IReadOnlyTrigger> GetTriggers(this IReadOnlyEntityType entityType)
+        => Trigger.GetTriggers(entityType);
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    public static IEnumerable<IMutableTrigger> GetTriggers(this IMutableEntityType entityType)
+        => Trigger.GetTriggers(entityType).Cast<IMutableTrigger>();
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    public static IEnumerable<IConventionTrigger> GetTriggers(this IConventionEntityType entityType)
+        => Trigger.GetTriggers(entityType).Cast<IConventionTrigger>();
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    public static IEnumerable<ITrigger> GetTriggers(this IEntityType entityType)
+        => Trigger.GetTriggers(entityType).Cast<ITrigger>();
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    /// <remarks>
+    ///     This method does not return triggers declared on base types.
+    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
+    ///     Use <see cref="GetTriggers(IReadOnlyEntityType)" /> to also return triggers declared on base types.
+    /// </remarks>
+    public static IEnumerable<IReadOnlyTrigger> GetDeclaredTriggers(this IReadOnlyEntityType entityType)
+        => Trigger.GetDeclaredTriggers(entityType);
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    /// <remarks>
+    ///     This method does not return triggers declared on base types.
+    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
+    ///     Use <see cref="GetTriggers(IMutableEntityType)" /> to also return triggers declared on base types.
+    /// </remarks>
+    public static IEnumerable<IMutableTrigger> GetDeclaredTriggers(this IMutableEntityType entityType)
+        => Trigger.GetDeclaredTriggers(entityType).Cast<IMutableTrigger>();
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    /// <remarks>
+    ///     This method does not return triggers declared on base types.
+    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
+    ///     Use <see cref="GetTriggers(IConventionEntityType)" /> to also return triggers declared on base types.
+    /// </remarks>
+    public static IEnumerable<IConventionTrigger> GetDeclaredTriggers(this IConventionEntityType entityType)
+        => Trigger.GetDeclaredTriggers(entityType).Cast<IConventionTrigger>();
+
+    /// <summary>
+    ///     Returns all triggers on the entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the triggers on.</param>
+    /// <remarks>
+    ///     This method does not return triggers declared on base types.
+    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
+    ///     Use <see cref="GetTriggers(IEntityType)" /> to also return triggers declared on base types.
+    /// </remarks>
+    public static IEnumerable<ITrigger> GetDeclaredTriggers(this IEntityType entityType)
+        => Trigger.GetDeclaredTriggers(entityType).Cast<ITrigger>();
+
+    #endregion Trigger
 }

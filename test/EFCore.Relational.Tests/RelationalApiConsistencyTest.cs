@@ -59,8 +59,14 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 {
                     typeof(IReadOnlyCheckConstraint), (typeof(IMutableCheckConstraint),
                         typeof(IConventionCheckConstraint),
-                        null,
+                        typeof(IConventionCheckConstraintBuilder),
                         typeof(ICheckConstraint))
+                },
+                {
+                    typeof(IReadOnlyTrigger), (typeof(IMutableTrigger),
+                        typeof(IConventionTrigger),
+                        typeof(IConventionTriggerBuilder),
+                        typeof(ITrigger))
                 }
             };
 
@@ -81,7 +87,8 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(IViewColumnMapping),
             typeof(ITableIndex),
             typeof(IForeignKeyConstraint),
-            typeof(IUniqueConstraint)
+            typeof(IUniqueConstraint),
+            typeof(ITrigger)
         };
 
         public override HashSet<Type> FluentApiTypes { get; } = new()

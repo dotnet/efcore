@@ -13,6 +13,8 @@ public abstract class StoreValueGenerationFixtureBase : SharedStoreFixtureBase<S
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
+        var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+
         foreach (var name in new[]
                  {
                      nameof(StoreValueGenerationContext.WithNoDatabaseGenerated),
@@ -28,15 +30,13 @@ public abstract class StoreValueGenerationFixtureBase : SharedStoreFixtureBase<S
         foreach (var name in new[]
                  {
                      nameof(StoreValueGenerationContext.WithSomeDatabaseGenerated),
-                     nameof(StoreValueGenerationContext.WithSomeDatabaseGenerated2),
-                     nameof(StoreValueGenerationContext.WithAllDatabaseGenerated),
-                     nameof(StoreValueGenerationContext.WithAllDatabaseGenerated2)
+                     nameof(StoreValueGenerationContext.WithSomeDatabaseGenerated2)
                  })
         {
             modelBuilder
                 .SharedTypeEntity<StoreValueGenerationData>(name)
                 .Property(w => w.Data1)
-                .HasComputedColumnSql("80");
+                .HasComputedColumnSql(sqlGenerationHelper.DelimitIdentifier(nameof(StoreValueGenerationData.Data2)) + " + 1");
         }
 
         foreach (var name in new[]
@@ -45,6 +45,11 @@ public abstract class StoreValueGenerationFixtureBase : SharedStoreFixtureBase<S
                      nameof(StoreValueGenerationContext.WithAllDatabaseGenerated2)
                  })
         {
+            modelBuilder
+                .SharedTypeEntity<StoreValueGenerationData>(name)
+                .Property(w => w.Data1)
+                .HasComputedColumnSql("80");
+
             modelBuilder
                 .SharedTypeEntity<StoreValueGenerationData>(name)
                 .Property(w => w.Data2)

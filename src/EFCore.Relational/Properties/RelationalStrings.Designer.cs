@@ -550,6 +550,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 keyProperties1, entityType1, keyProperties2, entityType2, keyName, table1, table2);
 
         /// <summary>
+        ///     The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.
+        /// </summary>
+        public static string DuplicateTrigger(object? trigger, object? entityType, object? conflictingEntityType)
+            => string.Format(
+                GetString("DuplicateTrigger", nameof(trigger), nameof(entityType), nameof(conflictingEntityType)),
+                trigger, entityType, conflictingEntityType);
+
+        /// <summary>
         ///     Either {param1} or {param2} must be null.
         /// </summary>
         public static string EitherOfTwoValuesMustBeNull(object? param1, object? param2)
@@ -1174,6 +1182,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string TransactionSuppressedMigrationInUserTransaction
             => GetString("TransactionSuppressedMigrationInUserTransaction");
+
+        /// <summary>
+        ///     Trigger '{trigger}' cannot be defined on entity type '{entityType}' since that entity type isn't mapped to a database table. See https://aka.ms/efcore-docs-triggers for more information on triggers.
+        /// </summary>
+        public static string TriggerOnUnmappedEntityType(object? trigger, object? entityType)
+            => string.Format(
+                GetString("TriggerOnUnmappedEntityType", nameof(trigger), nameof(entityType)),
+                trigger, entityType);
+
+        /// <summary>
+        ///     Trigger '{trigger}' with table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.
+        /// </summary>
+        public static string TriggerWithMismatchedTable(object? trigger, object? triggerTable, object? entityType, object? entityTable)
+            => string.Format(
+                GetString("TriggerWithMismatchedTable", nameof(trigger), nameof(triggerTable), nameof(entityType), nameof(entityTable)),
+                trigger, triggerTable, entityType, entityTable);
 
         /// <summary>
         ///     Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.

@@ -133,10 +133,8 @@ SELECT changes();");
 @p6='0' (Nullable = true)
 
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""AdditionalDetails_Value"", ""Details_Name"", ""Details_Value"")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
-SELECT ""Unique_No""
-FROM ""Sample""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING ""Unique_No"";");
     }
 
     // Sqlite does not support length

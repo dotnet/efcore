@@ -27,6 +27,74 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     }
 
     /// <summary>
+    ///     The minimum number of insertions which are executed using MERGE ... OUTPUT INTO. Below this threshold, multiple batched INSERT
+    ///     statements are more efficient.
+    /// </summary>
+    protected virtual int MergeIntoMinimumThreshold => 4;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override ResultSetMapping AppendInsertOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+    {
+        // If no database-generated columns need to be read back, just do a simple INSERT (default behavior).
+        // If there are generated columns but there are no triggers defined on the table, we can do a simple INSERT ... OUTPUT
+        // (without INTO), which is also the default behavior, doesn't require a transaction and is the most efficient.
+        if (command.ColumnModifications.All(o => !o.IsRead)
+            || !command.Entries[0].EntityType.Model.GetRelationalModel().FindTable(command.TableName, command.Schema)!.Triggers.Any())
+        {
+            return base.AppendInsertOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+        }
+
+        // SQL Server doesn't allow INSERT ... OUTPUT on tables with triggers.
+        // If the only generated column is an IDENTITY, do INSERT+SELECT which is relatively fast.
+        // Otherwise fall back to INSERT ... OUTPUT INTO @inserted; SELECT ... FROM @inserted.
+        var table = StoreObjectIdentifier.Table(command.TableName, command.Schema);
+
+        return command.ColumnModifications.All(
+            o =>
+                !o.IsKey
+                || !o.IsRead
+                || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
+            ? AppendInsertAndSelectOperations(commandStringBuilder, command, commandPosition, out requiresTransaction)
+            : AppendInsertSingleRowWithOutputInto(
+                commandStringBuilder,
+                command,
+                command.ColumnModifications.Where(o => o.IsKey).ToList(),
+                command.ColumnModifications.Where(o => o.IsRead).ToList(),
+                commandPosition,
+                out requiresTransaction);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void AppendInsertCommand(
+        StringBuilder commandStringBuilder,
+        string name,
+        string? schema,
+        IReadOnlyList<IColumnModification> writeOperations,
+        IReadOnlyList<IColumnModification> readOperations)
+    {
+        // In SQL Server the OUTPUT clause is placed differently (before the VALUES instead of at the end)
+        AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
+        AppendOutputClause(commandStringBuilder, readOperations);
+        AppendValuesHeader(commandStringBuilder, writeOperations);
+        AppendValues(commandStringBuilder, name, schema, writeOperations);
+        commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -36,33 +104,24 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         int commandPosition,
+        out bool resultsContainPositionMapping,
         out bool requiresTransaction)
     {
-        var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
+        resultsContainPositionMapping = false;
+
+        var firstCommand = modificationCommands[0];
+
         if (modificationCommands.Count == 1)
         {
-            return modificationCommands[0].ColumnModifications.All(
-                o =>
-                    !o.IsKey
-                    || !o.IsRead
-                    || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
-                // Do a regular INSERT+SELECT for IDENTITY, but not if there are any non-IDENTITY generated columns
-                ? AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition, out requiresTransaction)
-                // If we have a non-identity generated column, do INSERT ... OUTPUT INTO @inserted; SELECT ... FROM @inserted
-                : AppendInsertOperationWithServerKeys(
-                    commandStringBuilder,
-                    modificationCommands[0],
-                    modificationCommands[0].ColumnModifications.Where(o => o.IsKey).ToList(),
-                    modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList(),
-                    commandPosition,
-                    out requiresTransaction);
+            return AppendInsertOperation(commandStringBuilder, firstCommand, commandPosition, out requiresTransaction);
         }
 
-        var readOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList();
-        var writeOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsWrite).ToList();
-        var keyOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsKey).ToList();
+        var table = StoreObjectIdentifier.Table(firstCommand.TableName, modificationCommands[0].Schema);
 
-        var defaultValuesOnly = writeOperations.Count == 0;
+        var readOperations = firstCommand.ColumnModifications.Where(o => o.IsRead).ToList();
+        var writeOperations = firstCommand.ColumnModifications.Where(o => o.IsWrite).ToList();
+        var keyOperations = firstCommand.ColumnModifications.Where(o => o.IsKey).ToList();
+
         var writableOperations = modificationCommands[0].ColumnModifications
             .Where(o =>
                 o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
@@ -70,43 +129,48 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                 && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
             .ToList();
 
-        if (defaultValuesOnly)
+        if (writeOperations.Count == 0)
         {
-            if (writableOperations.Count == 0
-                || readOperations.Count == 0)
+            // We have no values to write; MERGE and multi-row INSERT cannot be used without writing at least a single column.
+            // But as long as there's at least one writable column (non-identity/computed), we can use it to send DEFAULT in a multi-row
+            // INSERT.
+            if (writableOperations.Count > 0)
             {
-                requiresTransaction = modificationCommands.Count > 1;
-                foreach (var modification in modificationCommands)
+                if (writableOperations.Count > 1)
                 {
-                    AppendInsertOperation(commandStringBuilder, modification, commandPosition, out var localRequiresTransaction);
-                    requiresTransaction = requiresTransaction || localRequiresTransaction;
+                    writableOperations.RemoveRange(1, writableOperations.Count - 1);
                 }
 
                 return readOperations.Count == 0
-                    ? ResultSetMapping.NoResultSet
-                    : ResultSetMapping.LastInResultSet;
+                    ? AppendInsertMultipleDefaultRows(
+                        commandStringBuilder, modificationCommands, writableOperations, out requiresTransaction)
+                    : AppendInsertMultipleDefaultRowsWithOutputInto(
+                        commandStringBuilder, modificationCommands, commandPosition, writableOperations, keyOperations, readOperations,
+                        out requiresTransaction);
             }
 
-            if (writableOperations.Count > 1)
+            // There are no writeable columns, fall back to sending multiple single-row INSERTs (there is no way to insert multiple
+            // all-default rows in a single INSERT).
+            requiresTransaction = modificationCommands.Count > 1;
+            foreach (var modification in modificationCommands)
             {
-                writableOperations.RemoveRange(1, writableOperations.Count - 1);
+                AppendInsertOperation(commandStringBuilder, modification, commandPosition++, out var localRequiresTransaction);
+                requiresTransaction = requiresTransaction || localRequiresTransaction;
             }
+
+            return readOperations.Count == 0
+                ? ResultSetMapping.NoResultSet
+                : ResultSetMapping.LastInResultSet;
         }
 
         if (readOperations.Count == 0)
         {
-            return AppendBulkInsertWithoutServerValues(
+            // We have no values to read, just use a plain old multi-row INSERT.
+            return AppendInsertMultipleRows(
                 commandStringBuilder, modificationCommands, writeOperations, out requiresTransaction);
         }
 
-        if (defaultValuesOnly)
-        {
-            return AppendBulkInsertWithServerValuesOnly(
-                commandStringBuilder, modificationCommands, commandPosition, writableOperations, keyOperations, readOperations,
-                out requiresTransaction);
-        }
-
-        if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
+        if (firstCommand.Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
             .Any(e => e.IsMemoryOptimized()))
         {
             requiresTransaction = modificationCommands.Count > 1;
@@ -123,7 +187,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             {
                 foreach (var modification in modificationCommands)
                 {
-                    AppendInsertOperationWithServerKeys(
+                    AppendInsertSingleRowWithOutputInto(
                         commandStringBuilder, modification, keyOperations, readOperations, commandPosition++,
                         out var localRequiresTransaction);
                     requiresTransaction = requiresTransaction || localRequiresTransaction;
@@ -133,12 +197,75 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             return ResultSetMapping.LastInResultSet;
         }
 
-        return AppendBulkInsertWithServerValues(
+        // We default to using MERGE ... OUTPUT (without INTO), projecting back a synthetic _Position column to know the order back
+        // at the client and propagate database-generated values correctly. However, if any triggers are defined, OUTPUT without INTO
+        // doesn't work.
+        if (!firstCommand.Entries[0].EntityType.Model.GetRelationalModel().FindTable(firstCommand.TableName, firstCommand.Schema)!
+                .Triggers.Any())
+        {
+            // MERGE ... OUTPUT returns rows whose ordering isn't guaranteed. So this technique projects back a position int with each row,
+            // to allow mapping the rows back for value propagation.
+            resultsContainPositionMapping = true;
+
+            return AppendMergeWithOutput(
+                commandStringBuilder, modificationCommands, writeOperations, readOperations, out requiresTransaction);
+        }
+
+        // We have a trigger, so can't use a simple OUTPUT clause.
+        // If we have an IDENTITY column, then multiple batched SELECT+INSERTs are faster up to a certain threshold (4), and then
+        // MERGE ... OUTPUT INTO is faster.
+        if (modificationCommands.Count < MergeIntoMinimumThreshold
+            && firstCommand.ColumnModifications.All(
+                o =>
+                    !o.IsKey
+                    || !o.IsRead
+                    || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn))
+        {
+            requiresTransaction = true;
+
+            foreach (var command in modificationCommands)
+            {
+                AppendInsertAndSelectOperations(commandStringBuilder, command, commandPosition++, out _);
+            }
+
+            return ResultSetMapping.LastInResultSet;
+        }
+
+        return AppendMergeWithOutputInto(
             commandStringBuilder, modificationCommands, commandPosition, writeOperations, keyOperations, readOperations,
             out requiresTransaction);
     }
 
-    private ResultSetMapping AppendBulkInsertWithoutServerValues(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual ResultSetMapping AppendInsertAndSelectOperations(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+    {
+        var name = command.TableName;
+        var schema = command.Schema;
+        var operations = command.ColumnModifications;
+
+        var writeOperations = operations.Where(o => o.IsWrite).ToList();
+        var readOperations = operations.Where(o => o.IsRead).ToList();
+        var keyOperations = operations.Where(o => o.IsKey).ToList();
+
+        Check.DebugAssert(readOperations.Count > 0, "AppendInsertAndSelectOperations called without any read operations");
+
+        requiresTransaction = true;
+
+        AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, readOperations: Array.Empty<IColumnModification>());
+
+        return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
+    }
+
+    private ResultSetMapping AppendInsertMultipleRows(
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         List<IColumnModification> writeOperations,
@@ -155,8 +282,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         for (var i = 1; i < modificationCommands.Count; i++)
         {
             commandStringBuilder.AppendLine(",");
-            AppendValues(
-                commandStringBuilder, name, schema, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
+            AppendValues(commandStringBuilder, name, schema, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
         }
 
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
@@ -172,7 +298,36 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     private const string PositionColumnDeclaration = "[" + PositionColumnName + "] [int]";
     private const string FullPositionColumnName = ToInsertTableAlias + "." + PositionColumnName;
 
-    private ResultSetMapping AppendBulkInsertWithServerValues(
+    private ResultSetMapping AppendMergeWithOutput(
+        StringBuilder commandStringBuilder,
+        IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
+        List<IColumnModification> writeOperations,
+        List<IColumnModification> readOperations,
+        out bool requiresTransaction)
+    {
+        var name = modificationCommands[0].TableName;
+        var schema = modificationCommands[0].Schema;
+
+        AppendMergeCommandHeader(
+            commandStringBuilder,
+            name,
+            schema,
+            ToInsertTableAlias,
+            modificationCommands,
+            writeOperations,
+            PositionColumnName);
+        AppendOutputClause(
+            commandStringBuilder,
+            readOperations,
+            FullPositionColumnName);
+        commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+
+        requiresTransaction = false;
+
+        return ResultSetMapping.NotLastInResultSet;
+    }
+
+    private ResultSetMapping AppendMergeWithOutputInto(
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         int commandPosition,
@@ -199,7 +354,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             modificationCommands,
             writeOperations,
             PositionColumnName);
-        AppendOutputClause(
+        AppendOutputIntoClause(
             commandStringBuilder,
             keyOperations,
             InsertedTableBaseName,
@@ -216,7 +371,34 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         return ResultSetMapping.NotLastInResultSet;
     }
 
-    private ResultSetMapping AppendBulkInsertWithServerValuesOnly(
+    private ResultSetMapping AppendInsertMultipleDefaultRows(
+        StringBuilder commandStringBuilder,
+        IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
+        List<IColumnModification> writeableOperations,
+        out bool requiresTransaction)
+    {
+        Check.DebugAssert(writeableOperations.Count > 0, $"writeableOperations.Count is {writeableOperations.Count}");
+
+        var name = modificationCommands[0].TableName;
+        var schema = modificationCommands[0].Schema;
+
+        AppendInsertCommandHeader(commandStringBuilder, name, schema, writeableOperations);
+        AppendValuesHeader(commandStringBuilder, writeableOperations);
+        AppendValues(commandStringBuilder, name, schema, writeableOperations);
+        for (var i = 1; i < modificationCommands.Count; i++)
+        {
+            commandStringBuilder.AppendLine(",");
+            AppendValues(commandStringBuilder, name, schema, writeableOperations);
+        }
+
+        commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+
+        requiresTransaction = false;
+
+        return ResultSetMapping.NoResultSet;
+    }
+
+    private ResultSetMapping AppendInsertMultipleDefaultRowsWithOutputInto(
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         int commandPosition,
@@ -230,7 +412,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         var name = modificationCommands[0].TableName;
         var schema = modificationCommands[0].Schema;
         AppendInsertCommandHeader(commandStringBuilder, name, schema, writableOperations);
-        AppendOutputClause(commandStringBuilder, keyOperations, InsertedTableBaseName, commandPosition);
+        AppendOutputIntoClause(commandStringBuilder, keyOperations, InsertedTableBaseName, commandPosition);
         AppendValuesHeader(commandStringBuilder, writableOperations);
         AppendValues(commandStringBuilder, name, schema, writableOperations);
         for (var i = 1; i < modificationCommands.Count; i++)
@@ -291,9 +473,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         commandStringBuilder
             .Append(')')
             .AppendLine(" ON 1=0")
-            .AppendLine("WHEN NOT MATCHED THEN");
-
-        commandStringBuilder
+            .AppendLine("WHEN NOT MATCHED THEN")
             .Append("INSERT ")
             .Append('(')
             .AppendJoin(
@@ -390,37 +570,66 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                 : typeName;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void AppendReturningClause(
+        StringBuilder commandStringBuilder,
+        IReadOnlyList<IColumnModification> operations)
+        => AppendOutputClause(commandStringBuilder, operations);
+
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local
     private void AppendOutputClause(
+        StringBuilder commandStringBuilder,
+        IReadOnlyList<IColumnModification> operations,
+        string? additionalColumns = null)
+    {
+        if (operations.Count > 0 || additionalColumns is not null)
+        {
+            commandStringBuilder
+                .AppendLine()
+                .Append("OUTPUT ")
+                .AppendJoin(
+                    operations,
+                    SqlGenerationHelper,
+                    (sb, o, helper) =>
+                    {
+                        sb.Append("INSERTED.");
+                        helper.DelimitIdentifier(sb, o.ColumnName);
+                    });
+
+            if (additionalColumns != null)
+            {
+                if (operations.Count > 0)
+                {
+                    commandStringBuilder.Append(", ");
+                }
+
+                commandStringBuilder.Append(additionalColumns);
+            }
+        }
+    }
+
+    private void AppendOutputIntoClause(
         StringBuilder commandStringBuilder,
         IReadOnlyList<IColumnModification> operations,
         string tableName,
         int tableIndex,
         string? additionalColumns = null)
     {
-        commandStringBuilder
-            .AppendLine()
-            .Append("OUTPUT ")
-            .AppendJoin(
-                operations,
-                SqlGenerationHelper,
-                (sb, o, helper) =>
-                {
-                    sb.Append("INSERTED.");
-                    helper.DelimitIdentifier(sb, o.ColumnName);
-                });
-
-        if (additionalColumns != null)
+        if (operations.Count > 0 || additionalColumns is not null)
         {
-            commandStringBuilder
-                .Append(", ").Append(additionalColumns);
-        }
+            AppendOutputClause(commandStringBuilder, operations, additionalColumns);
 
-        commandStringBuilder.AppendLine()
-            .Append("INTO ").Append(tableName).Append(tableIndex);
+            commandStringBuilder.AppendLine()
+                .Append("INTO ").Append(tableName).Append(tableIndex);
+        }
     }
 
-    private ResultSetMapping AppendInsertOperationWithServerKeys(
+    private ResultSetMapping AppendInsertSingleRowWithOutputInto(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
         IReadOnlyList<IColumnModification> keyOperations,
@@ -437,7 +646,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         AppendDeclareTable(commandStringBuilder, InsertedTableBaseName, commandPosition, keyOperations);
 
         AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
-        AppendOutputClause(commandStringBuilder, keyOperations, InsertedTableBaseName, commandPosition);
+        AppendOutputIntoClause(commandStringBuilder, keyOperations, InsertedTableBaseName, commandPosition);
         AppendValuesHeader(commandStringBuilder, writeOperations);
         AppendValues(commandStringBuilder, name, schema, writeOperations);
         commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator);

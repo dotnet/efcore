@@ -652,6 +652,160 @@ public class RelationalBuilderExtensionsTest
     }
 
     [ConditionalFact]
+    public void Can_create_trigger()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entityType = modelBuilder.Entity<Customer>().Metadata;
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger"));
+
+        var trigger = entityType.FindTrigger("Customer_Trigger");
+
+        Assert.NotNull(trigger);
+        Assert.Same(entityType, trigger.EntityType);
+        Assert.Equal("Customer_Trigger", trigger.ModelName);
+        Assert.Equal("Customer_Trigger", trigger.Name);
+    }
+
+    [ConditionalFact]
+    public void Can_create_trigger_with_duplicate_name_replaces_existing()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var entityType = modelBuilder.Entity<Customer>().Metadata;
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasName("Table1"));
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasName("Table2"));
+
+        var trigger = entityType.FindTrigger("Customer_Trigger");
+
+        Assert.NotNull(trigger);
+        Assert.Equal(entityType, trigger.EntityType);
+        Assert.Equal("Customer_Trigger", trigger.ModelName);
+        Assert.Equal("Table2", trigger.Name);
+    }
+
+    [ConditionalFact]
+    public void Can_access_trigger()
+    {
+        var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
+        IReadOnlyEntityType entityType = typeBuilder.Metadata;
+
+        Assert.NotNull(typeBuilder.HasTrigger("Splew", "Table1", "dbo"));
+        Assert.Equal("Splew", entityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table1", entityType.GetTriggers().Single().TableName);
+
+        Assert.NotNull(typeBuilder.HasTrigger("Splew", "Table2", "dbo", fromDataAnnotation: true));
+        Assert.Equal("Splew", entityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table2", entityType.GetTriggers().Single().TableName);
+
+        Assert.Null(typeBuilder.HasTrigger("Splew", "Table1", "dbo"));
+        Assert.Equal("Splew", entityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table2", entityType.GetTriggers().Single().TableName);
+    }
+
+    [ConditionalFact]
+    public void Base_trigger_overrides_derived_one()
+    {
+        var modelBuilder = CreateBuilder();
+
+        var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
+        IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
+
+        Assert.NotNull(
+            derivedBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
+                .HasName("Splow_Trigger", fromDataAnnotation: true));
+        Assert.Equal("Splew", derivedEntityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Splow_Trigger", derivedEntityType.GetTriggers().Single().Name);
+        Assert.Equal("Table1", derivedEntityType.GetTriggers().Single().TableName);
+        Assert.Equal("dbo", derivedEntityType.GetTriggers().Single().TableSchema);
+
+        Assert.True(derivedBuilder.CanHaveTrigger("Splew", "Table1", "dbo"));
+        Assert.True(derivedBuilder.CanHaveTrigger("Splew", "Table2", "dbo", fromDataAnnotation: true));
+        Assert.True(derivedBuilder.CanHaveTrigger("Splew", "Table1", "dbo2", fromDataAnnotation: true));
+        Assert.False(derivedBuilder.CanHaveTrigger("Splew", "Table2", "dbo"));
+        Assert.False(derivedBuilder.CanHaveTrigger("Splew", "Table1", "dbo2"));
+        Assert.True(derivedBuilder.CanHaveTrigger("Splot", "Table2", "dbo2"));
+
+        var baseBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.DataAnnotation);
+        IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
+
+        Assert.True(baseBuilder.CanHaveTrigger("Splew", "Table1", "dbo"));
+        Assert.True(baseBuilder.CanHaveTrigger("Splew", "Table2", "dbo", fromDataAnnotation: true));
+        Assert.True(baseBuilder.CanHaveTrigger("Splew", "Table1", "dbo2", fromDataAnnotation: true));
+        Assert.False(baseBuilder.CanHaveTrigger("Splew", "Table2", "dbo"));
+        Assert.False(baseBuilder.CanHaveTrigger("Splew", "Table1", "dbo2"));
+        Assert.True(baseBuilder.CanHaveTrigger("Splot", "Table2", "dbo2"));
+
+        Assert.Null(baseBuilder.HasTrigger("Splew", "Table2", "dbo"));
+        Assert.Empty(baseEntityType.GetTriggers());
+        Assert.Equal("Table1", derivedEntityType.GetTriggers().Single().TableName);
+
+        Assert.NotNull(
+            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
+                .HasName("Another_Splot_Trigger", fromDataAnnotation: true));
+        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
+        Assert.Equal("Another_Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
+
+        derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.Convention);
+
+        Assert.Null(
+            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
+                .HasName("Yet_Another_Splot_Trigger"));
+        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
+        Assert.Equal("Another_Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
+        Assert.Empty(derivedEntityType.GetDeclaredTriggers());
+        Assert.Same(baseEntityType.GetTriggers().Single(), derivedEntityType.GetTriggers().Single());
+    }
+
+    [ConditionalFact]
+    public void Base_trigger_overrides_derived_one_after_base_is_set()
+    {
+        var modelBuilder = CreateBuilder();
+
+        var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
+        Assert.NotNull(derivedBuilder.HasBaseType((string)null, ConfigurationSource.DataAnnotation));
+        IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
+
+        Assert.NotNull(
+            derivedBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
+                .HasName("Splow_Trigger", fromDataAnnotation: true));
+        Assert.Equal("Splew", derivedEntityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table1", derivedEntityType.GetTriggers().Single().TableName);
+        Assert.Equal("Splow_Trigger", derivedEntityType.GetTriggers().Single().Name);
+
+        var baseBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
+        IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
+        Assert.Null(derivedEntityType.BaseType);
+
+        Assert.NotNull(
+            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
+                .HasName("Splot_Trigger", fromDataAnnotation: true));
+        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
+        Assert.Equal("Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
+
+        Assert.NotNull(derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.DataAnnotation));
+
+        Assert.Null(
+            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
+                .HasName("Splew_Trigger"));
+        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
+        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
+        Assert.Equal("Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
+        Assert.Empty(derivedEntityType.GetDeclaredTriggers());
+        Assert.Same(baseEntityType.GetTriggers().Single(), derivedEntityType.GetTriggers().Single());
+    }
+
+    [ConditionalFact]
     public void Can_set_discriminator_value_using_property_expression()
     {
         var modelBuilder = CreateConventionModelBuilder();

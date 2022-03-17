@@ -65,18 +65,21 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.PropertyAddedConventions.Add(relationalCommentAttributeConvention);
 
         var checkConstraintConvention = new CheckConstraintConvention(Dependencies, RelationalDependencies);
+        var triggerConvention = new TriggerConvention(Dependencies, RelationalDependencies);
         var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
         conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
         conventionSet.EntityTypeAddedConventions.Add(
             new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
         conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
         conventionSet.EntityTypeAddedConventions.Add(checkConstraintConvention);
+        conventionSet.EntityTypeAddedConventions.Add(triggerConvention);
 
         ValueGenerationConvention valueGenerationConvention =
             new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);
         ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(tableNameFromDbSetConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(checkConstraintConvention);
+        conventionSet.EntityTypeBaseTypeChangedConventions.Add(triggerConvention);
 
         ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, valueGenerationConvention);
 

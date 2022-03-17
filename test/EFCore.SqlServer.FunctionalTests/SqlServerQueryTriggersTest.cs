@@ -97,7 +97,7 @@ public class SqlServerQueryTriggersTest : IClassFixture<SqlServerQueryTriggersTe
                     eb.Property(e => e.StoreUpdated)
                         .HasDefaultValue(0)
                         .ValueGeneratedOnAddOrUpdate();
-                    eb.ToTable("UpdatedProducts");
+                    eb.ToTable("UpdatedProducts", tb => tb.HasTrigger("TRG_InsertUpdateProduct"));
                 });
     }
 

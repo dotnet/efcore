@@ -12,7 +12,7 @@ public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        // fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override int ShouldExecuteInNumberOfCommands(
@@ -32,10 +32,8 @@ public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<
             @"@p0='1000'
 
 INSERT INTO ""WithSomeDatabaseGenerated"" (""Data2"")
-VALUES (@p0);
-SELECT ""Id"", ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+VALUES (@p0)
+RETURNING ""Id"", ""Data1"";");
     }
 
     public override async Task Add_with_no_generated_values(bool async)
@@ -57,10 +55,8 @@ VALUES (@p0, @p1, @p2);");
 
         AssertSql(
             @"INSERT INTO ""WithAllDatabaseGenerated""
-DEFAULT VALUES;
-SELECT ""Id"", ""Data1"", ""Data2""
-FROM ""WithAllDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+DEFAULT VALUES
+RETURNING ""Id"", ""Data1"", ""Data2"";");
     }
 
     public override async Task Modify_with_generated_values(bool async)
@@ -116,18 +112,14 @@ SELECT changes();");
             @"@p0='1000'
 
 INSERT INTO ""WithSomeDatabaseGenerated"" (""Data2"")
-VALUES (@p0);
-SELECT ""Id"", ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
+VALUES (@p0)
+RETURNING ""Id"", ""Data1"";",
             //
             @"@p0='1001'
 
 INSERT INTO ""WithSomeDatabaseGenerated"" (""Data2"")
-VALUES (@p0);
-SELECT ""Id"", ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+VALUES (@p0)
+RETURNING ""Id"", ""Data1"";");
     }
 
     public override async Task Add_Add_with_same_entity_type_and_no_generated_values(bool async)
@@ -156,16 +148,12 @@ VALUES (@p0, @p1, @p2);");
 
         AssertSql(
             @"INSERT INTO ""WithAllDatabaseGenerated""
-DEFAULT VALUES;
-SELECT ""Id"", ""Data1"", ""Data2""
-FROM ""WithAllDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
+DEFAULT VALUES
+RETURNING ""Id"", ""Data1"", ""Data2"";",
             //
             @"INSERT INTO ""WithAllDatabaseGenerated""
-DEFAULT VALUES;
-SELECT ""Id"", ""Data1"", ""Data2""
-FROM ""WithAllDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+DEFAULT VALUES
+RETURNING ""Id"", ""Data1"", ""Data2"";");
     }
 
     public override async Task Modify_Modify_with_same_entity_type_and_generated_values(bool async)
@@ -244,18 +232,14 @@ SELECT changes();");
             @"@p0='1000'
 
 INSERT INTO ""WithSomeDatabaseGenerated"" (""Data2"")
-VALUES (@p0);
-SELECT ""Id"", ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
+VALUES (@p0)
+RETURNING ""Id"", ""Data1"";",
             //
             @"@p0='1001'
 
 INSERT INTO ""WithSomeDatabaseGenerated2"" (""Data2"")
-VALUES (@p0);
-SELECT ""Id"", ""Data1""
-FROM ""WithSomeDatabaseGenerated2""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+VALUES (@p0)
+RETURNING ""Id"", ""Data1"";");
     }
 
     public override async Task Add_Add_with_different_entity_types_and_no_generated_values(bool async)
@@ -284,16 +268,12 @@ VALUES (@p0, @p1, @p2);");
 
         AssertSql(
             @"INSERT INTO ""WithAllDatabaseGenerated""
-DEFAULT VALUES;
-SELECT ""Id"", ""Data1"", ""Data2""
-FROM ""WithAllDatabaseGenerated""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
+DEFAULT VALUES
+RETURNING ""Id"", ""Data1"", ""Data2"";",
             //
             @"INSERT INTO ""WithAllDatabaseGenerated2""
-DEFAULT VALUES;
-SELECT ""Id"", ""Data1"", ""Data2""
-FROM ""WithAllDatabaseGenerated2""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+DEFAULT VALUES
+RETURNING ""Id"", ""Data1"", ""Data2"";");
     }
 
     public override async Task Modify_Modify_with_different_entity_types_and_generated_values(bool async)

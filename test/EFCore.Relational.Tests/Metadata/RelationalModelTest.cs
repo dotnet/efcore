@@ -639,6 +639,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(customerTable.IsOptional(extraSpecialCustomerType));
             }
 
+            var orderTrigger = Assert.Single(orderType.GetTriggers());
+            Assert.Equal("Order_Trigger", orderTrigger.Name);
+            Assert.Equal("Order", orderTrigger.TableName);
+            Assert.Null(orderTrigger.TableSchema);
+
             var customerPk = specialCustomerType.FindPrimaryKey();
 
             if (mapping == Mapping.TPT)
@@ -1029,6 +1034,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     if (mapToTables)
                     {
                         ob.ToTable("Order");
+                    }
+
+                    if (mapToTables || !mapToViews)
+                    {
+                        ob.ToTable(o => o.HasTrigger("Order_Trigger"));
                     }
                 });
 

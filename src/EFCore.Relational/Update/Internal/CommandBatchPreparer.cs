@@ -27,7 +27,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         _minBatchSize =
             dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
-            ?? 4;
+            ?? 1;
         Dependencies = dependencies;
 
         if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)

@@ -336,13 +336,13 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
             return true;
         }
 
-        // Deletes don't ever need to bring back database-generated values
-        if (firstOperationType == EntityState.Deleted)
+        // Deletes don't ever need to bring back database-generated values, and inserts use the RETURNING clause - no transaction needed
+        if (firstOperationType is EntityState.Deleted or EntityState.Added)
         {
             return false;
         }
 
-        // By default, assume that fetching back database-generated values requires a transaction
+        // Fetching back database-generated values from an update requires a transaction
         return generatedValues != GeneratedValues.None;
     }
 
