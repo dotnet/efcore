@@ -42,12 +42,12 @@ public static class ExpressionExtensions
         }
 
         var property = propertyBase as IReadOnlyProperty;
-        var clrType = propertyBase?.ClrType ?? currentValueExpression.Type;
         var comparer = property?.GetValueComparer()
-            ?? ValueComparer.CreateDefault(clrType, favorStructuralComparisons: false);
+            ?? ValueComparer.CreateDefault(
+                propertyBase?.ClrType ?? currentValueExpression.Type, favorStructuralComparisons: false);
 
         return comparer.ExtractEqualsBody(
-            comparer.Type != clrType
+            comparer.Type != currentValueExpression.Type
                 ? Expression.Convert(currentValueExpression, comparer.Type)
                 : currentValueExpression,
             Expression.Default(comparer.Type));

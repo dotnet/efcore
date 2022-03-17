@@ -1686,8 +1686,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                     TestNullableDouble = -1.23456789,
                     TestNullableDecimal = -1234567890.01M,
                     TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56").ToUniversalTime(),
-                    TestNullableDateTimeOffset =
-                        new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)).ToUniversalTime(),
+                    TestNullableDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                     TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                     TestNullableSingle = -1.234F,
                     TestNullableBoolean = false,
@@ -1723,8 +1722,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
             AssertEqualIfMapped(entityType, -1.23456789, () => dt.TestNullableDouble);
             AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.TestNullableDecimal);
             AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56").ToUniversalTime(), () => dt.TestNullableDateTime);
-            AssertEqualIfMapped(
-                entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)).ToUniversalTime(),
+            AssertEqualIfMapped(entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                 () => dt.TestNullableDateTimeOffset);
             AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TestNullableTimeSpan);
             AssertEqualIfMapped(entityType, -1.234F, () => dt.TestNullableSingle);

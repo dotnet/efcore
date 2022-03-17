@@ -204,6 +204,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             _value = value;
         }
 
+        public override bool Equals(object obj)
+            => _value == ((Email)obj)?._value;
+
+        public override int GetHashCode()
+            => _value.GetHashCode();
+
         public static Email Create(string value)
             => new(value);
 
@@ -1069,7 +1075,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     b.Property(nameof(BuiltInNullableDataTypes.TestNullableDateTimeOffset)).HasConversion(
                         new ValueConverter<DateTimeOffset?, long>(
                             v => v.Value.ToUnixTimeMilliseconds(),
-                            v => DateTimeOffset.FromUnixTimeMilliseconds(v)));
+                            v => DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0))));
 
                     b.Property(nameof(BuiltInNullableDataTypes.TestNullableDouble)).HasConversion(
                         new ValueConverter<double?, decimal?>(

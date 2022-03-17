@@ -811,8 +811,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetValueComparer()
-        => GetValueComparer(null)
-            ?? TypeMapping?.Comparer;
+        => ToNullableComparer(GetValueComparer(null)
+            ?? TypeMapping?.Comparer);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -821,8 +821,62 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetKeyValueComparer()
-        => GetValueComparer(null)
-            ?? TypeMapping?.KeyComparer;
+        => ToNullableComparer(GetValueComparer(null)
+            ?? TypeMapping?.KeyComparer);
+
+    private ValueComparer? ToNullableComparer(ValueComparer? valueComparer)
+    {
+        if (valueComparer == null
+            || !ClrType.IsNullableValueType()
+            || valueComparer.Type.IsNullableValueType())
+        {
+            return valueComparer;
+        }
+
+        var newEqualsParam1 = Expression.Parameter(ClrType, "v1");
+        var newEqualsParam2 = Expression.Parameter(ClrType, "v2");
+        var newHashCodeParam = Expression.Parameter(ClrType, "v");
+        var newSnapshotParam = Expression.Parameter(ClrType, "v");
+        var hasValueMethod = ClrType.GetMethod("get_HasValue")!;
+        var v1HasValue = Expression.Parameter(typeof(bool), "v1HasValue");
+        var v2HasValue = Expression.Parameter(typeof(bool), "v2HasValue");
+
+        return (ValueComparer)Activator.CreateInstance(
+            typeof(ValueComparer<>).MakeGenericType(ClrType),
+            Expression.Lambda(
+                Expression.Block(
+                    typeof(bool),
+                    new[] { v1HasValue, v2HasValue },
+                    Expression.Assign(v1HasValue, Expression.Call(newEqualsParam1, hasValueMethod)),
+                    Expression.Assign(v2HasValue, Expression.Call(newEqualsParam2, hasValueMethod)),
+                    Expression.OrElse(
+                        Expression.AndAlso(
+                            v1HasValue,
+                            Expression.AndAlso(
+                                v2HasValue,
+                                valueComparer.ExtractEqualsBody(
+                                    Expression.Convert(newEqualsParam1, valueComparer.Type),
+                                    Expression.Convert(newEqualsParam2, valueComparer.Type)))),
+                        Expression.AndAlso(
+                            Expression.Not(v1HasValue),
+                            Expression.Not(v2HasValue)))),
+                newEqualsParam1, newEqualsParam2),
+            Expression.Lambda(
+                Expression.Condition(
+                    Expression.Call(newHashCodeParam, hasValueMethod),
+                    valueComparer.ExtractHashCodeBody(
+                        Expression.Convert(newHashCodeParam, valueComparer.Type)),
+                    Expression.Constant(0, typeof(int))),
+                newHashCodeParam),
+            Expression.Lambda(
+                Expression.Condition(
+                    Expression.Call(newSnapshotParam, hasValueMethod),
+                    Expression.Convert(
+                        valueComparer.ExtractSnapshotBody(
+                            Expression.Convert(newSnapshotParam, valueComparer.Type)), ClrType),
+                    Expression.Default(ClrType)),
+                newSnapshotParam))!;
+    }
 
     private ValueComparer? GetValueComparer(HashSet<IProperty>? checkedProperties)
     {

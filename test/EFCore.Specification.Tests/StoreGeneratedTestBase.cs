@@ -1569,7 +1569,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public int? NonNullableAsNullable
         {
             get => _nonNullableAsNullable;
-            set => _nonNullableAsNullable = (int)value;
+            set => _nonNullableAsNullable = value ?? 0;
         }
     }
 
@@ -1930,7 +1930,10 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     b.Property(e => e.Id).HasField("_id");
                     b.Property(e => e.NullableAsNonNullable).HasField("_nullableAsNonNullable").ValueGeneratedOnAddOrUpdate();
-                    b.Property(e => e.NonNullableAsNullable).HasField("_nonNullableAsNullable").ValueGeneratedOnAddOrUpdate();
+                    b.Property(e => e.NonNullableAsNullable)
+                        .HasField("_nonNullableAsNullable")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .UsePropertyAccessMode(PropertyAccessMode.Property);
                 });
 
             modelBuilder.Entity<OptionalProduct>();
