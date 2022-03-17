@@ -2832,15 +2832,15 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
-    ///     Logs the <see cref="RelationalEventId.ForeignKeyTPCPrincipalWarning" /> event.
+    ///     Logs the <see cref="RelationalEventId.ForeignKeyTpcPrincipalWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="foreignKey">The foreign key.</param>
-    public static void ForeignKeyTPCPrincipalWarning(
+    public static void ForeignKeyTpcPrincipalWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
         IForeignKey foreignKey)
     {
-        var definition = RelationalResources.LogForeignKeyTPCPrincipal(diagnostics);
+        var definition = RelationalResources.LogForeignKeyTpcPrincipal(diagnostics);
 
         if (diagnostics.ShouldLog(definition))
         {

@@ -2135,6 +2135,7 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
         foreach (var annotation in annotations)
         {
             // TODO: Give providers an opportunity to render these as provider-specific extension methods
+            // Issue #6546
             builder
                 .AppendLine()
                 .Append(".Annotation(")
@@ -2157,6 +2158,7 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
         foreach (var annotation in annotations)
         {
             // TODO: Give providers an opportunity to render these as provider-specific extension methods
+            // Issue #6546
             builder
                 .AppendLine()
                 .Append(".OldAnnotation(")

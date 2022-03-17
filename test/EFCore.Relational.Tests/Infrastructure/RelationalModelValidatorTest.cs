@@ -1589,7 +1589,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Dog>().ToTable("Dog").ToView("Cat");
 
         VerifyError(
-            RelationalStrings.NonTPHViewClash(nameof(Dog), nameof(Cat), "Cat"),
+            RelationalStrings.NonTphViewClash(nameof(Dog), nameof(Cat), "Cat"),
             modelBuilder);
     }
 
@@ -1601,7 +1601,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().ToTable("Animal").ToView("Cat");
 
         VerifyError(
-            RelationalStrings.NonTPHTableClash(nameof(Cat), nameof(Animal), "Animal"),
+            RelationalStrings.NonTphTableClash(nameof(Cat), nameof(Animal), "Animal"),
             modelBuilder);
     }
 
@@ -1613,7 +1613,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().ToTable("Cat");
 
         VerifyError(
-            RelationalStrings.TPHTableMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+            RelationalStrings.TphTableMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
             modelBuilder);
     }
 
@@ -1625,7 +1625,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().ToView("Cat");
 
         VerifyError(
-            RelationalStrings.TPHViewMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
+            RelationalStrings.TphViewMismatch(nameof(Cat), nameof(Cat), nameof(Animal), nameof(Animal)),
             modelBuilder);
     }
 
@@ -1799,7 +1799,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Generic<string>>();
 
         VerifyError(
-            RelationalStrings.AbstractTPC(nameof(Abstract), "dbo.Abstract"),
+            RelationalStrings.AbstractTpc(nameof(Abstract), "dbo.Abstract"),
             modelBuilder);
     }
 
@@ -1812,7 +1812,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Generic<string>>();
 
         VerifyError(
-            RelationalStrings.AbstractTPC(nameof(Abstract), "Abstract"),
+            RelationalStrings.AbstractTpc(nameof(Abstract), "Abstract"),
             modelBuilder);
     }
 
@@ -1825,7 +1825,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Generic<string>>();
 
         VerifyError(
-            RelationalStrings.AbstractTPC(nameof(Abstract), "Abstract"),
+            RelationalStrings.AbstractTpc(nameof(Abstract), "Abstract"),
             modelBuilder);
     }
 
@@ -1838,7 +1838,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Dog>().ToTable("Dog").ToView("Cat");
         
         VerifyError(
-            RelationalStrings.NonTPHViewClash(nameof(Dog), nameof(Cat), "Cat"),
+            RelationalStrings.NonTphViewClash(nameof(Dog), nameof(Cat), "Cat"),
             modelBuilder);
     }
 
@@ -1850,7 +1850,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().ToTable("Animal").ToView("Cat");
 
         VerifyError(
-            RelationalStrings.NonTPHTableClash(nameof(Cat), nameof(Animal), "Animal"),
+            RelationalStrings.NonTphTableClash(nameof(Cat), nameof(Animal), "Animal"),
             modelBuilder);
     }
 
@@ -1975,7 +1975,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             .HasPrincipalKey<Animal>(a => a.Name);
 
         var definition =
-            RelationalResources.LogForeignKeyTPCPrincipal(new TestLogger<TestRelationalLoggingDefinitions>());
+            RelationalResources.LogForeignKeyTpcPrincipal(new TestLogger<TestRelationalLoggingDefinitions>());
         VerifyWarning(
             definition.GenerateMessage(
                 l => l.Log(
@@ -2411,7 +2411,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.HasDbFunction(TestMethods.MethodFMi);
 
         VerifyError(
-            RelationalStrings.TableValuedFunctionNonTPH(
+            RelationalStrings.TableValuedFunctionNonTph(
                 TestMethods.MethodFMi.DeclaringType.FullName + "." + TestMethods.MethodFMi.Name + "()", "C"), modelBuilder);
     }
 

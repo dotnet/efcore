@@ -675,19 +675,32 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IEntityType entityType,
         IndentedStringBuilder stringBuilder)
     {
-        var annotationList = entityType.GetAnnotations().ToList();
+        IAnnotation? discriminatorPropertyAnnotation = null;
+        IAnnotation? discriminatorValueAnnotation = null;
+        IAnnotation? discriminatorMappingCompleteAnnotation = null;
 
-        var discriminatorPropertyAnnotation = annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorProperty);
-        var discriminatorMappingCompleteAnnotation =
-            annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorMappingComplete);
-        var discriminatorValueAnnotation = annotationList.FirstOrDefault(a => a.Name == CoreAnnotationNames.DiscriminatorValue);
+        foreach (var annotation in entityType.GetAnnotations())
+        {
+            switch (annotation.Name)
+            {
+                case CoreAnnotationNames.DiscriminatorProperty:
+                    discriminatorPropertyAnnotation = annotation;
+                    break;
+                case CoreAnnotationNames.DiscriminatorValue:
+                    discriminatorValueAnnotation = annotation;
+                    break;
+                case CoreAnnotationNames.DiscriminatorMappingComplete:
+                    discriminatorMappingCompleteAnnotation = annotation;
+                    break;
+            }
+        }
 
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(entityType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
         var tableNameAnnotation = annotations.Find(RelationalAnnotationNames.TableName);
-        if (tableNameAnnotation?.Value != null
+        if (tableNameAnnotation != null
             || entityType.BaseType == null)
         {
             var tableName = (string?)tableNameAnnotation?.Value ?? entityType.GetTableName();
@@ -773,7 +786,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         annotations.Remove(RelationalAnnotationNames.Schema);
 
         var viewNameAnnotation = annotations.Find(RelationalAnnotationNames.ViewName);
-        if (viewNameAnnotation?.Value != null
+        if (viewNameAnnotation != null
             || entityType.BaseType == null)
         {
             var viewName = (string?)viewNameAnnotation?.Value ?? entityType.GetViewName();
@@ -796,7 +809,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     stringBuilder
                         .Append(", ")
                         .Append(Code.Literal((string)viewSchemaAnnotation.Value));
-                    annotations.Remove(viewSchemaAnnotation.Name);
                 }
 
                 stringBuilder.AppendLine(");");
@@ -807,7 +819,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         annotations.Remove(RelationalAnnotationNames.ViewDefinitionSql);
 
         var functionNameAnnotation = annotations.Find(RelationalAnnotationNames.FunctionName);
-        if (functionNameAnnotation?.Value != null
+        if (functionNameAnnotation != null
             || entityType.BaseType == null)
         {
             var functionName = (string?)functionNameAnnotation?.Value ?? entityType.GetFunctionName();
@@ -828,7 +840,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
 
         var sqlQueryAnnotation = annotations.Find(RelationalAnnotationNames.SqlQuery);
-        if (sqlQueryAnnotation?.Value != null
+        if (sqlQueryAnnotation != null
             || entityType.BaseType == null)
         {
             var sqlQuery = (string?)sqlQueryAnnotation?.Value ?? entityType.GetSqlQuery();

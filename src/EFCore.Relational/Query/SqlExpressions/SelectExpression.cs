@@ -216,7 +216,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
             && entityType.FindDiscriminatorProperty() == null)
         {
-            throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTPHWithCustomTable(entityType.DisplayName()));
+            throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTphWithCustomTable(entityType.DisplayName()));
         }
 
         var table = tableExpressionBase switch
