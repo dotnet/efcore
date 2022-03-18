@@ -35,130 +35,50 @@ public static class RelationalLoggerExtensions
     /// <param name="isolationLevel">The transaction isolation level.</param>
     /// <param name="transactionId">The correlation ID associated with the <see cref="DbTransaction" />.</param>
     /// <param name="startTime">The time that the operation was started.</param>
-    /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
-    public static InterceptionResult<DbTransaction> TransactionStarting(
-        this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-        IRelationalConnection connection,
-        IsolationLevel isolationLevel,
-        Guid transactionId,
-        DateTimeOffset startTime)
-    {
-        var definition = RelationalResources.LogBeginningTransaction(diagnostics);
-
-        LogTransactionStarting(diagnostics, isolationLevel, definition);
-
-        if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-        {
-            var eventData = BroadcastTransactionStarting(
-                diagnostics,
-                connection,
-                isolationLevel,
-                transactionId,
-                false,
-                startTime,
-                definition,
-                diagnosticSourceEnabled,
-                simpleLogEnabled);
-
-            if (interceptor != null)
-            {
-                return interceptor.TransactionStarting(connection.DbConnection, eventData, default);
-            }
-        }
-
-        return default;
-    }
-
-    /// <summary>
-    ///     Logs for the <see cref="RelationalEventId.TransactionStarting" /> event.
-    /// </summary>
-    /// <param name="diagnostics">The diagnostics logger to use.</param>
-    /// <param name="connection">The connection.</param>
-    /// <param name="isolationLevel">The transaction isolation level.</param>
-    /// <param name="transactionId">The correlation ID associated with the <see cref="DbTransaction" />.</param>
-    /// <param name="startTime">The time that the operation was started.</param>
+    /// <param name="async">Whether the call should be asynchronous.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public static ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
+    public static ValueTask<InterceptionResult<DbTransaction>> TransactionStarting(
         this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
         IRelationalConnection connection,
         IsolationLevel isolationLevel,
         Guid transactionId,
         DateTimeOffset startTime,
+        bool async,
         CancellationToken cancellationToken = default)
     {
         var definition = RelationalResources.LogBeginningTransaction(diagnostics);
 
-        LogTransactionStarting(diagnostics, isolationLevel, definition);
-
-        if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-        {
-            var eventData = BroadcastTransactionStarting(
-                diagnostics,
-                connection,
-                isolationLevel,
-                transactionId,
-                true,
-                startTime,
-                definition,
-                diagnosticSourceEnabled,
-                simpleLogEnabled);
-
-            if (interceptor != null)
-            {
-                return interceptor.TransactionStartingAsync(connection.DbConnection, eventData, default, cancellationToken);
-            }
-        }
-
-        return default;
-    }
-
-    private static TransactionStartingEventData BroadcastTransactionStarting(
-        IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-        IRelationalConnection connection,
-        IsolationLevel isolationLevel,
-        Guid transactionId,
-        bool async,
-        DateTimeOffset startTime,
-        EventDefinition<string> definition,
-        bool diagnosticSourceEnabled,
-        bool simpleLogEnabled)
-    {
-        var eventData = new TransactionStartingEventData(
-            definition,
-            TransactionStarting,
-            connection.Context,
-            isolationLevel,
-            transactionId,
-            connection.ConnectionId,
-            async,
-            startTime);
-
-        diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-
-        return eventData;
-    }
-
-    private static void LogTransactionStarting(
-        IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-        IsolationLevel isolationLevel,
-        EventDefinition<string> definition)
-    {
         if (diagnostics.ShouldLog(definition))
         {
             definition.Log(diagnostics, isolationLevel.ToString("G"));
         }
-    }
 
-    private static string TransactionStarting(EventDefinitionBase definition, EventData payload)
-    {
-        var d = (EventDefinition<string>)definition;
-        var p = (TransactionStartingEventData)payload;
-        return d.GenerateMessage(
-            p.IsolationLevel.ToString("G"));
+        if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new TransactionStartingEventData(
+                definition,
+                (d, p) => ((EventDefinition<string>)d).GenerateMessage(((TransactionStartingEventData)p).IsolationLevel.ToString("G")),
+                connection.Context,
+                isolationLevel,
+                transactionId,
+                connection.ConnectionId,
+                async,
+                startTime);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return async
+                    ? interceptor.TransactionStartingAsync(connection.DbConnection, eventData, default, cancellationToken)
+                    : new(interceptor.TransactionStarting(connection.DbConnection, eventData, default));
+            }
+        }
+
+        return default;
     }
 
     /// <summary>

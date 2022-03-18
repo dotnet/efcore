@@ -330,7 +330,8 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
             this,
             isolationLevel,
             transactionId,
-            startTime);
+            startTime,
+            async: false).GetAwaiter().GetResult();
 
         var dbTransaction = interceptionResult.HasResult
             ? interceptionResult.Result
@@ -377,11 +378,12 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         var startTime = DateTimeOffset.UtcNow;
         _stopwatch.Restart();
 
-        var interceptionResult = await Dependencies.TransactionLogger.TransactionStartingAsync(
+        var interceptionResult = await Dependencies.TransactionLogger.TransactionStarting(
                 this,
                 isolationLevel,
                 transactionId,
                 startTime,
+                async: true,
                 cancellationToken)
             .ConfigureAwait(false);
 
