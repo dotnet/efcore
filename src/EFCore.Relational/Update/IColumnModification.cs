@@ -122,4 +122,9 @@ public interface IColumnModification
     /// </summary>
     /// <param name="modification">The modification for the shared column.</param>
     public void AddSharedColumnModification(IColumnModification modification);
+
+    /// <summary>
+    ///     Resets parameter names, so they can be regenerated if the command needs to be re-added to a new batch.
+    /// </summary>
+    public void ResetParameterNames();
 }

@@ -74,7 +74,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     continue;
                 }
 
-                if (!batch.AddCommand(modificationCommand))
+                if (!batch.TryAddCommand(modificationCommand))
                 {
                     if (batch.ModificationCommands.Count == 1
                         || batch.ModificationCommands.Count >= _minBatchSize)
@@ -144,7 +144,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         parameterNameGenerator.Reset();
         var batch = Dependencies.ModificationCommandBatchFactory.Create();
-        batch.AddCommand(modificationCommand);
+        batch.TryAddCommand(modificationCommand);
         return batch;
     }
 

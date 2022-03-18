@@ -24,14 +24,14 @@ public abstract class ModificationCommandBatch
     public abstract IReadOnlyList<IReadOnlyModificationCommand> ModificationCommands { get; }
 
     /// <summary>
-    ///     Adds the given insert/update/delete <see cref="ModificationCommands" /> to the batch.
+    ///     Attempts to adds the given insert/update/delete <paramref name="modificationCommand" /> to the batch.
     /// </summary>
     /// <param name="modificationCommand">The command to add.</param>
     /// <returns>
     ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
     ///     room in the current batch to add the command and it must instead be added to a new batch.
     /// </returns>
-    public abstract bool AddCommand(IReadOnlyModificationCommand modificationCommand);
+    public abstract bool TryAddCommand(IReadOnlyModificationCommand modificationCommand);
 
     /// <summary>
     ///     Indicates that no more commands will be added to this batch, and prepares it for execution.
