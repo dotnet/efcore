@@ -167,8 +167,8 @@ WHERE [s].[Unique_No] = 1",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
-WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;",
             //
             @"@p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 4000)
@@ -178,8 +178,8 @@ SELECT @@ROWCOUNT;",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
-WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
-SELECT @@ROWCOUNT;");
+OUTPUT 1
+WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;");
     }
 
     public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()

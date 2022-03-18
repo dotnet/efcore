@@ -68,10 +68,8 @@ RETURNING ""Id"", ""Data1"", ""Data2"";");
 @p0='1000'
 
 UPDATE ""WithSomeDatabaseGenerated"" SET ""Data2"" = @p0
-WHERE ""Id"" = @p1;
-SELECT ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""Id"" = @p1;");
+WHERE ""Id"" = @p1
+RETURNING ""Data1"";");
     }
 
     public override async Task Modify_with_no_generated_values(bool async)
@@ -84,8 +82,8 @@ WHERE changes() = 1 AND ""Id"" = @p1;");
 @p1='1000'
 
 UPDATE ""WithNoDatabaseGenerated"" SET ""Data1"" = @p0, ""Data2"" = @p1
-WHERE ""Id"" = @p2;
-SELECT changes();");
+WHERE ""Id"" = @p2
+RETURNING 1;");
     }
 
     public override async Task Delete(bool async)
@@ -96,8 +94,8 @@ SELECT changes();");
             @"@p0='1'
 
 DELETE FROM ""WithSomeDatabaseGenerated""
-WHERE ""Id"" = @p0;
-SELECT changes();");
+WHERE ""Id"" = @p0
+RETURNING 1;");
     }
 
     #endregion Single operation
@@ -165,19 +163,15 @@ RETURNING ""Id"", ""Data1"", ""Data2"";");
 @p0='1000'
 
 UPDATE ""WithSomeDatabaseGenerated"" SET ""Data2"" = @p0
-WHERE ""Id"" = @p1;
-SELECT ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""Id"" = @p1;",
+WHERE ""Id"" = @p1
+RETURNING ""Data1"";",
             //
             @"@p1='2'
 @p0='1001'
 
 UPDATE ""WithSomeDatabaseGenerated"" SET ""Data2"" = @p0
-WHERE ""Id"" = @p1;
-SELECT ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""Id"" = @p1;");
+WHERE ""Id"" = @p1
+RETURNING ""Data1"";");
     }
 
     public override async Task Modify_Modify_with_same_entity_type_and_no_generated_values(bool async)
@@ -190,16 +184,16 @@ WHERE changes() = 1 AND ""Id"" = @p1;");
 @p1='1000'
 
 UPDATE ""WithNoDatabaseGenerated"" SET ""Data1"" = @p0, ""Data2"" = @p1
-WHERE ""Id"" = @p2;
-SELECT changes();",
+WHERE ""Id"" = @p2
+RETURNING 1;",
             //
             @"@p2='2'
 @p0='1001'
 @p1='1001'
 
 UPDATE ""WithNoDatabaseGenerated"" SET ""Data1"" = @p0, ""Data2"" = @p1
-WHERE ""Id"" = @p2;
-SELECT changes();");
+WHERE ""Id"" = @p2
+RETURNING 1;");
     }
 
     public override async Task Delete_Delete_with_same_entity_type(bool async)
@@ -210,14 +204,14 @@ SELECT changes();");
             @"@p0='1'
 
 DELETE FROM ""WithSomeDatabaseGenerated""
-WHERE ""Id"" = @p0;
-SELECT changes();",
+WHERE ""Id"" = @p0
+RETURNING 1;",
             //
             @"@p0='2'
 
 DELETE FROM ""WithSomeDatabaseGenerated""
-WHERE ""Id"" = @p0;
-SELECT changes();");
+WHERE ""Id"" = @p0
+RETURNING 1;");
     }
 
     #endregion Two operations with same entity type
@@ -285,19 +279,15 @@ RETURNING ""Id"", ""Data1"", ""Data2"";");
 @p0='1000'
 
 UPDATE ""WithSomeDatabaseGenerated"" SET ""Data2"" = @p0
-WHERE ""Id"" = @p1;
-SELECT ""Data1""
-FROM ""WithSomeDatabaseGenerated""
-WHERE changes() = 1 AND ""Id"" = @p1;",
+WHERE ""Id"" = @p1
+RETURNING ""Data1"";",
             //
             @"@p1='2'
 @p0='1001'
 
 UPDATE ""WithSomeDatabaseGenerated2"" SET ""Data2"" = @p0
-WHERE ""Id"" = @p1;
-SELECT ""Data1""
-FROM ""WithSomeDatabaseGenerated2""
-WHERE changes() = 1 AND ""Id"" = @p1;");
+WHERE ""Id"" = @p1
+RETURNING ""Data1"";");
     }
 
     public override async Task Modify_Modify_with_different_entity_types_and_no_generated_values(bool async)
@@ -310,16 +300,16 @@ WHERE changes() = 1 AND ""Id"" = @p1;");
 @p1='1000'
 
 UPDATE ""WithNoDatabaseGenerated"" SET ""Data1"" = @p0, ""Data2"" = @p1
-WHERE ""Id"" = @p2;
-SELECT changes();",
+WHERE ""Id"" = @p2
+RETURNING 1;",
             //
             @"@p2='2'
 @p0='1001'
 @p1='1001'
 
 UPDATE ""WithNoDatabaseGenerated2"" SET ""Data1"" = @p0, ""Data2"" = @p1
-WHERE ""Id"" = @p2;
-SELECT changes();");
+WHERE ""Id"" = @p2
+RETURNING 1;");
     }
 
     public override async Task Delete_Delete_with_different_entity_types(bool async)
@@ -330,14 +320,14 @@ SELECT changes();");
             @"@p0='1'
 
 DELETE FROM ""WithSomeDatabaseGenerated""
-WHERE ""Id"" = @p0;
-SELECT changes();",
+WHERE ""Id"" = @p0
+RETURNING 1;",
             //
             @"@p0='2'
 
 DELETE FROM ""WithSomeDatabaseGenerated2""
-WHERE ""Id"" = @p0;
-SELECT changes();");
+WHERE ""Id"" = @p0
+RETURNING 1;");
     }
 
     #endregion Two operations with different entity types

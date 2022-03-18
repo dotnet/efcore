@@ -378,8 +378,8 @@ WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Animals] SET [EagleId] = @p0
-WHERE [Species] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p1;",
             //
             @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
@@ -390,8 +390,8 @@ WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Animals]
-WHERE [Species] = @p0;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p0;",
             //
             @"SELECT COUNT(*)
 FROM [Animals] AS [a]

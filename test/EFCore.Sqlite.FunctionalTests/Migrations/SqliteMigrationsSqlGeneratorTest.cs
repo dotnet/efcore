@@ -428,25 +428,20 @@ VALUES ('Daenerys');
 
         AssertSql(
             @"DELETE FROM ""People""
-WHERE ""First Name"" = 'Hodor';
-SELECT changes();
-
+WHERE ""First Name"" = 'Hodor'
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'Daenerys';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys'
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'John';
-SELECT changes();
-
+WHERE ""First Name"" = 'John'
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'Arya';
-SELECT changes();
-
+WHERE ""First Name"" = 'Arya'
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'Harry';
-SELECT changes();
-
+WHERE ""First Name"" = 'Harry'
+RETURNING 1;
 ");
     }
 
@@ -456,25 +451,20 @@ SELECT changes();
 
         AssertSql(
             @"DELETE FROM ""People""
-WHERE ""First Name"" = 'Hodor' AND ""Last Name"" IS NULL;
-SELECT changes();
-
+WHERE ""First Name"" = 'Hodor' AND ""Last Name"" IS NULL
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen'
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'John' AND ""Last Name"" = 'Snow';
-SELECT changes();
-
+WHERE ""First Name"" = 'John' AND ""Last Name"" = 'Snow'
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'Arya' AND ""Last Name"" = 'Stark';
-SELECT changes();
-
+WHERE ""First Name"" = 'Arya' AND ""Last Name"" = 'Stark'
+RETURNING 1;
 DELETE FROM ""People""
-WHERE ""First Name"" = 'Harry' AND ""Last Name"" = 'Strickland';
-SELECT changes();
-
+WHERE ""First Name"" = 'Harry' AND ""Last Name"" = 'Strickland'
+RETURNING 1;
 ");
     }
 
@@ -484,9 +474,8 @@ SELECT changes();
 
         AssertSql(
             @"DELETE FROM ""People""
-WHERE ""Last Name"" = 'Snow';
-SELECT changes();
-
+WHERE ""Last Name"" = 'Snow'
+RETURNING 1;
 ");
     }
 
@@ -496,9 +485,8 @@ SELECT changes();
 
         AssertSql(
             @"DELETE FROM ""People""
-WHERE ""First Name"" = 'John' AND ""Last Name"" = 'Snow';
-SELECT changes();
-
+WHERE ""First Name"" = 'John' AND ""Last Name"" = 'Snow'
+RETURNING 1;
 ");
     }
 
@@ -508,13 +496,11 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""Birthplace"" = 'Winterfell', ""House Allegiance"" = 'Stark', ""Culture"" = 'Northmen'
-WHERE ""First Name"" = 'Hodor';
-SELECT changes();
-
+WHERE ""First Name"" = 'Hodor'
+RETURNING 1;
 UPDATE ""People"" SET ""Birthplace"" = 'Dragonstone', ""House Allegiance"" = 'Targaryen', ""Culture"" = 'Valyrian'
-WHERE ""First Name"" = 'Daenerys';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys'
+RETURNING 1;
 ");
     }
 
@@ -524,13 +510,11 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""House Allegiance"" = 'Stark'
-WHERE ""First Name"" = 'Hodor' AND ""Last Name"" IS NULL;
-SELECT changes();
-
+WHERE ""First Name"" = 'Hodor' AND ""Last Name"" IS NULL
+RETURNING 1;
 UPDATE ""People"" SET ""House Allegiance"" = 'Targaryen'
-WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen'
+RETURNING 1;
 ");
     }
 
@@ -540,13 +524,11 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""Birthplace"" = 'Winterfell', ""House Allegiance"" = 'Stark', ""Culture"" = 'Northmen'
-WHERE ""First Name"" = 'Hodor' AND ""Last Name"" IS NULL;
-SELECT changes();
-
+WHERE ""First Name"" = 'Hodor' AND ""Last Name"" IS NULL
+RETURNING 1;
 UPDATE ""People"" SET ""Birthplace"" = 'Dragonstone', ""House Allegiance"" = 'Targaryen', ""Culture"" = 'Valyrian'
-WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen'
+RETURNING 1;
 ");
     }
 
@@ -556,9 +538,8 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""Birthplace"" = 'Dragonstone', ""House Allegiance"" = 'Targaryen', ""Culture"" = 'Valyrian'
-WHERE ""First Name"" = 'Daenerys';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys'
+RETURNING 1;
 ");
     }
 
@@ -568,9 +549,8 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""House Allegiance"" = 'Targaryen'
-WHERE ""First Name"" = 'Daenerys';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys'
+RETURNING 1;
 ");
     }
 
@@ -580,9 +560,8 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""House Allegiance"" = 'Targaryen'
-WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen'
+RETURNING 1;
 ");
     }
 
@@ -592,9 +571,8 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""Birthplace"" = 'Dragonstone', ""House Allegiance"" = 'Targaryen', ""Culture"" = 'Valyrian'
-WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys' AND ""Last Name"" = 'Targaryen'
+RETURNING 1;
 ");
     }
 
@@ -604,9 +582,8 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""Birthplace"" = 'Dragonstone', ""House Allegiance"" = 'Targaryen', ""Culture"" = 'Valyrian'
-WHERE ""First Name"" = 'Daenerys';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys'
+RETURNING 1;
 ");
     }
 
@@ -616,13 +593,11 @@ SELECT changes();
 
         AssertSql(
             @"UPDATE ""People"" SET ""House Allegiance"" = 'Stark'
-WHERE ""First Name"" = 'Hodor';
-SELECT changes();
-
+WHERE ""First Name"" = 'Hodor'
+RETURNING 1;
 UPDATE ""People"" SET ""House Allegiance"" = 'Targaryen'
-WHERE ""First Name"" = 'Daenerys';
-SELECT changes();
-
+WHERE ""First Name"" = 'Daenerys'
+RETURNING 1;
 ");
     }
 

@@ -190,8 +190,8 @@ WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL");
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Name] = @p0
-WHERE [Name] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Name] = @p1;",
             //
             @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p3='Repair' (Size = 4000)
@@ -233,8 +233,8 @@ WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
-WHERE [Name] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Name] = @p1;",
             //
             @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'

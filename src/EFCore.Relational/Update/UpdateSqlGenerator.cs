@@ -97,20 +97,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         var conditionOperations = operations.Where(o => o.IsCondition).ToList();
         var readOperations = operations.Where(o => o.IsRead).ToList();
 
-        AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, conditionOperations);
-
-        if (readOperations.Count > 0)
-        {
-            var keyOperations = operations.Where(o => o.IsKey).ToList();
-
-            requiresTransaction = true;
-
-            return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
-        }
-
         requiresTransaction = false;
 
-        return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+        AppendUpdateCommand(
+            commandStringBuilder, name, schema, writeOperations, readOperations, conditionOperations,
+            additionalReadValues: readOperations.Count == 0 ? "1" : null);
+
+        return ResultSetMapping.LastInResultSet;
     }
 
     /// <summary>
@@ -131,11 +124,12 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         var schema = command.Schema;
         var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToList();
 
-        AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
-
         requiresTransaction = false;
 
-        return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+        AppendDeleteCommand(
+            commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations, additionalReadValues: "1");
+
+        return ResultSetMapping.LastInResultSet;
     }
 
     /// <summary>
@@ -167,16 +161,21 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="name">The name of the table.</param>
     /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
     /// <param name="writeOperations">The operations for each column.</param>
+    /// <param name="readOperations">The operations for column values to be read back.</param>
     /// <param name="conditionOperations">The operations used to generate the <c>WHERE</c> clause for the update.</param>
+    /// <param name="additionalReadValues">Additional values to be read back.</param>
     protected virtual void AppendUpdateCommand(
         StringBuilder commandStringBuilder,
         string name,
         string? schema,
         IReadOnlyList<IColumnModification> writeOperations,
-        IReadOnlyList<IColumnModification> conditionOperations)
+        IReadOnlyList<IColumnModification> readOperations,
+        IReadOnlyList<IColumnModification> conditionOperations,
+        string? additionalReadValues = null)
     {
         AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
         AppendWhereClause(commandStringBuilder, conditionOperations);
+        AppendReturningClause(commandStringBuilder, readOperations, additionalReadValues);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
@@ -186,32 +185,22 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="name">The name of the table.</param>
     /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
+    /// <param name="readOperations">The operations for column values to be read back.</param>
     /// <param name="conditionOperations">The operations used to generate the <c>WHERE</c> clause for the delete.</param>
+    /// <param name="additionalReadValues">Additional values to be read back.</param>
     protected virtual void AppendDeleteCommand(
         StringBuilder commandStringBuilder,
         string name,
         string? schema,
-        IReadOnlyList<IColumnModification> conditionOperations)
+        IReadOnlyList<IColumnModification> readOperations,
+        IReadOnlyList<IColumnModification> conditionOperations,
+        string? additionalReadValues = null)
     {
         AppendDeleteCommandHeader(commandStringBuilder, name, schema);
         AppendWhereClause(commandStringBuilder, conditionOperations);
+        AppendReturningClause(commandStringBuilder, readOperations, additionalReadValues);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
-
-    /// <summary>
-    ///     Appends a SQL command for selecting the number of rows affected.
-    /// </summary>
-    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
-    /// <param name="name">The name of the table.</param>
-    /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
-    /// <param name="commandPosition">The ordinal of the command for which rows affected it being returned.</param>
-    /// <returns>The <see cref="ResultSetMapping" /> for this command.</returns>
-    protected virtual ResultSetMapping AppendSelectAffectedCountCommand(
-        StringBuilder commandStringBuilder,
-        string name,
-        string? schema,
-        int commandPosition)
-        => ResultSetMapping.NoResultSet;
 
     /// <summary>
     ///     Appends a SQL command for selecting affected data.
@@ -411,11 +400,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// </summary>
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="operations">The operations for column values to be read back.</param>
+    /// <param name="additionalValues">Additional values to be read back.</param>
     protected virtual void AppendReturningClause(
         StringBuilder commandStringBuilder,
-        IReadOnlyList<IColumnModification> operations)
+        IReadOnlyList<IColumnModification> operations,
+        string? additionalValues = null)
     {
-        if (operations.Count > 0)
+        if (operations.Count > 0 || additionalValues is not null)
         {
             commandStringBuilder
                 .AppendLine()
@@ -424,6 +415,16 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                     operations,
                     SqlGenerationHelper,
                     (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName));
+
+            if (additionalValues is not null)
+            {
+                if (operations.Count > 0)
+                {
+                    commandStringBuilder.Append(", ");
+                }
+
+                commandStringBuilder.Append(additionalValues);
+            }
         }
     }
 
