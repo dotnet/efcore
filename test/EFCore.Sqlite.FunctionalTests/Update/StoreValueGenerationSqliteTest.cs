@@ -100,7 +100,7 @@ RETURNING 1;");
 
     #endregion Single operation
 
-    #region Two operations with same entity type
+    #region Same two operations with same entity type
 
     public override async Task Add_Add_with_same_entity_type_and_generated_values(bool async)
     {
@@ -214,9 +214,9 @@ WHERE ""Id"" = @p0
 RETURNING 1;");
     }
 
-    #endregion Two operations with same entity type
+    #endregion Same two operations with same entity type
 
-    #region Two operations with different entity types
+    #region Same two operations with different entity types
 
     public override async Task Add_Add_with_different_entity_types_and_generated_values(bool async)
     {
@@ -330,7 +330,7 @@ WHERE ""Id"" = @p0
 RETURNING 1;");
     }
 
-    #endregion Two operations with different entity types
+    #endregion Same two operations with different entity types
 
     public class StoreValueGenerationSqliteFixture : StoreValueGenerationFixtureBase
     {

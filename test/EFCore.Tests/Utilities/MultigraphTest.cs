@@ -393,6 +393,54 @@ public class MultigraphTest
     }
 
     [ConditionalFact]
+    public void TopologicalSort_with_secondary_sort()
+    {
+        var vertexOne = new Vertex { Id = 1 };
+        var vertexTwo = new Vertex { Id = 2 };
+        var vertexThree = new Vertex { Id = 3 };
+        var vertexFour = new Vertex { Id = 4 };
+
+        var edgeOne = new Edge { Id = 1 };
+        var edgeTwo = new Edge { Id = 2 };
+
+        var graph = new Multigraph<Vertex, Edge>((v1, v2) => Comparer<int>.Default.Compare(v1.Id, v2.Id));
+        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+
+        // 1 -> {3}
+        graph.AddEdge(vertexOne, vertexThree, edgeOne);
+        // 2 -> {4}
+        graph.AddEdge(vertexTwo, vertexFour, edgeTwo);
+
+        Assert.Equal(
+            new[] { vertexOne, vertexTwo, vertexThree, vertexFour },
+            graph.TopologicalSort().ToArray());
+    }
+
+    [ConditionalFact]
+    public void TopologicalSort_without_secondary_sort()
+    {
+        var vertexOne = new Vertex { Id = 1 };
+        var vertexTwo = new Vertex { Id = 2 };
+        var vertexThree = new Vertex { Id = 3 };
+        var vertexFour = new Vertex { Id = 4 };
+
+        var edgeOne = new Edge { Id = 1 };
+        var edgeTwo = new Edge { Id = 2 };
+
+        var graph = new Multigraph<Vertex, Edge>();
+        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+
+        // 1 -> {3}
+        graph.AddEdge(vertexOne, vertexThree, edgeOne);
+        // 2 -> {4}
+        graph.AddEdge(vertexTwo, vertexFour, edgeTwo);
+
+        Assert.Equal(
+            new[] { vertexTwo, vertexOne, vertexFour, vertexThree },
+            graph.TopologicalSort().ToArray());
+    }
+
+    [ConditionalFact]
     public void BatchingTopologicalSort_throws_with_formatted_message_when_cycle_cannot_be_broken()
     {
         const string message = "Formatted cycle";
@@ -789,6 +837,81 @@ public class MultigraphTest
             CoreStrings.CircularDependency(
                 nameof(C) + " ->" + Environment.NewLine + nameof(B) + " ->" + Environment.NewLine + nameof(C)),
             Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
+    }
+
+    [ConditionalFact]
+    public void BatchingTopologicalSort_with_secondary_sort()
+    {
+        var vertexOne = new Vertex { Id = 1 };
+        var vertexTwo = new Vertex { Id = 2 };
+        var vertexThree = new Vertex { Id = 3 };
+        var vertexFour = new Vertex { Id = 4 };
+
+        var edgeOne = new Edge { Id = 1 };
+        var edgeTwo = new Edge { Id = 2 };
+
+        var graph = new Multigraph<Vertex, Edge>((v1, v2) => Comparer<int>.Default.Compare(v1.Id, v2.Id));
+        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+
+        // 1 -> {3}
+        graph.AddEdge(vertexOne, vertexThree, edgeOne);
+        // 2 -> {4}
+        graph.AddEdge(vertexTwo, vertexFour, edgeTwo);
+
+        Assert.Equal(
+            new[] { vertexOne, vertexTwo, vertexThree, vertexFour },
+            graph.BatchingTopologicalSort().Single().ToArray());
+    }
+
+    [ConditionalFact]
+    public void BatchingTopologicalSort_without_secondary_sort()
+    {
+        var vertexOne = new Vertex { Id = 1 };
+        var vertexTwo = new Vertex { Id = 2 };
+        var vertexThree = new Vertex { Id = 3 };
+        var vertexFour = new Vertex { Id = 4 };
+
+        var edgeOne = new Edge { Id = 1 };
+        var edgeTwo = new Edge { Id = 2 };
+
+        var graph = new Multigraph<Vertex, Edge>();
+        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+
+        // 1 -> {3}
+        graph.AddEdge(vertexOne, vertexThree, edgeOne);
+        // 2 -> {4}
+        graph.AddEdge(vertexTwo, vertexFour, edgeTwo);
+
+        Assert.Equal(
+            new[] { vertexTwo, vertexOne, vertexFour, vertexThree },
+            graph.BatchingTopologicalSort().Single().ToArray());
+    }
+
+    [ConditionalFact]
+    public void BatchingTopologicalSort_with_batching_boundary_edge()
+    {
+        var vertexOne = new Vertex { Id = 1 };
+        var vertexTwo = new Vertex { Id = 2 };
+        var vertexThree = new Vertex { Id = 3 };
+        var vertexFour = new Vertex { Id = 4 };
+
+        var edgeOne = new Edge { Id = 1 };
+        var edgeTwo = new Edge { Id = 2 };
+
+        var graph = new Multigraph<Vertex, Edge>((v1, v2) => Comparer<int>.Default.Compare(v1.Id, v2.Id));
+        graph.AddVertices(new[] { vertexFour, vertexThree, vertexTwo, vertexOne });
+
+        // 1 -> {3}
+        graph.AddEdge(vertexOne, vertexThree, edgeOne, requiresBatchingBoundary: true);
+        // 2 -> {4}
+        graph.AddEdge(vertexTwo, vertexFour, edgeTwo);
+
+        var batches = graph.BatchingTopologicalSort();
+
+        Assert.Collection(
+            batches,
+            b => Assert.Equal(new[] { vertexOne, vertexTwo }, b.ToArray()),
+            b => Assert.Equal(new[] { vertexThree, vertexFour }, b.ToArray()));
     }
 
     private static IMutableModel CreateModel()

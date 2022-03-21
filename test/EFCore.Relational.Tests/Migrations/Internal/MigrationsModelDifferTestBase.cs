@@ -82,24 +82,7 @@ public abstract class MigrationsModelDifferTestBase
     }
 
     protected void AssertMultidimensionalArray<T>(T[,] values, params Action<T>[] assertions)
-        => Assert.Collection(ToOnedimensionalArray(values), assertions);
-
-    protected static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
-    {
-        Check.DebugAssert(
-            values.GetLength(firstDimension ? 1 : 0) == 1,
-            $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
-
-        var result = new T[values.Length];
-        for (var i = 0; i < values.Length; i++)
-        {
-            result[i] = firstDimension
-                ? values[i, 0]
-                : values[0, i];
-        }
-
-        return result;
-    }
+        => Assert.Collection(values.Cast<T>(), assertions);
 
     protected static T[][] ToJaggedArray<T>(T[,] twoDimensionalArray, bool firstDimension = false)
     {

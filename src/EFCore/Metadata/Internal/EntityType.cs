@@ -427,9 +427,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Note this is ISet because there is no suitable readonly interface in the profiles we are using
     [DebuggerStepThrough]
-    public virtual ISet<EntityType> GetDirectlyDerivedTypes()
+    public virtual IReadOnlySet<EntityType> GetDirectlyDerivedTypes()
         => _directlyDerivedTypes;
 
     /// <summary>

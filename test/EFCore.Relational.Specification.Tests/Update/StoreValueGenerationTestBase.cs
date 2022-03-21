@@ -53,7 +53,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
 
     #endregion Single operation
 
-    #region Two operations with same entity type
+    #region Same two operations with same entity type
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -85,9 +85,9 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
     public virtual Task Delete_Delete_with_same_entity_type(bool async)
         => Test(EntityState.Deleted, EntityState.Deleted, GeneratedValues.Some, async, withSameEntityType: true);
 
-    #endregion Two operations with same entity type
+    #endregion Same two operations with same entity type
 
-    #region Two operations with different entity types
+    #region Same two operations with different entity types
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -119,7 +119,16 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
     public virtual Task Delete_Delete_with_different_entity_types(bool async)
         => Test(EntityState.Deleted, EntityState.Deleted, GeneratedValues.Some, async, withSameEntityType: false);
 
-    #endregion Two operations with different entity types
+    #endregion Same two operations with different entity types
+
+    #region Different two operations
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_Add_with_same_entity_types(bool async)
+        => Test(EntityState.Deleted, EntityState.Added, GeneratedValues.Some, async, withSameEntityType: true);
+
+    #endregion Different two operations
 
     protected virtual async Task Test(
         EntityState firstOperationType,

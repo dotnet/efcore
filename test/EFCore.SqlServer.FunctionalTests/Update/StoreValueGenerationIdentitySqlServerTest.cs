@@ -127,7 +127,7 @@ WHERE [Id] = @p0;");
 
     #endregion Single operation
 
-    #region Two operations with same entity type
+    #region Same two operations with same entity type
 
     public override async Task Add_Add_with_same_entity_type_and_generated_values(bool async)
     {
@@ -238,9 +238,9 @@ OUTPUT 1
 WHERE [Id] = @p1;");
     }
 
-    #endregion Two operations with same entity type
+    #endregion Same two operations with same entity type
 
-    #region Two operations with different entity types
+    #region Same two operations with different entity types
 
     public override async Task Add_Add_with_different_entity_types_and_generated_values(bool async)
     {
@@ -349,7 +349,30 @@ OUTPUT 1
 WHERE [Id] = @p1;");
     }
 
-    #endregion Two operations with different entity types
+    #endregion Same two operations with different entity types
+
+    #region Different two operations
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override async Task Delete_Add_with_same_entity_types(bool async)
+    {
+        await Test(EntityState.Deleted, EntityState.Added, GeneratedValues.Some, async, withSameEntityType: true);
+
+        AssertSql(
+            @"@p0='1'
+@p1='1001'
+
+SET NOCOUNT ON;
+DELETE FROM [WithSomeDatabaseGenerated]
+OUTPUT 1
+WHERE [Id] = @p0;
+INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
+OUTPUT INSERTED.[Id], INSERTED.[Data1]
+VALUES (@p1);");
+    }
+
+    #endregion Different two operations
 
     protected override async Task Test(
         EntityState firstOperationType,

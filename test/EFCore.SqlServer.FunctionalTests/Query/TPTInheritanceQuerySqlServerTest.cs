@@ -101,26 +101,17 @@ WHERE [c].[Id] = 1",
             @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 @p1='1'
 @p2='Little spotted kiwi' (Size = 4000)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-INSERT INTO [Animals] ([Species], [CountryId], [Name])
-VALUES (@p0, @p1, @p2);",
-            //
-            @"@p3='Apteryx owenii' (Nullable = false) (Size = 100)
+@p3='Apteryx owenii' (Nullable = false) (Size = 100)
 @p4=NULL (Size = 100)
 @p5='True'
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
-VALUES (@p3, @p4, @p5);",
-            //
-            @"@p6='Apteryx owenii' (Nullable = false) (Size = 100)
+@p6='Apteryx owenii' (Nullable = false) (Size = 100)
 @p7='0' (Size = 1)
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
+INSERT INTO [Animals] ([Species], [CountryId], [Name])
+VALUES (@p0, @p1, @p2);
+INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
+VALUES (@p3, @p4, @p5);
 INSERT INTO [Kiwi] ([Species], [FoundOn])
 VALUES (@p6, @p7);",
             //
@@ -146,25 +137,16 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE [a].[Species] LIKE N'%owenii'",
             //
             @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+@p1='Apteryx owenii' (Nullable = false) (Size = 100)
+@p2='Apteryx owenii' (Nullable = false) (Size = 100)
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Kiwi]
 OUTPUT 1
-WHERE [Species] = @p0;",
-            //
-            @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
+WHERE [Species] = @p0;
 DELETE FROM [Birds]
 OUTPUT 1
-WHERE [Species] = @p1;",
-            //
-            @"@p2='Apteryx owenii' (Nullable = false) (Size = 100)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
+WHERE [Species] = @p1;
 DELETE FROM [Animals]
 OUTPUT 1
 WHERE [Species] = @p2;",
@@ -533,11 +515,19 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]",
             @"@p0='Haliaeetus leucocephalus' (Nullable = false) (Size = 100)
 @p1='0'
 @p2='Bald eagle' (Size = 4000)
+@p3='Haliaeetus leucocephalus' (Nullable = false) (Size = 100)
+@p4='Apteryx haastii' (Size = 100)
+@p5='False'
+@p6='Haliaeetus leucocephalus' (Nullable = false) (Size = 100)
+@p7='1'
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Animals] ([Species], [CountryId], [Name])
-VALUES (@p0, @p1, @p2);");
+VALUES (@p0, @p1, @p2);
+INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
+VALUES (@p3, @p4, @p5);
+INSERT INTO [Eagle] ([Species], [Group])
+VALUES (@p6, @p7);");
     }
 
     public override async Task Subquery_OfType(bool async)
