@@ -91,12 +91,12 @@ public class SqlServerModificationCommandBatchTest
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-    private static IModificationCommand CreateModificationCommand(
+    private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
         string schema,
         bool sensitiveLoggingEnabled)
-        => new ModificationCommandFactory().CreateModificationCommand(
-            new ModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
+        => new ModificationCommandFactory().CreateNonTrackedModificationCommand(
+            new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
 
     private class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
     {

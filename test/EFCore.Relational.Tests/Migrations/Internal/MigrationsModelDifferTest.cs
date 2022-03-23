@@ -3280,18 +3280,34 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 x => x.HasKey("RavenId", "Id")),
             operations =>
             {
-                Assert.Equal(2, operations.Count);
+                Assert.Equal(4, operations.Count);
 
                 var dropOperation = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
                 Assert.Equal("dbo", dropOperation.Schema);
                 Assert.Equal("Raven", dropOperation.Table);
                 Assert.Equal("PK_Raven", dropOperation.Name);
 
-                var addOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[1]);
+                var deleteDataOperation = Assert.IsType<DeleteDataOperation>(operations[1]);
+                Assert.Null(deleteDataOperation.KeyColumnTypes);
+                Assert.Equal(new[] { "Id", "RavenId" }, deleteDataOperation.KeyColumns);
+                AssertMultidimensionalArray(
+                    deleteDataOperation.KeyValues,
+                    v => Assert.Equal(42, v),
+                    v => Assert.Equal("42", v));
+
+                var addOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
                 Assert.Equal("dbo", addOperation.Schema);
                 Assert.Equal("Raven", addOperation.Table);
                 Assert.Equal("PK_Raven", addOperation.Name);
                 Assert.Equal(new[] { "RavenId", "Id" }, addOperation.Columns);
+
+                var insertDataOperation = Assert.IsType<InsertDataOperation>(operations[3]);
+                Assert.Equal("Raven", insertDataOperation.Table);
+                Assert.Equal(new[] { "Id", "RavenId" }, insertDataOperation.Columns);
+                AssertMultidimensionalArray(
+                    insertDataOperation.Values,
+                    v => Assert.Equal(42, v),
+                    v => Assert.Equal("42", v));
             },
             skipSourceConventions: true);
 
@@ -5823,6 +5839,20 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Cats", operation.Table);
+                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(11, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(12, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(13, v),
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
                     Assert.Equal("Dogs", operation.Table);
 
                     Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
@@ -5830,6 +5860,15 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     AssertMultidimensionalArray(
                         operation.Values,
                         v => Assert.Equal(21, v),
+                        v => Assert.Equal(31, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Mice", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.Columns);
+                    AssertMultidimensionalArray(
+                        operation.Values,
                         v => Assert.Equal(31, v));
                 },
                 o =>
@@ -6002,6 +6041,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Equal("PreyId", operation.Name);
                     Assert.Equal("Animal", operation.Table);
                     Assert.Equal(typeof(int), operation.ClrType);
+                    Assert.True(operation.IsNullable);
                 },
                 o =>
                 {
@@ -6013,11 +6053,30 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         operation.KeyValues,
                         v => Assert.Equal(11, v));
 
-                    Assert.Equal(new[] { "Discriminator" }, operation.Columns);
+                    Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
                     Assert.Null(operation.ColumnTypes);
                     AssertMultidimensionalArray(
                         operation.Values,
-                        v => Assert.Equal("Cat", v));
+                        v => Assert.Equal("Cat", v),
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(12, v));
+
+                    Assert.Equal(new[] { "Discriminator", "MouseId", "PreyId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal("Cat", v),
+                        v => Assert.Equal(32, v),
+                        v => Assert.Null(v));
                 },
                 o =>
                 {
@@ -6029,11 +6088,12 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         operation.KeyValues,
                         v => Assert.Equal(13, v));
 
-                    Assert.Equal(new[] { "Discriminator", "MouseId" }, operation.Columns);
+                    Assert.Equal(new[] { "Discriminator", "MouseId", "PreyId" }, operation.Columns);
                     Assert.Null(operation.ColumnTypes);
                     AssertMultidimensionalArray(
                         operation.Values,
                         v => Assert.Equal("Cat", v),
+                        v => Assert.Null(v),
                         v => Assert.Null(v));
                 },
                 o =>
@@ -6061,6 +6121,23 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Null(operation.KeyColumnTypes);
                     AssertMultidimensionalArray(
                         operation.KeyValues,
+                        v => Assert.Equal(22, v));
+
+                    Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal("Dog", v),
+                        v => Assert.Equal(32, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
                         v => Assert.Equal(31, v));
 
                     Assert.Equal(new[] { "Discriminator" }, operation.Columns);
@@ -6079,40 +6156,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         v => Assert.Equal(32, v),
                         v => Assert.Equal("Mouse", v),
                         v => Assert.Null(v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(12, v));
-
-                    Assert.Equal(new[] { "Discriminator", "MouseId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Cat", v),
-                        v => Assert.Equal(32, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(22, v));
-
-                    Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Dog", v),
-                        v => Assert.Equal(32, v));
                 },
                 o =>
                 {
@@ -6446,6 +6489,20 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Cats", operation.Table);
+                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(11, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(12, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(13, v),
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
                     Assert.Equal("Dogs", operation.Table);
 
                     Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
@@ -6453,6 +6510,15 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     AssertMultidimensionalArray(
                         operation.Values,
                         v => Assert.Equal(21, v),
+                        v => Assert.Equal(31, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Mice", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.Columns);
+                    AssertMultidimensionalArray(
+                        operation.Values,
                         v => Assert.Equal(31, v));
                 },
                 o =>
@@ -6561,39 +6627,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(21, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(22, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(23, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
                     Assert.Equal("Animal", operation.Table);
                     Assert.Equal(new[] { "Id" }, operation.KeyColumns);
                     Assert.Null(operation.KeyColumnTypes);
@@ -6624,6 +6657,39 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Dogs", operation.Table);
+
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(21, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Dogs", operation.Table);
+
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(22, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Dogs", operation.Table);
+
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(23, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
                     Assert.Equal("Animal", operation.Table);
                     Assert.Equal(new[] { "Id" }, operation.KeyColumns);
                     Assert.Null(operation.KeyColumnTypes);
@@ -6655,22 +6721,22 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var operation = Assert.IsType<DeleteDataOperation>(o);
                     Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(31, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
 
                     Assert.Equal(new[] { "Id" }, operation.KeyColumns);
                     Assert.Null(operation.KeyColumnTypes);
                     AssertMultidimensionalArray(
                         operation.KeyValues,
                         v => Assert.Equal(33, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(31, v));
                 },
                 o =>
                 {
@@ -6767,8 +6833,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
                 }));
 
-    // Seeding not supported yet
-    //[ConditionalFact]
+    [ConditionalFact]
     public void Change_TPH_to_TPC_with_FKs_and_seed_data()
         => Execute(
             modelBuilder =>
@@ -6905,6 +6970,66 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Null(operation.KeyColumnTypes);
                     AssertMultidimensionalArray(
                         operation.KeyValues,
+                        v => Assert.Equal(11, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(12, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(13, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(21, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(22, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(31, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
                         v => Assert.Equal(32, v));
                 },
                 o =>
@@ -7029,86 +7154,64 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var operation = Assert.IsType<InsertDataOperation>(o);
                     Assert.Equal("Cats", operation.Table);
-                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
+                    Assert.Equal(new[] { "Id", "MouseId", "PreyId" }, operation.Columns);
                     Assert.Null(operation.ColumnTypes);
                     AssertMultidimensionalArray(
                         operation.Values,
                         v => Assert.Equal(12, v),
-                        v => Assert.Null(v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Cats", operation.Table);
-                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
+                        v => Assert.Null(v),
+                        v => Assert.Null(v),
                         v => Assert.Equal(13, v),
-                        v => Assert.Equal(32, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal(23, v),
-                        v => Assert.Null(v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal(33, v),
+                        v => Assert.Equal(32, v),
                         v => Assert.Null(v));
                 },
                 o =>
                 {
                     var operation = Assert.IsType<InsertDataOperation>(o);
                     Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
+                    Assert.Equal(new[] { "Id", "MouseId", "PreyId" }, operation.Columns);
                     AssertMultidimensionalArray(
                         operation.Values,
                         v => Assert.Equal(21, v),
-                        v => Assert.Equal(31, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
+                        v => Assert.Null(v),
+                        v => Assert.Equal(31, v),
                         v => Assert.Equal(22, v),
-                        v => Assert.Equal(33, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
-                    AssertMultidimensionalArray(
-                        operation.Values,
+                        v => Assert.Null(v),
+                        v => Assert.Equal(33, v),
                         v => Assert.Equal(23, v),
+                        v => Assert.Null(v),
                         v => Assert.Null(v));
                 },
                 o =>
                 {
                     var operation = Assert.IsType<InsertDataOperation>(o);
                     Assert.Equal("Mice", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.Columns);
+                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
                     AssertMultidimensionalArray(
                         operation.Values,
-                        v => Assert.Equal(33, v));
+                        v => Assert.Equal(31, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(33, v),
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Cats", operation.Table);
+                    Assert.Equal(new[] { "Id", "MouseId", "PreyId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(11, v),
+                        v => Assert.Equal(31, v),
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<CreateIndexOperation>(o);
+                    Assert.Equal("IX_Dogs_MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
                 },
                 o =>
                 {
@@ -7120,9 +7223,23 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<CreateIndexOperation>(o);
+                    Assert.Equal("IX_Cats_MouseId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<CreateIndexOperation>(o);
                     Assert.Equal("IX_Cats_PreyId", operation.Name);
                     Assert.Equal("Cats", operation.Table);
                     Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<CreateIndexOperation>(o);
+                    Assert.Equal("IX_Mice_MouseId", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
                 },
                 o =>
                 {
@@ -7137,20 +7254,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<AddForeignKeyOperation>(o);
-                    Assert.Equal("FK_Dogs_Animal", operation.Name);
+                    Assert.Equal("FK_Dogs_Mice_MouseId", operation.Name);
                     Assert.Equal("Dogs", operation.Table);
-                    Assert.Equal("Animal", operation.PrincipalTable);
-                    Assert.Equal(new[] { "Id" }, operation.Columns);
-                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<AddForeignKeyOperation>(o);
-                    Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
-                    Assert.Equal("Dogs", operation.Table);
-                    Assert.Equal("Animal", operation.PrincipalTable);
-                    Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    Assert.Equal("Mice", operation.PrincipalTable);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
                     Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
                     Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
                 }),
@@ -7165,13 +7272,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<DropForeignKeyOperation>(o);
-                    Assert.Equal("FK_Dogs_Animal", operation.Name);
-                    Assert.Equal("Dogs", operation.Table);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
-                    Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
+                    Assert.Equal("FK_Dogs_Mice_MouseId", operation.Name);
                     Assert.Equal("Dogs", operation.Table);
                 },
                 o =>
@@ -7183,6 +7284,12 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var operation = Assert.IsType<DropTableOperation>(o);
                     Assert.Equal("Mice", operation.Name);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropIndexOperation>(o);
+                    Assert.Equal("IX_Dogs_MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
                 },
                 o =>
                 {
@@ -7225,31 +7332,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(23, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(33, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<AddColumnOperation>(o);
-                    Assert.Equal("Discriminator", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(typeof(string), operation.ClrType);
+                    var operation = Assert.IsType<DropColumnOperation>(o);
+                    Assert.Equal("MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
                 },
                 o =>
                 {
@@ -7267,69 +7352,15 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    var operation = Assert.IsType<InsertDataOperation>(o);
                     Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(11, v));
-
-                    Assert.Equal(new[] { "Discriminator" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
+                    Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
                     AssertMultidimensionalArray(
                         operation.Values,
-                        v => Assert.Equal("Cat", v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(13, v));
-
-                    Assert.Equal(new[] { "Discriminator", "MouseId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
+                        v => Assert.Equal(13, v),
                         v => Assert.Equal("Cat", v),
+                        v => Assert.Null(v),
                         v => Assert.Null(v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(21, v));
-
-                    Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Dog", v),
-                        v => Assert.Equal(31, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(31, v));
-
-                    Assert.Equal(new[] { "Discriminator" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Mouse", v));
                 },
                 o =>
                 {
@@ -7338,42 +7369,35 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Equal(new[] { "Id", "Discriminator", "MouseId" }, operation.Columns);
                     AssertMultidimensionalArray(
                         operation.Values,
+                        v => Assert.Equal(31, v),
+                        v => Assert.Equal("Mouse", v),
+                        v => Assert.Null(v),
                         v => Assert.Equal(32, v),
                         v => Assert.Equal("Mouse", v),
                         v => Assert.Null(v));
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    var operation = Assert.IsType<InsertDataOperation>(o);
                     Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(12, v));
-
-                    Assert.Equal(new[] { "Discriminator", "MouseId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
+                    Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
                     AssertMultidimensionalArray(
                         operation.Values,
+                        v => Assert.Equal(11, v),
                         v => Assert.Equal("Cat", v),
-                        v => Assert.Equal(32, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(22, v));
-
-                    Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
+                        v => Assert.Equal(31, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(12, v),
+                        v => Assert.Equal("Cat", v),
+                        v => Assert.Equal(32, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(21, v),
                         v => Assert.Equal("Dog", v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(31, v),
+                        v => Assert.Equal(22, v),
+                        v => Assert.Equal("Dog", v),
+                        v => Assert.Null(v),
                         v => Assert.Equal(32, v));
                 },
                 o =>
@@ -7404,8 +7428,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
                 }));
 
-    // Seeding not supported yet
-    //[ConditionalFact]
+    [ConditionalFact]
     public void Change_TPT_to_TPC_with_FKs_and_seed_data()
         => Execute(
             modelBuilder =>
@@ -7522,20 +7545,102 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<DropForeignKeyOperation>(o);
-                    Assert.Equal("FK_Animal_Animal_MouseId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("FK_Cats_Animal_Id", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<DropForeignKeyOperation>(o);
-                    Assert.Equal("FK_Animal_Animal_PreyId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("FK_Cats_Animal_PreyId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<DropIndexOperation>(o);
-                    Assert.Equal("IX_Animal_PreyId", operation.Name);
+                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                    Assert.Equal("FK_Dogs_Animal_Id", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                    Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                    Assert.Equal("FK_Mice_Animal_Id", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
                     Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(11, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(12, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(13, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(21, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(22, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(31, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Mice", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(32, v));
                 },
                 o =>
                 {
@@ -7549,139 +7654,42 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<DropColumnOperation>(o);
-                    Assert.Equal("PreyId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<CreateTableOperation>(o);
-                    Assert.Equal("Cats", operation.Name);
-                    Assert.Collection(
-                        operation.Columns,
-                        c =>
-                        {
-                            Assert.Equal("Id", c.Name);
-                            Assert.Equal("default_int_mapping", c.ColumnType);
-                            Assert.Equal("Cats", c.Table);
-                            Assert.False(c.IsNullable);
-                            Assert.False(c.IsRowVersion);
-                            Assert.Null(c.IsUnicode);
-                            Assert.Null(c.IsFixedLength);
-                            Assert.Null(c.MaxLength);
-                            Assert.Null(c.Precision);
-                            Assert.Null(c.Scale);
-                            Assert.Null(c.DefaultValue);
-                            Assert.Null(c.DefaultValueSql);
-                            Assert.Null(c.ComputedColumnSql);
-                            Assert.Null(c.IsStored);
-                            Assert.Null(c.Comment);
-                            Assert.Null(c.Collation);
-                        },
-                        c =>
-                        {
-                            Assert.Equal("PreyId", c.Name);
-                            Assert.Equal("default_int_mapping", c.ColumnType);
-                            Assert.Equal("Cats", c.Table);
-                            Assert.True(c.IsNullable);
-                            Assert.False(c.IsRowVersion);
-                            Assert.Null(c.IsUnicode);
-                            Assert.Null(c.IsFixedLength);
-                            Assert.Null(c.MaxLength);
-                            Assert.Null(c.Precision);
-                            Assert.Null(c.Scale);
-                            Assert.Null(c.DefaultValue);
-                            Assert.Null(c.DefaultValueSql);
-                            Assert.Null(c.ComputedColumnSql);
-                            Assert.Null(c.IsStored);
-                            Assert.Null(c.Comment);
-                            Assert.Null(c.Collation);
-                        });
-
-                    var pk = operation.PrimaryKey;
-                    Assert.Equal("PK_Cats", pk.Name);
-                    Assert.Equal("Cats", pk.Table);
-                    Assert.Equal(new[] { "Id" }, pk.Columns);
-
-                    Assert.Collection(
-                        operation.ForeignKeys,
-                        fk =>
-                        {
-                            Assert.Equal("FK_Cats_Animal_Id", fk.Name);
-                            Assert.Equal("Cats", fk.Table);
-                            Assert.Equal("Animal", fk.PrincipalTable);
-                            Assert.Equal(new[] { "Id" }, fk.Columns);
-                            Assert.Equal(new[] { "Id" }, fk.PrincipalColumns);
-                            Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
-                        },
-                        fk =>
-                        {
-                            Assert.Equal("FK_Cats_Animal_PreyId", fk.Name);
-                            Assert.Equal("Cats", fk.Table);
-                            Assert.Equal("Animal", fk.PrincipalTable);
-                            Assert.Equal(new[] { "PreyId" }, fk.Columns);
-                            Assert.Equal(new[] { "Id" }, fk.PrincipalColumns);
-                            Assert.Equal(ReferentialAction.NoAction, fk.OnDelete);
-                        });
-
-                    Assert.Empty(operation.UniqueConstraints);
-                    Assert.Null(operation.Comment);
-                    Assert.Empty(operation.CheckConstraints);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<CreateTableOperation>(o);
-                    Assert.Equal("Mice", operation.Name);
-                    Assert.Collection(
-                        operation.Columns,
-                        c =>
-                        {
-                            Assert.Equal("Id", c.Name);
-                            Assert.Equal("default_int_mapping", c.ColumnType);
-                            Assert.Equal("Mice", c.Table);
-                            Assert.False(c.IsNullable);
-                            Assert.False(c.IsRowVersion);
-                            Assert.Null(c.IsUnicode);
-                            Assert.Null(c.IsFixedLength);
-                            Assert.Null(c.MaxLength);
-                            Assert.Null(c.Precision);
-                            Assert.Null(c.Scale);
-                            Assert.Null(c.DefaultValue);
-                            Assert.Null(c.DefaultValueSql);
-                            Assert.Null(c.ComputedColumnSql);
-                            Assert.Null(c.IsStored);
-                            Assert.Null(c.Comment);
-                            Assert.Null(c.Collation);
-                        });
-
-                    var pk = operation.PrimaryKey;
-                    Assert.Equal("PK_Mice", pk.Name);
-                    Assert.Equal("Mice", pk.Table);
-                    Assert.Equal(new[] { "Id" }, pk.Columns);
-
-                    var fk = operation.ForeignKeys.Single();
-                    Assert.Equal("FK_Mice_Animal_Id", fk.Name);
-                    Assert.Equal("Mice", fk.Table);
-                    Assert.Equal("Animal", fk.PrincipalTable);
-                    Assert.Equal(new[] { "Id" }, fk.Columns);
-                    Assert.Equal(new[] { "Id" }, fk.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
-
-                    Assert.Empty(operation.UniqueConstraints);
-                    Assert.Null(operation.Comment);
-                    Assert.Empty(operation.CheckConstraints);
+                    var operation = Assert.IsType<AddColumnOperation>(o);
+                    Assert.Equal("MouseId", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<AddColumnOperation>(o);
-                    Assert.Equal("Discriminator", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<AddColumnOperation>(o);
+                    Assert.Equal("MouseId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("Cats", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(11, v));
+
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(31, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("Cats", operation.Table);
                     Assert.Equal(new[] { "Id" }, operation.KeyColumns);
                     Assert.Null(operation.KeyColumnTypes);
                     AssertMultidimensionalArray(
@@ -7697,7 +7705,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("Cats", operation.Table);
                     Assert.Equal(new[] { "Id" }, operation.KeyColumns);
                     Assert.Null(operation.KeyColumnTypes);
                     AssertMultidimensionalArray(
@@ -7712,18 +7720,70 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 },
                 o =>
                 {
+                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("Dogs", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(21, v));
+
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("Dogs", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(22, v));
+
+                    Assert.Equal(new[] { "MouseId", "PreyId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Null(v),
+                        v => Assert.Equal(33, v));
+                },
+                o =>
+                {
                     var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
+                    Assert.Equal("Dogs", operation.Table);
+
+                    Assert.Equal(new[] { "Id", "MouseId", "PreyId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
                     AssertMultidimensionalArray(
                         operation.Values,
                         v => Assert.Equal(23, v),
+                        v => Assert.Null(v),
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("Mice", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(31, v));
+
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
                         v => Assert.Null(v));
                 },
                 o =>
                 {
                     var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("Mice", operation.Table);
                     Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
                     AssertMultidimensionalArray(
                         operation.Values,
@@ -7732,66 +7792,30 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal(21, v),
-                        v => Assert.Equal(31, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal(22, v),
-                        v => Assert.Equal(33, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-                    Assert.Equal(new[] { "Id", "PreyId" }, operation.Columns);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal(23, v),
-                        v => Assert.Null(v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
+                    var operation = Assert.IsType<CreateIndexOperation>(o);
+                    Assert.Equal("IX_Mice_MouseId", operation.Name);
                     Assert.Equal("Mice", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.Columns);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal(33, v));
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<CreateIndexOperation>(o);
-                    Assert.Equal("IX_Dogs_PreyId", operation.Name);
+                    Assert.Equal("IX_Dogs_MouseId", operation.Name);
                     Assert.Equal("Dogs", operation.Table);
-                    Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<CreateIndexOperation>(o);
-                    Assert.Equal("IX_Cats_PreyId", operation.Name);
+                    Assert.Equal("IX_Cats_MouseId", operation.Name);
                     Assert.Equal("Cats", operation.Table);
-                    Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<AddForeignKeyOperation>(o);
-                    Assert.Equal("FK_Animal_Mice_MouseId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("FK_Cats_Mice_MouseId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
                     Assert.Equal("Mice", operation.PrincipalTable);
                     Assert.Equal(new[] { "MouseId" }, operation.Columns);
                     Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
@@ -7800,7 +7824,180 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 o =>
                 {
                     var operation = Assert.IsType<AddForeignKeyOperation>(o);
-                    Assert.Equal("FK_Dogs_Animal", operation.Name);
+                    Assert.Equal("FK_Dogs_Mice_MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                    Assert.Equal("Mice", operation.PrincipalTable);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                    Assert.Equal("FK_Mice_Mice_MouseId", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
+                    Assert.Equal("Mice", operation.PrincipalTable);
+                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                    Assert.Equal("FK_Cats_Mice_MouseId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                    Assert.Equal("FK_Dogs_Mice_MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                    Assert.Equal("FK_Mice_Mice_MouseId", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropIndexOperation>(o);
+                    Assert.Equal("IX_Mice_MouseId", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropIndexOperation>(o);
+                    Assert.Equal("IX_Dogs_MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropIndexOperation>(o);
+                    Assert.Equal("IX_Cats_MouseId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Dogs", operation.Table);
+
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(23, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Equal("Mice", operation.Table);
+
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(33, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropColumnOperation>(o);
+                    Assert.Equal("MouseId", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropColumnOperation>(o);
+                    Assert.Equal("MouseId", operation.Name);
+                    Assert.Equal("Dogs", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropColumnOperation>(o);
+                    Assert.Equal("MouseId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(11, v),
+                        v => Assert.Equal(31, v),
+                        v => Assert.Equal(13, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(21, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(22, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(31, v),
+                        v => Assert.Null(v),
+                        v => Assert.Equal(32, v),
+                        v => Assert.Null(v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("Dogs", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
+                    Assert.Null(operation.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.KeyValues,
+                        v => Assert.Equal(22, v));
+
+                    Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    Assert.Null(operation.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(32, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Mice", operation.Table);
+                    Assert.Equal(new[] { "Id" }, operation.Columns);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(32, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal(new[] { "Id", "MouseId" }, operation.Columns);
+                    AssertMultidimensionalArray(
+                        operation.Values,
+                        v => Assert.Equal(12, v),
+                        v => Assert.Equal(32, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                    Assert.Equal("FK_Cats_Animal_Id", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
+                    Assert.Equal("Animal", operation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, operation.Columns);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                    Assert.Equal("FK_Cats_Animal_PreyId", operation.Name);
+                    Assert.Equal("Cats", operation.Table);
+                    Assert.Equal("Animal", operation.PrincipalTable);
+                    Assert.Equal(new[] { "PreyId" }, operation.Columns);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                    Assert.Equal("FK_Dogs_Animal_Id", operation.Name);
                     Assert.Equal("Dogs", operation.Table);
                     Assert.Equal("Animal", operation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, operation.Columns);
@@ -7816,255 +8013,18 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     Assert.Equal(new[] { "PreyId" }, operation.Columns);
                     Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
                     Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
-                }),
-            downOps => Assert.Collection(
-                downOps,
-                o =>
-                {
-                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
-                    Assert.Equal("FK_Animal_Mice_MouseId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
-                    Assert.Equal("FK_Dogs_Animal", operation.Name);
-                    Assert.Equal("Dogs", operation.Table);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DropForeignKeyOperation>(o);
-                    Assert.Equal("FK_Dogs_Animal_PreyId", operation.Name);
-                    Assert.Equal("Dogs", operation.Table);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DropTableOperation>(o);
-                    Assert.Equal("Cats", operation.Name);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DropTableOperation>(o);
-                    Assert.Equal("Mice", operation.Name);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DropIndexOperation>(o);
-                    Assert.Equal("IX_Dogs_PreyId", operation.Name);
-                    Assert.Equal("Dogs", operation.Table);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(21, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(22, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Dogs", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(23, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(23, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<DeleteDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(33, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<AddColumnOperation>(o);
-                    Assert.Equal("Discriminator", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(typeof(string), operation.ClrType);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<AddColumnOperation>(o);
-                    Assert.Equal("Discriminator", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(typeof(string), operation.ClrType);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<AddColumnOperation>(o);
-                    Assert.Equal("PreyId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(typeof(int), operation.ClrType);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(11, v));
-
-                    //Assert.Equal(new[] { "Discriminator" }, operation.Columns);
-                    //Assert.Null(operation.ColumnTypes);
-                    //AssertMultidimensionalArray(
-                    //    operation.Values,
-                    //    v => Assert.Equal("Cat", v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(13, v));
-
-                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Null(v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(21, v));
-
-                    Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Dog", v),
-                        v => Assert.Equal(31, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(31, v));
-
-                    Assert.Equal(new[] { "Discriminator" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Mouse", v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id", "Discriminator", "MouseId" }, operation.Columns);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal(32, v),
-                        v => Assert.Equal("Mouse", v),
-                        v => Assert.Null(v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(12, v));
-
-                    Assert.Equal(new[] { "Discriminator", "MouseId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Cat", v),
-                        v => Assert.Equal(32, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<UpdateDataOperation>(o);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "Id" }, operation.KeyColumns);
-                    Assert.Null(operation.KeyColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.KeyValues,
-                        v => Assert.Equal(22, v));
-
-                    Assert.Equal(new[] { "Discriminator", "PreyId" }, operation.Columns);
-                    Assert.Null(operation.ColumnTypes);
-                    AssertMultidimensionalArray(
-                        operation.Values,
-                        v => Assert.Equal("Dog", v),
-                        v => Assert.Equal(32, v));
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<CreateIndexOperation>(o);
-                    Assert.Equal("IX_Animal_PreyId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal(new[] { "PreyId" }, operation.Columns);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<AddForeignKeyOperation>(o);
-                    Assert.Equal("FK_Animal_Animal_MouseId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("FK_Mice_Animal_Id", operation.Name);
+                    Assert.Equal("Mice", operation.Table);
                     Assert.Equal("Animal", operation.PrincipalTable);
-                    Assert.Equal(new[] { "MouseId" }, operation.Columns);
+                    Assert.Equal(new[] { "Id" }, operation.Columns);
                     Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
-                },
-                o =>
-                {
-                    var operation = Assert.IsType<AddForeignKeyOperation>(o);
-                    Assert.Equal("FK_Animal_Animal_PreyId", operation.Name);
-                    Assert.Equal("Animal", operation.Table);
-                    Assert.Equal("Animal", operation.PrincipalTable);
-                    Assert.Equal(new[] { "PreyId" }, operation.Columns);
-                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
                 }));
+    
     [ConditionalFact]
     public void Add_foreign_key_on_base_type()
         => Execute(
@@ -8467,25 +8427,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     private class Shark : Animal
     {
     }
-
-    [ConditionalFact] // See #2802
-    public void Diff_IProperty_compares_values_not_references()
-        => Execute(
-            source => source.Entity(
-                "Stork",
-                x =>
-                {
-                    x.Property<int>("Id");
-                    x.Property<bool>("Value").HasDefaultValue(true);
-                }),
-            target => target.Entity(
-                "Stork",
-                x =>
-                {
-                    x.Property<int>("Id");
-                    x.Property<bool>("Value").HasDefaultValue(true);
-                }),
-            Assert.Empty);
 
     [ConditionalFact]
     public void Add_column_to_renamed_table()
@@ -9573,6 +9514,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     protected class SomeOwnedEntity
     {
     }
+    
 
     [ConditionalFact]
     public void SeedData_and_PK_rename()
@@ -9963,7 +9905,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     x.Property<DateTime>("Value1");
                     x.HasData(
-                        new { Id = 42 });
+                        new { Id = 42, Value1 = new DateTime() });
                 }),
             target => target.Entity(
                 "EntityWithOneProperty",
@@ -9973,7 +9915,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         .IsRequired()
                         .HasConversion(e => new DateTime(), e => new byte[0]);
                     x.HasData(
-                        new { Id = 42 });
+                        new { Id = 42, Value1 = new byte[0] });
                 }),
             Assert.Empty,
             Assert.Empty);
@@ -10133,6 +10075,61 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         v => Assert.Equal((int)SomeEnum.NonDefault, v));
                 }));
 
+    [ConditionalFact]
+    public void SeedData_change_with_default()
+        => Execute(
+            common => common.Entity(
+                "EntityWithEnumProperty",
+                x =>
+                {
+                    x.ToTable("EntityWithEnumProperty", "schema");
+                    x.Property<int>("Id");
+                    x.HasKey("Id");
+                    x.Property<SomeEnum>("Enum").HasDefaultValue(SomeEnum.Default);
+                }),
+            source => source.Entity(
+                "EntityWithEnumProperty",
+                x =>
+                {
+                    x.HasData(
+                        new { Id = 1, Enum = SomeEnum.NonDefault });
+                }),
+            target => target.Entity(
+                "EntityWithEnumProperty",
+                x =>
+                {
+                    x.HasData(
+                        new { Id = 1, Enum = SomeEnum.Default });
+                }),
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("EntityWithEnumProperty", m.Table);
+                    Assert.Equal("schema", m.Schema);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(1, v));
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal((int)SomeEnum.Default, v));
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Equal("EntityWithEnumProperty", m.Table);
+                    Assert.Equal("schema", m.Schema);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(1, v));
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal((int)SomeEnum.NonDefault, v));
+                }));
+    
     [ConditionalFact]
     public void SeedData_no_change_enum_key()
         => Execute(
@@ -10392,114 +10389,108 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             ComputedValueSql = 42
                         }); //Added
                 }),
-            upOps =>
-            {
-                Assert.Collection(
-                    upOps,
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Null(m.KeyColumnTypes);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(21, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<UpdateDataOperation>(o);
-                        Assert.Null(m.KeyColumnTypes);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(11, v));
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal("Modified", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<UpdateDataOperation>(o);
-                        Assert.Null(m.KeyColumnTypes);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(12, v));
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(6, v),
-                            v => Assert.Equal(6, v),
-                            v => Assert.Equal("Modified", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Null(m.ColumnTypes);
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(31, v),
-                            v => Assert.Equal("Added", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Null(m.ColumnTypes);
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(32, v),
-                            v => Assert.Equal(42, v),
-                            v => Assert.Equal(42, v),
-                            v => Assert.Equal("DefaultValuesProvided", v));
-                    });
-            },
-            downOps =>
-            {
-                Assert.Collection(
-                    downOps,
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Null(m.KeyColumnTypes);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(31, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<DeleteDataOperation>(o);
-                        Assert.Null(m.KeyColumnTypes);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(32, v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<UpdateDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(11, v));
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal("Value", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<UpdateDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.KeyValues,
-                            v => Assert.Equal(12, v));
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(5, v),
-                            v => Assert.Equal(5, v),
-                            v => Assert.Equal("Value", v));
-                    },
-                    o =>
-                    {
-                        var m = Assert.IsType<InsertDataOperation>(o);
-                        AssertMultidimensionalArray(
-                            m.Values,
-                            v => Assert.Equal(21, v),
-                            v => Assert.Equal("Deleted", v));
-                    });
-            });
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Null(m.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(21, v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Null(m.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(11, v));
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal("Modified", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<UpdateDataOperation>(o);
+                    Assert.Null(m.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(12, v));
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(6, v),
+                        v => Assert.Equal(6, v),
+                        v => Assert.Equal("Modified", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Null(m.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(31, v),
+                        v => Assert.Equal("Added", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Null(m.ColumnTypes);
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(32, v),
+                        v => Assert.Equal(42, v),
+                        v => Assert.Equal(42, v),
+                        v => Assert.Equal("DefaultValuesProvided", v));
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Null(m.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(31, v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DeleteDataOperation>(o);
+                    Assert.Null(m.KeyColumnTypes);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(32, v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<UpdateDataOperation>(o);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(11, v));
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal("Value", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<UpdateDataOperation>(o);
+                    AssertMultidimensionalArray(
+                        m.KeyValues,
+                        v => Assert.Equal(12, v));
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(5, v),
+                        v => Assert.Equal(5, v),
+                        v => Assert.Equal("Value", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<InsertDataOperation>(o);
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(21, v),
+                        v => Assert.Equal("Deleted", v));
+                }));
 
     [ConditionalFact]
     public void SeedData_with_shadow_navigation_properties()
@@ -10677,16 +10668,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 },
                 o =>
                 {
-                    var m = Assert.IsType<InsertDataOperation>(o);
-                    Assert.Equal("Post", m.Table);
-                    AssertMultidimensionalArray(
-                        m.Values,
-                        v => Assert.Equal(546, v),
-                        v => Assert.Equal(32, v),
-                        v => Assert.Equal("New Post", v));
-                },
-                o =>
-                {
                     var m = Assert.IsType<UpdateDataOperation>(o);
                     Assert.Equal("Post", m.Table);
                     AssertMultidimensionalArray(
@@ -10696,6 +10677,16 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         m.Values,
                         v => Assert.Equal(38, v),
                         v => Assert.Equal("Updated Title", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Post", m.Table);
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(546, v),
+                        v => Assert.Equal(32, v),
+                        v => Assert.Equal("New Post", v));
                 }),
             downOps => Assert.Collection(
                 downOps,

@@ -71,7 +71,9 @@ public static class ColumnAccessorsFactory
             var modification = c.ColumnModifications.FirstOrDefault(m => m.ColumnName == column.Name);
             return modification == null
                 ? (default(TColumn)!, false)
-                : ((TColumn)modification.Value!, true);
+                : modification.Value == null
+                    ? (default(TColumn)!, false)
+                    : ((TColumn)modification.Value!, true);
         };
 
     private static Func<IReadOnlyModificationCommand, (TColumn, bool)> CreateOriginalValueGetter<TColumn>(IColumn column)
@@ -112,6 +114,8 @@ public static class ColumnAccessorsFactory
             var modification = c.ColumnModifications.FirstOrDefault(m => m.ColumnName == column.Name);
             return modification == null
                 ? (default(TColumn)!, false)
-                : ((TColumn)modification.OriginalValue!, true);
+                : modification.OriginalValue == null
+                    ? (default(TColumn)!, false)
+                    : ((TColumn)modification.OriginalValue!, true);
         };
 }

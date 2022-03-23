@@ -26,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public class RelationalDatabase : Database
 {
+    private IUpdateAdapter? _updateAdapter;
+    
     /// <summary>
     ///     Initializes a new instance of the <see cref="RelationalDatabase" /> class.
     /// </summary>
@@ -39,6 +41,8 @@ public class RelationalDatabase : Database
         RelationalDependencies = relationalDependencies;
     }
 
+    private IUpdateAdapter UpdateAdapter => _updateAdapter ??= Dependencies.UpdateAdapterFactory.Create();
+
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
@@ -51,9 +55,7 @@ public class RelationalDatabase : Database
     /// <returns>The number of state entries persisted to the database.</returns>
     public override int SaveChanges(IList<IUpdateEntry> entries)
         => RelationalDependencies.BatchExecutor.Execute(
-            RelationalDependencies.BatchPreparer.BatchCommands(
-                entries,
-                Dependencies.UpdateAdapterFactory.Create()),
+            RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
             RelationalDependencies.Connection);
 
     /// <summary>
@@ -70,9 +72,7 @@ public class RelationalDatabase : Database
         IList<IUpdateEntry> entries,
         CancellationToken cancellationToken = default)
         => RelationalDependencies.BatchExecutor.ExecuteAsync(
-            RelationalDependencies.BatchPreparer.BatchCommands(
-                entries,
-                Dependencies.UpdateAdapterFactory.Create()),
+            RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
             RelationalDependencies.Connection,
             cancellationToken);
 }

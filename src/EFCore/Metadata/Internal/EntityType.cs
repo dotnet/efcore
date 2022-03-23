@@ -3035,10 +3035,6 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         var data = new List<Dictionary<string, object?>>();
         var valueConverters = new Dictionary<string, ValueConverter?>(StringComparer.Ordinal);
-        var properties = GetProperties()
-            .Concat<IPropertyBase>(GetNavigations())
-            .Concat(GetSkipNavigations())
-            .ToDictionary(p => p.Name);
         foreach (var rawSeed in _data)
         {
             var seed = new Dictionary<string, object?>(StringComparer.Ordinal);
@@ -3048,8 +3044,16 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             if (ClrType.IsAssignableFrom(type))
             {
                 // non-anonymous type
-                foreach (var propertyBase in properties.Values)
+                var properties = GetProperties()
+                    .Concat<IPropertyBase>(GetNavigations())
+                    .Concat(GetSkipNavigations());
+                foreach (var propertyBase in properties)
                 {
+                    if (propertyBase.IsShadowProperty())
+                    {
+                        continue;
+                    }
+                    
                     ValueConverter? valueConverter = null;
                     if (providerValues
                         && propertyBase is IProperty property
@@ -3059,7 +3063,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                         valueConverters[propertyBase.Name] = valueConverter;
                     }
 
-                    propertyBase.TryGetMemberInfo(forConstruction: false, forSet: false, out var memberInfo, out _);
+                    var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
 
                     object? value = null;
                     switch (memberInfo)
@@ -3097,6 +3101,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             else
             {
                 // anonymous type
+                var properties = GetProperties()
+                    .Concat<IPropertyBase>(GetNavigations())
+                    .Concat(GetSkipNavigations())
+                    .ToDictionary(p => p.Name);
                 foreach (var memberInfo in type.GetMembersInHierarchy())
                 {
                     if (!properties.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
@@ -3128,6 +3136,17 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         return data;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<object> GetRawSeedData()
+        => _data == null
+            ? Enumerable.Empty<object>()
+            : _data;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

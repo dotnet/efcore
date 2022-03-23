@@ -156,7 +156,7 @@ public abstract class SnapshotFactoryFactory
 
         return UseEntityVariable
             && entityVariable != null
-                ? (Expression)Expression.Block(
+                ? Expression.Block(
                     new List<ParameterExpression> { entityVariable },
                     new List<Expression>
                     {

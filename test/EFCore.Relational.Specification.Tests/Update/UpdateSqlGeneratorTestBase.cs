@@ -215,7 +215,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract string RowsAffected { get; }
 
-    protected virtual IModificationCommandFactory CreateMutableModificationCommandFactory()
+    protected virtual IModificationCommandFactory CreateModificationCommandFactory()
         => new ModificationCommandFactory();
 
     protected virtual string Identity
@@ -236,7 +236,7 @@ public abstract class UpdateSqlGeneratorTestBase
     protected virtual string GetIdentityWhereCondition(string columnName)
         => OpenDelimiter + columnName + CloseDelimiter + " = " + Identity;
 
-    protected IModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
+    protected INonTrackedModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
     {
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -278,7 +278,7 @@ public abstract class UpdateSqlGeneratorTestBase
         return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
     }
 
-    protected IModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
+    protected INonTrackedModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
     {
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -315,7 +315,7 @@ public abstract class UpdateSqlGeneratorTestBase
         return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
     }
 
-    protected IModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
+    protected INonTrackedModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
     {
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -358,19 +358,17 @@ public abstract class UpdateSqlGeneratorTestBase
         public byte[] ConcurrencyToken { get; set; }
     }
 
-    private IModificationCommand CreateModificationCommand(
+    private INonTrackedModificationCommand CreateModificationCommand(
         string name,
         string schema,
         InternalEntityEntry entry,
         IReadOnlyList<ColumnModificationParameters> columnModifications,
         bool sensitiveLoggingEnabled)
     {
-        var modificationCommandParameters = new ModificationCommandParameters(
+        var modificationCommandParameters = new NonTrackedModificationCommandParameters(
             name, schema, sensitiveLoggingEnabled);
-        var modificationCommand = CreateMutableModificationCommandFactory().CreateModificationCommand(
+        var modificationCommand = CreateModificationCommandFactory().CreateNonTrackedModificationCommand(
             modificationCommandParameters);
-
-        modificationCommand.AddEntry(entry, mainEntry: true);
 
         foreach (var columnModification in columnModifications)
         {

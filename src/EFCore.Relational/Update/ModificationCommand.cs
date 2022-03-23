@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class ModificationCommand : IModificationCommand
+public class ModificationCommand : IModificationCommand, INonTrackedModificationCommand
 {
     private readonly Func<string>? _generateParameterName;
     private readonly bool _sensitiveLoggingEnabled;
@@ -26,6 +26,7 @@ public class ModificationCommand : IModificationCommand
     private List<IColumnModification>? _columnModifications;
     private bool _requiresResultPropagation;
     private bool _mainEntryAdded;
+    private EntityState _entityState;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Update>? _logger;
 
     /// <summary>
@@ -44,6 +45,19 @@ public class ModificationCommand : IModificationCommand
         EntityState = EntityState.Modified;
     }
 
+    /// <summary>
+    ///     Initializes a new <see cref="ModificationCommand" /> instance.
+    /// </summary>
+    /// <param name="modificationCommandParameters">Creation parameters.</param>
+    public ModificationCommand(in NonTrackedModificationCommandParameters modificationCommandParameters)
+    {
+        Table = modificationCommandParameters.Table;
+        TableName = modificationCommandParameters.TableName;
+        Schema = modificationCommandParameters.Schema;
+        _sensitiveLoggingEnabled = modificationCommandParameters.SensitiveLoggingEnabled;
+        EntityState = EntityState.Modified;
+    }
+
     /// <inheritdoc />
     public virtual ITable? Table { get; }
 
@@ -58,7 +72,11 @@ public class ModificationCommand : IModificationCommand
         => _entries;
 
     /// <inheritdoc />
-    public virtual EntityState EntityState { get; private set; }
+    public virtual EntityState EntityState
+    {
+        get => _entityState;
+        set => _entityState = value;
+    }
 
     /// <summary>
     ///     Indicates whether the database will return values for some mapped properties
@@ -137,7 +155,7 @@ public class ModificationCommand : IModificationCommand
             _mainEntryAdded = true;
             _entries.Insert(0, entry);
 
-            EntityState = entry.SharedIdentityEntry == null
+            _entityState = entry.SharedIdentityEntry == null
                 ? entry.EntityState
                 : entry.SharedIdentityEntry.EntityType == entry.EntityType
                 || entry.SharedIdentityEntry.EntityType.GetTableMappings()

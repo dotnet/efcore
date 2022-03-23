@@ -26,7 +26,7 @@ public class ColumnModification : IColumnModification
     private string? _parameterName;
     private string? _originalParameterName;
     private readonly Func<string>? _generateParameterName;
-    private readonly object? _originalValue;
+    private object? _originalValue;
     private object? _value;
     private readonly bool _sensitiveLoggingEnabled;
     private List<IColumnModification>? _sharedColumnModifications;
@@ -37,6 +37,7 @@ public class ColumnModification : IColumnModification
     /// <param name="columnModificationParameters">Creation parameters.</param>
     public ColumnModification(in ColumnModificationParameters columnModificationParameters)
     {
+        Column = columnModificationParameters.Column;
         ColumnName = columnModificationParameters.ColumnName;
         _originalValue = columnModificationParameters.OriginalValue;
         _value = columnModificationParameters.Value;
@@ -62,22 +63,25 @@ public class ColumnModification : IColumnModification
     public virtual IProperty? Property { get; }
 
     /// <inheritdoc />
+    public virtual IColumn? Column { get; }
+
+    /// <inheritdoc />
     public virtual RelationalTypeMapping? TypeMapping { get; }
 
     /// <inheritdoc />
     public virtual bool? IsNullable { get; }
 
     /// <inheritdoc />
-    public virtual bool IsRead { get; }
+    public virtual bool IsRead { get; set; }
 
     /// <inheritdoc />
-    public virtual bool IsWrite { get; }
+    public virtual bool IsWrite { get; set; }
 
     /// <inheritdoc />
-    public virtual bool IsCondition { get; }
+    public virtual bool IsCondition { get; set; }
 
     /// <inheritdoc />
-    public virtual bool IsKey { get; }
+    public virtual bool IsKey { get; set; }
 
     /// <inheritdoc />
     public virtual bool UseOriginalValueParameter
@@ -114,11 +118,31 @@ public class ColumnModification : IColumnModification
 
     /// <inheritdoc />
     public virtual object? OriginalValue
-        => Entry == null
-            ? _originalValue
-            : Entry.SharedIdentityEntry == null
-                ? Entry.GetOriginalValue(Property!)
-                : Entry.SharedIdentityEntry.GetOriginalValue(Property!);
+    {
+        get => Entry == null
+                   ? _originalValue
+                   : Entry.SharedIdentityEntry == null
+                       ? Entry.GetOriginalValue(Property!)
+                       : Entry.SharedIdentityEntry.GetOriginalValue(Property!);
+        set
+        {
+            if (Entry == null)
+            {
+                _originalValue = value;
+            }
+            else
+            {
+                Entry.SetOriginalValue(Property!, value);
+                if (_sharedColumnModifications != null)
+                {
+                    foreach (var sharedModification in _sharedColumnModifications)
+                    {
+                        sharedModification.OriginalValue = value;
+                    }
+                }
+            }
+        }
+    }
 
     /// <inheritdoc />
     public virtual object? Value

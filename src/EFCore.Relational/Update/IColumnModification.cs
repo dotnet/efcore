@@ -31,6 +31,11 @@ public interface IColumnModification
     public IProperty? Property { get; }
 
     /// <summary>
+    ///     The column.
+    /// </summary>
+    public IColumn? Column { get; }
+
+    /// <summary>
     ///     The relational type mapping for the column.
     /// </summary>
     public RelationalTypeMapping? TypeMapping { get; }
@@ -43,22 +48,22 @@ public interface IColumnModification
     /// <summary>
     ///     Indicates whether a value must be read from the database for the column.
     /// </summary>
-    public bool IsRead { get; }
+    public bool IsRead { get; set; }
 
     /// <summary>
     ///     Indicates whether a value must be written to the database for the column.
     /// </summary>
-    public bool IsWrite { get; }
+    public bool IsWrite { get; set; }
 
     /// <summary>
     ///     Indicates whether the column is used in the <c>WHERE</c> clause when updating.
     /// </summary>
-    public bool IsCondition { get; }
+    public bool IsCondition { get; set; }
 
     /// <summary>
     ///     Indicates whether the column is part of a primary or alternate key.
     /// </summary>
-    public bool IsKey { get; }
+    public bool IsKey { get; set; }
 
     /// <summary>
     ///     Indicates whether the original value of the property must be passed as a parameter to the SQL.
@@ -110,7 +115,7 @@ public interface IColumnModification
     /// <summary>
     ///     The original value of the property mapped to this column.
     /// </summary>
-    public object? OriginalValue { get; }
+    public object? OriginalValue { get; set; }
 
     /// <summary>
     ///     Gets or sets the current value of the property mapped to this column.

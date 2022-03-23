@@ -888,8 +888,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         for (var i = 0; i < operation.Values.GetLength(0); i++)
         {
-            var modificationCommand = Dependencies.ModificationCommandFactory.CreateModificationCommand(
-                new ModificationCommandParameters(operation.Table, operation.Schema ?? model?.GetDefaultSchema(), SensitiveLoggingEnabled));
+            var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
+                new NonTrackedModificationCommandParameters(operation.Table, operation.Schema ?? model?.GetDefaultSchema(), SensitiveLoggingEnabled));
+            modificationCommand.EntityState = EntityState.Added;
+            
             for (var j = 0; j < operation.Columns.Length; j++)
             {
                 var name = operation.Columns[j];
@@ -977,8 +979,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
         {
-            var modificationCommand = Dependencies.ModificationCommandFactory.CreateModificationCommand(
-                new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
+            var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
+                new NonTrackedModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
+            modificationCommand.EntityState = EntityState.Deleted;
+            
             for (var j = 0; j < operation.KeyColumns.Length; j++)
             {
                 var name = operation.KeyColumns[j];
@@ -1091,8 +1095,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
         {
-            var modificationCommand = Dependencies.ModificationCommandFactory.CreateModificationCommand(
-                new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
+            var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
+                new NonTrackedModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
+            modificationCommand.EntityState = EntityState.Modified;
+            
             for (var j = 0; j < operation.KeyColumns.Length; j++)
             {
                 var name = operation.KeyColumns[j];
@@ -1127,7 +1133,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                 modificationCommand.AddColumnModification(
                     new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        read: false, write: true, key: true, condition: false,
+                        read: false, write: true, key: false, condition: false,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
             }
 

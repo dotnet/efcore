@@ -1342,7 +1342,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                             new[] { new SampleEntity { Id = 2 } })
                     });
             });
-
+        
         VerifyError(
             sensitiveDataLoggingEnabled
                 ? CoreStrings.SeedDatumNavigationSensitive(
