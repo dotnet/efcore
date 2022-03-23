@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that configures the DeleteBehavior based on the <see cref="DeleteBehaviorAttribute" /> applied on the property.
+///     A convention that configures the delete behavior based on the <see cref="DeleteBehaviorAttribute" /> applied on the property.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
 {
     /// <summary>
-    ///     Creates a new instance of <see cref="UnicodeAttributeConvention" />.
+    ///     Creates a new instance of <see cref="DeleteBehaviorAttributeConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public DeleteBehaviorAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
