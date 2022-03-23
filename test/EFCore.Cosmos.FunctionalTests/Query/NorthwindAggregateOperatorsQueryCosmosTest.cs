@@ -904,6 +904,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
     }
 
+    [ConditionalTheory(Skip = "Fails on CI #27688")]
     public override async Task Distinct_Scalar(bool async)
     {
         await base.Distinct_Scalar(async);
