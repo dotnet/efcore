@@ -32,21 +32,6 @@ public class DeleteBehaviorAttributeConventionTest
     }
 
     [ConditionalFact]
-    public void Correctly_set_cascade_delete_behavior_on_foreign_key()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_Cascade>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_Cascade>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_Cascade).Metadata;
-
-        Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
-    }
-
-    [ConditionalFact]
     public void Correctly_set_restrict_delete_behavior_on_foreign_key()
     {
         var modelBuilder = CreateModelBuilder();
@@ -59,81 +44,6 @@ public class DeleteBehaviorAttributeConventionTest
             .WithOne(e => e.Blog_Restrict).Metadata;
 
         Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
-    }
-
-    [ConditionalFact]
-    public void Correctly_set_clientCascade_delete_behavior_on_foreign_key()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_ClientCascade>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_ClientCascade>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_ClientCascade).Metadata;
-
-        Assert.Equal(DeleteBehavior.ClientCascade, fk.DeleteBehavior);
-    }
-
-    [ConditionalFact]
-    public void Correctly_set_noAction_delete_behavior_on_foreign_key()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_NoAction>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_NoAction>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_NoAction).Metadata;
-
-        Assert.Equal(DeleteBehavior.NoAction, fk.DeleteBehavior);
-    }
-
-    [ConditionalFact]
-    public void Correctly_set_setNull_delete_behavior_on_foreign_key()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_SetNull>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_SetNull>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_SetNull).Metadata;
-
-        Assert.Equal(DeleteBehavior.SetNull, fk.DeleteBehavior);
-    }
-
-    [ConditionalFact]
-    public void Correctly_set_clientNoAction_delete_behavior_on_foreign_key()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_ClientNoAction>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_ClientNoAction>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_ClientNoAction).Metadata;
-
-        Assert.Equal(DeleteBehavior.ClientNoAction, fk.DeleteBehavior);
-    }
-
-    [ConditionalFact]
-    public void Correctly_set_clientSetNull_delete_behavior_on_foreign_key()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_ClientSetNull>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_ClientSetNull>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_ClientSetNull).Metadata;
-
-        Assert.Equal(DeleteBehavior.ClientSetNull, fk.DeleteBehavior);
     }
 
     [ConditionalFact]
@@ -175,37 +85,6 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(DeleteBehavior.Cascade, fk_Two.DeleteBehavior);
     }
 
-    [ConditionalFact]
-    public void Correctly_set_delete_behavior_on_foreign_key_declared_by_FluentAPI()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_Restrict>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_Restrict>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_Restrict)
-            .HasForeignKey(e => e.BlogId).Metadata;
-
-        Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
-    }
-
-    [ConditionalFact]
-    public void Correctly_set_delete_behavior_on_implicit_foreign_key()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Post_Restrict>()
-            .Property(e => e.BlogId);
-
-        var fk = modelBuilder.Entity<Blog_Restrict>()
-            .HasMany(e => e.Posts)
-            .WithOne(e => e.Blog_Restrict).Metadata;
-
-        Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
-    }
-
     #region DeleteBehaviorAttribute not set
     private class Blog
     {
@@ -223,25 +102,6 @@ public class DeleteBehaviorAttributeConventionTest
         public int? BlogId { get; set; }
     }
     #endregion
-    #region DeleteBehaviourAttribute set to Cascade
-    private class Blog_Cascade
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_Cascade> Posts { get; set; }
-    }
-
-    private class Post_Cascade
-    {
-        public int Id { get; set; }
-
-        public Blog_Cascade Blog_Cascade { get; set; }
-
-        [ForeignKey("Blog_Cascade")]
-        [DeleteBehavior(DeleteBehavior.Cascade)]
-        public int? BlogId { get; set; }
-    }
-    #endregion
     #region DeleteBehaviourAttribute set to Restrict
     private class Blog_Restrict
     {
@@ -256,105 +116,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         public Blog_Restrict Blog_Restrict { get; set; }
 
-
-        [ForeignKey("Blog_Restrict")]
         [DeleteBehavior(DeleteBehavior.Restrict)]
-        public int? BlogId { get; set; }
-    }
-    #endregion
-    #region DeleteBehaviourAttribute set to ClientCascade
-    private class Blog_ClientCascade
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_ClientCascade> Posts { get; set; }
-    }
-
-    private class Post_ClientCascade
-    {
-        public int Id { get; set; }
-
-        public Blog_ClientCascade Blog_ClientCascade { get; set; }
-
-        [ForeignKey("Blog_ClientCascade")]
-        [DeleteBehavior(DeleteBehavior.ClientCascade)]
-        public int? BlogId { get; set; }
-    }
-    #endregion
-    #region DeleteBehaviourAttribute set to NoAction
-    private class Blog_NoAction
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_NoAction> Posts { get; set; }
-    }
-
-    private class Post_NoAction
-    {
-        public int Id { get; set; }
-
-        public Blog_NoAction Blog_NoAction { get; set; }
-
-
-        [ForeignKey("Blog_NoAction")]
-        [DeleteBehavior(DeleteBehavior.NoAction)]
-        public int? BlogId { get; set; }
-    }
-    #endregion
-    #region DeleteBehaviourAttribute set to SetNull
-    private class Blog_SetNull
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_SetNull> Posts { get; set; }
-    }
-
-    private class Post_SetNull
-    {
-        public int Id { get; set; }
-
-        public Blog_SetNull Blog_SetNull { get; set; }
-
-        [ForeignKey("Blog_SetNull")]
-        [DeleteBehavior(DeleteBehavior.SetNull)]
-        public int? BlogId { get; set; }
-    }
-    #endregion
-    #region DeleteBehaviourAttribute set to ClientNoAction
-    private class Blog_ClientNoAction
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_ClientNoAction> Posts { get; set; }
-    }
-
-    private class Post_ClientNoAction
-    {
-        public int Id { get; set; }
-
-        public Blog_ClientNoAction Blog_ClientNoAction { get; set; }
-
-        [ForeignKey("Blog_ClientNoAction")]
-        [DeleteBehavior(DeleteBehavior.ClientNoAction)]
-        public int? BlogId { get; set; }
-    }
-    #endregion
-    #region DeleteBehaviourAttribute set to ClientSetNull
-    private class Blog_ClientSetNull
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_ClientSetNull> Posts { get; set; }
-    }
-
-    private class Post_ClientSetNull
-    {
-        public int Id { get; set; }
-
-        public Blog_ClientSetNull Blog_ClientSetNull { get; set; }
-
-        [ForeignKey("Blog_ClientSetNull")]
-        [DeleteBehavior(DeleteBehavior.ClientSetNull)]
         public int? BlogId { get; set; }
     }
     #endregion
@@ -416,42 +178,6 @@ public class DeleteBehaviorAttributeConventionTest
         [ForeignKey("Blog_Two")]
         [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? Blog_TwoId { get; set; }
-    }
-    #endregion
-    #region DeleteBehaviourAttribute set to Restrict and foreign key defined by FluentApi
-    private class Blog_Restrict_Fluent
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_Restrict_Fluent> Posts { get; set; }
-    }
-
-    private class Post_Restrict_Fluent
-    {
-        public int Id { get; set; }
-
-        public Blog_Restrict_Fluent Blog_Restrict_Fluent { get; set; }
-
-        [DeleteBehavior(DeleteBehavior.Restrict)]
-        public int? BlogId { get; set; }
-    }
-    #endregion
-    #region DeleteBehaviourAttribute set to Restrict and implicit foreign key
-    private class Blog_Restrict_Implicit
-    {
-        public int Id { get; set; }
-
-        public ICollection<Post_Restrict_Implicit> Posts { get; set; }
-    }
-
-    private class Post_Restrict_Implicit
-    {
-        public int Id { get; set; }
-
-        public Blog_Restrict_Implicit Blog_Restrict_Implicit { get; set; }
-
-        [DeleteBehavior(DeleteBehavior.Restrict)]
-        public int? BlogId { get; set; }
     }
     #endregion
 

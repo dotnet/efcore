@@ -36,7 +36,7 @@ public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
         var properties = foreignKey.Properties;
         foreach (var property in properties)
         {
-            var attribute = property?.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+            var attribute = property.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
             if (attribute != null)
             {
                 foreignKey.SetDeleteBehavior(attribute.Behavior);

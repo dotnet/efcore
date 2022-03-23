@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Configures the Property or Field to indicate how a delete operation is applied to dependent entities
+///     Configures the property or field to indicate how a delete operation is applied to dependent entities
 ///     in a relationship when it is deleted or the relationship is severed.
 /// </summary>
 /// <remarks>
