@@ -114,13 +114,13 @@ public class DeleteBehaviorAttributeConventionTest
     {
         public int Id { get; set; }
 
+        [DeleteBehavior(DeleteBehavior.Restrict)]
         public Blog_Restrict Blog_Restrict { get; set; }
 
-        [DeleteBehavior(DeleteBehavior.Restrict)]
         public int? BlogId { get; set; }
     }
     #endregion
-    #region DeleteBehaviourAttribute set on compound key
+        #region DeleteBehaviourAttribute set on compound key
     private class Blog_Compound
     {
         [Key]
@@ -138,14 +138,13 @@ public class DeleteBehaviorAttributeConventionTest
         public int Id { get; set; }
 
         [ForeignKey("BlogId, BlogId2")]
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public Blog_Compound Blog_Compound { get; set; }
 
         [Column(Order = 0)]
-        [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? BlogId { get; set; }
 
         [Column(Order = 1)]
-        [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? BlogId2 { get; set; }
     }
     #endregion
@@ -167,16 +166,14 @@ public class DeleteBehaviorAttributeConventionTest
     {
         public int Id { get; set; }
 
-
+        [DeleteBehavior(DeleteBehavior.Restrict)]
         public Blog_One Blog_One { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public Blog_Two Blog_Two { get; set; }
 
-        [ForeignKey("Blog_One")]
-        [DeleteBehavior(DeleteBehavior.Restrict)]
         public int? Blog_OneId { get; set; }
 
-        [ForeignKey("Blog_Two")]
-        [DeleteBehavior(DeleteBehavior.Cascade)]
         public int? Blog_TwoId { get; set; }
     }
     #endregion
