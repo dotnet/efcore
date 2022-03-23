@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Update.Internal;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,10 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class Column : ColumnBase, IColumn
+public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndexValueFactory<object?[]>
 {
-    // Warning: Never access these fields directly as access needs to be thread-safe
-    private ColumnAccessors? _accessors;
+    private readonly ITableIndex _index;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,9 +21,10 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public Column(string name, string type, Table table)
-        : base(name, type, table)
+    public CompositeRowIndexValueFactory(ITableIndex index)
+        : base(index.Columns)
     {
+        _index = index;
     }
 
     /// <summary>
@@ -34,8 +33,8 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public new virtual Table Table
-        => (Table)base.Table;
+    public virtual bool TryCreateIndexValue(object?[] keyValues, [NotNullWhen(true)] out object?[]? key)
+        => TryCreateDependentKeyValue(keyValues, out key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,10 +42,8 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ColumnAccessors Accessors
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _accessors, this, static column =>
-                ColumnAccessorsFactory.Create(column));
+    public virtual bool TryCreateIndexValue(IDictionary<string, object?> keyValues, [NotNullWhen(true)] out object?[]? key)
+        => TryCreateDependentKeyValue(keyValues, out key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,20 +51,28 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override string ToString()
-        => ((IColumn)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+    public virtual bool TryCreateIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out object?[]? key)
+        => TryCreateDependentKeyValue(command, fromOriginalValues, out key);
 
-    /// <inheritdoc />
-    ITable IColumn.Table
-    {
-        [DebuggerStepThrough]
-        get => Table;
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object? CreateValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue)
+            ? new ValueIndex<object?[]>(_index, keyValue, EqualityComparer)
+            : null;
 
-    /// <inheritdoc />
-    IEnumerable<IColumnMapping> IColumn.PropertyMappings
-    {
-        [DebuggerStepThrough]
-        get => PropertyMappings.Cast<IColumnMapping>();
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object[]? CreateValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => TryCreateIndexValue(command, fromOriginalValues, out var keyValue)
+            ? (object[])keyValue
+            : null;
 }

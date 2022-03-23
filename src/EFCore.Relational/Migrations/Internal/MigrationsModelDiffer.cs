@@ -1122,7 +1122,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             throw new InvalidOperationException(
                 RelationalStrings.DefaultValueUnspecified(
-                    (column.Table.Name, column.Table.Schema).FormatTable(),
+                    column.Table.SchemaQualifiedTableName,
                     column.Name));
         }
 
@@ -1130,7 +1130,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             throw new InvalidOperationException(
                 RelationalStrings.DefaultValueSqlUnspecified(
-                    (column.Table.Name, column.Table.Schema).FormatTable(),
+                    column.Table.SchemaQualifiedTableName,
                     column.Name));
         }
 
@@ -1139,7 +1139,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             throw new InvalidOperationException(
                 RelationalStrings.ComputedColumnSqlUnspecified(
                     column.Name,
-                    (column.Table.Name, column.Table.Schema).FormatTable()));
+                    column.Table.SchemaQualifiedTableName));
         }
 
         var property = column.PropertyMappings.First().Property;

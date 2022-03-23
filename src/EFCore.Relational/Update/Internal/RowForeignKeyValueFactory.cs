@@ -1,7 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,9 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class Table : TableBase, ITable
+public abstract class RowForeignKeyValueFactory<TKey> : IRowForeignKeyValueFactory<TKey>
 {
-    private UniqueConstraint? _primaryKey;
+    private readonly IForeignKeyConstraint _foreignKey;
+    private readonly IRowKeyValueFactory<TKey> _principalKeyValueFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,76 +24,10 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public Table(string name, string? schema, RelationalModel model)
-        : base(name, schema, model)
+    public RowForeignKeyValueFactory(IForeignKeyConstraint foreignKey)
     {
-        Columns = new SortedDictionary<string, ColumnBase>(new ColumnNameComparer(this));
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SortedDictionary<string, ForeignKeyConstraint> ForeignKeyConstraints { get; }
-        = new();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SortedSet<ForeignKeyConstraint> ReferencingForeignKeyConstraints { get; }
-        = new(ForeignKeyConstraintComparer.Instance);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual UniqueConstraint? PrimaryKey
-    {
-        get => _primaryKey;
-        set
-        {
-            var oldPrimaryKey = _primaryKey;
-            if (oldPrimaryKey != null)
-            {
-                foreach (var column in oldPrimaryKey.Columns)
-                {
-                    Columns.Remove(column.Name);
-                }
-            }
-
-            if (value != null)
-            {
-                foreach (var column in value.Columns)
-                {
-                    Columns.Remove(column.Name);
-                }
-            }
-
-            _primaryKey = value;
-
-            if (oldPrimaryKey != null)
-            {
-                foreach (var column in oldPrimaryKey.Columns)
-                {
-                    Columns.TryAdd(column.Name, column);
-                }
-            }
-
-            if (value != null)
-            {
-                foreach (var column in value.Columns)
-                {
-                    Columns.TryAdd(column.Name, column);
-                }
-            }
-        }
+        _foreignKey = foreignKey;
+        _principalKeyValueFactory = (IRowKeyValueFactory<TKey>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
     }
 
     /// <summary>
@@ -97,8 +36,7 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedDictionary<string, UniqueConstraint> UniqueConstraints { get; }
-        = new();
+    public abstract IEqualityComparer<TKey> EqualityComparer { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,12 +44,11 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual UniqueConstraint? FindUniqueConstraint(string name)
-        => PrimaryKey != null && PrimaryKey.Name == name
-            ? PrimaryKey
-            : UniqueConstraints.TryGetValue(name, out var constraint)
-                ? constraint
-                : null;
+    public virtual object CreatePrincipalValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => new ValueIndex<TKey>(
+            _foreignKey,
+            _principalKeyValueFactory.CreateKeyValue(command, fromOriginalValues),
+            EqualityComparer);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,8 +56,10 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedDictionary<string, TableIndex> Indexes { get; }
-        = new();
+    public virtual object? CreateDependentValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue)
+            ? new ValueIndex<TKey>(_foreignKey, keyValue, EqualityComparer)
+            : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -128,8 +67,8 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedDictionary<string, CheckConstraint> CheckConstraints { get; }
-        = new();
+    public abstract bool TryCreateDependentKeyValue(
+        object?[] keyValues, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,18 +76,8 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedDictionary<string, ITrigger> Triggers { get; }
-        = new();
-
-    /// <inheritdoc />
-    public virtual bool IsExcludedFromMigrations
-        => EntityTypeMappings.First().EntityType.IsTableExcludedFromMigrations();
-
-    /// <inheritdoc />
-    public override IColumnBase? FindColumn(IProperty property)
-        => property.GetTableColumnMappings()
-            .FirstOrDefault(cm => cm.TableMapping.Table == this)
-            ?.Column;
+    public abstract bool TryCreateDependentKeyValue(
+        IDictionary<string, object?> keyPropertyValues, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -156,80 +85,38 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override string ToString()
-        => ((ITable)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+    public abstract bool TryCreateDependentKeyValue(
+        IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out TKey? key);
 
-    /// <inheritdoc />
-    IEnumerable<ITableMapping> ITable.EntityTypeMappings
-    {
-        [DebuggerStepThrough]
-        get => base.EntityTypeMappings.Cast<ITableMapping>();
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IEqualityComparer<TKey> CreateKeyEqualityComparer(IColumn column)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        => NullableComparerAdapter<TKey>.Wrap(
+            column.PropertyMappings.First().TypeMapping.ProviderComparer);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
-    /// <inheritdoc />
-    IEnumerable<IColumn> ITable.Columns
-    {
-        [DebuggerStepThrough]
-        get => base.Columns.Values.Cast<IColumn>();
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object[] CreatePrincipalKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => new object[] { _principalKeyValueFactory.CreateKeyValue(command, fromOriginalValues)! };
 
-    /// <inheritdoc />
-    IEnumerable<IForeignKeyConstraint> ITable.ForeignKeyConstraints
-    {
-        [DebuggerStepThrough]
-        get => ForeignKeyConstraints.Values;
-    }
-
-    IEnumerable<IForeignKeyConstraint> ITable.ReferencingForeignKeyConstraints
-    {
-        [DebuggerStepThrough]
-        get => ReferencingForeignKeyConstraints;
-    }
-
-    /// <inheritdoc />
-    IPrimaryKeyConstraint? ITable.PrimaryKey
-    {
-        [DebuggerStepThrough]
-        get => PrimaryKey;
-    }
-
-    /// <inheritdoc />
-    IEnumerable<IUniqueConstraint> ITable.UniqueConstraints
-    {
-        [DebuggerStepThrough]
-        get => UniqueConstraints.Values;
-    }
-
-    /// <inheritdoc />
-    IEnumerable<ITableIndex> ITable.Indexes
-    {
-        [DebuggerStepThrough]
-        get => Indexes.Values;
-    }
-
-    /// <inheritdoc />
-    IEnumerable<ICheckConstraint> ITable.CheckConstraints
-    {
-        [DebuggerStepThrough]
-        get => EntityTypeMappings.First().EntityType is RuntimeEntityType
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : CheckConstraints.Values;
-    }
-
-    /// <inheritdoc />
-    IEnumerable<ITrigger> ITable.Triggers
-    {
-        [DebuggerStepThrough]
-        get => Triggers.Values;
-    }
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IColumn? ITable.FindColumn(string name)
-        => (IColumn?)base.FindColumn(name);
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IColumn? ITable.FindColumn(IProperty property)
-        => (IColumn?)FindColumn(property);
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object[]? CreateDependentKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => TryCreateDependentKeyValue(command, fromOriginalValues, out var value)
+            ? (new object[] { value })
+            : null;
 }

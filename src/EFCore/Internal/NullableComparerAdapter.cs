@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal;
+using System.Collections;
+
+namespace Microsoft.EntityFrameworkCore.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,24 +11,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class TypeMappedRelationalParameter : RelationalParameterBase
+public sealed class NullableComparerAdapter<TNullableKey> : IEqualityComparer<TNullableKey>
 {
+    private readonly IEqualityComparer _comparer;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TypeMappedRelationalParameter(
-        string invariantName,
-        string name,
-        RelationalTypeMapping relationalTypeMapping,
-        bool? nullable)
-        : base(invariantName)
+    public NullableComparerAdapter(IEqualityComparer comparer)
     {
-        Name = name;
-        RelationalTypeMapping = relationalTypeMapping;
-        IsNullable = nullable;
+        _comparer = comparer;
     }
 
     /// <summary>
@@ -35,21 +32,17 @@ public class TypeMappedRelationalParameter : RelationalParameterBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Name { get; }
+    public static IEqualityComparer<TNullableKey> Wrap(IEqualityComparer comparer)
+        => comparer is IEqualityComparer<TNullableKey> nullableComparer
+            ? nullableComparer
+            : new NullableComparerAdapter<TNullableKey>(comparer);
 
-    // internal for testing
-    internal RelationalTypeMapping RelationalTypeMapping { get; }
+    /// <inheritdoc />
+    public bool Equals(TNullableKey? x, TNullableKey? y)
+        => (x == null && y == null)
+            || (x != null && y != null && _comparer.Equals(x, y));
 
-    // internal for testing
-    internal bool? IsNullable { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override void AddDbParameter(DbCommand command, object? value)
-        => command.Parameters.Add(
-               RelationalTypeMapping.CreateParameter(command, Name, value, IsNullable));
+    /// <inheritdoc />
+    public int GetHashCode(TNullableKey obj)
+        => obj is null ? 0 : _comparer.GetHashCode(obj);
 }

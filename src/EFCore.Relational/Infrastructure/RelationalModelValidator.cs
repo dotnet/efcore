@@ -559,10 +559,10 @@ public class RelationalModelValidator : ModelValidator
             mappedTypes.Add(entityType);
         }
 
-        foreach (var (table, mappedTypes) in views)
+        foreach (var (view, mappedTypes) in views)
         {
-            ValidateSharedViewCompatibility(mappedTypes, table.Name, table.Schema, logger);
-            ValidateSharedColumnsCompatibility(mappedTypes, table, logger);
+            ValidateSharedViewCompatibility(mappedTypes, view.Name, view.Schema, logger);
+            ValidateSharedColumnsCompatibility(mappedTypes, view, logger);
         }
     }
 
@@ -866,10 +866,12 @@ public class RelationalModelValidator : ModelValidator
                     storeObject.DisplayName()));
         }
 
+        var typeMapping = property.GetRelationalTypeMapping();
+        var duplicateTypeMapping = duplicateProperty.GetRelationalTypeMapping();
         var currentTypeString = property.GetColumnType(storeObject)
-            ?? property.GetRelationalTypeMapping().StoreType;
+            ?? typeMapping.StoreType;
         var previousTypeString = duplicateProperty.GetColumnType(storeObject)
-            ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
+            ?? duplicateTypeMapping.StoreType;
         if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
@@ -882,6 +884,22 @@ public class RelationalModelValidator : ModelValidator
                     storeObject.DisplayName(),
                     previousTypeString,
                     currentTypeString));
+        }
+
+        var currentProviderType = typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType;
+        var previousProviderType = duplicateTypeMapping.Converter?.ProviderClrType ?? duplicateTypeMapping.ClrType;
+        if (currentProviderType != previousProviderType)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
+                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.Name,
+                    property.DeclaringEntityType.DisplayName(),
+                    property.Name,
+                    columnName,
+                    storeObject.DisplayName(),
+                    previousProviderType.ShortDisplayName(),
+                    currentProviderType.ShortDisplayName()));
         }
 
         var currentComputedColumnSql = property.GetComputedColumnSql(storeObject) ?? "";
@@ -1340,8 +1358,8 @@ public class RelationalModelValidator : ModelValidator
                        RelationalStrings.NonTphMappingStrategy(mappingStrategy, entityType.DisplayName()));
                 }
 
-                ValidateTPHMapping(entityType, forTables: false);
-                ValidateTPHMapping(entityType, forTables: true);
+                ValidateTphMapping(entityType, forTables: false);
+                ValidateTphMapping(entityType, forTables: true);
                 ValidateDiscriminatorValues(entityType);
             }
             else
@@ -1362,8 +1380,8 @@ public class RelationalModelValidator : ModelValidator
                        RelationalStrings.KeylessMappingStrategy(mappingStrategy ?? RelationalAnnotationNames.TptMappingStrategy, entityType.DisplayName()));
                 }
 
-                ValidateNonTPHMapping(entityType, forTables: false);
-                ValidateNonTPHMapping(entityType, forTables: true);
+                ValidateNonTphMapping(entityType, forTables: false);
+                ValidateNonTphMapping(entityType, forTables: true);
             }
         }
     }
@@ -1387,7 +1405,7 @@ public class RelationalModelValidator : ModelValidator
         };
     }
 
-    private static void ValidateNonTPHMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateNonTphMapping(IEntityType rootEntityType, bool forTables)
     {
         var derivedTypes = new Dictionary<(string, string?), IEntityType>();
         foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
@@ -1413,7 +1431,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-    private static void ValidateTPHMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateTphMapping(IEntityType rootEntityType, bool forTables)
     {
         string? firstName = null;
         string? firstSchema = null;

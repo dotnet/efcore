@@ -34,8 +34,33 @@ public readonly record struct ModificationCommandParameters
         Func<string>? generateParameterName = null,
         IDiagnosticsLogger<DbLoggerCategory.Update>? logger = null)
     {
+        Table = null;
         TableName = tableName;
         Schema = schemaName;
+        GenerateParameterName = generateParameterName;
+        SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+        Comparer = comparer;
+        Logger = logger;
+    }
+
+    /// <summary>
+    ///     Creates a new <see cref="ModificationCommandParameters" /> instance.
+    /// </summary>
+    /// <param name="table">The table containing the data to be modified.</param>
+    /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+    /// <param name="comparer">An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />.</param>
+    /// <param name="generateParameterName">A delegate to generate parameter names.</param>
+    /// <param name="logger">An <see cref="IDiagnosticsLogger{TLoggerCategory}" /> for <see cref="DbLoggerCategory.Update" />.</param>
+    public ModificationCommandParameters(
+        ITable table,
+        bool sensitiveLoggingEnabled,
+        IComparer<IUpdateEntry>? comparer = null,
+        Func<string>? generateParameterName = null,
+        IDiagnosticsLogger<DbLoggerCategory.Update>? logger = null)
+    {
+        Table = table;
+        TableName = table.Name;
+        Schema = table.Schema;
         GenerateParameterName = generateParameterName;
         SensitiveLoggingEnabled = sensitiveLoggingEnabled;
         Comparer = comparer;
@@ -51,6 +76,11 @@ public readonly record struct ModificationCommandParameters
     ///     The schema containing the table, or <see langword="null" /> to use the default schema.
     /// </summary>
     public string? Schema { get; init; }
+
+    /// <summary>
+    ///     The table containing the data to be modified.
+    /// </summary>
+    public ITable? Table { get; init; }
 
     /// <summary>
     ///     A delegate to generate parameter names.

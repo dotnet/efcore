@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -24,30 +25,7 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     /// <typeparam name="TProperty">The property type.</typeparam>
     /// <returns>A new equality comparer.</returns>
     IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>()
-    {
-        var comparer = GetKeyValueComparer();
-
-        return comparer is IEqualityComparer<TProperty> nullableComparer
-            ? nullableComparer
-            : new NullableComparer<TProperty>(comparer);
-    }
-
-    private sealed class NullableComparer<TNullableKey> : IEqualityComparer<TNullableKey>
-    {
-        private readonly IEqualityComparer _comparer;
-
-        public NullableComparer(IEqualityComparer comparer)
-        {
-            _comparer = comparer;
-        }
-
-        public bool Equals(TNullableKey? x, TNullableKey? y)
-            => (x == null && y == null)
-                || (x != null && y != null && _comparer.Equals(x, y));
-
-        public int GetHashCode(TNullableKey obj)
-            => obj is null ? 0 : _comparer.GetHashCode(obj);
-    }
+        => NullableComparerAdapter<TProperty>.Wrap(GetKeyValueComparer());
 
     /// <summary>
     ///     Finds the first principal property that the given property is constrained by

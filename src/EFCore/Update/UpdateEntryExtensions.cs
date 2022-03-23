@@ -43,6 +43,29 @@ public static class UpdateEntryExtensions
     }
 
     /// <summary>
+    ///     Gets the original value that was assigned to the property and converts it to the provider-expected value.
+    /// </summary>
+    /// <param name="updateEntry">The entry.</param>
+    /// <param name="property">The property to get the value for.</param>
+    /// <returns>The value for the property.</returns>
+    public static object? GetOriginalProviderValue(this IUpdateEntry updateEntry, IProperty property)
+    {
+        var value = updateEntry.GetOriginalValue(property);
+        var typeMapping = property.GetTypeMapping();
+        value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
+            ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
+            : value;
+
+        var converter = typeMapping.Converter;
+        if (converter != null)
+        {
+            value = converter.ConvertToProvider(value);
+        }
+
+        return value;
+    }
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given <see cref="IUpdateEntry" />.
     ///     </para>

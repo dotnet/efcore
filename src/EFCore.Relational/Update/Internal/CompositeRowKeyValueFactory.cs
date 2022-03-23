@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class KeyValueIndexFactory<TKey> : IKeyValueIndexFactory
+public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValueFactory<object?[]>
 {
-    private readonly IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
+    private readonly IUniqueConstraint _constraint;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,9 +19,10 @@ public class KeyValueIndexFactory<TKey> : IKeyValueIndexFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public KeyValueIndexFactory(IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
+    public CompositeRowKeyValueFactory(IUniqueConstraint key)
+        : base(key.Columns)
     {
-        _principalKeyValueFactory = principalKeyValueFactory;
+        _constraint = key;
     }
 
     /// <summary>
@@ -30,12 +31,18 @@ public class KeyValueIndexFactory<TKey> : IKeyValueIndexFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IKeyValueIndex CreatePrincipalKeyValue(IUpdateEntry entry, IForeignKey? foreignKey)
-        => new KeyValueIndex<TKey>(
-            foreignKey,
-            _principalKeyValueFactory.CreateFromCurrentValues(entry),
-            _principalKeyValueFactory.EqualityComparer,
-            fromOriginalValues: false);
+    public virtual object?[] CreateKeyValue(object?[] keyValues)
+    {
+        if (keyValues.Any(v => v == null))
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.NullKeyValue(
+                    _constraint.Table.SchemaQualifiedTableName,
+                    FindNullColumnInKeyValues(keyValues).Name));
+        }
+
+        return keyValues;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,12 +50,18 @@ public class KeyValueIndexFactory<TKey> : IKeyValueIndexFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IKeyValueIndex CreatePrincipalKeyValueFromOriginalValues(IUpdateEntry entry, IForeignKey? foreignKey)
-        => new KeyValueIndex<TKey>(
-            foreignKey,
-            _principalKeyValueFactory.CreateFromOriginalValues(entry),
-            _principalKeyValueFactory.EqualityComparer,
-            fromOriginalValues: true);
+    public virtual object?[] CreateKeyValue(IDictionary<string, object?> keyValues)
+    {
+        if (!TryCreateDependentKeyValue(keyValues, out var key))
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.NullKeyValue(
+                    _constraint.Table.SchemaQualifiedTableName,
+                    FindNullColumnInKeyValues(key).Name));
+        }
+
+        return key;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,10 +69,36 @@ public class KeyValueIndexFactory<TKey> : IKeyValueIndexFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IKeyValueIndex? CreateDependentKeyValue(IUpdateEntry entry, IForeignKey foreignKey)
-        => foreignKey.GetDependentKeyValueFactory<TKey>()!.TryCreateFromCurrentValues(entry, out var keyValue)
-            ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: false)
-            : null;
+    public virtual object?[] CreateKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+    {
+        if (!TryCreateDependentKeyValue(command, fromOriginalValues, out var key))
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.NullKeyValue(
+                    _constraint.Table.SchemaQualifiedTableName,
+                    FindNullColumnInKeyValues(key).Name));
+        }
+
+        return key;
+    }
+
+    private IColumn FindNullColumnInKeyValues(object?[]? keyValues)
+    {
+        var index = 0;
+        if (keyValues != null)
+        {
+            for (var i = 0; i < keyValues.Length; i++)
+            {
+                if (keyValues[i] == null)
+                {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        return _constraint.Columns[index];
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,8 +106,18 @@ public class KeyValueIndexFactory<TKey> : IKeyValueIndexFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IKeyValueIndex? CreateDependentKeyValueFromOriginalValues(IUpdateEntry entry, IForeignKey foreignKey)
-        => foreignKey.GetDependentKeyValueFactory<TKey>()!.TryCreateFromOriginalValues(entry, out var keyValue)
-            ? new KeyValueIndex<TKey>(foreignKey, keyValue, _principalKeyValueFactory.EqualityComparer, fromOriginalValues: true)
-            : null;
+    public virtual object CreateValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => new ValueIndex<object?[]>(
+            _constraint,
+            CreateKeyValue(command, fromOriginalValues),
+            EqualityComparer);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    object[] IRowKeyValueFactory.CreateKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues)
+        => CreateKeyValue(command, fromOriginalValues)!;
 }

@@ -34,6 +34,11 @@ public interface ITable : ITableBase
     IEnumerable<IForeignKeyConstraint> ForeignKeyConstraints { get; }
 
     /// <summary>
+    ///     Gets the foreign key constraints referencing this table.
+    /// </summary>
+    IEnumerable<IForeignKeyConstraint> ReferencingForeignKeyConstraints { get; }
+
+    /// <summary>
     ///     Gets the unique constraints including the primary key for this table.
     /// </summary>
     IEnumerable<IUniqueConstraint> UniqueConstraints { get; }

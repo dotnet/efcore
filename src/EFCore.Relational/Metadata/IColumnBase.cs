@@ -22,6 +22,11 @@ public interface IColumnBase : IAnnotatable
     string StoreType { get; }
 
     /// <summary>
+    ///     Gets the provider type.
+    /// </summary>
+    Type ProviderClrType { get; }
+
+    /// <summary>
     ///     Gets the value indicating whether the column can contain NULL.
     /// </summary>
     bool IsNullable { get; }

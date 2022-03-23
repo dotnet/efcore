@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Update.Internal;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,10 +11,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class Column : ColumnBase, IColumn
+public interface IRowIndexValueFactory<TKey> : IRowIndexValueFactory
 {
-    // Warning: Never access these fields directly as access needs to be thread-safe
-    private ColumnAccessors? _accessors;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool TryCreateIndexValue(object?[] keyValues, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,10 +27,7 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public Column(string name, string type, Table table)
-        : base(name, type, table)
-    {
-    }
+    bool TryCreateIndexValue(IDictionary<string, object?> keyValues, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,8 +35,7 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public new virtual Table Table
-        => (Table)base.Table;
+    bool TryCreateIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,31 +43,5 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ColumnAccessors Accessors
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _accessors, this, static column =>
-                ColumnAccessorsFactory.Create(column));
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override string ToString()
-        => ((IColumn)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
-
-    /// <inheritdoc />
-    ITable IColumn.Table
-    {
-        [DebuggerStepThrough]
-        get => Table;
-    }
-
-    /// <inheritdoc />
-    IEnumerable<IColumnMapping> IColumn.PropertyMappings
-    {
-        [DebuggerStepThrough]
-        get => PropertyMappings.Cast<IColumnMapping>();
-    }
+    IEqualityComparer<TKey> EqualityComparer { get; }
 }

@@ -170,11 +170,6 @@ public class RelationalModel : Annotatable, IRelationalModel
                     index.AddAnnotations(relationalAnnotationProvider.For(index, designTime));
                 }
 
-                foreach (var constraint in table.ForeignKeyConstraints.Values)
-                {
-                    constraint.AddAnnotations(relationalAnnotationProvider.For(constraint, designTime));
-                }
-
                 if (designTime)
                 {
                     foreach (var checkConstraint in table.CheckConstraints.Values)
@@ -186,6 +181,19 @@ public class RelationalModel : Annotatable, IRelationalModel
                 foreach (var trigger in table.Triggers.Values)
                 {
                     ((AnnotatableBase)trigger).AddAnnotations(relationalAnnotationProvider.For(trigger, designTime));
+                }
+            }
+        }
+
+        foreach (var table in databaseModel.Tables.Values)
+        {
+            PopulateForeignKeyConstraints(table);
+
+            if (relationalAnnotationProvider != null)
+            {
+                foreach (var constraint in table.ForeignKeyConstraints.Values)
+                {
+                    constraint.AddAnnotations(relationalAnnotationProvider.For(constraint, designTime));
                 }
 
                 table.AddAnnotations(relationalAnnotationProvider.For(table, designTime));
@@ -799,117 +807,6 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             var entityType = entityTypeMapping.EntityType;
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                var firstPrincipalMapping = true;
-                foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings().Reverse())
-                {
-                    if (firstPrincipalMapping
-                        && !principalMapping.IncludesDerivedTypes
-                        && foreignKey.PrincipalEntityType.GetDirectlyDerivedTypes().Any(e => e.GetTableMappings().Any()))
-                    {
-                        // Derived principal entity types are mapped to different tables, so the constraint is not enforceable
-                        // TODO: Allow this to be overriden #15854
-                        break;
-                    }
-
-                    firstPrincipalMapping = false;
-
-                    var principalTable = (Table)principalMapping.Table;
-                    var name = foreignKey.GetConstraintName(
-                        storeObject,
-                        StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema));
-                    if (name == null)
-                    {
-                        continue;
-                    }
-
-                    var foreignKeyConstraints = foreignKey.FindRuntimeAnnotationValue(RelationalAnnotationNames.ForeignKeyMappings)
-                        as SortedSet<ForeignKeyConstraint>;
-                    if (table.ForeignKeyConstraints.TryGetValue(name, out var constraint))
-                    {
-                        if (foreignKeyConstraints == null)
-                        {
-                            foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
-                            foreignKey.AddRuntimeAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
-                        }
-
-                        foreignKeyConstraints.Add(constraint);
-
-                        constraint.MappedForeignKeys.Add(foreignKey);
-                        break;
-                    }
-
-                    var principalColumns = new Column[foreignKey.Properties.Count];
-                    for (var i = 0; i < principalColumns.Length; i++)
-                    {
-                        if (principalTable.FindColumn(foreignKey.PrincipalKey.Properties[i]) is Column principalColumn)
-                        {
-                            principalColumns[i] = principalColumn;
-                        }
-                        else
-                        {
-                            principalColumns = null;
-                            break;
-                        }
-                    }
-
-                    if (principalColumns == null)
-                    {
-                        continue;
-                    }
-
-                    var columns = new Column[foreignKey.Properties.Count];
-                    for (var i = 0; i < columns.Length; i++)
-                    {
-                        if (table.FindColumn(foreignKey.Properties[i]) is Column foreignKeyColumn)
-                        {
-                            columns[i] = foreignKeyColumn;
-                        }
-                        else
-                        {
-                            columns = null;
-                            break;
-                        }
-                    }
-
-                    if (columns == null)
-                    {
-                        break;
-                    }
-
-                    if (columns.SequenceEqual(principalColumns))
-                    {
-                        // Principal and dependent properties are mapped to the same columns so the constraint is redundant
-                        break;
-                    }
-
-                    if (entityTypeMapping.IncludesDerivedTypes
-                        && foreignKey.DeclaringEntityType != entityType
-                        && entityType.FindPrimaryKey() is IKey primaryKey
-                        && foreignKey.Properties.SequenceEqual(primaryKey.Properties))
-                    {
-                        // The identifying FK constraint is needed to be created only on the table that corresponds
-                        // to the declaring entity type
-                        break;
-                    }
-
-                    constraint = new ForeignKeyConstraint(
-                        name, table, principalTable, columns, principalColumns, ToReferentialAction(foreignKey.DeleteBehavior));
-                    constraint.MappedForeignKeys.Add(foreignKey);
-
-                    if (foreignKeyConstraints == null)
-                    {
-                        foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
-                        foreignKey.AddRuntimeAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
-                    }
-
-                    foreignKeyConstraints.Add(constraint);
-                    table.ForeignKeyConstraints.Add(name, constraint);
-                    break;
-                }
-            }
-
             foreach (var key in entityType.GetKeys())
             {
                 var name = key.GetName(storeObject);
@@ -1164,6 +1061,141 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             table.OptionalEntityTypes = optionalTypes;
+        }
+    }
+
+    private static void PopulateForeignKeyConstraints(Table table)
+    {
+        var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
+        foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
+        {
+            if (!entityTypeMapping.IncludesDerivedTypes
+                && entityTypeMapping.EntityType.GetTableMappings().Any(m => m.IncludesDerivedTypes))
+            {
+                continue;
+            }
+
+            var entityType = entityTypeMapping.EntityType;
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                var firstPrincipalMapping = true;
+                foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings().Reverse())
+                {
+                    if (firstPrincipalMapping
+                        && !principalMapping.IncludesDerivedTypes
+                        && foreignKey.PrincipalEntityType.GetDirectlyDerivedTypes().Any(e => e.GetTableMappings().Any()))
+                    {
+                        // Derived principal entity types are mapped to different tables, so the constraint is not enforceable
+                        // TODO: Allow this to be overriden #15854
+                        break;
+                    }
+
+                    firstPrincipalMapping = false;
+
+                    var principalTable = (Table)principalMapping.Table;
+                    var principalStoreObject = StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema);
+                    var name = foreignKey.GetConstraintName(storeObject, principalStoreObject);
+                    if (name == null)
+                    {
+                        continue;
+                    }
+
+                    var foreignKeyConstraints = foreignKey.FindRuntimeAnnotationValue(RelationalAnnotationNames.ForeignKeyMappings)
+                        as SortedSet<ForeignKeyConstraint>;
+                    if (table.ForeignKeyConstraints.TryGetValue(name, out var constraint))
+                    {
+                        if (foreignKeyConstraints == null)
+                        {
+                            foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
+                            foreignKey.AddRuntimeAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
+                        }
+
+                        foreignKeyConstraints.Add(constraint);
+
+                        constraint.MappedForeignKeys.Add(foreignKey);
+                        break;
+                    }
+
+                    var principalColumns = new Column[foreignKey.Properties.Count];
+                    for (var i = 0; i < principalColumns.Length; i++)
+                    {
+                        if (principalTable.FindColumn(foreignKey.PrincipalKey.Properties[i]) is Column principalColumn)
+                        {
+                            principalColumns[i] = principalColumn;
+                        }
+                        else
+                        {
+                            principalColumns = null;
+                            break;
+                        }
+                    }
+
+                    if (principalColumns == null)
+                    {
+                        continue;
+                    }
+
+                    var columns = new Column[foreignKey.Properties.Count];
+                    for (var i = 0; i < columns.Length; i++)
+                    {
+                        if (table.FindColumn(foreignKey.Properties[i]) is Column foreignKeyColumn)
+                        {
+                            columns[i] = foreignKeyColumn;
+                        }
+                        else
+                        {
+                            columns = null;
+                            break;
+                        }
+                    }
+
+                    if (columns == null)
+                    {
+                        break;
+                    }
+
+                    if (columns.SequenceEqual(principalColumns))
+                    {
+                        // Principal and dependent properties are mapped to the same columns so the constraint is redundant
+                        break;
+                    }
+
+                    if (entityTypeMapping.IncludesDerivedTypes
+                        && foreignKey.DeclaringEntityType != entityType
+                        && entityType.FindPrimaryKey() is IKey primaryKey
+                        && foreignKey.Properties.SequenceEqual(primaryKey.Properties))
+                    {
+                        // The identifying FK constraint is needed to be created only on the table that corresponds
+                        // to the declaring entity type
+                        break;
+                    }
+
+                    var principalUniqueConstraintName = foreignKey.PrincipalKey.GetName(principalStoreObject);
+                    if (principalUniqueConstraintName == null)
+                    {
+                        continue;
+                    }
+
+                    var principalUniqueConstraint = principalTable.FindUniqueConstraint(principalUniqueConstraintName)!;
+
+                    Check.DebugAssert(principalUniqueConstraint != null, "Invalid unique constraint " + principalUniqueConstraintName);
+
+                    constraint = new ForeignKeyConstraint(
+                        name, table, principalTable, columns, principalUniqueConstraint, ToReferentialAction(foreignKey.DeleteBehavior));
+                    constraint.MappedForeignKeys.Add(foreignKey);
+
+                    if (foreignKeyConstraints == null)
+                    {
+                        foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
+                        foreignKey.AddRuntimeAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);
+                    }
+
+                    foreignKeyConstraints.Add(constraint);
+                    table.ForeignKeyConstraints.Add(name, constraint);
+                    principalTable.ReferencingForeignKeyConstraints.Add(constraint);
+                    break;
+                }
+            }
         }
     }
 

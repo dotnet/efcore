@@ -18,6 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public interface IReadOnlyModificationCommand
 {
     /// <summary>
+    ///     The table containing the data to be modified.
+    /// </summary>
+    public ITable? Table { get; }
+
+    /// <summary>
     ///     The name of the table containing the data to be modified.
     /// </summary>
     public string TableName { get; }

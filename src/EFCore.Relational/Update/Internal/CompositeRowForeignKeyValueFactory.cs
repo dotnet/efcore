@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class Column : ColumnBase, IColumn
+public class CompositeRowForeignKeyValueFactory : CompositeRowValueFactory, IRowForeignKeyValueFactory<object?[]>
 {
-    // Warning: Never access these fields directly as access needs to be thread-safe
-    private ColumnAccessors? _accessors;
+    private readonly IForeignKeyConstraint _foreignKey;
+    private readonly IRowKeyValueFactory<object?[]> _principalKeyValueFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,9 +22,11 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public Column(string name, string type, Table table)
-        : base(name, type, table)
+    public CompositeRowForeignKeyValueFactory(IForeignKeyConstraint foreignKey)
+        : base(foreignKey.Columns)
     {
+        _foreignKey = foreignKey;
+        _principalKeyValueFactory = (IRowKeyValueFactory<object?[]>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
     }
 
     /// <summary>
@@ -34,8 +35,11 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public new virtual Table Table
-        => (Table)base.Table;
+    public virtual object CreatePrincipalValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => new ValueIndex<object?[]>(
+            _foreignKey,
+            _principalKeyValueFactory.CreateKeyValue(command, fromOriginalValues),
+            EqualityComparer);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,10 +47,10 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ColumnAccessors Accessors
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _accessors, this, static column =>
-                ColumnAccessorsFactory.Create(column));
+    public virtual object? CreateDependentValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue)
+            ? new ValueIndex<object?[]>(_foreignKey, keyValue, EqualityComparer)
+            : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,20 +58,17 @@ public class Column : ColumnBase, IColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override string ToString()
-        => ((IColumn)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+    public virtual object[] CreatePrincipalKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => _principalKeyValueFactory.CreateKeyValue(command, fromOriginalValues)!;
 
-    /// <inheritdoc />
-    ITable IColumn.Table
-    {
-        [DebuggerStepThrough]
-        get => Table;
-    }
-
-    /// <inheritdoc />
-    IEnumerable<IColumnMapping> IColumn.PropertyMappings
-    {
-        [DebuggerStepThrough]
-        get => PropertyMappings.Cast<IColumnMapping>();
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object[]? CreateDependentKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue)
+            ? (object[])keyValue
+            : null;
 }

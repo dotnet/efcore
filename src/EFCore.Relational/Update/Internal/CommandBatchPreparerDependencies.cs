@@ -49,7 +49,6 @@ public sealed record CommandBatchPreparerDependencies
         IModificationCommandBatchFactory modificationCommandBatchFactory,
         IParameterNameGeneratorFactory parameterNameGeneratorFactory,
         IComparer<IReadOnlyModificationCommand> modificationCommandComparer,
-        IKeyValueIndexFactorySource keyValueIndexFactorySource,
         IModificationCommandFactory modificationCommandFactory,
         ILoggingOptions loggingOptions,
         IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
@@ -58,7 +57,6 @@ public sealed record CommandBatchPreparerDependencies
         ModificationCommandBatchFactory = modificationCommandBatchFactory;
         ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
         ModificationCommandComparer = modificationCommandComparer;
-        KeyValueIndexFactorySource = keyValueIndexFactorySource;
         ModificationCommandFactory = modificationCommandFactory;
         LoggingOptions = loggingOptions;
         UpdateLogger = updateLogger;
@@ -88,14 +86,6 @@ public sealed record CommandBatchPreparerDependencies
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IComparer<IReadOnlyModificationCommand> ModificationCommandComparer { get; init; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public IKeyValueIndexFactorySource KeyValueIndexFactorySource { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

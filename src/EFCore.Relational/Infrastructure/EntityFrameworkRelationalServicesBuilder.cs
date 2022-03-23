@@ -44,7 +44,9 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
     public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
         = new Dictionary<Type, ServiceCharacteristics>
         {
-            { typeof(IKeyValueIndexFactorySource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(IRowKeyValueFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(IRowForeignKeyValueFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(IRowIndexValueFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IParameterNameGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IComparer<IReadOnlyModificationCommand>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IMigrationsIdGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -125,7 +127,9 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();
         TryAdd<IComparer<IReadOnlyModificationCommand>, ModificationCommandComparer>();
         TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
-        TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
+        TryAdd<IRowKeyValueFactoryFactory, RowKeyValueFactoryFactory>();
+        TryAdd<IRowForeignKeyValueFactoryFactory, RowForeignKeyValueFactoryFactory>();
+        TryAdd<IRowIndexValueFactoryFactory, RowIndexValueFactoryFactory>();
         TryAdd<IModelCustomizer, RelationalModelCustomizer>();
         TryAdd<IModelRuntimeInitializer, RelationalModelRuntimeInitializer>();
         TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();

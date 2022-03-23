@@ -184,22 +184,17 @@ WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL");
     {
         await base.Can_change_dependent_instance_non_derived();
         AssertSql(
-            @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
-@p0='repairman' (Size = 4000)
+            @"@p0='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+@p1='Repair' (Size = 4000)
+@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+@p2='repairman' (Size = 4000)
 
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-UPDATE [Vehicles] SET [Operator_Name] = @p0
-OUTPUT 1
-WHERE [Name] = @p1;",
-            //
-            @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
-@p3='Repair' (Size = 4000)
-
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
-VALUES (@p2, @p3);",
+VALUES (@p0, @p1);
+UPDATE [Vehicles] SET [Operator_Name] = @p2
+OUTPUT 1
+WHERE [Name] = @p3;",
             //
             @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
