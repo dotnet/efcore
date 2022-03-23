@@ -33,13 +33,27 @@ public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
     public virtual void ProcessForeignKeyAdded(IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
     {
         var foreignKey = foreignKeyBuilder.Metadata;
-        var properties = foreignKey.Properties;
-        foreach (var property in properties)
+        var navigationProperty = foreignKey.GetNavigation(true);
+
+        if (navigationProperty == null)
+        {
+            return;
+        }
+        
+        var navigationAttribute = navigationProperty.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+        if (navigationAttribute == null)
+        {
+            return; // No DeleteBehaviorAttribute on property - early return
+        }
+        foreignKey.SetDeleteBehavior(navigationAttribute.Behavior);
+        
+        var backingProperties = foreignKey.Properties;
+        foreach (var property in backingProperties)
         {
             var attribute = property.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
             if (attribute != null)
             {
-                foreignKey.SetDeleteBehavior(attribute.Behavior);
+                return; // Possibly throw an exception that attribute should be only configured on navigation property 
             }
         }
     }
