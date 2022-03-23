@@ -32,11 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = CreateTestModel(mapToTables: useExplicitMapping, mapping: mapping);
 
             Assert.Equal(11, model.Model.GetEntityTypes().Count());
-            Assert.Equal(mapping == Mapping.TPC
-                ? 5
-                : mapping == Mapping.TPH
-                    ? 3
-                    : 6, model.Tables.Count());
+            Assert.Equal(mapping switch
+            {
+                Mapping.TPC => 5,
+                Mapping.TPH => 3,
+                _ => 6
+            }, model.Tables.Count());
             Assert.Empty(model.Views);
             Assert.True(model.Model.GetEntityTypes().All(et => !et.GetViewMappings().Any()));
 
@@ -53,11 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = CreateTestModel(mapToTables: false, mapToViews: true, mapping);
 
             Assert.Equal(11, model.Model.GetEntityTypes().Count());
-            Assert.Equal(mapping == Mapping.TPC
-                ? 5
-                : mapping == Mapping.TPH
-                    ? 3
-                    : 6, model.Views.Count());
+            Assert.Equal(mapping switch
+            {
+                Mapping.TPC => 5,
+                Mapping.TPH => 3,
+                _ => 6
+            }, model.Views.Count());
             Assert.Empty(model.Tables);
             Assert.True(model.Model.GetEntityTypes().All(et => !et.GetTableMappings().Any()));
 
@@ -74,16 +76,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = CreateTestModel(mapToTables: true, mapToViews: true, mapping);
 
             Assert.Equal(11, model.Model.GetEntityTypes().Count());
-            Assert.Equal(mapping == Mapping.TPC
-                ? 5
-                : mapping == Mapping.TPH
-                    ? 3
-                    : 6, model.Tables.Count());
-            Assert.Equal(mapping == Mapping.TPC
-                ? 5
-                : mapping == Mapping.TPH
-                    ? 3
-                    : 6, model.Views.Count());
+            Assert.Equal(mapping switch
+            {
+                Mapping.TPC => 5,
+                Mapping.TPH => 3,
+                _ => 6
+            }, model.Tables.Count());
+            Assert.Equal(mapping switch
+            {
+                Mapping.TPC => 5,
+                Mapping.TPH => 3,
+                _ => 6
+            }, model.Views.Count());
 
             AssertDefaultMappings(model, mapping);
             AssertTables(model, mapping);

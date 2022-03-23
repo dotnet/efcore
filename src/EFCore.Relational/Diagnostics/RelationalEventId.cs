@@ -89,7 +89,7 @@ public static class RelationalEventId
         ForeignKeyPropertiesMappedToUnrelatedTables,
         OptionalDependentWithoutIdentifyingPropertyWarning,
         DuplicateColumnOrders,
-        ForeignKeyTPCPrincipalWarning,
+        ForeignKeyTpcPrincipalWarning,
         TpcStoreGeneratedIdentityWarning,
 
         // Update events
@@ -752,8 +752,8 @@ public static class RelationalEventId
     ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
-    public static readonly EventId ForeignKeyTPCPrincipalWarning =
-        MakeValidationId(Id.ForeignKeyTPCPrincipalWarning);
+    public static readonly EventId ForeignKeyTpcPrincipalWarning =
+        MakeValidationId(Id.ForeignKeyTpcPrincipalWarning);
 
     /// <summary>
     ///     The PK is using store-generated values in TPC.

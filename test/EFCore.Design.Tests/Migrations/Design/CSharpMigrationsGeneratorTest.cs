@@ -74,7 +74,6 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.IsFixedLength,
             RelationalAnnotationNames.Collation,
             RelationalAnnotationNames.IsStored,
-            RelationalAnnotationNames.MappingStrategy, // Will be handled in the next PR
             RelationalAnnotationNames.TpcMappingStrategy,
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
@@ -97,6 +96,15 @@ public class CSharpMigrationsGeneratorTest
                     + "entityTypeBuilder."
                     + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
                     + @"(""WithAnnotations"", ""MySchema"")")
+            },
+            {
+                RelationalAnnotationNames.MappingStrategy,
+                (RelationalAnnotationNames.TphMappingStrategy,
+                    _toTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder.UseTphMappingStrategy()")
             },
             {
                 CoreAnnotationNames.DiscriminatorProperty, ("Id",

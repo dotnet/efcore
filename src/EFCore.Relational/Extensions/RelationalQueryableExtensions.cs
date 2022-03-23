@@ -152,7 +152,7 @@ public static class RelationalQueryableExtensions
         if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
             && entityType.FindDiscriminatorProperty() == null)
         {
-            throw new InvalidOperationException(RelationalStrings.MethodOnNonTPHRootNotSupported(memberName, entityType.DisplayName()));
+            throw new InvalidOperationException(RelationalStrings.MethodOnNonTphRootNotSupported(memberName, entityType.DisplayName()));
         }
 
         return new FromSqlQueryRootExpression(

@@ -606,6 +606,57 @@ public class ModelSnapshotSqlServerTest
             });
 
     [ConditionalFact]
+    public virtual void Entities_are_stored_in_model_snapshot_for_TPC()
+        => Test(
+            builder =>
+            {
+                builder.Entity<DerivedEntity>()
+                    .ToTable("DerivedEntity", "foo")
+                    .ToView("DerivedView", "foo");
+                builder.Entity<BaseEntity>().UseTpcMappingStrategy();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<string>(""Discriminator"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""BaseEntity"");
+
+                    b.UseTpcMappingStrategy();
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.ToTable(""DerivedEntity"", ""foo"");
+
+                    b.ToView(""DerivedView"", ""foo"");
+                });"),
+            o =>
+            {
+                Assert.Equal(4, o.GetAnnotations().Count());
+
+                var derived = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
+                Assert.Equal("DerivedEntity", derived.GetTableName());
+                Assert.Equal("DerivedView", derived.GetViewName());
+            });
+
+    [ConditionalFact]
     public void Unmapped_entity_types_are_stored_in_the_model_snapshot()
         => Test(
             builder =>
@@ -6215,6 +6266,9 @@ namespace RootNamespace
         var generator = CreateMigrationsGenerator();
         var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
 
+        var modelFromSnapshot = BuildModelFromSnapshotSource(code);
+        assert(modelFromSnapshot, model);
+
         try
         {
             Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
@@ -6223,9 +6277,6 @@ namespace RootNamespace
         {
             throw new Exception(e.Message + Environment.NewLine + Environment.NewLine + "-- Actual code:" + Environment.NewLine + code);
         }
-
-        var modelFromSnapshot = BuildModelFromSnapshotSource(code);
-        assert(modelFromSnapshot, model);
 
         var targetOptionsBuilder = TestHelpers
             .AddProviderOptions(new DbContextOptionsBuilder())

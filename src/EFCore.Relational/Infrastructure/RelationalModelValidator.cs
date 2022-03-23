@@ -134,7 +134,7 @@ public class RelationalModelValidator : ModelValidator
                     && entityType.FindDiscriminatorProperty() == null)
                 {
                     throw new InvalidOperationException(
-                        RelationalStrings.TableValuedFunctionNonTPH(dbFunction.ModelName, entityType.DisplayName()));
+                        RelationalStrings.TableValuedFunctionNonTph(dbFunction.ModelName, entityType.DisplayName()));
                 }
             }
 
@@ -1056,7 +1056,7 @@ public class RelationalModelValidator : ModelValidator
             {
                 if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    logger.ForeignKeyTPCPrincipalWarning(foreignKey);
+                    logger.ForeignKeyTpcPrincipalWarning(foreignKey);
                 }
 
                 var derivedTables = foreignKey.DeclaringEntityType.GetDerivedTypes()
@@ -1309,7 +1309,7 @@ public class RelationalModelValidator : ModelValidator
                     && storeObject != null)
                 {
                     throw new InvalidOperationException(
-                       RelationalStrings.AbstractTPC(entityType.DisplayName(), storeObject));
+                       RelationalStrings.AbstractTpc(entityType.DisplayName(), storeObject));
                 }
             }
 
@@ -1403,9 +1403,9 @@ public class RelationalModelValidator : ModelValidator
             {
                 throw new InvalidOperationException(
                     forTables
-                        ? RelationalStrings.NonTPHTableClash(
+                        ? RelationalStrings.NonTphTableClash(
                             entityType.DisplayName(), otherType.DisplayName(), entityType.GetSchemaQualifiedTableName())
-                        : RelationalStrings.NonTPHViewClash(
+                        : RelationalStrings.NonTphViewClash(
                             entityType.DisplayName(), otherType.DisplayName(), entityType.GetSchemaQualifiedViewName()));
             }
 
@@ -1439,10 +1439,10 @@ public class RelationalModelValidator : ModelValidator
             {
                 throw new InvalidOperationException(
                     forTables
-                        ? RelationalStrings.TPHTableMismatch(
+                        ? RelationalStrings.TphTableMismatch(
                             entityType.DisplayName(), entityType.GetSchemaQualifiedTableName(),
                             firstType.DisplayName(), firstType.GetSchemaQualifiedTableName())
-                        : RelationalStrings.TPHViewMismatch(
+                        : RelationalStrings.TphViewMismatch(
                             entityType.DisplayName(), entityType.GetSchemaQualifiedViewName(),
                             firstType.DisplayName(), firstType.GetSchemaQualifiedViewName()));
             }

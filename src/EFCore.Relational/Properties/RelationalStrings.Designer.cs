@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The corresponding CLR type for entity type '{entityType}' cannot be instantiated, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string AbstractTPC(object? entityType, object? storeObject)
+        public static string AbstractTpc(object? entityType, object? storeObject)
             => string.Format(
-                GetString("AbstractTPC", nameof(entityType), nameof(storeObject)),
+                GetString("AbstractTpc", nameof(entityType), nameof(storeObject)),
                 entityType, storeObject);
 
         /// <summary>
@@ -834,9 +834,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
         /// </summary>
-        public static string MethodOnNonTPHRootNotSupported(object? methodName, object? entityType)
+        public static string MethodOnNonTphRootNotSupported(object? methodName, object? entityType)
             => string.Format(
-                GetString("MethodOnNonTPHRootNotSupported", nameof(methodName), nameof(entityType)),
+                GetString("MethodOnNonTphRootNotSupported", nameof(methodName), nameof(entityType)),
                 methodName, entityType);
 
         /// <summary>
@@ -982,17 +982,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string NonTPHTableClash(object? entityType, object? otherEntityType, object? table)
+        public static string NonTphTableClash(object? entityType, object? otherEntityType, object? table)
             => string.Format(
-                GetString("NonTPHTableClash", nameof(entityType), nameof(otherEntityType), nameof(table)),
+                GetString("NonTphTableClash", nameof(entityType), nameof(otherEntityType), nameof(table)),
                 entityType, otherEntityType, table);
 
         /// <summary>
         ///     Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string NonTPHViewClash(object? entityType, object? otherEntityType, object? view)
+        public static string NonTphViewClash(object? entityType, object? otherEntityType, object? view)
             => string.Format(
-                GetString("NonTPHViewClash", nameof(entityType), nameof(otherEntityType), nameof(view)),
+                GetString("NonTphViewClash", nameof(entityType), nameof(otherEntityType), nameof(view)),
                 entityType, otherEntityType, view);
 
         /// <summary>
@@ -1070,9 +1070,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.
         /// </summary>
-        public static string SelectExpressionNonTPHWithCustomTable(object? entityType)
+        public static string SelectExpressionNonTphWithCustomTable(object? entityType)
             => string.Format(
-                GetString("SelectExpressionNonTPHWithCustomTable", nameof(entityType)),
+                GetString("SelectExpressionNonTphWithCustomTable", nameof(entityType)),
                 entityType);
 
         /// <summary>
@@ -1120,9 +1120,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
         /// </summary>
-        public static string TableValuedFunctionNonTPH(object? dbFunction, object? entityType)
+        public static string TableValuedFunctionNonTph(object? dbFunction, object? entityType)
             => string.Format(
-                GetString("TableValuedFunctionNonTPH", nameof(dbFunction), nameof(entityType)),
+                GetString("TableValuedFunctionNonTph", nameof(dbFunction), nameof(entityType)),
                 dbFunction, entityType);
 
         /// <summary>
@@ -1152,17 +1152,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     '{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string TPHTableMismatch(object? entityType, object? table, object? otherEntityType, object? otherTable)
+        public static string TphTableMismatch(object? entityType, object? table, object? otherEntityType, object? otherTable)
             => string.Format(
-                GetString("TPHTableMismatch", nameof(entityType), nameof(table), nameof(otherEntityType), nameof(otherTable)),
+                GetString("TphTableMismatch", nameof(entityType), nameof(table), nameof(otherEntityType), nameof(otherTable)),
                 entityType, table, otherEntityType, otherTable);
 
         /// <summary>
         ///     '{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string TPHViewMismatch(object? entityType, object? view, object? otherEntityType, object? otherView)
+        public static string TphViewMismatch(object? entityType, object? view, object? otherEntityType, object? otherView)
             => string.Format(
-                GetString("TPHViewMismatch", nameof(entityType), nameof(view), nameof(otherEntityType), nameof(otherView)),
+                GetString("TphViewMismatch", nameof(entityType), nameof(view), nameof(otherEntityType), nameof(otherView)),
                 entityType, view, otherEntityType, otherView);
 
         /// <summary>
@@ -2123,20 +2123,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If this foreign key on '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.
         /// </summary>
-        public static FallbackEventDefinition LogForeignKeyTPCPrincipal(IDiagnosticsLogger logger)
+        public static FallbackEventDefinition LogForeignKeyTpcPrincipal(IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTPCPrincipal;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTpcPrincipal;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTPCPrincipal,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTpcPrincipal,
                     logger,
                     static logger => new FallbackEventDefinition(
                         logger.Options,
-                        RelationalEventId.ForeignKeyTPCPrincipalWarning,
+                        RelationalEventId.ForeignKeyTpcPrincipalWarning,
                         LogLevel.Warning,
-                        "RelationalEventId.ForeignKeyTPCPrincipalWarning",
-                        _resourceManager.GetString("LogForeignKeyTPCPrincipal")!));
+                        "RelationalEventId.ForeignKeyTpcPrincipalWarning",
+                        _resourceManager.GetString("LogForeignKeyTpcPrincipal")!));
             }
 
             return (FallbackEventDefinition)definition;

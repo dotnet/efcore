@@ -101,6 +101,6 @@ public class SqlServerDbContextOptionsBuilder
     public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
         int maxRetryCount,
         TimeSpan maxRetryDelay,
-        ICollection<int>? errorNumbersToAdd)
+        IEnumerable<int>? errorNumbersToAdd)
         => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
 }

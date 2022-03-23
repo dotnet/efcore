@@ -48,6 +48,18 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
             nameof(RelationalEntityTypeBuilderExtensions.HasComment), new[] { typeof(EntityTypeBuilder), typeof(string) })!;
 
+    private static readonly MethodInfo EntityTypeUseTpcMappingStrategyMethodInfo
+        = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalEntityTypeBuilderExtensions.UseTpcMappingStrategy), new[] { typeof(EntityTypeBuilder) })!;
+
+    private static readonly MethodInfo EntityTypeUseTphMappingStrategyMethodInfo
+        = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalEntityTypeBuilderExtensions.UseTphMappingStrategy), new[] { typeof(EntityTypeBuilder) })!;
+
+    private static readonly MethodInfo EntityTypeUseTptMappingStrategyMethodInfo
+        = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalEntityTypeBuilderExtensions.UseTptMappingStrategy), new[] { typeof(EntityTypeBuilder) })!;
+
     private static readonly MethodInfo PropertyHasColumnNameMethodInfo
         = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
             nameof(RelationalPropertyBuilderExtensions.HasColumnName), new[] { typeof(PropertyBuilder), typeof(string) })!;
@@ -203,6 +215,28 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         GenerateSimpleFluentApiCall(
             annotations,
             RelationalAnnotationNames.Comment, EntityTypeHasCommentMethodInfo, methodCallCodeFragments);
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.MappingStrategy, out var mappingStrategyAnnotation)
+            && mappingStrategyAnnotation.Value is string mappingStrategy)
+        {
+            var strategyCall = mappingStrategy switch
+            {
+                RelationalAnnotationNames.TpcMappingStrategy => EntityTypeUseTpcMappingStrategyMethodInfo,
+                RelationalAnnotationNames.TptMappingStrategy => EntityTypeUseTptMappingStrategyMethodInfo,
+                RelationalAnnotationNames.TphMappingStrategy => EntityTypeUseTphMappingStrategyMethodInfo,
+                _ => null
+            };
+
+            if (strategyCall != null)
+            {
+                if (entityType.BaseType == null)
+                {
+                    methodCallCodeFragments.Add(new MethodCallCodeFragment(strategyCall));
+                }
+
+                annotations.Remove(mappingStrategyAnnotation.Name);
+            }
+        }
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));
 

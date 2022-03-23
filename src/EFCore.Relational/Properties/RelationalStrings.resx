@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AbstractTPC" xml:space="preserve">
+  <data name="AbstractTpc" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' cannot be instantiated, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="BadSequenceString" xml:space="preserve">
@@ -544,9 +544,9 @@
     <value>The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. Either the properties {foreignKeyProperties} aren't mapped to table '{table}', or the principal properties {principalProperties} aren't mapped to table '{principalTable}'. All foreign key properties must map to the table to which the dependent type is mapped, and all principal properties must map to a single table to which the principal type is mapped.</value>
     <comment>Error RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables string string string string string string string</comment>
   </data>
-  <data name="LogForeignKeyTPCPrincipal" xml:space="preserve">
+  <data name="LogForeignKeyTpcPrincipal" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If this foreign key on '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.</value>
-    <comment>Warning RelationalEventId.ForeignKeyTPCPrincipalWarning string string string string string string string</comment>
+    <comment>Warning RelationalEventId.ForeignKeyTpcPrincipalWarning string string string string string string string</comment>
   </data>
   <data name="LogGeneratingDown" xml:space="preserve">
     <value>Generating down script for migration '{migration}'.</value>
@@ -671,7 +671,7 @@
   <data name="MappedFunctionNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.</value>
   </data>
-  <data name="MethodOnNonTPHRootNotSupported" xml:space="preserve">
+  <data name="MethodOnNonTphRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="MigrationDownMissing" xml:space="preserve">
@@ -734,10 +734,10 @@
   <data name="NonTphMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.</value>
   </data>
-  <data name="NonTPHTableClash" xml:space="preserve">
+  <data name="NonTphTableClash" xml:space="preserve">
     <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
-  <data name="NonTPHViewClash" xml:space="preserve">
+  <data name="NonTphViewClash" xml:space="preserve">
     <value>Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
@@ -770,7 +770,7 @@
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational database provider.</value>
   </data>
-  <data name="SelectExpressionNonTPHWithCustomTable" xml:space="preserve">
+  <data name="SelectExpressionNonTphWithCustomTable" xml:space="preserve">
     <value>Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
@@ -791,7 +791,7 @@
   <data name="TableOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the table '{table}', but isn't mapped to a column on that table. Remove the specific configuration, or map an entity type that contains this property to '{table}'.</value>
   </data>
-  <data name="TableValuedFunctionNonTPH" xml:space="preserve">
+  <data name="TableValuedFunctionNonTph" xml:space="preserve">
     <value>The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="TimeoutTooBig" xml:space="preserve">
@@ -803,10 +803,10 @@
   <data name="TooFewReaderFields" xml:space="preserve">
     <value>The underlying reader doesn't have as many fields as expected. Expected: {expected}, actual: {actual}.</value>
   </data>
-  <data name="TPHTableMismatch" xml:space="preserve">
+  <data name="TphTableMismatch" xml:space="preserve">
     <value>'{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
-  <data name="TPHViewMismatch" xml:space="preserve">
+  <data name="TphViewMismatch" xml:space="preserve">
     <value>'{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="TransactionAlreadyStarted" xml:space="preserve">
