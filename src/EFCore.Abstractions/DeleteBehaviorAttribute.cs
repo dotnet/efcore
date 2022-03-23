@@ -16,14 +16,14 @@ public sealed class DeleteBehaviorAttribute : Attribute
     /// <summary>
     ///     Initializes a new instance of the <see cref="DeleteBehaviorAttribute" /> class.
     /// </summary>
-    /// <param name="behavior">The DeleteBehavior value of entity</param>
+    /// <param name="behavior">The <see cref="DeleteBehavior" /> to be configured.</param>
     public DeleteBehaviorAttribute(DeleteBehavior behavior)
     {
         Behavior = behavior;
     }
     
     /// <summary>
-    ///     The DeleteBehavior value
+    ///     The <see cref="DeleteBehavior" /> to be configured.
     /// </summary>
     public DeleteBehavior Behavior { get; }
 }
