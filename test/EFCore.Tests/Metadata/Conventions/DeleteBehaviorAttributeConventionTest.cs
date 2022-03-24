@@ -85,6 +85,32 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(DeleteBehavior.Cascade, fk_Two.DeleteBehavior);
     }
 
+    [ConditionalFact]
+    public void Throw_InvalidOperationException_if_attribute_was_set_on_one_of_foreign_keys_properties()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        Assert.Equal(
+            CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty,
+            Assert.Throws<InvalidOperationException>(
+                () => modelBuilder.Entity<Post_On_FK_Property>()
+                    .Property(e => e.Blog_On_FK_PropertyId)).Message
+            );
+    }
+
+    [ConditionalFact]
+    public void Throw_InvalidOperationException_if_attribute_was_set_on_random_property()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        Assert.Equal(
+            CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty,
+            Assert.Throws<InvalidOperationException>(
+                () => modelBuilder.Entity<Post_On_FK_Property>()
+                    .Property(e => e.Blog_On_FK_PropertyId)).Message
+        );
+    }
+
     #region DeleteBehaviorAttribute not set
     private class Blog
     {
@@ -120,7 +146,7 @@ public class DeleteBehaviorAttributeConventionTest
         public int? BlogId { get; set; }
     }
     #endregion
-        #region DeleteBehaviourAttribute set on compound key
+    #region DeleteBehaviourAttribute set on compound key
     private class Blog_Compound
     {
         [Key]
@@ -175,6 +201,42 @@ public class DeleteBehaviorAttributeConventionTest
         public int? Blog_OneId { get; set; }
 
         public int? Blog_TwoId { get; set; }
+    }
+    #endregion
+    #region DeleteBehaviourAttribute set on one of foreign key's properties
+    private class Blog_On_FK_Property
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_On_FK_Property> Posts { get; set; }
+    }
+
+    private class Post_On_FK_Property
+    {
+        public int Id { get; set; }
+
+        public Blog_On_FK_Property Blog_On_FK_Property { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public int? Blog_On_FK_PropertyId { get; set; }
+    }
+    #endregion
+    #region DeleteBehaviourAttribute set on random property
+    private class Blog_On_Property
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post_On_Property> Posts { get; set; }
+    }
+
+    private class Post_On_Property
+    {
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public int Id { get; set; }
+
+        public Blog_On_Property Blog_On_Property { get; set; }
+
+        public int? Blog_On_PropertyId { get; set; }
     }
     #endregion
 
