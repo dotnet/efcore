@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 /// </summary>
 public class SqlServerModificationCommandBatchFactory : IModificationCommandBatchFactory
 {
-    private readonly IDbContextOptions _options;
+    private const int DefaultMaxBatchSize = 42;
+    private const int MaxMaxBatchSize = 1000;
+    private readonly int _maxBatchSize;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,7 +28,16 @@ public class SqlServerModificationCommandBatchFactory : IModificationCommandBatc
         IDbContextOptions options)
     {
         Dependencies = dependencies;
-        _options = options;
+
+        _maxBatchSize = Math.Min(
+            options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault()?.MaxBatchSize ?? DefaultMaxBatchSize,
+            MaxMaxBatchSize);
+
+        if (_maxBatchSize <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(RelationalOptionsExtension.MaxBatchSize), RelationalStrings.InvalidMaxBatchSize(_maxBatchSize));
+        }
     }
 
     /// <summary>
@@ -41,9 +52,5 @@ public class SqlServerModificationCommandBatchFactory : IModificationCommandBatc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ModificationCommandBatch Create()
-    {
-        var optionsExtension = _options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
-
-        return new SqlServerModificationCommandBatch(Dependencies, optionsExtension?.MaxBatchSize);
-    }
+        => new SqlServerModificationCommandBatch(Dependencies, _maxBatchSize);
 }

@@ -61,7 +61,7 @@ public class SqlServerModificationCommandBatchTest
     {
     }
 
-    private static TestSqlServerModificationCommandBatch CreateBatch(int? maxBatchSize = null)
+    private static TestSqlServerModificationCommandBatch CreateBatch(int maxBatchSize = 42)
     {
         var typeMapper = CreateTypeMappingSource();
 
@@ -100,7 +100,7 @@ public class SqlServerModificationCommandBatchTest
 
     private class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
     {
-        public TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int? maxBatchSize)
+        public TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
             : base(dependencies, maxBatchSize)
         {
         }

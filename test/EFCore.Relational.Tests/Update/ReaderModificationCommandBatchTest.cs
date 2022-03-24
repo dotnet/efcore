@@ -125,6 +125,9 @@ RETURNING 1;
 ",
             batch.CommandText,
             ignoreLineEndingDifferences: true);
+
+        Assert.Equal(1, batch.StoreCommand.RelationalCommand.Parameters.Count);
+        Assert.Equal(1, batch.StoreCommand.ParameterValues.Count);
     }
 
     [ConditionalFact]
