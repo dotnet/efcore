@@ -114,6 +114,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         var backingFieldAttributeConvention = new BackingFieldAttributeConvention(Dependencies);
         var unicodeAttributeConvention = new UnicodeAttributeConvention(Dependencies);
         var precisionAttributeConvention = new PrecisionAttributeConvention(Dependencies);
+        var deleteBehaviorAttributeConvention = new DeleteBehaviorAttributeConvention(Dependencies);
 
         conventionSet.PropertyAddedConventions.Add(backingFieldAttributeConvention);
         conventionSet.PropertyAddedConventions.Add(backingFieldConvention);
@@ -129,6 +130,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.PropertyAddedConventions.Add(unicodeAttributeConvention);
         conventionSet.PropertyAddedConventions.Add(precisionAttributeConvention);
+        conventionSet.PropertyAddedConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.EntityTypePrimaryKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.EntityTypePrimaryKeyChangedConventions.Add(valueGeneratorConvention);
@@ -141,7 +143,6 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.KeyRemovedConventions.Add(keyDiscoveryConvention);
 
         var cascadeDeleteConvention = new CascadeDeleteConvention(Dependencies);
-        var deleteBehaviorAttributeConvention = new DeleteBehaviorAttributeConvention(Dependencies);
 
         conventionSet.ForeignKeyAddedConventions.Add(foreignKeyAttributeConvention);
         conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);

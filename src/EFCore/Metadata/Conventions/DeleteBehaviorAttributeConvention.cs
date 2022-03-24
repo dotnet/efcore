@@ -9,21 +9,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
+public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>, IForeignKeyAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="DeleteBehaviorAttributeConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public DeleteBehaviorAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
-    
+        : base(dependencies) { }
+
     /// <summary>
-    ///     Dependencies for this service.
+    ///     Called after a property is added to the entity type with an attribute on the associated CLR property or field.
     /// </summary>
-    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+    /// <param name="propertyBuilder">The builder for the property.</param>
+    /// <param name="attribute">The attribute.</param>
+    /// <param name="clrMember">The member that has the attribute.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    protected override void ProcessPropertyAdded(
+        IConventionPropertyBuilder propertyBuilder,
+        DeleteBehaviorAttribute attribute,
+        MemberInfo clrMember,
+        IConventionContext context)
+    {
+        var isForeignKey = propertyBuilder.Metadata.IsForeignKey();
+        if (isForeignKey)
+        {
+            return;
+        }
+        
+        throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty); 
+    }
 
     /// <summary>
     ///     Called after a foreign key is added to the entity type.
@@ -41,11 +56,10 @@ public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
         }
         
         var navigationAttribute = navigationProperty.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
-        if (navigationAttribute == null)
+        if (navigationAttribute != null)
         {
-            return; // No DeleteBehaviorAttribute on property - early return
+            foreignKey.SetDeleteBehavior(navigationAttribute.Behavior);
         }
-        foreignKey.SetDeleteBehavior(navigationAttribute.Behavior);
         
         var backingProperties = foreignKey.Properties;
         foreach (var property in backingProperties)
@@ -53,7 +67,7 @@ public class DeleteBehaviorAttributeConvention : IForeignKeyAddedConvention
             var attribute = property.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
             if (attribute != null)
             {
-                return; // Possibly throw an exception that attribute should be only configured on navigation property 
+                throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty); 
             }
         }
     }

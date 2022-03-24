@@ -567,6 +567,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, entityClrType, genericType);
 
         /// <summary>
+        ///     The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.
+        /// </summary>
+        public static string DeleteBehaviorAttributeNotOnNavigationProperty
+            => GetString("DeleteBehaviorAttributeNotOnNavigationProperty");
+        
+        /// <summary>
         ///     You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key on '{entityType}'. The foreign key must be defined on a type that is part of the relationship.
         /// </summary>
         public static string DependentEntityTypeNotInRelationship(object? dependentEntityType, object? principalEntityType, object? entityType)
