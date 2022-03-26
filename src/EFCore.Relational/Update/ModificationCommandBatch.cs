@@ -56,7 +56,5 @@ public abstract class ModificationCommandBatch
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public abstract Task ExecuteAsync(
-        IRelationalConnection connection,
-        CancellationToken cancellationToken = default);
+    public abstract Task ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken = default);
 }

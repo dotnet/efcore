@@ -28,11 +28,8 @@ public class SingularModificationCommandBatch : AffectedCountModificationCommand
     }
 
     /// <summary>
-    ///     Returns <see langword="true" /> only when the batch contains a single command.
+    ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch; always returns 1.
     /// </summary>
-    /// <returns>
-    ///     <see langword="true" /> when the batch contains a single command, <see langword="false" /> otherwise.
-    /// </returns>
-    protected override bool IsValid()
-        => ModificationCommands.Count == 1;
+    protected override int MaxBatchSize
+        => 1;
 }

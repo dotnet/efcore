@@ -18,7 +18,6 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     private const int DefaultNetworkPacketSizeBytes = 4096;
     private const int MaxScriptLength = 65536 * DefaultNetworkPacketSizeBytes / 2;
     private const int MaxParameterCount = 2100;
-    private const int MaxRowCount = 1000;
     private readonly int _maxBatchSize;
     private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
 
@@ -30,16 +29,9 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// </summary>
     public SqlServerModificationCommandBatch(
         ModificationCommandBatchFactoryDependencies dependencies,
-        int? maxBatchSize)
+        int maxBatchSize)
         : base(dependencies)
-    {
-        if (maxBatchSize is <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize(maxBatchSize.Value));
-        }
-
-        _maxBatchSize = Math.Min(maxBatchSize ?? 42, MaxRowCount);
-    }
+        => _maxBatchSize = maxBatchSize;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,6 +41,15 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// </summary>
     protected new virtual ISqlServerUpdateSqlGenerator UpdateSqlGenerator
         => (ISqlServerUpdateSqlGenerator)base.UpdateSqlGenerator;
+
+    /// <summary>
+    ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch.
+    /// </summary>
+    /// <remarks>
+    ///     For SQL Server, this is 42 by default, and cannot exceed 1000.
+    /// </remarks>
+    protected override int MaxBatchSize
+        => _maxBatchSize;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,8 +75,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsValid()
-        => ModificationCommands.Count <= _maxBatchSize
-            && SqlBuilder.Length < MaxScriptLength
+        => SqlBuilder.Length < MaxScriptLength
             // A single implicit parameter for the command text itself
             && ParameterValues.Count + 1 < MaxParameterCount;
 

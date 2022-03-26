@@ -23,9 +23,9 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 {
     private readonly List<IReadOnlyModificationCommand> _modificationCommands = new();
     private readonly int _batchHeaderLength;
-    private readonly List<string> _pendingParameterNames = new();
     private bool _requiresTransaction = true;
     private int _sqlBuilderPosition, _commandResultSetCount, _resultsPositionalMappingEnabledLength;
+    private int _pendingParameters;
 
     /// <summary>
     ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
@@ -56,6 +56,12 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     ///     Gets the relational command builder for the commands in the batch.
     /// </summary>
     protected virtual IRelationalCommandBuilder RelationalCommandBuilder { get; }
+
+    /// <summary>
+    ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch.
+    /// </summary>
+    protected virtual int MaxBatchSize
+        => 1000;
 
     /// <summary>
     ///     Gets the command text builder for the commands in the batch.
@@ -98,9 +104,14 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchAlreadyComplete);
         }
 
+        if (_modificationCommands.Count >= MaxBatchSize)
+        {
+            return false;
+        }
+
         _sqlBuilderPosition = SqlBuilder.Length;
         _commandResultSetCount = CommandResultSet.Count;
-        _pendingParameterNames.Clear();
+        _pendingParameters = 0;
         _resultsPositionalMappingEnabledLength = ResultsPositionalMappingEnabled?.Length ?? 0;
 
         AddCommand(modificationCommand);
@@ -144,11 +155,13 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             ResultsPositionalMappingEnabled.Length = _resultsPositionalMappingEnabledLength;
         }
 
-        foreach (var pendingParameterName in _pendingParameterNames)
+        for (var i = 0; i < _pendingParameters; i++)
         {
-            ParameterValues.Remove(pendingParameterName);
+            var parameterIndex = RelationalCommandBuilder.Parameters.Count - 1;
+            var parameter = RelationalCommandBuilder.Parameters[parameterIndex];
 
-            RelationalCommandBuilder.RemoveParameterAt(RelationalCommandBuilder.Parameters.Count - 1);
+            RelationalCommandBuilder.RemoveParameterAt(parameterIndex);
+            ParameterValues.Remove(parameter.InvariantName);
         }
     }
 
@@ -173,7 +186,8 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     ///     Checks whether the command text is valid.
     /// </summary>
     /// <returns><see langword="true" /> if the command text is valid; <see langword="false" /> otherwise.</returns>
-    protected abstract bool IsValid();
+    protected virtual bool IsValid()
+        => true;
 
     /// <summary>
     ///     Adds Updates the command text for the command at the given position in the <see cref="ModificationCommands" /> list.
@@ -265,7 +279,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
             ParameterValues.Add(columnModification.ParameterName, columnModification.Value);
 
-            _pendingParameterNames.Add(columnModification.ParameterName);
+            _pendingParameters++;
         }
 
         if (columnModification.UseOriginalValueParameter)
@@ -278,7 +292,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
             ParameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);
 
-            _pendingParameterNames.Add(columnModification.OriginalParameterName);
+            _pendingParameters++;
         }
     }
 
