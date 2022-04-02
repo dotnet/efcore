@@ -286,7 +286,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         AddSameTableEdges(_modificationCommandGraph);
 
-        return _modificationCommandGraph.BatchingTopologicalSort(static (_, _, edges) => edges.All(e => e is IEntityType), FormatCycle);
+        return _modificationCommandGraph.BatchingTopologicalSort(static (_, _, edges) => edges.All(e => e is ITable), FormatCycle);
     }
 
     private string FormatCycle(
@@ -772,13 +772,13 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         for (var i = 0; i < deletedCommands.List.Count - 1; i++)
                         {
                             var deleted = deletedCommands.List[i];
-                            modificationCommandGraph.AddEdge(deleted, lastDelete, deleted.Entries[0].EntityType);
+                            modificationCommandGraph.AddEdge(deleted, lastDelete, deleted.Table!);
                         }
 
                         deletedDictionary[table] = (deletedCommands.List, true);
                     }
 
-                    modificationCommandGraph.AddEdge(lastDelete, command, command.Entries[0].EntityType);
+                    modificationCommandGraph.AddEdge(lastDelete, command, command.Table!);
                 }
             }
         }
