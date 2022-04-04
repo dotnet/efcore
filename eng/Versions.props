@@ -15,8 +15,6 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <SystemCollectionsImmutableVersion>7.0.0-preview.2.22152.2</SystemCollectionsImmutableVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>7.0.0-preview.2.22152.2</SystemDiagnosticsDiagnosticSourceVersion>
     <MicrosoftExtensionsCachingMemoryVersion>7.0.0-preview.2.22152.2</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsConfigurationVersion>7.0.0-preview.2.22152.2</MicrosoftExtensionsConfigurationVersion>
     <MicrosoftExtensionsConfigurationAbstractionsVersion>7.0.0-preview.2.22152.2</MicrosoftExtensionsConfigurationAbstractionsVersion>
