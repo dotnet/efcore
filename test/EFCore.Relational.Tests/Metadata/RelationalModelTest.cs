@@ -489,6 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
             Assert.False(orderDateColumn.IsNullable);
             Assert.Same(ordersTable, orderDateColumn.Table);
+            Assert.Same(orderDateMapping, orderDateColumn.FindColumnMapping(orderType));
 
             var orderPk = orderType.FindPrimaryKey();
             var orderPkConstraint = orderPk.GetMappedConstraints().Single();
@@ -536,6 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("FK_DateDetails", orderDateFkConstraint.Name);
             Assert.Equal(nameof(Order.OrderDate), orderDateFkConstraint.Columns.Single().Name);
             Assert.Equal(nameof(DateDetails.Date), orderDateFkConstraint.PrincipalColumns.Single().Name);
+            Assert.Equal("PK_DateDetails", orderDateFkConstraint.PrincipalUniqueConstraint.Name);
             Assert.Equal("DateDetails", orderDateFkConstraint.PrincipalTable.Name);
 
             var orderCustomerFk = orderType.GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
@@ -718,6 +720,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(ReferentialAction.Cascade, orderCustomerFkConstraint.OnDeleteAction);
                 Assert.Equal(orderCustomerFk, orderCustomerFkConstraint.MappedForeignKeys.Single());
                 Assert.Equal(new[] { orderDateFkConstraint, orderCustomerFkConstraint }, ordersTable.ForeignKeyConstraints);
+                Assert.Empty(ordersTable.ReferencingForeignKeyConstraints);
 
                 Assert.Equal(orderCustomerFkConstraint.Name, orderCustomerFk.GetConstraintName());
                 Assert.Equal(orderCustomerFkConstraint.Name, orderCustomerFk.GetConstraintName(
@@ -750,6 +753,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("FK_SpecialCustomer_SpecialCustomer_AnotherRelatedCustomerId", anotherSpecialCustomerFkConstraint.Name);
                 Assert.NotNull(anotherSpecialCustomerFkConstraint.MappedForeignKeys.Single());
                 Assert.Same(specialCustomerTable, anotherSpecialCustomerFkConstraint.PrincipalTable);
+
+                Assert.Equal(new[] { orderCustomerFkConstraint, specialCustomerTptFkConstraint }, customerTable.ReferencingForeignKeyConstraints);
 
                 var specialCustomerDbIndex = specialCustomerTable.Indexes.Last();
                 Assert.Equal("IX_SpecialCustomer_RelatedCustomerSpeciality", specialCustomerDbIndex.Name);
@@ -811,6 +816,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(ReferentialAction.Cascade, orderCustomerFkConstraint.OnDeleteAction);
                     Assert.Equal(orderCustomerFk, orderCustomerFkConstraint.MappedForeignKeys.Single());
                     Assert.Equal(new[] { orderDateFkConstraint, orderCustomerFkConstraint }, ordersTable.ForeignKeyConstraints);
+                    Assert.Empty(ordersTable.ReferencingForeignKeyConstraints);
 
                     Assert.Equal(orderCustomerFkConstraint.Name, orderCustomerFk.GetConstraintName());
                     Assert.Equal(orderCustomerFkConstraint.Name, orderCustomerFk.GetConstraintName(
@@ -832,6 +838,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal("FK_AbstractBase_AbstractBase_AnotherRelatedCustomerId", anotherSpecialCustomerFkConstraint.Name);
                     Assert.NotNull(anotherSpecialCustomerFkConstraint.MappedForeignKeys.Single());
 
+                    Assert.Equal(new[] { anotherSpecialCustomerFkConstraint, specialCustomerFkConstraint, orderCustomerFkConstraint },
+                        customerTable.ReferencingForeignKeyConstraints);
+
                     Assert.Equal("IX_AbstractBase_RelatedCustomerSpeciality", specialCustomerDbIndex.Name);
                     Assert.Equal("IX_AbstractBase_AnotherRelatedCustomerId", anotherSpecialCustomerDbIndex.Name);
 
@@ -846,6 +855,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.False(specialCustomerTypeMapping.IncludesDerivedTypes);
                     Assert.NotSame(customerTable, specialCustomerTable);
+
+                    Assert.Empty(ordersTable.ReferencingForeignKeyConstraints);
+                    Assert.Empty(customerTable.ReferencingForeignKeyConstraints);
 
                     Assert.True(customerTable.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Equal(5, customerTable.Columns.Count());

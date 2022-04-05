@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ViewColumn : ColumnBase, IViewColumn
+public class ViewColumn : ColumnBase<ViewColumnMapping>, IViewColumn
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,9 +48,9 @@ public class ViewColumn : ColumnBase, IViewColumn
     }
 
     /// <inheritdoc />
-    IEnumerable<IViewColumnMapping> IViewColumn.PropertyMappings
+    IReadOnlyList<IViewColumnMapping> IViewColumn.PropertyMappings
     {
         [DebuggerStepThrough]
-        get => PropertyMappings.Cast<IViewColumnMapping>();
+        get => PropertyMappings;
     }
 }

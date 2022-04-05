@@ -68,7 +68,7 @@ public interface IUniqueConstraint : IAnnotatable
         builder
             .Append(Name)
             .Append(' ')
-            .Append(ColumnBase.Format(Columns));
+            .Append(ColumnBase<IColumnMappingBase>.Format(Columns));
 
         if (GetIsPrimaryKey())
         {

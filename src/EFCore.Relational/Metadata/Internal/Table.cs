@@ -22,7 +22,7 @@ public class Table : TableBase, ITable
     public Table(string name, string? schema, RelationalModel model)
         : base(name, schema, model)
     {
-        Columns = new SortedDictionary<string, ColumnBase>(new ColumnNameComparer(this));
+        Columns = new(new ColumnNameComparer(this));
     }
 
     /// <summary>
@@ -31,8 +31,17 @@ public class Table : TableBase, ITable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedDictionary<string, ForeignKeyConstraint> ForeignKeyConstraints { get; }
-        = new();
+    public virtual SortedSet<ForeignKeyConstraint> ForeignKeyConstraints { get; }
+        = new(ForeignKeyConstraintComparer.Instance);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SortedSet<ForeignKeyConstraint> ReferencingForeignKeyConstraints { get; }
+        = new(ForeignKeyConstraintComparer.Instance);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,7 +177,13 @@ public class Table : TableBase, ITable
     IEnumerable<IForeignKeyConstraint> ITable.ForeignKeyConstraints
     {
         [DebuggerStepThrough]
-        get => ForeignKeyConstraints.Values;
+        get => ForeignKeyConstraints;
+    }
+
+    IEnumerable<IForeignKeyConstraint> ITable.ReferencingForeignKeyConstraints
+    {
+        [DebuggerStepThrough]
+        get => ReferencingForeignKeyConstraints;
     }
 
     /// <inheritdoc />

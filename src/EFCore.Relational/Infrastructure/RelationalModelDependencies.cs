@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Update.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
@@ -45,7 +47,40 @@ public sealed record RelationalModelDependencies
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
-    public RelationalModelDependencies()
+    public RelationalModelDependencies(
+        IRowKeyValueFactoryFactory rowKeyValueFactoryFactory,
+        IRowForeignKeyValueFactoryFactory foreignKeyRowValueFactorySource,
+        IRowIndexValueFactoryFactory rowIndexValueFactoryFactory)
     {
+        RowKeyValueFactoryFactory = rowKeyValueFactoryFactory;
+        RowForeignKeyValueFactoryFactory = foreignKeyRowValueFactorySource;
+        RowIndexValueFactoryFactory = rowIndexValueFactoryFactory;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public IRowKeyValueFactoryFactory RowKeyValueFactoryFactory { get; init; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public IRowForeignKeyValueFactoryFactory RowForeignKeyValueFactoryFactory { get; init; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public IRowIndexValueFactoryFactory RowIndexValueFactoryFactory { get; init; }
 }

@@ -29,14 +29,7 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
         _property = property;
         _propertyAccessors = _property.GetPropertyAccessors();
 
-        var comparer = property.GetKeyValueComparer();
-
-        EqualityComparer
-            = comparer != null
-                ? new NoNullsCustomEqualityComparer(comparer)
-                : typeof(IStructuralEquatable).IsAssignableFrom(typeof(TKey))
-                    ? new NoNullsStructuralEqualityComparer()
-                    : EqualityComparer<TKey>.Default;
+        EqualityComparer = new NoNullsCustomEqualityComparer(property.GetKeyValueComparer());
     }
 
     /// <summary>

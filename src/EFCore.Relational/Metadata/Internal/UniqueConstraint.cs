@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -62,6 +65,19 @@ public class UniqueConstraint : Annotatable, IPrimaryKeyConstraint
     /// </summary>
     public override bool IsReadOnly
         => Table.Model.IsReadOnly;
+
+    private IRowKeyValueFactory? _rowKeyValueFactory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IRowKeyValueFactory GetRowKeyValueFactory()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _rowKeyValueFactory, this,
+            static constraint => constraint.Table.Model.Model.GetRelationalDependencies().RowKeyValueFactoryFactory.Create(constraint));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

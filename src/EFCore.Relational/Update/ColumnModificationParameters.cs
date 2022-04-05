@@ -131,8 +131,6 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = null;
         Entry = null;
-
-        //IsConcurrencyToken = false;
     }
 
     /// <summary>
@@ -175,7 +173,5 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = generateParameterName;
         Entry = entry;
-
-        //IsConcurrencyToken = false;
     }
 }

@@ -430,6 +430,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, precision1, precision2);
 
         /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use differing provider types ('{type1}' and '{type2}').
+        /// </summary>
+        public static string DuplicateColumnNameProviderTypeMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table, object? type1, object? type2)
+            => string.Format(
+                GetString("DuplicateColumnNameProviderTypeMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(type1), nameof(type2)),
+                entityType1, property1, entityType2, property2, columnName, table, type1, type2);
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different scales ('{scale1}' and '{scale2}').
         /// </summary>
         public static string DuplicateColumnNameScaleMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table, object? scale1, object? scale2)
@@ -1002,6 +1010,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoProviderConfigured");
 
         /// <summary>
+        ///     Unable to modify a row in table '{table}' because its key column '{keyColumn}' is null.
+        /// </summary>
+        public static string NullKeyValue(object? table, object? keyColumn)
+            => string.Format(
+                GetString("NullKeyValue", nameof(table), nameof(keyColumn)),
+                table, keyColumn);
+
+        /// <summary>
         ///     Expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
         /// </summary>
         public static string NullTypeMappingInSqlTree(object? sqlExpression)
@@ -1192,7 +1208,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 trigger, entityType);
 
         /// <summary>
-        ///     Trigger '{trigger}' with table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.
+        ///     Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.
         /// </summary>
         public static string TriggerWithMismatchedTable(object? trigger, object? triggerTable, object? entityType, object? entityTable)
             => string.Format(

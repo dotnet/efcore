@@ -34,38 +34,46 @@ public class ModificationCommand : IModificationCommand
     /// <param name="modificationCommandParameters">Creation parameters.</param>
     public ModificationCommand(in ModificationCommandParameters modificationCommandParameters)
     {
+        Table = modificationCommandParameters.Table;
         TableName = modificationCommandParameters.TableName;
         Schema = modificationCommandParameters.Schema;
         _generateParameterName = modificationCommandParameters.GenerateParameterName;
         _sensitiveLoggingEnabled = modificationCommandParameters.SensitiveLoggingEnabled;
         _comparer = modificationCommandParameters.Comparer;
         _logger = modificationCommandParameters.Logger;
+        EntityState = EntityState.Modified;
     }
 
-    /// <summary>
-    ///     The name of the table containing the data to be modified.
-    /// </summary>
+    /// <inheritdoc />
+    public virtual ITable? Table { get; }
+
+    /// <inheritdoc />
     public virtual string TableName { get; }
 
-    /// <summary>
-    ///     The schema containing the table, or <see langword="null" /> to use the default schema.
-    /// </summary>
+    /// <inheritdoc />
     public virtual string? Schema { get; }
 
-    /// <summary>
-    ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
-    ///     to update.
-    /// </summary>
+    /// <inheritdoc />
     public virtual IReadOnlyList<IUpdateEntry> Entries
         => _entries;
 
+    /// <inheritdoc />
+    public virtual EntityState EntityState { get; private set; }
+
     /// <summary>
-    ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
-    ///     inserted (<see cref="Microsoft.EntityFrameworkCore.EntityState.Added" />),
-    ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
-    ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
+    ///     Indicates whether the database will return values for some mapped properties
+    ///     that will then need to be propagated back to the tracked entities.
     /// </summary>
-    public virtual EntityState EntityState { get; private set; } = EntityState.Modified;
+    public virtual bool RequiresResultPropagation
+    {
+        get
+        {
+            // ReSharper disable once AssignmentIsFullyDiscarded
+            _ = ColumnModifications;
+
+            return _requiresResultPropagation;
+        }
+    }
 
     /// <summary>
     ///     The list of <see cref="IColumnModification" /> needed to perform the insert, update, or delete.
@@ -90,27 +98,7 @@ public class ModificationCommand : IModificationCommand
         }
     }
 
-    /// <summary>
-    ///     Indicates whether the database will return values for some mapped properties
-    ///     that will then need to be propagated back to the tracked entities.
-    /// </summary>
-    public virtual bool RequiresResultPropagation
-    {
-        get
-        {
-            // ReSharper disable once AssignmentIsFullyDiscarded
-            _ = ColumnModifications;
-
-            return _requiresResultPropagation;
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// <inheritdoc />
     public virtual void AddEntry(IUpdateEntry entry, bool mainEntry)
     {
         AssertColumnsNotInitialized();
@@ -271,9 +259,7 @@ public class ModificationCommand : IModificationCommand
 
         foreach (var entry in _entries)
         {
-            var nonMainEntry = updating
-                && (entry.EntityState == EntityState.Deleted
-                    || entry.EntityState == EntityState.Added);
+            var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
 
             var tableMapping = GetTableMapping(entry.EntityType);
             if (tableMapping == null)
@@ -290,7 +276,7 @@ public class ModificationCommand : IModificationCommand
             foreach (var columnMapping in tableMapping.ColumnMappings)
             {
                 var property = columnMapping.Property;
-                var column = (IColumn)columnMapping.Column;
+                var column = columnMapping.Column;
                 var isKey = property.IsPrimaryKey();
                 var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                 var readValue = state != EntityState.Deleted && entry.IsStoreGenerated(property);
@@ -308,7 +294,7 @@ public class ModificationCommand : IModificationCommand
                     else if ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                              || (!isKey && nonMainEntry))
                     {
-                        writeValue = columnPropagator?.TryPropagate(property, entry)
+                        writeValue = columnPropagator?.TryPropagate(columnMapping, entry)
                             ?? (entry.EntityState == EntityState.Added || entry.IsModified(property));
                     }
                 }
@@ -383,12 +369,12 @@ public class ModificationCommand : IModificationCommand
         return columnModifications;
     }
 
-    private ITableMappingBase? GetTableMapping(IEntityType entityType)
+    private ITableMapping? GetTableMapping(IEntityType entityType)
     {
-        ITableMappingBase? tableMapping = null;
+        ITableMapping? tableMapping = null;
         foreach (var mapping in entityType.GetTableMappings())
         {
-            var table = ((ITableMappingBase)mapping).Table;
+            var table = mapping.Table;
             if (table.Name == TableName
                 && table.Schema == Schema)
             {
@@ -402,7 +388,7 @@ public class ModificationCommand : IModificationCommand
 
     private static void InitializeSharedColumns(
         IUpdateEntry entry,
-        ITableMappingBase tableMapping,
+        ITableMapping tableMapping,
         bool updating,
         Dictionary<string, ColumnValuePropagator> columnMap)
     {
@@ -417,7 +403,7 @@ public class ModificationCommand : IModificationCommand
 
             if (updating)
             {
-                columnPropagator.RecordValue(columnMapping.Property, entry);
+                columnPropagator.RecordValue(columnMapping, entry);
             }
         }
     }
@@ -460,8 +446,9 @@ public class ModificationCommand : IModificationCommand
 
         public IColumnModification? ColumnModification { get; set; }
 
-        public void RecordValue(IProperty property, IUpdateEntry entry)
+        public void RecordValue(IColumnMapping mapping, IUpdateEntry entry)
         {
+            var property = mapping.Property;
             switch (entry.EntityState)
             {
                 case EntityState.Modified:
@@ -469,17 +456,17 @@ public class ModificationCommand : IModificationCommand
                         && entry.IsModified(property))
                     {
                         _write = true;
-                        _currentValue = entry.GetCurrentValue(property);
+                        _currentValue = entry.GetCurrentProviderValue(property);
                     }
 
                     break;
                 case EntityState.Added:
-                    _currentValue = entry.GetCurrentValue(property);
-                    _write = !property.GetValueComparer().Equals(_originalValue, _currentValue);
+                    _currentValue = entry.GetCurrentProviderValue(property);
+                    _write = !mapping.TypeMapping.ProviderValueComparer.Equals(_originalValue, _currentValue);
 
                     break;
                 case EntityState.Deleted:
-                    _originalValue = entry.GetOriginalValue(property);
+                    _originalValue = entry.GetOriginalProviderValue(property);
                     if (!_write
                         && !property.IsPrimaryKey())
                     {
@@ -491,15 +478,20 @@ public class ModificationCommand : IModificationCommand
             }
         }
 
-        public bool TryPropagate(IProperty property, IUpdateEntry entry)
+        public bool TryPropagate(IColumnMapping mapping, IUpdateEntry entry)
         {
+            var property = mapping.Property;
             if (_write
                 && (entry.EntityState == EntityState.Unchanged
                     || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
                     || (entry.EntityState == EntityState.Added
-                        && property.GetValueComparer().Equals(_originalValue, entry.GetCurrentValue(property)))))
+                        && mapping.TypeMapping.ProviderValueComparer.Equals(_originalValue, entry.GetCurrentValue(property)))))
             {
-                entry.SetStoreGeneratedValue(property, _currentValue);
+                if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                    || entry.EntityState == EntityState.Added)
+                {
+                    entry.SetStoreGeneratedValue(property, _currentValue);
+                }
 
                 return false;
             }

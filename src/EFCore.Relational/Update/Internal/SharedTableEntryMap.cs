@@ -54,7 +54,7 @@ public class SharedTableEntryMap<TValue>
             return sharedCommand;
         }
 
-        sharedCommand = createElement(_table.Name, _table.Schema, _comparer);
+        sharedCommand = createElement(_table, _comparer);
         _entryValueMap.Add(mainEntry, sharedCommand);
 
         return sharedCommand;

@@ -21,7 +21,7 @@ public interface IColumn : IColumnBase
     /// <summary>
     ///     Gets the property mappings.
     /// </summary>
-    new IEnumerable<IColumnMapping> PropertyMappings { get; }
+    new IReadOnlyList<IColumnMapping> PropertyMappings { get; }
 
     /// <summary>
     ///     Gets the maximum length of data that is allowed in this column. For example, if the property is a <see cref="string" /> '
@@ -98,8 +98,7 @@ public interface IColumn : IColumnBase
                 continue;
             }
 
-            var converter = property.GetValueConverter() ?? PropertyMappings.First().TypeMapping.Converter;
-
+            var converter = property.GetValueConverter() ?? mapping.TypeMapping.Converter;
             if (converter != null)
             {
                 defaultValue = converter.ConvertToProvider(defaultValue);
@@ -147,6 +146,25 @@ public interface IColumn : IColumnBase
     public virtual string? Collation
         => PropertyMappings.First().Property
             .GetCollation(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
+
+    /// <summary>
+    ///     Returns the property mapping for the given entity type.
+    /// </summary>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
+    public virtual IColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+    {
+        for (var i = 0; i < PropertyMappings.Count; i++)
+        {
+            var mapping = PropertyMappings[i];
+            if (mapping.Property.DeclaringEntityType.IsAssignableFrom(entityType))
+            {
+                return mapping;
+            }
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     <para>

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -140,15 +139,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static IEqualityComparer<object[]> CreateEqualityComparer(IReadOnlyList<IProperty> properties)
-    {
-        var comparers = properties.Select(p => p.GetKeyValueComparer()).ToList();
-
-        return comparers.All(c => c != null)
-            ? new CompositeCustomComparer(comparers)
-            : properties.Any(p => typeof(IStructuralEquatable).IsAssignableFrom(p.ClrType))
-                ? new StructuralCompositeComparer()
-                : new CompositeComparer();
-    }
+        => new CompositeCustomComparer(properties.Select(p => p.GetKeyValueComparer()).ToList());
 
     private sealed class CompositeCustomComparer : IEqualityComparer<object[]>
     {
@@ -203,106 +194,6 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
             for (var i = 0; i < obj.Length; i++)
             {
                 hashCode = (hashCode * 397) ^ _hashCodes[i](obj[i]);
-            }
-
-            return hashCode;
-        }
-    }
-
-    private sealed class CompositeComparer : IEqualityComparer<object[]>
-    {
-        public bool Equals(object[]? x, object[]? y)
-        {
-            if (ReferenceEquals(x, y))
-            {
-                return true;
-            }
-
-            if (x is null)
-            {
-                return y is null;
-            }
-
-            if (y is null)
-            {
-                return false;
-            }
-
-            if (x.Length != y.Length)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < x.Length; i++)
-            {
-                if (!Equals(x[i], y[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public int GetHashCode(object[] obj)
-        {
-            var hash = new HashCode();
-            foreach (var value in obj)
-            {
-                hash.Add(value);
-            }
-
-            return hash.ToHashCode();
-        }
-    }
-
-    private sealed class StructuralCompositeComparer : IEqualityComparer<object[]>
-    {
-        private readonly IEqualityComparer _structuralEqualityComparer
-            = StructuralComparisons.StructuralEqualityComparer;
-
-        public bool Equals(object[]? x, object[]? y)
-        {
-            if (ReferenceEquals(x, y))
-            {
-                return true;
-            }
-
-            if (x is null)
-            {
-                return y is null;
-            }
-
-            if (y is null)
-            {
-                return false;
-            }
-
-            if (x.Length != y.Length)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < x.Length; i++)
-            {
-                if (!_structuralEqualityComparer.Equals(x[i], y[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public int GetHashCode(object[] obj)
-        {
-            var hashCode = 0;
-
-            // ReSharper disable once ForCanBeConvertedToForeach
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            for (var i = 0; i < obj.Length; i++)
-            {
-                hashCode = (hashCode * 397) ^ _structuralEqualityComparer.GetHashCode(obj[i]);
             }
 
             return hashCode;
