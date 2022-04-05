@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly int EFLen = "EntityFrameworkCore".Length;
 
         private static readonly DiagnosticDescriptor _descriptor
-            = new(
+            = new DiagnosticDescriptor(
                 Id,
                 title: DefaultTitle,
                 messageFormat: MessageFormat,

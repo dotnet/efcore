@@ -198,14 +198,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                                     _clientProjections!.Add(subquery);
                                     var type = expression.Type;
-                                    if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27105", out var enabled) && enabled))
+
+                                    if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27105", out var enabled27105) && enabled27105))
                                     {
-                                        if (type.IsGenericType
-                                            && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                                        if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27600", out var enabled27600) && enabled27600))
                                         {
-                                            type = typeof(IEnumerable<>).MakeGenericType(type.GetSequenceType());
+                                            if (type.IsGenericType
+                                                && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                                            {
+                                                type = typeof(List<>).MakeGenericType(type.GetSequenceType());
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (type.IsGenericType
+                                                && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                                            {
+                                                type = typeof(IEnumerable<>).MakeGenericType(type.GetSequenceType());
+                                            }
                                         }
                                     }
+
                                     var projectionBindingExpression = new ProjectionBindingExpression(
                                         _selectExpression, _clientProjections.Count - 1, type);
                                     return subquery.ResultCardinality == ResultCardinality.Enumerable
