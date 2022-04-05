@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class Column : ColumnBase, IColumn
+public class Column : ColumnBase<ColumnMapping>, IColumn
 {
     // Warning: Never access these fields directly as access needs to be thread-safe
     private ColumnAccessors? _accessors;
@@ -65,9 +65,9 @@ public class Column : ColumnBase, IColumn
     }
 
     /// <inheritdoc />
-    IEnumerable<IColumnMapping> IColumn.PropertyMappings
+    IReadOnlyList<IColumnMapping> IColumn.PropertyMappings
     {
         [DebuggerStepThrough]
-        get => PropertyMappings.Cast<IColumnMapping>();
+        get => PropertyMappings;
     }
 }

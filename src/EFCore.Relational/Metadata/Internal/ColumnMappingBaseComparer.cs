@@ -86,7 +86,9 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public bool Equals(IColumnMappingBase? x, IColumnMappingBase? y)
-        => ReferenceEquals(x, y) || x is not null && y is not null && x.Property == y.Property && x.Column == y.Column;
+        => ReferenceEquals(x, y)
+            || (x is not null && y is not null
+                && x.Property == y.Property && x.Column == y.Column);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,11 +99,8 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
     public int GetHashCode(IColumnMappingBase obj)
     {
         var hashCode = new HashCode();
-        hashCode.Add(obj.Property.Name);
-        hashCode.Add(obj.Column.Name);
-        hashCode.Add(obj.Property.DeclaringEntityType, EntityTypeFullNameComparer.Instance);
-        hashCode.Add(obj.Column.Table.Name);
-        hashCode.Add(obj.Column.Table.Schema);
+        hashCode.Add(obj.Property);
+        hashCode.Add(obj.Column);
 
         return hashCode.ToHashCode();
     }

@@ -37,7 +37,7 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
-                    _constraint.Table.SchemaQualifiedTableName,
+                    _constraint.Table.SchemaQualifiedName,
                     FindNullColumnInKeyValues(keyValues).Name));
         }
 
@@ -56,7 +56,7 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
-                    _constraint.Table.SchemaQualifiedTableName,
+                    _constraint.Table.SchemaQualifiedName,
                     FindNullColumnInKeyValues(key).Name));
         }
 
@@ -75,7 +75,7 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
-                    _constraint.Table.SchemaQualifiedTableName,
+                    _constraint.Table.SchemaQualifiedName,
                     FindNullColumnInKeyValues(key).Name));
         }
 

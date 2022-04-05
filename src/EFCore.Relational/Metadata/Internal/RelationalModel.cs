@@ -150,7 +150,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         foreach (var table in databaseModel.Tables.Values)
         {
-            PopulateRowInternalForeignKeys(table);
+            PopulateRowInternalForeignKeys<ColumnMapping>(table);
             PopulateTableConfiguration(table, designTime);
 
             if (relationalAnnotationProvider != null)
@@ -191,7 +191,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             if (relationalAnnotationProvider != null)
             {
-                foreach (var constraint in table.ForeignKeyConstraints.Values)
+                foreach (var constraint in table.ForeignKeyConstraints)
                 {
                     constraint.AddAnnotations(relationalAnnotationProvider.For(constraint, designTime));
                 }
@@ -202,7 +202,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         foreach (var view in databaseModel.Views.Values)
         {
-            PopulateRowInternalForeignKeys(view);
+            PopulateRowInternalForeignKeys<ViewColumnMapping>(view);
 
             if (relationalAnnotationProvider != null)
             {
@@ -259,7 +259,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     {
         var mappedType = entityType;
         Check.DebugAssert(entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings) == null, "not null");
-        var tableMappings = new List<TableMappingBase>();
+        var tableMappings = new List<TableMappingBase<ColumnMappingBase>>();
         entityType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
 
         var isTpc = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
@@ -273,7 +273,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 databaseModel.DefaultTables.Add(mappedTableName, defaultTable);
             }
 
-            var tableMapping = new TableMappingBase(entityType, defaultTable, includesDerivedTypes: !isTpc && mappedType == entityType)
+            var tableMapping = new TableMappingBase<ColumnMappingBase>(entityType, defaultTable, includesDerivedTypes: !isTpc && mappedType == entityType)
             {
                 // Table splitting is not supported for default mapping
                 IsSharedTablePrincipal = true,
@@ -290,10 +290,10 @@ public class RelationalModel : Annotatable, IRelationalModel
                     continue;
                 }
 
-                var column = (ColumnBase?)defaultTable.FindColumn(columnName);
+                var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new ColumnBase(columnName, property.GetColumnType(), defaultTable)
+                    column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
                     {
                         IsNullable = property.IsColumnNullable()
                     };
@@ -305,8 +305,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
 
                 var columnMapping = new ColumnMappingBase(property, column, tableMapping);
-                tableMapping.ColumnMappings.Add(columnMapping);
-                column.PropertyMappings.Add(columnMapping);
+                tableMapping.AddColumnMapping(columnMapping);
+                column.AddPropertyMapping(columnMapping);
 
                 if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
                     is not SortedSet<ColumnMappingBase> columnMappings)
@@ -318,7 +318,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 columnMappings.Add(columnMapping);
             }
 
-            if (tableMapping.ColumnMappings.Count != 0
+            if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
                 || tableMappings.Count == 0)
             {
                 tableMappings.Add(tableMapping);
@@ -402,8 +402,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
 
                 var columnMapping = new ColumnMapping(property, column, tableMapping);
-                tableMapping.ColumnMappings.Add(columnMapping);
-                column.PropertyMappings.Add(columnMapping);
+                tableMapping.AddColumnMapping(columnMapping);
+                column.AddPropertyMapping(columnMapping);
 
                 if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
                     is not SortedSet<ColumnMapping> columnMappings)
@@ -415,7 +415,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 columnMappings.Add(columnMapping);
             }
 
-            if (tableMapping.ColumnMappings.Count != 0
+            if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
                 || tableMappings.Count == 0)
             {
                 tableMappings.Add(tableMapping);
@@ -499,8 +499,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
 
                 var columnMapping = new ViewColumnMapping(property, column, viewMapping);
-                viewMapping.ColumnMappings.Add(columnMapping);
-                column.PropertyMappings.Add(columnMapping);
+                viewMapping.AddColumnMapping(columnMapping);
+                column.AddPropertyMapping(columnMapping);
 
                 if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewColumnMappings)
                     is not SortedSet<ViewColumnMapping> columnMappings)
@@ -512,7 +512,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 columnMappings.Add(columnMapping);
             }
 
-            if (viewMapping.ColumnMappings.Count != 0
+            if (((ITableMappingBase)viewMappings).ColumnMappings.Any()
                 || viewMappings.Count == 0)
             {
                 viewMappings.Add(viewMapping);
@@ -602,8 +602,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
 
                 var columnMapping = new SqlQueryColumnMapping(property, column, queryMapping);
-                queryMapping.ColumnMappings.Add(columnMapping);
-                column.PropertyMappings.Add(columnMapping);
+                queryMapping.AddColumnMapping(columnMapping);
+                column.AddPropertyMapping(columnMapping);
 
                 if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.SqlQueryColumnMappings)
                     is not SortedSet<SqlQueryColumnMapping> columnMappings)
@@ -624,7 +624,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 entityType.AddRuntimeAnnotation(RelationalAnnotationNames.SqlQueryMappings, queryMappings);
             }
 
-            if (queryMapping.ColumnMappings.Count != 0
+            if (((ITableMappingBase)queryMapping).ColumnMappings.Any()
                 || queryMappings.Count == 0)
             {
                 queryMappings.Add(queryMapping);
@@ -669,7 +669,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 entityType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, functionMappings);
             }
 
-            if (functionMapping.ColumnMappings.Count != 0
+            if (((ITableMappingBase)functionMappings).ColumnMappings.Any()
                 || functionMappings.Count == 0)
             {
                 functionMappings.Add(functionMapping);
@@ -752,8 +752,8 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             var columnMapping = new FunctionColumnMapping(property, column, functionMapping);
-            functionMapping.ColumnMappings.Add(columnMapping);
-            column.PropertyMappings.Add(columnMapping);
+            functionMapping.AddColumnMapping(columnMapping);
+            column.AddPropertyMapping(columnMapping);
 
             if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionColumnMappings)
                 is not SortedSet<FunctionColumnMapping> columnMappings)
@@ -938,13 +938,14 @@ public class RelationalModel : Annotatable, IRelationalModel
         }
     }
 
-    private static void PopulateRowInternalForeignKeys(TableBase table)
+    private static void PopulateRowInternalForeignKeys<TColumnMapping>(TableBase table)
+        where TColumnMapping : class, IColumnMappingBase
     {
         SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? internalForeignKeyMap = null;
         SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? referencingInternalForeignKeyMap = null;
-        TableMappingBase? mainMapping = null;
+        TableMappingBase<TColumnMapping>? mainMapping = null;
         var mappedEntityTypes = new HashSet<IEntityType>();
-        foreach (TableMappingBase entityTypeMapping in ((ITableBase)table).EntityTypeMappings)
+        foreach (TableMappingBase<TColumnMapping> entityTypeMapping in table.EntityTypeMappings)
         {
             var entityType = entityTypeMapping.EntityType;
             mappedEntityTypes.Add(entityType);
@@ -1062,6 +1063,10 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             table.OptionalEntityTypes = optionalTypes;
         }
+        else
+        {
+            table.OptionalEntityTypes = table.EntityTypeMappings.ToDictionary(etm => etm.EntityType, et => false);
+        }
     }
 
     private static void PopulateForeignKeyConstraints(Table table)
@@ -1102,7 +1107,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                     var foreignKeyConstraints = foreignKey.FindRuntimeAnnotationValue(RelationalAnnotationNames.ForeignKeyMappings)
                         as SortedSet<ForeignKeyConstraint>;
-                    if (table.ForeignKeyConstraints.TryGetValue(name, out var constraint))
+                    var constraint = table.ForeignKeyConstraints.FirstOrDefault(fk => fk.Name == name);
+                    if (constraint != null)
                     {
                         if (foreignKeyConstraints == null)
                         {
@@ -1191,7 +1197,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     }
 
                     foreignKeyConstraints.Add(constraint);
-                    table.ForeignKeyConstraints.Add(name, constraint);
+                    table.ForeignKeyConstraints.Add(constraint);
                     principalTable.ReferencingForeignKeyConstraints.Add(constraint);
                     break;
                 }

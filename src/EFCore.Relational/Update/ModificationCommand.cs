@@ -41,6 +41,7 @@ public class ModificationCommand : IModificationCommand
         _sensitiveLoggingEnabled = modificationCommandParameters.SensitiveLoggingEnabled;
         _comparer = modificationCommandParameters.Comparer;
         _logger = modificationCommandParameters.Logger;
+        EntityState = EntityState.Modified;
     }
 
     /// <inheritdoc />
@@ -57,7 +58,7 @@ public class ModificationCommand : IModificationCommand
         => _entries;
 
     /// <inheritdoc />
-    public virtual EntityState EntityState { get; private set; } = EntityState.Modified;
+    public virtual EntityState EntityState { get; private set; }
 
     /// <summary>
     ///     Indicates whether the database will return values for some mapped properties

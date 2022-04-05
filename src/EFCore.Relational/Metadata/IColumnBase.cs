@@ -39,5 +39,5 @@ public interface IColumnBase : IAnnotatable
     /// <summary>
     ///     Gets the property mappings.
     /// </summary>
-    IEnumerable<IColumnMappingBase> PropertyMappings { get; }
+    IReadOnlyList<IColumnMappingBase> PropertyMappings { get; }
 }

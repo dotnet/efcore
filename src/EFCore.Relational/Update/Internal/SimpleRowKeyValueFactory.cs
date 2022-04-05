@@ -55,7 +55,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
-                    _constraint.Table.SchemaQualifiedTableName,
+                    _constraint.Table.SchemaQualifiedName,
                     _column.Name));
         }
 
@@ -75,7 +75,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
-                    _constraint.Table.SchemaQualifiedTableName,
+                    _constraint.Table.SchemaQualifiedName,
                     _column.Name));
         }
 
@@ -98,7 +98,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
-                    _constraint.Table.SchemaQualifiedTableName,
+                    _constraint.Table.SchemaQualifiedName,
                     _column.Name));
         }
 

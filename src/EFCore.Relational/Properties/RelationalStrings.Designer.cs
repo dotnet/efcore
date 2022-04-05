@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, precision1, precision2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use provider types ('{type1}' and '{type2}').
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use differing provider types ('{type1}' and '{type2}').
         /// </summary>
         public static string DuplicateColumnNameProviderTypeMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table, object? type1, object? type2)
             => string.Format(

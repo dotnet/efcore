@@ -21,7 +21,7 @@ public interface IFunctionColumn : IColumnBase
     /// <summary>
     ///     Gets the property mappings.
     /// </summary>
-    new IEnumerable<IFunctionColumnMapping> PropertyMappings { get; }
+    new IReadOnlyList<IFunctionColumnMapping> PropertyMappings { get; }
 
     /// <summary>
     ///     <para>

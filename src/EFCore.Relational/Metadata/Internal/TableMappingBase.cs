@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class TableMappingBase : Annotatable, ITableMappingBase
+public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
+    where TColumnMapping : class, IColumnMappingBase
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,8 +54,27 @@ public class TableMappingBase : Annotatable, ITableMappingBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedSet<ColumnMappingBase> ColumnMappings { get; }
-        = new(ColumnMappingBaseComparer.Instance);
+    protected virtual List<TColumnMapping> ColumnMappings { get; }
+        = new();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool AddColumnMapping(TColumnMapping columnMapping)
+    {
+        if (ColumnMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance) != -1)
+        {
+            return false;
+        }
+
+        ColumnMappings.Add(columnMapping);
+        ColumnMappings.Sort(ColumnMappingBaseComparer.Instance);
+        
+        return true;
+    }
 
     /// <inheritdoc />
     public virtual bool IncludesDerivedTypes { get; }

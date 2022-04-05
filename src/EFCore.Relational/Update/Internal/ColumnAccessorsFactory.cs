@@ -40,8 +40,9 @@ public static class ColumnAccessorsFactory
             {
                 var value = default(TColumn)!;
                 var valueFound = false;
-                foreach (var entry in c.Entries)
+                for (var i = 0; i < c.Entries.Count; i++)
                 {
+                    var entry = c.Entries[i];
                     var property = column.FindColumnMapping(entry.EntityType)?.Property;
                     if (property == null)
                     {
@@ -80,8 +81,9 @@ public static class ColumnAccessorsFactory
             {
                 var value = default(TColumn)!;
                 var valueFound = false;
-                foreach (var entry in c.Entries)
+                for (var i = 0; i < c.Entries.Count; i++)
                 {
+                    var entry = c.Entries[i];
                     var property = column.FindColumnMapping(entry.EntityType)?.Property;
                     if (property == null)
                     {

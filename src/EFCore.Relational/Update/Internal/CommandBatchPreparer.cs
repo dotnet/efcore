@@ -570,13 +570,15 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             return true;
         }
 
-        foreach (var column in columns)
+        for (var columnIndex = 0; columnIndex < columns.Count; columnIndex++)
         {
+            var column = columns[columnIndex];
             object? originalValue = null;
             object? currentValue = null;
             RelationalTypeMapping? typeMapping = null;
-            foreach (var entry in command.Entries)
+            for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
             {
+                var entry = command.Entries[entryIndex];
                 var columnMapping = column.FindColumnMapping(entry.EntityType);
                 var property = columnMapping?.Property;
                 if (property != null

@@ -24,7 +24,7 @@ public interface ITableBase : IAnnotatable
     /// <summary>
     ///     Gets the schema-qualified name of the table in the database.
     /// </summary>
-    string SchemaQualifiedTableName
+    string SchemaQualifiedName
         => Schema == null ? Name : Schema + "." + Name;
 
     /// <summary>

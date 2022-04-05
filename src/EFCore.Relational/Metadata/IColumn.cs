@@ -21,7 +21,7 @@ public interface IColumn : IColumnBase
     /// <summary>
     ///     Gets the property mappings.
     /// </summary>
-    new IEnumerable<IColumnMapping> PropertyMappings { get; }
+    new IReadOnlyList<IColumnMapping> PropertyMappings { get; }
 
     /// <summary>
     ///     Gets the maximum length of data that is allowed in this column. For example, if the property is a <see cref="string" /> '
@@ -150,12 +150,13 @@ public interface IColumn : IColumnBase
     /// <summary>
     ///     Returns the property mapping for the given entity type.
     /// </summary>
-    /// <param name="entityType"> An entity type. </param>
-    /// <returns> The property mapping or <see langword="null"/> if not found. </returns>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
     public virtual IColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
     {
-        foreach (var mapping in PropertyMappings)
+        for (var i = 0; i < PropertyMappings.Count; i++)
         {
+            var mapping = PropertyMappings[i];
             if (mapping.Property.DeclaringEntityType.IsAssignableFrom(entityType))
             {
                 return mapping;

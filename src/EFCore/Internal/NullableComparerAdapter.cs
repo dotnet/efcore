@@ -39,8 +39,8 @@ public sealed class NullableComparerAdapter<TNullableKey> : IEqualityComparer<TN
 
     /// <inheritdoc />
     public bool Equals(TNullableKey? x, TNullableKey? y)
-        => (x == null && y == null)
-            || (x != null && y != null && _comparer.Equals(x, y));
+        => (x is null && y is null)
+            || (x is not null && y is not null && _comparer.Equals(x, y));
 
     /// <inheritdoc />
     public int GetHashCode(TNullableKey obj)
