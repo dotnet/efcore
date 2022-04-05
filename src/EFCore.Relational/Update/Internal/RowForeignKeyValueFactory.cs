@@ -97,7 +97,7 @@ public abstract class RowForeignKeyValueFactory<TKey> : IRowForeignKeyValueFacto
     protected virtual IEqualityComparer<TKey> CreateKeyEqualityComparer(IColumn column)
 #pragma warning disable EF1001 // Internal EF Core API usage.
         => NullableComparerAdapter<TKey>.Wrap(
-            column.PropertyMappings.First().TypeMapping.ProviderComparer);
+            column.PropertyMappings.First().TypeMapping.ProviderValueComparer);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
     /// <summary>

@@ -31,7 +31,7 @@ public class SimpleRowIndexValueFactory<TKey> : IRowIndexValueFactory<TKey>
         _column = index.Columns.Single();
         _columnAccessors = ((Column)_column).Accessors;
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        EqualityComparer = NullableComparerAdapter<TKey>.Wrap(_column.PropertyMappings.First().TypeMapping.ProviderComparer);
+        EqualityComparer = NullableComparerAdapter<TKey>.Wrap(_column.PropertyMappings.First().TypeMapping.ProviderValueComparer);
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 

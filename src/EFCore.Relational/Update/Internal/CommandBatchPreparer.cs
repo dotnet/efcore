@@ -609,7 +609,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
 
             if (typeMapping != null
-                && !typeMapping.ProviderComparer.Equals(originalValue, currentValue))
+                && !typeMapping.ProviderValueComparer.Equals(originalValue, currentValue))
             {
                 return true;
             }

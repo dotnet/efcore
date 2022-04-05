@@ -31,7 +31,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
         _constraint = constraint;
         _column = constraint.Columns.Single();
         _columnAccessors = ((Column)_column).Accessors;
-        EqualityComparer = new NoNullsCustomEqualityComparer(_column.PropertyMappings.First().TypeMapping.ProviderComparer);
+        EqualityComparer = new NoNullsCustomEqualityComparer(_column.PropertyMappings.First().TypeMapping.ProviderValueComparer);
     }
 
     /// <summary>

@@ -512,7 +512,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 columnMappings.Add(columnMapping);
             }
 
-            if (((ITableMappingBase)viewMappings).ColumnMappings.Any()
+            if (((ITableMappingBase)viewMapping).ColumnMappings.Any()
                 || viewMappings.Count == 0)
             {
                 viewMappings.Add(viewMapping);
@@ -669,7 +669,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 entityType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, functionMappings);
             }
 
-            if (((ITableMappingBase)functionMappings).ColumnMappings.Any()
+            if (((ITableMappingBase)functionMapping).ColumnMappings.Any()
                 || functionMappings.Count == 0)
             {
                 functionMappings.Add(functionMapping);

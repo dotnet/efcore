@@ -64,19 +64,7 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
             return result;
         }
 
-        result = EntityTypeFullNameComparer.Instance.Compare(x.TableMapping.EntityType, y.TableMapping.EntityType);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        result = StringComparer.Ordinal.Compare(x.Column.Table.Name, y.Column.Table.Name);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        return StringComparer.Ordinal.Compare(x.Column.Table.Schema, y.Column.Table.Schema);
+        return TableMappingBaseComparer.Instance.Compare(x.TableMapping, y.TableMapping);
     }
 
     /// <summary>
@@ -88,7 +76,8 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
     public bool Equals(IColumnMappingBase? x, IColumnMappingBase? y)
         => ReferenceEquals(x, y)
             || (x is not null && y is not null
-                && x.Property == y.Property && x.Column == y.Column);
+                && x.Property == y.Property && x.Column == y.Column
+                && TableMappingBaseComparer.Instance.Equals(x.TableMapping, y.TableMapping));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -101,6 +90,7 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
         var hashCode = new HashCode();
         hashCode.Add(obj.Property);
         hashCode.Add(obj.Column);
+        hashCode.Add(obj.TableMapping, TableMappingBaseComparer.Instance);
 
         return hashCode.ToHashCode();
     }
