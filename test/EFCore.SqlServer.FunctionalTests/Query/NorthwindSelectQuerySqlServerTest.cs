@@ -2282,6 +2282,59 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0]");
     }
 
+    public override async Task List_from_result_of_single_result(bool async)
+    {
+        await base.List_from_result_of_single_result(async);
+
+        AssertSql(
+            @"SELECT [t].[CustomerID], [o].[OrderID]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID]");
+    }
+
+    public override async Task List_from_result_of_single_result_2(bool async)
+    {
+        await base.List_from_result_of_single_result_2(async);
+
+        AssertSql(
+            @"SELECT [t].[CustomerID], [o].[OrderID], [o].[OrderDate]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID]");
+    }
+
+    public override async Task List_from_result_of_single_result_3(bool async)
+    {
+        await base.List_from_result_of_single_result_3(async);
+
+        AssertSql(
+            @"SELECT [t].[CustomerID], [t0].[OrderID], [o0].[ProductID], [o0].[OrderID], [t0].[c]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN (
+    SELECT [t1].[c], [t1].[OrderID], [t1].[CustomerID]
+    FROM (
+        SELECT 1 AS [c], [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [t1]
+    WHERE [t1].[row] <= 1
+) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+LEFT JOIN [Order Details] AS [o0] ON [t0].[OrderID] = [o0].[OrderID]
+ORDER BY [t].[CustomerID], [t0].[OrderID], [o0].[OrderID]");
+    }
+
     public override async Task Using_enumerable_parameter_in_projection(bool async)
     {
         await base.Using_enumerable_parameter_in_projection(async);
