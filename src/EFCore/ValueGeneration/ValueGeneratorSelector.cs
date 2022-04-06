@@ -106,14 +106,16 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
             CoreStrings.NoValueGenerator(property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
     }
 
-
     /// <summary>
-    /// XX
+    ///     Creates a new value generator for the given property and type, where the property may have a <see cref="ValueConverter"/>.
     /// </summary>
-    /// <param name="property">Y</param>
-    /// <param name="entityType">X</param>
-    /// <param name="clrType">X</param>
-    /// <returns>X</returns>
+    /// <param name="property">The property to get the value generator for.</param>
+    /// <param name="entityType">
+    ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
+    ///     this entity type may be different from the declared entity type on <paramref name="property" />
+    /// </param>
+    /// <param name="clrType">The type, which may be the provider type after conversion, rather than the property type.</param>
+    /// <returns>The newly created value generator.</returns>
     protected virtual ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
         => clrType == typeof(Guid)
             ? new GuidValueGenerator()
