@@ -28,16 +28,14 @@ public class CosmosValueGeneratorSelector : ValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override ValueGenerator Create(IProperty property, IEntityType entityType)
+    protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
     {
-        var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-
         if (property.GetJsonPropertyName() == ""
-            && type == typeof(int))
+            && clrType == typeof(int))
         {
             return new TemporaryNumberValueGeneratorFactory().Create(property, entityType);
         }
 
-        return base.Create(property, entityType);
+        return base.FindForType(property, entityType, clrType);
     }
 }

@@ -27,7 +27,7 @@ public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
     /// <returns>The newly created value generator.</returns>
     public override ValueGenerator Create(IProperty property, IEntityType entityType)
     {
-        var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+        var type = (property.GetValueConverter()?.ProviderClrType ?? property.GetTypeMapping().ClrType).UnwrapEnumType();
 
         if (type == typeof(int))
         {

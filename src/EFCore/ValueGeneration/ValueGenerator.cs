@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+
 namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 /// <summary>
@@ -91,4 +93,12 @@ public abstract class ValueGenerator
     /// </remarks>
     public virtual bool GeneratesStableValues
         => false;
+
+    /// <summary>
+    ///     Wraps this <see cref="ValueGenerator" /> such that it processes values converted with the given <see cref="ValueConverter" />.
+    /// </summary>
+    /// <param name="converter"> The value converter. </param>
+    /// <returns> A new value generator that works with the converted values. </returns>
+    public virtual ValueGenerator WithConverter(ValueConverter converter)
+        => new ConvertedValueGenerator(this, converter);
 }

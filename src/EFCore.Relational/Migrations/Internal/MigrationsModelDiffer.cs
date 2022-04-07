@@ -2455,7 +2455,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 : type.UnwrapNullableType().GetDefaultValue();
 
     private static ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
-        => property.GetValueConverter() ?? (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
+        => (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
 
     private static IEntityType GetMainType(ITable table)
         => table.EntityTypeMappings.First(t => t.IsSharedTablePrincipal).EntityType;
