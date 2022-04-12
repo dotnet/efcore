@@ -1,14 +1,9 @@
 {
   "tools": {
-    "dotnet": "7.0.100-preview.2.22153.17",
-    "runtimes": {
-      "aspnetcore": [
-        "7.0.0-preview.2.22153.2"
-      ]
-    }
+    "dotnet": "7.0.100-preview.3.22179.4"
   },
   "sdk": {
-    "version": "7.0.100-preview.2.22153.17",
+    "version": "7.0.100-preview.3.22179.4",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
