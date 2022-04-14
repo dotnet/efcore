@@ -480,6 +480,11 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         groupJoinResultSelector.Body,
                         selectManyResultSelector.Body);
 
+                    resultSelectorBody = ReplacingExpressionVisitor.Replace(
+                        groupJoinResultSelector.Parameters[1],
+                        Expression.Constant(null, groupJoinResultSelector.Parameters[1].Type),
+                        resultSelectorBody);
+
                     var resultSelector = Expression.Lambda(
                         resultSelectorBody,
                         groupJoinResultSelector.Parameters[0],

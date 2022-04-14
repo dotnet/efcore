@@ -1764,6 +1764,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
                 }
             });
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task All_true(bool async)
         => AssertAll(
             async,
@@ -1779,6 +1781,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
                 .Select(o => new { o.OrderID, Customer = o.Customer is Customer ? new { o.Customer.ContactName } : null })
                 .Take(1));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Not_Any_false(bool async)
         => AssertQuery(
             async,

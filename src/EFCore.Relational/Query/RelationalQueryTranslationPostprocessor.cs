@@ -45,7 +45,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         new SelectExpressionMutableVerifyingExpressionVisitor().Visit(query);
         // Verifies that all table aliases are uniquely assigned without skipping over
         // Which points to possible mutation of a SelectExpression being used in multiple places.
-        new TableAliasVerifyingExpressionVisitor().Visit(query);
+        //new TableAliasVerifyingExpressionVisitor().Visit(query);
 #endif
         query = new SelectExpressionPruningExpressionVisitor().Visit(query);
         query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)

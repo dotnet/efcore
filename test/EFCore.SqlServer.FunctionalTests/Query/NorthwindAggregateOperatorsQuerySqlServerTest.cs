@@ -2124,8 +2124,9 @@ ORDER BY [c].[CustomerID]");
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) [o].[OrderID], CAST(1 AS bit) AS [c], [c].[ContactName], [c].[CustomerID]
     FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ) AS [t]");
     }
 

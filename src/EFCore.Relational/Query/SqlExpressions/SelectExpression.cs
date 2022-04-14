@@ -1077,6 +1077,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ReplaceProjection(IReadOnlyDictionary<ProjectionMember, Expression> projectionMapping)
     {
         _projectionMapping.Clear();
+        _clientProjections.Clear();
+        _aliasForClientProjections.Clear();
         foreach (var (projectionMember, expression) in projectionMapping)
         {
             Check.DebugAssert(

@@ -162,7 +162,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                 // }
             }
 
-            throw;
+            //throw;
         }
 
         void RewriteSourceWithNewBaseline(string fileName, int lineNumber)
