@@ -64,9 +64,11 @@ NestedModules = @()
 # Functions to export from this module
 FunctionsToExport = (
     'Add-Migration',
+    'Bundle-Migration',
     'Drop-Database',
     'Enable-Migrations',
     'Get-DbContext',
+    'Get-Migration',
     'Remove-Migration',
     'Scaffold-DbContext',
     'Script-DbContext',

@@ -1,70 +1,79 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
+namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+
+public class FakeRelationalConnection : RelationalConnection
 {
-    public class FakeRelationalConnection : RelationalConnection
+    private DbConnection _connection;
+
+    private readonly List<FakeDbConnection> _dbConnections = new();
+
+    public FakeRelationalConnection(IDbContextOptions options = null)
+        : base(
+            new RelationalConnectionDependencies(
+                options ?? CreateOptions(),
+                new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+                    new LoggerFactory(),
+                    new LoggingOptions(),
+                    new DiagnosticListener("FakeDiagnosticListener"),
+                    new TestRelationalLoggingDefinitions(),
+                    new NullDbContextLogger()),
+                new RelationalConnectionDiagnosticsLogger(
+                    new LoggerFactory(),
+                    new LoggingOptions(),
+                    new DiagnosticListener("FakeDiagnosticListener"),
+                    new TestRelationalLoggingDefinitions(),
+                    new NullDbContextLogger(),
+                    CreateOptions()),
+                new NamedConnectionStringResolver(options ?? CreateOptions()),
+                new RelationalTransactionFactory(
+                    new RelationalTransactionFactoryDependencies(
+                        new RelationalSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies()))),
+                new CurrentDbContext(new FakeDbContext()),
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                        new ExceptionDetector()))))
     {
-        private DbConnection _connection;
+    }
 
-        private readonly List<FakeDbConnection> _dbConnections = new List<FakeDbConnection>();
+    private class FakeDbContext : DbContext
+    {
+    }
 
-        public FakeRelationalConnection(IDbContextOptions options = null)
-            : base(
-                new RelationalConnectionDependencies(
-                    options ?? CreateOptions(),
-                    new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
-                        new LoggerFactory(),
-                        new LoggingOptions(),
-                        new DiagnosticListener("FakeDiagnosticListener"),
-                        new TestRelationalLoggingDefinitions()),
-                    new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
-                        new LoggerFactory(),
-                        new LoggingOptions(),
-                        new DiagnosticListener("FakeDiagnosticListener"),
-                        new TestRelationalLoggingDefinitions()),
-                    new NamedConnectionStringResolver(options ?? CreateOptions()),
-                    new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
-                    new CurrentDbContext(new FakeDbContext())))
-        {
-        }
+    private static IDbContextOptions CreateOptions()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
 
-        private class FakeDbContext : DbContext
-        {
-        }
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
+            .AddOrUpdateExtension(new FakeRelationalOptionsExtension().WithConnectionString("Database=Dummy"));
 
-        private static IDbContextOptions CreateOptions()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
+        return optionsBuilder.Options;
+    }
 
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
-                .AddOrUpdateExtension(new FakeRelationalOptionsExtension().WithConnectionString("Database=Dummy"));
+    public void UseConnection(DbConnection connection)
+        => _connection = connection;
 
-            return optionsBuilder.Options;
-        }
+    public override DbConnection DbConnection
+        => _connection ?? base.DbConnection;
 
-        public void UseConnection(DbConnection connection) => _connection = connection;
+    public IReadOnlyList<FakeDbConnection> DbConnections
+        => _dbConnections;
 
-        public override DbConnection DbConnection => _connection ?? base.DbConnection;
+    protected override DbConnection CreateDbConnection()
+    {
+        var connection = new FakeDbConnection(ConnectionString);
 
-        public IReadOnlyList<FakeDbConnection> DbConnections => _dbConnections;
+        _dbConnections.Add(connection);
 
-        protected override DbConnection CreateDbConnection()
-        {
-            var connection = new FakeDbConnection(ConnectionString);
-
-            _dbConnections.Add(connection);
-
-            return connection;
-        }
+        return connection;
     }
 }

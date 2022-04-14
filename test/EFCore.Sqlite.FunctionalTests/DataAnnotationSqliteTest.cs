@@ -1,259 +1,172 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
-using Xunit.Abstractions;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnnotationSqliteTest.DataAnnotationSqliteFixture>
 {
-    public class DataAnnotationSqliteTest : DataAnnotationTestBase<DataAnnotationSqliteTest.DataAnnotationSqliteFixture>
+    // ReSharper disable once UnusedParameter.Local
+    public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
-        // ReSharper disable once UnusedParameter.Local
-        public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        }
+        fixture.TestSqlLoggerFactory.Clear();
+        //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
 
-        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-            => facade.UseTransaction(transaction.GetDbTransaction());
+    protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
 
-        public override ModelBuilder Non_public_annotations_are_enabled()
-        {
-            var modelBuilder = base.Non_public_annotations_are_enabled();
+    public override IModel Non_public_annotations_are_enabled()
+    {
+        var model = base.Non_public_annotations_are_enabled();
 
-            var relational = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName");
-            Assert.Equal("dsdsd", relational.GetColumnName());
-            Assert.Equal("nvarchar(128)", relational.GetColumnType());
+        var relational = GetProperty<PrivateMemberAnnotationClass>(model, "PersonFirstName");
+        Assert.Equal("dsdsd", relational.GetColumnBaseName());
+        Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
-            return modelBuilder;
-        }
+        return model;
+    }
 
-        public override ModelBuilder Field_annotations_are_enabled()
-        {
-            var modelBuilder = base.Field_annotations_are_enabled();
+    public override IModel Field_annotations_are_enabled()
+    {
+        var model = base.Field_annotations_are_enabled();
 
-            var relational = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName");
-            Assert.Equal("dsdsd", relational.GetColumnName());
-            Assert.Equal("nvarchar(128)", relational.GetColumnType());
+        var relational = GetProperty<FieldAnnotationClass>(model, "_personFirstName");
+        Assert.Equal("dsdsd", relational.GetColumnBaseName());
+        Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
-            return modelBuilder;
-        }
+        return model;
+    }
 
-        public override ModelBuilder Key_and_column_work_together()
-        {
-            var modelBuilder = base.Key_and_column_work_together();
+    public override IModel Key_and_column_work_together()
+    {
+        var model = base.Key_and_column_work_together();
 
-            var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName");
-            Assert.Equal("dsdsd", relational.GetColumnName());
-            Assert.Equal("nvarchar(128)", relational.GetColumnType());
+        var relational = GetProperty<ColumnKeyAnnotationClass1>(model, "PersonFirstName");
+        Assert.Equal("dsdsd", relational.GetColumnBaseName());
+        Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
-            return modelBuilder;
-        }
+        return model;
+    }
 
-        public override ModelBuilder Key_and_MaxLength_64_produce_nvarchar_64()
-        {
-            var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
+    public override IModel Key_and_MaxLength_64_produce_nvarchar_64()
+    {
+        var model = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
-            var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
+        var property = GetProperty<ColumnKeyAnnotationClass2>(model, "PersonFirstName");
 
-            var storeType = property.GetRelationalTypeMapping().StoreType;
+        var storeType = property.GetRelationalTypeMapping().StoreType;
 
-            Assert.Equal("TEXT", storeType);
+        Assert.Equal("TEXT", storeType);
 
-            return modelBuilder;
-        }
+        return model;
+    }
 
-        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength()
-        {
-            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
+    public override IModel Timestamp_takes_precedence_over_MaxLength()
+    {
+        var model = base.Timestamp_takes_precedence_over_MaxLength();
 
-            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
+        var property = GetProperty<TimestampAndMaxlen>(model, "MaxTimestamp");
 
-            var storeType = property.GetRelationalTypeMapping().StoreType;
+        var storeType = property.GetRelationalTypeMapping().StoreType;
 
-            Assert.Equal("BLOB", storeType);
+        Assert.Equal("BLOB", storeType);
 
-            return modelBuilder;
-        }
+        return model;
+    }
 
-        public override ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
-        {
-            var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
+    public override IModel TableNameAttribute_affects_table_name_in_TPH()
+    {
+        var model = base.TableNameAttribute_affects_table_name_in_TPH();
 
-            var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase));
-            Assert.Equal("A", relational.GetTableName());
+        var relational = model.FindEntityType(typeof(TNAttrBase));
+        Assert.Equal("A", relational.GetTableName());
 
-            return modelBuilder;
-        }
+        return model;
+    }
 
-        public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
-        {
-            base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
+    public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
+    {
+        base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
-            AssertSql(
-                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""t"".""UniqueNo"", ""t"".""AdditionalDetails_Name"", ""t0"".""UniqueNo"", ""t0"".""Details_Name""
+        AssertSql(
+            @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""AdditionalDetails_Value"", ""s"".""Details_Name"", ""s"".""Details_Value""
 FROM ""Sample"" AS ""s""
-LEFT JOIN (
-    SELECT ""s0"".""UniqueNo"", ""s0"".""AdditionalDetails_Name""
-    FROM ""Sample"" AS ""s0""
-    WHERE ""s0"".""AdditionalDetails_Name"" IS NOT NULL
-) AS ""t"" ON ""s"".""UniqueNo"" = ""t"".""UniqueNo""
-LEFT JOIN (
-    SELECT ""s1"".""UniqueNo"", ""s1"".""Details_Name""
-    FROM ""Sample"" AS ""s1""
-    WHERE ""s1"".""Details_Name"" IS NOT NULL
-) AS ""t0"" ON ""s"".""UniqueNo"" = ""t0"".""UniqueNo""
-WHERE ""s"".""UniqueNo"" = 1
+WHERE ""s"".""Unique_No"" = 1
 LIMIT 1",
-                //
-                @"SELECT ""s"".""UniqueNo"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""t"".""UniqueNo"", ""t"".""AdditionalDetails_Name"", ""t0"".""UniqueNo"", ""t0"".""Details_Name""
+            //
+            @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""AdditionalDetails_Value"", ""s"".""Details_Name"", ""s"".""Details_Value""
 FROM ""Sample"" AS ""s""
-LEFT JOIN (
-    SELECT ""s0"".""UniqueNo"", ""s0"".""AdditionalDetails_Name""
-    FROM ""Sample"" AS ""s0""
-    WHERE ""s0"".""AdditionalDetails_Name"" IS NOT NULL
-) AS ""t"" ON ""s"".""UniqueNo"" = ""t"".""UniqueNo""
-LEFT JOIN (
-    SELECT ""s1"".""UniqueNo"", ""s1"".""Details_Name""
-    FROM ""Sample"" AS ""s1""
-    WHERE ""s1"".""Details_Name"" IS NOT NULL
-) AS ""t0"" ON ""s"".""UniqueNo"" = ""t0"".""UniqueNo""
-WHERE ""s"".""UniqueNo"" = 1
+WHERE ""s"".""Unique_No"" = 1
 LIMIT 1",
-                //
-                @"@p2='1' (DbType = String)
+            //
+            @"@p2='1'
 @p0='ModifiedData' (Nullable = false) (Size = 12)
-@p1='00000000-0000-0000-0003-000000000001' (DbType = String)
-@p3='00000001-0000-0000-0000-000000000001' (DbType = String)
+@p1='00000000-0000-0000-0003-000000000001'
+@p3='00000001-0000-0000-0000-000000000001'
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();",
-                //
-                @"@p2='1' (DbType = String)
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3
+RETURNING 1;",
+            //
+            @"@p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 11)
-@p1='00000000-0000-0000-0002-000000000001' (DbType = String)
-@p3='00000001-0000-0000-0000-000000000001' (DbType = String)
+@p1='00000000-0000-0000-0002-000000000001'
+@p3='00000001-0000-0000-0000-000000000001'
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();");
-        }
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3
+RETURNING 1;");
+    }
 
-        public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
-        {
-            base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
+    public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
+    {
+        base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
-            AssertSql(
-                @"@p0=NULL
+        AssertSql(
+            @"@p0=NULL
 @p1='Third' (Nullable = false) (Size = 5)
-@p2='00000000-0000-0000-0000-000000000003' (DbType = String)
+@p2='00000000-0000-0000-0000-000000000003'
 @p3='Third Additional Name' (Size = 21)
-@p4='Third Name' (Size = 10)
+@p4='0' (Nullable = true)
+@p5='Third Name' (Size = 10)
+@p6='0' (Nullable = true)
 
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
-VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
-        }
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""AdditionalDetails_Value"", ""Details_Name"", ""Details_Value"")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING ""Unique_No"";");
+    }
 
-        // Sqlite does not support length
-        public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
-            }
-        }
+    // Sqlite does not support length
+    public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    {
+        using var context = CreateContext();
+        Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
+    }
 
-        public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
-        {
-            base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
+    // Sqlite does not support length
+    public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    {
+        using var context = CreateContext();
+        Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
+    }
 
-            AssertSql(
-                @"@p0=NULL
-@p1='1' (DbType = String)
+    // Sqlite does not support rowversion. See issue #2195
+    public override void TimestampAttribute_throws_if_value_in_database_changed()
+    {
+        using var context = CreateContext();
+        Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
+    }
 
-INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
-VALUES (@p0, @p1);
-SELECT ""Id""
-FROM ""BookDetails""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
-                //
-                @"@p0=NULL
-@p1=NULL (Nullable = false)
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
-VALUES (@p0, @p1);
-SELECT ""Id""
-FROM ""BookDetails""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
-        }
+    public class DataAnnotationSqliteFixture : DataAnnotationRelationalFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
 
-        public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
-        {
-            base.RequiredAttribute_for_property_throws_while_inserting_null_value();
-
-            AssertSql(
-                @"@p0=NULL
-@p1='ValidString' (Nullable = false) (Size = 11)
-@p2='00000000-0000-0000-0000-000000000001' (DbType = String)
-@p3='Two' (Size = 3)
-@p4='One' (Size = 3)
-
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
-VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
-                //
-                @"@p0=NULL
-@p1=NULL (Nullable = false)
-@p2='00000000-0000-0000-0000-000000000002' (DbType = String)
-@p3='Two' (Size = 3)
-@p4='One' (Size = 3)
-
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
-VALUES (@p0, @p1, @p2, @p3, @p4);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
-        }
-
-        // Sqlite does not support length
-        public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
-            }
-        }
-
-        // Sqlite does not support rowversion. See issue #2195
-        public override void TimestampAttribute_throws_if_value_in_database_changed()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
-            }
-        }
-
-        private static readonly string _eol = Environment.NewLine;
-
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        public class DataAnnotationSqliteFixture : DataAnnotationFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-        }
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
     }
 }

@@ -1,0 +1,28 @@
+name: Test Cosmos
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature/*
+      - release/*
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Start Cosmos Emulator
+        run: |
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
+          Start-CosmosDbEmulator
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Restore
+        run: restore.cmd
+        shell: cmd
+
+      - name: Test on Cosmos
+        run: .dotnet\dotnet test test\EFCore.Cosmos.FunctionalTests

@@ -1,37 +1,39 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Diagnostics;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
+namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Microsoft.EntityFrameworkCore.Diagnostics
+/// <summary>
+///     A <see cref="DiagnosticSource" /> event payload class for events that have an <see cref="INavigation" />.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
+/// </remarks>
+public class NavigationEventData : EventData, INavigationBaseEventData
 {
     /// <summary>
-    ///     A <see cref="DiagnosticSource" /> event payload class for events that have
-    ///     a navigation.
+    ///     Constructs the event payload.
     /// </summary>
-    public class NavigationEventData : EventData
+    /// <param name="eventDefinition">The event definition.</param>
+    /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+    /// <param name="navigation">The navigation.</param>
+    public NavigationEventData(
+        EventDefinitionBase eventDefinition,
+        Func<EventDefinitionBase, EventData, string> messageGenerator,
+        IReadOnlyNavigation navigation)
+        : base(eventDefinition, messageGenerator)
     {
-        /// <summary>
-        ///     Constructs the event payload.
-        /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="navigation"> The navigation. </param>
-        public NavigationEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] INavigation navigation)
-            : base(eventDefinition, messageGenerator)
-        {
-            Navigation = navigation;
-        }
-
-        /// <summary>
-        ///     The navigation.
-        /// </summary>
-        public virtual INavigation Navigation { get; }
+        Navigation = navigation;
     }
+
+    /// <summary>
+    ///     The navigation.
+    /// </summary>
+    public virtual IReadOnlyNavigation Navigation { get; }
+
+    /// <summary>
+    ///     The navigation.
+    /// </summary>
+    INavigationBase INavigationBaseEventData.NavigationBase
+        => (INavigationBase)Navigation;
 }

@@ -1,22 +1,19 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
+namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
+
+public class Sponsor
 {
-    public class Sponsor
-    {
-        public static readonly string ClientTokenPropertyName = "ClientToken";
+    public static readonly string ClientTokenPropertyName = "ClientToken";
 
-        private readonly ObservableCollection<Team> _teams = new ObservableCollection<Team>();
+    private readonly ObservableCollection<Team> _teams = new();
 
-        public int Id { get; set; }
-        public string Name { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
 
-        [NotMapped]
-        public virtual ICollection<Team> Teams => _teams;
-    }
+    public virtual ICollection<Team> Teams
+        => _teams;
 }

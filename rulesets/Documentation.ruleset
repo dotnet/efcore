@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<RuleSet Name="DocumentationAnalyzers" Description="DocumentationAnalyzers" ToolsVersion="15.0">
+  <Rules AnalyzerId="DocumentationAnalyzers" RuleNamespace="DocumentationAnalyzers">
+    <Rule Id="DOC100" Action="None" />    <!-- PlaceTextInParagraphs -->
+    <Rule Id="DOC101" Action="Warning" /> <!-- UseChildBlocksConsistently -->
+    <Rule Id="DOC102" Action="None" />    <!-- UseChildBlocksConsistentlyAcrossElementsOfTheSameKind -->
+    <Rule Id="DOC103" Action="Warning" /> <!-- UseUnicodeCharacters -->
+    <Rule Id="DOC104" Action="Warning" /> <!-- UseSeeLangword -->
+    <Rule Id="DOC105" Action="Warning" /> <!-- UseParamref -->
+    <Rule Id="DOC106" Action="Warning" /> <!-- UseTypeparamref -->
+    <Rule Id="DOC107" Action="Warning" /> <!-- UseSeeCref -->
+    <Rule Id="DOC108" Action="Warning" /> <!-- AvoidEmptyParagraphs -->
+    <Rule Id="DOC200" Action="Warning" /> <!-- UseXmlDocumentationSyntax -->
+    <Rule Id="DOC201" Action="Warning" /> <!-- ItemShouldHaveDescription -->
+    <Rule Id="DOC202" Action="Warning" /> <!-- UseSectionElementsCorrectly -->
+    <Rule Id="DOC203" Action="Warning" /> <!-- UseBlockElementsCorrectly -->
+    <Rule Id="DOC204" Action="Warning" /> <!-- UseInlineElementsCorrectly -->
+    <Rule Id="DOC207" Action="Warning" /> <!-- UseSeeLangwordCorrectly -->
+    <Rule Id="DOC209" Action="Warning" /> <!-- UseSeeHrefCorrectly -->
+  </Rules>
+</RuleSet>

@@ -1,7 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -9,61 +10,53 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
 {
     [DisplayName("InitializationTests")]
-    public abstract class InitializationTests<T>
-        where T : ColdStartEnabledTests, new()
+    public abstract class InitializationTests
     {
-#if NET461
-        private ColdStartSandbox _sandbox;
-#endif
-        private ColdStartEnabledTests _testClass;
-
-#if NET461
-        [Params(true, false)]
-#elif NETCOREAPP2_0 || NETCOREAPP2_1
-        [Params(false)]
-#endif
-        public bool Cold { get; set; }
-
-        [GlobalSetup]
-        public virtual void Initialize()
-        {
-            if (Cold)
-            {
-#if NET461
-                _sandbox = new ColdStartSandbox();
-                _testClass = _sandbox.CreateInstance<T>();
-#endif
-            }
-            else
-            {
-                _testClass = new T();
-            }
-        }
-
-#if NET461
-        [GlobalCleanup]
-        public virtual void CleanupContext()
-        {
-            _sandbox?.Dispose();
-        }
-#endif
+        protected abstract AdventureWorksContextBase CreateContext();
+        protected abstract ConventionSet CreateConventionSet();
 
         [Benchmark]
         public virtual void CreateAndDisposeUnusedContext()
         {
-            _testClass.CreateAndDisposeUnusedContext(Cold ? 1 : 10000);
+            for (var i = 0; i < 10000; i++)
+            {
+                // ReSharper disable once UnusedVariable
+                using (var context = CreateContext())
+                {
+                }
+            }
         }
 
         [Benchmark]
         public virtual void InitializeAndQuery_AdventureWorks()
         {
-            _testClass.InitializeAndQuery_AdventureWorks(Cold ? 1 : 1000);
+            for (var i = 0; i < 1000; i++)
+            {
+                using (var context = CreateContext())
+                {
+                    _ = context.Department.First();
+                }
+            }
         }
 
         [Benchmark]
         public virtual void InitializeAndSaveChanges_AdventureWorks()
         {
-            _testClass.InitializeAndSaveChanges_AdventureWorks(Cold ? 1 : 100);
+            for (var i = 0; i < 100; i++)
+            {
+                using (var context = CreateContext())
+                {
+                    context.Currency.Add(
+                        new Currency { CurrencyCode = "TMP", Name = "Temporary" });
+
+                    using (context.Database.BeginTransaction())
+                    {
+                        context.SaveChanges();
+
+                        // TODO: Don't measure transaction rollback
+                    }
+                }
+            }
         }
 
         [Benchmark]
@@ -75,7 +68,5 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
             // ReSharper disable once UnusedVariable
             var model = builder.Model;
         }
-
-        protected abstract ConventionSet CreateConventionSet();
     }
 }

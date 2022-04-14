@@ -1,36 +1,47 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.TestUtilities;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class ConvertToProviderTypesInMemoryTest : ConvertToProviderTypesTestBase<
+    ConvertToProviderTypesInMemoryTest.ConvertToProviderTypesInMemoryFixture>
 {
-    public class ConvertToProviderTypesInMemoryTest : ConvertToProviderTypesTestBase<
-        ConvertToProviderTypesInMemoryTest.ConvertToProviderTypesInMemoryFixture>
+    public ConvertToProviderTypesInMemoryTest(ConvertToProviderTypesInMemoryFixture fixture)
+        : base(fixture)
     {
-        public ConvertToProviderTypesInMemoryTest(ConvertToProviderTypesInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class ConvertToProviderTypesInMemoryFixture : ConvertToProviderTypesFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+    public override void Optional_datetime_reading_null_from_database()
+    {
+    }
 
-            public override bool StrictEquality => true;
+    public class ConvertToProviderTypesInMemoryFixture : ConvertToProviderTypesFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
 
-            public override bool SupportsAnsi => false;
+        public override bool StrictEquality
+            => true;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+        public override bool SupportsAnsi
+            => false;
 
-            public override bool SupportsLargeStringComparisons => true;
+        public override bool SupportsUnicodeToAnsiConversion
+            => true;
 
-            public override bool SupportsBinaryKeys => false;
+        public override bool SupportsLargeStringComparisons
+            => true;
 
-            public override bool SupportsDecimalComparisons => true;
+        public override bool SupportsBinaryKeys
+            => false;
 
-            public override DateTime DefaultDateTime => new DateTime();
-        }
+        public override bool SupportsDecimalComparisons
+            => true;
+
+        public override DateTime DefaultDateTime
+            => new();
+
+        public override bool PreservesDateTimeKind
+            => true;
     }
 }

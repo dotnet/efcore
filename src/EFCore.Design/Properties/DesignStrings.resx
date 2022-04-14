@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,8 +117,163 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BadConnection" xml:space="preserve">
+    <value>Failed creating connection: {exceptionMessage}</value>
+  </data>
+  <data name="BadSequenceType" xml:space="preserve">
+    <value>Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.</value>
+  </data>
+  <data name="BundleFullName" xml:space="preserve">
+    <value>Entity Framework Core Migrations Bundle</value>
+  </data>
+  <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
+    <value>Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.</value>
+  </data>
+  <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
+    <value>Unable to find provider assembly '{assemblyName}'. Ensure the name is correct and it's referenced by the project.</value>
+  </data>
+  <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
+    <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
+  </data>
+  <data name="CannotGenerateTypeQualifiedMethodCall" xml:space="preserve">
+    <value>A type-qualified method call requires an instance identifier, a MethodInfo and no chained calls.</value>
+  </data>
+  <data name="CompiledModelConstructorBinding" xml:space="preserve">
+    <value>The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because dynamic proxy types are not supported. If you are not using proxies configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.</value>
+  </data>
+  <data name="CompiledModelCustomCacheKeyFactory" xml:space="preserve">
+    <value>The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.</value>
+  </data>
+  <data name="CompiledModelDefiningQuery" xml:space="preserve">
+    <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
+  </data>
+  <data name="CompiledModelGenerated" xml:space="preserve">
+    <value>Successfully generated a compiled model, to use it call '{optionsCall}'. Run this command again when the model is modified.</value>
+  </data>
+  <data name="CompiledModelQueryFilter" xml:space="preserve">
+    <value>The entity type '{entityType}' has a query filter configured. Compiled model can't be generated, because query filters are not supported.</value>
+  </data>
+  <data name="CompiledModelTypeMapping" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.</value>
+  </data>
+  <data name="CompiledModelValueComparer" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value comparer configured using a ValueComparer instance. Instead, create types that inherit from ValueConverter and ValueComparer and use '{method}=&lt;ConverterType, ComparerType=&gt;()' or '{method}(Type converterType, Type comparerType)' to configure the value converter and comparer.</value>
+  </data>
+  <data name="CompiledModelValueConverter" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value converter configured using a ValueConverter instance or inline expressions. Instead, create a type that inherits from ValueConverter and use '{method}=&lt;ConverterType=&gt;()' or '{method}(Type converterType)' to configure the value converter.</value>
+  </data>
+  <data name="CompiledModelValueGenerator" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value generator configured. Use '{method}' to configure the value generator factory type.</value>
+  </data>
+  <data name="ConflictingContextAndMigrationName" xml:space="preserve">
+    <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
+  </data>
+  <data name="ConnectionDescription" xml:space="preserve">
+    <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
+  </data>
+  <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
+    <value>The context class name '{contextClassName}' is not a valid C# identifier.</value>
+  </data>
+  <data name="DatabaseDropped" xml:space="preserve">
+    <value>Successfully dropped database '{name}'.</value>
+  </data>
+  <data name="DestructiveOperation" xml:space="preserve">
+    <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done.</value>
+  </data>
+  <data name="DroppingDatabase" xml:space="preserve">
+    <value>Dropping database '{database}' on server '{dataSource}'.</value>
+  </data>
   <data name="DuplicateMigrationName" xml:space="preserve">
     <value>The name '{migrationName}' is used by an existing migration.</value>
+  </data>
+  <data name="EncodingIgnored" xml:space="preserve">
+    <value>The encoding '{encoding}' specified in the output directive will be ignored. EF Core always scaffolds files using the encoding 'utf-8'.</value>
+  </data>
+  <data name="ErrorConnecting" xml:space="preserve">
+    <value>An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}</value>
+  </data>
+  <data name="ExistingFiles" xml:space="preserve">
+    <value>The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.</value>
+  </data>
+  <data name="FindingContextFactories" xml:space="preserve">
+    <value>Finding IDesignTimeDbContextFactory implementations...</value>
+  </data>
+  <data name="FindingContexts" xml:space="preserve">
+    <value>Finding DbContext classes...</value>
+  </data>
+  <data name="FindingDesignTimeServices" xml:space="preserve">
+    <value>Finding IDesignTimeServices implementations in assembly '{startupAssembly}'...</value>
+  </data>
+  <data name="FindingHostingServices" xml:space="preserve">
+    <value>Finding Microsoft.Extensions.Hosting service provider...</value>
+  </data>
+  <data name="FindingProviderServices" xml:space="preserve">
+    <value>Finding design-time services for provider '{provider}'...</value>
+  </data>
+  <data name="FindingReferencedContexts" xml:space="preserve">
+    <value>Finding DbContext classes in the project...</value>
+  </data>
+  <data name="FindingReferencedServices" xml:space="preserve">
+    <value>Finding design-time services referenced by assembly '{startupAssembly}'...</value>
+  </data>
+  <data name="FindingServiceProvider" xml:space="preserve">
+    <value>Finding application service provider in assembly '{startupAssembly}'...</value>
+  </data>
+  <data name="ForceRemoveMigration" xml:space="preserve">
+    <value>Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually revert its changes. Error encountered while checking: {error}</value>
+  </data>
+  <data name="ForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
+    <value>The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
+  </data>
+  <data name="ForeignKeyWithSameFacetsExists" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. Foreign key '{existingForeignKey}' is defined on same columns targeting same key on principal table.</value>
+  </data>
+  <data name="ForeignMigrations" xml:space="preserve">
+    <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
+  </data>
+  <data name="FoundContextFactory" xml:space="preserve">
+    <value>Found IDesignTimeDbContextFactory implementation '{factory}'.</value>
+  </data>
+  <data name="FoundDbContext" xml:space="preserve">
+    <value>Found DbContext '{contextType}'.</value>
+  </data>
+  <data name="InvokeCreateHostBuilderFailed" xml:space="preserve">
+    <value>An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. Error: {error}</value>
+  </data>
+  <data name="LiteralExpressionNotSupported" xml:space="preserve">
+    <value>The literal expression '{expression}' for '{type}' cannot be parsed. Only simple constructor calls and factory methods are supported.</value>
+  </data>
+  <data name="MalformedCreateHostBuilder" xml:space="preserve">
+    <value>An unexpected return type was encountered while accessing the Microsoft.Extensions.Hosting services. Method 'CreateHostBuilder(string[])' should return an object of type 'IHostBuilder'. Continuing without the application service provider.</value>
+  </data>
+  <data name="ManuallyDeleted" xml:space="preserve">
+    <value>The model snapshot and the backing model of the last migration are different. Continuing under the assumption that the last migration was deleted manually.</value>
+  </data>
+  <data name="MigrationDescription" xml:space="preserve">
+    <value>The target migration. If '0', all migrations will be reverted. Defaults to the last migration.</value>
+  </data>
+  <data name="MigrationsAssemblyMismatch" xml:space="preserve">
+    <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
+Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
+Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list, or by executing "dotnet ef" from the directory containing the migrations project.</value>
+  </data>
+  <data name="MultipleAnnotationConflict" xml:space="preserve">
+    <value>The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.</value>
   </data>
   <data name="MultipleContexts" xml:space="preserve">
     <value>More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.</value>
@@ -129,23 +284,23 @@
   <data name="MultipleContextsWithQualifiedName" xml:space="preserve">
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.</value>
   </data>
+  <data name="NoColorDescription" xml:space="preserve">
+    <value>Don't colorize output.</value>
+  </data>
   <data name="NoContext" xml:space="preserve">
     <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
   </data>
   <data name="NoContextWithName" xml:space="preserve">
     <value>No DbContext named '{name}' was found.</value>
   </data>
-  <data name="UseContext" xml:space="preserve">
-    <value>Using context '{name}'.</value>
+  <data name="NoCreateHostBuilder" xml:space="preserve">
+    <value>No static method 'CreateHostBuilder(string[])' was found on class 'Program'.</value>
   </data>
-  <data name="DroppingDatabase" xml:space="preserve">
-    <value>Dropping database '{name}'.</value>
+  <data name="NoDesignTimeServices" xml:space="preserve">
+    <value>No design-time services were found.</value>
   </data>
-  <data name="DatabaseDropped" xml:space="preserve">
-    <value>Successfully dropped database '{name}'.</value>
-  </data>
-  <data name="ManuallyDeleted" xml:space="preserve">
-    <value>A manual migration deletion was detected.</value>
+  <data name="NoLanguageService" xml:space="preserve">
+    <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for the programming language.</value>
   </data>
   <data name="NoMigrationFile" xml:space="preserve">
     <value>No file named '{file}' was found. You must manually remove the migration class '{migrationClass}'.</value>
@@ -153,11 +308,44 @@
   <data name="NoMigrationMetadataFile" xml:space="preserve">
     <value>No file named '{file}' was found.</value>
   </data>
+  <data name="NonNullableBoooleanColumnHasDefaultConstraint" xml:space="preserve">
+    <value>The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.</value>
+  </data>
+  <data name="NonRelationalProvider" xml:space="preserve">
+    <value>The provider '{provider}' is not a Relational provider and therefore cannot be used with Migrations.</value>
+  </data>
+  <data name="NoParameterlessConstructor" xml:space="preserve">
+    <value>Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
+  </data>
+  <data name="NoReferencedServices" xml:space="preserve">
+    <value>No referenced design-time services were found.</value>
+  </data>
+  <data name="NoRelationalConnection" xml:space="preserve">
+    <value>Connection information is only available for relational database providers.</value>
+  </data>
+  <data name="NoServiceProvider" xml:space="preserve">
+    <value>No application service provider was found.</value>
+  </data>
   <data name="NoSnapshot" xml:space="preserve">
     <value>No ModelSnapshot was found.</value>
   </data>
   <data name="NoSnapshotFile" xml:space="preserve">
     <value>No file named '{file}' was found. You must manually remove the model snapshot class '{snapshotClass}'.</value>
+  </data>
+  <data name="NotExistDatabase" xml:space="preserve">
+    <value>Database '{name}' did not exist, no action was taken.</value>
+  </data>
+  <data name="PrefixDescription" xml:space="preserve">
+    <value>Prefix output with level.</value>
+  </data>
+  <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
+    <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
+  </data>
+  <data name="ProviderReturnedNullModel" xml:space="preserve">
+    <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
+  </data>
+  <data name="ReadOnlyFiles" xml:space="preserve">
+    <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.</value>
   </data>
   <data name="RemovingMigration" xml:space="preserve">
     <value>Removing migration '{name}'.</value>
@@ -165,196 +353,77 @@
   <data name="RemovingSnapshot" xml:space="preserve">
     <value>Removing model snapshot.</value>
   </data>
-  <data name="RevertingSnapshot" xml:space="preserve">
-    <value>Reverting model snapshot.</value>
-  </data>
-  <data name="RevertMigration" xml:space="preserve">
-    <value>The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration.</value>
-  </data>
-  <data name="UnknownOperation" xml:space="preserve">
-    <value>The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your services to use one that can.</value>
-  </data>
-  <data name="UnknownLiteral" xml:space="preserve">
-    <value>The current CSharpHelper cannot scaffold literals of type '{literalType}'. Configure your services to use one that can.</value>
-  </data>
-  <data name="LiteralExpressionNotSupported" xml:space="preserve">
-    <value>The literal expression '{expression}' for '{type}' cannot be parsed. Only simple constructor calls and factory methods are supported.</value>
-  </data>
-  <data name="CannotFindRuntimeProviderAssembly" xml:space="preserve">
-    <value>Unable to find provider assembly with name {assemblyName}. Ensure the specified name is correct and is referenced by the project.</value>
-  </data>
-  <data name="DestructiveOperation" xml:space="preserve">
-    <value>An operation was scaffolded that may result in the loss of data. Please review the migration for accuracy.</value>
-  </data>
-  <data name="WritingMigration" xml:space="preserve">
-    <value>Writing migration to '{file}'.</value>
-  </data>
-  <data name="WritingSnapshot" xml:space="preserve">
-    <value>Writing model snapshot to '{file}'.</value>
-  </data>
-  <data name="Done" xml:space="preserve">
-    <value>Done.</value>
-  </data>
   <data name="ReusingNamespace" xml:space="preserve">
     <value>Reusing namespace of type '{type}'.</value>
   </data>
   <data name="ReusingSnapshotName" xml:space="preserve">
     <value>Reusing model snapshot name '{name}'.</value>
   </data>
-  <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
-    <value>Unable to find expected assembly attribute named {attributeName} in provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the class which acts as the design-time service provider factory.</value>
+  <data name="RevertingSnapshot" xml:space="preserve">
+    <value>Reverting the model snapshot.</value>
   </data>
-  <data name="NonRelationalProvider" xml:space="preserve">
-    <value>{provider} is not a Relational provider and therefore cannot be use with Migrations.</value>
-  </data>
-  <data name="UnreferencedAssembly" xml:space="preserve">
-    <value>Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.</value>
-  </data>
-  <data name="FindingContexts" xml:space="preserve">
-    <value>Finding DbContext classes...</value>
-  </data>
-  <data name="ForeignMigrations" xml:space="preserve">
-    <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
-  </data>
-  <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
-    <value>The context class name passed in, {contextClassName}, is not a valid C# identifier.</value>
-  </data>
-  <data name="MigrationsAssemblyMismatch" xml:space="preserve">
-    <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
-Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
-Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list, or by executing "dotnet ef" from the directory containing the migrations project.</value>
+  <data name="RevertMigration" xml:space="preserve">
+    <value>The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration instead.</value>
   </data>
   <data name="SensitiveInformationWarning" xml:space="preserve">
-    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.</value>
+    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.</value>
     <comment>Localize the URL if we have localized docs.</comment>
-  </data>
-  <data name="ForceRemoveMigration" xml:space="preserve">
-    <value>Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually reverse the changes it made. Error encountered while checking: {error}</value>
-  </data>
-  <data name="NoParameterlessConstructor" xml:space="preserve">
-    <value>Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
-  </data>
-  <data name="NotExistDatabase" xml:space="preserve">
-    <value>Database '{name}' did not exist, no action was taken.</value>
-  </data>
-  <data name="UsingEnvironment" xml:space="preserve">
-    <value>Using environment '{environment}'.</value>
-  </data>
-  <data name="FindingServiceProvider" xml:space="preserve">
-    <value>Finding application service provider...</value>
-  </data>
-  <data name="NoServiceProvider" xml:space="preserve">
-    <value>No application service provider was found.</value>
-  </data>
-  <data name="FoundDbContext" xml:space="preserve">
-    <value>Found DbContext '{contextType}'.</value>
-  </data>
-  <data name="UsingDbContextFactory" xml:space="preserve">
-    <value>Using DbContext factory '{factory}'.</value>
-  </data>
-  <data name="FindingDesignTimeServices" xml:space="preserve">
-    <value>Finding IDesignTimeServices implementations in assembly '{startupAssembly}'...</value>
-  </data>
-  <data name="FindingProviderServices" xml:space="preserve">
-    <value>Finding design-time services for provider '{provider}'...</value>
-  </data>
-  <data name="NoDesignTimeServices" xml:space="preserve">
-    <value>No design-time services were found.</value>
-  </data>
-  <data name="UsingDesignTimeServices" xml:space="preserve">
-    <value>Using design-time services from class '{designTimeServices}'.</value>
-  </data>
-  <data name="UsingProviderServices" xml:space="preserve">
-    <value>Using design-time services from provider '{provider}'.</value>
-  </data>
-  <data name="FindingContextFactories" xml:space="preserve">
-    <value>Finding IDesignTimeDbContextFactory implementations...</value>
-  </data>
-  <data name="FindingReferencedContexts" xml:space="preserve">
-    <value>Finding DbContext classes in the project...</value>
-  </data>
-  <data name="FoundContextFactory" xml:space="preserve">
-    <value>Found IDesignTimeDbContextFactory implementation '{factory}'.</value>
-  </data>
-  <data name="ProviderReturnedNullModel" xml:space="preserve">
-    <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
-  </data>
-  <data name="ReadOnlyFiles" xml:space="preserve">
-    <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
-  </data>
-  <data name="ExistingFiles" xml:space="preserve">
-    <value>The following file(s) already exist in directory {outputDirectoryName}: {existingFiles}. Use the Force flag to overwrite these files.</value>
-  </data>
-  <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
-    <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principaltableName}' could not be scaffolded.</value>
-  </data>
-  <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
-  </data>
-  <data name="UnableToGenerateEntityType" xml:space="preserve">
-    <value>Unable to generate entity type for table '{tableName}'.</value>
-  </data>
-  <data name="BadSequenceType" xml:space="preserve">
-    <value>For sequence '{sequenceName}'. Unable to scaffold because it uses an unsupported type: '{typeName}'.</value>
-  </data>
-  <data name="ForeignKeyPrincipalEndContainsNullableColumns" xml:space="preserve">
-    <value>The principal end of the foreign key '{foreignKeyName}' is supported by the unique index '{indexName}' and contains the following nullable columns '{columnNames}'. Entity Framework requires the properties representing those columns to be non-nullable.</value>
-  </data>
-  <data name="NonNullableBoooleanColumnHasDefaultConstraint" xml:space="preserve">
-    <value>The column '{columnName}' would normally be mapped to a non-nullable bool property, but it has a default constraint. Such a column is mapped to a nullable bool property to allow a difference between setting the property to false and invoking the default constraint. See https://go.microsoft.com/fwlink/?linkid=851278 for details.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
-  </data>
-  <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
-  </data>
-  <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
-    <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
-  </data>
-  <data name="MultipleAnnotationConflict" xml:space="preserve">
-    <value>The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.</value>
   </data>
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
-  <data name="NoLanguageService" xml:space="preserve">
-    <value>The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.</value>
+  <data name="UnableToGenerateEntityType" xml:space="preserve">
+    <value>Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.</value>
   </data>
-  <data name="RevertingMigration" xml:space="preserve">
-    <value>Reverting migration '{name}'.</value>
+  <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
+    <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
   </data>
-  <data name="FindingReferencedServices" xml:space="preserve">
-    <value>Finding design-time services referenced by assembly '{startupAssembly}'.</value>
+  <data name="UnhandledEnumValue" xml:space="preserve">
+    <value>Unhandled enum value '{enumValue}'.</value>
   </data>
-  <data name="NoReferencedServices" xml:space="preserve">
-    <value>No referenced design-time services were found.</value>
+  <data name="UnknownDirectiveProcessor" xml:space="preserve">
+    <value>Failed to resolve type for directive processor {name}.</value>
+  </data>
+  <data name="UnknownLiteral" xml:space="preserve">
+    <value>Cannot scaffold C# literals of type '{literalType}'. The provider should implement CoreTypeMapping.GenerateCodeLiteral to support using it at design time.</value>
+  </data>
+  <data name="UnknownOperation" xml:space="preserve">
+    <value>The current CSharpMigrationOperationGenerator cannot scaffold operations of type '{operationType}'. Configure your design-time services to use one that can.</value>
+  </data>
+  <data name="UnreferencedAssembly" xml:space="preserve">
+    <value>Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.</value>
+  </data>
+  <data name="UseContext" xml:space="preserve">
+    <value>Using context '{name}'.</value>
+  </data>
+  <data name="UsingDbContextFactory" xml:space="preserve">
+    <value>Using DbContext factory '{factory}'.</value>
+  </data>
+  <data name="UsingDesignTimeServices" xml:space="preserve">
+    <value>Using design-time services from class '{designTimeServices}'.</value>
+  </data>
+  <data name="UsingEnvironment" xml:space="preserve">
+    <value>Using environment '{environment}'.</value>
+  </data>
+  <data name="UsingHostingServices" xml:space="preserve">
+    <value>Using application service provider from Microsoft.Extensions.Hosting.</value>
+  </data>
+  <data name="UsingProviderServices" xml:space="preserve">
+    <value>Using design-time services from provider '{provider}'.</value>
   </data>
   <data name="UsingReferencedServices" xml:space="preserve">
     <value>Using design-time services from assembly '{referencedAssembly}'.</value>
   </data>
+  <data name="VerboseDescription" xml:space="preserve">
+    <value>Show verbose output.</value>
+  </data>
   <data name="VersionMismatch" xml:space="preserve">
-    <value>The EF Core tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.</value>
+    <value>The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.</value>
   </data>
-  <data name="FindingHostingServices" xml:space="preserve">
-    <value>Finding Microsoft.Extensions.Hosting service provider...</value>
+  <data name="WritingMigration" xml:space="preserve">
+    <value>Writing migration to '{file}'.</value>
   </data>
-  <data name="InvokeCreateHostBuilderFailed" xml:space="preserve">
-    <value>An error occurred while accessing the Microsoft.Extensions.Hosting services. Continuing without the application service provider. Error: {error}</value>
-  </data>
-  <data name="MalformedCreateHostBuilder" xml:space="preserve">
-    <value>An unexpected return type was encountered while accessing the Microsoft.Extensions.Hosting services. Method 'CreateHostBuilder(string[])' should return an object of type 'IHostBuilder'. Continuing without the application service provider.</value>
-  </data>
-  <data name="NoCreateHostBuilder" xml:space="preserve">
-    <value>No static method 'CreateHostBuilder(string[])' was found on class 'Program'.</value>
-  </data>
-  <data name="UsingHostingServices" xml:space="preserve">
-    <value>Using application service provider from Microsoft.Extensions.Hosting.</value>
+  <data name="WritingSnapshot" xml:space="preserve">
+    <value>Writing model snapshot to '{file}'.</value>
   </data>
 </root>

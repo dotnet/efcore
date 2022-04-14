@@ -1,47 +1,75 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Concurrent;
-using System.Linq;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
+
+public static class DataGenerator
 {
-    public static class DataGenerator
+    private static readonly ConcurrentDictionary<Type, object[]> Values = new();
+    private static readonly ConcurrentDictionary<int, object[][]> _boolCombinations = new();
+
+    public static object[][] GetBoolCombinations(int length)
+        => _boolCombinations.GetOrAdd(length, l => GetCombinations(Values[typeof(bool)], l));
+
+    static DataGenerator()
     {
-        private static readonly ConcurrentDictionary<int, object[][]> _boolCombinations
-            = new ConcurrentDictionary<int, object[][]>();
+        Values[typeof(bool)] = new object[] { false, true };
+        Values[typeof(bool?)] = new object[] { null, false, true };
+    }
 
-        public static object[][] GetBoolCombinations(int length)
-            => _boolCombinations.GetOrAdd(length, l => GetCombinations(new object[] { false, true }, l));
+    public static object[][] GetCombinations(object[] set, int length)
+    {
+        var sets = new object[length][];
+        Array.Fill(sets, set);
+        return GetCombinations(sets);
+    }
 
-        public static object[][] GetCombinations(object[] set, int length)
+    public static object[][] GetCombinations(params Type[] types)
+    {
+        var sets = new object[types.Length][];
+        for (var i = 0; i < types.Length; i++)
         {
-            var sets = new object[length][];
-            Array.Fill(sets, set);
-            return GetCombinations(sets);
-        }
-
-        public static object[][] GetCombinations(object[][] sets)
-        {
-            var numberOfCombinations = sets.Aggregate(1L, (current, set) => current * set.Length);
-            var combinations = new object[numberOfCombinations][];
-
-            for (var i = 0L; i < numberOfCombinations; i++)
+            var type = types[i];
+            if (!Values.TryGetValue(type, out var values))
             {
-                var combination = new object[sets.Length];
-                var temp = i;
-                for (var j = 0; j < sets.Length; j++)
+                if (!type.IsDefined(typeof(FlagsAttribute), false))
                 {
-                    var set = sets[j];
-                    combination[j] = set[(int)(temp % set.Length)];
-                    temp /= set.Length;
+                    values = Enum.GetValues(type).Cast<object>().ToArray();
+                    Values[type] = values;
                 }
-
-                combinations[i] = combination;
+                else
+                {
+                    throw new InvalidOperationException($"The set of values for the type {type} is not known.");
+                }
             }
 
-            return combinations;
+            sets[i] = values;
         }
+
+        return GetCombinations(sets);
+    }
+
+    public static object[][] GetCombinations(object[][] sets)
+    {
+        var numberOfCombinations = sets.Aggregate(1L, (current, set) => current * set.Length);
+        var combinations = new object[numberOfCombinations][];
+
+        for (var i = 0L; i < numberOfCombinations; i++)
+        {
+            var combination = new object[sets.Length];
+            var temp = i;
+            for (var j = 0; j < sets.Length; j++)
+            {
+                var set = sets[j];
+                combination[j] = set[(int)(temp % set.Length)];
+                temp /= set.Length;
+            }
+
+            combinations[i] = combination;
+        }
+
+        return combinations;
     }
 }

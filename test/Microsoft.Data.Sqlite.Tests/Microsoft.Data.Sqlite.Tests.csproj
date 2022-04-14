@@ -1,7 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFrameworks>net7.0;net461</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);E_SQLITE3</DefineConstants>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawBundleESqlite3PackageVersion)" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.8-pre20220111224339" />
   </ItemGroup>
 
 </Project>
