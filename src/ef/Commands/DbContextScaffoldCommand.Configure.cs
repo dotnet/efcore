@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -8,21 +8,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class DbContextScaffoldCommand : ProjectCommandBase
     {
-        private CommandArgument _connection;
-        private CommandArgument _provider;
-        private CommandOption _dataAnnotations;
-        private CommandOption _context;
-        private CommandOption _contextDir;
-        private CommandOption _force;
-        private CommandOption _outputDir;
-        private CommandOption _schemas;
-        private CommandOption _tables;
-        private CommandOption _useDatabaseNames;
-        private CommandOption _json;
-        private CommandOption _namespace;
-        private CommandOption _contextNamespace;
-        private CommandOption _suppressOnConfiguring;
-        private CommandOption _noPluralize;
+        private CommandArgument? _connection;
+        private CommandArgument? _provider;
+        private CommandOption? _dataAnnotations;
+        private CommandOption? _context;
+        private CommandOption? _contextDir;
+        private CommandOption? _force;
+        private CommandOption? _outputDir;
+        private CommandOption? _schemas;
+        private CommandOption? _tables;
+        private CommandOption? _useDatabaseNames;
+        private CommandOption? _json;
+        private CommandOption? _namespace;
+        private CommandOption? _contextNamespace;
+        private CommandOption? _suppressOnConfiguring;
+        private CommandOption? _noPluralize;
 
         public override void Configure(CommandLineApplication command)
         {

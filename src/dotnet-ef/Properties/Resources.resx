@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -174,6 +174,9 @@
   <data name="DbContextListDescription" xml:space="preserve">
     <value>Lists available DbContext types.</value>
   </data>
+  <data name="DbContextOptimizeDescription" xml:space="preserve">
+    <value>Generates a compiled version of the model used by the DbContext.</value>
+  </data>
   <data name="DbContextScaffoldDescription" xml:space="preserve">
     <value>Scaffolds a DbContext and entity types for a database.</value>
   </data>
@@ -198,14 +201,8 @@
   <data name="IdempotentDescription" xml:space="preserve">
     <value>Generate a script that can be used on a database at any migration.</value>
   </data>
-  <data name="InvalidTemplatePattern" xml:space="preserve">
-    <value>Invalid template pattern '{template}'.</value>
-  </data>
   <data name="JsonDescription" xml:space="preserve">
     <value>Show JSON output. Use with --prefix-output to parse programatically.</value>
-  </data>
-  <data name="LastArgumentHasMultipleValues" xml:space="preserve">
-    <value>The last argument '{argumentName}' accepts multiple values. No more argument can be added.</value>
   </data>
   <data name="MigrationDescription" xml:space="preserve">
     <value>The target migration. If '0', all migrations will be reverted. Defaults to the last migration.</value>
@@ -218,6 +215,15 @@
   </data>
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
+  </data>
+  <data name="MigrationsBundleDescription" xml:space="preserve">
+    <value>Creates an executable to update the database.</value>
+  </data>
+  <data name="MigrationsBundleOutputDescription" xml:space="preserve">
+    <value>The path of executable file to create.</value>
+  </data>
+  <data name="MigrationsBundleRuntimeDescription" xml:space="preserve">
+    <value>The target runtime to bundle for.</value>
   </data>
   <data name="MigrationsDescription" xml:space="preserve">
     <value>Commands to manage migrations.</value>
@@ -300,14 +306,14 @@
   <data name="ProviderDescription" xml:space="preserve">
     <value>The provider to use. (E.g. Microsoft.EntityFrameworkCore.SqlServer)</value>
   </data>
-  <data name="ResponseFileMissing" xml:space="preserve">
-    <value>Response file '{fileName}' doesn't exist.</value>
-  </data>
   <data name="RuntimeDescription" xml:space="preserve">
     <value>The runtime to use.</value>
   </data>
   <data name="SchemasDescription" xml:space="preserve">
     <value>The schemas of tables to generate entity types for.</value>
+  </data>
+  <data name="SelfContainedDescription" xml:space="preserve">
+    <value>Also bundle the .NET runtime so it doesn't need to be installed on the machine.</value>
   </data>
   <data name="StartupProjectDescription" xml:space="preserve">
     <value>The startup project to use. Defaults to the current working directory.</value>
@@ -318,14 +324,11 @@
   <data name="TablesDescription" xml:space="preserve">
     <value>The tables to generate entity types for.</value>
   </data>
-  <data name="UnexpectedArgument" xml:space="preserve">
-    <value>Unrecognized {argumentName} '{argumentValue}'.</value>
-  </data>
-  <data name="UnexpectedOptionValue" xml:space="preserve">
-    <value>Unexpected value '{optionValue}' for option '{optionName}'.</value>
-  </data>
   <data name="UnsupportedFramework" xml:space="preserve">
-    <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework.</value>
+    <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework. See https://aka.ms/efcore-docs-cli-tfms for more information.</value>
+  </data>
+  <data name="UnsupportedPlatform" xml:space="preserve">
+    <value>Startup project '{startupProject}' targets platform '{targetPlatform}'. The Entity Framework Core .NET Command-line Tools don't support this platform. See https://aka.ms/efcore-docs-cli-tfms for more information.</value>
   </data>
   <data name="UseDatabaseNamesDescription" xml:space="preserve">
     <value>Use table and column names directly from the database.</value>

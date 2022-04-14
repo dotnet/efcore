@@ -1,9 +1,10 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using static SQLitePCL.raw;
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Sqlite
     public class SqliteParameter : DbParameter
     {
         private string _parameterName = string.Empty;
-        private object _value;
+        private object? _value;
         private int? _size;
         private SqliteType? _sqliteType;
         private string _sourceColumn = string.Empty;
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="value">The value of the parameter. Can be null.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
-        public SqliteParameter(string name, object value)
+        public SqliteParameter(string? name, object? value)
         {
             ParameterName = name;
             Value = value;
@@ -51,7 +52,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">The name of the parameter.</param>
         /// <param name="type">The type of the parameter.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public SqliteParameter(string name, SqliteType type)
+        public SqliteParameter(string? name, SqliteType type)
         {
             ParameterName = name;
             SqliteType = type;
@@ -64,7 +65,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="type">The type of the parameter.</param>
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public SqliteParameter(string name, SqliteType type, int size)
+        public SqliteParameter(string? name, SqliteType type, int size)
             : this(name, type)
             => Size = size;
 
@@ -76,7 +77,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         /// <param name="sourceColumn">The source column used for loading the value. Can be null.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public SqliteParameter(string name, SqliteType type, int size, string sourceColumn)
+        public SqliteParameter(string? name, SqliteType type, int size, string? sourceColumn)
             : this(name, type, size)
             => SourceColumn = sourceColumn;
 
@@ -124,6 +125,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the name of the parameter.
         /// </summary>
         /// <value>The name of the parameter.</value>
+        [AllowNull]
         public override string ParameterName
         {
             get => _parameterName;
@@ -161,6 +163,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the source column used for loading the value.
         /// </summary>
         /// <value>The source column used for loading the value.</value>
+        [AllowNull]
         public override string SourceColumn
         {
             get => _sourceColumn;
@@ -179,7 +182,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>The value of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
-        public override object Value
+        public override object? Value
         {
             get => _value;
             set { _value = value; }

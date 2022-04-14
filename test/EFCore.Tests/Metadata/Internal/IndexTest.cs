@@ -1,59 +1,81 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
-using System.Reflection;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+public class IndexTest
 {
-    public class IndexTest
+    [ConditionalFact]
+    public void Throws_when_model_is_readonly()
     {
-        [ConditionalFact]
-        public void Gets_expected_default_values()
-        {
-            var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
-            var property1 = entityType.AddProperty(Customer.IdProperty);
-            var property2 = entityType.AddProperty(Customer.NameProperty);
+        var model = CreateModel();
+        var entityType = model.AddEntityType("E");
+        var property = entityType.AddProperty("P", typeof(int));
+        var index = entityType.AddIndex(new[] { property });
 
-            var index = entityType.AddIndex(new[] { property1, property2 });
+        model.FinalizeModel();
 
-            Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.False(index.IsUnique);
-            Assert.Equal(ConfigurationSource.Convention, index.GetConfigurationSource());
-        }
+        Assert.Equal(
+            CoreStrings.ModelReadOnly,
+            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { property })).Message);
 
-        [ConditionalFact]
-        public void Can_set_unique()
-        {
-            var entityType = CreateModel().AddEntityType(typeof(Customer));
-            var property1 = entityType.AddProperty(Customer.IdProperty);
-            var property2 = entityType.AddProperty(Customer.NameProperty);
+        Assert.Equal(
+            CoreStrings.ModelReadOnly,
+            Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { property }, "Name")).Message);
 
-            var index = entityType.AddIndex(new[] { property1, property2 });
-            index.IsUnique = true;
+        Assert.Equal(
+            CoreStrings.ModelReadOnly,
+            Assert.Throws<InvalidOperationException>(() => entityType.RemoveIndex(index)).Message);
 
-            Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.True(index.IsUnique);
-        }
+        Assert.Equal(
+            CoreStrings.ModelReadOnly,
+            Assert.Throws<InvalidOperationException>(() => index.IsUnique = false).Message);
+    }
 
-        private static IMutableModel CreateModel()
-            => new Model();
+    [ConditionalFact]
+    public void Gets_expected_default_values()
+    {
+        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
+        var property1 = entityType.AddProperty(Customer.IdProperty);
+        var property2 = entityType.AddProperty(Customer.NameProperty);
 
-        private class Customer
-        {
-            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+        var index = entityType.AddIndex(new[] { property1, property2 });
 
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
+        Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
+        Assert.False(index.IsUnique);
+        Assert.Equal(ConfigurationSource.Convention, index.GetConfigurationSource());
+    }
 
-        private class Order
-        {
-            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+    [ConditionalFact]
+    public void Can_set_unique()
+    {
+        var entityType = CreateModel().AddEntityType(typeof(Customer));
+        var property1 = entityType.AddProperty(Customer.IdProperty);
+        var property2 = entityType.AddProperty(Customer.NameProperty);
 
-            public int Id { get; set; }
-        }
+        var index = entityType.AddIndex(new[] { property1, property2 });
+        index.IsUnique = true;
+
+        Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
+        Assert.True(index.IsUnique);
+    }
+
+    private static IMutableModel CreateModel()
+        => new Model();
+
+    private class Customer
+    {
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private class Order
+    {
+        public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+
+        public int Id { get; set; }
     }
 }

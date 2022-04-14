@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -11,9 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var result = CreateExecutor(args).GetContextInfo(Context.Value());
+            using var executor = CreateExecutor(args);
+            var result = executor.GetContextInfo(Context!.Value());
 
-            if (_json.HasValue())
+            if (_json!.HasValue())
             {
                 ReportJsonResult(result);
             }
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private static void ReportJsonResult(IDictionary result)
         {
             Reporter.WriteData("{");
+            Reporter.WriteData("  \"type\": " + Json.Literal(result["Type"] as string) + ",");
             Reporter.WriteData("  \"providerName\": " + Json.Literal(result["ProviderName"] as string) + ",");
             Reporter.WriteData("  \"databaseName\": " + Json.Literal(result["DatabaseName"] as string) + ",");
             Reporter.WriteData("  \"dataSource\": " + Json.Literal(result["DataSource"] as string) + ",");
@@ -37,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         private static void ReportResult(IDictionary result)
         {
+            Reporter.WriteData(Resources.DbContextType(result["Type"]));
             Reporter.WriteData(Resources.ProviderName(result["ProviderName"]));
             Reporter.WriteData(Resources.DatabaseName(result["DatabaseName"]));
             Reporter.WriteData(Resources.DataSource(result["DataSource"]));

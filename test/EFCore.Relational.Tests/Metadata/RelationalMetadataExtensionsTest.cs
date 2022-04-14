@@ -1,642 +1,648 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+public class RelationalMetadataExtensionsTest
 {
-    public class RelationalMetadataExtensionsTest
+    [ConditionalFact]
+    public void Can_get_and_set_fixed_length()
     {
-        [ConditionalFact]
-        public void Can_get_and_set_fixed_length()
-        {
-            var modelBuilder = new ModelBuilder();
+        var modelBuilder = new ModelBuilder();
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .Metadata;
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Name)
+            .Metadata;
 
-            Assert.Null(property.IsFixedLength());
+        Assert.Null(property.IsFixedLength());
 
-            property.SetIsFixedLength(true);
+        property.SetIsFixedLength(true);
 
-            Assert.True(property.IsFixedLength());
+        Assert.True(property.IsFixedLength());
 
-            property.SetIsFixedLength(false);
+        property.SetIsFixedLength(false);
 
-            Assert.False(property.IsFixedLength());
+        Assert.False(property.IsFixedLength());
 
-            property.SetIsFixedLength(null);
+        property.SetIsFixedLength(null);
 
-            Assert.Null(property.IsFixedLength());
-        }
+        Assert.Null(property.IsFixedLength());
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_index_filter()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Can_get_and_set_index_filter()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            var index = modelBuilder
-                .Entity<Customer>()
-                .HasIndex(e => e.Id)
-                .HasFilter("[Id] % 2 = 0")
-                .Metadata;
+        var index = modelBuilder
+            .Entity<Customer>()
+            .HasIndex(e => e.Id)
+            .HasFilter("[Id] % 2 = 0")
+            .Metadata;
 
-            Assert.Equal("[Id] % 2 = 0", index.GetFilter());
+        Assert.Equal("[Id] % 2 = 0", index.GetFilter());
 
-            index.SetFilter("[Id] % 3 = 0");
+        index.SetFilter("[Id] % 3 = 0");
 
-            Assert.Equal("[Id] % 3 = 0", index.GetFilter());
-        }
+        Assert.Equal("[Id] % 3 = 0", index.GetFilter());
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_name()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Can_get_and_set_column_name()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .Metadata;
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Name)
+            .Metadata;
 
-            Assert.Equal("Name", property.GetColumnBaseName());
+        Assert.Equal("Name", property.GetColumnBaseName());
 
-            property.SetColumnName("Eman");
+        property.SetColumnName("Eman");
 
-            Assert.Equal("Name", property.Name);
-            Assert.Equal("Eman", property.GetColumnBaseName());
+        Assert.Equal("Name", property.Name);
+        Assert.Equal("Eman", property.GetColumnBaseName());
 
-            property.SetColumnName(null);
+        property.SetColumnName(null);
 
-            Assert.Equal("Name", property.GetColumnBaseName());
-        }
+        Assert.Equal("Name", property.GetColumnBaseName());
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_table_name()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Can_get_and_set_table_name()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
 
-            Assert.Equal("Customer", entityType.GetTableName());
+        Assert.Equal("Customer", entityType.GetTableName());
 
-            entityType.SetTableName("Customizer");
+        entityType.SetTableName("Customizer");
 
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.GetTableName());
+        Assert.Equal("Customer", entityType.DisplayName());
+        Assert.Equal("Customizer", entityType.GetTableName());
 
-            entityType.SetTableName(null);
+        entityType.SetTableName(null);
 
-            Assert.Null(entityType.GetTableName());
-        }
+        Assert.Null(entityType.GetTableName());
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_schema_name_on_entity_type()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Can_get_and_set_schema_name_on_entity_type()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
 
-            Assert.Null(entityType.GetSchema());
+        Assert.Null(entityType.GetSchema());
 
-            entityType.SetSchema("db0");
+        entityType.SetSchema("db0");
 
-            Assert.Equal("db0", entityType.GetSchema());
+        Assert.Equal("db0", entityType.GetSchema());
 
-            entityType.SetSchema(null);
+        entityType.SetSchema(null);
 
-            Assert.Null(entityType.GetSchema());
-        }
+        Assert.Null(entityType.GetSchema());
+    }
 
-        [ConditionalFact]
-        public void Can_get_table_and_schema_name_for_non_owned_entity_types_with_defining_navigation()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Gets_model_schema_if_schema_on_entity_type_not_set()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            var orderType = modelBuilder
-                .Entity<Order>()
-                .Metadata;
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
 
-            var customerType = modelBuilder.Model.AddEntityType(typeof(Customer), nameof(Order.Customer), orderType);
+        Assert.Null(entityType.GetSchema());
 
-            Assert.Equal("Order_Customer", customerType.GetTableName());
+        modelBuilder.Model.SetDefaultSchema("db0");
 
-            orderType.SetTableName(null);
+        Assert.Equal("db0", entityType.GetSchema());
 
-            Assert.Equal("Customer_Customer", customerType.GetTableName());
+        modelBuilder.Model.SetDefaultSchema(null);
 
-            customerType.SetTableName("Customizer");
+        Assert.Null(entityType.GetSchema());
+    }
 
-            Assert.Equal("Customizer", customerType.GetTableName());
-        }
+    [ConditionalFact]
+    public void Can_get_and_set_view_schema_name_on_entity_type()
+    {
+        var modelBuilder = new ModelBuilder();
 
-        [ConditionalFact]
-        public void Gets_model_schema_if_schema_on_entity_type_not_set()
-        {
-            var modelBuilder = new ModelBuilder();
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
 
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
+        Assert.Null(entityType.GetViewSchema());
 
-            Assert.Null(entityType.GetSchema());
+        modelBuilder.HasDefaultSchema("dbo");
 
-            modelBuilder.Model.SetDefaultSchema("db0");
+        Assert.Null(entityType.GetViewSchema());
 
-            Assert.Equal("db0", entityType.GetSchema());
+        entityType.SetViewName("CustomerView");
 
-            modelBuilder.Model.SetDefaultSchema(null);
+        Assert.Equal("dbo", entityType.GetViewSchema());
 
-            Assert.Null(entityType.GetSchema());
-        }
+        entityType.SetViewSchema(null);
 
-        [ConditionalFact]
-        public void Can_get_and_set_view_schema_name_on_entity_type()
-        {
-            var modelBuilder = new ModelBuilder();
+        Assert.Equal("dbo", entityType.GetViewSchema());
 
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
+        entityType.SetViewSchema("db0");
 
-            Assert.Null(entityType.GetViewSchema());
+        Assert.Equal("db0", entityType.GetViewSchema());
 
-            modelBuilder.HasDefaultSchema("dbo");
+        entityType.SetViewName(null);
 
-            Assert.Null(entityType.GetViewSchema());
+        Assert.Equal("db0", entityType.GetViewSchema());
 
-            entityType.SetViewName("CustomerView");
+        entityType.SetViewSchema(null);
 
-            Assert.Equal("dbo", entityType.GetViewSchema());
+        Assert.Null(entityType.GetViewSchema());
+    }
 
-            entityType.SetViewSchema(null);
+    [ConditionalFact]
+    public void Can_get_and_set_column_type()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            Assert.Equal("dbo", entityType.GetViewSchema());
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Name)
+            .Metadata;
 
-            entityType.SetViewSchema("db0");
+        Assert.Null(property.GetColumnType());
 
-            Assert.Equal("db0", entityType.GetViewSchema());
+        property.SetColumnType("nvarchar(max)");
 
-            entityType.SetViewName(null);
+        Assert.Equal("nvarchar(max)", property.GetColumnType());
 
-            Assert.Equal("db0", entityType.GetViewSchema());
+        property.SetColumnType(null);
 
-            entityType.SetViewSchema(null);
+        Assert.Null(property.GetColumnType());
+    }
 
-            Assert.Null(entityType.GetViewSchema());
-        }
+    [ConditionalFact]
+    public void Can_get_and_set_column_default_expression()
+    {
+        var modelBuilder = new ModelBuilder();
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_type()
-        {
-            var modelBuilder = new ModelBuilder();
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Name)
+            .Metadata;
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .Metadata;
+        Assert.Null(property.GetDefaultValueSql());
 
-            Assert.Null(property.GetColumnType());
+        property.SetDefaultValueSql("newsequentialid()");
 
-            property.SetColumnType("nvarchar(max)");
+        Assert.Equal("newsequentialid()", property.GetDefaultValueSql());
 
-            Assert.Equal("nvarchar(max)", property.GetColumnType());
+        property.SetDefaultValueSql(null);
 
-            property.SetColumnType(null);
+        Assert.Null(property.GetDefaultValueSql());
+    }
 
-            Assert.Null(property.GetColumnType());
-        }
+    [ConditionalFact]
+    public void Can_get_and_set_column_computed_expression()
+    {
+        var modelBuilder = new ModelBuilder();
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_default_expression()
-        {
-            var modelBuilder = new ModelBuilder();
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Name)
+            .Metadata;
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .Metadata;
+        Assert.Null(property.GetComputedColumnSql());
 
-            Assert.Null(property.GetDefaultValueSql());
+        property.SetComputedColumnSql("newsequentialid()");
 
-            property.SetDefaultValueSql("newsequentialid()");
+        Assert.Equal("newsequentialid()", property.GetComputedColumnSql());
 
-            Assert.Equal("newsequentialid()", property.GetDefaultValueSql());
+        property.SetComputedColumnSql(null);
 
-            property.SetDefaultValueSql(null);
+        Assert.Null(property.GetComputedColumnSql());
+    }
 
-            Assert.Null(property.GetDefaultValueSql());
-        }
+    [ConditionalFact]
+    public void Can_get_and_set_column_default_value()
+    {
+        var modelBuilder = new ModelBuilder();
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_computed_expression()
-        {
-            var modelBuilder = new ModelBuilder();
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.AlternateId)
+            .Metadata;
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .Metadata;
+        Assert.Equal(Guid.Empty, property.GetDefaultValue());
 
-            Assert.Null(property.GetComputedColumnSql());
+        var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
-            property.SetComputedColumnSql("newsequentialid()");
+        property.SetDefaultValue(guid);
 
-            Assert.Equal("newsequentialid()", property.GetComputedColumnSql());
+        Assert.Equal(guid, property.GetDefaultValue());
 
-            property.SetComputedColumnSql(null);
+        property.SetDefaultValue(null);
 
-            Assert.Null(property.GetComputedColumnSql());
-        }
+        Assert.Equal(Guid.Empty, property.GetDefaultValue());
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_default_value()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Can_get_and_set_column_default_value_of_enum_type()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.AlternateId)
-                .Metadata;
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.EnumValue)
+            .Metadata;
 
-            Assert.Null(property.GetDefaultValue());
+        Assert.Null(property.GetDefaultValue());
 
-            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+        property.SetDefaultValue(MyEnum.Mon);
 
-            property.SetDefaultValue(guid);
+        Assert.Equal(typeof(MyEnum), property.GetDefaultValue().GetType());
+        Assert.Equal(MyEnum.Mon, property.GetDefaultValue());
 
-            Assert.Equal(guid, property.GetDefaultValue());
+        property.SetDefaultValue(null);
 
-            property.SetDefaultValue(null);
+        Assert.Null(property.GetDefaultValue());
+    }
 
-            Assert.Null(property.GetDefaultValue());
-        }
+    [ConditionalFact]
+    public void Throws_when_setting_column_default_value_of_wrong_type()
+    {
+        var modelBuilder = new ModelBuilder();
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_default_value_of_enum_type()
-        {
-            var modelBuilder = new ModelBuilder();
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Name)
+            .Metadata;
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.EnumValue)
-                .Metadata;
+        Assert.Null(property.GetDefaultValue());
 
-            Assert.Null(property.GetDefaultValue());
+        var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
-            property.SetDefaultValue(MyEnum.Mon);
+        Assert.Equal(
+            RelationalStrings.IncorrectDefaultValueType(
+                guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
+            Assert.Throws<InvalidOperationException>(() => property.SetDefaultValue(guid)).Message);
+    }
 
-            Assert.Equal(typeof(MyEnum), property.GetDefaultValue().GetType());
-            Assert.Equal(MyEnum.Mon, property.GetDefaultValue());
+    [ConditionalFact]
+    public void Can_get_and_set_column_key_name()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            property.SetDefaultValue(null);
+        var key = modelBuilder
+            .Entity<Customer>()
+            .HasKey(e => e.Id)
+            .Metadata;
 
-            Assert.Null(property.GetDefaultValue());
-        }
+        Assert.Equal("PK_Customer", key.GetName());
 
-        [ConditionalFact]
-        public void Throws_when_setting_column_default_value_of_wrong_type()
-        {
-            var modelBuilder = new ModelBuilder();
+        key.SetName("PrimaryKey");
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Name)
-                .Metadata;
+        Assert.Equal("PrimaryKey", key.GetName());
 
-            Assert.Null(property.GetDefaultValue());
+        key.SetName(null);
 
-            var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
+        Assert.Equal("PK_Customer", key.GetName());
+    }
 
-            Assert.Equal(
-                RelationalStrings.IncorrectDefaultValueType(
-                    guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => property.SetDefaultValue(guid)).Message);
-        }
+    [ConditionalFact]
+    public void Can_get_and_set_column_foreign_key_name()
+    {
+        var modelBuilder = new ModelBuilder();
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_key_name()
-        {
-            var modelBuilder = new ModelBuilder();
+        modelBuilder
+            .Entity<Customer>()
+            .HasKey(e => e.Id);
 
-            var key = modelBuilder
-                .Entity<Customer>()
-                .HasKey(e => e.Id)
-                .Metadata;
+        var foreignKey = modelBuilder
+            .Entity<Order>()
+            .HasOne<Customer>()
+            .WithOne()
+            .HasForeignKey<Order>(e => e.CustomerId)
+            .Metadata;
 
-            Assert.Equal("PK_Customer", key.GetName());
+        Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
 
-            key.SetName("PrimaryKey");
+        foreignKey.SetConstraintName("FK");
 
-            Assert.Equal("PrimaryKey", key.GetName());
+        Assert.Equal("FK", foreignKey.GetConstraintName());
 
-            key.SetName(null);
+        foreignKey.SetConstraintName(null);
 
-            Assert.Equal("PK_Customer", key.GetName());
-        }
+        Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_column_foreign_key_name()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Can_get_and_set_index_name()
+    {
+        var modelBuilder = new ModelBuilder();
 
-            modelBuilder
-                .Entity<Customer>()
-                .HasKey(e => e.Id);
+        var index = modelBuilder
+            .Entity<Customer>()
+            .HasIndex(e => e.Id)
+            .Metadata;
 
-            var foreignKey = modelBuilder
-                .Entity<Order>()
-                .HasOne<Customer>()
-                .WithOne()
-                .HasForeignKey<Order>(e => e.CustomerId)
-                .Metadata;
+        Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
+        index.SetDatabaseName("MyIndex");
 
-            foreignKey.SetConstraintName("FK");
+        Assert.Equal("MyIndex", index.GetDatabaseName());
 
-            Assert.Equal("FK", foreignKey.GetConstraintName());
+        index.SetDatabaseName(null);
 
-            foreignKey.SetConstraintName(null);
+        Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
+    }
 
-            Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
-        }
+    [ConditionalFact]
+    public void Can_get_and_set_discriminator()
+    {
+        var modelBuilder = new ModelBuilder();
 
-        [ConditionalFact]
-        public void Can_get_and_set_index_name()
-        {
-            var modelBuilder = new ModelBuilder();
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
 
-            var index = modelBuilder
-                .Entity<Customer>()
-                .HasIndex(e => e.Id)
-                .Metadata;
+        Assert.Null(entityType.FindDiscriminatorProperty());
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("IX_Customer_Id", index.GetName());
+        var property = entityType.AddProperty("D", typeof(string));
 
-            index.SetName("MyIndex");
+        entityType.SetDiscriminatorProperty(property);
 
-            Assert.Equal("MyIndex", index.GetName());
+        Assert.Same(property, entityType.FindDiscriminatorProperty());
 
-            index.SetName(null);
+        entityType.SetDiscriminatorProperty(null);
 
-            Assert.Equal("IX_Customer_Id", index.GetName());
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
+        Assert.Null(entityType.FindDiscriminatorProperty());
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_discriminator()
-        {
-            var modelBuilder = new ModelBuilder();
+    [ConditionalFact]
+    public void Can_get_and_set_schema_name_on_model()
+    {
+        var modelBuilder = new ModelBuilder();
+        var model = modelBuilder.Model;
 
-            var entityType = modelBuilder
-                .Entity<Customer>()
-                .Metadata;
+        Assert.Null(model.GetDefaultSchema());
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
+        model.SetDefaultSchema("db0");
 
-            var property = entityType.AddProperty("D", typeof(string));
+        Assert.Equal("db0", model.GetDefaultSchema());
 
-            entityType.SetDiscriminatorProperty(property);
+        model.SetDefaultSchema(null);
 
-            Assert.Same(property, entityType.GetDiscriminatorProperty());
+        Assert.Null(model.GetDefaultSchema());
+    }
 
-            entityType.SetDiscriminatorProperty(null);
+    [ConditionalFact]
+    public void Can_get_and_set_dbfunction()
+    {
+        var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
-        }
+        var modelBuilder = new ModelBuilder();
+        var model = modelBuilder.Model;
 
-        [ConditionalFact]
-        public void Can_get_and_set_schema_name_on_model()
-        {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
+        Assert.Null(model.FindDbFunction(testMethod));
 
-            Assert.Null(model.GetDefaultSchema());
+        var dbFunc = model.AddDbFunction(testMethod);
 
-            model.SetDefaultSchema("db0");
+        Assert.NotNull(dbFunc);
+        Assert.NotNull(dbFunc.Name);
+        Assert.Null(dbFunc.Schema);
+        Assert.True(((IConventionDbFunction)dbFunc).IsInModel);
 
-            Assert.Equal("db0", model.GetDefaultSchema());
+        Assert.Same(dbFunc, model.RemoveDbFunction(testMethod));
 
-            model.SetDefaultSchema(null);
+        Assert.False(((IConventionDbFunction)dbFunc).IsInModel);
+    }
 
-            Assert.Null(model.GetDefaultSchema());
-        }
+    [ConditionalFact]
+    public void Can_get_and_set_sequence()
+    {
+        var modelBuilder = new ModelBuilder();
+        var model = modelBuilder.Model;
 
-        [ConditionalFact]
-        public void Can_get_and_set_dbfunction()
-        {
-            var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
+        Assert.Null(model.FindSequence("Foo"));
 
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
+        var sequence = model.AddSequence("Foo");
 
-            Assert.Null(model.FindDbFunction(testMethod));
+        Assert.Equal("Foo", model.FindSequence("Foo").Name);
 
-            var dbFunc = model.AddDbFunction(testMethod);
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Null(sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(((IConventionSequence)sequence).IsInModel);
 
-            Assert.NotNull(dbFunc);
-            Assert.NotNull(dbFunc.Name);
-            Assert.Null(dbFunc.Schema);
-            Assert.NotNull(((IConventionDbFunction)dbFunc).Builder);
+        Assert.Same(sequence, model.FindSequence("Foo"));
 
-            Assert.Same(dbFunc, model.RemoveDbFunction(testMethod));
+        sequence.StartValue = 1729;
+        sequence.IncrementBy = 11;
+        sequence.MinValue = 2001;
+        sequence.MaxValue = 2010;
+        sequence.Type = typeof(int);
 
-            Assert.Null(((IConventionDbFunction)dbFunc).Builder);
-        }
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Null(sequence.Schema);
+        Assert.Equal(11, sequence.IncrementBy);
+        Assert.Equal(1729, sequence.StartValue);
+        Assert.Equal(2001, sequence.MinValue);
+        Assert.Equal(2010, sequence.MaxValue);
+        Assert.Same(typeof(int), sequence.Type);
 
-        [ConditionalFact]
-        public void Can_get_and_set_sequence()
-        {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
+        Assert.Same(sequence, model.RemoveSequence("Foo"));
 
-            Assert.Null(model.FindSequence("Foo"));
+        Assert.False(((IConventionSequence)sequence).IsInModel);
+    }
 
-            var sequence = model.AddSequence("Foo");
+    [ConditionalFact]
+    public void Can_get_and_set_sequence_with_schema_name()
+    {
+        var modelBuilder = new ModelBuilder();
+        var model = modelBuilder.Model;
 
-            Assert.Equal("Foo", model.FindSequence("Foo").Name);
+        Assert.Null(model.FindSequence("Foo", "Smoo"));
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
-            Assert.False(sequence.IsCyclic);
-            Assert.NotNull(((IConventionSequence)sequence).Builder);
+        var sequence = model.AddSequence("Foo", "Smoo");
 
-            Assert.Same(sequence, model.FindSequence("Foo"));
+        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
+        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
 
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.Type = typeof(int);
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Equal("Smoo", sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
+        Assert.Same(sequence, model.FindSequence("Foo", "Smoo"));
 
-            Assert.Same(sequence, model.RemoveSequence("Foo"));
+        sequence.StartValue = 1729;
+        sequence.IncrementBy = 11;
+        sequence.MinValue = 2001;
+        sequence.MaxValue = 2010;
+        sequence.Type = typeof(int);
 
-            Assert.Null(((IConventionSequence)sequence).Builder);
-        }
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Equal("Smoo", sequence.Schema);
+        Assert.Equal(11, sequence.IncrementBy);
+        Assert.Equal(1729, sequence.StartValue);
+        Assert.Equal(2001, sequence.MinValue);
+        Assert.Equal(2010, sequence.MaxValue);
+        Assert.Same(typeof(int), sequence.Type);
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_sequence_with_schema_name()
-        {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
+    [ConditionalFact]
+    public void Sequence_is_in_model_schema_if_schema_not_specified()
+    {
+        var modelBuilder = new ModelBuilder();
+        var model = modelBuilder.Model;
+        model.SetDefaultSchema("Smoo");
 
-            Assert.Null(model.FindSequence("Foo", "Smoo"));
+        Assert.Null(model.FindSequence("Foo"));
 
-            var sequence = model.AddSequence("Foo", "Smoo");
+        var sequence = model.AddSequence("Foo");
 
-            Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
+        Assert.Same(sequence, model.FindSequence("Foo"));
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Equal("Smoo", sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
+    }
 
-            Assert.Same(sequence, model.FindSequence("Foo", "Smoo"));
+    [ConditionalFact]
+    public void Returns_same_sequence_if_schema_not_specified_explicitly()
+    {
+        var modelBuilder = new ModelBuilder();
+        var model = modelBuilder.Model;
 
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.Type = typeof(int);
+        Assert.Null(model.FindSequence("Foo"));
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
-        }
+        var sequence = model.AddSequence("Foo");
 
-        [ConditionalFact]
-        public void Sequence_is_in_model_schema_if_schema_not_specified()
-        {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
-            model.SetDefaultSchema("Smoo");
+        Assert.Same(sequence, model.FindSequence("Foo"));
 
-            Assert.Null(model.FindSequence("Foo"));
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Null(sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
 
-            var sequence = model.AddSequence("Foo");
+        model.SetDefaultSchema("Smoo");
 
-            Assert.Same(sequence, model.FindSequence("Foo"));
+        Assert.Same(sequence, model.FindSequence("Foo"));
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
-        }
+        sequence.StartValue = 1729;
+        sequence.IncrementBy = 11;
+        sequence.MinValue = 2001;
+        sequence.MaxValue = 2010;
+        sequence.Type = typeof(int);
 
-        [ConditionalFact]
-        public void Returns_same_sequence_if_schema_not_specified_explicitly()
-        {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Equal("Smoo", sequence.Schema);
+        Assert.Equal(11, sequence.IncrementBy);
+        Assert.Equal(1729, sequence.StartValue);
+        Assert.Equal(2001, sequence.MinValue);
+        Assert.Equal(2010, sequence.MaxValue);
+        Assert.Same(typeof(int), sequence.Type);
+    }
 
-            Assert.Null(model.FindSequence("Foo"));
+    [ConditionalFact]
+    public void Can_get_multiple_sequences()
+    {
+        var modelBuilder = new ModelBuilder();
+        var model = modelBuilder.Model;
 
-            var sequence = model.AddSequence("Foo");
+        model.AddSequence("Fibonacci");
+        model.AddSequence("Golomb");
 
-            Assert.Same(sequence, model.FindSequence("Foo"));
+        var sequences = model.GetSequences();
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.Type);
+        Assert.Equal(2, sequences.Count());
+        Assert.Contains(sequences, s => s.Name == "Fibonacci");
+        Assert.Contains(sequences, s => s.Name == "Golomb");
+    }
 
-            model.SetDefaultSchema("Smoo");
+    [ConditionalFact]
+    public void AddCheckConstraint_with_duplicate_names_throws_exception()
+    {
+        var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+        var entityType = entityTypeBuilder.Metadata;
 
-            Assert.Same(sequence, model.FindSequence("Foo"));
+        entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
 
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.Type = typeof(int);
+        Assert.Equal(
+            RelationalStrings.DuplicateCheckConstraint("CK_Customer_AlternateId", entityType.DisplayName(), entityType.DisplayName()),
+            Assert.Throws<InvalidOperationException>(
+                () => entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id")).Message);
+    }
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.Type);
-        }
+    [ConditionalFact]
+    public void RemoveCheckConstraint_returns_constraint_when_constraint_exists()
+    {
+        var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+        var entityType = entityTypeBuilder.Metadata;
 
-        [ConditionalFact]
-        public void Can_get_multiple_sequences()
-        {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
+        var constraint = entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
 
-            model.AddSequence("Fibonacci");
-            model.AddSequence("Golomb");
+        Assert.Same(constraint, entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+    }
 
-            var sequences = model.GetSequences();
+    [ConditionalFact]
+    public void RemoveCheckConstraint_returns_null_when_constraint_is_missing()
+    {
+        var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+        var entityType = entityTypeBuilder.Metadata;
 
-            Assert.Equal(2, sequences.Count());
-            Assert.Contains(sequences, s => s.Name == "Fibonacci");
-            Assert.Contains(sequences, s => s.Name == "Golomb");
-        }
+        Assert.Null(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+    }
 
-        private enum MyEnum : byte
-        {
-            Son,
-            Mon,
-            Tue
-        }
+    protected virtual ModelBuilder CreateConventionModelBuilder()
+        => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
-        private class Customer
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public Guid AlternateId { get; set; }
-            public MyEnum? EnumValue { get; set; }
-        }
+    private enum MyEnum : byte
+    {
+        Son,
+        Mon,
+        Tue
+    }
 
-        private class SpecialCustomer : Customer
-        {
-        }
+    private class Customer
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Guid AlternateId { get; set; }
+        public MyEnum? EnumValue { get; set; }
+    }
 
-        private class Order
-        {
-            public int OrderId { get; set; }
-            public int CustomerId { get; set; }
-            public Customer Customer { get; set; }
-        }
+    private class SpecialCustomer : Customer
+    {
+    }
+
+    private class Order
+    {
+        public int OrderId { get; set; }
+        public int CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 }

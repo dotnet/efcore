@@ -1,27 +1,23 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+/// <summary>
+///     A factory for creating <see cref="RelationalParameterBasedSqlProcessor" /> instances.
+/// </summary>
+/// <remarks>
+///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+///     <see cref="DbContext" /> instance will use its own instance of this service.
+///     The implementation may depend on other services registered with any lifetime.
+///     The implementation does not need to be thread-safe.
+/// </remarks>
+public interface IRelationalParameterBasedSqlProcessorFactory
 {
     /// <summary>
-    ///     <para>
-    ///         A factory for creating <see cref="RelationalParameterBasedSqlProcessor" /> instances.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    ///     </para>
+    ///     Creates a new <see cref="RelationalParameterBasedSqlProcessor" />.
     /// </summary>
-    public interface IRelationalParameterBasedSqlProcessorFactory
-    {
-        /// <summary>
-        ///     Creates a new <see cref="RelationalParameterBasedSqlProcessor" />.
-        /// </summary>
-        /// <param name="useRelationalNulls"> A bool value indicating if relational nulls should be used. </param>
-        /// <returns> A relational parameter based sql processor. </returns>
-        RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls);
-    }
+    /// <param name="useRelationalNulls">A bool value indicating if relational nulls should be used.</param>
+    /// <returns>A relational parameter based sql processor.</returns>
+    RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls);
 }

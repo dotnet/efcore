@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28418.106
-MinimumVisualStudioVersion = 16.0.28418.106
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31521.260
+MinimumVisualStudioVersion = 17.0.31521.260
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B9E4CC99-199C-4E3B-9EC5-D1FDFCD6C27B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -78,7 +78,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Tests", "test\EFCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers", "src\EFCore.Analyzers\EFCore.Analyzers.csproj", "{C0D4A199-3ED4-447B-8657-0502493294E7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers.Test", "test\EFCore.Analyzers.Tests\EFCore.Analyzers.Test.csproj", "{7BC66E5C-BAA3-420B-8331-22821EBA361A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers.Tests", "test\EFCore.Analyzers.Tests\EFCore.Analyzers.Tests.csproj", "{7BC66E5C-BAA3-420B-8331-22821EBA361A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos", "src\EFCore.Cosmos\EFCore.Cosmos.csproj", "{6C115EF9-519E-4A4E-BD02-3801777BFEBA}"
 EndProject
@@ -102,13 +102,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.SqlServer.Benchmarks
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Sqlite.Benchmarks", "benchmark\EFCore.Sqlite.Benchmarks\EFCore.Sqlite.Benchmarks.csproj", "{5A44F67E-517F-458D-B9C7-12A4DBBAD64A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.Benchmarks", "benchmark\EFCore.Benchmarks\EFCore.Benchmarks.csproj", "{2642F4F0-69BE-4C43-94B7-B298FEC87D89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks", "benchmark\EFCore.Benchmarks\EFCore.Benchmarks.csproj", "{2642F4F0-69BE-4C43-94B7-B298FEC87D89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.e_sqlcipher.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.e_sqlcipher.Tests.csproj", "{7B598E0C-B8E2-4F1F-B53C-ED84178E65BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.e_sqlcipher.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.e_sqlcipher.Tests.csproj", "{7B598E0C-B8E2-4F1F-B53C-ED84178E65BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.winsqlite3.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.winsqlite3.Tests.csproj", "{B163761D-FB4A-4C80-BAB9-01905E1351EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.winsqlite3.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.winsqlite3.Tests.csproj", "{B163761D-FB4A-4C80-BAB9-01905E1351EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Data.Sqlite.sqlite3.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.sqlite3.Tests.csproj", "{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.sqlite3.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.sqlite3.Tests.csproj", "{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.OData.FunctionalTests", "test\EFCore.OData.FunctionalTests\EFCore.OData.FunctionalTests.csproj", "{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.Specification.Tests", "test\EFCore.AspNet.Specification.Tests\EFCore.AspNet.Specification.Tests.csproj", "{80A812BF-8AB7-4197-AC1C-712BA5E818FB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.SqlServer.FunctionalTests", "test\EFCore.AspNet.SqlServer.FunctionalTests\EFCore.AspNet.SqlServer.FunctionalTests.csproj", "{F956A344-5C8D-4015-A3BF-7A8304C58BE4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.Sqlite.FunctionalTests", "test\EFCore.AspNet.Sqlite.FunctionalTests\EFCore.AspNet.Sqlite.FunctionalTests.csproj", "{CC93C465-F5AC-4CB9-A064-3675955962F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.InMemory.FunctionalTests", "test\EFCore.AspNet.InMemory.FunctionalTests\EFCore.AspNet.InMemory.FunctionalTests.csproj", "{F1B2E5A0-8C74-414A-B262-353FEE325E9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.Trimming.Tests", "test\EFCore.Trimming.Tests\EFCore.Trimming.Tests.csproj", "{933C8662-817C-4F45-B98B-6557E28F7BB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -288,6 +300,30 @@ Global
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80A812BF-8AB7-4197-AC1C-712BA5E818FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80A812BF-8AB7-4197-AC1C-712BA5E818FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80A812BF-8AB7-4197-AC1C-712BA5E818FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80A812BF-8AB7-4197-AC1C-712BA5E818FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F956A344-5C8D-4015-A3BF-7A8304C58BE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F956A344-5C8D-4015-A3BF-7A8304C58BE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F956A344-5C8D-4015-A3BF-7A8304C58BE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F956A344-5C8D-4015-A3BF-7A8304C58BE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC93C465-F5AC-4CB9-A064-3675955962F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC93C465-F5AC-4CB9-A064-3675955962F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC93C465-F5AC-4CB9-A064-3675955962F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC93C465-F5AC-4CB9-A064-3675955962F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1B2E5A0-8C74-414A-B262-353FEE325E9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1B2E5A0-8C74-414A-B262-353FEE325E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1B2E5A0-8C74-414A-B262-353FEE325E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1B2E5A0-8C74-414A-B262-353FEE325E9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -336,6 +372,12 @@ Global
 		{7B598E0C-B8E2-4F1F-B53C-ED84178E65BE} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{B163761D-FB4A-4C80-BAB9-01905E1351EF} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{E0FF35C8-8038-4394-9C2A-AF34BE3CC61F} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{7C0E5443-FE44-4436-8A7D-CE64D1F889BD} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{80A812BF-8AB7-4197-AC1C-712BA5E818FB} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{F956A344-5C8D-4015-A3BF-7A8304C58BE4} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{CC93C465-F5AC-4CB9-A064-3675955962F4} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{F1B2E5A0-8C74-414A-B262-353FEE325E9F} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{933C8662-817C-4F45-B98B-6557E28F7BB1} = {258D5057-81B9-40EC-A872-D21E27452749}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {285A5EB4-BCF4-40EB-B9E1-DF6DBCB5E705}

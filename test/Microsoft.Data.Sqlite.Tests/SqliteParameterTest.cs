@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Data;
@@ -257,6 +257,28 @@ namespace Microsoft.Data.Sqlite
                 2456761.9680439816,
                 SqliteType.Real);
 
+#if NET6_0_OR_GREATER
+        [Fact]
+        public void Bind_works_when_DateOnly()
+            => Bind_works(new DateOnly(2014, 4, 14), "2014-04-14");
+
+        [Fact]
+        public void Bind_works_when_DateOnly_with_SqliteType_Real()
+            => Bind_works(new DateOnly(2014, 4, 14), 2456761.5, SqliteType.Real);
+
+        [Fact]
+        public void Bind_works_when_TimeOnly()
+            => Bind_works(new TimeOnly(13, 10, 15), "13:10:15");
+
+        [Fact]
+        public void Bind_works_when_TimeOnly_with_milliseconds()
+            => Bind_works(new TimeOnly(13, 10, 15, 500), "13:10:15.5000000");
+
+        [Fact]
+        public void Bind_works_when_TimeOnly_with_SqliteType_Real()
+            => Bind_works(new TimeOnly(13, 10, 15), 0.5487847222222222, SqliteType.Real);
+#endif
+
         [Fact]
         public void Bind_works_when_DBNull()
             => Bind_works(DBNull.Value, DBNull.Value);
@@ -467,7 +489,7 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(1, command.ExecuteNonQuery());
 
                 command.CommandText = "SELECT DateOfBirth FROM Person;";
-                var result = command.ExecuteScalar();
+                var result = command.ExecuteScalar()!;
                 Assert.Equal("2018-03-25 00:00:00", (string)result);
 
                 using (var reader = command.ExecuteReader())
@@ -495,7 +517,7 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(1, command.ExecuteNonQuery());
 
                 command.CommandText = "SELECT date FROM Test;";
-                var result = command.ExecuteScalar();
+                var result = command.ExecuteScalar()!;
                 Assert.Equal("2018-03-25 00:00:00+00:00", (string)result);
 
                 using (var reader = command.ExecuteReader())

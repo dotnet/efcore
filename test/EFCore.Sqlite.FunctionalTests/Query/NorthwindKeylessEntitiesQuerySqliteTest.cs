@@ -1,28 +1,23 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
-using Xunit.Abstractions;
+using Microsoft.Data.Sqlite;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class NorthwindKeylessEntitiesQuerySqliteTest : NorthwindKeylessEntitiesQueryRelationalTestBase<
+    NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
-    public class NorthwindKeylessEntitiesQuerySqliteTest : NorthwindKeylessEntitiesQueryRelationalTestBase<
-        NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public NorthwindKeylessEntitiesQuerySqliteTest(
+        NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
+        ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
-        public NorthwindKeylessEntitiesQuerySqliteTest(
-            NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
-            ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        }
-
-        [ConditionalFact(Skip = "Issue#21627")]
-        public override void KeylessEntity_with_nav_defining_query()
-        {
-            base.KeylessEntity_with_nav_defining_query();
-        }
+        Fixture.TestSqlLoggerFactory.Clear();
+        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+
+    public override Task KeylessEntity_with_nav_defining_query(bool async)
+        // FromSql mapping. Issue #21627.
+        => Assert.ThrowsAsync<SqliteException>(() => base.KeylessEntity_with_nav_defining_query(async));
 }

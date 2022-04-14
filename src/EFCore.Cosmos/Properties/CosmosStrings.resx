@@ -117,29 +117,69 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AnalyticalTTLMismatch" xml:space="preserve">
+    <value>The time to live for analytical store was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same time to live for analytical store.</value>
+  </data>
+  <data name="CanConnectNotSupported" xml:space="preserve">
+    <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
+  </data>
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
-    <value>Both the connection string and account key or account endpoint were specified. Only specify one set of connection details.</value>
+    <value>Both the connection string and account key or account endpoint were specified. Specify only one set of connection details.</value>
   </data>
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
   </data>
+  <data name="DefaultTTLMismatch" xml:space="preserve">
+    <value>The default time to live was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same default time to live.</value>
+  </data>
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
-    <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.</value>
+    <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.</value>
   </data>
   <data name="ETagNonStringStoreType" xml:space="preserve">
-    <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties need to be strings or have a string converter.</value>
+    <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.</value>
   </data>
   <data name="IdNonStringStoreType" xml:space="preserve">
-    <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties need to be strings or have a string converter.</value>
+    <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.</value>
   </data>
   <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
     <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
   </data>
+  <data name="InvalidFromSqlArguments" xml:space="preserve">
+    <value>A FromSqlExpression has an invalid arguments expression type '{expressionType}' or value type '{valueType}'.</value>
+  </data>
   <data name="InvalidResourceId" xml:space="preserve">
-    <value>Unable to generate a valid 'id' value to execute ReadItem query. This usually happens when value provided for one of the properties is null or empty string. Please supply a value that's not null or empty.</value>
+    <value>Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.</value>
   </data>
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
+  </data>
+  <data name="LogExecutedCreateItem" xml:space="preserve">
+    <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedCreateItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedDeleteItem" xml:space="preserve">
+    <value>Executed DeleteItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedDeleteItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedReadItem" xml:space="preserve">
+    <value>Executed ReadItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedReadItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedReadNext" xml:space="preserve">
+    <value>Executed ReadNext ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', Parameters=[{parameters}]{newLine}{sql}</value>
+    <comment>Information CosmosEventId.ExecutedReadNext string string string string string? string string string string</comment>
+  </data>
+  <data name="LogExecutedReplaceItem" xml:space="preserve">
+    <value>Executed ReplaceItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedReplaceItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutingReadItem" xml:space="preserve">
+    <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
+    <comment>Information CosmosEventId.ExecutingReadItem string string string?</comment>
+  </data>
+  <data name="LogExecutingSqlQuery" xml:space="preserve">
+    <value>Executing SQL query for container '{containerId}' in partition '{partitionKey}' [Parameters=[{parameters}]]{newLine}{commandText}</value>
+    <comment>Information CosmosEventId.ExecutingSqlQuery string string? string string string</comment>
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
@@ -148,25 +188,25 @@
     <value>Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.</value>
   </data>
   <data name="NoDiscriminatorProperty" xml:space="preserve">
-    <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured.</value>
+    <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured. Configure a discriminator property and assign a unique value for this entity type.</value>
   </data>
   <data name="NoDiscriminatorValue" xml:space="preserve">
-    <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured.</value>
+    <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured. Configure a unique discriminator value for this entity type.</value>
   </data>
   <data name="NoIdKey" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.</value>
   </data>
   <data name="NoIdProperty" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped as 'id'.</value>
+    <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.</value>
   </data>
   <data name="NonEmbeddedIncludeNotSupported" xml:space="preserve">
     <value>Including navigation '{navigation}' is not supported as the navigation is not embedded in same resource.</value>
   </data>
   <data name="NonETagConcurrencyToken" xml:space="preserve">
-    <value>The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseETagConcurrency'.</value>
+    <value>The entity type '{entityType}' has property '{property}' configured as a concurrency token, but only a property mapped to '_etag' is supported as a concurrency token. Consider using 'PropertyBuilder.IsETagConcurrency'.</value>
   </data>
   <data name="NoPartitionKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys. Configure a partition key on '{entityType}'.</value>
+    <value>The entity type '{entityType}' does not have a partition key set, but is mapped to the container '{container}' shared by entity types with partition keys. Configure a compatible partition key on '{entityType}'.</value>
   </data>
   <data name="NoPartitionKeyKey" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.</value>
@@ -175,46 +215,58 @@
     <value>There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
-    <value>Expression '{sqlExpression}' in SQL tree does not have type mapping assigned.</value>
+    <value>The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
   </data>
   <data name="OffsetRequiresLimit" xml:space="preserve">
-    <value>Cosmos SQL does not allow Offset without Limit. Consider specifying 'Take' operation on the query.</value>
+    <value>Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
   <data name="OrphanedNestedDocumentSensitive" xml:space="preserve">
-    <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.</value>
-  </data>
-  <data name="ParitionKeyMissing" xml:space="preserve">
-    <value>Unable to execute a ReadItem query since the partition key value is missing. Consider using 'WithPartitionKey' method on the query to specify partition key to use.</value>
+    <value>The entity of type '{entityType}' is mapped as part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.</value>
   </data>
   <data name="PartitionKeyMismatch" xml:space="preserve">
-    <value>Partition key specified in the WithPartitionKey call '{paritionKey1}' and the partition key specified in the Where predicate '{paritionKey2}' must be identical. Remove one of them .</value>
+    <value>The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.</value>
+  </data>
+  <data name="PartitionKeyMissing" xml:space="preserve">
+    <value>Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.</value>
   </data>
   <data name="PartitionKeyMissingProperty" xml:space="preserve">
     <value>The partition key for entity type '{entityType}' is set to '{property}', but there is no property with that name.</value>
   </data>
   <data name="PartitionKeyNonStringStoreType" xml:space="preserve">
-    <value>The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string converter.</value>
+    <value>The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string value converter.</value>
   </data>
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
-    <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.</value>
+    <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.</value>
   </data>
   <data name="ResourceIdMissing" xml:space="preserve">
-    <value>Unable to execute a ReadItem query since the 'id' value is missing and cannot be generated.</value>
+    <value>Unable to execute a 'ReadItem' query since the 'id' value is missing and cannot be generated.</value>
   </data>
   <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
-    <value>Reversing the ordering in 'SelectExpression' is not supported when limit or offset are already applied.</value>
+    <value>Reversing the ordering is not supported when limit or offset are already applied.</value>
+  </data>
+  <data name="ThroughputMismatch" xml:space="preserve">
+    <value>The provisioned throughput was configured to '{throughput1}' on '{entityType1}', but on '{entityType2}' it was configured to '{throughput2}'. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput.</value>
+  </data>
+  <data name="ThroughputTypeMismatch" xml:space="preserve">
+    <value>The provisioned throughput was configured as manual on '{manualEntityType}', but on '{autoscaleEntityType}' it was configured as autoscale. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput type.</value>
+  </data>
+  <data name="TransactionsNotSupported" xml:space="preserve">
+    <value>The Cosmos database provider does not support transactions.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
-    <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>
+    <value>Unable to bind '{memberType}' '{member}' to an entity projection of '{entityType}'.</value>
   </data>
   <data name="UnsupportedOperatorForSqlExpression" xml:space="preserve">
     <value>Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.</value>
   </data>
   <data name="UpdateConflict" xml:space="preserve">
     <value>Conflicts were detected for item with id '{itemId}'.</value>
+  </data>
+  <data name="UpdateStoreException" xml:space="preserve">
+    <value>An error occurred while saving the the item with id '{itemId}'. See the inner exception for details.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>

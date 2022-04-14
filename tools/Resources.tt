@@ -1,5 +1,5 @@
 <#@ template hostspecific="true" #>
-<#@ assembly name="EnvDTE" #>
+<#@ assembly name="Microsoft.VisualStudio.Interop" #>
 <#@ assembly name="System.Core" #>
 <#@ assembly name="System.Windows.Forms" #>
 <#@ import namespace="System.Collections" #>
@@ -23,23 +23,19 @@ using System.Resources;
     {
 #>
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
-<#
-    }
-    else
-    {
-#>
-using JetBrains.Annotations;
 <#
     }
 #>
 
+#nullable enable
+
 namespace <#= model.Namespace #>
 {
 <#
-    if (model.Namespace.EndsWith("Internal")
+    if (model.Namespace.EndsWith("Internal", StringComparison.Ordinal)
         || model.AccessModifier == "internal")
     {
 #>
@@ -98,7 +94,7 @@ namespace <#= model.Namespace #>
             if (resource.Parameters.Any())
             {
 #>
-        public static string <#= resource.Name #>(<#= List("[CanBeNull] object ", resource.Parameters.Select(e => e.ParamString)) #>)
+        public static string <#= resource.Name #>(<#= List("object? ", resource.Parameters.Select(e => e.ParamString)) #>)
             => string.Format(
                 GetString("<#= resource.Name #>", <#= List(resource.Parameters.Select(e => e.NameOfString)) #>),
                 <#= List(resource.Parameters.Select(e => e.ParamString)) #>);
@@ -117,7 +113,7 @@ namespace <#= model.Namespace #>
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -132,7 +128,7 @@ namespace <#= model.Namespace #>
     if (!model.NoDiagnostics)
     {
 #>
-namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.Namespace + ".Internal") #>
+namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? model.Namespace : (model.Namespace + ".Internal") #>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,19 +161,20 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
                 if (resource.Types.Count() > 6)
                 {
 #>
-        public static FallbackEventDefinition <#= resource.Name #>([NotNull] IDiagnosticsLogger logger)
+        public static FallbackEventDefinition <#= resource.Name #>(IDiagnosticsLogger logger)
         {
             var definition = ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         <#= resource.EventId #>,
                         LogLevel.<#= resource.Level #>,
                         "<#= resource.EventId #>",
-                        _resourceManager.GetString("<#= resource.Name #>")));
+                        _resourceManager.GetString("<#= resource.Name #>")!));
             }
 
             return (FallbackEventDefinition)definition;
@@ -194,14 +191,15 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
 <#
                     }
 #>
-        public static EventDefinition<#= genericTypes #> <#= resource.Name #>([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<#= genericTypes #> <#= resource.Name #>(IDiagnosticsLogger logger)
         {
             var definition = ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>,
-                    () => new EventDefinition<#= genericTypes #>(
+                    logger,
+                    static logger => new EventDefinition<#= genericTypes #>(
                         logger.Options,
                         <#= resource.EventId #>,
                         LogLevel.<#= resource.Level #>,
@@ -209,7 +207,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
                         level => LoggerMessage.Define<#= genericTypes #>(
                             level,
                             <#= resource.EventId #>,
-                            _resourceManager.GetString("<#= resource.Name #>"))));
+                            _resourceManager.GetString("<#= resource.Name #>")!)));
             }
 
             return (EventDefinition<#= genericTypes #>)definition;
@@ -280,10 +278,9 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
         using (var reader = new ResXResourceReader(resourceFile))
         {
             reader.UseResXDataNodes = true;
-            sortedResources = Enumerable.ToList(
-                from DictionaryEntry r in reader
-                orderby r.Key
-                select (ResXDataNode)r.Value);
+            sortedResources = (from DictionaryEntry r in reader
+                               orderby r.Key
+                               select (ResXDataNode)r.Value).ToList();
 
             result.Resources = sortedResources
                 .Select(r => new Resource(r))
@@ -301,16 +298,16 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
         return result;
     }
 
-    IEnumerable<string> Lines(string value)
+    static IEnumerable<string> Lines(string value)
         => value.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
-    string Xml(string value)
+    static string Xml(string value)
         => value.Replace("<", "&lt;").Replace(">", "&gt;");
 
-    string List(IEnumerable<string> items)
+    static string List(IEnumerable<string> items)
         => List(null, items);
 
-    string List(string prefix, IEnumerable<string> items, string suffix = null)
+    static string List(string prefix, IEnumerable<string> items, string suffix = null)
         => string.Join(", ", items.Select(i => prefix + i + suffix));
 
     class ResourceFile
@@ -369,7 +366,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
         public string EventId { get; }
         public string Level { get; }
         public bool Obsolete { get; }
-        public bool ForLogging => Name.StartsWith("Log");
+        public bool ForLogging => Name.StartsWith("Log", StringComparison.Ordinal);
         public IEnumerable<(string NameOfString, string ParamString)> Parameters { get; }
         public IEnumerable<string> Types { get; }
     }

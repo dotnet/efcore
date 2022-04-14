@@ -1,131 +1,121 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public abstract class CompiledQueryBase<TContext, TResult>
+    where TContext : DbContext
 {
+    private readonly LambdaExpression _queryExpression;
+
+    private Func<QueryContext, TResult>? _executor;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class CompiledQueryBase<TContext, TResult>
-        where TContext : DbContext
+    protected CompiledQueryBase(LambdaExpression queryExpression)
     {
-        private readonly LambdaExpression _queryExpression;
+        _queryExpression = queryExpression;
+    }
 
-        private Func<QueryContext, TResult> _executor;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual TResult ExecuteCore(
+        TContext context,
+        params object?[] parameters)
+        => ExecuteCore(context, default, parameters);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected CompiledQueryBase([NotNull] LambdaExpression queryExpression)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual TResult ExecuteCore(
+        TContext context,
+        CancellationToken cancellationToken,
+        params object?[] parameters)
+    {
+        var executor = EnsureExecutor(context);
+        var queryContextFactory = context.GetService<IQueryContextFactory>();
+        var queryContext = queryContextFactory.Create();
+
+        queryContext.CancellationToken = cancellationToken;
+
+        for (var i = 0; i < parameters.Length; i++)
         {
-            _queryExpression = queryExpression;
+            queryContext.AddParameter(
+                QueryCompilationContext.QueryParameterPrefix + _queryExpression.Parameters[i + 1].Name,
+                parameters[i]);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual TResult ExecuteCore(
-            [NotNull] TContext context,
-            [NotNull] params object[] parameters)
-            => ExecuteCore(context, default, parameters);
+        return executor(queryContext);
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual TResult ExecuteCore(
-            [NotNull] TContext context,
-            CancellationToken cancellationToken,
-            [NotNull] params object[] parameters)
-        {
-            var executor = EnsureExecutor(context);
-            var queryContextFactory = context.GetService<IQueryContextFactory>();
-            var queryContext = queryContextFactory.Create();
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Func<QueryContext, TResult> CreateCompiledQuery(
+        IQueryCompiler queryCompiler,
+        Expression expression);
 
-            queryContext.CancellationToken = cancellationToken;
-
-            for (var i = 0; i < parameters.Length; i++)
+    private Func<QueryContext, TResult> EnsureExecutor(TContext context)
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _executor,
+            this,
+            context,
+            _queryExpression,
+            static (t, c, q) =>
             {
-                queryContext.AddParameter(
-                    QueryCompilationContext.QueryParameterPrefix + _queryExpression.Parameters[i + 1].Name,
-                    parameters[i]);
-            }
+                var queryCompiler = c.GetService<IQueryCompiler>();
+                var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
 
-            return executor(queryContext);
+                return t.CreateCompiledQuery(queryCompiler, expression);
+            });
+
+    private sealed class QueryExpressionRewriter : ExpressionVisitor
+    {
+        private readonly TContext _context;
+        private readonly IReadOnlyCollection<ParameterExpression> _parameters;
+
+        public QueryExpressionRewriter(
+            TContext context,
+            IReadOnlyCollection<ParameterExpression> parameters)
+        {
+            _context = context;
+            _parameters = parameters;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected abstract Func<QueryContext, TResult> CreateCompiledQuery(
-            [NotNull] IQueryCompiler queryCompiler,
-            [NotNull] Expression expression);
-
-        private Func<QueryContext, TResult> EnsureExecutor(TContext context)
-            => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _executor,
-                context,
-                _queryExpression,
-                (c, q) =>
-                {
-                    var queryCompiler = context.GetService<IQueryCompiler>();
-                    var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
-
-                    return CreateCompiledQuery(queryCompiler, expression);
-                });
-
-        private sealed class QueryExpressionRewriter : ExpressionVisitor
+        protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            private readonly TContext _context;
-            private readonly IReadOnlyCollection<ParameterExpression> _parameters;
-
-            public QueryExpressionRewriter(
-                TContext context,
-                IReadOnlyCollection<ParameterExpression> parameters)
+            if (typeof(TContext).IsAssignableFrom(parameterExpression.Type))
             {
-                _context = context;
-                _parameters = parameters;
+                return Expression.Constant(_context);
             }
 
-            protected override Expression VisitParameter(ParameterExpression parameterExpression)
-            {
-                Check.NotNull(parameterExpression, nameof(parameterExpression));
-
-                if (typeof(TContext).IsAssignableFrom(parameterExpression.Type))
-                {
-                    return Expression.Constant(_context);
-                }
-
-                return _parameters.Contains(parameterExpression)
-                    ? Expression.Parameter(
-                        parameterExpression.Type,
-                        QueryCompilationContext.QueryParameterPrefix + parameterExpression.Name)
-                    : parameterExpression;
-            }
+            return _parameters.Contains(parameterExpression)
+                ? Expression.Parameter(
+                    parameterExpression.Type,
+                    QueryCompilationContext.QueryParameterPrefix + parameterExpression.Name)
+                : parameterExpression;
         }
     }
 }

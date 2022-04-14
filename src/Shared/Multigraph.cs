@@ -1,335 +1,291 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+#nullable enable
 
-namespace Microsoft.EntityFrameworkCore.Utilities
+namespace Microsoft.EntityFrameworkCore.Utilities;
+
+internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
+    where TVertex : notnull
 {
-    internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
+    private readonly HashSet<TVertex> _vertices = new();
+    private readonly Dictionary<TVertex, Dictionary<TVertex, object?>> _successorMap = new();
+    private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap = new();
+
+    public IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
     {
-        private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
-
-        private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap =
-            new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
-
-        private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap =
-            new Dictionary<TVertex, HashSet<TVertex>>();
-
-        public IEnumerable<TEdge> Edges
-            => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
-
-        public IEnumerable<TEdge> GetEdges([NotNull] TVertex from, [NotNull] TVertex to)
+        if (_successorMap.TryGetValue(from, out var successorSet))
         {
-            if (_successorMap.TryGetValue(from, out var successorSet))
+            if (successorSet.TryGetValue(to, out var edges))
             {
-                if (successorSet.TryGetValue(to, out var edgeList))
-                {
-                    return edgeList;
-                }
+                return edges is IEnumerable<TEdge> edgeList ? edgeList : (new[] { (TEdge)edges! });
             }
-
-            return Enumerable.Empty<TEdge>();
         }
 
-        public void AddVertex([NotNull] TVertex vertex)
-            => _vertices.Add(vertex);
+        return Enumerable.Empty<TEdge>();
+    }
 
-        public void AddVertices([NotNull] IEnumerable<TVertex> vertices)
-            => _vertices.UnionWith(vertices);
+    public void AddVertex(TVertex vertex)
+        => _vertices.Add(vertex);
 
-        public void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [CanBeNull] TEdge edge)
-        {
+    public void AddVertices(IEnumerable<TVertex> vertices)
+        => _vertices.UnionWith(vertices);
+
+    public void AddEdge(TVertex from, TVertex to, TEdge edge)
+    {
 #if DEBUG
-            if (!_vertices.Contains(from))
-            {
-                throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(from));
-            }
+        if (!_vertices.Contains(from))
+        {
+            throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(from));
+        }
 
-            if (!_vertices.Contains(to))
-            {
-                throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
-            }
+        if (!_vertices.Contains(to))
+        {
+            throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
+        }
 #endif
 
-            if (!_successorMap.TryGetValue(from, out var successorEdges))
-            {
-                successorEdges = new Dictionary<TVertex, List<TEdge>>();
-                _successorMap.Add(from, successorEdges);
-            }
+        if (!_successorMap.TryGetValue(from, out var successorEdges))
+        {
+            successorEdges = new Dictionary<TVertex, object?>();
+            _successorMap.Add(from, successorEdges);
+        }
 
-            if (!successorEdges.TryGetValue(to, out var edgeList))
+        if (successorEdges.TryGetValue(to, out var edges))
+        {
+            if (edges is not List<TEdge> edgeList)
             {
-                edgeList = new List<TEdge>();
-                successorEdges.Add(to, edgeList);
+                edgeList = new List<TEdge> { (TEdge)edges! };
+                successorEdges[to] = edgeList;
             }
 
             edgeList.Add(edge);
-
-            if (!_predecessorMap.TryGetValue(to, out var predecessors))
-            {
-                predecessors = new HashSet<TVertex>();
-                _predecessorMap.Add(to, predecessors);
-            }
-
-            predecessors.Add(from);
+        }
+        else
+        {
+            successorEdges.Add(to, edge);
         }
 
-        public void AddEdges([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] IEnumerable<TEdge> edges)
+        if (!_predecessorMap.TryGetValue(to, out var predecessors))
         {
-#if DEBUG
-            if (!_vertices.Contains(from))
-            {
-                throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(from));
-            }
-
-            if (!_vertices.Contains(to))
-            {
-                throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
-            }
-#endif
-
-            if (!_successorMap.TryGetValue(from, out var successorEdges))
-            {
-                successorEdges = new Dictionary<TVertex, List<TEdge>>();
-                _successorMap.Add(from, successorEdges);
-            }
-
-            if (!successorEdges.TryGetValue(to, out var edgeList))
-            {
-                edgeList = new List<TEdge>();
-                successorEdges.Add(to, edgeList);
-            }
-
-            edgeList.AddRange(edges);
-
-            if (!_predecessorMap.TryGetValue(to, out var predecessors))
-            {
-                predecessors = new HashSet<TVertex>();
-                _predecessorMap.Add(to, predecessors);
-            }
-
-            predecessors.Add(from);
+            predecessors = new HashSet<TVertex>();
+            _predecessorMap.Add(to, predecessors);
         }
 
-        public override void Clear()
+        predecessors.Add(from);
+    }
+
+    public override void Clear()
+    {
+        _vertices.Clear();
+        _successorMap.Clear();
+        _predecessorMap.Clear();
+    }
+
+    public IReadOnlyList<TVertex> TopologicalSort()
+        => TopologicalSort(null, null);
+
+    public IReadOnlyList<TVertex> TopologicalSort(
+        Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge)
+        => TopologicalSort(tryBreakEdge, null);
+
+    public IReadOnlyList<TVertex> TopologicalSort(
+        Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+        => TopologicalSort(null, formatCycle);
+
+    public IReadOnlyList<TVertex> TopologicalSort(
+        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+        Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
+        Func<string, string>? formatException = null)
+    {
+        var queue = new List<TVertex>();
+        var predecessorCounts = new Dictionary<TVertex, int>(_predecessorMap.Count);
+        foreach (var (vertex, vertices) in _predecessorMap)
         {
-            _vertices.Clear();
-            _successorMap.Clear();
-            _predecessorMap.Clear();
+            predecessorCounts[vertex] = vertices.Count;
         }
 
-        public IReadOnlyList<TVertex> TopologicalSort()
-            => TopologicalSort(null, null);
-
-        public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge)
-            => TopologicalSort(tryBreakEdge, null);
-
-        public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
-            => TopologicalSort(null, formatCycle);
-
-        public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge,
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
-            Func<string, string> formatException = null)
+        foreach (var vertex in _vertices)
         {
-            var sortedQueue = new List<TVertex>();
-            var predecessorCounts = new Dictionary<TVertex, int>();
-
-            foreach (var vertex in _vertices)
+            if (!predecessorCounts.ContainsKey(vertex))
             {
-                foreach (var outgoingNeighbor in GetOutgoingNeighbors(vertex))
+                queue.Add(vertex);
+            }
+        }
+
+        var index = 0;
+        while (queue.Count < _vertices.Count)
+        {
+            while (index < queue.Count)
+            {
+                var currentRoot = queue[index];
+                index++;
+
+                foreach (var successor in GetOutgoingNeighbors(currentRoot))
                 {
-                    if (predecessorCounts.ContainsKey(outgoingNeighbor))
+                    predecessorCounts[successor]--;
+                    if (predecessorCounts[successor] == 0)
                     {
-                        predecessorCounts[outgoingNeighbor]++;
-                    }
-                    else
-                    {
-                        predecessorCounts[outgoingNeighbor] = 1;
+                        queue.Add(successor);
                     }
                 }
             }
 
-            foreach (var vertex in _vertices)
+            // Cycle breaking
+            if (queue.Count < _vertices.Count)
             {
-                if (!predecessorCounts.ContainsKey(vertex))
-                {
-                    sortedQueue.Add(vertex);
-                }
-            }
+                var broken = false;
 
-            var index = 0;
-            while (sortedQueue.Count < _vertices.Count)
-            {
-                while (index < sortedQueue.Count)
-                {
-                    var currentRoot = sortedQueue[index];
+                var candidateVertices = predecessorCounts.Keys.ToList();
+                var candidateIndex = 0;
 
-                    foreach (var successor in GetOutgoingNeighbors(currentRoot).Where(neighbor => predecessorCounts.ContainsKey(neighbor)))
+                while ((candidateIndex < candidateVertices.Count)
+                       && !broken
+                       && tryBreakEdge != null)
+                {
+                    var candidateVertex = candidateVertices[candidateIndex];
+                    if (predecessorCounts[candidateVertex] == 0)
                     {
-                        // Decrement counts for edges from sorted vertices and append any vertices that no longer have predecessors
-                        predecessorCounts[successor]--;
-                        if (predecessorCounts[successor] == 0)
-                        {
-                            sortedQueue.Add(successor);
-                            predecessorCounts.Remove(successor);
-                        }
-                    }
-
-                    index++;
-                }
-
-                // Cycle breaking
-                if (sortedQueue.Count < _vertices.Count)
-                {
-                    var broken = false;
-
-                    var candidateVertices = predecessorCounts.Keys.ToList();
-                    var candidateIndex = 0;
-
-                    // Iterate over the unsorted vertices
-                    while ((candidateIndex < candidateVertices.Count)
-                        && !broken
-                        && tryBreakEdge != null)
-                    {
-                        var candidateVertex = candidateVertices[candidateIndex];
-
-                        // Find vertices in the unsorted portion of the graph that have edges to the candidate
-                        var incomingNeighbors = GetIncomingNeighbors(candidateVertex)
-                            .Where(neighbor => predecessorCounts.ContainsKey(neighbor)).ToList();
-
-                        foreach (var incomingNeighbor in incomingNeighbors)
-                        {
-                            // Check to see if the edge can be broken
-                            if (tryBreakEdge(incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
-                            {
-                                predecessorCounts[candidateVertex]--;
-                                if (predecessorCounts[candidateVertex] == 0)
-                                {
-                                    sortedQueue.Add(candidateVertex);
-                                    predecessorCounts.Remove(candidateVertex);
-                                    broken = true;
-                                    break;
-                                }
-                            }
-                        }
-
                         candidateIndex++;
+                        continue;
                     }
 
-                    if (!broken)
-                    {
-                        // Failed to break the cycle
-                        var currentCycleVertex = _vertices.First(v => predecessorCounts.ContainsKey(v));
-                        var cycle = new List<TVertex> { currentCycleVertex };
-                        var finished = false;
-                        while (!finished)
-                        {
-                            // Find a cycle
-                            foreach (var predecessor in GetIncomingNeighbors(currentCycleVertex)
-                                .Where(neighbor => predecessorCounts.ContainsKey(neighbor)))
-                            {
-                                if (predecessorCounts[predecessor] != 0)
-                                {
-                                    predecessorCounts[currentCycleVertex] = -1;
+                    // Find a vertex in the unsorted portion of the graph that has edges to the candidate
+                    var incomingNeighbor = GetIncomingNeighbors(candidateVertex)
+                        .First(
+                            neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
+                                && neighborPredecessors > 0);
 
-                                    currentCycleVertex = predecessor;
-                                    cycle.Add(currentCycleVertex);
-                                    finished = predecessorCounts[predecessor] == -1;
-                                    break;
-                                }
-                            }
+                    if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
+                    {
+                        _successorMap[incomingNeighbor].Remove(candidateVertex);
+                        _predecessorMap[candidateVertex].Remove(incomingNeighbor);
+                        predecessorCounts[candidateVertex]--;
+                        if (predecessorCounts[candidateVertex] == 0)
+                        {
+                            queue.Add(candidateVertex);
+                            broken = true;
                         }
 
-                        cycle.Reverse();
+                        continue;
+                    }
 
-                        ThrowCycle(cycle, formatCycle, formatException);
+                    candidateIndex++;
+                }
+
+                if (broken)
+                {
+                    continue;
+                }
+
+                var currentCycleVertex = _vertices.First(
+                    v => predecessorCounts.TryGetValue(v, out var predecessorCount) && predecessorCount != 0);
+                var cycle = new List<TVertex> { currentCycleVertex };
+                var finished = false;
+                while (!finished)
+                {
+                    foreach (var predecessor in GetIncomingNeighbors(currentCycleVertex))
+                    {
+                        if (!predecessorCounts.TryGetValue(predecessor, out var predecessorCount)
+                            || predecessorCount == 0)
+                        {
+                            continue;
+                        }
+
+                        predecessorCounts[currentCycleVertex] = -1;
+
+                        currentCycleVertex = predecessor;
+                        cycle.Add(currentCycleVertex);
+                        finished = predecessorCounts[predecessor] == -1;
+                        break;
                     }
                 }
-            }
 
-            return sortedQueue;
+                cycle.Reverse();
+
+                // Remove any tail that's not part of the cycle
+                var startingVertex = cycle[0];
+                for (var i = cycle.Count - 1; i >= 0; i--)
+                {
+                    if (cycle[i].Equals(startingVertex))
+                    {
+                        break;
+                    }
+
+                    cycle.RemoveAt(i);
+                }
+
+                ThrowCycle(cycle, formatCycle, formatException);
+            }
         }
 
-        private void ThrowCycle(
-            List<TVertex> cycle,
-            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
-            Func<string, string> formatException = null)
+        return queue;
+    }
+
+    private void ThrowCycle(
+        List<TVertex> cycle,
+        Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
+        Func<string, string>? formatException = null)
+    {
+        string cycleString;
+        if (formatCycle == null)
         {
-            string cycleString;
-            if (formatCycle == null)
-            {
-                cycleString = cycle.Select(ToString).Join(" ->" + Environment.NewLine);
-            }
-            else
-            {
-                var currentCycleVertex = cycle.First();
-                var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
+            cycleString = cycle.Select(e => ToString(e)!).Join(" ->" + Environment.NewLine);
+        }
+        else
+        {
+            var currentCycleVertex = cycle.First();
+            var cycleData = new List<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>();
 
-                foreach (var vertex in cycle.Skip(1))
-                {
-                    cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
-                    currentCycleVertex = vertex;
-                }
-
-                cycleString = formatCycle(cycleData);
+            foreach (var vertex in cycle.Skip(1))
+            {
+                cycleData.Add(Tuple.Create(currentCycleVertex, vertex, GetEdges(currentCycleVertex, vertex)));
+                currentCycleVertex = vertex;
             }
 
-            var message = formatException == null ? CoreStrings.CircularDependency(cycleString) : formatException(cycleString);
-            throw new InvalidOperationException(message);
+            cycleString = formatCycle(cycleData);
         }
 
-        protected virtual string ToString(TVertex vertex)
-            => vertex.ToString();
+        var message = formatException == null ? CoreStrings.CircularDependency(cycleString) : formatException(cycleString);
+        throw new InvalidOperationException(message);
+    }
 
-        public IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
-            => BatchingTopologicalSort(null);
+    protected virtual string? ToString(TVertex vertex)
+        => vertex.ToString();
 
-        public IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+    public IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
+        => BatchingTopologicalSort(null, null);
+
+    public IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
+        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+        Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle)
+    {
+        var currentRootsQueue = new List<TVertex>();
+        var predecessorCounts = new Dictionary<TVertex, int>(_predecessorMap.Count);
+        foreach (var (vertex, vertices) in _predecessorMap)
         {
-            var currentRootsQueue = new List<TVertex>();
-            var predecessorCounts = new Dictionary<TVertex, int>();
+            predecessorCounts[vertex] = vertices.Count;
+        }
 
-            foreach (var vertex in _vertices)
+        foreach (var vertex in _vertices)
+        {
+            if (!predecessorCounts.ContainsKey(vertex))
             {
-                foreach (var outgoingNeighbor in GetOutgoingNeighbors(vertex))
-                {
-                    if (predecessorCounts.ContainsKey(outgoingNeighbor))
-                    {
-                        predecessorCounts[outgoingNeighbor]++;
-                    }
-                    else
-                    {
-                        predecessorCounts[outgoingNeighbor] = 1;
-                    }
-                }
+                currentRootsQueue.Add(vertex);
             }
+        }
 
-            foreach (var vertex in _vertices)
-            {
-                if (!predecessorCounts.ContainsKey(vertex))
-                {
-                    currentRootsQueue.Add(vertex);
-                }
-            }
+        var result = new List<List<TVertex>>();
+        var nextRootsQueue = new List<TVertex>();
 
-            var result = new List<List<TVertex>>();
-            var nextRootsQueue = new List<TVertex>();
+        while (result.Sum(b => b.Count) != _vertices.Count)
+        {
             var currentRootIndex = 0;
-
             while (currentRootIndex < currentRootsQueue.Count)
             {
                 var currentRoot = currentRootsQueue[currentRootIndex];
                 currentRootIndex++;
 
-                // Remove edges from current root and add any exposed vertices to the next batch
                 foreach (var successor in GetOutgoingNeighbors(currentRoot))
                 {
                     predecessorCounts[successor]--;
@@ -354,69 +310,108 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 }
             }
 
+            // Cycle breaking
             if (result.Sum(b => b.Count) != _vertices.Count)
             {
+                var broken = false;
+
+                var candidateVertices = predecessorCounts.Keys.ToList();
+                var candidateIndex = 0;
+
+                while ((candidateIndex < candidateVertices.Count)
+                       && !broken
+                       && tryBreakEdge != null)
+                {
+                    var candidateVertex = candidateVertices[candidateIndex];
+                    if (predecessorCounts[candidateVertex] == 0)
+                    {
+                        candidateIndex++;
+                        continue;
+                    }
+
+                    // Find a vertex in the unsorted portion of the graph that has edges to the candidate
+                    var incomingNeighbor = GetIncomingNeighbors(candidateVertex)
+                        .First(
+                            neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
+                                && neighborPredecessors > 0);
+
+                    if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
+                    {
+                        _successorMap[incomingNeighbor].Remove(candidateVertex);
+                        _predecessorMap[candidateVertex].Remove(incomingNeighbor);
+                        predecessorCounts[candidateVertex]--;
+                        if (predecessorCounts[candidateVertex] == 0)
+                        {
+                            currentRootsQueue.Add(candidateVertex);
+                            nextRootsQueue = new List<TVertex>();
+                            broken = true;
+                        }
+
+                        continue;
+                    }
+
+                    candidateIndex++;
+                }
+
+                if (broken)
+                {
+                    continue;
+                }
+
                 var currentCycleVertex = _vertices.First(
-                    v => predecessorCounts.TryGetValue(v, out var predecessorNumber) ? predecessorNumber != 0 : false);
-                var cyclicWalk = new List<TVertex> { currentCycleVertex };
+                    v => predecessorCounts.TryGetValue(v, out var predecessorCount) && predecessorCount != 0);
+                var cycle = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)
                 {
                     foreach (var predecessor in GetIncomingNeighbors(currentCycleVertex))
                     {
-                        if (!predecessorCounts.TryGetValue(predecessor, out var predecessorCount))
+                        if (!predecessorCounts.TryGetValue(predecessor, out var predecessorCount)
+                            || predecessorCount == 0)
                         {
                             continue;
                         }
 
-                        if (predecessorCount != 0)
-                        {
-                            predecessorCounts[currentCycleVertex] = -1;
+                        predecessorCounts[currentCycleVertex] = -1;
 
-                            currentCycleVertex = predecessor;
-                            cyclicWalk.Add(currentCycleVertex);
-                            finished = predecessorCounts[predecessor] == -1;
-                            break;
-                        }
-                    }
-                }
-
-                cyclicWalk.Reverse();
-
-                var cycle = new List<TVertex>();
-                var startingVertex = cyclicWalk.First();
-                cycle.Add(startingVertex);
-                foreach (var vertex in cyclicWalk.Skip(1))
-                {
-                    if (!vertex.Equals(startingVertex))
-                    {
-                        cycle.Add(vertex);
-                    }
-                    else
-                    {
+                        currentCycleVertex = predecessor;
+                        cycle.Add(currentCycleVertex);
+                        finished = predecessorCounts[predecessor] == -1;
                         break;
                     }
                 }
 
-                cycle.Add(startingVertex);
+                cycle.Reverse();
+
+                // Remove any tail that's not part of the cycle
+                var startingVertex = cycle[0];
+                for (var i = cycle.Count - 1; i >= 0; i--)
+                {
+                    if (cycle[i].Equals(startingVertex))
+                    {
+                        break;
+                    }
+
+                    cycle.RemoveAt(i);
+                }
 
                 ThrowCycle(cycle, formatCycle);
             }
-
-            return result;
         }
 
-        public override IEnumerable<TVertex> Vertices
-            => _vertices;
-
-        public override IEnumerable<TVertex> GetOutgoingNeighbors(TVertex from)
-            => _successorMap.TryGetValue(from, out var successorSet)
-                ? successorSet.Keys
-                : Enumerable.Empty<TVertex>();
-
-        public override IEnumerable<TVertex> GetIncomingNeighbors(TVertex to)
-            => _predecessorMap.TryGetValue(to, out var predecessors)
-                ? predecessors
-                : Enumerable.Empty<TVertex>();
+        return result;
     }
+
+    public override IEnumerable<TVertex> Vertices
+        => _vertices;
+
+    public override IEnumerable<TVertex> GetOutgoingNeighbors(TVertex from)
+        => _successorMap.TryGetValue(from, out var successorSet)
+            ? successorSet.Keys
+            : Enumerable.Empty<TVertex>();
+
+    public override IEnumerable<TVertex> GetIncomingNeighbors(TVertex to)
+        => _predecessorMap.TryGetValue(to, out var predecessors)
+            ? predecessors
+            : Enumerable.Empty<TVertex>();
 }

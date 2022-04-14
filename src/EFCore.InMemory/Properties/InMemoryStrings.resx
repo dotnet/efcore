@@ -120,6 +120,9 @@
   <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
     <value>Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.</value>
   </data>
+  <data name="DistinctOnSubqueryNotSupported" xml:space="preserve">
+    <value>Using 'Distinct' operation on a projection containing a subquery is not supported.</value>
+  </data>
   <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
     <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
   </data>
@@ -133,6 +136,15 @@
   </data>
   <data name="NoQueryStrings" xml:space="preserve">
     <value>There is no query string because the in-memory provider does not use a string-based query language.</value>
+  </data>
+  <data name="NullabilityErrorException" xml:space="preserve">
+    <value>Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the entity key value.</value>
+  </data>
+  <data name="NullabilityErrorExceptionSensitive" xml:space="preserve">
+    <value>Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.</value>
+  </data>
+  <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
+    <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>

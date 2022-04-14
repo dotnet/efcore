@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Collections;
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
     public class SqliteParameterCollection : DbParameterCollection
     {
-        private readonly List<SqliteParameter> _parameters = new List<SqliteParameter>();
+        private readonly List<SqliteParameter> _parameters = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteParameterCollection" /> class.
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="type">The SQLite type of the parameter.</param>
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public virtual SqliteParameter Add(string parameterName, SqliteType type)
+        public virtual SqliteParameter Add(string? parameterName, SqliteType type)
             => Add(new SqliteParameter(parameterName, type));
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public virtual SqliteParameter Add(string parameterName, SqliteType type, int size)
+        public virtual SqliteParameter Add(string? parameterName, SqliteType type, int size)
             => Add(new SqliteParameter(parameterName, type, size));
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
-        public virtual SqliteParameter Add(string parameterName, SqliteType type, int size, string sourceColumn)
+        public virtual SqliteParameter Add(string? parameterName, SqliteType type, int size, string? sourceColumn)
             => Add(new SqliteParameter(parameterName, type, size, sourceColumn));
 
         /// <summary>
@@ -157,13 +157,8 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
-        public virtual SqliteParameter AddWithValue(string parameterName, object value)
-        {
-            var parameter = new SqliteParameter(parameterName, value);
-            Add(parameter);
-
-            return parameter;
-        }
+        public virtual SqliteParameter AddWithValue(string? parameterName, object? value)
+            => Add(new SqliteParameter(parameterName, value));
 
         /// <summary>
         ///     Removes all parameters from the collection.
@@ -175,7 +170,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the collection contains the specified parameter.
         /// </summary>
         /// <param name="value">The parameter to look for. Must be a <see cref="SqliteParameter" />.</param>
-        /// <returns><see langword="true" /> if the collection contains the parameter; otherwise, <see langword="false" />. </returns>
+        /// <returns><see langword="true" /> if the collection contains the parameter; otherwise, <see langword="false" />.</returns>
         public override bool Contains(object value)
             => Contains((SqliteParameter)value);
 
@@ -183,7 +178,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the collection contains the specified parameter.
         /// </summary>
         /// <param name="value">The parameter to look for.</param>
-        /// <returns><see langword="true" /> if the collection contains the parameter; otherwise, <see langword="false" />. </returns>
+        /// <returns><see langword="true" /> if the collection contains the parameter; otherwise, <see langword="false" />.</returns>
         public virtual bool Contains(SqliteParameter value)
             => _parameters.Contains(value);
 
@@ -191,7 +186,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the collection contains a parameter with the specified name.
         /// </summary>
         /// <param name="value">The name of the parameter.</param>
-        /// <returns><see langword="true" /> if the collection contains the parameter; otherwise, <see langword="false" />. </returns>
+        /// <returns><see langword="true" /> if the collection contains the parameter; otherwise, <see langword="false" />.</returns>
         public override bool Contains(string value)
             => IndexOf(value) != -1;
 

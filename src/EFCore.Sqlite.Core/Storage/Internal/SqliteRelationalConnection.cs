@@ -1,171 +1,168 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Data.Common;
 using System.Globalization;
-using System.Linq;
-using JetBrains.Annotations;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationalConnection
 {
+    private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
+    private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
+    private readonly bool _loadSpatialite;
+    private readonly int? _commandTimeout;
+
     /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationalConnection
+    public SqliteRelationalConnection(
+        RelationalConnectionDependencies dependencies,
+        IRawSqlCommandBuilder rawSqlCommandBuilder,
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+        : base(dependencies)
     {
-        private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
-        private readonly bool _loadSpatialite;
-        private readonly int? _commandTimeout;
+        _rawSqlCommandBuilder = rawSqlCommandBuilder;
+        _logger = logger;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public SqliteRelationalConnection(
-            [NotNull] RelationalConnectionDependencies dependencies,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
-            : base(dependencies)
+        var optionsExtension = dependencies.ContextOptions.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
+        if (optionsExtension != null)
         {
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
+            _loadSpatialite = optionsExtension.LoadSpatialite;
 
-            _rawSqlCommandBuilder = rawSqlCommandBuilder;
-            _logger = logger;
+            var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
+            _commandTimeout = relationalOptions.CommandTimeout;
 
-            var optionsExtension = dependencies.ContextOptions.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
-            if (optionsExtension != null)
+            if (relationalOptions.Connection != null)
             {
-                _loadSpatialite = optionsExtension.LoadSpatialite;
-
-                var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
-                _commandTimeout = relationalOptions.CommandTimeout;
-
-                if (relationalOptions.Connection != null)
-                {
-                    InitializeDbConnection(relationalOptions.Connection);
-                }
+                InitializeDbConnection(relationalOptions.Connection);
             }
         }
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override DbConnection CreateDbConnection()
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override DbConnection CreateDbConnection()
+    {
+        var connection = new SqliteConnection(GetValidatedConnectionString());
+        InitializeDbConnection(connection);
+
+        return connection;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ISqliteRelationalConnection CreateReadOnlyConnection()
+    {
+        var connectionStringBuilder = new SqliteConnectionStringBuilder(GetValidatedConnectionString())
         {
-            var connection = new SqliteConnection(GetValidatedConnectionString());
-            InitializeDbConnection(connection);
+            Mode = SqliteOpenMode.ReadOnly, Pooling = false
+        };
 
-            return connection;
+        var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
+
+        return new SqliteRelationalConnection(Dependencies with { ContextOptions = contextOptions }, _rawSqlCommandBuilder, _logger);
+    }
+
+    private void InitializeDbConnection(DbConnection connection)
+    {
+        if (_loadSpatialite)
+        {
+            SpatialiteLoader.Load(connection);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ISqliteRelationalConnection CreateReadOnlyConnection()
+        if (connection is SqliteConnection sqliteConnection)
         {
-            var connectionStringBuilder =
-                new SqliteConnectionStringBuilder(GetValidatedConnectionString()) { Mode = SqliteOpenMode.ReadOnly };
-
-            var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
-
-            return new SqliteRelationalConnection(Dependencies.With(contextOptions), _rawSqlCommandBuilder, _logger);
-        }
-
-        private void InitializeDbConnection(DbConnection connection)
-        {
-            if (_loadSpatialite)
+            if (_commandTimeout.HasValue)
             {
-                SpatialiteLoader.Load(connection);
+                sqliteConnection.DefaultTimeout = _commandTimeout.Value;
             }
 
-            if (connection is SqliteConnection sqliteConnection)
-            {
-                if (_commandTimeout.HasValue)
+            sqliteConnection.CreateFunction<string, string, bool?>(
+                "regexp",
+                (pattern, input) =>
                 {
-                    sqliteConnection.DefaultTimeout = _commandTimeout.Value;
-                }
-
-                sqliteConnection.CreateFunction<object, object, object>(
-                    "ef_mod",
-                    (dividend, divisor) =>
+                    if (input == null
+                        || pattern == null)
                     {
-                        if (dividend == null
-                            || divisor == null)
-                        {
-                            return null;
-                        }
+                        return null;
+                    }
 
-                        if (dividend is string s)
-                        {
-                            return decimal.Parse(s, CultureInfo.InvariantCulture)
-                                % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
-                        }
+                    return Regex.IsMatch(input, pattern);
+                },
+                isDeterministic: true);
 
-                        return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
-                            % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                    });
+            sqliteConnection.CreateFunction<object, object, object?>(
+                "ef_mod",
+                (dividend, divisor) =>
+                {
+                    if (dividend == null
+                        || divisor == null)
+                    {
+                        return null;
+                    }
 
-                sqliteConnection.CreateFunction(
-                    name: "ef_add",
-                    (decimal? left, decimal? right) => left + right,
-                    isDeterministic: true);
+                    if (dividend is string s)
+                    {
+                        return decimal.Parse(s, CultureInfo.InvariantCulture)
+                            % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
+                    }
 
-                sqliteConnection.CreateFunction(
-                    name: "ef_divide",
-                    (decimal? dividend, decimal? divisor) => dividend / divisor,
-                    isDeterministic: true);
+                    return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
+                        % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
+                },
+                isDeterministic: true);
 
-                sqliteConnection.CreateFunction(
-                    name: "ef_compare",
-                    (decimal? left, decimal? right) => left.HasValue && right.HasValue
-                        ? decimal.Compare(left.Value, right.Value)
-                        : default(int?),
-                    isDeterministic: true);
+            sqliteConnection.CreateFunction(
+                name: "ef_add",
+                (decimal? left, decimal? right) => left + right,
+                isDeterministic: true);
 
-                sqliteConnection.CreateFunction(
-                    name: "ef_multiply",
-                    (decimal? left, decimal? right) => left * right,
-                    isDeterministic: true);
+            sqliteConnection.CreateFunction(
+                name: "ef_divide",
+                (decimal? dividend, decimal? divisor) => dividend / divisor,
+                isDeterministic: true);
 
-                sqliteConnection.CreateFunction(
-                    name: "ef_negate",
-                    (decimal? m) => -m,
-                    isDeterministic: true);
-            }
-            else
+            sqliteConnection.CreateFunction(
+                name: "ef_compare",
+                (decimal? left, decimal? right) => left.HasValue && right.HasValue
+                    ? decimal.Compare(left.Value, right.Value)
+                    : default(int?),
+                isDeterministic: true);
 
-            {
-                _logger.UnexpectedConnectionTypeWarning(connection.GetType());
-            }
+            sqliteConnection.CreateFunction(
+                name: "ef_multiply",
+                (decimal? left, decimal? right) => left * right,
+                isDeterministic: true);
+
+            sqliteConnection.CreateFunction(
+                name: "ef_negate",
+                (decimal? m) => -m,
+                isDeterministic: true);
+        }
+        else
+        {
+            _logger.UnexpectedConnectionTypeWarning(connection.GetType());
         }
     }
 }

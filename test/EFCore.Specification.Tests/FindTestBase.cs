@@ -1,12 +1,7 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -15,7 +10,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : FindTestBase<TFixture>.FindFixtureBase
     {
         protected FindTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -300,9 +297,21 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Throws_for_bad_entity_type()
         {
             using var context = CreateContext();
+
             Assert.Equal(
                 CoreStrings.InvalidSetType(nameof(Random)),
                 Assert.Throws<InvalidOperationException>(() => Find<Random>(context, 77)).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Throws_for_bad_entity_type_with_different_namespace()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(
+                    typeof(DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => Find<DifferentNamespace.ShadowKey>(context, 77)).Message);
         }
 
         [ConditionalFact]
@@ -580,6 +589,18 @@ namespace Microsoft.EntityFrameworkCore
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77).AsTask())).Message);
         }
 
+        [ConditionalFact]
+        public virtual async Task Throws_for_bad_entity_type_with_different_namespace_async()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(
+                    typeof(DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<DifferentNamespace.ShadowKey>(context, 77).AsTask()))
+                .Message);
+        }
+
         protected class BaseType
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -675,5 +696,13 @@ namespace Microsoft.EntityFrameworkCore
                 context.SaveChanges();
             }
         }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.DifferentNamespace
+{
+    internal class ShadowKey
+    {
+        public string Foo { get; set; }
     }
 }

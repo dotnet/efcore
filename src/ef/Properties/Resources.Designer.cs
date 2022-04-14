@@ -3,7 +3,8 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Tools.Properties
 {
@@ -19,10 +20,42 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
+        ///     Don't forget to copy appsettings.json alongside your bundle if you need it to apply migrations.
+        /// </summary>
+        public static string AppSettingsTip
+            => GetString("AppSettingsTip");
+
+        /// <summary>
         ///     The assembly to use. Required.
         /// </summary>
         public static string AssemblyDescription
             => GetString("AssemblyDescription");
+
+        /// <summary>
+        ///     Build failed. Use --verbose to see errors.
+        /// </summary>
+        public static string BuildBundleFailed
+            => GetString("BuildBundleFailed");
+
+        /// <summary>
+        ///     Building bundle...
+        /// </summary>
+        public static string BuildBundleStarted
+            => GetString("BuildBundleStarted");
+
+        /// <summary>
+        ///     Done. Migrations Bundle: {path}
+        /// </summary>
+        public static string BuildBundleSucceeded(object? path)
+            => string.Format(
+                GetString("BuildBundleSucceeded", nameof(path)),
+                path);
+
+        /// <summary>
+        ///     The configuration to use.
+        /// </summary>
+        public static string ConfigurationDescription
+            => GetString("ConfigurationDescription");
 
         /// <summary>
         ///     The connection string to the database.
@@ -49,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ContextNameDescription");
 
         /// <summary>
-        ///     The namespace of the DbContext class. Defaults to match the directory.
+        ///     The namespace of the DbContext class. Matches the directory by default.
         /// </summary>
         public static string ContextNamespaceDescription
             => GetString("ContextNamespaceDescription");
@@ -75,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     This would drop the database '{database}' on server '{dataSource}'.
         /// </summary>
-        public static string DatabaseDropDryRun([CanBeNull] object database, [CanBeNull] object dataSource)
+        public static string DatabaseDropDryRun(object? database, object? dataSource)
             => string.Format(
                 GetString("DatabaseDropDryRun", nameof(database), nameof(dataSource)),
                 database, dataSource);
@@ -95,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Are you sure you want to drop the database '{database}' on server '{dataSource}'? (y/N)
         /// </summary>
-        public static string DatabaseDropPrompt([CanBeNull] object database, [CanBeNull] object dataSource)
+        public static string DatabaseDropPrompt(object? database, object? dataSource)
             => string.Format(
                 GetString("DatabaseDropPrompt", nameof(database), nameof(dataSource)),
                 database, dataSource);
@@ -103,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Database name: {database}
         /// </summary>
-        public static string DatabaseName([CanBeNull] object database)
+        public static string DatabaseName(object? database)
             => string.Format(
                 GetString("DatabaseName", nameof(database)),
                 database);
@@ -123,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Data source: {dataSource}
         /// </summary>
-        public static string DataSource([CanBeNull] object dataSource)
+        public static string DataSource(object? dataSource)
             => string.Format(
                 GetString("DataSource", nameof(dataSource)),
                 dataSource);
@@ -153,6 +186,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DbContextListDescription");
 
         /// <summary>
+        ///     Generates a compiled version of the model used by the DbContext.
+        /// </summary>
+        public static string DbContextOptimizeDescription
+            => GetString("DbContextOptimizeDescription");
+
+        /// <summary>
         ///     Scaffolds a DbContext and entity types for a database.
         /// </summary>
         public static string DbContextScaffoldDescription
@@ -171,9 +210,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DbContextScriptDescription");
 
         /// <summary>
+        ///     Type: {type}
+        /// </summary>
+        public static string DbContextType(object? type)
+            => string.Format(
+                GetString("DbContextType", nameof(type)),
+                type);
+
+        /// <summary>
         ///     Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.
         /// </summary>
-        public static string DesignNotFound([CanBeNull] object startupProject)
+        public static string DesignNotFound(object? startupProject)
             => string.Format(
                 GetString("DesignNotFound", nameof(startupProject)),
                 startupProject);
@@ -185,18 +232,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("EFFullName");
 
         /// <summary>
+        ///     The file already exists: {path}. Use --force flag to overwrite it.
+        /// </summary>
+        public static string FileExists(object? path)
+            => string.Format(
+                GetString("FileExists", nameof(path)),
+                path);
+
+        /// <summary>
+        ///     The target framework.
+        /// </summary>
+        public static string FrameworkDescription
+            => GetString("FrameworkDescription");
+
+        /// <summary>
         ///     Generate a script that can be used on a database at any migration.
         /// </summary>
         public static string IdempotentDescription
             => GetString("IdempotentDescription");
-
-        /// <summary>
-        ///     Invalid template pattern '{template}'.
-        /// </summary>
-        public static string InvalidTemplatePattern([CanBeNull] object template)
-            => string.Format(
-                GetString("InvalidTemplatePattern", nameof(template)),
-                template);
 
         /// <summary>
         ///     Show JSON output. Use with --prefix-output to parse programatically.
@@ -209,14 +262,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string LanguageDescription
             => GetString("LanguageDescription");
-
-        /// <summary>
-        ///     The last argument '{argumentName}' accepts multiple values. No more argument can be added.
-        /// </summary>
-        public static string LastArgumentHasMultipleValues([CanBeNull] object argumentName)
-            => string.Format(
-                GetString("LastArgumentHasMultipleValues", nameof(argumentName)),
-                argumentName);
 
         /// <summary>
         ///     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
@@ -249,6 +294,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsAddDescription");
 
         /// <summary>
+        ///     Creates an executable to update the database.
+        /// </summary>
+        public static string MigrationsBundleDescription
+            => GetString("MigrationsBundleDescription");
+
+        /// <summary>
+        ///     The path of executable file to create.
+        /// </summary>
+        public static string MigrationsBundleOutputDescription
+            => GetString("MigrationsBundleOutputDescription");
+
+        /// <summary>
+        ///     The target runtime to bundle for.
+        /// </summary>
+        public static string MigrationsBundleRuntimeDescription
+            => GetString("MigrationsBundleRuntimeDescription");
+
+        /// <summary>
         ///     Commands to manage migrations.
         /// </summary>
         public static string MigrationsDescription
@@ -261,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsListDescription");
 
         /// <summary>
-        ///     The namespace to use. Defaults to match the directory.
+        ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string MigrationsNamespaceDescription
             => GetString("MigrationsNamespaceDescription");
@@ -299,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Missing required argument '{arg}'.
         /// </summary>
-        public static string MissingArgument([CanBeNull] object arg)
+        public static string MissingArgument(object? arg)
             => string.Format(
                 GetString("MissingArgument", nameof(arg)),
                 arg);
@@ -307,13 +370,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Missing required option '--{option}'.
         /// </summary>
-        public static string MissingOption([CanBeNull] object option)
+        public static string MissingOption(object? option)
             => string.Format(
                 GetString("MissingOption", nameof(option)),
                 option);
 
         /// <summary>
-        ///     The namespace to use. Defaults to match the directory.
+        ///     The namespace to use. Matches the directory by default.
         /// </summary>
         public static string NamespaceDescription
             => GetString("NamespaceDescription");
@@ -355,9 +418,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NoTransactionsDescription");
 
         /// <summary>
+        ///     Enable nullable reference types.
+        /// </summary>
+        public static string NullableDescription
+            => GetString("NullableDescription");
+
+        /// <summary>
         ///     Options: {options}
         /// </summary>
-        public static string Options([CanBeNull] object options)
+        public static string Options(object? options)
             => string.Format(
                 GetString("Options", nameof(options)),
                 options);
@@ -381,10 +450,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("Pending");
 
         /// <summary>
+        ///     Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurs while accessing the database.
+        /// </summary>
+        public static string PendingUnknown
+            => GetString("PendingUnknown");
+
+        /// <summary>
         ///     Prefix output with level.
         /// </summary>
         public static string PrefixDescription
             => GetString("PrefixDescription");
+
+        /// <summary>
+        ///     The path to the startup project file.
+        /// </summary>
+        public static string ProjectDescription
+            => GetString("ProjectDescription");
 
         /// <summary>
         ///     The project directory. Defaults to the current working directory.
@@ -401,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Provider name: {provider}
         /// </summary>
-        public static string ProviderName([CanBeNull] object provider)
+        public static string ProviderName(object? provider)
             => string.Format(
                 GetString("ProviderName", nameof(provider)),
                 provider);
@@ -409,18 +490,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Remaining arguments: {remainingArguments}.
         /// </summary>
-        public static string RemainingArguments([CanBeNull] object remainingArguments)
+        public static string RemainingArguments(object? remainingArguments)
             => string.Format(
                 GetString("RemainingArguments", nameof(remainingArguments)),
                 remainingArguments);
-
-        /// <summary>
-        ///     Response file '{fileName}' doesn't exist.
-        /// </summary>
-        public static string ResponseFileMissing([CanBeNull] object fileName)
-            => string.Format(
-                GetString("ResponseFileMissing", nameof(fileName)),
-                fileName);
 
         /// <summary>
         ///     The root namespace. Defaults to the target assembly name.
@@ -435,10 +508,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("SchemasDescription");
 
         /// <summary>
+        ///     Also bundle the .NET runtime so it doesn't need to be installed on the machine.
+        /// </summary>
+        public static string SelfContainedDescription
+            => GetString("SelfContainedDescription");
+
+        /// <summary>
         ///     The startup assembly to use. Defaults to the target assembly.
         /// </summary>
         public static string StartupAssemblyDescription
             => GetString("StartupAssemblyDescription");
+
+        /// <summary>
+        ///     The path to the project file.
+        /// </summary>
+        public static string StartupProjectDescription
+            => GetString("StartupProjectDescription");
 
         /// <summary>
         ///     Don't generate DbContext.OnConfiguring.
@@ -453,22 +538,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("TablesDescription");
 
         /// <summary>
-        ///     Unrecognized {argumentName} '{argumentValue}'.
-        /// </summary>
-        public static string UnexpectedArgument([CanBeNull] object argumentName, [CanBeNull] object argumentValue)
-            => string.Format(
-                GetString("UnexpectedArgument", nameof(argumentName), nameof(argumentValue)),
-                argumentName, argumentValue);
-
-        /// <summary>
-        ///     Unexpected value '{optionValue}' for option '{optionName}'.
-        /// </summary>
-        public static string UnexpectedOptionValue([CanBeNull] object optionValue, [CanBeNull] object optionName)
-            => string.Format(
-                GetString("UnexpectedOptionValue", nameof(optionValue), nameof(optionName)),
-                optionValue, optionName);
-
-        /// <summary>
         ///     Use table and column names directly from the database.
         /// </summary>
         public static string UseDatabaseNamesDescription
@@ -477,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using application base '{appBase}'.
         /// </summary>
-        public static string UsingApplicationBase([CanBeNull] object appBase)
+        public static string UsingApplicationBase(object? appBase)
             => string.Format(
                 GetString("UsingApplicationBase", nameof(appBase)),
                 appBase);
@@ -485,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using assembly '{assembly}'.
         /// </summary>
-        public static string UsingAssembly([CanBeNull] object assembly)
+        public static string UsingAssembly(object? assembly)
             => string.Format(
                 GetString("UsingAssembly", nameof(assembly)),
                 assembly);
@@ -493,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using configuration file '{config}'.
         /// </summary>
-        public static string UsingConfigurationFile([CanBeNull] object config)
+        public static string UsingConfigurationFile(object? config)
             => string.Format(
                 GetString("UsingConfigurationFile", nameof(config)),
                 config);
@@ -501,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using data directory '{dataDir}'.
         /// </summary>
-        public static string UsingDataDir([CanBeNull] object dataDir)
+        public static string UsingDataDir(object? dataDir)
             => string.Format(
                 GetString("UsingDataDir", nameof(dataDir)),
                 dataDir);
@@ -509,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using project directory '{projectDir}'.
         /// </summary>
-        public static string UsingProjectDir([CanBeNull] object projectDir)
+        public static string UsingProjectDir(object? projectDir)
             => string.Format(
                 GetString("UsingProjectDir", nameof(projectDir)),
                 projectDir);
@@ -517,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using root namespace '{rootNamespace}'.
         /// </summary>
-        public static string UsingRootNamespace([CanBeNull] object rootNamespace)
+        public static string UsingRootNamespace(object? rootNamespace)
             => string.Format(
                 GetString("UsingRootNamespace", nameof(rootNamespace)),
                 rootNamespace);
@@ -525,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using startup assembly '{startupAssembly}'.
         /// </summary>
-        public static string UsingStartupAssembly([CanBeNull] object startupAssembly)
+        public static string UsingStartupAssembly(object? startupAssembly)
             => string.Format(
                 GetString("UsingStartupAssembly", nameof(startupAssembly)),
                 startupAssembly);
@@ -533,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Using working directory '{workingDirectory}'.
         /// </summary>
-        public static string UsingWorkingDirectory([CanBeNull] object workingDirectory)
+        public static string UsingWorkingDirectory(object? workingDirectory)
             => string.Format(
                 GetString("UsingWorkingDirectory", nameof(workingDirectory)),
                 workingDirectory);
@@ -545,6 +614,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("VerboseDescription");
 
         /// <summary>
+        ///     This feature requires Entity Framework Core {version} or higher.
+        /// </summary>
+        public static string VersionRequired(object? version)
+            => string.Format(
+                GetString("VersionRequired", nameof(version)),
+                version);
+
+        /// <summary>
         ///     The working directory of the tool invoking this command.
         /// </summary>
         public static string WorkingDirDescription
@@ -553,14 +630,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// <summary>
         ///     Writing '{file}'...
         /// </summary>
-        public static string WritingFile([CanBeNull] object file)
+        public static string WritingFile(object? file)
             => string.Format(
                 GetString("WritingFile", nameof(file)),
                 file);
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -570,4 +647,3 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
-

@@ -2,8 +2,11 @@
   <Import Project="..\Directory.Build.props" />
 
   <PropertyGroup>
+    <AnalysisLevel>latest</AnalysisLevel>
     <IsPackable>True</IsPackable>
     <IncludeSymbols>True</IncludeSymbols>
+    <Nullable>enable</Nullable>
+    <Features>nullablePublicOnly;strict</Features>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 

@@ -1,22 +1,19 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class NotificationEntitiesSqliteTest : NotificationEntitiesTestBase<
+    NotificationEntitiesSqliteTest.NotificationEntitiesSqliteFixture>
 {
-    public class NotificationEntitiesSqliteTest : NotificationEntitiesTestBase<
-        NotificationEntitiesSqliteTest.NotificationEntitiesSqliteFixture>
+    public NotificationEntitiesSqliteTest(NotificationEntitiesSqliteFixture fixture)
+        : base(fixture)
     {
-        public NotificationEntitiesSqliteTest(NotificationEntitiesSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class NotificationEntitiesSqliteFixture : NotificationEntitiesFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+    public class NotificationEntitiesSqliteFixture : NotificationEntitiesFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

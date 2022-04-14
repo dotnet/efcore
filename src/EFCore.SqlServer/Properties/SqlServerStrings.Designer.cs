@@ -4,9 +4,11 @@ using System;
 using System.Reflection;
 using System.Resources;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 {
@@ -28,87 +30,95 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("AlterIdentityColumn");
 
         /// <summary>
-        ///     To set memory-optimized on a table on or off the table needs to be dropped and recreated.
+        ///     To change the memory-optimized setting on a table, the table needs to be dropped and recreated.
         /// </summary>
         public static string AlterMemoryOptimizedTable
             => GetString("AlterMemoryOptimizedTable");
 
         /// <summary>
-        ///     When generating migrations SQL for {operation}, can't produce unterminated SQL with comments.
+        ///     Can't produce unterminated SQL with comments when generating migrations SQL for {operation}, .
         /// </summary>
-        public static string CannotProduceUnterminatedSQLWithComments([CanBeNull] object operation)
+        public static string CannotProduceUnterminatedSQLWithComments(object? operation)
             => string.Format(
                 GetString("CannotProduceUnterminatedSQLWithComments", nameof(operation)),
                 operation);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity increment.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.
         /// </summary>
-        public static string DuplicateColumnIdentityIncrementMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+        public static string DuplicateColumnIdentityIncrementMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
                 GetString("DuplicateColumnIdentityIncrementMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity seed.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity seed values.
         /// </summary>
-        public static string DuplicateColumnIdentitySeedMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+        public static string DuplicateColumnIdentitySeedMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
                 GetString("DuplicateColumnIdentitySeedMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different value generation strategies.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different value generation strategies.
         /// </summary>
-        public static string DuplicateColumnNameValueGenerationStrategyMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+        public static string DuplicateColumnNameValueGenerationStrategyMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
                 GetString("DuplicateColumnNameValueGenerationStrategyMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different hi-lo sequences.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different hi-lo sequences.
         /// </summary>
-        public static string DuplicateColumnSequenceMismatch([CanBeNull] object entityType1, [CanBeNull] object property1, [CanBeNull] object entityType2, [CanBeNull] object property2, [CanBeNull] object columnName, [CanBeNull] object table)
+        public static string DuplicateColumnSequenceMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
                 GetString("DuplicateColumnSequenceMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different clustered configuration.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different sparseness.
         /// </summary>
-        public static string DuplicateIndexClusteredMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+        public static string DuplicateColumnSparsenessMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
+            => string.Format(
+                GetString("DuplicateColumnSparsenessMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.
+        /// </summary>
+        public static string DuplicateIndexClusteredMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
                 GetString("DuplicateIndexClusteredMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different fill factor configuration.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.
         /// </summary>
-        public static string DuplicateIndexFillFactorMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+        public static string DuplicateIndexFillFactorMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
                 GetString("DuplicateIndexFillFactorMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included columns {includedColumns1} and {includedColumns2}.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.
         /// </summary>
-        public static string DuplicateIndexIncludedMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName, [CanBeNull] object includedColumns1, [CanBeNull] object includedColumns2)
+        public static string DuplicateIndexIncludedMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName, object? includedColumns1, object? includedColumns2)
             => string.Format(
                 GetString("DuplicateIndexIncludedMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(includedColumns1), nameof(includedColumns2)),
                 index1, entityType1, index2, entityType2, table, indexName, includedColumns1, includedColumns2);
 
         /// <summary>
-        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.
         /// </summary>
-        public static string DuplicateIndexOnlineMismatch([CanBeNull] object index1, [CanBeNull] object entityType1, [CanBeNull] object index2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object indexName)
+        public static string DuplicateIndexOnlineMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
                 GetString("DuplicateIndexOnlineMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.
+        ///     The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.
         /// </summary>
-        public static string DuplicateKeyMismatchedClustering([CanBeNull] object key1, [CanBeNull] object entityType1, [CanBeNull] object key2, [CanBeNull] object entityType2, [CanBeNull] object table, [CanBeNull] object keyName)
+        public static string DuplicateKeyMismatchedClustering(object? key1, object? entityType1, object? key2, object? entityType2, object? table, object? keyName)
             => string.Format(
                 GetString("DuplicateKeyMismatchedClustering", nameof(key1), nameof(entityType1), nameof(key2), nameof(entityType2), nameof(table), nameof(keyName)),
                 key1, entityType1, key2, entityType2, table, keyName);
@@ -116,51 +126,51 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// <summary>
         ///     Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
-        public static string IdentityBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        public static string IdentityBadType(object? property, object? entityType, object? propertyType)
             => string.Format(
                 GetString("IdentityBadType", nameof(property), nameof(entityType), nameof(propertyType)),
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' cannot be defined multiple times.
+        ///     The include property '{entityType}.{property}' was specified multiple times for the index {index}.
         /// </summary>
-        public static string IncludePropertyDuplicated([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyDuplicated(object? entityType, object? property, object? index)
             => string.Format(
-                GetString("IncludePropertyDuplicated", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyDuplicated", nameof(entityType), nameof(property), nameof(index)),
+                entityType, property, index);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' is already included in the index.
+        ///     The include property '{entityType}.{property}' is already part of the index {index}.
         /// </summary>
-        public static string IncludePropertyInIndex([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyInIndex(object? entityType, object? property, object? index)
             => string.Format(
-                GetString("IncludePropertyInIndex", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyInIndex", nameof(entityType), nameof(property), nameof(index)),
+                entityType, property, index);
 
         /// <summary>
-        ///     Include property '{entityType}.{property}' not found.
+        ///     The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.
         /// </summary>
-        public static string IncludePropertyNotFound([CanBeNull] object entityType, [CanBeNull] object property)
+        public static string IncludePropertyNotFound(object? property, object? index, object? entityType)
             => string.Format(
-                GetString("IncludePropertyNotFound", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("IncludePropertyNotFound", nameof(property), nameof(index), nameof(entityType)),
+                property, index, entityType);
 
         /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.
         /// </summary>
-        public static string IncompatibleTableMemoryOptimizedMismatch([CanBeNull] object table, [CanBeNull] object entityType, [CanBeNull] object otherEntityType, [CanBeNull] object memoryOptimizedEntityType, [CanBeNull] object nonMemoryOptimizedEntityType)
+        public static string IncompatibleTableMemoryOptimizedMismatch(object? table, object? entityType, object? otherEntityType, object? memoryOptimizedEntityType, object? nonMemoryOptimizedEntityType)
             => string.Format(
                 GetString("IncompatibleTableMemoryOptimizedMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(memoryOptimizedEntityType), nameof(nonMemoryOptimizedEntityType)),
                 table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
 
         /// <summary>
-        ///     SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to 'MigrationBuilder.RenameIndex'.
+        ///     SQL Server requires the table name to be specified for index operations. Specify table name in calls to 'MigrationBuilder.RenameIndex' and 'DropIndex'.
         /// </summary>
         public static string IndexTableRequired
             => GetString("IndexTableRequired");
 
         /// <summary>
-        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
+        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
         /// </summary>
         public static string InvalidColumnNameForFreeText
             => GetString("InvalidColumnNameForFreeText");
@@ -168,50 +178,203 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// <summary>
         ///     The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.
         /// </summary>
-        public static string InvalidTableToIncludeInScaffolding([CanBeNull] object table)
+        public static string InvalidTableToIncludeInScaffolding(object? table)
             => string.Format(
                 GetString("InvalidTableToIncludeInScaffolding", nameof(table)),
                 table);
 
         /// <summary>
-        ///     The properties {properties} are configured to use 'Identity' value generator and are mapped to the same table '{table}'. Only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' for properties that should not use 'Identity'.
+        ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.
         /// </summary>
-        public static string MultipleIdentityColumns([CanBeNull] object properties, [CanBeNull] object table)
+        public static string MultipleIdentityColumns(object? properties, object? table)
             => string.Format(
                 GetString("MultipleIdentityColumns", nameof(properties), nameof(table)),
                 properties, table);
 
         /// <summary>
-        ///     The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.
+        ///     The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.
         /// </summary>
         public static string NoInitialCatalog
             => GetString("NoInitialCatalog");
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
+        ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
         /// </summary>
-        public static string NonKeyValueGeneration([CanBeNull] object property, [CanBeNull] object entityType)
+        public static string NonKeyValueGeneration(object? property, object? entityType)
             => string.Format(
                 GetString("NonKeyValueGeneration", nameof(property), nameof(entityType)),
                 property, entityType);
 
         /// <summary>
+        ///     SQL Server does not support releasing a savepoint.
+        /// </summary>
+        public static string NoSavepointRelease
+            => GetString("NoSavepointRelease");
+
+        /// <summary>
+        ///     Could not save changes because the target table has computed column with a function that performs data access. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-computed-columns for more information.
+        /// </summary>
+        public static string SaveChangesFailedBecauseOfComputedColumnWithFunction
+            => GetString("SaveChangesFailedBecauseOfComputedColumnWithFunction");
+
+        /// <summary>
+        ///     Could not save changes because the target table has database triggers. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-triggers for more information.
+        /// </summary>
+        public static string SaveChangesFailedBecauseOfTriggers
+            => GetString("SaveChangesFailedBecauseOfTriggers");
+
+        /// <summary>
         ///     SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
         /// </summary>
-        public static string SequenceBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        public static string SequenceBadType(object? property, object? entityType, object? propertyType)
             => string.Format(
                 GetString("SequenceBadType", nameof(property), nameof(entityType), nameof(propertyType)),
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseSqlServer' call.
+        ///     Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.
+        /// </summary>
+        public static string TemporalExpectedPeriodPropertyNotFound(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalExpectedPeriodPropertyNotFound", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.
+        /// </summary>
+        public static string TemporalMustDefinePeriodProperties(object? entityType)
+            => string.Format(
+                GetString("TemporalMustDefinePeriodProperties", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Temporal query is trying to use navigation to an entity '{entityType}' which itself doesn't map to temporal table. Either map the entity to temporal table or use join manually to access it.
+        /// </summary>
+        public static string TemporalNavigationExpansionBetweenTemporalAndNonTemporal(object? entityType)
+            => string.Format(
+                GetString("TemporalNavigationExpansionBetweenTemporalAndNonTemporal", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.
+        /// </summary>
+        public static string TemporalNavigationExpansionOnlySupportedForAsOf(object? operationName)
+            => string.Format(
+                GetString("TemporalNavigationExpansionOnlySupportedForAsOf", nameof(operationName)),
+                operationName);
+
+        /// <summary>
+        ///     When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. There is an issue with the entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.
+        /// </summary>
+        public static string TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
+            object? periodType,
+            object? entityType,
+            object? periodProperty,
+            object? periodColumn,
+            object? expectedColumnName)
+            => string.Format(
+                GetString(
+                    "TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping",
+                    nameof(periodType),
+                    nameof(entityType),
+                    nameof(periodProperty),
+                    nameof(periodColumn),
+                    nameof(expectedColumnName)),
+                periodType,
+                entityType,
+                periodProperty,
+                periodColumn,
+                expectedColumnName);
+
+        /// <summary>
+        ///     Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.
+        /// </summary>
+        public static string TemporalAllEntitiesMappedToSameTableMustBeTemporal(object? entityType)
+            => string.Format(
+                GetString("TemporalAllEntitiesMappedToSameTableMustBeTemporal", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
+        /// </summary>
+        public static string TemporalOnlyOnRoot(object? entityType)
+            => string.Format(
+                GetString("TemporalOnlyOnRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Temporal tables are only supported for entities using Table-Per-Hierarchy inheritance mapping. Entity type: '{entityType}'.
+        /// </summary>
+        public static string TemporalOnlySupportedForTPH(object? entityType)
+            => string.Format(
+                GetString("TemporalOnlySupportedForTPH", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' can't have a default value specified.
+        /// </summary>
+        public static string TemporalPeriodPropertyCantHaveDefaultValue(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalPeriodPropertyCantHaveDefaultValue", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' must be a shadow property.
+        /// </summary>
+        public static string TemporalPeriodPropertyMustBeInShadowState(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalPeriodPropertyMustBeInShadowState", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.
+        /// </summary>
+        public static string TemporalPeriodPropertyMustBeMappedToDatetime2(object? entityType, object? propertyName, object? columnType)
+            => string.Format(
+                GetString("TemporalPeriodPropertyMustBeMappedToDatetime2", nameof(entityType), nameof(propertyName), nameof(columnType)),
+                entityType, propertyName, columnType);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' must be non-nullable and of type '{dateTimeType}'.
+        /// </summary>
+        public static string TemporalPeriodPropertyMustBeNonNullableDateTime(object? entityType, object? propertyName, object? dateTimeType)
+            => string.Format(
+                GetString("TemporalPeriodPropertyMustBeNonNullableDateTime", nameof(entityType), nameof(propertyName), nameof(dateTimeType)),
+                entityType, propertyName, dateTimeType);
+
+        /// <summary>
+        ///     Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.
+        /// </summary>
+        public static string TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.
+        /// </summary>
+        public static string TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(object? entityType, object? propertyName, object? valueGeneratedValue)
+            => string.Format(
+                GetString("TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate", nameof(entityType), nameof(propertyName), nameof(valueGeneratedValue)),
+                entityType, propertyName, valueGeneratedValue);
+
+        /// <summary>
+        ///     Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.
+        /// </summary>
+        public static string TemporalSetOperationOnMismatchedSources(object? entityType)
+            => string.Format(
+                GetString("TemporalSetOperationOnMismatchedSources", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
         /// </summary>
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");
@@ -236,16 +399,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerStrings", typeof(SqlServerResources).Assembly);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column. This requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.
+        ///     The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column; this requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.
         /// </summary>
-        public static EventDefinition<string, string> LogByteIdentityColumn([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogByteIdentityColumn(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.ByteIdentityColumnWarning,
                         LogLevel.Warning,
@@ -253,23 +417,49 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqlServerEventId.ByteIdentityColumnWarning,
-                            _resourceManager.GetString("LogByteIdentityColumn"))));
+                            _resourceManager.GetString("LogByteIdentityColumn")!)));
             }
 
             return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
-        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.
+        ///     A database type for column '{columnName}' on table '{tableName}' could not be found, the column will be skipped.
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogColumnWithoutType(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogColumnWithoutType;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogColumnWithoutType,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.ColumnWithoutTypeWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.ColumnWithoutTypeWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.ColumnWithoutTypeWarning,
+                            _resourceManager.GetString("LogColumnWithoutType")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.
+        /// </summary>
+        public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogConflictingValueGenerationStrategies;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogConflictingValueGenerationStrategies,
-                    () => new EventDefinition<string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         SqlServerEventId.ConflictingValueGenerationStrategiesWarning,
                         LogLevel.Warning,
@@ -277,23 +467,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             SqlServerEventId.ConflictingValueGenerationStrategiesWarning,
-                            _resourceManager.GetString("LogConflictingValueGenerationStrategies"))));
+                            _resourceManager.GetString("LogConflictingValueGenerationStrategies")!)));
             }
 
             return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>
-        ///     The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.
+        ///     The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database, this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key, or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.
         /// </summary>
-        public static EventDefinition<string, string> LogDecimalTypeKey([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogDecimalTypeKey(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDecimalTypeKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDecimalTypeKey,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.DecimalTypeKeyWarning,
                         LogLevel.Warning,
@@ -301,23 +492,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqlServerEventId.DecimalTypeKeyWarning,
-                            _resourceManager.GetString("LogDecimalTypeKey"))));
+                            _resourceManager.GetString("LogDecimalTypeKey")!)));
             }
 
             return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
-        ///     No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.
+        ///     No store type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
         /// </summary>
-        public static EventDefinition<string, string> LogDefaultDecimalTypeColumn([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogDefaultDecimalTypeColumn(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.DecimalTypeDefaultWarning,
                         LogLevel.Warning,
@@ -325,28 +517,54 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqlServerEventId.DecimalTypeDefaultWarning,
-                            _resourceManager.GetString("LogDefaultDecimalTypeColumn"))));
+                            _resourceManager.GetString("LogDefaultDecimalTypeColumn")!)));
             }
 
             return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
-        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is a duplicate of '{duplicateForeignKeyName}'.
         /// </summary>
-        public static FallbackEventDefinition LogFoundColumn([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string> LogDuplicateForeignKeyConstraintIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDuplicateForeignKeyConstraintIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDuplicateForeignKeyConstraintIgnored,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        SqlServerEventId.DuplicateForeignKeyConstraintIgnored,
+                        LogLevel.Warning,
+                        "SqlServerEventId.DuplicateForeignKeyConstraintIgnored",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            SqlServerEventId.DuplicateForeignKeyConstraintIgnored,
+                            _resourceManager.GetString("LogDuplicateForeignKeyConstraintIgnored")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}.
+        /// </summary>
+        public static FallbackEventDefinition LogFoundColumn(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         SqlServerEventId.ColumnFound,
                         LogLevel.Debug,
                         "SqlServerEventId.ColumnFound",
-                        _resourceManager.GetString("LogFoundColumn")));
+                        _resourceManager.GetString("LogFoundColumn")!));
             }
 
             return (FallbackEventDefinition)definition;
@@ -355,14 +573,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// <summary>
         ///     Found default schema '{defaultSchema}'.
         /// </summary>
-        public static EventDefinition<string> LogFoundDefaultSchema([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogFoundDefaultSchema(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqlServerEventId.DefaultSchemaFound,
                         LogLevel.Debug,
@@ -370,23 +589,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             SqlServerEventId.DefaultSchemaFound,
-                            _resourceManager.GetString("LogFoundDefaultSchema"))));
+                            _resourceManager.GetString("LogFoundDefaultSchema")!)));
             }
 
             return (EventDefinition<string>)definition;
         }
 
         /// <summary>
-        ///     Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.
+        ///     Found foreign key on table '{tableName}' with name '{foreignKeyName}', principal table '{principalTableName}', delete action {deleteAction}.
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogFoundForeignKey([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string> LogFoundForeignKey(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey,
-                    () => new EventDefinition<string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         SqlServerEventId.ForeignKeyFound,
                         LogLevel.Debug,
@@ -394,23 +614,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             SqlServerEventId.ForeignKeyFound,
-                            _resourceManager.GetString("LogFoundForeignKey"))));
+                            _resourceManager.GetString("LogFoundForeignKey")!)));
             }
 
             return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>
-        ///     Found index with name: {indexName}, table: {tableName}, is unique: {unique}.
+        ///     Found index on table '{tableName}' with name '{indexName}', is unique: {isUnique}.
         /// </summary>
-        public static EventDefinition<string, string, bool> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, bool> LogFoundIndex(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex,
-                    () => new EventDefinition<string, string, bool>(
+                    logger,
+                    static logger => new EventDefinition<string, string, bool>(
                         logger.Options,
                         SqlServerEventId.IndexFound,
                         LogLevel.Debug,
@@ -418,23 +639,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string, bool>(
                             level,
                             SqlServerEventId.IndexFound,
-                            _resourceManager.GetString("LogFoundIndex"))));
+                            _resourceManager.GetString("LogFoundIndex")!)));
             }
 
             return (EventDefinition<string, string, bool>)definition;
         }
 
         /// <summary>
-        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
+        ///     Found primary key on table '{tableName}' with name '{primaryKeyName}'.
         /// </summary>
-        public static EventDefinition<string, string> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogFoundPrimaryKey(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.PrimaryKeyFound,
                         LogLevel.Debug,
@@ -442,44 +664,46 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqlServerEventId.PrimaryKeyFound,
-                            _resourceManager.GetString("LogFoundPrimaryKey"))));
+                            _resourceManager.GetString("LogFoundPrimaryKey")!)));
             }
 
             return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
-        ///     Found sequence name: {name}, data type: {dataType}, cyclic: {cyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
+        ///     Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
         /// </summary>
-        public static FallbackEventDefinition LogFoundSequence([NotNull] IDiagnosticsLogger logger)
+        public static FallbackEventDefinition LogFoundSequence(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         SqlServerEventId.SequenceFound,
                         LogLevel.Debug,
                         "SqlServerEventId.SequenceFound",
-                        _resourceManager.GetString("LogFoundSequence")));
+                        _resourceManager.GetString("LogFoundSequence")!));
             }
 
             return (FallbackEventDefinition)definition;
         }
 
         /// <summary>
-        ///     Found table with name: {name}.
+        ///     Found table with name '{name}'.
         /// </summary>
-        public static EventDefinition<string> LogFoundTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogFoundTable(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqlServerEventId.TableFound,
                         LogLevel.Debug,
@@ -487,23 +711,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string>(
                             level,
                             SqlServerEventId.TableFound,
-                            _resourceManager.GetString("LogFoundTable"))));
+                            _resourceManager.GetString("LogFoundTable")!)));
             }
 
             return (EventDefinition<string>)definition;
         }
 
         /// <summary>
-        ///     Found type alias with name: {alias} which maps to underlying data type {dataType}.
+        ///     Found type alias with name '{alias}' which maps to underlying data type {dataType}.
         /// </summary>
-        public static EventDefinition<string, string> LogFoundTypeAlias([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogFoundTypeAlias(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.TypeAliasFound,
                         LogLevel.Debug,
@@ -511,23 +736,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqlServerEventId.TypeAliasFound,
-                            _resourceManager.GetString("LogFoundTypeAlias"))));
+                            _resourceManager.GetString("LogFoundTypeAlias")!)));
             }
 
             return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
-        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        ///     Found unique constraint on table '{tableName}' with name '{uniqueConstraintName}'.
         /// </summary>
-        public static EventDefinition<string, string> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogFoundUniqueConstraint(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.UniqueConstraintFound,
                         LogLevel.Debug,
@@ -535,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqlServerEventId.UniqueConstraintFound,
-                            _resourceManager.GetString("LogFoundUniqueConstraint"))));
+                            _resourceManager.GetString("LogFoundUniqueConstraint")!)));
             }
 
             return (EventDefinition<string, string>)definition;
@@ -544,62 +770,65 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// <summary>
         ///     Unable to find a schema in the database matching the selected schema '{schema}'.
         /// </summary>
-        public static EventDefinition<string> LogMissingSchema([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogMissingSchema(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string?>(
                         logger.Options,
                         SqlServerEventId.MissingSchemaWarning,
                         LogLevel.Warning,
                         "SqlServerEventId.MissingSchemaWarning",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             SqlServerEventId.MissingSchemaWarning,
-                            _resourceManager.GetString("LogMissingSchema"))));
+                            _resourceManager.GetString("LogMissingSchema")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
         ///     Unable to find a table in the database matching the selected table '{table}'.
         /// </summary>
-        public static EventDefinition<string> LogMissingTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogMissingTable(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string?>(
                         logger.Options,
                         SqlServerEventId.MissingTableWarning,
                         LogLevel.Warning,
                         "SqlServerEventId.MissingTableWarning",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             SqlServerEventId.MissingTableWarning,
-                            _resourceManager.GetString("LogMissingTable"))));
+                            _resourceManager.GetString("LogMissingTable")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
-        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since the principal column called '{principalColumnName}' on the foreign key's principal table, '{principalTableName}' was not found in the model.
+        ///     Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound,
-                    () => new EventDefinition<string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
                         LogLevel.Warning,
@@ -607,47 +836,74 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string, string, string>(
                             level,
                             SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
-                            _resourceManager.GetString("LogPrincipalColumnNotFound"))));
+                            _resourceManager.GetString("LogPrincipalColumnNotFound")!)));
             }
 
             return (EventDefinition<string, string, string, string>)definition;
         }
 
         /// <summary>
-        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens if the principal table was not included in the selection set.
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table information is not available. This usually happens when the user doesn't have permission to read data about principal table.
         /// </summary>
-        public static EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?> LogPrincipalTableInformationNotFound(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableInformationNotFound;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableInformationNotFound,
+                    logger,
+                    static logger => new EventDefinition<string?, string?>(
+                        logger.Options,
+                        SqlServerEventId.ForeignKeyReferencesUnknownPrincipalTableWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.ForeignKeyReferencesUnknownPrincipalTableWarning",
+                        level => LoggerMessage.Define<string?, string?>(
+                            level,
+                            SqlServerEventId.ForeignKeyReferencesUnknownPrincipalTableWarning,
+                            _resourceManager.GetString("LogPrincipalTableInformationNotFound")!)));
+            }
+
+            return (EventDefinition<string?, string?>)definition;
+        }
+
+        /// <summary>
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
+        /// </summary>
+        public static EventDefinition<string?, string?, string?> LogPrincipalTableNotInSelectionSet(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet,
-                    () => new EventDefinition<string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string?, string?>(
                         logger.Options,
                         SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
                         LogLevel.Warning,
                         "SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning",
-                        level => LoggerMessage.Define<string, string, string>(
+                        level => LoggerMessage.Define<string?, string?, string?>(
                             level,
                             SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
-                            _resourceManager.GetString("LogPrincipalTableNotInSelectionSet"))));
+                            _resourceManager.GetString("LogPrincipalTableNotInSelectionSet")!)));
             }
 
-            return (EventDefinition<string, string, string>)definition;
+            return (EventDefinition<string?, string?, string?>)definition;
         }
 
         /// <summary>
         ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.
         /// </summary>
-        public static EventDefinition<string, string> LogReflexiveConstraintIgnored([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogReflexiveConstraintIgnored(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.ReflexiveConstraintIgnored,
                         LogLevel.Debug,
@@ -655,23 +911,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define<string, string>(
                             level,
                             SqlServerEventId.ReflexiveConstraintIgnored,
-                            _resourceManager.GetString("LogReflexiveConstraintIgnored"))));
+                            _resourceManager.GetString("LogReflexiveConstraintIgnored")!)));
             }
 
             return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
-        ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.SavepointsDisabledBecauseOfMARS))'.
+        ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
         /// </summary>
-        public static EventDefinition LogSavepointsDisabledBecauseOfMARS([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogSavepointsDisabledBecauseOfMARS(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogSavepointsDisabledBecauseOfMARS;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogSavepointsDisabledBecauseOfMARS,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         SqlServerEventId.SavepointsDisabledBecauseOfMARS,
                         LogLevel.Warning,
@@ -679,7 +936,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                         level => LoggerMessage.Define(
                             level,
                             SqlServerEventId.SavepointsDisabledBecauseOfMARS,
-                            _resourceManager.GetString("LogSavepointsDisabledBecauseOfMARS"))));
+                            _resourceManager.GetString("LogSavepointsDisabledBecauseOfMARS")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.
+        /// </summary>
+        public static EventDefinition LogMissingViewDefinitionRights(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        SqlServerEventId.MissingViewDefinitionRightsWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.MissingViewDefinitionRightsWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            SqlServerEventId.MissingViewDefinitionRightsWarning,
+                            _resourceManager.GetString("LogMissingViewDefinitionRights")!)));
             }
 
             return (EventDefinition)definition;

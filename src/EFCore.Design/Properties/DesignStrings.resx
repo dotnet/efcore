@@ -123,6 +123,9 @@
   <data name="BadSequenceType" xml:space="preserve">
     <value>Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.</value>
   </data>
+  <data name="BundleFullName" xml:space="preserve">
+    <value>Entity Framework Core Migrations Bundle</value>
+  </data>
   <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
     <value>Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.</value>
   </data>
@@ -132,8 +135,41 @@
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
   </data>
+  <data name="CannotGenerateTypeQualifiedMethodCall" xml:space="preserve">
+    <value>A type-qualified method call requires an instance identifier, a MethodInfo and no chained calls.</value>
+  </data>
+  <data name="CompiledModelConstructorBinding" xml:space="preserve">
+    <value>The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because dynamic proxy types are not supported. If you are not using proxies configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.</value>
+  </data>
+  <data name="CompiledModelCustomCacheKeyFactory" xml:space="preserve">
+    <value>The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.</value>
+  </data>
+  <data name="CompiledModelDefiningQuery" xml:space="preserve">
+    <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
+  </data>
+  <data name="CompiledModelGenerated" xml:space="preserve">
+    <value>Successfully generated a compiled model, to use it call '{optionsCall}'. Run this command again when the model is modified.</value>
+  </data>
+  <data name="CompiledModelQueryFilter" xml:space="preserve">
+    <value>The entity type '{entityType}' has a query filter configured. Compiled model can't be generated, because query filters are not supported.</value>
+  </data>
+  <data name="CompiledModelTypeMapping" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.</value>
+  </data>
+  <data name="CompiledModelValueComparer" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value comparer configured using a ValueComparer instance. Instead, create types that inherit from ValueConverter and ValueComparer and use '{method}=&lt;ConverterType, ComparerType=&gt;()' or '{method}(Type converterType, Type comparerType)' to configure the value converter and comparer.</value>
+  </data>
+  <data name="CompiledModelValueConverter" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value converter configured using a ValueConverter instance or inline expressions. Instead, create a type that inherits from ValueConverter and use '{method}=&lt;ConverterType=&gt;()' or '{method}(Type converterType)' to configure the value converter.</value>
+  </data>
+  <data name="CompiledModelValueGenerator" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value generator configured. Use '{method}' to configure the value generator factory type.</value>
+  </data>
   <data name="ConflictingContextAndMigrationName" xml:space="preserve">
     <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
+  </data>
+  <data name="ConnectionDescription" xml:space="preserve">
+    <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
   </data>
   <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
     <value>The context class name '{contextClassName}' is not a valid C# identifier.</value>
@@ -152,6 +188,9 @@
   </data>
   <data name="DuplicateMigrationName" xml:space="preserve">
     <value>The name '{migrationName}' is used by an existing migration.</value>
+  </data>
+  <data name="EncodingIgnored" xml:space="preserve">
+    <value>The encoding '{encoding}' specified in the output directive will be ignored. EF Core always scaffolds files using the encoding 'utf-8'.</value>
   </data>
   <data name="ErrorConnecting" xml:space="preserve">
     <value>An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}</value>
@@ -201,6 +240,9 @@
   <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
   </data>
+  <data name="ForeignKeyWithSameFacetsExists" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. Foreign key '{existingForeignKey}' is defined on same columns targeting same key on principal table.</value>
+  </data>
   <data name="ForeignMigrations" xml:space="preserve">
     <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
   </data>
@@ -222,6 +264,9 @@
   <data name="ManuallyDeleted" xml:space="preserve">
     <value>The model snapshot and the backing model of the last migration are different. Continuing under the assumption that the last migration was deleted manually.</value>
   </data>
+  <data name="MigrationDescription" xml:space="preserve">
+    <value>The target migration. If '0', all migrations will be reverted. Defaults to the last migration.</value>
+  </data>
   <data name="MigrationsAssemblyMismatch" xml:space="preserve">
     <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
 Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
@@ -238,6 +283,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="MultipleContextsWithQualifiedName" xml:space="preserve">
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.</value>
+  </data>
+  <data name="NoColorDescription" xml:space="preserve">
+    <value>Don't colorize output.</value>
   </data>
   <data name="NoContext" xml:space="preserve">
     <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
@@ -287,6 +335,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>
   </data>
+  <data name="PrefixDescription" xml:space="preserve">
+    <value>Prefix output with level.</value>
+  </data>
   <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
   </data>
@@ -330,6 +381,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="UnhandledEnumValue" xml:space="preserve">
     <value>Unhandled enum value '{enumValue}'.</value>
   </data>
+  <data name="UnknownDirectiveProcessor" xml:space="preserve">
+    <value>Failed to resolve type for directive processor {name}.</value>
+  </data>
   <data name="UnknownLiteral" xml:space="preserve">
     <value>Cannot scaffold C# literals of type '{literalType}'. The provider should implement CoreTypeMapping.GenerateCodeLiteral to support using it at design time.</value>
   </data>
@@ -360,8 +414,11 @@ Change your target project to the migrations project by using the Package Manage
   <data name="UsingReferencedServices" xml:space="preserve">
     <value>Using design-time services from assembly '{referencedAssembly}'.</value>
   </data>
+  <data name="VerboseDescription" xml:space="preserve">
+    <value>Show verbose output.</value>
+  </data>
   <data name="VersionMismatch" xml:space="preserve">
-    <value>The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.</value>
+    <value>The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.</value>
   </data>
   <data name="WritingMigration" xml:space="preserve">
     <value>Writing migration to '{file}'.</value>

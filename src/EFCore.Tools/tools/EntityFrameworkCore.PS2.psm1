@@ -51,6 +51,63 @@ function Add-Migration(
 
 <#
 .SYNOPSIS
+    Creates an executable to update the database.
+
+.DESCRIPTION
+    Creates an executable to update the database.
+
+.PARAMETER Output
+    The path of executable file to create.
+
+.PARAMETER Force
+    Overwrite existing files.
+
+.PARAMETER SelfContained
+    Also bundle the .NET runtime so it doesn't need to be installed on the machine.
+
+.PARAMETER TargetRuntime
+    The target runtime to bundle for.
+
+.PARAMETER Configuration
+    The configuration to use for the bundle.
+
+.PARAMETER Framework
+    The target framework. Defaults to the first one in the project.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    Script-Migration
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Bundle-Migration(
+    $Output,
+    [switch] $Force,
+    [switch] $SelfContained,
+    $TargetRuntime,
+    $Configuration,
+    $Framework,
+    $Context,
+    $Project,
+    $StartupProject,
+    $Args)
+{
+    throw $UpdatePowerShell
+}
+
+<#
+.SYNOPSIS
     Drops the database.
 
 .DESCRIPTION

@@ -1,21 +1,15 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.TestUtilities;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public abstract class RelationalServiceCollectionExtensionsTestBase : EntityFrameworkServiceCollectionExtensionsTestBase
 {
-    public abstract class RelationalServiceCollectionExtensionsTestBase : EntityFrameworkServiceCollectionExtensionsTestBase
+    protected RelationalServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
+        : base(testHelpers)
     {
-        protected RelationalServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
-            : base(testHelpers)
-        {
-        }
-
-        public override void Required_services_are_registered_with_expected_lifetimes()
-        {
-            LifetimeTest(EntityFrameworkServicesBuilder.CoreServices, EntityFrameworkRelationalServicesBuilder.RelationalServices);
-        }
     }
+
+    public override void Required_services_are_registered_with_expected_lifetimes()
+        => LifetimeTest(EntityFrameworkServicesBuilder.CoreServices, EntityFrameworkRelationalServicesBuilder.RelationalServices);
 }

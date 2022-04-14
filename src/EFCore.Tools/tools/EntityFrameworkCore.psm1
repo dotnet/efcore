@@ -80,13 +80,115 @@ function Add-Migration
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
     Write-Host 'To undo this action, use Remove-Migration.'
 
-    $dteProject.ProjectItems.AddFromFile($result.migrationFile) | Out-Null
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true')
+    {
+       $dteProject.ProjectItems.AddFromFile($result.migrationFile) | Out-Null
+
+       $dteProject.ProjectItems.AddFromFile($result.metadataFile) | Out-Null
+
+       $dteProject.ProjectItems.AddFromFile($result.snapshotFile) | Out-Null
+    }
+
     $DTE.ItemOperations.OpenFile($result.migrationFile) | Out-Null
     ShowConsole
+}
 
-    $dteProject.ProjectItems.AddFromFile($result.metadataFile) | Out-Null
+#
+# Bundle-Migration
+#
 
-    $dteProject.ProjectItems.AddFromFile($result.snapshotFile) | Out-Null
+Register-TabExpansion Bundle-Migration @{
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Creates an executable to update the database.
+
+.DESCRIPTION
+    Creates an executable to update the database.
+
+.PARAMETER Output
+    The path of executable file to create.
+
+.PARAMETER Force
+    Overwrite existing files.
+
+.PARAMETER SelfContained
+    Also bundle the .NET runtime so it doesn't need to be installed on the machine.
+
+.PARAMETER TargetRuntime
+    The target runtime to bundle for.
+
+.PARAMETER Framework
+    The target framework. Defaults to the first one in the project.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    Script-Migration
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Bundle-Migration
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [string] $Output,
+        [switch] $Force,
+        [switch] $SelfContained,
+        [string] $TargetRuntime,
+        [string] $Framework,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    if (!$Framework)
+    {
+        $Framework = GetProperty $dteStartupProject.Properties 'FriendlyTargetFramework'
+    }
+
+    $params = 'migrations', 'bundle', '--framework', $Framework
+
+    if ($Output)
+    {
+        $params += '--output', $Output
+    }
+
+    if ($Force)
+    {
+        $params += '--force'
+    }
+
+    if ($SelfContained)
+    {
+        $params += '--self-contained'
+    }
+
+    if ($TargetRuntime)
+    {
+        $params += '--target-runtime', $TargetRuntime
+    }
+
+    $params += GetParams $Context
+
+    EF $dteProject $dteStartupProject $params $Args
 }
 
 #
@@ -366,6 +468,78 @@ function Remove-Migration
 }
 
 #
+# Optimize-DbContext
+#
+
+Register-TabExpansion Optimize-DbContext @{
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+    OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
+}
+
+<#
+.SYNOPSIS
+    Generates a compiled version of the model used by the DbContext.
+
+.DESCRIPTION
+    Generates a compiled version of the model used by the DbContext.
+
+.PARAMETER OutputDir
+    The directory to put files in. Paths are relative to the project directory.
+
+.PARAMETER Namespace
+    The namespace to use. Matches the directory by default.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    about_EntityFrameworkCore
+#>
+function Optimize-DbContext
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [string] $OutputDir,
+        [string] $Namespace,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    $params = 'dbcontext', 'optimize'
+
+    if ($OutputDir)
+    {
+        $params += '--output-dir', $OutputDir
+    }
+
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
+    }
+
+    if ($Context)
+    {
+        $params += '--context', $Context
+    }
+
+    EF $dteProject $dteStartupProject $params $Args
+}
+
+#
 # Scaffold-DbContext
 #
 
@@ -482,12 +656,12 @@ function Scaffold-DbContext
         $params += '--context', $Context
     }
 
-    if ($Namespace)
+    if ($PSBoundParameters.ContainsKey('Namespace'))
     {
         $params += '--namespace', $Namespace
     }
 
-    if ($ContextNamespace)
+    if ($PSBoundParameters.ContainsKey('ContextNamespace'))
     {
         $params += '--context-namespace', $ContextNamespace
     }
@@ -523,8 +697,12 @@ function Scaffold-DbContext
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 
-    $files = $result.entityTypeFiles + $result.contextFile
-    $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true')
+    {
+       $files = $result.entityTypeFiles + $result.contextFile
+       $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+    }
+
     $DTE.ItemOperations.OpenFile($result.contextFile) | Out-Null
     ShowConsole
 }
@@ -1056,6 +1234,14 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
     elseif ($targetFramework -eq '.NETCoreApp')
     {
+        $targetPlatformIdentifier = GetCpsProperty $startupProject 'TargetPlatformIdentifier'
+        if ($targetPlatformIdentifier -and $targetPlatformIdentifier -ne 'Windows')
+        {
+            throw "Startup project '$($startupProject.ProjectName)' targets platform '$targetPlatformIdentifier'. The Entity Framework " +
+                'Core Package Manager Console Tools don''t support this platform. See https://aka.ms/efcore-docs-pmc-tfms for more ' +
+                'information.'
+        }
+
         $exePath = (Get-Command 'dotnet').Path
 
         $startupTargetName = GetProperty $startupProject.Properties 'AssemblyName'
@@ -1101,8 +1287,8 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
     else
     {
-        throw "Startup project '$($startupProject.ProjectName)' targets framework '$targetFramework'. " +
-            'The Entity Framework Core Package Manager Console Tools don''t support this framework.'
+        throw "Startup project '$($startupProject.ProjectName)' targets framework '$targetFramework'. The Entity Framework Core Package " +
+            'Manager Console Tools don''t support this framework. See https://aka.ms/efcore-docs-pmc-tfms for more information and examples.'
     }
 
     $projectDir = GetProperty $project.Properties 'FullPath'
@@ -1110,14 +1296,18 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     $targetPath = Join-Path $targetDir $targetFileName
     $rootNamespace = GetProperty $project.Properties 'RootNamespace'
     $language = GetLanguage $project
+    $nullable = GetNullable $project
 
     $params += '--verbose',
         '--no-color',
         '--prefix-output',
         '--assembly', $targetPath,
+        '--project', $project.FullName,
         '--startup-assembly', $startupTargetPath,
+        '--startup-project', $startupProject.FullName,
         '--project-dir', $projectDir,
         '--language', $language,
+        '--configuration', $activeConfiguration.ConfigurationName,
         '--working-dir', $PWD.Path
 
     if (IsWeb $startupProject)
@@ -1125,9 +1315,14 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $params += '--data-dir', (Join-Path $startupProjectDir 'App_Data')
     }
 
-    if ($rootNamespace)
+    if ($rootNamespace -ne $null)
     {
         $params += '--root-namespace', $rootNamespace
+    }
+
+    if ($nullable -in 'enable', 'annotations')
+    {
+        $params += '--nullable'
     }
 
     $arguments = ToArguments $params
@@ -1275,6 +1470,16 @@ function GetLanguage($project)
     return GetMSBuildProperty $project 'Language'
 }
 
+function GetNullable($project)
+{
+    if (IsCpsProject $project)
+    {
+        return GetCpsProperty $project 'Nullable'
+    }
+
+    return GetMSBuildProperty $project 'Nullable'
+}
+
 function GetVsHierarchy($project)
 {
     $solution = Get-VSService 'Microsoft.VisualStudio.Shell.Interop.SVsSolution' 'Microsoft.VisualStudio.Shell.Interop.IVsSolution'
@@ -1382,6 +1587,12 @@ function ToArguments($params)
             $arguments += ' '
         }
 
+        if ($params[$i] -eq '')
+        {
+            $arguments += '""'
+
+            continue
+        }
         if (!$params[$i].Contains(' '))
         {
             $arguments += $params[$i]

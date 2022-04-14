@@ -1,7 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,8 +16,10 @@ namespace Microsoft.Data.Sqlite
     internal class SqliteDataRecord : SqliteValueReader, IDisposable
     {
         private readonly SqliteConnection _connection;
-        private byte[][] _blobCache;
-        private int?[] _typeCache;
+        private byte[][]? _blobCache;
+        private int?[]? _typeCache;
+        private Dictionary<string, int>? _columnNameOrdinalCache;
+        private string[]? _columnNameCache;
         private bool _stepped;
         private int? _rowidOrdinal;
 
@@ -48,7 +51,7 @@ namespace Microsoft.Data.Sqlite
         public override object GetValue(int ordinal)
             => !_stepped || sqlite3_data_count(Handle) == 0
                 ? throw new InvalidOperationException(Resources.NoData)
-                : base.GetValue(ordinal);
+                : base.GetValue(ordinal)!;
 
         protected override double GetDoubleCore(int ordinal)
             => sqlite3_column_double(Handle, ordinal);
@@ -58,6 +61,24 @@ namespace Microsoft.Data.Sqlite
 
         protected override string GetStringCore(int ordinal)
             => sqlite3_column_text(Handle, ordinal).utf8_to_string();
+
+        public override T GetFieldValue<T>(int ordinal)
+        {
+            if (typeof(T) == typeof(Stream))
+            {
+                return (T)(object)GetStream(ordinal);
+            }
+
+            if (typeof(T) == typeof(TextReader))
+            {
+                return (T)(object)GetTextReader(ordinal);
+            }
+
+            return base.GetFieldValue<T>(ordinal)!;
+        }
+
+        protected override byte[] GetBlob(int ordinal)
+            => base.GetBlob(ordinal)!;
 
         protected override byte[] GetBlobCore(int ordinal)
             => sqlite3_column_blob(Handle, ordinal).ToArray();
@@ -82,7 +103,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetName(int ordinal)
         {
-            var name = sqlite3_column_name(Handle, ordinal).utf8_to_string();
+            var name = _columnNameCache?[ordinal] ?? sqlite3_column_name(Handle, ordinal).utf8_to_string();
             if (name == null
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
@@ -90,17 +111,48 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
 
-            return name;
+            _columnNameCache ??= new string[FieldCount];
+            _columnNameCache[ordinal] = name!;
+
+            return name!;
         }
 
         public virtual int GetOrdinal(string name)
         {
-            for (var i = 0; i < FieldCount; i++)
+            if (_columnNameOrdinalCache == null)
             {
-                if (GetName(i) == name)
+                _columnNameOrdinalCache = new Dictionary<string, int>();
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    return i;
+                    _columnNameOrdinalCache[GetName(i)] = i;
                 }
+            }
+
+            if (_columnNameOrdinalCache.TryGetValue(name, out var ordinal))
+            {
+                return ordinal;
+            }
+
+            KeyValuePair<string, int>? match = null;
+            foreach (var item in _columnNameOrdinalCache)
+            {
+                if (string.Equals(name, item.Key, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (match != null)
+                    {
+                        throw new InvalidOperationException(
+                            Resources.AmbiguousColumnName(name, match.Value.Key, item.Key));
+                    }
+
+                    match = item;
+                }
+            }
+
+            if (match != null)
+            {
+                _columnNameOrdinalCache.Add(name, match.Value.Value);
+
+                return match.Value.Value;
             }
 
             // NB: Message is provided by framework
@@ -195,13 +247,13 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+        public virtual long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
         {
             using var stream = GetStream(ordinal);
 
             if (buffer == null)
             {
-                return stream.Length - dataOffset;
+                return stream.Length;
             }
 
             stream.Position = dataOffset;
@@ -209,9 +261,21 @@ namespace Microsoft.Data.Sqlite
             return stream.Read(buffer, bufferOffset, length);
         }
 
-        public virtual long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+        public virtual long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
         {
             using var reader = new StreamReader(GetStream(ordinal), Encoding.UTF8);
+
+            if (buffer == null)
+            {
+                // TODO: Consider using a stackalloc buffer and reading blocks instead
+                var charCount = 0;
+                while (reader.Read() != -1)
+                {
+                    charCount++;
+                }
+
+                return charCount;
+            }
 
             for (var position = 0; position < dataOffset; position++)
             {
@@ -239,6 +303,7 @@ namespace Microsoft.Data.Sqlite
             if (!_rowidOrdinal.HasValue)
             {
                 _rowidOrdinal = -1;
+                var pkColumns = -1L;
 
                 for (var i = 0; i < FieldCount; i++)
                 {
@@ -280,8 +345,22 @@ namespace Microsoft.Data.Sqlite
                     if (string.Equals(dataType, "INTEGER", StringComparison.OrdinalIgnoreCase)
                         && primaryKey != 0)
                     {
-                        _rowidOrdinal = i;
-                        break;
+                        if (pkColumns < 0L)
+                        {
+                            using (var command = _connection.CreateCommand())
+                            {
+                                command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
+                                command.Parameters.AddWithValue("$table", tableName);
+
+                                pkColumns = (long)command.ExecuteScalar()!;
+                            }
+                        }
+
+                        if (pkColumns == 1L)
+                        {
+                            _rowidOrdinal = i;
+                            break;
+                        }
                     }
                 }
 
@@ -294,10 +373,15 @@ namespace Microsoft.Data.Sqlite
             }
 
             var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
-            var rowid = GetInt32(_rowidOrdinal.Value);
+            var rowid = GetInt64(_rowidOrdinal.Value);
 
-            return new SqliteBlob(_connection, blobTableName, blobColumnName, rowid, readOnly: true);
+            return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }
+
+        public virtual TextReader GetTextReader(int ordinal)
+            => IsDBNull(ordinal)
+                ? new StringReader(string.Empty)
+                : new StreamReader(GetStream(ordinal), Encoding.UTF8);
 
         public bool Read()
         {

@@ -1,4 +1,8 @@
 version: 2
+registries:
+  nuget.org:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
 updates:
   - package-ecosystem: nuget
     directory: /
@@ -8,11 +12,13 @@ updates:
       - dependency-name: Castle.Core
       - dependency-name: Humanizer.Core
       - dependency-name: IdentityServer4.EntityFramework
+      - dependency-name: Microsoft.AspNetCore.OData
       - dependency-name: Microsoft.Azure.Cosmos
       - dependency-name: Microsoft.CSharp
       - dependency-name: Microsoft.Data.SqlClient
       - dependency-name: Microsoft.DotNet.PlatformAbstractions
       - dependency-name: mod_spatialite
+      - dependency-name: Mono.TextTemplating
       - dependency-name: NetTopologySuite*
       - dependency-name: Newtonsoft.Json
       - dependency-name: SQLitePCLRaw*
@@ -26,4 +32,6 @@ updates:
       # Testing infrastructure should be intentionally updated
       - dependency-name: BenchmarkDotNet
     labels:
-      - auto-merge
+      - area-infrastructure
+      - 'type-dependency update :arrow_up_small:'
+    registries: '*'

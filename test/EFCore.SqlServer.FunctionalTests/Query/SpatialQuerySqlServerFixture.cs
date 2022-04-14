@@ -1,48 +1,43 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class SpatialQuerySqlServerFixture : SpatialQueryRelationalFixture
 {
-    public class SpatialQuerySqlServerFixture : SpatialQueryRelationalFixture
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
+
+    protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+        => base.AddServices(serviceCollection)
+            .AddEntityFrameworkSqlServerNetTopologySuite();
+
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
     {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
+        var optionsBuilder = base.AddOptions(builder);
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
 
-        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection)
-                .AddEntityFrameworkSqlServerNetTopologySuite();
+        return optionsBuilder;
+    }
 
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        {
-            var optionsBuilder = base.AddOptions(builder);
-            new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+    {
+        base.OnModelCreating(modelBuilder, context);
 
-            return optionsBuilder;
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.HasDbFunction(
-                typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
-                b => b.HasTranslation(
-                    e => new SqlFunctionExpression(
-                        instance: e.First(),
-                        "STDistance",
-                        arguments: e.Skip(1),
-                        nullable: true,
-                        instancePropagatesNullability: true,
-                        argumentsPropagateNullability: e.Skip(1).Select(a => true),
-                        typeof(double),
-                        null)));
-        }
+        modelBuilder.HasDbFunction(
+            typeof(GeoExtensions).GetMethod(nameof(GeoExtensions.Distance)),
+            b => b.HasTranslation(
+                e => new SqlFunctionExpression(
+                    instance: e[0],
+                    "STDistance",
+                    arguments: e.Skip(1),
+                    nullable: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: e.Skip(1).Select(a => true),
+                    typeof(double),
+                    null)));
     }
 }

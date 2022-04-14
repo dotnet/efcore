@@ -1,31 +1,33 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+/// <summary>
+///     The table-like store object type.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+/// </remarks>
+public enum StoreObjectType
 {
     /// <summary>
-    ///     The table-like store object type.
+    ///     A table.
     /// </summary>
-    public enum StoreObjectType
-    {
-        /// <summary>
-        ///     A table.
-        /// </summary>
-        Table,
+    Table,
 
-        /// <summary>
-        ///     A view.
-        /// </summary>
-        View,
+    /// <summary>
+    ///     A view.
+    /// </summary>
+    View,
 
-        /// <summary>
-        ///     A SQL query.
-        /// </summary>
-        SqlQuery,
+    /// <summary>
+    ///     A SQL query.
+    /// </summary>
+    SqlQuery,
 
-        /// <summary>
-        ///     A table-valued function.
-        /// </summary>
-        Function
-    }
+    /// <summary>
+    ///     A table-valued function.
+    /// </summary>
+    Function
 }

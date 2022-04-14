@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Data;
@@ -16,8 +16,8 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
     public class SqliteBlob : Stream
     {
-        private sqlite3_blob _blob;
-        private readonly sqlite3 _db;
+        private sqlite3_blob? _blob;
+        private readonly SqliteConnection _connection;
         private long _position;
 
         /// <summary>
@@ -62,27 +62,27 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.SqlBlobRequiresOpenConnection);
             }
 
-            if (string.IsNullOrEmpty(tableName))
+            if (tableName is null)
             {
                 throw new ArgumentNullException(nameof(tableName));
             }
 
-            if (string.IsNullOrEmpty(columnName))
+            if (columnName is null)
             {
                 throw new ArgumentNullException(nameof(columnName));
             }
 
-            _db = connection.Handle;
+            _connection = connection;
             CanWrite = !readOnly;
             var rc = sqlite3_blob_open(
-                _db,
+                _connection.Handle,
                 databaseName,
                 tableName,
                 columnName,
                 rowid,
                 readOnly ? 0 : 1,
                 out _blob);
-            SqliteException.ThrowExceptionForRC(rc, _db);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
             Length = sqlite3_blob_bytes(_blob);
         }
 
@@ -167,6 +167,28 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentException(Resources.InvalidOffsetAndCount);
             }
 
+            return Read(buffer.AsSpan(offset, count));
+        }
+
+        /// <summary>
+        ///     Reads a sequence of bytes from the current stream and advances the position within the stream by the
+        ///     number of bytes read.
+        /// </summary>
+        /// <param name="buffer">
+        ///     A region of memory. When this method returns, the contents of this region are replaced by the bytes read
+        ///     from the current source.
+        /// </param>
+        /// <returns>
+        ///     The total number of bytes read into the buffer. This can be less than the number of bytes allocated in
+        ///     the buffer if that many bytes are not currently available, or zero (0) if the end of the stream has been
+        ///     reached.
+        /// </returns>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        public override int Read(Span<byte> buffer)
+#else
+        public virtual int Read(Span<byte> buffer)
+#endif
+        {
             if (_blob == null)
             {
                 throw new ObjectDisposedException(objectName: null);
@@ -178,13 +200,14 @@ namespace Microsoft.Data.Sqlite
                 position = Length;
             }
 
+            var count = buffer.Length;
             if (position + count > Length)
             {
                 count = (int)(Length - position);
             }
 
-            var rc = sqlite3_blob_read(_blob, buffer.AsSpan(offset, count), (int)position);
-            SqliteException.ThrowExceptionForRC(rc, _db);
+            var rc = sqlite3_blob_read(_blob, buffer.Slice(0, count), (int)position);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
             _position += count;
             return count;
         }
@@ -198,11 +221,6 @@ namespace Microsoft.Data.Sqlite
         /// <param name="count">The number of bytes to be written to the current stream.</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (!CanWrite)
-            {
-                throw new NotSupportedException(Resources.WriteNotSupported);
-            }
-
             if (buffer == null)
             {
                 throw new ArgumentNullException(nameof(buffer));
@@ -229,19 +247,41 @@ namespace Microsoft.Data.Sqlite
                 throw new ObjectDisposedException(objectName: null);
             }
 
+            Write(buffer.AsSpan(offset, count));
+        }
+
+        /// <summary>
+        ///     Writes a sequence of bytes to the current stream and advances the current position within this stream by
+        ///     the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">
+        ///     A region of memory. This method copies the contents of this region to the current stream.
+        /// </param>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        public override void Write(ReadOnlySpan<byte> buffer)
+#else
+        public virtual void Write(ReadOnlySpan<byte> buffer)
+#endif
+        {
+            if (!CanWrite)
+            {
+                throw new NotSupportedException(Resources.WriteNotSupported);
+            }
+
             var position = _position;
             if (position > Length)
             {
                 position = Length;
             }
 
+            var count = buffer.Length;
             if (position + count > Length)
             {
                 throw new NotSupportedException(Resources.ResizeNotSupported);
             }
 
-            var rc = sqlite3_blob_write(_blob, buffer.AsSpan(offset, count), (int)position);
-            SqliteException.ThrowExceptionForRC(rc, _db);
+            var rc = sqlite3_blob_write(_blob, buffer.Slice(0, count), (int)position);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
             _position += count;
         }
 

@@ -1,5 +1,5 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Collections.Generic;
@@ -107,12 +107,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void DefaultTimeout_works()
+        public void DefaultTimeout_defaults_to_connection_string()
         {
-            var connection = new SqliteConnection();
-            connection.DefaultTimeout = 1;
+            var connection = new SqliteConnection("Default Timeout=1");
 
             Assert.Equal(1, connection.DefaultTimeout);
+        }
+
+        [Fact]
+        public void DefaultTimeout_works()
+        {
+            var connection = new SqliteConnection("Default Timeout=1")
+            {
+                DefaultTimeout = 2
+            };
+
+            Assert.Equal(2, connection.DefaultTimeout);
         }
 
         [Fact]
@@ -134,13 +144,11 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Open_throws_when_no_connection_string()
+        public void Open_works_when_no_connection_string()
         {
-            var connection = new SqliteConnection();
+            using var connection = new SqliteConnection();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => connection.Open());
-
-            Assert.Equal(Resources.OpenRequiresSetConnectionString, ex.Message);
+            connection.Open();
         }
 
         [Fact]
@@ -355,6 +363,8 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
+                SqliteConnection.ClearPool(new SqliteConnection("Data Source=encrypted2.db;Password=password"));
+                SqliteConnection.ClearPool(new SqliteConnection("Data Source=encrypted2.db"));
                 File.Delete("encrypted2.db");
             }
         }
@@ -436,7 +446,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                var ex = Assert.Throws<ArgumentNullException>(() => connection.BackupDatabase(null));
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.BackupDatabase(null!));
 
                 Assert.Equal("destination", ex.ParamName);
             }
@@ -550,7 +560,6 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
-                connection.DefaultTimeout = 1;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -559,7 +568,6 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.NotNull(command);
                     Assert.Same(connection, command.Connection);
-                    Assert.Equal(1, command.CommandTimeout);
                     Assert.Same(transaction, command.Transaction);
                 }
             }
@@ -611,7 +619,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateCollation(null, null));
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateCollation(null!, null));
 
                 Assert.Equal("name", ex.ParamName);
             }
@@ -659,7 +667,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateFunction(null, () => 1L));
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateFunction(null!, () => 1L));
 
                 Assert.Equal("name", ex.ParamName);
             }
@@ -744,7 +752,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.CreateFunction<object>("test", () => null);
+                connection.CreateFunction<object?>("test", () => null);
 
                 var result = connection.ExecuteScalar<object>("SELECT test();");
 
@@ -819,7 +827,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.CreateFunction("test", (string x) => x == null);
+                connection.CreateFunction("test", (string? x) => x == null);
 
                 var result = connection.ExecuteScalar<long>("SELECT test(NULL);");
 
@@ -913,7 +921,7 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateAggregate(null, (string a) => "A"));
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateAggregate(null!, (string? a) => "A"));
 
                 Assert.Equal("name", ex.ParamName);
             }
@@ -945,7 +953,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
                 connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
-                connection.CreateAggregate("test", (string a, object[] args) => a + string.Join(", ", args) + "; ");
+                connection.CreateAggregate("test", (string? a, object?[] args) => a + string.Join(", ", args) + "; ");
 
                 var result = connection.ExecuteScalar<string>("SELECT test(dummy) FROM dual;");
 
@@ -960,7 +968,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
                 connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
-                connection.CreateAggregate("test", (string a) => throw new Exception("Test"));
+                connection.CreateAggregate("test", (string? a) => throw new Exception("Test"));
 
                 var ex = Assert.Throws<SqliteException>(
                     () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
@@ -992,7 +1000,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
                 connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
-                connection.CreateAggregate("test", (string a) => throw new SqliteException("Test", 200));
+                connection.CreateAggregate("test", (string? a) => throw new SqliteException("Test", 200));
 
                 var ex = Assert.Throws<SqliteException>(
                     () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
@@ -1008,8 +1016,8 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
                 connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
-                connection.CreateAggregate("test", (string a) => "A");
-                connection.CreateAggregate("test", default(Func<string, string>));
+                connection.CreateAggregate("test", (string? a) => "A");
+                connection.CreateAggregate("test", default(Func<string?, string>));
 
                 var ex = Assert.Throws<SqliteException>(
                     () => connection.ExecuteScalar<long>("SELECT test() FROM dual;"));
@@ -1234,6 +1242,103 @@ namespace Microsoft.Data.Sqlite
             var result = DbProviderFactories.GetFactory(connection);
 
             Assert.Same(SqliteFactory.Instance, result);
+        }
+
+        [Fact]
+        public void GetSchema_works()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema();
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+            Assert.Collection(
+                dataTable.Columns.Cast<DataColumn>(),
+                c => Assert.Equal(DbMetaDataColumnNames.CollectionName, c.ColumnName),
+                c => Assert.Equal(DbMetaDataColumnNames.NumberOfRestrictions, c.ColumnName),
+                c => Assert.Equal(DbMetaDataColumnNames.NumberOfIdentifierParts, c.ColumnName));
+            Assert.Collection(
+                dataTable.Rows.Cast<DataRow>().Select(r => r.ItemArray),
+                r => Assert.Equal(new object[] { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 }, r),
+                r => Assert.Equal(new object[] { DbMetaDataCollectionNames.ReservedWords, 0, 0 }, r));
+        }
+
+        [Fact]
+        public void GetSchema_works_when_no_args()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema();
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("Unknown")]
+        public void GetSchema_throws_when_unknown_collection(string collectionName)
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var ex = Assert.Throws<ArgumentException>(() => connection.GetSchema(collectionName));
+
+            Assert.Equal(Resources.UnknownCollection(collectionName), ex.Message);
+        }
+
+        [Fact]
+        public void GetSchema_ignores_case()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema(DbMetaDataCollectionNames.MetaDataCollections.ToUpper());
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+        }
+
+        [Theory]
+        [InlineData(nameof(DbMetaDataCollectionNames.MetaDataCollections), 0)]
+        [InlineData(nameof(DbMetaDataCollectionNames.ReservedWords), 0)]
+        public void GetSchema_throws_when_unknown_restrictions(string collectionName, int maxRestrictions)
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var ex = Assert.Throws<ArgumentException>(
+                () => connection.GetSchema(
+                    collectionName,
+                    Enumerable.Repeat<string?>(null, maxRestrictions + 1).ToArray()));
+
+            Assert.Equal(Resources.TooManyRestrictions(collectionName), ex.Message);
+        }
+
+        [Fact]
+        public void GetSchema_allows_null()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+
+            var dataTable = connection.GetSchema(DbMetaDataCollectionNames.MetaDataCollections, null!);
+
+            Assert.Equal(DbMetaDataCollectionNames.MetaDataCollections, dataTable.TableName);
+        }
+
+        [Fact]
+        public void GetSchema_ReservedWords_works()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            if (new Version(connection.ServerVersion) < new Version(3, 24, 0))
+            {
+                // Skip. Native functions not available
+                return;
+            }
+
+            var dataTable = connection.GetSchema(DbMetaDataCollectionNames.ReservedWords);
+
+            Assert.Equal(DbMetaDataCollectionNames.ReservedWords, dataTable.TableName);
+            Assert.Single(dataTable.Columns);
+            Assert.Contains(
+                dataTable.Rows.Cast<DataRow>(),
+                r => (string)r[DbMetaDataColumnNames.ReservedWord] == "SELECT");
         }
     }
 }

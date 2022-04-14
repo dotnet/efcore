@@ -1,260 +1,255 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace Microsoft.EntityFrameworkCore.ChangeTracking
+public class MemberEntryTest
 {
-    public class MemberEntryTest
+    [ConditionalFact]
+    public void Can_get_back_reference_property()
     {
-        [ConditionalFact]
-        public void Can_get_back_reference_property()
-        {
-            using var context = new FreezerContext();
-            var entity = new Chunky();
-            context.Add(entity);
+        using var context = new FreezerContext();
+        var entity = new Chunky();
+        context.Add(entity);
 
-            var entityEntry = context.Entry(entity);
-            Assert.Same(entityEntry.Entity, entityEntry.Member("Monkey").EntityEntry.Entity);
-        }
+        var entityEntry = context.Entry(entity);
+        Assert.Same(entityEntry.Entity, entityEntry.Member("Monkey").EntityEntry.Entity);
+    }
 
-        [ConditionalFact]
-        public void Can_get_back_reference_reference()
-        {
-            using var context = new FreezerContext();
-            var entity = new Chunky();
-            context.Add(entity);
+    [ConditionalFact]
+    public void Can_get_back_reference_reference()
+    {
+        using var context = new FreezerContext();
+        var entity = new Chunky();
+        context.Add(entity);
 
-            var entityEntry = context.Entry(entity);
-            Assert.Same(entityEntry.Entity, entityEntry.Member("Garcia").EntityEntry.Entity);
-        }
+        var entityEntry = context.Entry(entity);
+        Assert.Same(entityEntry.Entity, entityEntry.Member("Garcia").EntityEntry.Entity);
+    }
 
-        [ConditionalFact]
-        public void Can_get_back_reference_collection()
-        {
-            using var context = new FreezerContext();
-            var entity = new Cherry();
-            context.Add(entity);
+    [ConditionalFact]
+    public void Can_get_back_reference_collection()
+    {
+        using var context = new FreezerContext();
+        var entity = new Cherry();
+        context.Add(entity);
 
-            var entityEntry = context.Entry(entity);
-            Assert.Same(entityEntry.Entity, entityEntry.Member("Monkeys").EntityEntry.Entity);
-        }
+        var entityEntry = context.Entry(entity);
+        Assert.Same(entityEntry.Entity, entityEntry.Member("Monkeys").EntityEntry.Entity);
+    }
 
-        [ConditionalFact]
-        public void Can_get_metadata_property()
-        {
-            using var context = new FreezerContext();
-            var entity = new Chunky();
-            context.Add(entity);
+    [ConditionalFact]
+    public void Can_get_metadata_property()
+    {
+        using var context = new FreezerContext();
+        var entity = new Chunky();
+        context.Add(entity);
 
-            Assert.Equal("Monkey", context.Entry(entity).Member("Monkey").Metadata.Name);
-        }
+        Assert.Equal("Monkey", context.Entry(entity).Member("Monkey").Metadata.Name);
+    }
 
-        [ConditionalFact]
-        public void Can_get_metadata_reference()
-        {
-            using var context = new FreezerContext();
-            var entity = new Chunky();
-            context.Add(entity);
+    [ConditionalFact]
+    public void Can_get_metadata_reference()
+    {
+        using var context = new FreezerContext();
+        var entity = new Chunky();
+        context.Add(entity);
 
-            Assert.Equal("Garcia", context.Entry(entity).Member("Garcia").Metadata.Name);
-        }
+        Assert.Equal("Garcia", context.Entry(entity).Member("Garcia").Metadata.Name);
+    }
 
-        [ConditionalFact]
-        public void Can_get_metadata_collection()
-        {
-            using var context = new FreezerContext();
-            var entity = new Cherry();
-            context.Add(entity);
+    [ConditionalFact]
+    public void Can_get_metadata_collection()
+    {
+        using var context = new FreezerContext();
+        var entity = new Cherry();
+        context.Add(entity);
 
-            Assert.Equal("Monkeys", context.Entry(entity).Member("Monkeys").Metadata.Name);
-        }
+        Assert.Equal("Monkeys", context.Entry(entity).Member("Monkeys").Metadata.Name);
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_current_value_property()
-        {
-            using var context = new FreezerContext();
-            var entity = new Chunky();
-            context.Add(entity);
+    [ConditionalFact]
+    public void Can_get_and_set_current_value_property()
+    {
+        using var context = new FreezerContext();
+        var entity = new Chunky();
+        context.Add(entity);
 
-            var property = context.Entry(entity).Member("GarciaId");
+        var property = context.Entry(entity).Member("GarciaId");
 
-            Assert.Null(property.CurrentValue);
+        Assert.Null(property.CurrentValue);
 
-            property.CurrentValue = 77;
-            Assert.Equal(77, property.CurrentValue);
+        property.CurrentValue = 77;
+        Assert.Equal(77, property.CurrentValue);
 
-            property.CurrentValue = null;
-            Assert.Null(property.CurrentValue);
-        }
+        property.CurrentValue = null;
+        Assert.Null(property.CurrentValue);
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_current_value_reference()
-        {
-            using var context = new FreezerContext();
-            var cherry = new Cherry();
-            var chunky = new Chunky();
-            context.AddRange(chunky, cherry);
+    [ConditionalFact]
+    public void Can_get_and_set_current_value_reference()
+    {
+        using var context = new FreezerContext();
+        var cherry = new Cherry();
+        var chunky = new Chunky();
+        context.AddRange(chunky, cherry);
 
-            var reference = context.Entry(chunky).Member("Garcia");
+        var reference = context.Entry(chunky).Member("Garcia");
 
-            Assert.Null(reference.CurrentValue);
+        Assert.Null(reference.CurrentValue);
 
-            reference.CurrentValue = cherry;
+        reference.CurrentValue = cherry;
 
-            Assert.Same(cherry, chunky.Garcia);
-            Assert.Same(chunky, cherry.Monkeys.Single());
-            Assert.Equal(cherry.Id, chunky.GarciaId);
-            Assert.Same(cherry, reference.CurrentValue);
+        Assert.Same(cherry, chunky.Garcia);
+        Assert.Same(chunky, cherry.Monkeys.Single());
+        Assert.Equal(cherry.Id, chunky.GarciaId);
+        Assert.Same(cherry, reference.CurrentValue);
 
-            reference.CurrentValue = null;
+        reference.CurrentValue = null;
 
-            Assert.Null(chunky.Garcia);
-            Assert.Empty(cherry.Monkeys);
-            Assert.Null(chunky.GarciaId);
-            Assert.Null(reference.CurrentValue);
-        }
+        Assert.Null(chunky.Garcia);
+        Assert.Empty(cherry.Monkeys);
+        Assert.Null(chunky.GarciaId);
+        Assert.Null(reference.CurrentValue);
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_current_value_collection()
-        {
-            using var context = new FreezerContext();
-            var cherry = new Cherry();
-            var chunky = new Chunky();
-            context.AddRange(chunky, cherry);
+    [ConditionalFact]
+    public void Can_get_and_set_current_value_collection()
+    {
+        using var context = new FreezerContext();
+        var cherry = new Cherry();
+        var chunky = new Chunky();
+        context.AddRange(chunky, cherry);
 
-            var collection = context.Entry(cherry).Member("Monkeys");
+        var collection = context.Entry(cherry).Member("Monkeys");
 
-            Assert.Null(collection.CurrentValue);
+        Assert.Null(collection.CurrentValue);
 
-            collection.CurrentValue = new List<Chunky> { chunky };
+        collection.CurrentValue = new List<Chunky> { chunky };
 
-            Assert.Same(cherry, chunky.Garcia);
-            Assert.Same(chunky, cherry.Monkeys.Single());
-            Assert.Equal(cherry.Id, chunky.GarciaId);
-            Assert.Same(chunky, ((ICollection<Chunky>)collection.CurrentValue).Single());
+        Assert.Same(cherry, chunky.Garcia);
+        Assert.Same(chunky, cherry.Monkeys.Single());
+        Assert.Equal(cherry.Id, chunky.GarciaId);
+        Assert.Same(chunky, ((ICollection<Chunky>)collection.CurrentValue).Single());
 
-            collection.CurrentValue = null;
+        collection.CurrentValue = null;
 
-            Assert.Null(chunky.Garcia);
-            Assert.Null(cherry.Monkeys);
-            Assert.Null(chunky.GarciaId);
-            Assert.Null(collection.CurrentValue);
-        }
+        Assert.Null(chunky.Garcia);
+        Assert.Null(cherry.Monkeys);
+        Assert.Null(chunky.GarciaId);
+        Assert.Null(collection.CurrentValue);
+    }
 
-        [ConditionalFact]
-        public void IsModified_tracks_state_of_FK_property_reference()
-        {
-            using var context = new FreezerContext();
-            var cherry = new Cherry();
-            var chunky = new Chunky { Garcia = cherry };
-            cherry.Monkeys = new List<Chunky> { chunky };
-            context.AttachRange(cherry, chunky);
+    [ConditionalFact]
+    public void IsModified_tracks_state_of_FK_property_reference()
+    {
+        using var context = new FreezerContext();
+        var cherry = new Cherry();
+        var chunky = new Chunky { Garcia = cherry };
+        cherry.Monkeys = new List<Chunky> { chunky };
+        context.AttachRange(cherry, chunky);
 
-            var reference = context.Entry(chunky).Member("Garcia");
+        var reference = context.Entry(chunky).Member("Garcia");
 
-            Assert.False(reference.IsModified);
+        Assert.False(reference.IsModified);
 
-            chunky.GarciaId = null;
-            context.ChangeTracker.DetectChanges();
+        chunky.GarciaId = null;
+        context.ChangeTracker.DetectChanges();
 
-            Assert.True(reference.IsModified);
+        Assert.True(reference.IsModified);
 
-            context.Entry(chunky).State = EntityState.Unchanged;
+        context.Entry(chunky).State = EntityState.Unchanged;
 
-            Assert.False(reference.IsModified);
-        }
+        Assert.False(reference.IsModified);
+    }
 
-        [ConditionalFact]
-        public void IsModified_tracks_state_of_owned_entity()
-        {
-            using var context = new FreezerContext();
-            var chunky = new Chunky { Chunk = new Chunk { Size = 1, Shape = "Sphere" } };
-            context.Add(chunky);
+    [ConditionalFact]
+    public void IsModified_tracks_state_of_owned_entity()
+    {
+        using var context = new FreezerContext();
+        var chunky = new Chunky { Chunk = new Chunk { Size = 1, Shape = "Sphere" } };
+        context.Add(chunky);
 
-            var reference = context.Entry(chunky).Member(nameof(Chunky.Chunk));
+        var reference = context.Entry(chunky).Member(nameof(Chunky.Chunk));
 
-            Assert.True(reference.IsModified);
+        Assert.True(reference.IsModified);
 
-            context.SaveChanges();
+        context.SaveChanges();
 
-            Assert.False(reference.IsModified);
+        Assert.False(reference.IsModified);
 
-            chunky.Chunk = new Chunk { Size = 2, Shape = "Cube" };
-            context.ChangeTracker.DetectChanges();
+        chunky.Chunk = new Chunk { Size = 2, Shape = "Cube" };
+        context.ChangeTracker.DetectChanges();
 
-            Assert.True(reference.IsModified);
+        Assert.True(reference.IsModified);
 
-            context.SaveChanges();
+        context.SaveChanges();
 
-            Assert.False(reference.IsModified);
-        }
+        Assert.False(reference.IsModified);
+    }
 
-        [ConditionalFact]
-        public void IsModified_can_set_fk_to_modified_collection()
-        {
-            using var context = new FreezerContext();
-            var cherry = new Cherry();
-            var chunky1 = new Chunky { Garcia = cherry };
-            var chunky2 = new Chunky { Garcia = cherry };
-            cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
-            context.AttachRange(cherry, chunky1, chunky2);
+    [ConditionalFact]
+    public void IsModified_can_set_fk_to_modified_collection()
+    {
+        using var context = new FreezerContext();
+        var cherry = new Cherry();
+        var chunky1 = new Chunky { Garcia = cherry };
+        var chunky2 = new Chunky { Garcia = cherry };
+        cherry.Monkeys = new List<Chunky> { chunky1, chunky2 };
+        context.AttachRange(cherry, chunky1, chunky2);
 
-            var collection = context.Entry(cherry).Member("Monkeys");
+        var collection = context.Entry(cherry).Member("Monkeys");
 
-            Assert.False(collection.IsModified);
+        Assert.False(collection.IsModified);
 
-            collection.IsModified = true;
+        collection.IsModified = true;
 
-            Assert.True(collection.IsModified);
-            Assert.True(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
-            Assert.True(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+        Assert.True(collection.IsModified);
+        Assert.True(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+        Assert.True(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
 
-            collection.IsModified = false;
+        collection.IsModified = false;
 
-            Assert.False(collection.IsModified);
-            Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
-            Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
-            Assert.Equal(EntityState.Unchanged, context.Entry(chunky1).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(chunky2).State);
-        }
+        Assert.False(collection.IsModified);
+        Assert.False(context.Entry(chunky1).Property(e => e.GarciaId).IsModified);
+        Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
+        Assert.Equal(EntityState.Unchanged, context.Entry(chunky1).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(chunky2).State);
+    }
 
-        [Owned]
-        public class Chunk
-        {
-            public int Size { get; set; }
-            public string Shape { get; set; }
-        }
+    [Owned]
+    public class Chunk
+    {
+        public int Size { get; set; }
+        public string Shape { get; set; }
+    }
 
-        private class Chunky
-        {
-            public int Monkey { get; set; }
-            public int Id { get; set; }
+    private class Chunky
+    {
+        public int Monkey { get; set; }
+        public int Id { get; set; }
 
-            public int? GarciaId { get; set; }
-            public Cherry Garcia { get; set; }
+        public int? GarciaId { get; set; }
+        public Cherry Garcia { get; set; }
 
-            public Chunk Chunk { get; set; }
-        }
+        public Chunk Chunk { get; set; }
+    }
 
-        private class Cherry
-        {
-            public int Garcia { get; set; }
-            public int Id { get; set; }
+    private class Cherry
+    {
+        public int Garcia { get; set; }
+        public int Id { get; set; }
 
-            public ICollection<Chunky> Monkeys { get; set; }
-        }
+        public ICollection<Chunky> Monkeys { get; set; }
+    }
 
-        private class FreezerContext : DbContext
-        {
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase(nameof(FreezerContext));
+    private class FreezerContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(nameof(FreezerContext));
 
-            public DbSet<Chunky> Icecream { get; set; }
-        }
+        public DbSet<Chunky> Icecream { get; set; }
     }
 }

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,8 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AppSettingsTip" xml:space="preserve">
+    <value>Don't forget to copy appsettings.json alongside your bundle if you need it to apply migrations.</value>
+  </data>
   <data name="AssemblyDescription" xml:space="preserve">
     <value>The assembly to use. Required.</value>
+  </data>
+  <data name="BuildBundleFailed" xml:space="preserve">
+    <value>Build failed. Use --verbose to see errors.</value>
+  </data>
+  <data name="BuildBundleStarted" xml:space="preserve">
+    <value>Building bundle...</value>
+  </data>
+  <data name="BuildBundleSucceeded" xml:space="preserve">
+    <value>Done. Migrations Bundle: {path}</value>
+  </data>
+  <data name="ConfigurationDescription" xml:space="preserve">
+    <value>The configuration to use.</value>
   </data>
   <data name="ConnectionDescription" xml:space="preserve">
     <value>The connection string to the database.</value>
@@ -180,6 +195,9 @@
   <data name="DbContextListDescription" xml:space="preserve">
     <value>Lists available DbContext types.</value>
   </data>
+  <data name="DbContextOptimizeDescription" xml:space="preserve">
+    <value>Generates a compiled version of the model used by the DbContext.</value>
+  </data>
   <data name="DbContextScaffoldDescription" xml:space="preserve">
     <value>Scaffolds a DbContext and entity types for a database.</value>
   </data>
@@ -189,26 +207,29 @@
   <data name="DbContextScriptDescription" xml:space="preserve">
     <value>Generates a SQL script from the DbContext. Bypasses any migrations.</value>
   </data>
+  <data name="DbContextType" xml:space="preserve">
+    <value>Type: {type}</value>
+  </data>
   <data name="DesignNotFound" xml:space="preserve">
     <value>Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.</value>
   </data>
   <data name="EFFullName" xml:space="preserve">
     <value>Entity Framework Core Command-line Tools</value>
   </data>
+  <data name="FileExists" xml:space="preserve">
+    <value>The file already exists: {path}. Use --force flag to overwrite it.</value>
+  </data>
+  <data name="FrameworkDescription" xml:space="preserve">
+    <value>The target framework.</value>
+  </data>
   <data name="IdempotentDescription" xml:space="preserve">
     <value>Generate a script that can be used on a database at any migration.</value>
-  </data>
-  <data name="InvalidTemplatePattern" xml:space="preserve">
-    <value>Invalid template pattern '{template}'.</value>
   </data>
   <data name="JsonDescription" xml:space="preserve">
     <value>Show JSON output. Use with --prefix-output to parse programatically.</value>
   </data>
   <data name="LanguageDescription" xml:space="preserve">
     <value>The language. Defaults to 'C#'.</value>
-  </data>
-  <data name="LastArgumentHasMultipleValues" xml:space="preserve">
-    <value>The last argument '{argumentName}' accepts multiple values. No more argument can be added.</value>
   </data>
   <data name="MigrationDescription" xml:space="preserve">
     <value>The target migration. If '0', all migrations will be reverted. Defaults to the last migration.</value>
@@ -224,6 +245,15 @@
   </data>
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
+  </data>
+  <data name="MigrationsBundleDescription" xml:space="preserve">
+    <value>Creates an executable to update the database.</value>
+  </data>
+  <data name="MigrationsBundleOutputDescription" xml:space="preserve">
+    <value>The path of executable file to create.</value>
+  </data>
+  <data name="MigrationsBundleRuntimeDescription" xml:space="preserve">
+    <value>The target runtime to bundle for.</value>
   </data>
   <data name="MigrationsDescription" xml:space="preserve">
     <value>Commands to manage migrations.</value>
@@ -276,6 +306,9 @@
   <data name="NoTransactionsDescription" xml:space="preserve">
     <value>Don't generate SQL transaction statements.</value>
   </data>
+  <data name="NullableDescription" xml:space="preserve">
+    <value>Enable nullable reference types.</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>Options: {options}</value>
   </data>
@@ -288,8 +321,14 @@
   <data name="Pending" xml:space="preserve">
     <value> (Pending)</value>
   </data>
+  <data name="PendingUnknown" xml:space="preserve">
+    <value>Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurs while accessing the database.</value>
+  </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
+  </data>
+  <data name="ProjectDescription" xml:space="preserve">
+    <value>The path to the startup project file.</value>
   </data>
   <data name="ProjectDirDescription" xml:space="preserve">
     <value>The project directory. Defaults to the current working directory.</value>
@@ -303,29 +342,26 @@
   <data name="RemainingArguments" xml:space="preserve">
     <value>Remaining arguments: {remainingArguments}.</value>
   </data>
-  <data name="ResponseFileMissing" xml:space="preserve">
-    <value>Response file '{fileName}' doesn't exist.</value>
-  </data>
   <data name="RootNamespaceDescription" xml:space="preserve">
     <value>The root namespace. Defaults to the target assembly name.</value>
   </data>
   <data name="SchemasDescription" xml:space="preserve">
     <value>The schemas of tables to generate entity types for.</value>
   </data>
+  <data name="SelfContainedDescription" xml:space="preserve">
+    <value>Also bundle the .NET runtime so it doesn't need to be installed on the machine.</value>
+  </data>
   <data name="StartupAssemblyDescription" xml:space="preserve">
     <value>The startup assembly to use. Defaults to the target assembly.</value>
+  </data>
+  <data name="StartupProjectDescription" xml:space="preserve">
+    <value>The path to the project file.</value>
   </data>
   <data name="SuppressOnConfiguringDescription" xml:space="preserve">
     <value>Don't generate DbContext.OnConfiguring.</value>
   </data>
   <data name="TablesDescription" xml:space="preserve">
     <value>The tables to generate entity types for.</value>
-  </data>
-  <data name="UnexpectedArgument" xml:space="preserve">
-    <value>Unrecognized {argumentName} '{argumentValue}'.</value>
-  </data>
-  <data name="UnexpectedOptionValue" xml:space="preserve">
-    <value>Unexpected value '{optionValue}' for option '{optionName}'.</value>
   </data>
   <data name="UseDatabaseNamesDescription" xml:space="preserve">
     <value>Use table and column names directly from the database.</value>
@@ -356,6 +392,9 @@
   </data>
   <data name="VerboseDescription" xml:space="preserve">
     <value>Show verbose output.</value>
+  </data>
+  <data name="VersionRequired" xml:space="preserve">
+    <value>This feature requires Entity Framework Core {version} or higher.</value>
   </data>
   <data name="WorkingDirDescription" xml:space="preserve">
     <value>The working directory of the tool invoking this command.</value>

@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -121,80 +121,91 @@
     <value>To change the IDENTITY property of a column, the column needs to be dropped and recreated.</value>
   </data>
   <data name="AlterMemoryOptimizedTable" xml:space="preserve">
-    <value>To set memory-optimized on a table on or off the table needs to be dropped and recreated.</value>
+    <value>To change the memory-optimized setting on a table, the table needs to be dropped and recreated.</value>
   </data>
   <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
-    <value>When generating migrations SQL for {operation}, can't produce unterminated SQL with comments.</value>
+    <value>Can't produce unterminated SQL with comments when generating migrations SQL for {operation}, .</value>
   </data>
   <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity increment.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.</value>
   </data>
   <data name="DuplicateColumnIdentitySeedMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different identity seed.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity seed values.</value>
   </data>
   <data name="DuplicateColumnNameValueGenerationStrategyMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different value generation strategies.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different value generation strategies.</value>
   </data>
   <data name="DuplicateColumnSequenceMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different hi-lo sequences.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different hi-lo sequences.</value>
+  </data>
+  <data name="DuplicateColumnSparsenessMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different sparseness.</value>
   </data>
   <data name="DuplicateIndexClusteredMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different clustered configuration.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.</value>
   </data>
   <data name="DuplicateIndexFillFactorMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different fill factor configuration.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.</value>
   </data>
   <data name="DuplicateIndexIncludedMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different included columns {includedColumns1} and {includedColumns2}.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.</value>
   </data>
   <data name="DuplicateIndexOnlineMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}' but with different online configuration.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.</value>
   </data>
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
-    <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.</value>
+    <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.</value>
   </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
   </data>
   <data name="IncludePropertyDuplicated" xml:space="preserve">
-    <value>Include property '{entityType}.{property}' cannot be defined multiple times.</value>
+    <value>The include property '{entityType}.{property}' was specified multiple times for the index {index}.</value>
   </data>
   <data name="IncludePropertyInIndex" xml:space="preserve">
-    <value>Include property '{entityType}.{property}' is already included in the index.</value>
+    <value>The include property '{entityType}.{property}' is already part of the index {index}.</value>
   </data>
   <data name="IncludePropertyNotFound" xml:space="preserve">
-    <value>Include property '{entityType}.{property}' not found.</value>
+    <value>The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.</value>
   </data>
   <data name="IncompatibleTableMemoryOptimizedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>
   </data>
   <data name="IndexTableRequired" xml:space="preserve">
-    <value>SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to 'MigrationBuilder.RenameIndex'.</value>
+    <value>SQL Server requires the table name to be specified for index operations. Specify table name in calls to 'MigrationBuilder.RenameIndex' and 'DropIndex'.</value>
   </data>
   <data name="InvalidColumnNameForFreeText" xml:space="preserve">
-    <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
+    <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
   </data>
   <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
     <value>The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.</value>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column. This requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.</value>
+    <value>The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column; this requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.</value>
     <comment>Warning SqlServerEventId.ByteIdentityColumnWarning string string</comment>
   </data>
+  <data name="LogColumnWithoutType" xml:space="preserve">
+    <value>A database type for column '{columnName}' on table '{tableName}' could not be found, the column will be skipped.</value>
+    <comment>Warning SqlServerEventId.ColumnWithoutTypeWarning string string</comment>
+  </data>
   <data name="LogConflictingValueGenerationStrategies" xml:space="preserve">
-    <value>Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Usually this is a mistake. Only use these at the same time if you are sure you understand the consequences.</value>
+    <value>Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.</value>
     <comment>Warning SqlServerEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
   </data>
   <data name="LogDecimalTypeKey" xml:space="preserve">
-    <value>The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.</value>
+    <value>The decimal property '{property}' is part of a key on entity type '{entityType}'. If the configured precision and scale don't match the column type in the database, this will cause values to be silently truncated if they do not fit in the default precision and scale. Consider using a different property as the key, or make sure that the database column type matches the model configuration and enable decimal rounding warnings using 'SET NUMERIC_ROUNDABORT ON'.</value>
     <comment>Warning SqlServerEventId.DecimalTypeKeyWarning string string</comment>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
-    <value>No type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType()', specify precision and scale using 'HasPrecision()' or configure a value converter using 'HasConversion()'.</value>
+    <value>No store type was specified for the decimal property '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.</value>
     <comment>Warning SqlServerEventId.DecimalTypeDefaultWarning string string</comment>
   </data>
+  <data name="LogDuplicateForeignKeyConstraintIgnored" xml:space="preserve">
+    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is a duplicate of '{duplicateForeignKeyName}'.</value>
+    <comment>Warning SqlServerEventId.DuplicateForeignKeyConstraintIgnored string string string</comment>
+  </data>
   <data name="LogFoundColumn" xml:space="preserve">
-    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}</value>
+    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}.</value>
     <comment>Debug SqlServerEventId.ColumnFound string string int string int int int bool bool string string bool?</comment>
   </data>
   <data name="LogFoundDefaultSchema" xml:space="preserve">
@@ -202,70 +213,132 @@
     <comment>Debug SqlServerEventId.DefaultSchemaFound string</comment>
   </data>
   <data name="LogFoundForeignKey" xml:space="preserve">
-    <value>Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.</value>
+    <value>Found foreign key on table '{tableName}' with name '{foreignKeyName}', principal table '{principalTableName}', delete action {deleteAction}.</value>
     <comment>Debug SqlServerEventId.ForeignKeyFound string string string string</comment>
   </data>
   <data name="LogFoundIndex" xml:space="preserve">
-    <value>Found index with name: {indexName}, table: {tableName}, is unique: {unique}.</value>
+    <value>Found index on table '{tableName}' with name '{indexName}', is unique: {isUnique}.</value>
     <comment>Debug SqlServerEventId.IndexFound string string bool</comment>
   </data>
   <data name="LogFoundPrimaryKey" xml:space="preserve">
-    <value>Found primary key with name: {primaryKeyName}, table: {tableName}.</value>
+    <value>Found primary key on table '{tableName}' with name '{primaryKeyName}'.</value>
     <comment>Debug SqlServerEventId.PrimaryKeyFound string string</comment>
   </data>
   <data name="LogFoundSequence" xml:space="preserve">
-    <value>Found sequence name: {name}, data type: {dataType}, cyclic: {cyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
+    <value>Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
     <comment>Debug SqlServerEventId.SequenceFound string string bool int long long long</comment>
   </data>
   <data name="LogFoundTable" xml:space="preserve">
-    <value>Found table with name: {name}.</value>
+    <value>Found table with name '{name}'.</value>
     <comment>Debug SqlServerEventId.TableFound string</comment>
   </data>
   <data name="LogFoundTypeAlias" xml:space="preserve">
-    <value>Found type alias with name: {alias} which maps to underlying data type {dataType}.</value>
+    <value>Found type alias with name '{alias}' which maps to underlying data type {dataType}.</value>
     <comment>Debug SqlServerEventId.TypeAliasFound string string</comment>
   </data>
   <data name="LogFoundUniqueConstraint" xml:space="preserve">
-    <value>Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.</value>
+    <value>Found unique constraint on table '{tableName}' with name '{uniqueConstraintName}'.</value>
     <comment>Debug SqlServerEventId.UniqueConstraintFound string string</comment>
   </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema '{schema}'.</value>
-    <comment>Warning SqlServerEventId.MissingSchemaWarning string</comment>
+    <comment>Warning SqlServerEventId.MissingSchemaWarning string?</comment>
   </data>
   <data name="LogMissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
-    <comment>Warning SqlServerEventId.MissingTableWarning string</comment>
+    <comment>Warning SqlServerEventId.MissingTableWarning string?</comment>
   </data>
+  <data name="LogMissingViewDefinitionRights" xml:space="preserve">
+    <value>The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.</value>
+    <comment>Warning SqlServerEventId.MissingViewDefinitionRightsWarning string?</comment>
+  </data>  
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
-    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since the principal column called '{principalColumnName}' on the foreign key's principal table, '{principalTableName}' was not found in the model.</value>
+    <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
     <comment>Warning SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
   </data>
+  <data name="LogPrincipalTableInformationNotFound" xml:space="preserve">
+    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table information is not available. This usually happens when the user doesn't have permission to read data about principal table.</value>
+    <comment>Warning SqlServerEventId.ForeignKeyReferencesUnknownPrincipalTableWarning string? string?</comment>
+  </data>
   <data name="LogPrincipalTableNotInSelectionSet" xml:space="preserve">
-    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens if the principal table was not included in the selection set.</value>
-    <comment>Warning SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning string string string</comment>
+    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.</value>
+    <comment>Warning SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning string? string? string?</comment>
   </data>
   <data name="LogReflexiveConstraintIgnored" xml:space="preserve">
     <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.</value>
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
   <data name="LogSavepointsDisabledBecauseOfMARS" xml:space="preserve">
-    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.SavepointsDisabledBecauseOfMARS))'.</value>
+    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
     <comment>Warning SqlServerEventId.SavepointsDisabledBecauseOfMARS</comment>
   </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">
-    <value>The properties {properties} are configured to use 'Identity' value generator and are mapped to the same table '{table}'. Only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' for properties that should not use 'Identity'.</value>
+    <value>The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.</value>
   </data>
   <data name="NoInitialCatalog" xml:space="preserve">
-    <value>The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.</value>
+    <value>The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.</value>
   </data>
   <data name="NonKeyValueGeneration" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.</value>
+    <value>The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.</value>
+  </data>
+  <data name="NoSavepointRelease" xml:space="preserve">
+    <value>SQL Server does not support releasing a savepoint.</value>
+  </data>
+  <data name="SaveChangesFailedBecauseOfComputedColumnWithFunction" xml:space="preserve">
+    <value>Could not save changes because the target table has computed column with a function that performs data access. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-computed-columns for more information.</value>
+  </data>
+  <data name="SaveChangesFailedBecauseOfTriggers" xml:space="preserve">
+    <value>Could not save changes because the target table has database triggers. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-triggers for more information.</value>
   </data>
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
   </data>
+  <data name="TemporalExpectedPeriodPropertyNotFound" xml:space="preserve">
+    <value>Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.</value>
+  </data>
+  <data name="TemporalMustDefinePeriodProperties" xml:space="preserve">
+    <value>Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.</value>
+  </data>
+  <data name="TemporalNavigationExpansionBetweenTemporalAndNonTemporal" xml:space="preserve">
+    <value>Temporal query is trying to use navigation to an entity '{entityType}' which itself doesn't map to temporal table. Either map the entity to temporal table or use join manually to access it.</value>
+  </data>
+  <data name="TemporalNavigationExpansionOnlySupportedForAsOf" xml:space="preserve">
+    <value>Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.</value>
+  </data>
+  <data name="TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping" xml:space="preserve">
+    <value>When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. Issue happens for entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.</value>
+  </data>
+  <data name="TemporalAllEntitiesMappedToSameTableMustBeTemporal" xml:space="preserve">
+    <value>Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.</value>
+  </data>
+  <data name="TemporalOnlyOnRoot" xml:space="preserve">
+    <value>Only root entity type should be marked as temporal. Entity type: '{entityType}'.</value>
+  </data>
+  <data name="TemporalOnlySupportedForTPH" xml:space="preserve">
+    <value>Temporal tables are only supported for entities using Table-Per-Hierarchy inheritance mapping. Entity type: '{entityType}'.</value>
+  </data>
+  <data name="TemporalPeriodPropertyCantHaveDefaultValue" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' can't have a default value specified.</value>
+  </data>
+  <data name="TemporalPeriodPropertyMustBeInShadowState" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' must be a shadow property.</value>
+  </data>
+  <data name="TemporalPeriodPropertyMustBeMappedToDatetime2" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.</value>
+  </data>
+  <data name="TemporalPeriodPropertyMustBeNonNullableDateTime" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' must be non-nullable and of type '{dateTimeType}'.</value>
+  </data>
+  <data name="TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue" xml:space="preserve">
+    <value>Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.</value>
+  </data>
+  <data name="TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate" xml:space="preserve">
+    <value>Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.</value>
+  </data>
+  <data name="TemporalSetOperationOnMismatchedSources" xml:space="preserve">
+    <value>Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.</value>
+  </data>
   <data name="TransientExceptionDetected" xml:space="preserve">
-    <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseSqlServer' call.</value>
+    <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
   </data>
 </root>

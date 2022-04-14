@@ -1,76 +1,105 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>
 {
-    public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>
+    public GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
-        public GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool async)
-            => base.Correlated_collection_order_by_constant_null_of_non_mapped_type(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Client_side_equality_with_parameter_works_with_optional_navigations(bool async)
-            => base.Client_side_equality_with_parameter_works_with_optional_navigations(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Where_coalesce_with_anonymous_types(bool async)
-            => base.Where_coalesce_with_anonymous_types(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task GetValueOrDefault_on_DateTimeOffset(bool async)
-            => base.GetValueOrDefault_on_DateTimeOffset(async);
-
-        [ConditionalFact(Skip = "issue #17537")]
-        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
-            => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1();
-
-        [ConditionalFact(Skip = "issue #17537")]
-        public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()
-            => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2();
-
-        [ConditionalTheory(Skip = "issue #17540")]
-        public override Task
-            Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
-            => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
-                async);
-
-        [ConditionalTheory(Skip = "issue #18284")]
-        public override Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool async)
-            => GroupBy_with_boolean_groupin_key_thru_navigation_access(async);
-
-        [ConditionalTheory(Skip = "issue #17620")]
-        public override Task Select_subquery_projecting_single_constant_inside_anonymous(bool async)
-            => base.Select_subquery_projecting_single_constant_inside_anonymous(async);
-
-        [ConditionalTheory(Skip = "issue #19683")]
-        public override Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
-            => base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
-
-        [ConditionalTheory(Skip = "issue #18284")]
-        public override Task Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(bool async)
-            => base.Enum_closure_typed_as_underlying_type_generates_correct_parameter_type(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
-            => base.Client_member_and_unsupported_string_Equals_in_the_same_query(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Client_eval_followed_by_set_operation_throws_meaningful_exception(bool async)
-            => base.Client_eval_followed_by_set_operation_throws_meaningful_exception(async);
-
-        [ConditionalTheory(Skip = "issue #17537")]
-        public override Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
-            => base.SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(async);
+        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
     }
+
+    public override Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Client_member_and_unsupported_string_Equals_in_the_same_query(async),
+            CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
+
+    public override async Task
+        Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
+        => Assert.Equal(
+            "Nullable object must have a value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base
+                    .Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                        async))).Message);
+
+    public override async Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
+        // Grouping by constant. Issue #19683.
+        => Assert.Equal(
+            "1",
+            (await Assert.ThrowsAsync<EqualException>(
+                () => base.Group_by_on_StartsWith_with_null_parameter_as_argument(async)))
+            .Actual);
+
+    public override async Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+        // Distinct. Issue #24325.
+        => Assert.Equal(
+            InMemoryStrings.DistinctOnSubqueryNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(async))).Message);
+
+    public override async Task Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(bool async)
+        // Distinct. Issue #24325.
+        => Assert.Equal(
+            InMemoryStrings.DistinctOnSubqueryNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(async))).Message);
+
+    public override async Task Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(bool async)
+        // Distinct. Issue #24325.
+        => Assert.Equal(
+            InMemoryStrings.DistinctOnSubqueryNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(async))).Message);
+
+    public override async Task Correlated_collection_with_distinct_3_levels(bool async)
+        // Distinct. Issue #24325.
+        => Assert.Equal(
+            InMemoryStrings.DistinctOnSubqueryNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_distinct_3_levels(async))).Message);
+
+    public override async Task Projecting_correlated_collection_followed_by_Distinct(bool async)
+        // Distinct. Issue #24325.
+        => Assert.Equal(
+            InMemoryStrings.DistinctOnSubqueryNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_correlated_collection_followed_by_Distinct(async))).Message);
+
+    public override async Task Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+        // Distinct. Issue #24325.
+        => Assert.Equal(
+            InMemoryStrings.DistinctOnSubqueryNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(async))).Message);
+
+    public override Task Include_after_SelectMany_throws(bool async)
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Include_after_SelectMany_throws(async));
+
+    public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4(bool async)
+        => Assert.Equal(
+            "4",
+            (((EqualException)(await Assert.ThrowsAsync<TargetInvocationException>(
+                () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4(async))).InnerException!.InnerException)!)
+            .Actual);
+
+    public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result(bool async)
+        => Assert.Equal(
+            "6",
+            (((EqualException)(await Assert.ThrowsAsync<TargetInvocationException>(
+                    () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result(async)))
+                .InnerException!.InnerException)!)
+            .Actual);
+
+    public override Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(
+        bool async)
+        // Null protection. Issue #13721.
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(async));
 }

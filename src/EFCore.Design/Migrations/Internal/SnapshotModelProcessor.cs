@@ -1,237 +1,209 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SnapshotModelProcessor : ISnapshotModelProcessor
 {
+    private readonly IOperationReporter _operationReporter;
+    private readonly HashSet<string> _relationalNames;
+    private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SnapshotModelProcessor : ISnapshotModelProcessor
+    public SnapshotModelProcessor(
+        IOperationReporter operationReporter,
+        IModelRuntimeInitializer modelRuntimeInitializer)
     {
-        private readonly IOperationReporter _operationReporter;
-        private readonly HashSet<string> _relationalNames;
-        private readonly IConventionSetBuilder _conventionSetBuilder;
+        _operationReporter = operationReporter;
+        _relationalNames = new HashSet<string>(
+            typeof(RelationalAnnotationNames)
+                .GetRuntimeFields()
+                .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
+                .Select(p => (string)p.GetValue(null)!)
+                .Where(v => v.IndexOf(':') > 0)
+                .Select(v => v[(RelationalAnnotationNames.Prefix.Length - 1)..]));
+        _modelRuntimeInitializer = modelRuntimeInitializer;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public SnapshotModelProcessor(
-            [NotNull] IOperationReporter operationReporter,
-            [NotNull] IConventionSetBuilder conventionSetBuilder)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IModel? Process(IReadOnlyModel? model)
+    {
+        if (model == null)
         {
-            _operationReporter = operationReporter;
-            _relationalNames = new HashSet<string>(
-                typeof(RelationalAnnotationNames)
-                    .GetRuntimeFields()
-                    .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
-                    .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
-            _conventionSetBuilder = conventionSetBuilder;
+            return null;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IModel Process(IModel model)
+        var version = model.GetProductVersion();
+        if (version != null)
         {
-            if (model == null)
-            {
-                return null;
-            }
+            ProcessElement(model, version);
+            UpdateSequences(model, version);
 
-            var version = model.GetProductVersion();
-            if (version != null)
+            foreach (var entityType in model.GetEntityTypes())
             {
-                ProcessElement(model, version);
-                UpdateSequences(model, version);
+                ProcessElement(entityType, version);
+                ProcessCollection(entityType.GetProperties(), version);
+                ProcessCollection(entityType.GetKeys(), version);
+                ProcessCollection(entityType.GetIndexes(), version);
 
-                foreach (var entityType in model.GetEntityTypes())
+                foreach (var element in entityType.GetForeignKeys())
                 {
-                    ProcessElement(entityType, version);
-                    ProcessCollection(entityType.GetProperties(), version);
-                    ProcessCollection(entityType.GetKeys(), version);
-                    ProcessCollection(entityType.GetIndexes(), version);
+                    ProcessElement(element, version);
+                    ProcessElement(element.DependentToPrincipal, version);
+                    ProcessElement(element.PrincipalToDependent, version);
+                }
+            }
+        }
 
-                    foreach (var element in entityType.GetForeignKeys())
+        return _modelRuntimeInitializer.Initialize((IModel)model, designTime: true, validationLogger: null);
+    }
+
+    private void ProcessCollection(IEnumerable<IReadOnlyAnnotatable> metadata, string version)
+    {
+        foreach (var element in metadata)
+        {
+            ProcessElement(element, version);
+        }
+    }
+
+    private void ProcessElement(IReadOnlyEntityType entityType, string version)
+    {
+        ProcessElement((IReadOnlyAnnotatable)entityType, version);
+
+        if ((version.StartsWith("2.0", StringComparison.Ordinal)
+                || version.StartsWith("2.1", StringComparison.Ordinal))
+            && entityType is IMutableEntityType mutableEntityType
+            && !entityType.IsOwned())
+        {
+            UpdateOwnedTypes(mutableEntityType);
+        }
+    }
+
+    private void ProcessElement(IReadOnlyAnnotatable? metadata, string version)
+    {
+        if (version.StartsWith("1.", StringComparison.Ordinal)
+            && metadata is IMutableAnnotatable mutableMetadata)
+        {
+            foreach (var annotation in mutableMetadata.GetAnnotations().ToList())
+            {
+                var colon = annotation.Name.IndexOf(':');
+                if (colon > 0)
+                {
+                    var stripped = annotation.Name[colon..];
+                    if (_relationalNames.Contains(stripped))
                     {
-                        ProcessElement(element, version);
-                        ProcessElement(element.DependentToPrincipal, version);
-                        ProcessElement(element.PrincipalToDependent, version);
-                    }
-                }
-            }
+                        mutableMetadata.RemoveAnnotation(annotation.Name);
+                        var relationalName = "Relational" + stripped;
+                        var duplicate = mutableMetadata.FindAnnotation(relationalName);
 
-            if (model is IConventionModel conventionModel)
-            {
-                var conventionSet = _conventionSetBuilder.CreateConventionSet();
-
-                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
-                if (typeMappingConvention != null)
-                {
-                    typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
-                }
-
-                var relationalModelConvention =
-                    conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
-                if (relationalModelConvention != null)
-                {
-                    model = relationalModelConvention.ProcessModelFinalized(conventionModel);
-                }
-            }
-
-            return model is IMutableModel mutableModel
-                ? mutableModel.FinalizeModel()
-                : model;
-        }
-
-        private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)
-        {
-            foreach (var element in metadata)
-            {
-                ProcessElement(element, version);
-            }
-        }
-
-        private void ProcessElement(IEntityType entityType, string version)
-        {
-            ProcessElement((IAnnotatable)entityType, version);
-
-            if ((version.StartsWith("2.0", StringComparison.Ordinal)
-                    || version.StartsWith("2.1", StringComparison.Ordinal))
-                && entityType is IMutableEntityType mutableEntityType
-                && !entityType.IsOwned())
-            {
-                UpdateOwnedTypes(mutableEntityType);
-            }
-        }
-
-        private void ProcessElement(IAnnotatable metadata, string version)
-        {
-            if (version.StartsWith("1.", StringComparison.Ordinal)
-                && metadata is IMutableAnnotatable mutableMetadata)
-            {
-                foreach (var annotation in mutableMetadata.GetAnnotations().ToList())
-                {
-                    var colon = annotation.Name.IndexOf(':');
-                    if (colon > 0)
-                    {
-                        var stripped = annotation.Name.Substring(colon);
-                        if (_relationalNames.Contains(stripped))
+                        if (duplicate == null)
                         {
-                            mutableMetadata.RemoveAnnotation(annotation.Name);
-                            var relationalName = "Relational" + stripped;
-                            var duplicate = mutableMetadata.FindAnnotation(relationalName);
-
-                            if (duplicate == null)
-                            {
-                                mutableMetadata[relationalName] = annotation.Value;
-                            }
-                            else if (!Equals(duplicate.Value, annotation.Value))
-                            {
-                                _operationReporter.WriteWarning(
-                                    DesignStrings.MultipleAnnotationConflict(stripped.Substring(1)));
-                            }
+                            mutableMetadata[relationalName] = annotation.Value;
+                        }
+                        else if (!Equals(duplicate.Value, annotation.Value))
+                        {
+                            _operationReporter.WriteWarning(
+                                DesignStrings.MultipleAnnotationConflict(stripped[1..]));
                         }
                     }
                 }
             }
         }
+    }
 
-        private void UpdateSequences(IModel model, string version)
+    private static void UpdateSequences(IReadOnlyModel model, string version)
+    {
+        if ((!version.StartsWith("1.", StringComparison.Ordinal)
+                && !version.StartsWith("2.", StringComparison.Ordinal)
+                && !version.StartsWith("3.", StringComparison.Ordinal))
+            || !(model is IMutableModel mutableModel))
         {
-            if ((!version.StartsWith("1.", StringComparison.Ordinal)
-                    && !version.StartsWith("2.", StringComparison.Ordinal)
-                    && !version.StartsWith("3.", StringComparison.Ordinal))
-                || !(model is IMutableModel mutableModel))
-            {
-                return;
-            }
+            return;
+        }
 
-            var sequences = model.GetAnnotations()
+        var sequences = model.GetAnnotations()
 #pragma warning disable CS0618 // Type or member is obsolete
-                .Where(a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal))
-                .Select(a => new Sequence(model, a.Name));
+            .Where(a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal))
+            .Select(a => new Sequence(model, a.Name));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var sequencesDictionary = new SortedDictionary<(string, string), Sequence>();
-            foreach (var sequence in sequences)
-            {
-                sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;
-            }
-
-            if (sequencesDictionary.Count > 0)
-            {
-                mutableModel[RelationalAnnotationNames.Sequences] = sequencesDictionary;
-            }
+        var sequencesDictionary = new SortedDictionary<(string, string?), ISequence>();
+        foreach (var sequence in sequences)
+        {
+            sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;
         }
 
-        private void UpdateOwnedTypes(IMutableEntityType entityType)
+        if (sequencesDictionary.Count > 0)
         {
-            var ownerships = entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership && fk.IsUnique)
-                .ToList();
-            foreach (var ownership in ownerships)
+            mutableModel[RelationalAnnotationNames.Sequences] = sequencesDictionary;
+        }
+    }
+
+    private static void UpdateOwnedTypes(IMutableEntityType entityType)
+    {
+        var ownerships = entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership && fk.IsUnique)
+            .ToList();
+        foreach (var ownership in ownerships)
+        {
+            var ownedType = ownership.DeclaringEntityType;
+
+            var oldPrincipalKey = ownership.PrincipalKey;
+            if (!oldPrincipalKey.IsPrimaryKey())
             {
-                var ownedType = ownership.DeclaringEntityType;
+                ownership.SetProperties(
+                    ownership.Properties,
+                    ownership.PrincipalEntityType.FindPrimaryKey()!);
 
-                var oldPrincipalKey = ownership.PrincipalKey;
-                if (!oldPrincipalKey.IsPrimaryKey())
+                if (oldPrincipalKey is IConventionKey conventionKey
+                    && conventionKey.GetConfigurationSource() == ConfigurationSource.Convention)
                 {
-                    ownership.SetProperties(
-                        (IReadOnlyList<Property>)ownership.Properties,
-                        ownership.PrincipalEntityType.FindPrimaryKey());
-
-                    if (oldPrincipalKey is IConventionKey conventionKey
-                        && conventionKey.GetConfigurationSource() == ConfigurationSource.Convention)
-                    {
-                        oldPrincipalKey.DeclaringEntityType.RemoveKey(oldPrincipalKey);
-                    }
-
-                    foreach (var oldProperty in oldPrincipalKey.Properties)
-                    {
-                        if (oldProperty is IConventionProperty conventionProperty
-                            && conventionProperty.GetConfigurationSource() == ConfigurationSource.Convention)
-                        {
-                            oldProperty.DeclaringEntityType.RemoveProperty(oldProperty);
-                        }
-                    }
+                    oldPrincipalKey.DeclaringEntityType.RemoveKey(oldPrincipalKey);
                 }
 
-                if (ownedType.FindPrimaryKey() == null)
+                foreach (var oldProperty in oldPrincipalKey.Properties)
                 {
-                    foreach (var mutableProperty in ownership.Properties)
+                    if (oldProperty is IConventionProperty conventionProperty
+                        && conventionProperty.GetConfigurationSource() == ConfigurationSource.Convention)
                     {
-                        if (mutableProperty.IsNullable)
-                        {
-                            mutableProperty.IsNullable = false;
-                        }
+                        oldProperty.DeclaringEntityType.RemoveProperty(oldProperty);
                     }
-
-                    ownedType.SetPrimaryKey(ownership.Properties);
                 }
-
-                UpdateOwnedTypes(ownedType);
             }
+
+            if (ownedType.FindPrimaryKey() == null)
+            {
+                foreach (var mutableProperty in ownership.Properties)
+                {
+                    if (mutableProperty.IsNullable)
+                    {
+                        mutableProperty.IsNullable = false;
+                    }
+                }
+
+                ownedType.SetPrimaryKey(ownership.Properties);
+            }
+
+            UpdateOwnedTypes(ownedType);
         }
     }
 }

@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
 using System.Collections.Generic;
@@ -13,9 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var types = CreateExecutor(args).GetContextTypes().ToList();
+            using var executor = CreateExecutor(args);
+            var types = executor.GetContextTypes().ToList();
 
-            if (_json.HasValue())
+            if (_json!.HasValue())
             {
                 ReportJsonResults(types);
             }
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             var any = false;
             foreach (var contextType in contextTypes)
             {
-                Reporter.WriteData(contextType["FullName"] as string);
+                Reporter.WriteData((contextType["FullName"] as string)!);
                 any = true;
             }
 

@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Reflection;
@@ -31,19 +31,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 string.Join(
                     Environment.NewLine,
                     string.Empty,
-                    Reporter.Colorize(@"                     _/\__       ", s => s.Insert(21, Bold + Gray)),
-                    Reporter.Colorize(@"               ---==/    \\      ", s => s.Insert(20, Bold + Gray)),
-                    Reporter.Colorize(@"         ___  ___   |.    \|\    ", s => s.Insert(26, Bold).Insert(21, Dark).Insert(20, Bold + Gray).Insert(9, Dark + Magenta)),
-                    Reporter.Colorize(@"        | __|| __|  |  )   \\\   ", s => s.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
-                    Reporter.Colorize(@"        | _| | _|   \_/ |  //|\\ ", s => s.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
-                    Reporter.Colorize(@"        |___||_|       /   \\\/\\", s => s.Insert(33, Reset).Insert(23, Bold + Gray).Insert(8, Dark + Magenta)),
+                    Reporter.Colorize(@"                     _/\__       ", s => s!.Insert(21, Bold + Gray)),
+                    Reporter.Colorize(@"               ---==/    \\      ", s => s!.Insert(20, Bold + Gray)),
+                    Reporter.Colorize(@"         ___  ___   |.    \|\    ", s => s!.Insert(26, Bold).Insert(21, Dark).Insert(20, Bold + Gray).Insert(9, Dark + Magenta)),
+                    Reporter.Colorize(@"        | __|| __|  |  )   \\\   ", s => s!.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
+                    Reporter.Colorize(@"        | _| | _|   \_/ |  //|\\ ", s => s!.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
+                    Reporter.Colorize(@"        |___||_|       /   \\\/\\", s => s!.Insert(33, Reset).Insert(23, Bold + Gray).Insert(8, Dark + Magenta)),
                     string.Empty));
 
             return base.Execute(args);
         }
 
         private static string GetVersion()
-            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
                 .InformationalVersion;
     }
 }

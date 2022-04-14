@@ -1,23 +1,63 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
+using System.Text;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+/// <summary>
+///     Represents a column in a table-valued function.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+/// </remarks>
+public interface IFunctionColumn : IColumnBase
 {
     /// <summary>
-    ///     Represents a column in a table-valued function.
+    ///     Gets the containing function.
     /// </summary>
-    public interface IFunctionColumn : IColumnBase
-    {
-        /// <summary>
-        ///     Gets the containing function.
-        /// </summary>
-        IStoreFunction Function { get; }
+    IStoreFunction Function { get; }
 
-        /// <summary>
-        ///     Gets the property mappings.
-        /// </summary>
-        new IEnumerable<IFunctionColumnMapping> PropertyMappings { get; }
+    /// <summary>
+    ///     Gets the property mappings.
+    /// </summary>
+    new IReadOnlyList<IFunctionColumnMapping> PropertyMappings { get; }
+
+    /// <summary>
+    ///     <para>
+    ///         Creates a human-readable representation of the given metadata.
+    ///     </para>
+    ///     <para>
+    ///         Warning: Do not rely on the format of the returned string.
+    ///         It is designed for debugging only and may change arbitrarily between releases.
+    ///     </para>
+    /// </summary>
+    /// <param name="options">Options for generating the string.</param>
+    /// <param name="indent">The number of indent spaces to use before each new line.</param>
+    /// <returns>A human-readable representation.</returns>
+    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    {
+        var builder = new StringBuilder();
+        var indentString = new string(' ', indent);
+
+        builder.Append(indentString);
+
+        var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
+        if (singleLine)
+        {
+            builder.Append($"FunctionColumn: {Table.Name}.");
+        }
+
+        builder.Append(Name).Append(" (");
+        builder.Append(StoreType).Append(')');
+        builder.Append(IsNullable ? " Nullable" : " NonNullable");
+        builder.Append(')');
+
+        if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+        {
+            builder.Append(AnnotationsToDebugString(indent + 2));
+        }
+
+        return builder.ToString();
     }
 }

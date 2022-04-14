@@ -1,20 +1,16 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit.Abstractions;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+public class NorthwindStringIncludeQueryInMemoryTest : NorthwindStringIncludeQueryTestBase<
+    NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
 {
-    public class NorthwindStringIncludeQueryInMemoryTest : NorthwindStringIncludeQueryTestBase<
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public NorthwindStringIncludeQueryInMemoryTest(
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
+        ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
-        public NorthwindStringIncludeQueryInMemoryTest(
-            NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-            ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
+        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
     }
 }

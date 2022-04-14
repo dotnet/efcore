@@ -1,488 +1,110 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 {
+    private static readonly ConstructorInfo ValueBufferConstructor
+        = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
+
+    private static readonly PropertyInfo ValueBufferCountMemberInfo
+        = typeof(ValueBuffer).GetTypeInfo().GetProperty(nameof(ValueBuffer.Count))!;
+
+    private static readonly MethodInfo LeftJoinMethodInfo = typeof(InMemoryQueryExpression).GetTypeInfo()
+        .GetDeclaredMethods(nameof(LeftJoin)).Single(mi => mi.GetParameters().Length == 6);
+
+    private static readonly ConstructorInfo ResultEnumerableConstructor
+        = typeof(ResultEnumerable).GetConstructors().Single();
+
+    private readonly ParameterExpression _valueBufferParameter;
+    private ParameterExpression? _groupingParameter;
+    private MethodInfo? _singleResultMethodInfo;
+    private bool _scalarServerQuery;
+
+    private CloningExpressionVisitor? _cloningExpressionVisitor;
+
+    private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private readonly List<Expression> _clientProjections = new();
+    private readonly List<Expression> _projectionMappingExpressions = new();
+
+    private InMemoryQueryExpression(
+        Expression serverQueryExpression,
+        ParameterExpression valueBufferParameter)
+    {
+        ServerQueryExpression = serverQueryExpression;
+        _valueBufferParameter = valueBufferParameter;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public partial class InMemoryQueryExpression : Expression, IPrintableExpression
+    public InMemoryQueryExpression(IEntityType entityType)
     {
-        private static readonly ConstructorInfo _valueBufferConstructor
-            = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
-
-        private static readonly PropertyInfo _valueBufferCountMemberInfo
-            = typeof(ValueBuffer).GetProperty(nameof(ValueBuffer.Count));
-
-        private readonly List<Expression> _valueBufferSlots = new List<Expression>();
-
-        private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
-            = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
-
-        private readonly ParameterExpression _valueBufferParameter;
-
-        private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        private ParameterExpression _groupingParameter;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IReadOnlyList<Expression> Projection
-            => _valueBufferSlots;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Expression ServerQueryExpression { get; private set; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ParameterExpression CurrentParameter
-            => _groupingParameter ?? _valueBufferParameter;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override Type Type
-            => typeof(IEnumerable<ValueBuffer>);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public sealed override ExpressionType NodeType
-            => ExpressionType.Extension;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public InMemoryQueryExpression([NotNull] IEntityType entityType)
+        _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
+        ServerQueryExpression = new InMemoryTableExpression(entityType);
+        var propertyExpressionsMap = new Dictionary<IProperty, MethodCallExpression>();
+        var selectorExpressions = new List<Expression>();
+        foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetDeclaredProperties()))
         {
-            _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
-            ServerQueryExpression = new InMemoryTableExpression(entityType);
-            var readExpressionMap = new Dictionary<IProperty, Expression>();
-            var discriminatorProperty = entityType.GetDiscriminatorProperty();
-            foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetDeclaredProperties()))
-            {
-                readExpressionMap[property] = CreateReadValueExpression(property.ClrType, property.GetIndex(), property);
-            }
+            var propertyExpression = CreateReadValueExpression(property.ClrType, property.GetIndex(), property);
+            selectorExpressions.Add(propertyExpression);
 
+            Check.DebugAssert(
+                property.GetIndex() == selectorExpressions.Count - 1,
+                "Properties should be ordered in same order as their indexes.");
+            propertyExpressionsMap[property] = propertyExpression;
+            _projectionMappingExpressions.Add(propertyExpression);
+        }
+
+        var discriminatorProperty = entityType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null)
+        {
+            var keyValueComparer = discriminatorProperty.GetKeyValueComparer();
             foreach (var derivedEntityType in entityType.GetDerivedTypes())
             {
                 var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()
                     .Select(
-                        e => discriminatorProperty.GetKeyValueComparer().ExtractEqualsBody(
-                            readExpressionMap[discriminatorProperty],
+                        e => keyValueComparer.ExtractEqualsBody(
+                            propertyExpressionsMap[discriminatorProperty],
                             Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
                     .Aggregate((l, r) => OrElse(l, r));
 
                 foreach (var property in derivedEntityType.GetDeclaredProperties())
                 {
-                    readExpressionMap[property] = Condition(
+                    // We read nullable value from property of derived type since it could be null.
+                    var typeToRead = property.ClrType.MakeNullable();
+                    var propertyExpression = Condition(
                         entityCheck,
-                        CreateReadValueExpression(property.ClrType, property.GetIndex(), property),
-                        Default(property.ClrType));
+                        CreateReadValueExpression(typeToRead, property.GetIndex(), property),
+                        Default(typeToRead));
+
+                    selectorExpressions.Add(propertyExpression);
+                    var readExpression = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
+                    propertyExpressionsMap[property] = readExpression;
+                    _projectionMappingExpressions.Add(readExpression);
                 }
             }
 
-            var entityProjection = new EntityProjectionExpression(entityType, readExpressionMap);
-            _projectionMapping[new ProjectionMember()] = entityProjection;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Expression GetSingleScalarProjection()
-        {
-            var expression = CreateReadValueExpression(ServerQueryExpression.Type, 0, null);
-            _projectionMapping.Clear();
-            _projectionMapping[new ProjectionMember()] = expression;
-
-            ConvertToEnumerable();
-
-            return new ProjectionBindingExpression(this, new ProjectionMember(), expression.Type.MakeNullable());
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ConvertToEnumerable()
-        {
-            if (ServerQueryExpression.Type.TryGetSequenceType() == null)
-            {
-                if (ServerQueryExpression.Type != typeof(ValueBuffer))
-                {
-                    if (ServerQueryExpression.Type.IsValueType)
-                    {
-                        ServerQueryExpression = Convert(ServerQueryExpression, typeof(object));
-                    }
-
-                    ServerQueryExpression = New(
-                        typeof(ResultEnumerable).GetConstructors().Single(),
-                        Lambda<Func<ValueBuffer>>(
-                            New(
-                                _valueBufferConstructor,
-                                NewArrayInit(typeof(object), ServerQueryExpression))));
-                }
-                else
-                {
-                    ServerQueryExpression = New(
-                        typeof(ResultEnumerable).GetConstructors().Single(),
-                        Lambda<Func<ValueBuffer>>(ServerQueryExpression));
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ReplaceProjectionMapping([NotNull] IDictionary<ProjectionMember, Expression> projectionMappings)
-        {
-            _projectionMapping.Clear();
-            foreach (var kvp in projectionMappings)
-            {
-                _projectionMapping[kvp.Key] = kvp.Value;
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IDictionary<IProperty, int> AddToProjection([NotNull] EntityProjectionExpression entityProjectionExpression)
-        {
-            if (!_entityProjectionCache.TryGetValue(entityProjectionExpression, out var indexMap))
-            {
-                indexMap = new Dictionary<IProperty, int>();
-                foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
-                {
-                    indexMap[property] = AddToProjection(entityProjectionExpression.BindProperty(property));
-                }
-
-                _entityProjectionCache[entityProjectionExpression] = indexMap;
-            }
-
-            return indexMap;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual int AddToProjection([NotNull] Expression expression)
-        {
-            _valueBufferSlots.Add(expression);
-
-            return _valueBufferSlots.Count - 1;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual int AddSubqueryProjection(
-            [NotNull] ShapedQueryExpression shapedQueryExpression,
-            [CanBeNull] out Expression innerShaper)
-        {
-            var subquery = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
-            subquery.ApplyProjection();
-            var serverQueryExpression = subquery.ServerQueryExpression;
-
-            if (serverQueryExpression is MethodCallExpression selectMethodCall
-                && selectMethodCall.Arguments[0].Type == typeof(ResultEnumerable))
-            {
-                var terminatingMethodCall =
-                    (MethodCallExpression)((LambdaExpression)((NewExpression)selectMethodCall.Arguments[0]).Arguments[0]).Body;
-                selectMethodCall = selectMethodCall.Update(
-                    null, new[] { terminatingMethodCall.Arguments[0], selectMethodCall.Arguments[1] });
-                serverQueryExpression = terminatingMethodCall.Update(null, new[] { selectMethodCall });
-            }
-
-            innerShaper = new ShaperRemappingExpressionVisitor(subquery._projectionMapping)
-                .Visit(shapedQueryExpression.ShaperExpression);
-
-            innerShaper = Lambda(innerShaper, subquery.CurrentParameter);
-
-            return AddToProjection(serverQueryExpression);
-        }
-
-        private sealed class ShaperRemappingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly IDictionary<ProjectionMember, Expression> _projectionMapping;
-
-            public ShaperRemappingExpressionVisitor(IDictionary<ProjectionMember, Expression> projectionMapping)
-            {
-                _projectionMapping = projectionMapping;
-            }
-
-            public override Expression Visit(Expression expression)
-            {
-                if (expression is ProjectionBindingExpression projectionBindingExpression
-                    && projectionBindingExpression.ProjectionMember != null)
-                {
-                    var mappingValue = ((ConstantExpression)_projectionMapping[projectionBindingExpression.ProjectionMember]).Value;
-                    return mappingValue is IDictionary<IProperty, int> indexMap
-                        ? new ProjectionBindingExpression(projectionBindingExpression.QueryExpression, indexMap)
-                        : mappingValue is int index
-                            ? new ProjectionBindingExpression(
-                                projectionBindingExpression.QueryExpression, index, projectionBindingExpression.Type)
-                            : throw new InvalidOperationException(CoreStrings.UnknownEntity("ProjectionMapping"));
-                }
-
-                return base.Visit(expression);
-            }
-        }
-
-        private IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(EntityTypeExtensions.GetDeclaredProperties);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Expression GetMappedProjection([NotNull] ProjectionMember member)
-            => _projectionMapping[member];
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void UpdateServerQueryExpression([NotNull] Expression serverQueryExpression)
-            => ServerQueryExpression = serverQueryExpression;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void PushdownIntoSubquery()
-        {
-            var clientProjection = _valueBufferSlots.Count != 0;
-            if (!clientProjection)
-            {
-                var result = new Dictionary<ProjectionMember, Expression>();
-                foreach (var keyValuePair in _projectionMapping)
-                {
-                    if (keyValuePair.Value is EntityProjectionExpression entityProjection)
-                    {
-                        var map = new Dictionary<IProperty, Expression>();
-                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                        {
-                            var expressionToAdd = entityProjection.BindProperty(property);
-                            var index = AddToProjection(expressionToAdd);
-                            map[property] = CreateReadValueExpression(expressionToAdd.Type, index, property);
-                        }
-
-                        result[keyValuePair.Key] = new EntityProjectionExpression(entityProjection.EntityType, map);
-                    }
-                    else
-                    {
-                        var index = AddToProjection(keyValuePair.Value);
-                        result[keyValuePair.Key] = CreateReadValueExpression(
-                            keyValuePair.Value.Type, index, InferPropertyFromInner(keyValuePair.Value));
-                    }
-                }
-
-                _projectionMapping = result;
-            }
-
+            // Force a selector if entity projection has complex expressions.
             var selectorLambda = Lambda(
                 New(
-                    _valueBufferConstructor,
+                    ValueBufferConstructor,
                     NewArrayInit(
                         typeof(object),
-                        _valueBufferSlots
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
-                CurrentParameter);
-
-            _groupingParameter = null;
-
-            ServerQueryExpression = Call(
-                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
-                ServerQueryExpression,
-                selectorLambda);
-
-            if (clientProjection)
-            {
-                var newValueBufferSlots = _valueBufferSlots
-                    .Select((e, i) => CreateReadValueExpression(e.Type, i, InferPropertyFromInner(e)))
-                    .ToList();
-
-                _valueBufferSlots.Clear();
-                _valueBufferSlots.AddRange(newValueBufferSlots);
-            }
-            else
-            {
-                _valueBufferSlots.Clear();
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ApplyDefaultIfEmpty()
-        {
-            if (_valueBufferSlots.Count != 0)
-            {
-                throw new InvalidOperationException(InMemoryStrings.DefaultIfEmptyAppliedAfterProjection);
-            }
-
-            var result = new Dictionary<ProjectionMember, Expression>();
-            foreach (var keyValuePair in _projectionMapping)
-            {
-                if (keyValuePair.Value is EntityProjectionExpression entityProjection)
-                {
-                    var map = new Dictionary<IProperty, Expression>();
-                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                    {
-                        var expressionToAdd = entityProjection.BindProperty(property);
-                        var index = AddToProjection(expressionToAdd);
-                        map[property] = CreateReadValueExpression(expressionToAdd.Type.MakeNullable(), index, property);
-                    }
-
-                    result[keyValuePair.Key] = new EntityProjectionExpression(entityProjection.EntityType, map);
-                }
-                else
-                {
-                    var index = AddToProjection(keyValuePair.Value);
-                    result[keyValuePair.Key] = CreateReadValueExpression(
-                        keyValuePair.Value.Type.MakeNullable(), index, InferPropertyFromInner(keyValuePair.Value));
-                }
-            }
-
-            _projectionMapping = result;
-
-            var selectorLambda = Lambda(
-                New(
-                    _valueBufferConstructor,
-                    NewArrayInit(
-                        typeof(object),
-                        _valueBufferSlots
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
-                CurrentParameter);
-
-            _groupingParameter = null;
-
-            ServerQueryExpression = Call(
-                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
-                ServerQueryExpression,
-                selectorLambda);
-
-            ServerQueryExpression = Call(
-                EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
-                ServerQueryExpression,
-                New(_valueBufferConstructor, NewArrayInit(typeof(object), Enumerable.Repeat(Constant(null), _valueBufferSlots.Count))));
-
-            _valueBufferSlots.Clear();
-        }
-
-        private static IPropertyBase InferPropertyFromInner(Expression expression)
-            => expression is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
-                    ? (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value
-                    : null;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ApplyProjection()
-        {
-            if (_valueBufferSlots.Count == 0)
-            {
-                var result = new Dictionary<ProjectionMember, Expression>();
-                foreach (var keyValuePair in _projectionMapping)
-                {
-                    if (keyValuePair.Value is EntityProjectionExpression entityProjection)
-                    {
-                        var map = new Dictionary<IProperty, int>();
-                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                        {
-                            map[property] = AddToProjection(entityProjection.BindProperty(property));
-                        }
-
-                        result[keyValuePair.Key] = Constant(map);
-                    }
-                    else
-                    {
-                        result[keyValuePair.Key] = Constant(AddToProjection(keyValuePair.Value));
-                    }
-                }
-
-                _projectionMapping = result;
-            }
-
-            var selectorLambda = Lambda(
-                New(
-                    _valueBufferConstructor,
-                    NewArrayInit(
-                        typeof(object),
-                        _valueBufferSlots
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
-                            .ToArray())),
+                        selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
                 CurrentParameter);
 
             ServerQueryExpression = Call(
@@ -491,714 +113,1165 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 selectorLambda);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InMemoryGroupByShaperExpression ApplyGrouping(
-            [NotNull] Expression groupingKey,
-            [NotNull] Expression shaperExpression)
+        var entityProjection = new EntityProjectionExpression(entityType, propertyExpressionsMap);
+        _projectionMapping[new ProjectionMember()] = entityProjection;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression ServerQueryExpression { get; private set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ParameterExpression CurrentParameter
+        => _groupingParameter ?? _valueBufferParameter;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ReplaceProjection(IReadOnlyList<Expression> clientProjections)
+    {
+        _projectionMapping.Clear();
+        _projectionMappingExpressions.Clear();
+        _clientProjections.Clear();
+        _clientProjections.AddRange(clientProjections);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ReplaceProjection(IReadOnlyDictionary<ProjectionMember, Expression> projectionMapping)
+    {
+        _projectionMapping.Clear();
+        _projectionMappingExpressions.Clear();
+        _clientProjections.Clear();
+        var selectorExpressions = new List<Expression>();
+        foreach (var (projectionMember, expression) in projectionMapping)
         {
-            PushdownIntoSubquery();
-
-            var selectMethod = (MethodCallExpression)ServerQueryExpression;
-            var groupBySource = selectMethod.Arguments[0];
-            var elementSelector = selectMethod.Arguments[1];
-            _groupingParameter = Parameter(typeof(IGrouping<ValueBuffer, ValueBuffer>), "grouping");
-            var groupingKeyAccessExpression = PropertyOrField(_groupingParameter, nameof(IGrouping<int, int>.Key));
-            var groupingKeyExpressions = new List<Expression>();
-            groupingKey = GetGroupingKey(groupingKey, groupingKeyExpressions, groupingKeyAccessExpression);
-            var keySelector = Lambda(
-                New(
-                    _valueBufferConstructor,
-                    NewArrayInit(
-                        typeof(object),
-                        groupingKeyExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
-                _valueBufferParameter);
-
-            ServerQueryExpression = Call(
-                EnumerableMethods.GroupByWithKeyElementSelector.MakeGenericMethod(
-                    typeof(ValueBuffer), typeof(ValueBuffer), typeof(ValueBuffer)),
-                selectMethod.Arguments[0],
-                keySelector,
-                selectMethod.Arguments[1]);
-
-            return new InMemoryGroupByShaperExpression(
-                groupingKey,
-                shaperExpression,
-                _groupingParameter,
-                _valueBufferParameter);
-        }
-
-        private Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
-        {
-            switch (key)
+            if (expression is EntityProjectionExpression entityProjectionExpression)
             {
-                case NewExpression newExpression:
-                    var arguments = new Expression[newExpression.Arguments.Count];
-                    for (var i = 0; i < arguments.Length; i++)
-                    {
-                        arguments[i] = GetGroupingKey(newExpression.Arguments[i], groupingExpressions, groupingKeyAccessExpression);
-                    }
-
-                    return newExpression.Update(arguments);
-
-                case MemberInitExpression memberInitExpression:
-                    if (memberInitExpression.Bindings.Any(mb => !(mb is MemberAssignment)))
-                    {
-                        goto default;
-                    }
-
-                    var updatedNewExpression = (NewExpression)GetGroupingKey(
-                        memberInitExpression.NewExpression, groupingExpressions, groupingKeyAccessExpression);
-                    var memberBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
-                    for (var i = 0; i < memberBindings.Length; i++)
-                    {
-                        var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
-                        memberBindings[i] = memberAssignment.Update(
-                            GetGroupingKey(
-                                memberAssignment.Expression,
-                                groupingExpressions,
-                                groupingKeyAccessExpression));
-                    }
-
-                    return memberInitExpression.Update(updatedNewExpression, memberBindings);
-
-                default:
-                    var index = groupingExpressions.Count;
-                    groupingExpressions.Add(key);
-                    return groupingKeyAccessExpression.CreateValueBufferReadValueExpression(
-                        key.Type,
-                        index,
-                        InferPropertyFromInner(key));
+                _projectionMapping[projectionMember] = AddEntityProjection(entityProjectionExpression);
+            }
+            else
+            {
+                selectorExpressions.Add(expression);
+                var readExpression = CreateReadValueExpression(
+                    expression.Type, selectorExpressions.Count - 1, InferPropertyFromInner(expression));
+                _projectionMapping[projectionMember] = readExpression;
+                _projectionMappingExpressions.Add(readExpression);
             }
         }
 
-        private Expression CreateReadValueExpression(Type type, int index, IPropertyBase property)
-            => _valueBufferParameter.CreateValueBufferReadValueExpression(type, index, property);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void AddInnerJoin(
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [NotNull] LambdaExpression outerKeySelector,
-            [NotNull] LambdaExpression innerKeySelector,
-            [CanBeNull] Type transparentIdentifierType)
+        if (selectorExpressions.Count == 0)
         {
-            var outerParameter = Parameter(typeof(ValueBuffer), "outer");
-            var innerParameter = Parameter(typeof(ValueBuffer), "inner");
-            var resultValueBufferExpressions = new List<Expression>();
+            // No server correlated term in projection so add dummy 1.
+            selectorExpressions.Add(Constant(1));
+        }
+
+        var selectorLambda = Lambda(
+            New(
+                ValueBufferConstructor,
+                NewArrayInit(
+                    typeof(object),
+                    selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e).ToArray())),
+            CurrentParameter);
+
+        ServerQueryExpression = Call(
+            EnumerableMethods.Select.MakeGenericMethod(CurrentParameter.Type, typeof(ValueBuffer)),
+            ServerQueryExpression,
+            selectorLambda);
+
+        _groupingParameter = null;
+
+        EntityProjectionExpression AddEntityProjection(EntityProjectionExpression entityProjectionExpression)
+        {
+            var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
+            foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
+            {
+                var expression = entityProjectionExpression.BindProperty(property);
+                selectorExpressions.Add(expression);
+                var newExpression = CreateReadValueExpression(expression.Type, selectorExpressions.Count - 1, property);
+                readExpressionMap[property] = newExpression;
+                _projectionMappingExpressions.Add(newExpression);
+            }
+
+            var result = new EntityProjectionExpression(entityProjectionExpression.EntityType, readExpressionMap);
+
+            // Also compute nested entity projections
+            foreach (var navigation in entityProjectionExpression.EntityType.GetAllBaseTypes()
+                         .Concat(entityProjectionExpression.EntityType.GetDerivedTypesInclusive())
+                         .SelectMany(t => t.GetDeclaredNavigations()))
+            {
+                var boundEntityShaperExpression = entityProjectionExpression.BindNavigation(navigation);
+                if (boundEntityShaperExpression != null)
+                {
+                    var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
+                    var newInnerEntityProjection = AddEntityProjection(innerEntityProjection);
+                    boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
+                    result.AddNavigationBinding(navigation, boundEntityShaperExpression);
+                }
+            }
+
+            return result;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression GetProjection(ProjectionBindingExpression projectionBindingExpression)
+        => projectionBindingExpression.ProjectionMember != null
+            ? _projectionMapping[projectionBindingExpression.ProjectionMember]
+            : _clientProjections[projectionBindingExpression.Index!.Value];
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ApplyProjection()
+    {
+        if (_scalarServerQuery)
+        {
+            _projectionMapping[new ProjectionMember()] = Constant(0);
+            return;
+        }
+
+        var selectorExpressions = new List<Expression>();
+        if (_clientProjections.Count > 0)
+        {
+            for (var i = 0; i < _clientProjections.Count; i++)
+            {
+                var projection = _clientProjections[i];
+                switch (projection)
+                {
+                    case EntityProjectionExpression entityProjectionExpression:
+                    {
+                        var indexMap = new Dictionary<IProperty, int>();
+                        foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
+                        {
+                            selectorExpressions.Add(entityProjectionExpression.BindProperty(property));
+                            indexMap[property] = selectorExpressions.Count - 1;
+                        }
+
+                        _clientProjections[i] = Constant(indexMap);
+                        break;
+                    }
+
+                    case InMemoryQueryExpression inMemoryQueryExpression:
+                    {
+                        var singleResult = inMemoryQueryExpression._scalarServerQuery
+                            || inMemoryQueryExpression._singleResultMethodInfo != null;
+                        inMemoryQueryExpression.ApplyProjection();
+                        var serverQuery = inMemoryQueryExpression.ServerQueryExpression;
+                        if (singleResult)
+                        {
+                            serverQuery = ((LambdaExpression)((NewExpression)serverQuery).Arguments[0]).Body;
+                        }
+
+                        selectorExpressions.Add(serverQuery);
+                        _clientProjections[i] = Constant(selectorExpressions.Count - 1);
+                        break;
+                    }
+
+                    default:
+                        selectorExpressions.Add(projection);
+                        _clientProjections[i] = Constant(selectorExpressions.Count - 1);
+                        break;
+                }
+            }
+        }
+        else
+        {
+            var newProjectionMapping = new Dictionary<ProjectionMember, Expression>();
+            foreach (var (projectionMember, expression) in _projectionMapping)
+            {
+                if (expression is EntityProjectionExpression entityProjectionExpression)
+                {
+                    var indexMap = new Dictionary<IProperty, int>();
+                    foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
+                    {
+                        selectorExpressions.Add(entityProjectionExpression.BindProperty(property));
+                        indexMap[property] = selectorExpressions.Count - 1;
+                    }
+
+                    newProjectionMapping[projectionMember] = Constant(indexMap);
+                }
+                else
+                {
+                    selectorExpressions.Add(expression);
+                    newProjectionMapping[projectionMember] = Constant(selectorExpressions.Count - 1);
+                }
+            }
+
+            _projectionMapping = newProjectionMapping;
+            _projectionMappingExpressions.Clear();
+        }
+
+        var selectorLambda = Lambda(
+            New(
+                ValueBufferConstructor,
+                NewArrayInit(
+                    typeof(object),
+                    selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e).ToArray())),
+            CurrentParameter);
+
+        ServerQueryExpression = Call(
+            EnumerableMethods.Select.MakeGenericMethod(CurrentParameter.Type, typeof(ValueBuffer)),
+            ServerQueryExpression,
+            selectorLambda);
+
+        _groupingParameter = null;
+
+        if (_singleResultMethodInfo != null)
+        {
+            ServerQueryExpression = Call(
+                _singleResultMethodInfo.MakeGenericMethod(CurrentParameter.Type),
+                ServerQueryExpression);
+
+            ConvertToEnumerable();
+
+            _singleResultMethodInfo = null;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void UpdateServerQueryExpression(Expression serverQueryExpression)
+        => ServerQueryExpression = serverQueryExpression;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ApplySetOperation(MethodInfo setOperationMethodInfo, InMemoryQueryExpression source2)
+    {
+        Check.DebugAssert(_groupingParameter == null, "Cannot apply set operation after GroupBy without flattening.");
+        if (_clientProjections.Count == 0)
+        {
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            var replacingVisitor = new ReplacingExpressionVisitor(
-                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-                new Expression[] { outerParameter, innerParameter });
-
-            var index = 0;
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            foreach (var projection in _projectionMapping)
+            var source1SelectorExpressions = new List<Expression>();
+            var source2SelectorExpressions = new List<Expression>();
+            foreach (var (key, value1, value2) in _projectionMapping.Join(
+                         source2._projectionMapping, kv => kv.Key, kv => kv.Key,
+                         (kv1, kv2) => (kv1.Key, Value1: kv1.Value, Value2: kv2.Value)))
             {
-                if (projection.Value is EntityProjectionExpression entityProjection)
+                if (value1 is EntityProjectionExpression entityProjection1
+                    && value2 is EntityProjectionExpression entityProjection2)
                 {
-                    var readExpressionMap = new Dictionary<IProperty, Expression>();
-                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                    var map = new Dictionary<IProperty, MethodCallExpression>();
+                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection1.EntityType))
                     {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        resultValueBufferExpressions.Add(replacedExpression);
-                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
+                        var expressionToAdd1 = entityProjection1.BindProperty(property);
+                        var expressionToAdd2 = entityProjection2.BindProperty(property);
+                        source1SelectorExpressions.Add(expressionToAdd1);
+                        source2SelectorExpressions.Add(expressionToAdd2);
+                        var type = expressionToAdd1.Type;
+                        if (!type.IsNullableType()
+                            && expressionToAdd2.Type.IsNullableType())
+                        {
+                            type = expressionToAdd2.Type;
+                        }
+
+                        map[property] = CreateReadValueExpression(type, source1SelectorExpressions.Count - 1, property);
                     }
 
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
+                    projectionMapping[key] = new EntityProjectionExpression(entityProjection1.EntityType, map);
                 }
                 else
                 {
-                    resultValueBufferExpressions.Add(replacingVisitor.Visit(projection.Value));
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)]
-                        = CreateReadValueExpression(projection.Value.Type, index++, InferPropertyFromInner(projection.Value));
-                }
-            }
-
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-            foreach (var projection in innerQueryExpression._projectionMapping)
-            {
-                if (projection.Value is EntityProjectionExpression entityProjection)
-                {
-                    var readExpressionMap = new Dictionary<IProperty, Expression>();
-                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                    source1SelectorExpressions.Add(value1);
+                    source2SelectorExpressions.Add(value2);
+                    var type = value1.Type;
+                    if (!type.IsNullableType()
+                        && value2.Type.IsNullableType())
                     {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        resultValueBufferExpressions.Add(replacedExpression);
-                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
+                        type = value2.Type;
                     }
 
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
-                }
-                else
-                {
-                    resultValueBufferExpressions.Add(replacingVisitor.Visit(projection.Value));
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)]
-                        = CreateReadValueExpression(projection.Value.Type, index++, InferPropertyFromInner(projection.Value));
+                    projectionMapping[key] = CreateReadValueExpression(
+                        type, source1SelectorExpressions.Count - 1, InferPropertyFromInner(value1));
                 }
             }
-
-            var resultSelector = Lambda(
-                New(
-                    _valueBufferConstructor,
-                    NewArrayInit(
-                        typeof(object),
-                        resultValueBufferExpressions
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
-                            .ToArray())),
-                outerParameter,
-                innerParameter);
-
-            ServerQueryExpression = Call(
-                EnumerableMethods.Join.MakeGenericMethod(
-                    typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
-                ServerQueryExpression,
-                innerQueryExpression.ServerQueryExpression,
-                outerKeySelector,
-                innerKeySelector,
-                resultSelector);
 
             _projectionMapping = projectionMapping;
-        }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void AddLeftJoin(
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [NotNull] LambdaExpression outerKeySelector,
-            [NotNull] LambdaExpression innerKeySelector,
-            [CanBeNull] Type transparentIdentifierType)
-        {
-            // GroupJoin phase
-            var groupTransparentIdentifierType = TransparentIdentifierFactory.Create(
-                typeof(ValueBuffer), typeof(IEnumerable<ValueBuffer>));
-            var outerParameter = Parameter(typeof(ValueBuffer), "outer");
-            var innerParameter = Parameter(typeof(IEnumerable<ValueBuffer>), "inner");
-            var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var innerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-            var resultSelector = Lambda(
-                New(
-                    groupTransparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-                    new[] { outerParameter, innerParameter }, outerMemberInfo, innerMemberInfo),
-                outerParameter,
-                innerParameter);
-
-            var groupJoinExpression = Call(
-                EnumerableMethods.GroupJoin.MakeGenericMethod(
-                    typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, groupTransparentIdentifierType),
+            ServerQueryExpression = Call(
+                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.GetSequenceType(), typeof(ValueBuffer)),
                 ServerQueryExpression,
-                innerQueryExpression.ServerQueryExpression,
-                outerKeySelector,
-                innerKeySelector,
-                resultSelector);
-
-            // SelectMany phase
-            var collectionParameter = Parameter(groupTransparentIdentifierType, "collection");
-            var collection = MakeMemberAccess(collectionParameter, innerMemberInfo);
-            outerParameter = Parameter(groupTransparentIdentifierType, "outer");
-            innerParameter = Parameter(typeof(ValueBuffer), "inner");
-
-            var resultValueBufferExpressions = new List<Expression>();
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            var replacingVisitor = new ReplacingExpressionVisitor(
-                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter });
-
-            var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
-            var index = 0;
-            outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            foreach (var projection in _projectionMapping)
-            {
-                if (projection.Value is EntityProjectionExpression entityProjection)
-                {
-                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23285", out var isEnabled) && isEnabled)
-                    {
-                        var readExpressionMap = new Dictionary<IProperty, Expression>();
-                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                        {
-                            var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                            resultValueBufferExpressions.Add(replacedExpression);
-                            readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
-                        }
-
-                        projectionMapping[projection.Key.Prepend(outerMemberInfo)] = new EntityProjectionExpression(
-                            entityProjection.EntityType, readExpressionMap);
-                    }
-                    else
-                    {
-                        projectionMapping[projection.Key.Prepend(outerMemberInfo)] = CopyEntityProjectionToOuter(entityProjection);
-                    }
-                }
-                else
-                {
-                    var replacedExpression = replacingVisitor.Visit(projection.Value);
-                    resultValueBufferExpressions.Add(replacedExpression);
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)] = CreateReadValueExpression(
-                        replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
-                }
-            }
-
-            var outerIndex = index;
-            innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-            foreach (var projection in innerQueryExpression._projectionMapping)
-            {
-                if (projection.Value is EntityProjectionExpression entityProjection)
-                {
-                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23285", out var isEnabled) && isEnabled)
-                    {
-                        var readExpressionMap = new Dictionary<IProperty, Expression>();
-                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                        {
-                            var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                            replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
-                            resultValueBufferExpressions.Add(replacedExpression);
-                            readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
-                        }
-
-                        projectionMapping[projection.Key.Prepend(innerMemberInfo)] = new EntityProjectionExpression(
-                            entityProjection.EntityType, readExpressionMap);
-                    }
-                    else
-                    {
-                        projectionMapping[projection.Key.Prepend(innerMemberInfo)] = CopyEntityProjectionToOuter(entityProjection, true);
-                    }
-                }
-                else
-                {
-                    var replacedExpression = replacingVisitor.Visit(projection.Value);
-                    replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
-                    resultValueBufferExpressions.Add(replacedExpression);
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)] = CreateReadValueExpression(
-                        replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
-                }
-            }
-
-            var collectionSelector = Lambda(
-                Call(
-                    EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
-                    collection,
+                Lambda(
                     New(
-                        _valueBufferConstructor,
+                        ValueBufferConstructor,
                         NewArrayInit(
                             typeof(object),
-                            Enumerable.Range(0, index - outerIndex).Select(i => Constant(null))))),
-                collectionParameter);
+                            source1SelectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                    CurrentParameter));
 
-            resultSelector = Lambda(
-                New(
-                    _valueBufferConstructor,
-                    NewArrayInit(
-                        typeof(object),
-                        resultValueBufferExpressions
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
-                            .ToArray())),
-                outerParameter,
-                innerParameter);
+            source2.ServerQueryExpression = Call(
+                EnumerableMethods.Select.MakeGenericMethod(source2.ServerQueryExpression.Type.GetSequenceType(), typeof(ValueBuffer)),
+                source2.ServerQueryExpression,
+                Lambda(
+                    New(
+                        ValueBufferConstructor,
+                        NewArrayInit(
+                            typeof(object),
+                            source2SelectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                    source2.CurrentParameter));
+        }
+        else
+        {
+            throw new InvalidOperationException(InMemoryStrings.SetOperationsNotAllowedAfterClientEvaluation);
+        }
 
-            ServerQueryExpression = Call(
-                EnumerableMethods.SelectManyWithCollectionSelector.MakeGenericMethod(
-                    groupTransparentIdentifierType, typeof(ValueBuffer), typeof(ValueBuffer)),
-                groupJoinExpression,
-                collectionSelector,
-                resultSelector);
+        ServerQueryExpression = Call(
+            setOperationMethodInfo.MakeGenericMethod(typeof(ValueBuffer)), ServerQueryExpression, source2.ServerQueryExpression);
+    }
 
-            _projectionMapping = projectionMapping;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ApplyDefaultIfEmpty()
+    {
+        if (_clientProjections.Count != 0)
+        {
+            throw new InvalidOperationException(InMemoryStrings.DefaultIfEmptyAppliedAfterProjection);
+        }
 
-            EntityProjectionExpression CopyEntityProjectionToOuter(EntityProjectionExpression entityProjection, bool nullable = false)
+        var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+        foreach (var (projectionMember, expression) in _projectionMapping)
+        {
+            projectionMapping[projectionMember] = expression is EntityProjectionExpression entityProjectionExpression
+                ? MakeEntityProjectionNullable(entityProjectionExpression)
+                : MakeReadValueNullable(expression);
+        }
+
+        _projectionMapping = projectionMapping;
+        var projectionMappingExpressions = _projectionMappingExpressions.Select(e => MakeReadValueNullable(e)).ToList();
+        _projectionMappingExpressions.Clear();
+        _projectionMappingExpressions.AddRange(projectionMappingExpressions);
+        _groupingParameter = null;
+
+        ServerQueryExpression = Call(
+            EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
+            ServerQueryExpression,
+            Constant(new ValueBuffer(Enumerable.Repeat((object?)null, _projectionMappingExpressions.Count).ToArray())));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ApplyDistinct()
+    {
+        Check.DebugAssert(!_scalarServerQuery && _singleResultMethodInfo == null, "Cannot apply distinct on single result query");
+        Check.DebugAssert(_groupingParameter == null, "Cannot apply distinct after GroupBy before flattening.");
+
+        var selectorExpressions = new List<Expression>();
+        if (_clientProjections.Count == 0)
+        {
+            selectorExpressions.AddRange(_projectionMappingExpressions);
+            if (selectorExpressions.Count == 0)
             {
-                var readExpressionMap = new Dictionary<IProperty, Expression>();
-                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                // No server correlated term in projection so add dummy 1.
+                selectorExpressions.Add(Constant(1));
+            }
+        }
+        else
+        {
+            for (var i = 0; i < _clientProjections.Count; i++)
+            {
+                var projection = _clientProjections[i];
+                if (projection is InMemoryQueryExpression)
                 {
-                    var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                    if (nullable)
-                    {
-                        replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
-                    }
-                    resultValueBufferExpressions.Add(replacedExpression);
-                    readExpressionMap[property] = CreateReadValueExpression(
-                        replacedExpression.Type, index++, property);
+                    throw new InvalidOperationException(InMemoryStrings.DistinctOnSubqueryNotSupported);
                 }
 
-                var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
-
-                // Also lift nested entity projections
-                foreach (var navigation in entityProjection.EntityType.GetAllBaseTypes()
-                    .Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
-                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                if (projection is EntityProjectionExpression entityProjectionExpression)
                 {
-                    var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
-                    if (boundEntityShaperExpression != null)
-                    {
-                        var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
-                        var newInnerEntityProjection = CopyEntityProjectionToOuter(innerEntityProjection);
-                        boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
-                        newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);
-                    }
+                    _clientProjections[i] = TraverseEntityProjection(
+                        selectorExpressions, entityProjectionExpression, makeNullable: false);
                 }
-
-                return newEntityProjection;
+                else
+                {
+                    selectorExpressions.Add(projection);
+                    _clientProjections[i] = CreateReadValueExpression(
+                        projection.Type, selectorExpressions.Count - 1, InferPropertyFromInner(projection));
+                }
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void AddSelectMany(
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [CanBeNull] Type transparentIdentifierType,
-            bool innerNullable)
+        var selectorLambda = Lambda(
+            New(
+                ValueBufferConstructor,
+                NewArrayInit(
+                    typeof(object),
+                    selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e).ToArray())),
+            CurrentParameter);
+
+        ServerQueryExpression = Call(
+            EnumerableMethods.Distinct.MakeGenericMethod(typeof(ValueBuffer)),
+            Call(
+                EnumerableMethods.Select.MakeGenericMethod(CurrentParameter.Type, typeof(ValueBuffer)),
+                ServerQueryExpression,
+                selectorLambda));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual GroupByShaperExpression ApplyGrouping(
+        Expression groupingKey,
+        Expression shaperExpression,
+        bool defaultElementSelector)
+    {
+        var source = ServerQueryExpression;
+        Expression? selector;
+        if (defaultElementSelector)
         {
-            var outerParameter = Parameter(typeof(ValueBuffer), "outer");
-            var innerParameter = Parameter(typeof(ValueBuffer), "inner");
-            var resultValueBufferExpressions = new List<Expression>();
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            var replacingVisitor = new ReplacingExpressionVisitor(
-                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-                new Expression[] { outerParameter, innerParameter });
-
-            var index = 0;
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            foreach (var projection in _projectionMapping)
-            {
-                if (projection.Value is EntityProjectionExpression entityProjection)
-                {
-                    var readExpressionMap = new Dictionary<IProperty, Expression>();
-                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                    {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        resultValueBufferExpressions.Add(replacedExpression);
-                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
-                    }
-
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
-                }
-                else
-                {
-                    resultValueBufferExpressions.Add(replacingVisitor.Visit(projection.Value));
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)]
-                        = CreateReadValueExpression(projection.Value.Type, index++, InferPropertyFromInner(projection.Value));
-                }
-            }
-
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-            var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
-            foreach (var projection in innerQueryExpression._projectionMapping)
-            {
-                if (projection.Value is EntityProjectionExpression entityProjection)
-                {
-                    var readExpressionMap = new Dictionary<IProperty, Expression>();
-                    foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                    {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        if (innerNullable)
-                        {
-                            replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
-                        }
-
-                        resultValueBufferExpressions.Add(replacedExpression);
-                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, index++, property);
-                    }
-
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)]
-                        = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
-                }
-                else
-                {
-                    var replacedExpression = replacingVisitor.Visit(projection.Value);
-                    if (innerNullable)
-                    {
-                        replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
-                    }
-
-                    resultValueBufferExpressions.Add(replacedExpression);
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)]
-                        = CreateReadValueExpression(replacedExpression.Type, index++, InferPropertyFromInner(projection.Value));
-                }
-            }
-
-            var resultSelector = Lambda(
+            selector = Lambda(
                 New(
-                    _valueBufferConstructor,
+                    ValueBufferConstructor,
                     NewArrayInit(
                         typeof(object),
-                        resultValueBufferExpressions
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
-                            .ToArray())),
-                outerParameter,
-                innerParameter);
+                        _projectionMappingExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+                _valueBufferParameter);
+        }
+        else
+        {
+            var selectMethodCall = (MethodCallExpression)ServerQueryExpression;
+            source = selectMethodCall.Arguments[0];
+            selector = selectMethodCall.Arguments[1];
+        }
 
+        _groupingParameter = Parameter(typeof(IGrouping<ValueBuffer, ValueBuffer>), "grouping");
+        var groupingKeyAccessExpression = PropertyOrField(_groupingParameter, nameof(IGrouping<int, int>.Key));
+        var groupingKeyExpressions = new List<Expression>();
+        groupingKey = GetGroupingKey(groupingKey, groupingKeyExpressions, groupingKeyAccessExpression);
+        var keySelector = Lambda(
+            New(
+                ValueBufferConstructor,
+                NewArrayInit(
+                    typeof(object),
+                    groupingKeyExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+            _valueBufferParameter);
+
+        ServerQueryExpression = Call(
+            EnumerableMethods.GroupByWithKeyElementSelector.MakeGenericMethod(
+                typeof(ValueBuffer), typeof(ValueBuffer), typeof(ValueBuffer)),
+            source,
+            keySelector,
+            selector);
+
+        var clonedInMemoryQueryExpression = Clone();
+        clonedInMemoryQueryExpression.UpdateServerQueryExpression(_groupingParameter);
+        clonedInMemoryQueryExpression._groupingParameter = null;
+
+        return new GroupByShaperExpression(
+            groupingKey,
+            new ShapedQueryExpression(
+                clonedInMemoryQueryExpression,
+                new QueryExpressionReplacingExpressionVisitor(this, clonedInMemoryQueryExpression).Visit(shaperExpression)));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression AddInnerJoin(
+        InMemoryQueryExpression innerQueryExpression,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        Expression outerShaperExpression,
+        Expression innerShaperExpression)
+        => AddJoin(
+            innerQueryExpression, outerKeySelector, innerKeySelector, outerShaperExpression, innerShaperExpression,
+            innerNullable: false);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression AddLeftJoin(
+        InMemoryQueryExpression innerQueryExpression,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        Expression outerShaperExpression,
+        Expression innerShaperExpression)
+        => AddJoin(
+            innerQueryExpression, outerKeySelector, innerKeySelector, outerShaperExpression, innerShaperExpression,
+            innerNullable: true);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression AddSelectMany(
+        InMemoryQueryExpression innerQueryExpression,
+        Expression outerShaperExpression,
+        Expression innerShaperExpression,
+        bool innerNullable)
+        => AddJoin(innerQueryExpression, null, null, outerShaperExpression, innerShaperExpression, innerNullable);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual EntityShaperExpression AddNavigationToWeakEntityType(
+        EntityProjectionExpression entityProjectionExpression,
+        INavigation navigation,
+        InMemoryQueryExpression innerQueryExpression,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector)
+    {
+        Check.DebugAssert(_clientProjections.Count == 0, "Cannot expand weak entity navigation after client projection yet.");
+        var outerParameter = Parameter(typeof(ValueBuffer), "outer");
+        var innerParameter = Parameter(typeof(ValueBuffer), "inner");
+        var replacingVisitor = new ReplacingExpressionVisitor(
+            new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
+            new Expression[] { outerParameter, innerParameter });
+
+        var selectorExpressions = _projectionMappingExpressions.Select(e => replacingVisitor.Visit(e)).ToList();
+        var outerIndex = selectorExpressions.Count;
+        var innerEntityProjection = (EntityProjectionExpression)innerQueryExpression._projectionMapping[new ProjectionMember()];
+        var innerReadExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
+        foreach (var property in GetAllPropertiesInHierarchy(innerEntityProjection.EntityType))
+        {
+            var propertyExpression = innerEntityProjection.BindProperty(property);
+            propertyExpression = MakeReadValueNullable(propertyExpression);
+
+            selectorExpressions.Add(propertyExpression);
+            var readValueExpression = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
+            innerReadExpressionMap[property] = readValueExpression;
+            _projectionMappingExpressions.Add(readValueExpression);
+        }
+
+        innerEntityProjection = new EntityProjectionExpression(innerEntityProjection.EntityType, innerReadExpressionMap);
+
+        var resultSelector = Lambda(
+            New(
+                ValueBufferConstructor,
+                NewArrayInit(
+                    typeof(object),
+                    selectorExpressions
+                        .Select(e => replacingVisitor.Visit(e))
+                        .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
+            outerParameter,
+            innerParameter);
+
+        ServerQueryExpression = Call(
+            LeftJoinMethodInfo.MakeGenericMethod(
+                typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
+            ServerQueryExpression,
+            innerQueryExpression.ServerQueryExpression,
+            outerKeySelector,
+            innerKeySelector,
+            resultSelector,
+            Constant(
+                new ValueBuffer(
+                    Enumerable.Repeat((object?)null, selectorExpressions.Count - outerIndex).ToArray())));
+
+        var entityShaper = new EntityShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
+        entityProjectionExpression.AddNavigationBinding(navigation, entityShaper);
+
+        return entityShaper;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ShapedQueryExpression Clone(Expression shaperExpression)
+    {
+        var clonedInMemoryQueryExpression = Clone();
+
+        return new ShapedQueryExpression(
+            clonedInMemoryQueryExpression,
+            new QueryExpressionReplacingExpressionVisitor(this, clonedInMemoryQueryExpression).Visit(shaperExpression));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression GetSingleScalarProjection()
+    {
+        var expression = CreateReadValueExpression(ServerQueryExpression.Type, 0, null);
+        _projectionMapping.Clear();
+        _projectionMappingExpressions.Clear();
+        _clientProjections.Clear();
+        _projectionMapping[new ProjectionMember()] = expression;
+        _projectionMappingExpressions.Add(expression);
+        _groupingParameter = null;
+
+        _scalarServerQuery = true;
+        ConvertToEnumerable();
+
+        return new ProjectionBindingExpression(this, new ProjectionMember(), expression.Type.MakeNullable());
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ConvertToSingleResult(MethodInfo methodInfo)
+        => _singleResultMethodInfo = methodInfo;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override Type Type
+        => typeof(IEnumerable<ValueBuffer>);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public sealed override ExpressionType NodeType
+        => ExpressionType.Extension;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+    {
+        expressionPrinter.AppendLine(nameof(InMemoryQueryExpression) + ": ");
+        using (expressionPrinter.Indent())
+        {
+            expressionPrinter.AppendLine(nameof(ServerQueryExpression) + ": ");
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.Visit(ServerQueryExpression);
+            }
+
+            expressionPrinter.AppendLine();
+            if (_clientProjections.Count > 0)
+            {
+                expressionPrinter.AppendLine("ClientProjections:");
+                using (expressionPrinter.Indent())
+                {
+                    for (var i = 0; i < _clientProjections.Count; i++)
+                    {
+                        expressionPrinter.AppendLine();
+                        expressionPrinter.Append(i.ToString()).Append(" -> ");
+                        expressionPrinter.Visit(_clientProjections[i]);
+                    }
+                }
+            }
+            else
+            {
+                expressionPrinter.AppendLine("ProjectionMapping:");
+                using (expressionPrinter.Indent())
+                {
+                    foreach (var (projectionMember, expression) in _projectionMapping)
+                    {
+                        expressionPrinter.Append("Member: " + projectionMember + " Projection: ");
+                        expressionPrinter.Visit(expression);
+                        expressionPrinter.AppendLine(",");
+                    }
+                }
+            }
+
+            expressionPrinter.AppendLine();
+        }
+    }
+
+    private InMemoryQueryExpression Clone()
+    {
+        _cloningExpressionVisitor ??= new CloningExpressionVisitor();
+
+        return (InMemoryQueryExpression)_cloningExpressionVisitor.Visit(this);
+    }
+
+    private static Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
+    {
+        switch (key)
+        {
+            case NewExpression newExpression:
+                var arguments = new Expression[newExpression.Arguments.Count];
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    arguments[i] = GetGroupingKey(newExpression.Arguments[i], groupingExpressions, groupingKeyAccessExpression);
+                }
+
+                return newExpression.Update(arguments);
+
+            case MemberInitExpression memberInitExpression:
+                if (memberInitExpression.Bindings.Any(mb => !(mb is MemberAssignment)))
+                {
+                    goto default;
+                }
+
+                var updatedNewExpression = (NewExpression)GetGroupingKey(
+                    memberInitExpression.NewExpression, groupingExpressions, groupingKeyAccessExpression);
+                var memberBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
+                for (var i = 0; i < memberBindings.Length; i++)
+                {
+                    var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
+                    memberBindings[i] = memberAssignment.Update(
+                        GetGroupingKey(
+                            memberAssignment.Expression,
+                            groupingExpressions,
+                            groupingKeyAccessExpression));
+                }
+
+                return memberInitExpression.Update(updatedNewExpression, memberBindings);
+
+            default:
+                var index = groupingExpressions.Count;
+                groupingExpressions.Add(key);
+                return groupingKeyAccessExpression.CreateValueBufferReadValueExpression(
+                    key.Type,
+                    index,
+                    InferPropertyFromInner(key));
+        }
+    }
+
+    private Expression AddJoin(
+        InMemoryQueryExpression innerQueryExpression,
+        LambdaExpression? outerKeySelector,
+        LambdaExpression? innerKeySelector,
+        Expression outerShaperExpression,
+        Expression innerShaperExpression,
+        bool innerNullable)
+    {
+        var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaperExpression.Type, innerShaperExpression.Type);
+        var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
+        var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
+        var outerClientEval = _clientProjections.Count > 0;
+        var innerClientEval = innerQueryExpression._clientProjections.Count > 0;
+        var resultSelectorExpressions = new List<Expression>();
+        var outerParameter = Parameter(typeof(ValueBuffer), "outer");
+        var innerParameter = Parameter(typeof(ValueBuffer), "inner");
+        var replacingVisitor = new ReplacingExpressionVisitor(
+            new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
+            new Expression[] { outerParameter, innerParameter });
+        int outerIndex;
+
+        if (outerClientEval)
+        {
+            // Outer projection are already populated
+            if (innerClientEval)
+            {
+                // Add inner to projection and update indexes
+                var indexMap = new int[innerQueryExpression._clientProjections.Count];
+                for (var i = 0; i < innerQueryExpression._clientProjections.Count; i++)
+                {
+                    var projectionToAdd = innerQueryExpression._clientProjections[i];
+                    projectionToAdd = MakeNullable(projectionToAdd, innerNullable);
+                    _clientProjections.Add(projectionToAdd);
+                    indexMap[i] = _clientProjections.Count - 1;
+                }
+
+                innerQueryExpression._clientProjections.Clear();
+
+                innerShaperExpression =
+                    new ProjectionIndexRemappingExpressionVisitor(innerQueryExpression, this, indexMap).Visit(innerShaperExpression);
+            }
+            else
+            {
+                // Apply inner projection mapping and convert projection member binding to indexes
+                var mapping = ConvertProjectionMappingToClientProjections(innerQueryExpression._projectionMapping, innerNullable);
+                innerShaperExpression =
+                    new ProjectionMemberToIndexConvertingExpressionVisitor(this, mapping).Visit(innerShaperExpression);
+            }
+
+            // TODO: We still need to populate and generate result selector
+            // Further for a subquery in projection we may need to update correlation terms used inside it.
+            throw new NotImplementedException();
+        }
+
+        if (innerClientEval)
+        {
+            // Since inner projections are populated, we need to populate outer also
+            var mapping = ConvertProjectionMappingToClientProjections(_projectionMapping);
+            outerShaperExpression = new ProjectionMemberToIndexConvertingExpressionVisitor(this, mapping).Visit(outerShaperExpression);
+
+            var indexMap = new int[innerQueryExpression._clientProjections.Count];
+            for (var i = 0; i < innerQueryExpression._clientProjections.Count; i++)
+            {
+                var projectionToAdd = innerQueryExpression._clientProjections[i];
+                projectionToAdd = MakeNullable(projectionToAdd, innerNullable);
+                _clientProjections.Add(projectionToAdd);
+                indexMap[i] = _clientProjections.Count - 1;
+            }
+
+            innerQueryExpression._clientProjections.Clear();
+
+            innerShaperExpression =
+                new ProjectionIndexRemappingExpressionVisitor(innerQueryExpression, this, indexMap).Visit(innerShaperExpression);
+            // TODO: We still need to populate and generate result selector
+            // Further for a subquery in projection we may need to update correlation terms used inside it.
+            throw new NotImplementedException();
+        }
+        else
+        {
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            var mapping = new Dictionary<ProjectionMember, ProjectionMember>();
+            foreach (var (projectionMember, expression) in _projectionMapping)
+            {
+                var newProjectionMember = projectionMember.Prepend(outerMemberInfo);
+                mapping[projectionMember] = newProjectionMember;
+                if (expression is EntityProjectionExpression entityProjectionExpression)
+                {
+                    projectionMapping[newProjectionMember] = TraverseEntityProjection(
+                        resultSelectorExpressions, entityProjectionExpression, makeNullable: false);
+                }
+                else
+                {
+                    resultSelectorExpressions.Add(expression);
+                    projectionMapping[newProjectionMember] = CreateReadValueExpression(
+                        expression.Type, resultSelectorExpressions.Count - 1, InferPropertyFromInner(expression));
+                }
+            }
+
+            outerShaperExpression = new ProjectionMemberRemappingExpressionVisitor(this, mapping).Visit(outerShaperExpression);
+            mapping.Clear();
+
+            outerIndex = resultSelectorExpressions.Count;
+            foreach (var projection in innerQueryExpression._projectionMapping)
+            {
+                var newProjectionMember = projection.Key.Prepend(innerMemberInfo);
+                mapping[projection.Key] = newProjectionMember;
+                if (projection.Value is EntityProjectionExpression entityProjectionExpression)
+                {
+                    projectionMapping[newProjectionMember] = TraverseEntityProjection(
+                        resultSelectorExpressions, entityProjectionExpression, innerNullable);
+                }
+                else
+                {
+                    var expression = projection.Value;
+                    if (innerNullable)
+                    {
+                        expression = MakeReadValueNullable(expression);
+                    }
+
+                    resultSelectorExpressions.Add(expression);
+                    projectionMapping[newProjectionMember] = CreateReadValueExpression(
+                        expression.Type, resultSelectorExpressions.Count - 1, InferPropertyFromInner(projection.Value));
+                }
+            }
+
+            innerShaperExpression = new ProjectionMemberRemappingExpressionVisitor(this, mapping).Visit(innerShaperExpression);
+            mapping.Clear();
+
+            _projectionMapping = projectionMapping;
+        }
+
+        var resultSelector = Lambda(
+            New(
+                ValueBufferConstructor, NewArrayInit(
+                    typeof(object),
+                    resultSelectorExpressions.Select(
+                        (e, i) =>
+                        {
+                            var expression = replacingVisitor.Visit(e);
+                            if (innerNullable
+                                && i > outerIndex)
+                            {
+                                expression = MakeReadValueNullable(expression);
+                            }
+
+                            if (expression.Type.IsValueType)
+                            {
+                                expression = Convert(expression, typeof(object));
+                            }
+
+                            return expression;
+                        }))),
+            outerParameter,
+            innerParameter);
+
+        if (outerKeySelector != null
+            && innerKeySelector != null)
+        {
+            if (innerNullable)
+            {
+                ServerQueryExpression = Call(
+                    LeftJoinMethodInfo.MakeGenericMethod(
+                        typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
+                    ServerQueryExpression,
+                    innerQueryExpression.ServerQueryExpression,
+                    outerKeySelector,
+                    innerKeySelector,
+                    resultSelector,
+                    Constant(
+                        new ValueBuffer(
+                            Enumerable.Repeat((object?)null, resultSelectorExpressions.Count - outerIndex).ToArray())));
+            }
+            else
+            {
+                ServerQueryExpression = Call(
+                    EnumerableMethods.Join.MakeGenericMethod(
+                        typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
+                    ServerQueryExpression,
+                    innerQueryExpression.ServerQueryExpression,
+                    outerKeySelector,
+                    innerKeySelector,
+                    resultSelector);
+            }
+        }
+        else
+        {
+            // inner nullable should do something different here
+            // Issue#17536
             ServerQueryExpression = Call(
                 EnumerableMethods.SelectManyWithCollectionSelector.MakeGenericMethod(
                     typeof(ValueBuffer), typeof(ValueBuffer), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 Lambda(innerQueryExpression.ServerQueryExpression, CurrentParameter),
                 resultSelector);
-
-            _projectionMapping = projectionMapping;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual EntityShaperExpression AddNavigationToWeakEntityType(
-            [NotNull] EntityProjectionExpression entityProjectionExpression,
-            [NotNull] INavigation navigation,
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [NotNull] LambdaExpression outerKeySelector,
-            [NotNull] LambdaExpression innerKeySelector)
+        if (innerNullable)
         {
-            // GroupJoin phase
-            var groupTransparentIdentifierType = TransparentIdentifierFactory.Create(
-                typeof(ValueBuffer), typeof(IEnumerable<ValueBuffer>));
-            var outerParameter = Parameter(typeof(ValueBuffer), "outer");
-            var innerParameter = Parameter(typeof(IEnumerable<ValueBuffer>), "inner");
-            var outerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var innerMemberInfo = groupTransparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
-            var resultSelector = Lambda(
-                New(
-                    groupTransparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-                    new[] { outerParameter, innerParameter }, outerMemberInfo, innerMemberInfo),
-                outerParameter,
-                innerParameter);
-
-            var groupJoinExpression = Call(
-                EnumerableMethods.GroupJoin.MakeGenericMethod(
-                    typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, groupTransparentIdentifierType),
-                ServerQueryExpression,
-                innerQueryExpression.ServerQueryExpression,
-                outerKeySelector,
-                innerKeySelector,
-                resultSelector);
-
-            // SelectMany phase
-            var collectionParameter = Parameter(groupTransparentIdentifierType, "collection");
-            var collection = MakeMemberAccess(collectionParameter, innerMemberInfo);
-            outerParameter = Parameter(groupTransparentIdentifierType, "outer");
-            innerParameter = Parameter(typeof(ValueBuffer), "inner");
-
-            var resultValueBufferExpressions = new List<Expression>();
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            var replacingVisitor = new ReplacingExpressionVisitor(
-                new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
-                new Expression[] { MakeMemberAccess(outerParameter, outerMemberInfo), innerParameter });
-
-            foreach (var projection in _projectionMapping)
-            {
-                if (projection.Value is EntityProjectionExpression entityProjection)
-                {
-                    projectionMapping[projection.Key] = CopyEntityProjectionToOuter(entityProjection);
-                }
-                else
-                {
-                    var replacedExpression = replacingVisitor.Visit(projection.Value);
-                    resultValueBufferExpressions.Add(replacedExpression);
-                    projectionMapping[projection.Key] = CreateReadValueExpression(
-                        replacedExpression.Type, resultValueBufferExpressions.Count - 1, InferPropertyFromInner(projection.Value));
-                }
-            }
-
-            _projectionMapping = projectionMapping;
-            var outerIndex = resultValueBufferExpressions.Count;
-            var nullableReadValueExpressionVisitor = new NullableReadValueExpressionVisitor();
-            var innerEntityProjection = (EntityProjectionExpression)innerQueryExpression.GetMappedProjection(new ProjectionMember());
-
-            var innerReadExpressionMap = new Dictionary<IProperty, Expression>();
-            foreach (var property in GetAllPropertiesInHierarchy(innerEntityProjection.EntityType))
-            {
-                var replacedExpression = replacingVisitor.Visit(innerEntityProjection.BindProperty(property));
-                replacedExpression = nullableReadValueExpressionVisitor.Visit(replacedExpression);
-                resultValueBufferExpressions.Add(replacedExpression);
-                innerReadExpressionMap[property] = CreateReadValueExpression(
-                    replacedExpression.Type, resultValueBufferExpressions.Count - 1, property);
-            }
-
-            innerEntityProjection = new EntityProjectionExpression(innerEntityProjection.EntityType, innerReadExpressionMap);
-
-            var collectionSelector = Lambda(
-                Call(
-                    EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
-                    collection,
-                    New(
-                        _valueBufferConstructor,
-                        NewArrayInit(
-                            typeof(object),
-                            Enumerable.Range(0, resultValueBufferExpressions.Count - outerIndex).Select(i => Constant(null))))),
-                collectionParameter);
-
-            resultSelector = Lambda(
-                New(
-                    _valueBufferConstructor,
-                    NewArrayInit(
-                        typeof(object),
-                        resultValueBufferExpressions
-                            .Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e)
-                            .ToArray())),
-                outerParameter,
-                innerParameter);
-
-            ServerQueryExpression = Call(
-                EnumerableMethods.SelectManyWithCollectionSelector.MakeGenericMethod(
-                    groupTransparentIdentifierType, typeof(ValueBuffer), typeof(ValueBuffer)),
-                groupJoinExpression,
-                collectionSelector,
-                resultSelector);
-
-            var entityShaper = new EntityShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
-            entityProjectionExpression.AddNavigationBinding(navigation, entityShaper);
-
-            return entityShaper;
-
-            EntityProjectionExpression CopyEntityProjectionToOuter(EntityProjectionExpression entityProjection)
-            {
-                var readExpressionMap = new Dictionary<IProperty, Expression>();
-                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                {
-                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23285", out var isEnabled) && isEnabled)
-                    {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        var valueBufferIndex = GetValueBufferIndex(replacedExpression);
-                        while (valueBufferIndex >= resultValueBufferExpressions.Count)
-                        {
-                            resultValueBufferExpressions.Add(Constant(null));
-                        }
-                        resultValueBufferExpressions[valueBufferIndex] = replacedExpression;
-                        readExpressionMap[property] = CreateReadValueExpression(replacedExpression.Type, valueBufferIndex, property);
-                    }
-                    else
-                    {
-                        var replacedExpression = replacingVisitor.Visit(entityProjection.BindProperty(property));
-                        resultValueBufferExpressions.Add(replacedExpression);
-                        readExpressionMap[property] = CreateReadValueExpression(
-                            replacedExpression.Type, resultValueBufferExpressions.Count - 1, property);
-                    }
-                }
-
-                var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, readExpressionMap);
-                if (ReferenceEquals(entityProjectionExpression, entityProjection))
-                {
-                    entityProjectionExpression = newEntityProjection;
-                }
-
-                // Also lift nested entity projections
-                foreach (var navigation in entityProjection.EntityType.GetAllBaseTypes()
-                    .Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
-                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
-                {
-                    var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
-                    if (boundEntityShaperExpression != null)
-                    {
-                        var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
-                        var newInnerEntityProjection = CopyEntityProjectionToOuter(innerEntityProjection);
-                        boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
-                        newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);
-                    }
-                }
-
-                return newEntityProjection;
-            }
-
-            static int GetValueBufferIndex(Expression expression)
-                => expression is ConditionalExpression conditionalExpression
-                    ? GetValueBufferIndex(conditionalExpression.IfTrue)
-                    : (int)((ConstantExpression)((MethodCallExpression)expression).Arguments[1]).Value;
+            innerShaperExpression = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaperExpression);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+        return New(
+            transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
+            new[] { outerShaperExpression, innerShaperExpression }, outerMemberInfo, innerMemberInfo);
+
+        static Expression MakeNullable(Expression expression, bool nullable)
+            => nullable
+                ? expression is EntityProjectionExpression entityProjection
+                    ? MakeEntityProjectionNullable(entityProjection)
+                    : MakeReadValueNullable(expression)
+                : expression;
+    }
+
+    private void ConvertToEnumerable()
+    {
+        if (_scalarServerQuery || _singleResultMethodInfo != null)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
-            expressionPrinter.AppendLine(nameof(InMemoryQueryExpression) + ": ");
-            using (expressionPrinter.Indent())
+            if (ServerQueryExpression.Type != typeof(ValueBuffer))
             {
-                expressionPrinter.AppendLine(nameof(ServerQueryExpression) + ": ");
-                using (expressionPrinter.Indent())
+                if (ServerQueryExpression.Type.IsValueType)
                 {
-                    expressionPrinter.Visit(ServerQueryExpression);
+                    ServerQueryExpression = Convert(ServerQueryExpression, typeof(object));
                 }
 
-                expressionPrinter.AppendLine();
-                expressionPrinter.AppendLine("ProjectionMapping:");
-                using (expressionPrinter.Indent())
-                {
-                    foreach (var projectionMapping in _projectionMapping)
-                    {
-                        expressionPrinter.Append("Member: " + projectionMapping.Key + " Projection: ");
-                        expressionPrinter.Visit(projectionMapping.Value);
-                        expressionPrinter.AppendLine(",");
-                    }
-                }
-
-                expressionPrinter.AppendLine();
+                ServerQueryExpression = New(
+                    ResultEnumerableConstructor,
+                    Lambda<Func<ValueBuffer>>(
+                        New(
+                            ValueBufferConstructor,
+                            NewArrayInit(typeof(object), ServerQueryExpression))));
+            }
+            else
+            {
+                ServerQueryExpression = New(
+                    ResultEnumerableConstructor,
+                    Lambda<Func<ValueBuffer>>(ServerQueryExpression));
             }
         }
+    }
 
-        private sealed class NullableReadValueExpressionVisitor : ExpressionVisitor
+    private MethodCallExpression CreateReadValueExpression(Type type, int index, IPropertyBase? property)
+        => (MethodCallExpression)_valueBufferParameter.CreateValueBufferReadValueExpression(type, index, property);
+
+    private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
+        => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetDeclaredProperties());
+
+    private static IPropertyBase? InferPropertyFromInner(Expression expression)
+        => expression is MethodCallExpression methodCallExpression
+            && methodCallExpression.Method.IsGenericMethod
+            && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
+                ? methodCallExpression.Arguments[2].GetConstantValue<IPropertyBase>()
+                : null;
+
+    private static EntityProjectionExpression MakeEntityProjectionNullable(EntityProjectionExpression entityProjectionExpression)
+    {
+        var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
+        foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
         {
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            readExpressionMap[property] = MakeReadValueNullable(entityProjectionExpression.BindProperty(property));
+        }
+
+        var result = new EntityProjectionExpression(entityProjectionExpression.EntityType, readExpressionMap);
+
+        // Also compute nested entity projections
+        foreach (var navigation in entityProjectionExpression.EntityType.GetAllBaseTypes()
+                     .Concat(entityProjectionExpression.EntityType.GetDerivedTypesInclusive())
+                     .SelectMany(t => t.GetDeclaredNavigations()))
+        {
+            var boundEntityShaperExpression = entityProjectionExpression.BindNavigation(navigation);
+            if (boundEntityShaperExpression != null)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
-                return methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
-                    && !methodCallExpression.Type.IsNullableType()
-                    ? Call(
-                        ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(methodCallExpression.Type.MakeNullable()),
-                        methodCallExpression.Arguments)
-                    : base.VisitMethodCall(methodCallExpression);
-            }
-
-            protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
-            {
-                Check.NotNull(conditionalExpression, nameof(conditionalExpression));
-
-                var test = Visit(conditionalExpression.Test);
-                var ifTrue = Visit(conditionalExpression.IfTrue);
-                var ifFalse = Visit(conditionalExpression.IfFalse);
-
-                if (ifTrue.Type.IsNullableType()
-                    && conditionalExpression.IfTrue.Type == ifTrue.Type.UnwrapNullableType()
-                    && ifFalse is DefaultExpression)
-                {
-                    ifFalse = Default(ifTrue.Type);
-                }
-
-                return Condition(test, ifTrue, ifFalse);
-            }
-
-            protected override Expression VisitUnary(UnaryExpression unaryExpression)
-            {
-                return AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23926", out var enabled)
-                    && enabled
-                    ? base.VisitUnary(unaryExpression)
-                    : unaryExpression.Update(Visit(unaryExpression.Operand));
+                var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
+                var newInnerEntityProjection = MakeEntityProjectionNullable(innerEntityProjection);
+                boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
+                result.AddNavigationBinding(navigation, boundEntityShaperExpression);
             }
         }
+
+        return result;
+    }
+
+    private Dictionary<ProjectionMember, int> ConvertProjectionMappingToClientProjections(
+        Dictionary<ProjectionMember, Expression> projectionMapping,
+        bool makeNullable = false)
+    {
+        var mapping = new Dictionary<ProjectionMember, int>();
+        var entityProjectionCache = new Dictionary<EntityProjectionExpression, int>(ReferenceEqualityComparer.Instance);
+        foreach (var projection in projectionMapping)
+        {
+            var projectionMember = projection.Key;
+            var projectionToAdd = projection.Value;
+
+            if (projectionToAdd is EntityProjectionExpression entityProjection)
+            {
+                if (!entityProjectionCache.TryGetValue(entityProjection, out var value))
+                {
+                    var entityProjectionToCache = entityProjection;
+                    if (makeNullable)
+                    {
+                        entityProjection = MakeEntityProjectionNullable(entityProjection);
+                    }
+
+                    _clientProjections.Add(entityProjection);
+                    value = _clientProjections.Count - 1;
+                    entityProjectionCache[entityProjectionToCache] = value;
+                }
+
+                mapping[projectionMember] = value;
+            }
+            else
+            {
+                if (makeNullable)
+                {
+                    projectionToAdd = MakeReadValueNullable(projectionToAdd);
+                }
+
+                var existingIndex = _clientProjections.FindIndex(e => e.Equals(projectionToAdd));
+                if (existingIndex == -1)
+                {
+                    _clientProjections.Add(projectionToAdd);
+                    existingIndex = _clientProjections.Count - 1;
+                }
+
+                mapping[projectionMember] = existingIndex;
+            }
+        }
+
+        projectionMapping.Clear();
+
+        return mapping;
+    }
+
+    private static IEnumerable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
+        IEnumerable<TOuter> outer,
+        IEnumerable<TInner> inner,
+        Func<TOuter, TKey> outerKeySelector,
+        Func<TInner, TKey> innerKeySelector,
+        Func<TOuter, TInner, TResult> resultSelector,
+        TInner defaultValue)
+        => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, (oe, ies) => new { oe, ies })
+            .SelectMany(t => t.ies.DefaultIfEmpty(defaultValue), (t, i) => resultSelector(t.oe, i));
+
+    private static MethodCallExpression MakeReadValueNullable(Expression expression)
+    {
+        Check.DebugAssert(expression is MethodCallExpression, "Expression must be method call expression.");
+
+        var methodCallExpression = (MethodCallExpression)expression;
+
+        return methodCallExpression.Type.IsNullableType()
+            ? methodCallExpression
+            : Call(
+                ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(methodCallExpression.Type.MakeNullable()),
+                methodCallExpression.Arguments);
+    }
+
+    private EntityProjectionExpression TraverseEntityProjection(
+        List<Expression> selectorExpressions,
+        EntityProjectionExpression entityProjectionExpression,
+        bool makeNullable)
+    {
+        var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
+        foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
+        {
+            var expression = entityProjectionExpression.BindProperty(property);
+            if (makeNullable)
+            {
+                expression = MakeReadValueNullable(expression);
+            }
+
+            selectorExpressions.Add(expression);
+            var newExpression = CreateReadValueExpression(expression.Type, selectorExpressions.Count - 1, property);
+            readExpressionMap[property] = newExpression;
+        }
+
+        var result = new EntityProjectionExpression(entityProjectionExpression.EntityType, readExpressionMap);
+
+        // Also compute nested entity projections
+        foreach (var navigation in entityProjectionExpression.EntityType.GetAllBaseTypes()
+                     .Concat(entityProjectionExpression.EntityType.GetDerivedTypesInclusive())
+                     .SelectMany(t => t.GetDeclaredNavigations()))
+        {
+            var boundEntityShaperExpression = entityProjectionExpression.BindNavigation(navigation);
+            if (boundEntityShaperExpression != null)
+            {
+                var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
+                var newInnerEntityProjection = TraverseEntityProjection(selectorExpressions, innerEntityProjection, makeNullable);
+                boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
+                result.AddNavigationBinding(navigation, boundEntityShaperExpression);
+            }
+        }
+
+        return result;
     }
 }

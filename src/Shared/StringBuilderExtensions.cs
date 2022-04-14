@@ -1,113 +1,114 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace System.Text
+#nullable enable
+
+namespace System.Text;
+
+internal static class StringBuilderExtensions
 {
-    internal static class StringBuilderExtensions
+    public static StringBuilder AppendJoin(
+        this StringBuilder stringBuilder,
+        IEnumerable<string> values,
+        string separator = ", ")
+        => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
+
+    public static StringBuilder AppendJoin(
+        this StringBuilder stringBuilder,
+        string separator,
+        params string[] values)
+        => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
+
+    public static StringBuilder AppendJoin<T>(
+        this StringBuilder stringBuilder,
+        IEnumerable<T> values,
+        Action<StringBuilder, T> joinAction,
+        string separator = ", ")
     {
-        public static StringBuilder AppendJoin(
-            this StringBuilder stringBuilder,
-            IEnumerable<string> values,
-            string separator = ", ")
-            => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
+        var appended = false;
 
-        public static StringBuilder AppendJoin(
-            this StringBuilder stringBuilder,
-            string separator,
-            params string[] values)
-            => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
-
-        public static StringBuilder AppendJoin<T>(
-            this StringBuilder stringBuilder,
-            IEnumerable<T> values,
-            Action<StringBuilder, T> joinAction,
-            string separator = ", ")
+        foreach (var value in values)
         {
-            var appended = false;
+            joinAction(stringBuilder, value);
+            stringBuilder.Append(separator);
+            appended = true;
+        }
 
-            foreach (var value in values)
+        if (appended)
+        {
+            stringBuilder.Length -= separator.Length;
+        }
+
+        return stringBuilder;
+    }
+
+    public static StringBuilder AppendJoin<T>(
+        this StringBuilder stringBuilder,
+        IEnumerable<T> values,
+        Func<StringBuilder, T, bool> joinFunc,
+        string separator = ", ")
+    {
+        var appended = false;
+
+        foreach (var value in values)
+        {
+            if (joinFunc(stringBuilder, value))
             {
-                joinAction(stringBuilder, value);
                 stringBuilder.Append(separator);
                 appended = true;
             }
-
-            if (appended)
-            {
-                stringBuilder.Length -= separator.Length;
-            }
-
-            return stringBuilder;
         }
 
-        public static StringBuilder AppendJoin<T, TParam>(
-            this StringBuilder stringBuilder,
-            IEnumerable<T> values,
-            TParam param,
-            Action<StringBuilder, T, TParam> joinAction,
-            string separator = ", ")
+        if (appended)
         {
-            var appended = false;
-
-            foreach (var value in values)
-            {
-                joinAction(stringBuilder, value, param);
-                stringBuilder.Append(separator);
-                appended = true;
-            }
-
-            if (appended)
-            {
-                stringBuilder.Length -= separator.Length;
-            }
-
-            return stringBuilder;
+            stringBuilder.Length -= separator.Length;
         }
 
-        public static StringBuilder AppendJoin<T, TParam1, TParam2>(
-            this StringBuilder stringBuilder,
-            IEnumerable<T> values,
-            TParam1 param1,
-            TParam2 param2,
-            Action<StringBuilder, T, TParam1, TParam2> joinAction,
-            string separator = ", ")
+        return stringBuilder;
+    }
+
+    public static StringBuilder AppendJoin<T, TParam>(
+        this StringBuilder stringBuilder,
+        IEnumerable<T> values,
+        TParam param,
+        Action<StringBuilder, T, TParam> joinAction,
+        string separator = ", ")
+    {
+        var appended = false;
+
+        foreach (var value in values)
         {
-            var appended = false;
-
-            foreach (var value in values)
-            {
-                joinAction(stringBuilder, value, param1, param2);
-                stringBuilder.Append(separator);
-                appended = true;
-            }
-
-            if (appended)
-            {
-                stringBuilder.Length -= separator.Length;
-            }
-
-            return stringBuilder;
+            joinAction(stringBuilder, value, param);
+            stringBuilder.Append(separator);
+            appended = true;
         }
 
-        public static void AppendBytes(this StringBuilder builder, byte[] bytes)
+        if (appended)
         {
-            builder.Append("'0x");
+            stringBuilder.Length -= separator.Length;
+        }
 
-            for (var i = 0; i < bytes.Length; i++)
+        return stringBuilder;
+    }
+
+    public static void AppendBytes(this StringBuilder builder, byte[] bytes)
+    {
+        builder.Append("'0x");
+
+        for (var i = 0; i < bytes.Length; i++)
+        {
+            if (i > 31)
             {
-                if (i > 31)
-                {
-                    builder.Append("...");
-                    break;
-                }
-
-                builder.Append(bytes[i].ToString("X2", CultureInfo.InvariantCulture));
+                builder.Append("...");
+                break;
             }
 
-            builder.Append('\'');
+            builder.Append(bytes[i].ToString("X2", CultureInfo.InvariantCulture));
         }
+
+        builder.Append('\'');
     }
 }

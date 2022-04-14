@@ -1,58 +1,57 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Design
+namespace Microsoft.EntityFrameworkCore.Design;
+
+/// <summary>
+///     Used to instantiate <see cref="DbContext" /> types at design time.
+/// </summary>
+public static class DbContextActivator
 {
     /// <summary>
-    ///     Used to instantiate <see cref="DbContext" /> types at design time.
+    ///     Creates an instance of the specified <see cref="DbContext" /> type using the standard design-time
+    ///     mechanisms. When available, this will use any <see cref="IDesignTimeDbContextFactory{TContext}" />
+    ///     implementations or the application's service provider.
     /// </summary>
-    public static class DbContextActivator
+    /// <param name="contextType">The <see cref="DbContext" /> type to instantiate.</param>
+    /// <param name="startupAssembly">The application's startup assembly.</param>
+    /// <param name="reportHandler">The design-time report handler.</param>
+    /// <returns>The newly created object.</returns>
+    public static DbContext CreateInstance(
+        Type contextType,
+        Assembly? startupAssembly = null,
+        IOperationReportHandler? reportHandler = null)
+        => CreateInstance(contextType, startupAssembly, reportHandler, null);
+
+    /// <summary>
+    ///     Creates an instance of the specified <see cref="DbContext" /> type using the standard design-time
+    ///     mechanisms. When available, this will use any <see cref="IDesignTimeDbContextFactory{TContext}" />
+    ///     implementations or the application's service provider.
+    /// </summary>
+    /// <param name="contextType">The <see cref="DbContext" /> type to instantiate.</param>
+    /// <param name="startupAssembly">The application's startup assembly.</param>
+    /// <param name="reportHandler">The design-time report handler.</param>
+    /// <param name="args">Arguments passed to the application.</param>
+    /// <returns>The newly created object.</returns>
+    public static DbContext CreateInstance(
+        Type contextType,
+        Assembly? startupAssembly,
+        IOperationReportHandler? reportHandler,
+        string[]? args)
     {
-        /// <summary>
-        ///     Creates an instance of the specified <see cref="DbContext" /> type using the standard design-time
-        ///     mechanisms. When available, this will use any <see cref="IDesignTimeDbContextFactory{TContext}" />
-        ///     implementations or the application's service provider.
-        /// </summary>
-        /// <param name="contextType"> The <see cref="DbContext" /> type to instantiate. </param>
-        /// <param name="startupAssembly"> The application's startup assembly. </param>
-        /// <param name="reportHandler"> The design-time report handler. </param>
-        /// <returns> The newly created object. </returns>
-        public static DbContext CreateInstance(
-            [NotNull] Type contextType,
-            [CanBeNull] Assembly startupAssembly = null,
-            [CanBeNull] IOperationReportHandler reportHandler = null)
-            => CreateInstance(contextType, startupAssembly, reportHandler, null);
+        Check.NotNull(contextType, nameof(contextType));
 
-        /// <summary>
-        ///     Creates an instance of the specified <see cref="DbContext" /> type using the standard design-time
-        ///     mechanisms. When available, this will use any <see cref="IDesignTimeDbContextFactory{TContext}" />
-        ///     implementations or the application's service provider.
-        /// </summary>
-        /// <param name="contextType"> The <see cref="DbContext" /> type to instantiate. </param>
-        /// <param name="startupAssembly"> The application's startup assembly. </param>
-        /// <param name="reportHandler"> The design-time report handler. </param>
-        /// <param name="args"> Arguments passed to the application. </param>
-        /// <returns> The newly created object. </returns>
-        public static DbContext CreateInstance(
-            [NotNull] Type contextType,
-            [CanBeNull] Assembly startupAssembly,
-            [CanBeNull] IOperationReportHandler reportHandler,
-            [CanBeNull] string[] args)
-        {
-            Check.NotNull(contextType, nameof(contextType));
-
-            return new DbContextOperations(
-                    new OperationReporter(reportHandler),
-                    contextType.Assembly,
-                    startupAssembly ?? contextType.Assembly,
-                    args: args ?? Array.Empty<string>())
-                .CreateContext(contextType.FullName);
-        }
+        return new DbContextOperations(
+                new OperationReporter(reportHandler),
+                contextType.Assembly,
+                startupAssembly ?? contextType.Assembly,
+                projectDir: "",
+                rootNamespace: null,
+                language: "C#",
+                nullable: false,
+                args: args ?? Array.Empty<string>())
+            .CreateContext(contextType.FullName!);
     }
 }

@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="message">The message to display for the exception. Can be null.</param>
         /// <param name="errorCode">The SQLite error code.</param>
-        public SqliteException(string message, int errorCode)
+        public SqliteException(string? message, int errorCode)
             : this(message, errorCode, errorCode)
         {
         }
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="message">The message to display for the exception. Can be null.</param>
         /// <param name="errorCode">The SQLite error code.</param>
         /// <param name="extendedErrorCode">The extended SQLite error code.</param>
-        public SqliteException(string message, int errorCode, int extendedErrorCode)
+        public SqliteException(string? message, int errorCode, int extendedErrorCode)
             : base(message)
         {
             SqliteErrorCode = errorCode;
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Sqlite
         /// <remarks>
         ///     No exception is thrown for non-error result codes.
         /// </remarks>
-        public static void ThrowExceptionForRC(int rc, sqlite3 db)
+        public static void ThrowExceptionForRC(int rc, sqlite3? db)
         {
             if (rc == SQLITE_OK
                 || rc == SQLITE_ROW

@@ -1,141 +1,134 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class IntegerGeneratorEndToEndInMemoryTest
 {
-    public class IntegerGeneratorEndToEndInMemoryTest
+    [ConditionalFact]
+    public void Can_use_sequence_end_to_end()
     {
-        [ConditionalFact]
-        public void Can_use_sequence_end_to_end()
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .BuildServiceProvider(validateScopes: true);
+
+        AddEntities(serviceProvider);
+        AddEntities(serviceProvider);
+
+        using var context = new BronieContext(serviceProvider);
+        var pegasuses = context.Pegasuses.ToList();
+
+        for (var i = 0; i < 50; i++)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+            Assert.True(pegasuses.All(p => p.Id > 0));
+            Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+            Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
+        }
+    }
 
-            AddEntities(serviceProvider);
-            AddEntities(serviceProvider);
-
-            using var context = new BronieContext(serviceProvider);
-            var pegasuses = context.Pegasuses.ToList();
-
-            for (var i = 0; i < 50; i++)
-            {
-                Assert.True(pegasuses.All(p => p.Id > 0));
-                Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
-            }
+    private static void AddEntities(IServiceProvider serviceProvider)
+    {
+        using var context = new BronieContext(serviceProvider);
+        for (var i = 0; i < 50; i++)
+        {
+            context.Add(
+                new Pegasus { Name = "Rainbow Dash " + i });
+            context.Add(
+                new Pegasus { Name = "Fluttershy " + i });
         }
 
-        private static void AddEntities(IServiceProvider serviceProvider)
-        {
-            using var context = new BronieContext(serviceProvider);
-            for (var i = 0; i < 50; i++)
-            {
-                context.Add(
-                    new Pegasus { Name = "Rainbow Dash " + i });
-                context.Add(
-                    new Pegasus { Name = "Fluttershy " + i });
-            }
+        context.SaveChanges();
+    }
 
-            context.SaveChanges();
+    [ConditionalFact]
+    public async Task Can_use_sequence_end_to_end_async()
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .BuildServiceProvider(validateScopes: true);
+
+        await AddEntitiesAsync(serviceProvider);
+        await AddEntitiesAsync(serviceProvider);
+
+        using var context = new BronieContext(serviceProvider);
+        var pegasuses = await context.Pegasuses.ToListAsync();
+
+        for (var i = 0; i < 50; i++)
+        {
+            Assert.True(pegasuses.All(p => p.Id > 0));
+            Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+            Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
+        }
+    }
+
+    private static async Task AddEntitiesAsync(IServiceProvider serviceProvider)
+    {
+        using var context = new BronieContext(serviceProvider);
+        for (var i = 0; i < 50; i++)
+        {
+            context.Add(
+                new Pegasus { Name = "Rainbow Dash " + i });
+            context.Add(
+                new Pegasus { Name = "Fluttershy " + i });
         }
 
-        [ConditionalFact]
-        public async Task Can_use_sequence_end_to_end_async()
+        await context.SaveChangesAsync();
+    }
+
+    [ConditionalFact]
+    public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .BuildServiceProvider(validateScopes: true);
+
+        const int threadCount = 50;
+
+        var tests = new Func<Task>[threadCount];
+        for (var i = 0; i < threadCount; i++)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
-
-            await AddEntitiesAsync(serviceProvider);
-            await AddEntitiesAsync(serviceProvider);
-
-            using var context = new BronieContext(serviceProvider);
-            var pegasuses = await context.Pegasuses.ToListAsync();
-
-            for (var i = 0; i < 50; i++)
-            {
-                Assert.True(pegasuses.All(p => p.Id > 0));
-                Assert.Equal(2, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                Assert.Equal(2, pegasuses.Count(p => p.Name == "Fluttershy " + i));
-            }
+            var closureProvider = serviceProvider;
+            tests[i] = () => AddEntitiesAsync(closureProvider);
         }
 
-        private static async Task AddEntitiesAsync(IServiceProvider serviceProvider)
-        {
-            using var context = new BronieContext(serviceProvider);
-            for (var i = 0; i < 50; i++)
-            {
-                context.Add(
-                    new Pegasus { Name = "Rainbow Dash " + i });
-                context.Add(
-                    new Pegasus { Name = "Fluttershy " + i });
-            }
+        var tasks = tests.Select(Task.Run).ToArray();
 
-            await context.SaveChangesAsync();
+        foreach (var t in tasks)
+        {
+            await t;
         }
 
-        [ConditionalFact]
-        public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
+        using var context = new BronieContext(serviceProvider);
+        var pegasuses = await context.Pegasuses.ToListAsync();
+
+        for (var i = 0; i < 50; i++)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+            Assert.True(pegasuses.All(p => p.Id > 0));
+            Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
+            Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Fluttershy " + i));
+        }
+    }
 
-            const int threadCount = 50;
+    private class BronieContext : DbContext
+    {
+        private readonly IServiceProvider _serviceProvider;
 
-            var tests = new Func<Task>[threadCount];
-            for (var i = 0; i < threadCount; i++)
-            {
-                var closureProvider = serviceProvider;
-                tests[i] = () => AddEntitiesAsync(closureProvider);
-            }
-
-            var tasks = tests.Select(Task.Run).ToArray();
-
-            foreach (var t in tasks)
-            {
-                await t;
-            }
-
-            using var context = new BronieContext(serviceProvider);
-            var pegasuses = await context.Pegasuses.ToListAsync();
-
-            for (var i = 0; i < 50; i++)
-            {
-                Assert.True(pegasuses.All(p => p.Id > 0));
-                Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Rainbow Dash " + i));
-                Assert.Equal(threadCount, pegasuses.Count(p => p.Name == "Fluttershy " + i));
-            }
+        public BronieContext(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
         }
 
-        private class BronieContext : DbContext
-        {
-            private readonly IServiceProvider _serviceProvider;
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(nameof(BronieContext))
+                .UseInternalServiceProvider(_serviceProvider);
 
-            public BronieContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
+        public DbSet<Pegasus> Pegasuses { get; set; }
+    }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInMemoryDatabase(nameof(BronieContext))
-                    .UseInternalServiceProvider(_serviceProvider);
-
-            public DbSet<Pegasus> Pegasuses { get; set; }
-        }
-
-        private class Pegasus
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
+    private class Pegasus
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 }

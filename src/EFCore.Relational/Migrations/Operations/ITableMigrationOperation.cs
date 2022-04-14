@@ -1,21 +1,23 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Operations
+namespace Microsoft.EntityFrameworkCore.Migrations.Operations;
+
+/// <summary>
+///     Represents a migration operation on a table.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+/// </remarks>
+public interface ITableMigrationOperation
 {
     /// <summary>
-    ///     Represents a migration operation on a table.
+    ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
     /// </summary>
-    public interface ITableMigrationOperation
-    {
-        /// <summary>
-        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
-        /// </summary>
-        string Schema { get; }
+    string? Schema { get; }
 
-        /// <summary>
-        ///     The table that contains the target of this operation.
-        /// </summary>
-        string Table { get; }
-    }
+    /// <summary>
+    ///     The table that contains the target of this operation.
+    /// </summary>
+    string Table { get; }
 }

@@ -1,23 +1,20 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
+namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
+public class DerivedInheritanceRelationshipEntity : BaseInheritanceRelationshipEntity
 {
-    public class DerivedInheritanceRelationshipEntity : BaseInheritanceRelationshipEntity
-    {
-        public int? BaseId { get; set; }
+    public int? BaseId { get; set; }
 
-        public BaseReferenceOnDerived BaseReferenceOnDerived { get; set; }
-        public DerivedReferenceOnDerived DerivedReferenceOnDerived { get; set; }
-        public ReferenceOnDerived ReferenceOnDerived { get; set; }
-        public BaseInheritanceRelationshipEntity BaseSelfReferenceOnDerived { get; set; }
-        public OwnedEntity OwnedReferenceOnDerived { get; set; }
+    public BaseReferenceOnDerived BaseReferenceOnDerived { get; set; }
+    public DerivedReferenceOnDerived DerivedReferenceOnDerived { get; set; }
+    public ReferenceOnDerived ReferenceOnDerived { get; set; }
+    public BaseInheritanceRelationshipEntity BaseSelfReferenceOnDerived { get; set; }
+    public OwnedEntity OwnedReferenceOnDerived { get; set; }
 
-        public List<BaseCollectionOnDerived> BaseCollectionOnDerived { get; set; }
-        public List<DerivedCollectionOnDerived> DerivedCollectionOnDerived { get; set; }
-        public List<CollectionOnDerived> CollectionOnDerived { get; set; }
-        public List<OwnedEntity> OwnedCollectionOnDerived { get; set; }
-    }
+    public List<BaseCollectionOnDerived> BaseCollectionOnDerived { get; set; }
+    public List<DerivedCollectionOnDerived> DerivedCollectionOnDerived { get; set; }
+    public List<CollectionOnDerived> CollectionOnDerived { get; set; }
+    public List<OwnedEntity> OwnedCollectionOnDerived { get; set; }
 }

@@ -1,37 +1,29 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class ManyToManyNoTrackingQuerySqliteTest
+    : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
 {
-    public class ManyToManyNoTrackingQuerySqliteTest
-        : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
+    public ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
+        : base(fixture)
     {
-        public ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        // Sqlite does not support Apply operations
-
-        public override async Task Skip_navigation_order_by_single_or_default(bool async)
-            => Assert.Equal(
-                SqliteStrings.ApplyNotSupported,
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Skip_navigation_order_by_single_or_default(async))).Message);
-
-        public override async Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(bool async)
-            => Assert.Equal(
-                SqliteStrings.ApplyNotSupported,
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(async))).Message);
-
-        [ConditionalTheory(Skip = "Issue#21541")]
-        public override Task Left_join_with_skip_navigation(bool async)
-            => base.Left_join_with_skip_navigation(async);
     }
+
+    // Sqlite does not support Apply operations
+
+    public override async Task Skip_navigation_order_by_single_or_default(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Skip_navigation_order_by_single_or_default(async))).Message);
+
+    public override async Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(async))).Message);
 }

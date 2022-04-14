@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             base.Validate();
 
-            if (string.IsNullOrEmpty(_name.Value))
+            if (string.IsNullOrEmpty(_name!.Value))
             {
                 throw new CommandException(Resources.MissingArgument(_name.Name));
             }
@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         protected override int Execute(string[] args)
         {
-            var files = CreateExecutor(args)
-                .AddMigration(_name.Value, _outputDir.Value(), Context.Value(), _namespace.Value());
+            using var executor = CreateExecutor(args);
+            var files = executor.AddMigration(_name!.Value!, _outputDir!.Value(), Context!.Value(), _namespace!.Value());
 
-            if (_json.HasValue())
+            if (_json!.HasValue())
             {
                 ReportJson(files);
             }
