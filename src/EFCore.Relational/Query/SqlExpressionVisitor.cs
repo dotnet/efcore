@@ -22,8 +22,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
         switch (extensionExpression)
         {
             case ShapedQueryExpression shapedQueryExpression:
-                return shapedQueryExpression.Update(
-                    Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+                return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
 
             case CaseExpression caseExpression:
                 return VisitCase(caseExpression);

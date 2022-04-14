@@ -193,12 +193,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         translation = _sqlExpressionFactory.Exists(selectExpression, true);
+        selectExpression = _sqlExpressionFactory.Select(translation);
 
-        return source.Update(
-            _sqlExpressionFactory.Select(translation),
-            Expression.Convert(
-                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
-                typeof(bool)));
+        return source.Update(selectExpression,
+            Expression.Convert(new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
     }
 
     /// <inheritdoc />
@@ -225,12 +223,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         var translation = _sqlExpressionFactory.Exists(selectExpression, false);
+        selectExpression = _sqlExpressionFactory.Select(translation);
 
-        return source.Update(
-            _sqlExpressionFactory.Select(translation),
-            Expression.Convert(
-                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
-                typeof(bool)));
+        return source.Update(selectExpression,
+            Expression.Convert(new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
     }
 
     /// <inheritdoc />
@@ -290,12 +286,11 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 selectExpression.ApplyProjection();
 
                 translation = _sqlExpressionFactory.In(translation, selectExpression, false);
+                selectExpression = _sqlExpressionFactory.Select(translation);
 
-                return source.Update(
-                    _sqlExpressionFactory.Select(translation),
+                return source.Update(selectExpression,
                     Expression.Convert(
-                        new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
-                        typeof(bool)));
+                        new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
             }
         }
 
@@ -1089,9 +1084,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 var innerSelectExpression = BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
                     entityProjectionExpression,
                     navigation);
-                
-               var innerShapedQuery = CreateShapedQueryExpression(
-                    targetEntityType, innerSelectExpression);
+
+                var innerShapedQuery = CreateShapedQueryExpression(
+                     targetEntityType, innerSelectExpression);
 
                 var makeNullable = foreignKey.PrincipalKey.Properties
                     .Concat(foreignKey.Properties)
@@ -1181,7 +1176,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
                     // So there is no handling for dependent having TPT
                     table = targetEntityType.GetViewOrTableMappings().Single().Table;
-                    var innerSelectExpression =  BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
+                    var innerSelectExpression = BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
                         entityProjectionExpression,
                         navigation);
 
