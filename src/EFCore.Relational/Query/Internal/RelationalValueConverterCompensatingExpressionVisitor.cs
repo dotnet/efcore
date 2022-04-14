@@ -46,16 +46,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
         };
 
     private Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
-    {
-        var selectExpression = shapedQueryExpression.QueryExpression;
-        var updatedSelectExpression = Visit(selectExpression);
-        return updatedSelectExpression != selectExpression
-            ? shapedQueryExpression.Update(
-                updatedSelectExpression,
-                ReplacingExpressionVisitor.Replace(
-                    selectExpression, updatedSelectExpression, shapedQueryExpression.ShaperExpression))
-            : shapedQueryExpression;
-    }
+        => shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
 
     private Expression VisitCase(CaseExpression caseExpression)
     {

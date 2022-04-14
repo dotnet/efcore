@@ -35,8 +35,7 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
     protected override Expression VisitExtension(Expression extensionExpression)
         => extensionExpression is ShapedQueryExpression shapedQueryExpression
             && shapedQueryExpression.QueryExpression is SelectExpression selectExpression
-                ? shapedQueryExpression.Update(
-                    selectExpression,
+                ? shapedQueryExpression.UpdateShaperExpression(
                     selectExpression.ApplyProjection(
                         shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality, _querySplittingBehavior))
                 : base.VisitExtension(extensionExpression);

@@ -2893,8 +2893,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 if (_clientProjections[i] is ShapedQueryExpression shapedQueryExpression)
                 {
-                    _clientProjections[i] = shapedQueryExpression.Update(
-                        sqlRemappingVisitor.Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+                    _clientProjections[i] = shapedQueryExpression.UpdateQueryExpression(
+                        sqlRemappingVisitor.Visit(shapedQueryExpression.QueryExpression));
                 }
             }
         }
@@ -3398,8 +3398,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 var item = list[i];
                 var newItem = item is ShapedQueryExpression shapedQueryExpression
-                    ? shapedQueryExpression.Update(
-                        visitor.Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression)
+                    ? shapedQueryExpression.UpdateQueryExpression(visitor.Visit(shapedQueryExpression.QueryExpression))
                     : visitor.Visit(item);
                 if (newItem != item
                     && newList == list)
