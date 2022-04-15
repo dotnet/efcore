@@ -2,93 +2,85 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Linq;
-using System.Text;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
+
+public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
 {
-    public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
+    public override bool GeneratesTemporaryValues
+        => false;
+
+    public override T Next(EntityEntry entry)
+        => (T)NextValue(entry);
+
+    protected override object NextValue(EntityEntry entry)
     {
-        public override bool GeneratesTemporaryValues
-            => false;
+        var builder = new StringBuilder();
+        var entityType = entry.Metadata;
 
-        public override T Next(EntityEntry entry)
+        var primaryKey = entityType.FindPrimaryKey();
+        var discriminator = entityType.GetDiscriminatorValue();
+        if (discriminator != null
+            && !primaryKey.Properties.Contains(entityType.FindDiscriminatorProperty()))
         {
-            return (T)NextValue(entry);
+            AppendString(builder, discriminator);
+            builder.Append("-");
         }
 
-        protected override object NextValue(EntityEntry entry)
+        var partitionKey = entityType.GetPartitionKeyPropertyName();
+        foreach (var property in primaryKey.Properties)
         {
-            var builder = new StringBuilder();
-            var entityType = entry.Metadata;
-
-            var primaryKey = entityType.FindPrimaryKey();
-            var discriminator = entityType.GetDiscriminatorValue();
-            if (discriminator != null
-                && !primaryKey.Properties.Contains(entityType.FindDiscriminatorProperty()))
+            if (property.Name == partitionKey
+                || property.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)
             {
-                AppendString(builder, discriminator);
-                builder.Append("-");
+                continue;
             }
 
-            var partitionKey = entityType.GetPartitionKeyPropertyName();
-            foreach (var property in primaryKey.Properties)
+            var value = entry.Property(property).CurrentValue;
+
+            var converter = property.GetTypeMapping().Converter;
+            if (converter != null)
             {
-                if (property.Name == partitionKey
-                    || property.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)
-                {
-                    continue;
-                }
-
-                var value = entry.Property(property.Name).CurrentValue;
-
-                var converter = property.GetTypeMapping().Converter;
-                if (converter != null)
-                {
-                    value = converter.ConvertToProvider(value);
-                }
-
-                if (value is int x)
-                {
-                    // We don't allow the Id to be zero for our custom generator.
-                    if (x == 0)
-                    {
-                        return default;
-                    }
-                }
-
-                AppendString(builder, value);
-
-                builder.Append("-");
+                value = converter.ConvertToProvider(value);
             }
 
-            builder.Remove(builder.Length - 1, 1);
+            if (value is int x)
+            {
+                // We don't allow the Id to be zero for our custom generator.
+                if (x == 0)
+                {
+                    return default;
+                }
+            }
 
-            return builder.ToString();
+            AppendString(builder, value);
+
+            builder.Append("-");
         }
 
-        private static void AppendString(StringBuilder builder, object propertyValue)
-        {
-            switch (propertyValue)
-            {
-                case string stringValue:
-                    builder.Append(stringValue.Replace("-", "/-"));
-                    return;
-                case IEnumerable enumerable:
-                    foreach (var item in enumerable)
-                    {
-                        builder.Append(item.ToString().Replace("-", "/-"));
-                        builder.Append("|");
-                    }
+        builder.Remove(builder.Length - 1, 1);
 
-                    return;
-                default:
-                    builder.Append(propertyValue == null ? "null" : propertyValue.ToString().Replace("-", "/-"));
-                    return;
-            }
+        return builder.ToString();
+    }
+
+    private static void AppendString(StringBuilder builder, object propertyValue)
+    {
+        switch (propertyValue)
+        {
+            case string stringValue:
+                builder.Append(stringValue.Replace("-", "/-"));
+                return;
+            case IEnumerable enumerable:
+                foreach (var item in enumerable)
+                {
+                    builder.Append(item.ToString().Replace("-", "/-"));
+                    builder.Append("|");
+                }
+
+                return;
+            default:
+                builder.Append(propertyValue == null ? "null" : propertyValue.ToString().Replace("-", "/-"));
+                return;
         }
     }
 }

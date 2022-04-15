@@ -1,22 +1,19 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+public class TPTRelationshipsQuerySqliteTest :
+    TPTRelationshipsQueryTestBase<TPTRelationshipsQuerySqliteTest.TPTRelationshipsQuerySqliteFixture>
 {
-    public class TPTRelationshipsQuerySqliteTest :
-        TPTRelationshipsQueryTestBase<TPTRelationshipsQuerySqliteTest.TPTRelationshipsQuerySqliteFixture>
+    public TPTRelationshipsQuerySqliteTest(TPTRelationshipsQuerySqliteFixture fixture)
+        : base(fixture)
     {
-        public TPTRelationshipsQuerySqliteTest(TPTRelationshipsQuerySqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class TPTRelationshipsQuerySqliteFixture : TPTRelationshipsQueryRelationalFixture
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+    public class TPTRelationshipsQuerySqliteFixture : TPTRelationshipsQueryRelationalFixture
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

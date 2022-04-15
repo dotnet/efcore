@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                             {
                                 if (pendingBackslashes == 1)
                                 {
-                                    builder.Append("\\");
+                                    builder.Append('\\');
                                 }
                                 else
                                 {

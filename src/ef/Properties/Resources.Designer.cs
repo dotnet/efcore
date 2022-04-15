@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("Pending");
 
         /// <summary>
-        ///     Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurrs while accessing the database.
+        ///     Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurs while accessing the database.
         /// </summary>
         public static string PendingUnknown
             => GetString("PendingUnknown");
@@ -647,4 +647,3 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
-

@@ -1,22 +1,19 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+public class DbContextAttributeTest
 {
-    public class DbContextAttributeTest
+    [ConditionalFact]
+    public void Create_attribute()
     {
-        [ConditionalFact]
-        public void Create_attribute()
-        {
-            var attribute = new DbContextAttribute(typeof(MyContext));
+        var attribute = new DbContextAttribute(typeof(MyContext));
 
-            Assert.Same(typeof(MyContext), attribute.ContextType);
-        }
+        Assert.Same(typeof(MyContext), attribute.ContextType);
+    }
 
-        public class MyContext : DbContext
-        {
-        }
+    public class MyContext : DbContext
+    {
     }
 }
