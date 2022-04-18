@@ -181,26 +181,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 _clientProjections!.Add(subquery);
                                 var type = expression.Type;
 
-                                if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27105", out var enabled27105)
-                                        && enabled27105))
+                                if (type.IsGenericType
+                                    && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
                                 {
-                                    if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27600", out var enabled27600)
-                                            && enabled27600))
-                                    {
-                                        if (type.IsGenericType
-                                            && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
-                                        {
-                                            type = typeof(List<>).MakeGenericType(type.GetSequenceType());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (type.IsGenericType
-                                            && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
-                                        {
-                                            type = typeof(IEnumerable<>).MakeGenericType(type.GetSequenceType());
-                                        }
-                                    }
+                                    type = typeof(List<>).MakeGenericType(type.GetSequenceType());
                                 }
 
                                 var projectionBindingExpression = new ProjectionBindingExpression(
