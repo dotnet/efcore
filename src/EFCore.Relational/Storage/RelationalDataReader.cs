@@ -52,6 +52,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
         _reader = reader;
         _commandId = commandId;
         _logger = logger;
+        _readCount = 0;
         _disposed = false;
         _startTime = DateTimeOffset.UtcNow;
         _stopwatch.Restart();
