@@ -150,7 +150,6 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.ForeignKeyAddedConventions.Add(valueGeneratorConvention);
         conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
         conventionSet.ForeignKeyAddedConventions.Add(foreignKeyIndexConvention);
-        conventionSet.ForeignKeyAddedConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.ForeignKeyRemovedConventions.Add(baseTypeDiscoveryConvention);
         conventionSet.ForeignKeyRemovedConventions.Add(relationshipDiscoveryConvention);
@@ -187,6 +186,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
         conventionSet.NavigationAddedConventions.Add(foreignKeyAttributeConvention);
+        conventionSet.NavigationAddedConventions.Add(deleteBehaviorAttributeConvention);
 
         var manyToManyJoinEntityTypeConvention = new ManyToManyJoinEntityTypeConvention(Dependencies);
         conventionSet.SkipNavigationAddedConventions.Add(new NavigationBackingFieldAttributeConvention(Dependencies));

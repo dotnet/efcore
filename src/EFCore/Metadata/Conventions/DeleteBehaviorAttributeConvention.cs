@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>, IForeignKeyAddedConvention
+public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>, INavigationAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="DeleteBehaviorAttributeConvention" />.
@@ -33,51 +33,28 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         MemberInfo clrMember,
         IConventionContext context)
     {
-        var isForeignKey = propertyBuilder.Metadata.IsForeignKey();
-        if (isForeignKey)
-        {
-            return;
-        }
-        
         throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty); 
     }
 
     /// <summary>
-    ///     Called after a foreign key is added to the entity type.
+    ///     Called after a navigation is added to the entity type.
     /// </summary>
-    /// <param name="foreignKeyBuilder">The builder for the foreign key.</param>
+    /// <param name="navigationBuilder">The builder for the navigation.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public virtual void ProcessForeignKeyAdded(IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+    public void ProcessNavigationAdded(IConventionNavigationBuilder navigationBuilder, IConventionContext<IConventionNavigationBuilder> context)
     {
-        var foreignKey = foreignKeyBuilder.Metadata;
-        var dependentSideNavigation = foreignKey.GetNavigation(true);
-        var principalSideNavigation = foreignKey.GetNavigation(false);
-
-        if (dependentSideNavigation == null || principalSideNavigation == null)
+        var navAttribute = navigationBuilder.Metadata.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+        if (navAttribute == null)
         {
             return;
         }
 
-        var principalNavAttribute = principalSideNavigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
-        if (principalNavAttribute != null)
+        if (!navigationBuilder.Metadata.IsOnDependent)
         {
-            throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty); 
+            throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty);
         }
-        
-        var navigationAttribute = dependentSideNavigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
-        if (navigationAttribute != null)
-        {
-            foreignKey.SetDeleteBehavior(navigationAttribute.Behavior);
-        }
-        
-        var backingProperties = foreignKey.Properties;
-        foreach (var property in backingProperties)
-        {
-            var attribute = property.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
-            if (attribute != null)
-            {
-                throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty); 
-            }
-        }
+
+        var foreignKey = navigationBuilder.Metadata.ForeignKey;
+        foreignKey.SetDeleteBehavior(navAttribute.Behavior);
     }
 }
