@@ -11,14 +11,11 @@ namespace Microsoft.EntityFrameworkCore;
 ///     <para>
 ///         Behaviors in the database are dependent on the database schema being created
 ///         appropriately. Using Entity Framework Migrations or
-///         <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-///         EnsureCreated()</see>
-///         will create the appropriate schema.
+///         <c>EnsureCreated()</c> will create the appropriate schema.
 ///     </para>
 ///     <para>
 ///         Note that the in-memory behavior for entities that are currently tracked by
-///         the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">DbContext</see>
-///         can be different from the behavior that happens in the database.
+///         the context can be different from the behavior that happens in the database.
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-cascading">Cascade delete and deleting orphans in EF Core</see> for more information and
@@ -28,20 +25,17 @@ namespace Microsoft.EntityFrameworkCore;
 public enum DeleteBehavior
 {
     /// <summary>
-    ///     For entities being tracked by the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">
-    ///     DbContext</see>, the values of foreign key properties in
+    ///     For entities being tracked by the context, the values of foreign key properties in
     ///     dependent entities are set to null when the related principal is deleted.
     ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
     ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
     ///     it is not a nullable type, then an exception will be thrown when
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext.savechanges?view=efcore-6.0#microsoft-entityframeworkcore-dbcontext-savechanges" >
-    ///     SaveChanges()</see> is called.
+    ///     <c>SaveChanges()</c> is called.
     /// </summary>
     /// <remarks>
     ///     <para>
     ///         If the database has been created from the model using Entity Framework Migrations or the
-    ///         <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-    ///         EnsureCreated()</see> method, then the behavior in the database
+    ///         <c>EnsureCreated()</c> method, then the behavior in the database
     ///         is to generate an error if a foreign key constraint is violated.
     ///     </para>
     ///     <para>
@@ -52,35 +46,30 @@ public enum DeleteBehavior
     ClientSetNull,
 
     /// <summary>
-    ///     For entities being tracked by the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">
-    ///     DbContext</see>, the values of foreign key properties in dependent entities are set to null when the related principal is deleted.
+    ///     For entities being tracked by the context, the values of foreign key properties in dependent entities
+    ///     are set to null when the related principal is deleted.
     ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
     ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
     ///     it is not a nullable type, then an exception will be thrown when
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext.savechanges?view=efcore-6.0#microsoft-entityframeworkcore-dbcontext-savechanges" >
-    ///     SaveChanges()</see> is called.
+    ///     <c>SaveChanges()</c> is called.
     /// </summary>
     /// <remarks>
     ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-    ///     EnsureCreated()</see> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///     <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
     /// </remarks>
     Restrict,
 
     /// <summary>
-    ///     For entities being tracked by the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">
-    ///     DbContext</see>, the values of foreign key properties in
+    ///     For entities being tracked by the context, the values of foreign key properties in
     ///     dependent entities are set to null when the related principal is deleted.
     ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
     ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
     ///     it is not a nullable type, then an exception will be thrown when
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext.savechanges?view=efcore-6.0#microsoft-entityframeworkcore-dbcontext-savechanges" >
-    ///     SaveChanges()</see> is called.
+    ///     <c>SaveChanges()</c> is called.
     /// </summary>
     /// <remarks>
     ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-    ///     EnsureCreated()</see> method, then the behavior in the database is
+    ///     <c>EnsureCreated()</c> method, then the behavior in the database is
     ///     the same as is described above for tracked entities. Keep in mind that some databases cannot easily
     ///     support this behavior, especially if there are cycles in relationships, in which case it may
     ///     be better to use <see cref="ClientSetNull" /> which will allow EF to cascade null values
@@ -89,15 +78,13 @@ public enum DeleteBehavior
     SetNull,
 
     /// <summary>
-    ///     For entities being tracked by the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">
-    ///     DbContext</see>, dependent entities
+    ///     For entities being tracked by the context, dependent entities
     ///     will be deleted when the related principal is deleted.
     /// </summary>
     /// <remarks>
     ///     <para>
     ///         If the database has been created from the model using Entity Framework Migrations or the
-    ///         <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-    ///         EnsureCreated()</see> method, then the behavior in the database is
+    ///         <c>EnsureCreated()</c> method, then the behavior in the database is
     ///         the same as is described above for tracked entities. Keep in mind that some databases cannot easily
     ///         support this behavior, especially if there are cycles in relationships, in which case it may
     ///         be better to use <see cref="ClientCascade" /> which will allow EF to perform cascade deletes
@@ -111,30 +98,25 @@ public enum DeleteBehavior
     Cascade,
 
     /// <summary>
-    ///     For entities being tracked by the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">
-    ///     DbContext</see>, dependent entities
+    ///     For entities being tracked by the context, dependent entities
     ///     will be deleted when the related principal is deleted.
     /// </summary>
     /// <remarks>
     ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-    ///     EnsureCreated()</see> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///     <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
     /// </remarks>
     ClientCascade,
 
     /// <summary>
-    ///     For entities being tracked by the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">
-    ///     DbContext</see>, the values of foreign key properties in dependent entities are set to null when the related principal is deleted.
+    ///     For entities being tracked by the context, the values of foreign key properties in dependent entities are set to null when the related principal is deleted.
     ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
     ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
     ///     it is not a nullable type, then an exception will be thrown when
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext.savechanges?view=efcore-6.0#microsoft-entityframeworkcore-dbcontext-savechanges" >
-    ///     SaveChanges()</see> is called.
+    ///     <c>SaveChanges()</c> is called.
     /// </summary>
     /// <remarks>
     ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-    ///     EnsureCreated()</see> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///     <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
     /// </remarks>
     NoAction,
 
@@ -144,15 +126,13 @@ public enum DeleteBehavior
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         For entities being tracked by the <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext">
-    ///         DbContext</see>, the values of foreign key properties in dependent entities are not changed when the related principal entity is deleted.
+    ///         For entities being tracked by the context, the values of foreign key properties in dependent entities are not changed when the related principal entity is deleted.
     ///         This can result in an inconsistent graph of entities where the values of foreign key properties do
     ///         not match the relationships in the graph.
     ///     </para>
     ///     <para>
     ///         If the database has been created from the model using Entity Framework Migrations or the
-    ///         <see href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated">
-    ///         EnsureCreated()</see> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///         <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
     ///     </para>
     /// </remarks>
     ClientNoAction
