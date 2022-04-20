@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -48,14 +50,21 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
     public virtual void ProcessForeignKeyAdded(IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
     {
         var foreignKey = foreignKeyBuilder.Metadata;
-        var navigationProperty = foreignKey.GetNavigation(true);
+        var dependentSideNavigation = foreignKey.GetNavigation(true);
+        var principalSideNavigation = foreignKey.GetNavigation(false);
 
-        if (navigationProperty == null)
+        if (dependentSideNavigation == null || principalSideNavigation == null)
         {
             return;
         }
+
+        var principalNavAttribute = principalSideNavigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+        if (principalNavAttribute != null)
+        {
+            throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty); 
+        }
         
-        var navigationAttribute = navigationProperty.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+        var navigationAttribute = dependentSideNavigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
         if (navigationAttribute != null)
         {
             foreignKey.SetDeleteBehavior(navigationAttribute.Behavior);

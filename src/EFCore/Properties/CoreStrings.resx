@@ -1478,4 +1478,7 @@
   <data name="DeleteBehaviorAttributeNotOnNavigationProperty" xml:space="preserve">
     <value>The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.</value>
   </data>
+  <data name="DeleteBehaviorAttributeOnPrincipalProperty" xml:space="preserve">
+    <value>The [DeleteBehavior] attribute may only be specified on dependent side of the relationship.</value>
+  </data>
 </root>

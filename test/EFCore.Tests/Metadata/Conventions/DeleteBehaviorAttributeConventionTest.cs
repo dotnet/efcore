@@ -106,8 +106,22 @@ public class DeleteBehaviorAttributeConventionTest
         Assert.Equal(
             CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty,
             Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Entity<Post_On_FK_Property>()
-                    .Property(e => e.Blog_On_FK_PropertyId)).Message
+                () => modelBuilder.Entity<Post_On_Property>()
+                    .Property(e => e.Blog_On_PropertyId)).Message
+        );
+    }
+
+    [ConditionalFact]
+    public void Throw_InvalidOperationException_if_attribute_was_set_on_principal_navigation_property()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+
+        Assert.Equal(
+            CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty,
+            Assert.Throws<InvalidOperationException>(() =>
+                modelBuilder.Entity<Post_On_Principal>()
+                    .Property(e => e.Blog_On_PrincipalId)).Message
         );
     }
 
@@ -237,6 +251,24 @@ public class DeleteBehaviorAttributeConventionTest
         public Blog_On_Property Blog_On_Property { get; set; }
 
         public int? Blog_On_PropertyId { get; set; }
+    }
+    #endregion
+    #region DeleteBehaviourAttribute set on principal navigation property
+    private class Blog_On_Principal
+    {
+        public int Id { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public ICollection<Post_On_Principal> Posts { get; set; }
+    }
+
+    private class Post_On_Principal
+    {
+        public int Id { get; set; }
+
+        public Blog_On_Principal Blog_On_Principal { get; set; }
+
+        public int? Blog_On_PrincipalId { get; set; }
     }
     #endregion
 
