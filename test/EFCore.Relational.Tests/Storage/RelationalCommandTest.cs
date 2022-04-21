@@ -356,6 +356,86 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task Can_ExecuteReader_multiple_times(bool async)
+        {
+            var diagnosticEvents = new List<Tuple<string, object>>();
+
+            var logger = new RelationalCommandDiagnosticsLogger(
+                new ListLoggerFactory(),
+                new FakeLoggingOptions(false),
+                new ListDiagnosticSource(diagnosticEvents),
+                new TestRelationalLoggingDefinitions(),
+                new NullDbContextLogger(),
+                CreateOptions());
+
+            DbDataReader CreateDbDataReader()
+                => new FakeDbDataReader(
+                    new[] { "Id", "Name" }, new List<object[]> { new object[] { 1, "Foo" }, new object[] { 2, "Bar" } });
+
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor(
+                    executeReader: (c, b) => CreateDbDataReader(),
+                    executeReaderAsync: (c, b, ct) => Task.FromResult<DbDataReader>(CreateDbDataReader())));
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
+
+            var options = CreateOptions(optionsExtension);
+
+            var relationalCommand = CreateRelationalCommand();
+
+            await using (var relationalReader = await ExecuteReader(
+                             relationalCommand,
+                             new RelationalCommandParameterObject(new FakeRelationalConnection(options), null, null, null, logger), async))
+            {
+                var dbDataReader = relationalReader.DbDataReader;
+
+                Assert.True(await Read(relationalReader, async));
+                Assert.Equal(1, dbDataReader.GetInt32(0));
+                Assert.Equal("Foo", dbDataReader.GetString(1));
+
+                Assert.True(await Read(relationalReader, async));
+                Assert.Equal(2, dbDataReader.GetInt32(0));
+                Assert.Equal("Bar", dbDataReader.GetString(1));
+
+                Assert.False(await Read(relationalReader, async));
+
+                diagnosticEvents.Clear();
+            }
+
+            var diagnostic = diagnosticEvents.Single();
+            Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnostic.Item1);
+            var dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnostic.Item2;
+            Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
+
+            diagnosticEvents.Clear();
+
+            await using (var relationalReader = await ExecuteReader(
+                             relationalCommand,
+                             new RelationalCommandParameterObject(new FakeRelationalConnection(options), null, null, null, logger), async))
+            {
+                var dbDataReader = relationalReader.DbDataReader;
+
+                Assert.True(await Read(relationalReader, async));
+                Assert.Equal(1, dbDataReader.GetInt32(0));
+                Assert.Equal("Foo", dbDataReader.GetString(1));
+
+                Assert.True(await Read(relationalReader, async));
+                Assert.Equal(2, dbDataReader.GetInt32(0));
+                Assert.Equal("Bar", dbDataReader.GetString(1));
+
+                Assert.False(await Read(relationalReader, async));
+
+                diagnosticEvents.Clear();
+            }
+
+            diagnostic = diagnosticEvents.Single();
+            Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnostic.Item1);
+            dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnostic.Item2;
+            Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
+        }
+
         public static TheoryData CommandActions
             => new TheoryData<Delegate, DbCommandMethod, bool>
             {
@@ -1299,5 +1379,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
                 commandText,
                 parameters ?? Array.Empty<IRelationalParameter>());
+
+
+        private Task<RelationalDataReader> ExecuteReader(
+            IRelationalCommand relationalCommand,
+            RelationalCommandParameterObject parameterObject,
+            bool async)
+            => async
+                ? relationalCommand.ExecuteReaderAsync(parameterObject)
+                : Task.FromResult(relationalCommand.ExecuteReader(parameterObject));
+
+        private Task<bool> Read(RelationalDataReader relationalReader, bool async)
+            => async ? relationalReader.ReadAsync() : Task.FromResult(relationalReader.Read());
+
+        public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
     }
 }
