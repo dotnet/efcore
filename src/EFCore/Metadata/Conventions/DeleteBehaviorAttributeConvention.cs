@@ -55,6 +55,9 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         }
 
         var foreignKey = navigationBuilder.Metadata.ForeignKey;
-        foreignKey.SetDeleteBehavior(navAttribute.Behavior);
+        if (foreignKey.GetDeleteBehaviorConfigurationSource() != ConfigurationSource.Explicit)
+        {
+            foreignKey.SetDeleteBehavior(navAttribute.Behavior);
+        }
     }
 }
