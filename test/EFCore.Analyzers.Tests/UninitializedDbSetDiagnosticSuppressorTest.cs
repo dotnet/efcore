@@ -146,6 +146,57 @@ public class Blog
         Assert.False(diagnostic.IsSuppressed);
     }
 
+    [ConditionalFact]
+    public async Task DbSet_property_on_DbContext_with_ctor_is_suppressed()
+    {
+        var source = @"
+public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
+{
+    public MyDbContext() {}
+
+    public Microsoft.EntityFrameworkCore.DbSet<Blog> Blogs { get; set; }
+}
+
+public class Blog
+{
+    public int Id { get; set; }
+}";
+
+        var diagnostic = Assert.Single(await GetDiagnosticsFullSourceAsync(source));
+
+        Assert.Equal("CS8618", diagnostic.Id);
+        Assert.True(diagnostic.IsSuppressed);
+    }
+
+    [ConditionalFact]
+    public async Task DbSet_property_on_DbContext_with_ctors_is_suppressed()
+    {
+        var source = @"
+public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
+{
+    public MyDbContext() {}
+
+    public MyDbContext(int foo) {}
+
+    public Microsoft.EntityFrameworkCore.DbSet<Blog> Blogs { get; set; }
+}
+
+public class Blog
+{
+    public int Id { get; set; }
+}";
+
+        var diagnostics = await GetDiagnosticsFullSourceAsync(source);
+
+        Assert.All(
+            diagnostics,
+            diagnostic =>
+            {
+                Assert.Equal("CS8618", diagnostic.Id);
+                Assert.True(diagnostic.IsSuppressed);
+            });
+    }
+
     protected Task<Diagnostic[]> GetDiagnosticsFullSourceAsync(string source)
         => base.GetDiagnosticsFullSourceAsync(source, analyzerDiagnosticsOnly: false);
 

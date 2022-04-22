@@ -26,6 +26,6 @@
     <MicrosoftExtensionsLoggingVersion>7.0.0-preview.4.22217.5</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
-    <MicrosoftCodeAnalysisVersion>4.0.1</MicrosoftCodeAnalysisVersion>
+    <MicrosoftCodeAnalysisVersion>4.2.0-2.final</MicrosoftCodeAnalysisVersion>
   </PropertyGroup>
 </Project>
