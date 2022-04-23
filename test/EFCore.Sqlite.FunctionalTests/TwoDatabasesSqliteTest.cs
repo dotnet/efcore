@@ -23,7 +23,8 @@ public class TwoDatabasesSqliteTest : TwoDatabasesTestBase, IClassFixture<TwoDat
     protected override TwoDatabasesWithDataContext CreateBackingContext(string databaseName)
         => new(Fixture.CreateOptions(SqliteTestStore.Create(databaseName)));
 
-    protected override string DummyConnectionString { get; } = "DataSource=DummyDatabase";
+    protected override string DummyConnectionString
+        => "DataSource=DummyDatabase";
 
     public class TwoDatabasesFixture : ServiceProviderFixtureBase
     {

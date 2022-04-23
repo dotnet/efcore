@@ -946,12 +946,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoActiveTransaction");
 
         /// <summary>
-        ///     A relational store has been configured without specifying either the DbConnection or connection string to use.
-        /// </summary>
-        public static string NoConnectionOrConnectionString
-            => GetString("NoConnectionOrConnectionString");
-
-        /// <summary>
         ///     Cannot create a DbCommand for a non-relational query.
         /// </summary>
         public static string NoDbCommand

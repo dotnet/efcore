@@ -912,19 +912,6 @@ public class RelationalConnectionTest
     }
 
     [ConditionalFact]
-    public void Throws_if_no_connection_or_connection_string_is_specified_only_when_accessed()
-    {
-        var connection = new FakeRelationalConnection(CreateOptions(new FakeRelationalOptionsExtension()));
-
-        Assert.Equal(
-            RelationalStrings.NoConnectionOrConnectionString,
-            Assert.Throws<InvalidOperationException>(
-                () => connection.DbConnection).Message);
-
-        Assert.Null(connection.ConnectionString);
-    }
-
-    [ConditionalFact]
     public void Puts_connection_string_on_connection_if_both_are_specified()
     {
         var connection = new FakeRelationalConnection(
