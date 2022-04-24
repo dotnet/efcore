@@ -7,8 +7,7 @@ on:
       - feature/*
       - release/*
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   build:
