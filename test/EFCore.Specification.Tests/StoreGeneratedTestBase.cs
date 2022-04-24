@@ -2125,7 +2125,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<WrappedIntClassDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 var dependents2 = context.Set<WrappedIntStructDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents2.Count);
@@ -2138,7 +2138,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents2.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents2 = context.Set<WrappedIntStructDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents2.Count);
+                Assert.Single(requiredDependents2);
 
                 var dependents3 = context.Set<WrappedIntRecordDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents3.Count);
@@ -2151,7 +2151,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents3.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents3 = context.Set<WrappedIntRecordDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents3.Count);
+                Assert.Single(requiredDependents3);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
@@ -2650,7 +2650,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<WrappedStringClassDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 var dependents2 = context.Set<WrappedStringStructDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents2.Count);
@@ -2663,7 +2663,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents2.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents2 = context.Set<WrappedStringStructDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents2.Count);
+                Assert.Single(requiredDependents2);
 
                 var dependents3 = context.Set<WrappedStringRecordDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents3.Count);
@@ -2676,7 +2676,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents3.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents3 = context.Set<WrappedStringRecordDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents3.Count);
+                Assert.Single(requiredDependents3);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
@@ -3178,7 +3178,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<WrappedGuidClassDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 var dependents2 = context.Set<WrappedGuidStructDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents2.Count);
@@ -3191,7 +3191,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents2.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents2 = context.Set<WrappedGuidStructDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents2.Count);
+                Assert.Single(requiredDependents2);
 
                 var dependents3 = context.Set<WrappedGuidRecordDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents3.Count);
@@ -3204,7 +3204,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents3.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents3 = context.Set<WrappedGuidRecordDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents3.Count);
+                Assert.Single(requiredDependents3);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
@@ -3706,7 +3706,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<WrappedUriClassDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 var dependents2 = context.Set<WrappedUriStructDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents2.Count);
@@ -3719,7 +3719,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents2.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents2 = context.Set<WrappedUriStructDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents2.Count);
+                Assert.Single(requiredDependents2);
 
                 var dependents3 = context.Set<WrappedUriRecordDependentShadow>().Include(e => e.Principal).ToList();
                 Assert.Equal(2, dependents3.Count);
@@ -3732,7 +3732,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents3.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents3 = context.Set<WrappedUriRecordDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents3.Count);
+                Assert.Single(requiredDependents3);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
@@ -3860,7 +3860,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<UriDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
@@ -3943,7 +3943,6 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.NotNull(id1);
                 foreach (var dependent in principal1.Dependents)
                 {
-                    Assert.NotNull(dependent.Id);
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<KeyEnum?>("PrincipalId").CurrentValue);
                 }
@@ -3979,7 +3978,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<EnumDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
@@ -4053,7 +4052,6 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.NotNull(id1);
                 foreach (var dependent in principal1.Dependents)
                 {
-                    Assert.NotNull(dependent.Id);
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<Guid?>("PrincipalId").CurrentValue);
                 }
@@ -4089,7 +4087,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<GuidAsStringDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
@@ -4199,7 +4197,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
                 var requiredDependents1 = context.Set<StringAsGuidDependentRequired>().Include(e => e.Principal).ToList();
-                Assert.Equal(1, requiredDependents1.Count);
+                Assert.Single(requiredDependents1);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
                 context.Remove(optionalDependents1.Single(e => e.Principal != null));
