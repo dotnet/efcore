@@ -164,20 +164,25 @@ public static class DbParameterCollectionExtensions
             case IList list:
                 builder.Append("{ ");
 
-                for (var i = 0; i < list.Count; i++)
+                // Note: multi-dimensional arrays implement non-generic IList. They do not support indexing, but do support enumeration.
+                var isFirst = true;
+                foreach (var element in list.Cast<object>().Take(5))
                 {
-                    if (i > 4)
+                    if (isFirst)
                     {
-                        builder.Append("...");
-                        break;
+                        isFirst = false;
                     }
-
-                    FormatParameterValue(builder, list[i]);
-
-                    if (i < list.Count - 1)
+                    else
                     {
                         builder.Append(", ");
                     }
+
+                    FormatParameterValue(builder, element);
+                }
+
+                if (list.Count > 5)
+                {
+                    builder.Append(", ...");
                 }
 
                 builder.Append(" }");

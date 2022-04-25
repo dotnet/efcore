@@ -56,6 +56,7 @@ public class ValueComparerTest
     [InlineData(typeof(float), (float)1, (float)2, null)]
     [InlineData(typeof(double), (double)1, (double)2, null)]
     [InlineData(typeof(JustAnEnum), JustAnEnum.A, JustAnEnum.B, null)]
+    [InlineData(typeof(int[]), new[] { 1, 2 }, new[] { 3, 4 }, null)]
     public ValueComparer Default_comparer_works_for_normal_types(Type type, object value1, object value2, int? hashCode)
         => CompareTest(type, value1, value2, hashCode);
 
@@ -93,8 +94,6 @@ public class ValueComparerTest
         Assert.False(keyComparer.Equals(value1, null));
         Assert.False(keyComparer.Equals(null, value2));
         Assert.True(keyComparer.Equals(null, null));
-
-        Assert.Equal(hashCode ?? value1.GetHashCode(), keyComparer.GetHashCode(value1));
 
         return comparer;
     }
