@@ -125,15 +125,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     /// <returns>The connection string.</returns>
     /// <exception cref="InvalidOperationException">when connection string cannot be obtained.</exception>
     protected virtual string GetValidatedConnectionString()
-    {
-        var connectionString = ConnectionString;
-        if (connectionString == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
-        }
-
-        return connectionString;
-    }
+        => ConnectionString!;
 
     /// <summary>
     ///     Gets or sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
@@ -149,16 +141,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     [AllowNull]
     public virtual DbConnection DbConnection
     {
-        get
-        {
-            if (_connection == null
-                && _connectionString == null)
-            {
-                throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
-            }
-
-            return _connection ??= CreateDbConnection();
-        }
+        get => _connection ??= CreateDbConnection();
         set
         {
             if (!ReferenceEquals(_connection, value))
