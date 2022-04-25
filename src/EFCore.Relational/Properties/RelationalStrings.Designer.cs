@@ -1815,6 +1815,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Initialized DbCommand for '{executionType}' ({elapsed}ms).
+        /// </summary>
+        public static EventDefinition<string, int> LogCommandInitialized(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandInitialized;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandInitialized,
+                    logger,
+                    static logger => new EventDefinition<string, int>(
+                        logger.Options,
+                        RelationalEventId.CommandInitialized,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandInitialized",
+                        level => LoggerMessage.Define<string, int>(
+                            level,
+                            RelationalEventId.CommandInitialized,
+                            _resourceManager.GetString("LogCommandInitialized")!)));
+            }
+
+            return (EventDefinition<string, int>)definition;
+        }
+
+        /// <summary>
         ///     Committed transaction.
         /// </summary>
         public static EventDefinition LogCommittedTransaction(IDiagnosticsLogger logger)

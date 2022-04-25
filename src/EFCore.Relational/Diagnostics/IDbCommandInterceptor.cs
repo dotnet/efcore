@@ -70,6 +70,21 @@ public interface IDbCommandInterceptor : IInterceptor
         => result;
 
     /// <summary>
+    ///     Called after EF has initialized <see cref="DbCommand.CommandText"/> and other command configuration.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the command and execution.</param>
+    /// <param name="result">
+    ///     The command. This value is typically used as the return value for the implementation of this method.
+    /// </param>
+    /// <returns>
+    ///     The result that EF will use.
+    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     is to return the <paramref name="result" /> value passed in.
+    /// </returns>
+    DbCommand CommandInitialized(CommandEndEventData eventData, DbCommand result)
+        => result;
+
+    /// <summary>
     ///     Called just before EF intends to call <see cref="DbCommand.ExecuteReader()" />.
     /// </summary>
     /// <param name="command">The command.</param>

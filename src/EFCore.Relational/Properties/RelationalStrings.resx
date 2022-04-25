@@ -495,6 +495,10 @@
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Error RelationalEventId.CommandError string string System.Data.CommandType int string string</comment>
   </data>
+  <data name="LogCommandInitialized" xml:space="preserve">
+    <value>Initialized DbCommand for '{executionType}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.CommandInitialized string int</comment>
+  </data>
   <data name="LogCommittedTransaction" xml:space="preserve">
     <value>Committed transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitted</comment>

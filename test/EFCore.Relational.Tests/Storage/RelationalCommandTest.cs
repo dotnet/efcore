@@ -1025,14 +1025,15 @@ public class RelationalCommandTest
             ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger);
         }
 
-        Assert.Equal(4, logFactory.Log.Count);
+        Assert.Equal(5, logFactory.Log.Count);
 
         Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
         Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
         Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
-        Assert.Equal(LogLevel.Information, logFactory.Log[3].Level);
+        Assert.Equal(LogLevel.Debug, logFactory.Log[3].Level);
+        Assert.Equal(LogLevel.Information, logFactory.Log[4].Level);
 
-        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(2))
+        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
         {
             Assert.EndsWith(
                 "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
@@ -1084,18 +1085,19 @@ public class RelationalCommandTest
             ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger);
         }
 
-        Assert.Equal(5, logFactory.Log.Count);
+        Assert.Equal(6, logFactory.Log.Count);
         Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
         Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
-        Assert.Equal(LogLevel.Warning, logFactory.Log[2].Level);
+        Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
+        Assert.Equal(LogLevel.Warning, logFactory.Log[3].Level);
         Assert.Equal(
             CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
-            logFactory.Log[2].Message);
+            logFactory.Log[3].Message);
 
-        Assert.Equal(LogLevel.Debug, logFactory.Log[3].Level);
-        Assert.Equal(LogLevel.Information, logFactory.Log[4].Level);
+        Assert.Equal(LogLevel.Debug, logFactory.Log[4].Level);
+        Assert.Equal(LogLevel.Information, logFactory.Log[5].Level);
 
-        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
+        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(4))
         {
             Assert.EndsWith(
                 "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
@@ -1142,14 +1144,15 @@ public class RelationalCommandTest
             ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger);
         }
 
-        Assert.Equal(4, diagnostic.Count);
+        Assert.Equal(5, diagnostic.Count);
         Assert.Equal(RelationalEventId.CommandCreating.Name, diagnostic[0].Item1);
         Assert.Equal(RelationalEventId.CommandCreated.Name, diagnostic[1].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[2].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuted.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandInitialized.Name, diagnostic[2].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuted.Name, diagnostic[4].Item1);
 
-        var beforeData = (CommandEventData)diagnostic[2].Item2;
-        var afterData = (CommandExecutedEventData)diagnostic[3].Item2;
+        var beforeData = (CommandEventData)diagnostic[3].Item2;
+        var afterData = (CommandExecutedEventData)diagnostic[4].Item2;
 
         Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], beforeData.Command);
         Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], afterData.Command);
@@ -1218,14 +1221,15 @@ public class RelationalCommandTest
                     => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
 
-        Assert.Equal(4, diagnostic.Count);
+        Assert.Equal(5, diagnostic.Count);
         Assert.Equal(RelationalEventId.CommandCreating.Name, diagnostic[0].Item1);
         Assert.Equal(RelationalEventId.CommandCreated.Name, diagnostic[1].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[2].Item1);
-        Assert.Equal(RelationalEventId.CommandError.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandInitialized.Name, diagnostic[2].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandError.Name, diagnostic[4].Item1);
 
-        var beforeData = (CommandEventData)diagnostic[2].Item2;
-        var afterData = (CommandErrorEventData)diagnostic[3].Item2;
+        var beforeData = (CommandEventData)diagnostic[3].Item2;
+        var afterData = (CommandErrorEventData)diagnostic[4].Item2;
 
         Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
         Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
@@ -1296,14 +1300,15 @@ public class RelationalCommandTest
                     => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
 
-        Assert.Equal(4, diagnostic.Count);
+        Assert.Equal(5, diagnostic.Count);
         Assert.Equal(RelationalEventId.CommandCreating.Name, diagnostic[0].Item1);
         Assert.Equal(RelationalEventId.CommandCreated.Name, diagnostic[1].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[2].Item1);
-        Assert.Equal(RelationalEventId.CommandCanceled.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandInitialized.Name, diagnostic[2].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandCanceled.Name, diagnostic[4].Item1);
 
-        var beforeData = (CommandEventData)diagnostic[2].Item2;
-        var afterData = (CommandEndEventData)diagnostic[3].Item2;
+        var beforeData = (CommandEventData)diagnostic[3].Item2;
+        var afterData = (CommandEndEventData)diagnostic[4].Item2;
 
         Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
         Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);

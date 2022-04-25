@@ -35,7 +35,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal("Black Hole", results[0].Type);
             Assert.Equal("Bing Bang", results[1].Type);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.LinqQuery);
 
             AssertExecutedEvents(listener);
         }
@@ -46,7 +46,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class PassiveReaderCommandInterceptor : CommandInterceptorBase
     {
         public PassiveReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader, CommandSource.FromSqlQuery)
+            : base(DbCommandMethod.ExecuteReader)
         {
         }
     }
@@ -76,7 +76,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
             Assert.Equal(1, Convert.ToInt32(result));
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.Unknown);
 
             AssertSql(sql, interceptor.CommandText);
 
@@ -114,7 +114,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
                 Assert.Equal(1, result);
 
-                AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async, CommandSource.ExecuteSqlRaw);
 
                 AssertSql(nonQuery, interceptor.CommandText);
 
@@ -126,7 +126,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class PassiveNonQueryCommandInterceptor : CommandInterceptorBase
     {
         public PassiveNonQueryCommandInterceptor()
-            : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
+            : base(DbCommandMethod.ExecuteNonQuery)
         {
         }
     }
@@ -154,7 +154,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal("<988>", results[1].Type);
             Assert.Equal("<999>", results[2].Type);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.LinqQuery);
 
             AssertExecutedEvents(listener);
         }
@@ -165,7 +165,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class SuppressingReaderCommandInterceptor : CommandInterceptorBase
     {
         public SuppressingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
+            : base(DbCommandMethod.ExecuteReader)
         {
         }
 
@@ -212,7 +212,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal("Black Hole", results[0].Type);
             Assert.Equal("Bing Bang", results[1].Type);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.LinqQuery);
 
             AssertExecutedEvents(listener);
         }
@@ -221,7 +221,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class SuppressingCreateCommandInterceptor : CommandInterceptorBase
     {
         public SuppressingCreateCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
+            : base(DbCommandMethod.ExecuteReader)
         {
         }
 
@@ -283,7 +283,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
             Assert.Equal(SuppressingScalarCommandInterceptor.InterceptedResult, result);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.Unknown);
 
             AssertSql(sql, interceptor.CommandText);
 
@@ -344,7 +344,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
                 Assert.Equal(2, result);
 
-                AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async, CommandSource.ExecuteSqlRaw);
 
                 AssertSql(nonQuery, interceptor.CommandText);
 
@@ -356,7 +356,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class SuppressingNonQueryCommandInterceptor : CommandInterceptorBase
     {
         public SuppressingNonQueryCommandInterceptor()
-            : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
+            : base(DbCommandMethod.ExecuteNonQuery)
         {
         }
 
@@ -387,9 +387,21 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, false)]
     [InlineData(false, true)]
     [InlineData(true, true)]
-    public virtual async Task<string> Intercept_query_to_mutate_command(bool async, bool inject)
+    public virtual Task<string> Intercept_query_to_mutate_command(bool async, bool inject)
+        => QueryMutationTest<MutatingReaderCommandInterceptor>(async, inject);
+
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task<string> Intercept_CommandInitialized_to_mutate_query_command(bool async, bool inject)
+        => QueryMutationTest<MutatingReaderCommandInitializedInterceptor>(async, inject);
+
+    protected virtual async Task<string> QueryMutationTest<TInterceptor>(bool async, bool inject)
+        where TInterceptor : CommandInterceptorBase, new()
     {
-        var (context, interceptor) = CreateContext<MutatingReaderCommandInterceptor>(inject);
+        var (context, interceptor) = CreateContext<TInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -403,7 +415,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal("Black Hole?", results[0].Type);
             Assert.Equal("Bing Bang?", results[1].Type);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.LinqQuery);
 
             AssertExecutedEvents(listener);
         }
@@ -414,7 +426,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class MutatingReaderCommandInterceptor : CommandInterceptorBase
     {
         public MutatingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
+            : base(DbCommandMethod.ExecuteReader)
         {
         }
 
@@ -443,14 +455,41 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             => command.CommandText = command.CommandText.Replace("Singularity", "Brane");
     }
 
+    protected class MutatingReaderCommandInitializedInterceptor : CommandInterceptorBase
+    {
+        public MutatingReaderCommandInitializedInterceptor()
+            : base(DbCommandMethod.ExecuteReader)
+        {
+        }
+
+        public override DbCommand CommandInitialized(CommandEndEventData eventData, DbCommand result)
+        {
+            result.CommandText = result.CommandText.Replace("Singularity", "Brane");
+
+            return base.CommandInitialized(eventData, result);
+        }
+    }
+
     [ConditionalTheory]
     [InlineData(false, false)]
     [InlineData(true, false)]
     [InlineData(false, true)]
     [InlineData(true, true)]
-    public virtual async Task Intercept_scalar_to_mutate_command(bool async, bool inject)
+    public virtual Task Intercept_scalar_to_mutate_command(bool async, bool inject)
+        => ScalarMutationTest<MutatingScalarCommandInterceptor>(async, inject);
+
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Intercept_CommandInitialized_to_mutate_scalar_command(bool async, bool inject)
+        => ScalarMutationTest<MutatingScalarCommandInitializedInterceptor>(async, inject);
+
+    protected async Task ScalarMutationTest<TInterceptor>(bool async, bool inject)
+        where TInterceptor : CommandInterceptorBase, new()
     {
-        var (context, interceptor) = CreateContext<MutatingScalarCommandInterceptor>(inject);
+        var (context, interceptor) = CreateContext<TInterceptor>(inject);
         using (context)
         {
             const string sql = "SELECT 1";
@@ -468,7 +507,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
             Assert.Equal(2, Convert.ToInt32(result));
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.Unknown);
 
             AssertSql(MutatingScalarCommandInterceptor.MutatedSql, interceptor.CommandText);
 
@@ -507,6 +546,21 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
+    protected class MutatingScalarCommandInitializedInterceptor : CommandInterceptorBase
+    {
+        public MutatingScalarCommandInitializedInterceptor()
+            : base(DbCommandMethod.ExecuteScalar)
+        {
+        }
+
+        public override DbCommand CommandInitialized(CommandEndEventData eventData, DbCommand result)
+        {
+            result.CommandText = MutatingScalarCommandInterceptor.MutatedSql;
+
+            return base.CommandInitialized(eventData, result);
+        }
+    }
+
     [ConditionalTheory]
     [InlineData(false, false)]
     [InlineData(true, false)]
@@ -530,7 +584,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
                 Assert.Equal(0, result);
 
-                AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async, CommandSource.ExecuteSqlRaw);
 
                 AssertSql(interceptor.MutatedSql, interceptor.CommandText);
 
@@ -544,7 +598,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         public readonly string MutatedSql;
 
         public MutatingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
-            : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
+            : base(DbCommandMethod.ExecuteNonQuery)
         {
             MutatedSql =
                 testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
@@ -593,7 +647,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal("Black Hole?", results[0].Type);
             Assert.Equal("Bing Bang?", results[1].Type);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.LinqQuery);
 
             AssertExecutedEvents(listener);
         }
@@ -604,7 +658,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class QueryReplacingReaderCommandInterceptor : CommandInterceptorBase
     {
         public QueryReplacingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
+            : base(DbCommandMethod.ExecuteReader)
         {
         }
 
@@ -666,7 +720,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
             Assert.Equal(2, Convert.ToInt32(result));
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.Unknown);
 
             AssertSql(sql, interceptor.CommandText);
 
@@ -736,7 +790,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
                 Assert.Equal(1, result);
 
-                AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async, CommandSource.ExecuteSqlRaw);
 
                 AssertSql(nonQuery, interceptor.CommandText);
 
@@ -750,7 +804,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         private readonly string commandText;
 
         public QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
-            : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
+            : base(DbCommandMethod.ExecuteNonQuery)
         {
             commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
         }
@@ -815,7 +869,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal("<988>", results[3].Type);
             Assert.Equal("<999>", results[4].Type);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.LinqQuery);
 
             AssertExecutedEvents(listener);
         }
@@ -826,7 +880,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class ResultReplacingReaderCommandInterceptor : CommandInterceptorBase
     {
         public ResultReplacingReaderCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
+            : base(DbCommandMethod.ExecuteReader)
         {
         }
 
@@ -960,7 +1014,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
             Assert.Equal(ResultReplacingScalarCommandInterceptor.InterceptedResult, result);
 
-            AssertNormalOutcome(context, interceptor, async);
+            AssertNormalOutcome(context, interceptor, async, CommandSource.Unknown);
 
             AssertSql(sql, interceptor.CommandText);
 
@@ -1021,7 +1075,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
                 Assert.Equal(7, result);
 
-                AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async, CommandSource.ExecuteSqlRaw);
 
                 AssertSql(nonQuery, interceptor.CommandText);
 
@@ -1033,7 +1087,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected class ResultReplacingNonQueryCommandInterceptor : CommandInterceptorBase
     {
         public ResultReplacingNonQueryCommandInterceptor()
-            : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
+            : base(DbCommandMethod.ExecuteNonQuery)
         {
         }
 
@@ -1084,7 +1138,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
                 Assert.Same(interceptor.Exception, exception);
             }
 
-            AssertErrorOutcome(context, interceptor, async);
+            AssertErrorOutcome(context, interceptor, async, CommandSource.FromSqlQuery);
         }
     }
 
@@ -1119,7 +1173,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
                 Assert.Same(interceptor.Exception, exception);
             }
 
-            AssertErrorOutcome(context, interceptor, async);
+            AssertErrorOutcome(context, interceptor, async, CommandSource.Unknown);
 
             AssertSql(sql, interceptor.CommandText);
         }
@@ -1150,7 +1204,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
                 Assert.Same(interceptor.Exception, exception);
             }
 
-            AssertErrorOutcome(context, interceptor, async);
+            AssertErrorOutcome(context, interceptor, async, CommandSource.ExecuteSqlRaw);
 
             AssertSql(nonQuery, interceptor.CommandText);
         }
@@ -1287,8 +1341,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
 
         AssertCompositeResults(results);
 
-        AssertNormalOutcome(context, interceptor1, async);
-        AssertNormalOutcome(context, interceptor2, async);
+        AssertNormalOutcome(context, interceptor1, async, CommandSource.LinqQuery);
+        AssertNormalOutcome(context, interceptor2, async, CommandSource.LinqQuery);
     }
 
     [ConditionalTheory]
@@ -1591,26 +1645,30 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             => throw new NotImplementedException();
     }
 
-    private static void AssertNormalOutcome(DbContext context, CommandInterceptorBase interceptor, bool async)
+    private static void AssertNormalOutcome(DbContext context, CommandInterceptorBase interceptor, bool async, CommandSource commandSource)
     {
         Assert.Equal(async, interceptor.AsyncCalled);
         Assert.NotEqual(async, interceptor.SyncCalled);
         Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
+        Assert.True(interceptor.InitializedCalled);
         Assert.True(interceptor.ExecutingCalled);
         Assert.True(interceptor.ExecutedCalled);
         Assert.False(interceptor.FailedCalled);
         Assert.Same(context, interceptor.Context);
+        Assert.Equal(commandSource, interceptor.CommandSource);
     }
 
-    private static void AssertErrorOutcome(DbContext context, CommandInterceptorBase interceptor, bool async)
+    private static void AssertErrorOutcome(DbContext context, CommandInterceptorBase interceptor, bool async, CommandSource commandSource)
     {
         Assert.Equal(async, interceptor.AsyncCalled);
         Assert.NotEqual(async, interceptor.SyncCalled);
         Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
+        Assert.True(interceptor.InitializedCalled);
         Assert.True(interceptor.ExecutingCalled);
         Assert.False(interceptor.ExecutedCalled);
         Assert.True(interceptor.FailedCalled);
         Assert.Same(context, interceptor.Context);
+        Assert.Equal(commandSource, interceptor.CommandSource);
     }
 
     private static void AssertExecutedEvents(ITestDiagnosticListener listener)
@@ -1626,17 +1684,10 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected abstract class CommandInterceptorBase : IDbCommandInterceptor
     {
         private readonly DbCommandMethod _commandMethod;
-        private readonly CommandSource _commandSource;
 
         protected CommandInterceptorBase(DbCommandMethod commandMethod)
-            : this(commandMethod, CommandSource.Unknown)
-        {
-        }
-
-        protected CommandInterceptorBase(DbCommandMethod commandMethod, CommandSource commandSource)
         {
             _commandMethod = commandMethod;
-            _commandSource = commandSource;
         }
 
         public DbContext Context { get; set; }
@@ -1653,6 +1704,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         public bool CanceledCalled { get; set; }
         public bool CreatingCalled { get; set; }
         public bool CreatedCalled { get; set; }
+        public bool InitializedCalled { get; set; }
 
         public virtual InterceptionResult<DbCommand> CommandCreating(
             CommandCorrelatedEventData eventData,
@@ -1668,6 +1720,15 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             DbCommand result)
         {
             AssertCreated(result, eventData);
+
+            return result;
+        }
+
+        public virtual DbCommand CommandInitialized(
+            CommandEndEventData eventData,
+            DbCommand result)
+        {
+            AssertInitialized(result, eventData);
 
             return result;
         }
@@ -1886,13 +1947,12 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
             Assert.Equal(_commandMethod, eventData.ExecuteMethod);
-            //Assert.Equal(_commandSource, eventData.CommandSource);
+            Assert.Equal(CommandSource, eventData.CommandSource);
+            Assert.Equal(CommandSource, eventData.CommandSource);
+            Assert.Same(Context, eventData.Context);
+            Assert.NotEmpty(command.CommandText);
 
-            Context = eventData.Context;
             CommandText = command.CommandText;
-            CommandId = eventData.CommandId;
-            ConnectionId = eventData.ConnectionId;
-            CommandSource = eventData.CommandSource;
             ExecutingCalled = true;
         }
 
@@ -1903,7 +1963,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
             Assert.Equal(_commandMethod, eventData.ExecuteMethod);
-            //Assert.Equal(_commandSource, eventData.CommandSource);
+            Assert.Equal(CommandSource, eventData.CommandSource);
 
             ExecutedCalled = true;
         }
@@ -1918,6 +1978,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Context = eventData.Context;
             CommandId = eventData.CommandId;
             ConnectionId = eventData.ConnectionId;
+            CommandSource = eventData.CommandSource;
             CreatingCalled = true;
         }
 
@@ -1928,10 +1989,26 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
             Assert.Equal(_commandMethod, eventData.ExecuteMethod);
-            //Assert.Equal(_commandSource, eventData.CommandSource);
+            Assert.Equal(CommandSource, eventData.CommandSource);
 
-            CommandSource = eventData.CommandSource;
             CreatedCalled = true;
+        }
+
+        protected virtual void AssertInitialized(DbCommand command, CommandEndEventData eventData)
+        {
+            InitializedCalled = true;
+            Assert.NotNull(eventData.Context);
+            Assert.NotEqual(default, eventData.CommandId);
+            Assert.NotEqual(default, eventData.ConnectionId);
+            Assert.Equal(CommandId, eventData.CommandId);
+            Assert.Equal(ConnectionId, eventData.ConnectionId);
+            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            Assert.Equal(CommandSource, eventData.CommandSource);
+            Assert.NotEmpty(command.CommandText);
+
+            Context = eventData.Context;
+            CommandText = command.CommandText;
+            ExecutingCalled = true;
         }
 
         protected virtual void AssertFailed(DbCommand command, CommandErrorEventData eventData)
@@ -1940,11 +2017,10 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandText, command.CommandText);
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
+            Assert.Equal(CommandSource, eventData.CommandSource);
             Assert.Equal(_commandMethod, eventData.ExecuteMethod);
-            //Assert.Equal(_commandSource, eventData.CommandSource);
             Assert.NotNull(eventData.Exception);
 
-            CommandSource = eventData.CommandSource;
             Exception = eventData.Exception;
             FailedCalled = true;
         }
@@ -1955,10 +2031,9 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandText, command.CommandText);
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
+            Assert.Equal(CommandSource, eventData.CommandSource);
             Assert.Equal(_commandMethod, eventData.ExecuteMethod);
-            //Assert.Equal(_commandSource, eventData.CommandSource);
 
-            CommandSource = eventData.CommandSource;
             CanceledCalled = true;
         }
     }
