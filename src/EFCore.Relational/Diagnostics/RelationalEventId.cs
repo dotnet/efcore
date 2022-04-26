@@ -37,6 +37,7 @@ public static class RelationalEventId
         CommandCreating,
         CommandCreated,
         CommandCanceled,
+        CommandInitialized,
 
         // Transaction events
         TransactionStarted = CoreEventId.RelationalBaseId + 200,
@@ -213,6 +214,19 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId CommandCreated = MakeCommandId(Id.CommandCreated);
+
+    /// <summary>
+    ///     A <see cref="DbCommand" /> has been initialized with command text and other parameters.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="CommandEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId CommandInitialized = MakeCommandId(Id.CommandInitialized);
 
     /// <summary>
     ///     A database command is executing.

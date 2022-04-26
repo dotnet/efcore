@@ -776,11 +776,12 @@ public class RelationalCommand : IRelationalCommand
 
         DbCommand command;
 
-        if (logger?.ShouldLogCommandCreate(startTime) == true)
+        var logCommandCreate = logger?.ShouldLogCommandCreate(startTime) == true;
+        if (logCommandCreate)
         {
             _stopwatch.Restart();
 
-            var interceptionResult = logger.CommandCreating(
+            var interceptionResult = logger!.CommandCreating(
                 connection, commandMethod, context, commandId, connectionId, startTime,
                 parameterObject.CommandSource);
 
@@ -830,6 +831,20 @@ public class RelationalCommand : IRelationalCommand
             {
                 Parameters[i].AddDbParameter(command, parameterValues);
             }
+        }
+
+        if (logCommandCreate)
+        {
+            command = logger!.CommandInitialized(
+                connection,
+                command,
+                commandMethod,
+                context,
+                commandId,
+                connectionId,
+                startTime,
+                _stopwatch.Elapsed,
+                parameterObject.CommandSource);
         }
 
         return command;

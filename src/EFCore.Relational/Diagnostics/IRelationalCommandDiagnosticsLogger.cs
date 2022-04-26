@@ -65,6 +65,30 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
         CommandSource commandSource);
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.CommandInitialized" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="command">The database command object.</param>
+    /// <param name="commandMethod">The type of method that will be called on this command.</param>
+    /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
+    /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
+    /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
+    /// <param name="startTime">The time that execution began.</param>
+    /// <param name="duration">The duration of the command creation.</param>
+    /// <param name="commandSource">Source of the command.</param>
+    /// <returns>An intercepted result.</returns>
+    DbCommand CommandInitialized(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbCommandMethod commandMethod,
+        DbContext? context,
+        Guid commandId,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource);
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
     /// </summary>
     /// <param name="connection">The connection.</param>

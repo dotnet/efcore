@@ -19,11 +19,11 @@ public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTes
         return null;
     }
 
-    public override async Task<string> Intercept_query_to_mutate_command(bool async, bool inject)
+    protected override async Task<string> QueryMutationTest<TInterceptor>(bool async, bool inject)
     {
         AssertSql(
             @"SELECT ""s"".""Id"", ""s"".""Type"" FROM ""Brane"" AS ""s""",
-            await base.Intercept_query_to_mutate_command(async, inject));
+            await base.QueryMutationTest<TInterceptor>(async, inject));
 
         return null;
     }

@@ -286,13 +286,13 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(
                     RelationalResources.LogAmbientTransactionEnlisted(new TestLogger<TestRelationalLoggingDefinitions>())
                         .GenerateMessage("Serializable"),
-                    Fixture.ListLoggerFactory.Log.Skip(2).First().Message);
+                    Fixture.ListLoggerFactory.Log.Skip(3).First().Message);
             }
             else
             {
                 Assert.Equal(
                     RelationalResources.LogAmbientTransaction(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
-                    Fixture.ListLoggerFactory.Log.Skip(2).First().Message);
+                    Fixture.ListLoggerFactory.Log.Skip(3).First().Message);
 
                 using var context = CreateContext();
                 context.Entry(context.Set<TransactionCustomer>().Single(c => c.Id == -77)).State = EntityState.Deleted;
