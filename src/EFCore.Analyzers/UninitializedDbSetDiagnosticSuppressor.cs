@@ -29,10 +29,19 @@ public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppresso
         foreach (var diagnostic in context.ReportedDiagnostics)
         {
             // We have an warning about an uninitialized non-nullable property.
-            // Get the node, and make sure it's a property who's type syntactically contains DbSet (fast check before getting the
-            // semantic model, which is heavier).
-            if (diagnostic.Location.SourceTree is not { } sourceTree
-                || sourceTree.GetRoot().FindNode(diagnostic.Location.SourceSpan) is not PropertyDeclarationSyntax propertyDeclarationSyntax
+
+            // CS8618 contains the location of the uninitialized property in AdditionalLocations; note that if the class has a constructor,
+            // the diagnostic main Location points to the constructor rather than to the uninitialized property.
+            // The AdditionalLocations was added in 7.0.0-preview.3, fall back to the main location just in case and older compiler is
+            // being used (the check below for PropertyDeclarationSyntax will filter out the diagnostic if it's pointing to a constructor).
+            var location = diagnostic.AdditionalLocations.Count > 0
+                ? diagnostic.AdditionalLocations[0]
+                : diagnostic.Location;
+
+            // Get the node, and make sure it's a property whose type syntactically contains DbSet (fast check before getting the semantic
+            // model, which is heavier).
+            if (location.SourceTree is not { } sourceTree
+                || sourceTree.GetRoot().FindNode(location.SourceSpan) is not PropertyDeclarationSyntax propertyDeclarationSyntax
                 || !propertyDeclarationSyntax.Type.ToString().Contains("DbSet"))
             {
                 continue;
