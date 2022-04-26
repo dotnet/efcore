@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -36,18 +38,25 @@ public static class ModelExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static IEnumerable<IEntityType> GetEntityTypesInHierarchicalOrder(this IModel model)
-        => Sort(model.GetEntityTypes());
-
-    private static IEnumerable<IEntityType> Sort(IEnumerable<IEntityType> entityTypes)
     {
-        var entityTypeGraph = new Multigraph<IEntityType, int>();
-        entityTypeGraph.AddVertices(entityTypes);
-        foreach (var entityType in entityTypes.Where(et => et.BaseType != null))
+        var entityTypes = new Queue<IEntityType>();
+
+        foreach (var root in model.GetRootEntityTypes())
         {
-            entityTypeGraph.AddEdge(entityType.BaseType!, entityType, 0);
+            entityTypes.Enqueue(root);
         }
 
-        return entityTypeGraph.BatchingTopologicalSort().SelectMany(b => b.OrderBy(et => et.Name));
+        while (entityTypes.Count > 0)
+        {
+            var current = entityTypes.Dequeue();
+
+            yield return current;
+
+            foreach (var descendant in current.GetDirectlyDerivedTypes())
+            {
+                entityTypes.Enqueue(descendant);
+            }
+        }
     }
 
     /// <summary>

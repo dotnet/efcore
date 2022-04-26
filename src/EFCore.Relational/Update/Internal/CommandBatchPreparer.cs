@@ -16,7 +16,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 {
     private readonly int _minBatchSize;
     private readonly bool _sensitiveLoggingEnabled;
-    private readonly Multigraph<IReadOnlyModificationCommand, IAnnotatable> _modificationCommandGraph = new();
+    private readonly Multigraph<IReadOnlyModificationCommand, IAnnotatable> _modificationCommandGraph;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,6 +29,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         _minBatchSize =
             dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
             ?? 1;
+
+        _modificationCommandGraph = new(dependencies.ModificationCommandComparer);
         Dependencies = dependencies;
 
         if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -57,16 +59,14 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         var parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
         var commands = CreateModificationCommands(entries, updateAdapter, parameterNameGenerator.GenerateNext);
-        var sortedCommandSets = TopologicalSort(commands);
+        var commandSets = TopologicalSort(commands);
 
-        for (var commandSetIndex = 0; commandSetIndex < sortedCommandSets.Count; commandSetIndex++)
+        for (var commandSetIndex = 0; commandSetIndex < commandSets.Count; commandSetIndex++)
         {
-            var independentCommandSet = sortedCommandSets[commandSetIndex];
-
-            independentCommandSet.Sort(Dependencies.ModificationCommandComparer);
+            var commandSet = commandSets[commandSetIndex];
 
             var batch = Dependencies.ModificationCommandBatchFactory.Create();
-            foreach (var modificationCommand in independentCommandSet)
+            foreach (var modificationCommand in commandSet)
             {
                 (modificationCommand as ModificationCommand)?.AssertColumnsNotInitialized();
                 if (modificationCommand.EntityState == EntityState.Modified
@@ -108,7 +108,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 }
             }
 
-            var hasMoreCommandSets = commandSetIndex < sortedCommandSets.Count - 1;
+            var hasMoreCommandSets = commandSetIndex < commandSets.Count - 1;
 
             if (batch.ModificationCommands.Count == 1
                 || batch.ModificationCommands.Count >= _minBatchSize)
@@ -295,10 +295,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         var builder = new StringBuilder();
         for (var i = 0; i < data.Count; i++)
         {
-            var (command1, command2, annotatables) = data[i];
+            var (command1, command2, edges) = data[i];
             Format(command1, builder);
 
-            switch (annotatables.First())
+            switch (edges.First())
             {
                 case IForeignKeyConstraint foreignKey:
                     Format(foreignKey, command1, command2, builder);
@@ -536,10 +536,40 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                     var dependentKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
                         .CreateDependentValueIndex(command);
-                    if (dependentKeyValue != null)
+
+                    if (dependentKeyValue is null || !predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
                     {
-                        AddMatchingPredecessorEdge(
-                            predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey);
+                        continue;
+                    }
+
+                    foreach (var predecessor in predecessorCommands)
+                    {
+                        if (predecessor != command)
+                        {
+                            // If we're adding/inserting a dependent where the principal key is being database-generated, then
+                            // the dependency edge represents a batching boundary: fetch the principal database-generated
+                            // property from the database in separate batch, in order to populate the dependent foreign key
+                            // property in the next.
+                            var requiresBatchingBoundary = false;
+
+                            for (var i = 0; i < foreignKey.PrincipalColumns.Count; i++)
+                            {
+                                for (var j = 0; j < predecessor.Entries.Count; j++)
+                                {
+                                    var entry = predecessor.Entries[j];
+
+                                    if (foreignKey.PrincipalColumns[i].FindColumnMapping(entry.EntityType) is IColumnMapping columnMapping
+                                        && entry.IsStoreGenerated(columnMapping.Property))
+                                    {
+                                        requiresBatchingBoundary = true;
+                                        goto AfterLoop;
+                                    }
+                                }
+                            }
+                            AfterLoop:
+                            
+                            commandGraph.AddEdge(predecessor, command, foreignKey, requiresBatchingBoundary);
+                        }
                     }
                 }
             }
@@ -623,7 +653,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         T keyValue,
         Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
         IReadOnlyModificationCommand command,
-        IAnnotatable edge)
+        IAnnotatable edgeAnnotatable)
         where T : notnull
     {
         if (predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))
@@ -632,7 +662,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             {
                 if (predecessor != command)
                 {
-                    commandGraph.AddEdge(predecessor, command, edge);
+                    commandGraph.AddEdge(predecessor, command, edgeAnnotatable);
                 }
             }
         }

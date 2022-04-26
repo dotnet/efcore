@@ -125,7 +125,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         => new[] { this }.Concat(GetDerivedTypes());
 
     /// <summary>
-    ///     Gets all types in the model that directly derive from a given entity type.
+    ///     Gets all types in the model that directly derive from a given entity type, in a deterministic top-to-bottom ordering.
     /// </summary>
     /// <returns>The derived types.</returns>
     IEnumerable<IReadOnlyEntityType> GetDirectlyDerivedTypes();

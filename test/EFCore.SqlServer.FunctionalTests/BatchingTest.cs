@@ -305,7 +305,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 var owner = new Owner();
                 context.Owners.Add(owner);
 
-                for (var i = 1; i < 4; i++)
+                for (var i = 1; i < 3; i++)
                 {
                     var blog = new Blog { Id = Guid.NewGuid(), Owner = owner };
 
@@ -325,7 +325,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                             .GenerateMessage(3, 4),
                     Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 
-                Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
+                Assert.Equal(minBatchSize <= 3 ? 1 : 3, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
             }, context => AssertDatabaseState(context, false, expectedBlogs));
     }
 

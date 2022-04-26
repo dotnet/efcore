@@ -18,7 +18,6 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     private const int DefaultNetworkPacketSizeBytes = 4096;
     private const int MaxScriptLength = 65536 * DefaultNetworkPacketSizeBytes / 2;
     private const int MaxParameterCount = 2100;
-    private readonly int _maxBatchSize;
     private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
 
     /// <summary>
@@ -31,7 +30,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         ModificationCommandBatchFactoryDependencies dependencies,
         int maxBatchSize)
         : base(dependencies)
-        => _maxBatchSize = maxBatchSize;
+        => MaxBatchSize = maxBatchSize;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,8 +47,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// <remarks>
     ///     For SQL Server, this is 42 by default, and cannot exceed 1000.
     /// </remarks>
-    protected override int MaxBatchSize
-        => _maxBatchSize;
+    protected override int MaxBatchSize { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,8 +163,8 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     private static bool CanBeInsertedInSameStatement(
         IReadOnlyModificationCommand firstCommand,
         IReadOnlyModificationCommand secondCommand)
-        => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
-            && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
+        => firstCommand.TableName == secondCommand.TableName
+            && firstCommand.Schema == secondCommand.Schema
             && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
                 secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
             && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
