@@ -253,4 +253,9 @@ public static class RelationalAnnotationNames
     ///     The name for relational model dependencies annotation.
     /// </summary>
     public const string ModelDependencies = Prefix + "ModelDependencies";
+
+    /// <summary>
+    ///     The name for the reader get value delegate annotations.
+    /// </summary>
+    public const string GetReaderFieldValue = Prefix + "GetReaderFieldValue";
 }

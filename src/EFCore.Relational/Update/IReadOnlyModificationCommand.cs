@@ -57,10 +57,9 @@ public interface IReadOnlyModificationCommand
     public EntityState EntityState { get; }
 
     /// <summary>
-    ///     Reads values returned from the database in the given <see cref="ValueBuffer" /> and
-    ///     propagates them back to into the appropriate <see cref="IColumnModification" />
-    ///     from which the values can be propagated on to tracked entities.
+    ///     Reads values returned from the database in the given <paramref name="relationalReader" /> and propagates them back to into the
+    ///     appropriate <see cref="IColumnModification" /> from which the values can be propagated on to tracked entities.
     /// </summary>
-    /// <param name="valueBuffer">The buffer containing the values read from the database.</param>
-    public void PropagateResults(ValueBuffer valueBuffer);
+    /// <param name="relationalReader">The relational reader containing the values read from the database.</param>
+    public void PropagateResults(RelationalDataReader relationalReader);
 }

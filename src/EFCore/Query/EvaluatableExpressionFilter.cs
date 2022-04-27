@@ -21,7 +21,6 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
 {
     // This methods are non-deterministic and result varies based on time of running the query.
     // Hence we don't evaluate them. See issue#2069
-
     private static readonly PropertyInfo DateTimeNow
         = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now))!;
 

@@ -703,10 +703,6 @@ RETURNING 1;
                 new RelationalSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 sqlGenerator,
-                new TypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies(
-                        typeMappingSource,
-                        new CoreSingletonOptions())),
                 new CurrentDbContext(new FakeDbContext()),
                 logger);
         }
@@ -769,6 +765,7 @@ RETURNING 1;
         var modificationCommandParameters = new ModificationCommandParameters(
             entry.EntityType.GetTableMappings().Single().Table,
             sensitiveLoggingEnabled,
+            detailedErrorsEnabled: false,
             comparer,
             generateParameterName,
             logger: null);

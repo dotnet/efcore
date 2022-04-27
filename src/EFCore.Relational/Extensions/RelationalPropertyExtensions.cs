@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -16,6 +17,15 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class RelationalPropertyExtensions
 {
+    private static readonly MethodInfo GetFieldValueMethod =
+        typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
+
+    private static readonly MethodInfo IsDbNullMethod =
+        typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
+
+    private static readonly MethodInfo ThrowReadValueExceptionMethod
+        = typeof(RelationalPropertyExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
+
     /// <summary>
     ///     Returns the base name of the column to which the property would be mapped.
     /// </summary>
@@ -1500,4 +1510,162 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         in StoreObjectIdentifier storeObject)
         => RelationalPropertyOverrides.GetOrCreate(property, storeObject);
+
+    /// <summary>
+    ///     Reads a value for this property from the given <paramref name="relationalReader" />.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="relationalReader">The read from which to read the property's value.</param>
+    /// <param name="ordinal">The ordinal to read in the <paramref name="relationalReader" />.</param>
+    /// <param name="detailedErrorsEnabled">Whether detailed errors should be logged.</param>
+    public static object? GetReaderFieldValue(
+        this IProperty property, RelationalDataReader relationalReader, int ordinal, bool detailedErrorsEnabled)
+    {
+#if DEBUG
+        // DetailedErrorsEnabled is a singleton option, meaning that we should never get differing values for the same model.
+        var previousDetailedErrorsEnabled = property.GetOrAddRuntimeAnnotationValue(
+            "DebugDetailedErrorsEnabled", static x => x, detailedErrorsEnabled);
+        Check.DebugAssert(previousDetailedErrorsEnabled == detailedErrorsEnabled, "Differing values of DetailedErrorsEnabled");
+#endif
+
+        var getReadFieldValue = property.GetOrAddRuntimeAnnotationValue(
+            RelationalAnnotationNames.GetReaderFieldValue,
+            static x => CreateGetValueDelegate(x.property, x.detailedErrorsEnabled),
+            (property, detailedErrorsEnabled));
+
+        return getReadFieldValue(relationalReader.DbDataReader, ordinal);
+    }
+
+    private static Func<DbDataReader, int, object?> CreateGetValueDelegate(IProperty property, bool detailedErrorsEnabled)
+    {
+        var readerParameter = Expression.Parameter(typeof(DbDataReader), "reader");
+        var indexParameter = Expression.Parameter(typeof(int), "index");
+
+        var typeMapping = (RelationalTypeMapping)property.GetTypeMapping();
+        var getMethod = typeMapping.GetDataReaderMethod();
+
+        Expression valueExpression
+            = Expression.Call(
+                getMethod.DeclaringType != typeof(DbDataReader)
+                    ? Expression.Convert(readerParameter, getMethod.DeclaringType!)
+                    : readerParameter,
+                getMethod,
+                indexParameter);
+
+        valueExpression = typeMapping.CustomizeDataReaderExpression(valueExpression);
+
+        var converter = typeMapping.Converter;
+
+        if (converter != null)
+        {
+            if (valueExpression.Type != converter.ProviderClrType)
+            {
+                valueExpression = Expression.Convert(valueExpression, converter.ProviderClrType);
+            }
+
+            valueExpression = ReplacingExpressionVisitor.Replace(
+                converter.ConvertFromProviderExpression.Parameters.Single(),
+                valueExpression,
+                converter.ConvertFromProviderExpression.Body);
+        }
+
+        if (valueExpression.Type != property.ClrType)
+        {
+            valueExpression = Expression.Convert(valueExpression, property.ClrType);
+        }
+
+        var exceptionParameter = Expression.Parameter(typeof(Exception), name: "e");
+
+        if (detailedErrorsEnabled)
+        {
+            var catchBlock
+                = Expression
+                    .Catch(
+                        exceptionParameter,
+                        Expression.Call(
+                            ThrowReadValueExceptionMethod
+                                .MakeGenericMethod(valueExpression.Type),
+                            exceptionParameter,
+                            Expression.Call(
+                                readerParameter,
+                                GetFieldValueMethod.MakeGenericMethod(typeof(object)),
+                                indexParameter),
+                            Expression.Constant(property, typeof(IPropertyBase))));
+
+            valueExpression = Expression.TryCatch(valueExpression, catchBlock);
+        }
+
+        if (valueExpression.Type.IsValueType)
+        {
+            valueExpression = Expression.Convert(valueExpression, typeof(object));
+        }
+
+        if (property.IsNullable)
+        {
+            Expression replaceExpression;
+            if (converter?.ConvertsNulls == true)
+            {
+                replaceExpression = ReplacingExpressionVisitor.Replace(
+                    converter.ConvertFromProviderExpression.Parameters.Single(),
+                    Expression.Default(converter.ProviderClrType),
+                    converter.ConvertFromProviderExpression.Body);
+
+                if (replaceExpression.Type != valueExpression.Type)
+                {
+                    replaceExpression = Expression.Convert(replaceExpression, valueExpression.Type);
+                }
+            }
+            else
+            {
+                replaceExpression = Expression.Default(valueExpression.Type);
+            }
+
+            valueExpression
+                = Expression.Condition(
+                    Expression.Call(readerParameter, IsDbNullMethod, indexParameter),
+                    replaceExpression,
+                    valueExpression);
+        }
+
+        var lambdaExpression = Expression.Lambda<Func<DbDataReader, int, object?>>(valueExpression, readerParameter, indexParameter);
+
+        return lambdaExpression.Compile();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static TValue ThrowReadValueException<TValue>(
+        Exception exception,
+        object? value,
+        IPropertyBase? property = null)
+    {
+        var expectedType = typeof(TValue);
+        var actualType = value?.GetType();
+
+        string message;
+
+        if (property != null)
+        {
+            var entityType = property.DeclaringType.DisplayName();
+            var propertyName = property.Name;
+
+            message
+                = exception is NullReferenceException
+                || Equals(value, DBNull.Value)
+                    ? RelationalStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
+                    : exception is InvalidCastException
+                        ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
+                        : RelationalStrings.ErrorMaterializingProperty(entityType, propertyName);
+        }
+        else
+        {
+            message
+                = exception is NullReferenceException
+                    ? RelationalStrings.ErrorMaterializingValueNullReference(expectedType)
+                    : exception is InvalidCastException
+                        ? RelationalStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                        : RelationalStrings.ErrorMaterializingValue;
+        }
+
+        throw new InvalidOperationException(message, exception);
+    }
 }

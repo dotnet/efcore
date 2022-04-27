@@ -494,6 +494,7 @@ public class ModificationCommandTest
             new ModificationCommandParameters(
                 entry.EntityType.GetTableMappings().Single().Table,
                 sensitiveLoggingEnabled,
+                detailedErrorsEnabled: false,
                 comparer,
                 generateParameterName));
 }

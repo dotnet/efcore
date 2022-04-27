@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class QuerySqlGenerator : SqlExpressionVisitor
 {
-
     private static readonly Dictionary<ExpressionType, string> OperatorMap = new()
     {
         { ExpressionType.Equal, " = " },

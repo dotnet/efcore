@@ -21,6 +21,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 {
     private readonly Func<string>? _generateParameterName;
     private readonly bool _sensitiveLoggingEnabled;
+    private readonly bool _detailedErrorsEnabled;
     private readonly IComparer<IUpdateEntry>? _comparer;
     private readonly List<IUpdateEntry> _entries = new();
     private List<IColumnModification>? _columnModifications;
@@ -40,6 +41,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         Schema = modificationCommandParameters.Schema;
         _generateParameterName = modificationCommandParameters.GenerateParameterName;
         _sensitiveLoggingEnabled = modificationCommandParameters.SensitiveLoggingEnabled;
+        _detailedErrorsEnabled = modificationCommandParameters.DetailedErrorsEnabled;
         _comparer = modificationCommandParameters.Comparer;
         _logger = modificationCommandParameters.Logger;
         EntityState = EntityState.Modified;
@@ -426,20 +428,28 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
     }
 
-    /// <summary>
-    ///     Reads values returned from the database in the given <see cref="ValueBuffer" /> and
-    ///     propagates them back to into the appropriate <see cref="IColumnModification" />
-    ///     from which the values can be propagated on to tracked entities.
-    /// </summary>
-    /// <param name="valueBuffer">The buffer containing the values read from the database.</param>
-    public virtual void PropagateResults(ValueBuffer valueBuffer)
+    /// <inheritdoc />
+    public virtual void PropagateResults(RelationalDataReader relationalReader)
     {
         // Note that this call sets the value into a sidecar and will only commit to the actual entity
         // if SaveChanges is successful.
-        var index = 0;
-        foreach (var modification in ColumnModifications.Where(o => o.IsRead))
+        var columnCount = ColumnModifications.Count;
+
+        var readerIndex = 0;
+        for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
         {
-            modification.Value = valueBuffer[index++];
+            var columnModification = ColumnModifications[columnIndex];
+
+            if (!columnModification.IsRead)
+            {
+                continue;
+            }
+
+            Check.DebugAssert(
+                columnModification.Property is not null, "No property on when propagating results to a readable column modification");
+
+            columnModification.Value =
+                columnModification.Property.GetReaderFieldValue(relationalReader, readerIndex++, _detailedErrorsEnabled);
         }
     }
 

@@ -16,6 +16,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 {
     private readonly int _minBatchSize;
     private readonly bool _sensitiveLoggingEnabled;
+    private readonly bool _detailedErrorsEnabled;
     private readonly Multigraph<IReadOnlyModificationCommand, IAnnotatable> _modificationCommandGraph;
 
     /// <summary>
@@ -36,6 +37,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
         {
             _sensitiveLoggingEnabled = true;
+        }
+
+        if (dependencies.LoggingOptions.DetailedErrorsEnabled)
+        {
+            _detailedErrorsEnabled = true;
         }
     }
 
@@ -194,14 +200,15 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         entry,
                         (t, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(
                             new ModificationCommandParameters(
-                                t, _sensitiveLoggingEnabled, comparer, generateParameterName, Dependencies.UpdateLogger)));
+                                t, _sensitiveLoggingEnabled, _detailedErrorsEnabled, comparer, generateParameterName,
+                                Dependencies.UpdateLogger)));
                     isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                 }
                 else
                 {
                     command = Dependencies.ModificationCommandFactory.CreateModificationCommand(
                         new ModificationCommandParameters(
-                            table, _sensitiveLoggingEnabled, comparer: null, generateParameterName,
+                            table, _sensitiveLoggingEnabled, _detailedErrorsEnabled, comparer: null, generateParameterName,
                             Dependencies.UpdateLogger));
                 }
 

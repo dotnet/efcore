@@ -36,9 +36,6 @@ public class SqlServerModificationCommandBatchFactoryTest
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
-                new TypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies(
-                        typeMapper, new CoreSingletonOptions())),
                 new CurrentDbContext(new FakeDbContext()),
                 logger),
             optionsBuilder.Options);
@@ -74,9 +71,6 @@ public class SqlServerModificationCommandBatchFactoryTest
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
-                new TypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies(
-                        typeMapper, new CoreSingletonOptions())),
                 new CurrentDbContext(new FakeDbContext()),
                 logger),
             optionsBuilder.Options);
