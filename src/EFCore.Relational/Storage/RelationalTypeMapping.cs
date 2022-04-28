@@ -384,10 +384,14 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     ///     A <see cref="ValueComparer" /> for the provider CLR type values.
     /// </summary>
     public virtual ValueComparer ProviderValueComparer
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _providerValueComparer,
-            this,
-            static c => ValueComparer.CreateDefault(c.Converter?.ProviderClrType ?? c.ClrType, favorStructuralComparisons: true));
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+                   ref _providerValueComparer,
+                   this,
+                   static c => ValueComparer.CreateDefault(c.Converter?.ProviderClrType ?? c.ClrType, favorStructuralComparisons: true));
+        
+        protected set => _providerValueComparer = value;
+    }
 
     /// <summary>
     ///     Creates a copy of this mapping.

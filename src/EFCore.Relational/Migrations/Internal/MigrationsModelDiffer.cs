@@ -1714,43 +1714,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             var type = rawSeed.GetType();
             if (entityType.ClrType.IsAssignableFrom(type))
             {
-                getValue = (property, seed) =>
-                {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                    if (!property.TryGetMemberInfo(forMaterialization: false, forSet: false, out var memberInfo, out var _))
-                    {
-                        return (null, false);
-                    }
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                    object? value = null;
-                    switch (memberInfo)
-                    {
-                        case PropertyInfo propertyInfo:
-                            if (property.IsIndexerProperty())
-                            {
-                                try
-                                {
-                                    value = propertyInfo.GetValue(seed, new[] { property.Name });
-                                }
-                                catch (Exception)
-                                {
-                                    return (null, false);
-                                }
-                            }
-                            else
-                            {
-                                value = propertyInfo.GetValue(seed);
-                            }
-
-                            break;
-                        case FieldInfo fieldInfo:
-                            value = fieldInfo.GetValue(seed);
-                            break;
-                    }
-
-                    return (value, true);
-                };
+                getValue = GetClrValue;
             }
             else
             {
@@ -1797,17 +1761,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 {
                     continue;
                 }
-
-                if (table.IsShared)
+                
+                if (table.IsShared && identityMap.FindCommand(key) is { } existingCommand)
                 {
-                    var existingCommand = identityMap.FindCommand(key);
-                    if (existingCommand == null)
-                    {
-                        existingCommand = CommandBatchPreparerDependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
-                            new NonTrackedModificationCommandParameters(table, sensitiveLoggingEnabled));
-                        identityMap.Add(key, existingCommand);
-                    }
-
                     command = existingCommand;
                 }
                 else
@@ -1825,7 +1781,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     var column = columnMapping.Column;
 
                     if ((column.ComputedColumnSql != null)
-                        || (property.ValueGenerated & ValueGenerated.OnUpdate) != 0)
+                        || property.ValueGenerated.HasFlag(ValueGenerated.OnUpdate))
                     {
                         continue;
                     }
@@ -1845,7 +1801,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             value = entityType.GetDiscriminatorValue()!;
                         }
-                        else if ((property.ValueGenerated & ValueGenerated.OnAdd) != 0)
+                        else if (property.ValueGenerated.HasFlag(ValueGenerated.OnAdd))
                         {
                             writeValue = false;
                         }
@@ -1888,6 +1844,44 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 }
             }
         }
+
+        static (object?, bool) GetClrValue(IProperty property, object seed)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            if (!property.TryGetMemberInfo(forMaterialization: false, forSet: false, out var memberInfo, out var _))
+            {
+                return (null, false);
+            }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+            object? value = null;
+            switch (memberInfo)
+            {
+                case PropertyInfo propertyInfo:
+                    if (property.IsIndexerProperty())
+                    {
+                        try
+                        {
+                            value = propertyInfo.GetValue(seed, new[] { property.Name });
+                        }
+                        catch (Exception)
+                        {
+                            return (null, false);
+                        }
+                    }
+                    else
+                    {
+                        value = propertyInfo.GetValue(seed);
+                    }
+
+                    break;
+                case FieldInfo fieldInfo:
+                    value = fieldInfo.GetValue(seed);
+                    break;
+            }
+
+            return (value, true);
+        }
     }
 
     /// <summary>
@@ -1909,40 +1903,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             return;
         }
         
-        var tableMapping = new Dictionary<ITable, (ITable, IRowIdentityMap)>();
-        foreach (var targetPair in _targetIdentityMaps)
-        {
-            var (targetTable, targetIdentityMap) = targetPair;
-            var targetKey = targetTable.PrimaryKey!;
-            var sourceTable = diffContext.FindSource(targetTable);
-            var sourceKey = sourceTable?.PrimaryKey;
-            if (sourceKey == null
-                || !_sourceIdentityMaps.TryGetValue(sourceTable!, out var sourceIdentityMap))
-            {
-                continue;
-            }
-
-            var mappingFound = true;
-            for (var i = 0; i < targetKey.Columns.Count; i++)
-            {
-                var keyColumn = targetKey.Columns[i];
-                var sourceColumn = diffContext.FindSource(keyColumn);
-                if (sourceColumn == null
-                    || sourceKey.Columns[i] != sourceColumn
-                    || keyColumn.ProviderClrType != sourceColumn.ProviderClrType)
-                {
-                    mappingFound = false;
-                    break;
-                }
-            }
-
-            if (mappingFound
-                && targetKey.Columns.Count == sourceKey.Columns.Count)
-            {
-                tableMapping.Add(targetTable, (sourceTable!, sourceIdentityMap));
-            }
-        }
-
+        var tableMapping = new Dictionary<ITable, (ITable, IRowIdentityMap)?>();
         var unchangedColumns = new List<IColumnModification>();
         var overridenColumns = new List<IColumnModification>();
         foreach (var targetPair in _targetIdentityMaps)
@@ -1950,10 +1911,46 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             var (targetTable, targetIdentityMap) = targetPair;
             if (!tableMapping.TryGetValue(targetTable, out var sourcePair))
             {
+                var targetKey = targetTable.PrimaryKey!;
+                var foundSourceTable = diffContext.FindSource(targetTable);
+                var sourceKey = foundSourceTable?.PrimaryKey;
+                if (sourceKey == null
+                    || !_sourceIdentityMaps.TryGetValue(foundSourceTable!, out var foundSourceIdentityMap))
+                {
+                    tableMapping.Add(targetTable, null);
+                    continue;
+                }
+
+                var mappingFound = true;
+                for (var i = 0; i < targetKey.Columns.Count; i++)
+                {
+                    var keyColumn = targetKey.Columns[i];
+                    var sourceColumn = diffContext.FindSource(keyColumn);
+                    if (sourceColumn == null
+                        || sourceKey.Columns[i] != sourceColumn
+                        || keyColumn.ProviderClrType != sourceColumn.ProviderClrType)
+                    {
+                        mappingFound = false;
+                        break;
+                    }
+                }
+
+                if (!mappingFound
+                    || targetKey.Columns.Count != sourceKey.Columns.Count)
+                {
+                    tableMapping.Add(targetTable, null);
+                    continue;
+                }
+
+                sourcePair = (foundSourceTable!, foundSourceIdentityMap);
+                tableMapping.Add(targetTable, sourcePair);
+            }
+            else if (sourcePair == null)
+            {
                 continue;
             }
-            
-            var (sourceTable, sourceIdentityMap) = sourcePair;
+
+            var (sourceTable, sourceIdentityMap) = sourcePair.Value;
             var key = targetTable.PrimaryKey!;
             var keyValues = new object?[key.Columns.Count];
             foreach (var targetRow in targetIdentityMap.Rows)
@@ -2004,7 +2001,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     if (sourceColumn == null)
                     {
                         if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
-                            && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0)
+                            && !targetProperty.ValueGenerated.HasFlag(ValueGenerated.OnUpdate))
                         {
                             recreateRow = true;
                             break;
@@ -2088,6 +2085,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         var dataOperations = GetDataOperations(forSource: true, diffContext)
             .Concat(GetDataOperations(forSource: false, diffContext));
+
+        var list = dataOperations.ToList();
 
         // This needs to be evaluated lazily
         foreach (var operation in dataOperations)

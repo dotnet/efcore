@@ -27,6 +27,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
         : base(CreateRelationalTypeMappingParameters(storeType))
     {
         SpatialConverter = converter;
+        SetProviderValueComparer();
     }
 
     /// <summary>
@@ -40,6 +41,16 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
         : base(parameters)
     {
         SpatialConverter = converter;
+        SetProviderValueComparer();
+    }
+
+    private void SetProviderValueComparer()
+    {
+        var providerType = Converter?.ProviderClrType ?? ClrType;
+        if (providerType.IsAssignableTo(typeof(TGeometry)))
+        {
+            ProviderValueComparer = (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(providerType))!;
+        }
     }
 
     /// <summary>

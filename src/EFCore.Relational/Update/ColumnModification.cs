@@ -120,10 +120,10 @@ public class ColumnModification : IColumnModification
     public virtual object? OriginalValue
     {
         get => Entry == null
-                   ? _originalValue
-                   : Entry.SharedIdentityEntry == null
-                       ? Entry.GetOriginalValue(Property!)
-                       : Entry.SharedIdentityEntry.GetOriginalValue(Property!);
+            ? _originalValue
+            : Entry.SharedIdentityEntry == null
+                ? Entry.GetOriginalValue(Property!)
+                : Entry.SharedIdentityEntry.GetOriginalValue(Property!);
         set
         {
             if (Entry == null)

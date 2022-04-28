@@ -70,9 +70,9 @@ public static class ColumnAccessorsFactory
 
             var modification = c.ColumnModifications.FirstOrDefault(m => m.ColumnName == column.Name);
             return modification == null
-                ? (default(TColumn)!, false)
+                ? (default!, false)
                 : modification.Value == null
-                    ? (default(TColumn)!, false)
+                    ? (default!, false)
                     : ((TColumn)modification.Value!, true);
         };
 

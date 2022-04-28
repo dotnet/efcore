@@ -23,7 +23,7 @@ public interface INonTrackedModificationCommand : IReadOnlyModificationCommand
     ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
     ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
     /// </summary>
-    new public EntityState EntityState { get; set; }
+    public new EntityState EntityState { get; set; }
 
     /// <summary>
     ///     Creates a new <see cref="IColumnModification" /> and add it to this command.

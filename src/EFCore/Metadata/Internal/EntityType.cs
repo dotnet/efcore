@@ -3032,7 +3032,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             return Enumerable.Empty<IDictionary<string, object?>>();
         }
-
+        
+        List<IPropertyBase>? propertiesList = null;
+        Dictionary<string, IPropertyBase>? propertiesMap = null;
         var data = new List<Dictionary<string, object?>>();
         var valueConverters = new Dictionary<string, ValueConverter?>(StringComparer.Ordinal);
         foreach (var rawSeed in _data)
@@ -3041,13 +3043,14 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             data.Add(seed);
             var type = rawSeed.GetType();
 
+            propertiesList ??= GetProperties()
+                .Concat<IPropertyBase>(GetNavigations())
+                .Concat(GetSkipNavigations())
+                .ToList();
             if (ClrType.IsAssignableFrom(type))
             {
                 // non-anonymous type
-                var properties = GetProperties()
-                    .Concat<IPropertyBase>(GetNavigations())
-                    .Concat(GetSkipNavigations());
-                foreach (var propertyBase in properties)
+                foreach (var propertyBase in propertiesList)
                 {
                     if (propertyBase.IsShadowProperty())
                     {
@@ -3101,13 +3104,13 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             else
             {
                 // anonymous type
-                var properties = GetProperties()
+                propertiesMap ??= GetProperties()
                     .Concat<IPropertyBase>(GetNavigations())
                     .Concat(GetSkipNavigations())
                     .ToDictionary(p => p.Name);
                 foreach (var memberInfo in type.GetMembersInHierarchy())
                 {
-                    if (!properties.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
+                    if (!propertiesMap.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
                     {
                         continue;
                     }
@@ -3144,9 +3147,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<object> GetRawSeedData()
-        => _data == null
-            ? Enumerable.Empty<object>()
-            : _data;
+        => _data ?? Enumerable.Empty<object>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

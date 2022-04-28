@@ -215,7 +215,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
     protected abstract string RowsAffected { get; }
 
-    protected virtual IModificationCommandFactory CreateModificationCommandFactory()
+    protected virtual IModificationCommandFactory CreateMutableModificationCommandFactory()
         => new ModificationCommandFactory();
 
     protected virtual string Identity
@@ -236,7 +236,7 @@ public abstract class UpdateSqlGeneratorTestBase
     protected virtual string GetIdentityWhereCondition(string columnName)
         => OpenDelimiter + columnName + CloseDelimiter + " = " + Identity;
 
-    protected INonTrackedModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
+    protected IModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
     {
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -275,10 +275,10 @@ public abstract class UpdateSqlGeneratorTestBase
             columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
         }
 
-        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
+        return CreateModificationCommand(entry, columnModifications, false);
     }
 
-    protected INonTrackedModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
+    protected IModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
     {
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -312,10 +312,10 @@ public abstract class UpdateSqlGeneratorTestBase
                 concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true)
         };
 
-        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
+        return CreateModificationCommand(entry, columnModifications, false);
     }
 
-    protected INonTrackedModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
+    protected IModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
     {
         var model = GetDuckModel();
         var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -337,7 +337,7 @@ public abstract class UpdateSqlGeneratorTestBase
                 concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true)
         };
 
-        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
+        return CreateModificationCommand(entry, columnModifications, false);
     }
 
     protected abstract TestHelpers TestHelpers { get; }
@@ -358,21 +358,21 @@ public abstract class UpdateSqlGeneratorTestBase
         public byte[] ConcurrencyToken { get; set; }
     }
 
-    private INonTrackedModificationCommand CreateModificationCommand(
-        string name,
-        string schema,
+    private IModificationCommand CreateModificationCommand(
         InternalEntityEntry entry,
         IReadOnlyList<ColumnModificationParameters> columnModifications,
         bool sensitiveLoggingEnabled)
     {
-        var modificationCommandParameters = new NonTrackedModificationCommandParameters(
-            name, schema, sensitiveLoggingEnabled);
-        var modificationCommand = CreateModificationCommandFactory().CreateNonTrackedModificationCommand(
+        var modificationCommandParameters = new ModificationCommandParameters(
+            entry.EntityType.GetTableMappings().Single().Table, sensitiveLoggingEnabled);
+        var modificationCommand = CreateMutableModificationCommandFactory().CreateModificationCommand(
             modificationCommandParameters);
+
+        modificationCommand.AddEntry(entry, mainEntry: true);
 
         foreach (var columnModification in columnModifications)
         {
-            modificationCommand.AddColumnModification(columnModification);
+            ((INonTrackedModificationCommand)modificationCommand).AddColumnModification(columnModification);
         }
 
         return modificationCommand;
