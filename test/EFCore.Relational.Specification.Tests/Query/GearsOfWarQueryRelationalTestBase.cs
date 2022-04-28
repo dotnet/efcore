@@ -24,16 +24,6 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQu
             ss => ss.Set<City>().Where(e => e.Nation == place || e.Location == place));
     }
 
-    public override async Task
-        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
-            bool async)
-        => Assert.Equal(
-            RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base
-                    .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
-                        async))).Message);
-
     public override async Task Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(
         bool async)
         => Assert.Equal(

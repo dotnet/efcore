@@ -1071,13 +1071,35 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         await base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
 
         AssertSql(
-            @"SELECT AVG(CAST([s].[Id] AS float)) AS [p1], COALESCE(SUM([s].[Id]), 0) AS [p2], MAX(CAST(LEN([s].[Name]) AS int)) AS [p3]
+            @"SELECT (
+    SELECT AVG(CAST([s].[Id] AS float))
+    FROM (
+        SELECT [o0].[Id], [o0].[Discriminator], [o0].[Name], 1 AS [Key], [o0].[PersonAddress_AddressLine], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId]
+        FROM [OwnedPerson] AS [o0]
+    ) AS [t0]
+    LEFT JOIN [Planet] AS [p] ON [t0].[PersonAddress_Country_PlanetId] = [p].[Id]
+    LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
+    WHERE [t].[Key] = [t0].[Key]) AS [p1], (
+    SELECT COALESCE(SUM([s0].[Id]), 0)
+    FROM (
+        SELECT [o1].[Id], [o1].[Discriminator], [o1].[Name], 1 AS [Key], [o1].[PersonAddress_AddressLine], [o1].[PersonAddress_PlaceType], [o1].[PersonAddress_ZipCode], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId]
+        FROM [OwnedPerson] AS [o1]
+    ) AS [t1]
+    LEFT JOIN [Planet] AS [p0] ON [t1].[PersonAddress_Country_PlanetId] = [p0].[Id]
+    LEFT JOIN [Star] AS [s0] ON [p0].[StarId] = [s0].[Id]
+    WHERE [t].[Key] = [t1].[Key]) AS [p2], (
+    SELECT MAX(CAST(LEN([s1].[Name]) AS int))
+    FROM (
+        SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], 1 AS [Key], [o2].[PersonAddress_AddressLine], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId]
+        FROM [OwnedPerson] AS [o2]
+    ) AS [t2]
+    LEFT JOIN [Planet] AS [p1] ON [t2].[PersonAddress_Country_PlanetId] = [p1].[Id]
+    LEFT JOIN [Star] AS [s1] ON [p1].[StarId] = [s1].[Id]
+    WHERE [t].[Key] = [t2].[Key]) AS [p3]
 FROM (
-    SELECT 1 AS [Key], [o].[PersonAddress_Country_PlanetId]
+    SELECT 1 AS [Key]
     FROM [OwnedPerson] AS [o]
 ) AS [t]
-LEFT JOIN [Planet] AS [p] ON [t].[PersonAddress_Country_PlanetId] = [p].[Id]
-LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 GROUP BY [t].[Key]");
     }
 

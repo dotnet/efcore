@@ -600,6 +600,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         return new GroupByShaperExpression(
             groupingKey,
+            shaperExpression,
             new ShapedQueryExpression(
                 clonedInMemoryQueryExpression,
                 new QueryExpressionReplacingExpressionVisitor(this, clonedInMemoryQueryExpression).Visit(shaperExpression)));

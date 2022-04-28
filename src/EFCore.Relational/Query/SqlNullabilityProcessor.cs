@@ -354,8 +354,6 @@ public class SqlNullabilityProcessor
                 => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
             ColumnExpression columnExpression
                 => VisitColumn(columnExpression, allowOptimizedExpansion, out nullable),
-            DistinctExpression distinctExpression
-                => VisitDistinct(distinctExpression, allowOptimizedExpansion, out nullable),
             ExistsExpression existsExpression
                 => VisitExists(existsExpression, allowOptimizedExpansion, out nullable),
             InExpression inExpression
@@ -370,6 +368,8 @@ public class SqlNullabilityProcessor
                 => VisitSqlBinary(sqlBinaryExpression, allowOptimizedExpansion, out nullable),
             SqlConstantExpression sqlConstantExpression
                 => VisitSqlConstant(sqlConstantExpression, allowOptimizedExpansion, out nullable),
+            SqlEnumerableExpression sqlEnumerableExpression
+                => VisitSqlEnumerable(sqlEnumerableExpression, allowOptimizedExpansion, out nullable),
             SqlFragmentExpression sqlFragmentExpression
                 => VisitSqlFragment(sqlFragmentExpression, allowOptimizedExpansion, out nullable),
             SqlFunctionExpression sqlFunctionExpression
@@ -515,19 +515,6 @@ public class SqlNullabilityProcessor
 
         return columnExpression;
     }
-
-    /// <summary>
-    ///     Visits a <see cref="DistinctExpression" /> and computes its nullability.
-    /// </summary>
-    /// <param name="distinctExpression">A collate expression to visit.</param>
-    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
-    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
-    /// <returns>An optimized sql expression.</returns>
-    protected virtual SqlExpression VisitDistinct(
-        DistinctExpression distinctExpression,
-        bool allowOptimizedExpansion,
-        out bool nullable)
-        => distinctExpression.Update(Visit(distinctExpression.Operand, out nullable));
 
     /// <summary>
     ///     Visits an <see cref="ExistsExpression" /> and computes its nullability.
@@ -953,6 +940,34 @@ public class SqlNullabilityProcessor
         nullable = sqlConstantExpression.Value == null;
 
         return sqlConstantExpression;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="SqlEnumerableExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="sqlEnumerableExpression">A sql enumerable expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitSqlEnumerable(
+        SqlEnumerableExpression sqlEnumerableExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        var sqlExpression = Visit(sqlEnumerableExpression.SqlExpression, out nullable);
+        var changed = sqlExpression != sqlEnumerableExpression.SqlExpression;
+
+        var orderings = new List<OrderingExpression>();
+        foreach (var ordering in sqlEnumerableExpression.Orderings)
+        {
+            var newOrdering = ordering.Update(Visit(ordering.Expression, out _));
+            changed |= newOrdering != ordering;
+            orderings.Add(newOrdering);
+        }
+
+        return changed
+            ? sqlEnumerableExpression.Update(sqlExpression, orderings)
+            : sqlEnumerableExpression;
     }
 
     /// <summary>

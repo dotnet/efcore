@@ -17,7 +17,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private readonly QueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
-    private SqlExpression? _groupingElementCorrelationalPredicate;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
@@ -135,7 +134,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             case GroupByShaperExpression groupByShaperExpression:
                 var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
                 var groupClonedSelectExpression = ((SelectExpression)groupShapedQueryExpression.QueryExpression).Clone();
-                _groupingElementCorrelationalPredicate = groupClonedSelectExpression.Predicate;
                 return new ShapedQueryExpression(
                     groupClonedSelectExpression,
                     new QueryExpressionReplacingExpressionVisitor(
@@ -418,7 +416,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         var newResultSelectorBody = new ReplacingExpressionVisitor(
                 new Expression[] { original1, original2 },
-                new[] { translatedKey, groupByShaper })
+                new[] { groupByShaper.KeySelector, groupByShaper })
             .Visit(resultSelector.Body);
 
         newResultSelectorBody = ExpandSharedTypeEntities(selectExpression, newResultSelectorBody);
@@ -1032,6 +1030,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         protected override Expression VisitExtension(Expression extensionExpression)
             => extensionExpression is EntityShaperExpression
                 || extensionExpression is ShapedQueryExpression
+                || extensionExpression is GroupByShaperExpression
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
 
@@ -1356,7 +1355,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 {
                     DeferredOwnedExpansionExpression doee => UnwrapDeferredEntityProjectionExpression(doee),
                     // For the source entity shaper or owned collection expansion
-                    EntityShaperExpression or ShapedQueryExpression => expression,
+                    EntityShaperExpression or ShapedQueryExpression or GroupByShaperExpression => expression,
                     _ => base.Visit(expression)
                 };
 
@@ -1406,7 +1405,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         {
             if (eraseProjection)
             {
-                selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+                // Erasing client projections erase projectionMapping projections too
+                selectExpression.ReplaceProjection(new List<Expression>());
             }
 
             selectExpression.PushdownIntoSubquery();
@@ -1461,14 +1461,11 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private ShapedQueryExpression? TranslateAggregateWithPredicate(
         ShapedQueryExpression source,
         LambdaExpression? predicate,
-        Func<SqlExpression, SqlExpression?> aggregateTranslator,
+        Func<SqlEnumerableExpression, SqlExpression?> aggregateTranslator,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (_groupingElementCorrelationalPredicate == null)
-        {
-            selectExpression.PrepareForAggregate();
-        }
+        selectExpression.PrepareForAggregate();
 
         if (predicate != null)
         {
@@ -1481,37 +1478,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             source = translatedSource;
         }
 
-        SqlExpression sqlExpression = _sqlExpressionFactory.Fragment("*");
+        HandleGroupByForAggregate(selectExpression, eraseProjection: true);
 
-        if (_groupingElementCorrelationalPredicate != null)
-        {
-            if (selectExpression.IsDistinct)
-            {
-                var shaperExpression = source.ShaperExpression;
-                if (shaperExpression is UnaryExpression unaryExpression
-                    && unaryExpression.NodeType == ExpressionType.Convert)
-                {
-                    shaperExpression = unaryExpression.Operand;
-                }
-
-                if (shaperExpression is ProjectionBindingExpression projectionBindingExpression)
-                {
-                    sqlExpression = (SqlExpression)selectExpression.GetProjection(projectionBindingExpression);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            sqlExpression = CombineGroupByAggregateTerms(selectExpression, sqlExpression);
-        }
-        else
-        {
-            HandleGroupByForAggregate(selectExpression, eraseProjection: true);
-        }
-
-        var translation = aggregateTranslator(sqlExpression);
+        var translation = aggregateTranslator(new SqlEnumerableExpression(_sqlExpressionFactory.Fragment("*"), distinct: false, null));
         if (translation == null)
         {
             return null;
@@ -1531,16 +1500,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private ShapedQueryExpression? TranslateAggregateWithSelector(
         ShapedQueryExpression source,
         LambdaExpression? selector,
-        Func<SqlExpression, SqlExpression?> aggregateTranslator,
+        Func<SqlEnumerableExpression, SqlExpression?> aggregateTranslator,
         bool throwWhenEmpty,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (_groupingElementCorrelationalPredicate == null)
-        {
-            selectExpression.PrepareForAggregate();
-            HandleGroupByForAggregate(selectExpression);
-        }
+        selectExpression.PrepareForAggregate();
+        HandleGroupByForAggregate(selectExpression);
 
         SqlExpression translatedSelector;
         if (selector == null
@@ -1575,12 +1541,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        if (_groupingElementCorrelationalPredicate != null)
-        {
-            translatedSelector = CombineGroupByAggregateTerms(selectExpression, translatedSelector);
-        }
-
-        var projection = aggregateTranslator(translatedSelector);
+        var projection = aggregateTranslator(new SqlEnumerableExpression(translatedSelector, distinct: false, null));
         if (projection == null)
         {
             return null;
@@ -1635,53 +1596,5 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         return source.UpdateShaperExpression(shaper);
-    }
-
-    private SqlExpression CombineGroupByAggregateTerms(SelectExpression selectExpression, SqlExpression selector)
-    {
-        if (selectExpression.Predicate != null
-            && !selectExpression.Predicate.Equals(_groupingElementCorrelationalPredicate))
-        {
-            if (selector is SqlFragmentExpression { Sql: "*" })
-            {
-                selector = _sqlExpressionFactory.Constant(1);
-            }
-
-            var correlationTerms = new List<SqlExpression>();
-            var predicateTerms = new List<SqlExpression>();
-            PopulatePredicateTerms(_groupingElementCorrelationalPredicate!, correlationTerms);
-            PopulatePredicateTerms(selectExpression.Predicate, predicateTerms);
-            var predicate = predicateTerms.Skip(correlationTerms.Count)
-                .Aggregate((l, r) => _sqlExpressionFactory.AndAlso(l, r));
-            selector = _sqlExpressionFactory.Case(
-                new List<CaseWhenClause> { new(predicate, selector) },
-                elseResult: null);
-            selectExpression.UpdatePredicate(_groupingElementCorrelationalPredicate!);
-        }
-
-        if (selectExpression.IsDistinct)
-        {
-            if (selector is SqlFragmentExpression { Sql: "*" })
-            {
-                selector = _sqlExpressionFactory.Constant(1);
-            }
-
-            selector = new DistinctExpression(selector);
-        }
-
-        return selector;
-
-        static void PopulatePredicateTerms(SqlExpression predicate, List<SqlExpression> terms)
-        {
-            if (predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } sqlBinaryExpression)
-            {
-                PopulatePredicateTerms(sqlBinaryExpression.Left, terms);
-                PopulatePredicateTerms(sqlBinaryExpression.Right, terms);
-            }
-            else
-            {
-                terms.Add(predicate);
-            }
-        }
     }
 }

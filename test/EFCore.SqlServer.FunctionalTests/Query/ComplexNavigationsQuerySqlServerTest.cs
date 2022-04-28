@@ -3397,9 +3397,14 @@ LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[OneToOne_Optional_PK_Inverse2Id
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Id]
-LEFT JOIN [LevelTwo] AS [l2] ON [l].[Id] = [l2].[Id]
 GROUP BY [l1].[Name]
-HAVING MIN(COALESCE([l2].[Id], 0) + COALESCE([l2].[Id], 0)) > 0");
+HAVING (
+    SELECT MIN(COALESCE([l5].[Id], 0) + COALESCE([l5].[Id], 0))
+    FROM [LevelOne] AS [l2]
+    LEFT JOIN [LevelTwo] AS [l3] ON [l2].[Id] = [l3].[Id]
+    LEFT JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[Id]
+    LEFT JOIN [LevelTwo] AS [l5] ON [l2].[Id] = [l5].[Id]
+    WHERE [l1].[Name] = [l4].[Name] OR ([l1].[Name] IS NULL AND [l4].[Name] IS NULL)) > 0");
     }
 
     public override async Task Nested_object_constructed_from_group_key_properties(bool async)
@@ -3552,14 +3557,17 @@ LEFT JOIN [LevelOne] AS [l1] ON [l].[Level1_Optional_Id] = [l1].[Id]");
         await base.Composite_key_join_on_groupby_aggregate_projecting_only_grouping_key(async);
 
         AssertSql(
-            @"SELECT [t].[Key]
+            @"SELECT [t0].[Key]
 FROM [LevelOne] AS [l]
 INNER JOIN (
-    SELECT [l0].[Id] % 3 AS [Key], COALESCE(SUM([l0].[Id]), 0) AS [Sum]
-    FROM [LevelTwo] AS [l0]
-    GROUP BY [l0].[Id] % 3
-) AS [t] ON [l].[Id] = [t].[Key] AND CAST(1 AS bit) = CASE
-    WHEN [t].[Sum] > 10 THEN CAST(1 AS bit)
+    SELECT [t].[Key], COALESCE(SUM([t].[Id]), 0) AS [Sum]
+    FROM (
+        SELECT [l0].[Id], [l0].[Id] % 3 AS [Key]
+        FROM [LevelTwo] AS [l0]
+    ) AS [t]
+    GROUP BY [t].[Key]
+) AS [t0] ON [l].[Id] = [t0].[Key] AND CAST(1 AS bit) = CASE
+    WHEN [t0].[Sum] > 10 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
     }
@@ -3842,9 +3850,14 @@ GROUP BY [l1].[Name]");
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Id]
-LEFT JOIN [LevelTwo] AS [l2] ON [l].[Id] = [l2].[Id]
 GROUP BY [l1].[Name]
-HAVING MIN(COALESCE([l2].[Id], 0)) > 0");
+HAVING (
+    SELECT MIN(COALESCE([l5].[Id], 0))
+    FROM [LevelOne] AS [l2]
+    LEFT JOIN [LevelTwo] AS [l3] ON [l2].[Id] = [l3].[Id]
+    LEFT JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[Id]
+    LEFT JOIN [LevelTwo] AS [l5] ON [l2].[Id] = [l5].[Id]
+    WHERE [l1].[Name] = [l4].[Name] OR ([l1].[Name] IS NULL AND [l4].[Name] IS NULL)) > 0");
     }
 
     public override async Task Simple_level1_level2_level3_include(bool async)

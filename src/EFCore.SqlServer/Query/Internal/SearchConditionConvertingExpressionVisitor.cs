@@ -166,22 +166,6 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitDistinct(DistinctExpression distinctExpression)
-    {
-        var parentSearchCondition = _isSearchCondition;
-        _isSearchCondition = false;
-        var operand = (SqlExpression)Visit(distinctExpression.Operand);
-        _isSearchCondition = parentSearchCondition;
-
-        return ApplyConversion(distinctExpression.Update(operand), condition: false);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     protected override Expression VisitExists(ExistsExpression existsExpression)
     {
         var parentSearchCondition = _isSearchCondition;
@@ -414,6 +398,34 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitSqlEnumerable(SqlEnumerableExpression sqlEnumerableExpression)
+    {
+        var parentSearchCondition = _isSearchCondition;
+        _isSearchCondition = false;
+        var sqlExpression = (SqlExpression)Visit(sqlEnumerableExpression.SqlExpression);
+        var changed = sqlExpression != sqlEnumerableExpression.SqlExpression;
+
+        var orderings = new List<OrderingExpression>();
+        foreach (var ordering in sqlEnumerableExpression.Orderings)
+        {
+            var orderingExpression = (SqlExpression)Visit(ordering.Expression);
+            changed |= orderingExpression != ordering.Expression;
+            orderings.Add(ordering.Update(orderingExpression));
+        }
+
+        _isSearchCondition = parentSearchCondition;
+
+        return changed
+            ? sqlEnumerableExpression.Update(sqlExpression, orderings)
+            : sqlEnumerableExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
         => sqlFragmentExpression;
 
@@ -506,7 +518,12 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     protected override Expression VisitOrdering(OrderingExpression orderingExpression)
     {
+        var parentSearchCondition = _isSearchCondition;
+        _isSearchCondition = false;
+
         var expression = (SqlExpression)Visit(orderingExpression.Expression);
+
+        _isSearchCondition = parentSearchCondition;
 
         return orderingExpression.Update(expression);
     }
