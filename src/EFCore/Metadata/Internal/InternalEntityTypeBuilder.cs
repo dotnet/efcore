@@ -724,7 +724,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         var declaringType = (IMutableEntityType)existingProperty.DeclaringType;
         if (!newMemberInfo.DeclaringType!.IsAssignableFrom(declaringType.ClrType))
         {
-            return existingMemberInfo.IsOverridenBy(newMemberInfo);
+            return existingMemberInfo.IsOverriddenBy(newMemberInfo);
         }
 
         IMutableEntityType? existingMemberDeclaringEntityType = null;
@@ -733,7 +733,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             if (newMemberInfo.DeclaringType == baseType.ClrType)
             {
                 return existingMemberDeclaringEntityType != null
-                    && existingMemberInfo.IsOverridenBy(newMemberInfo);
+                    && existingMemberInfo.IsOverriddenBy(newMemberInfo);
             }
 
             if (existingMemberDeclaringEntityType == null
@@ -744,7 +744,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
 
         // newMemberInfo is declared on an unmapped base type, existingMemberInfo should be kept
-        return newMemberInfo.IsOverridenBy(existingMemberInfo);
+        return newMemberInfo.IsOverriddenBy(existingMemberInfo);
     }
 
     private bool CanRemoveProperty(
@@ -852,7 +852,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 }
             }
 
-            if (existingProperty.GetIdentifyingMemberInfo()?.IsOverridenBy(memberInfo) == true)
+            if (existingProperty.GetIdentifyingMemberInfo()?.IsOverriddenBy(memberInfo) == true)
             {
                 if (configurationSource.HasValue)
                 {
@@ -1003,7 +1003,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             && Metadata.FindServicePropertiesInHierarchy(propertyName).All(
                 m => (configurationSource.Overrides(m.GetConfigurationSource())
                         && m.GetConfigurationSource() != ConfigurationSource.Explicit)
-                    || memberInfo.IsOverridenBy(m.GetIdentifyingMemberInfo()));
+                    || memberInfo.IsOverriddenBy(m.GetIdentifyingMemberInfo()));
     }
 
     private static InternalServicePropertyBuilder? DetachServiceProperty(ServiceProperty? serviceProperty)

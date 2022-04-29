@@ -135,7 +135,7 @@ RETURNING 1;
     {
         var entry = CreateEntry(EntityState.Added);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var batch = new ModificationCommandBatchFake();
@@ -151,7 +151,7 @@ RETURNING 1;
     {
         var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var batch = new ModificationCommandBatchFake();
@@ -167,7 +167,7 @@ RETURNING 1;
     {
         var entry = CreateEntry(EntityState.Deleted);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var batch = new ModificationCommandBatchFake();
@@ -184,9 +184,9 @@ RETURNING 1;
         var entry = CreateEntry(EntityState.Added);
 
         var parameterNameGenerator = new ParameterNameGenerator();
-        var command1 = CreateModificationCommand("T1", null, parameterNameGenerator.GenerateNext, true, null);
+        var command1 = CreateModificationCommand(entry, parameterNameGenerator.GenerateNext, true, null);
         command1.AddEntry(entry, true);
-        var command2 = CreateModificationCommand("T1", null, parameterNameGenerator.GenerateNext, true, null);
+        var command2 = CreateModificationCommand(entry, parameterNameGenerator.GenerateNext, true, null);
         command2.AddEntry(entry, true);
 
         var batch = new ModificationCommandBatchFake();
@@ -203,7 +203,7 @@ RETURNING 1;
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var dbDataReader = CreateFakeDataReader();
@@ -226,7 +226,7 @@ RETURNING 1;
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
         entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
@@ -250,7 +250,7 @@ RETURNING 1;
             EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
         entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
@@ -273,7 +273,7 @@ RETURNING 1;
         var entry = CreateEntry(
             EntityState.Modified, generateKeyValues: true, overrideKeyValues: true, computeNonKeyValue: true);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
@@ -296,7 +296,7 @@ RETURNING 1;
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
         entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
@@ -320,7 +320,7 @@ RETURNING 1;
     {
         var entry = CreateEntry(EntityState.Modified);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
@@ -346,7 +346,7 @@ RETURNING 1;
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
         entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
@@ -370,7 +370,7 @@ RETURNING 1;
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var originalException = new FakeDbException();
@@ -398,7 +398,7 @@ RETURNING 1;
     {
         var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
 
-        var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, true, null);
         command.AddEntry(entry, true);
 
         var originalException = new OperationCanceledException();
@@ -761,15 +761,13 @@ RETURNING 1;
     }
 
     private static IModificationCommand CreateModificationCommand(
-        string table,
-        string schema,
+        InternalEntityEntry entry,
         Func<string> generateParameterName,
         bool sensitiveLoggingEnabled,
         IComparer<IUpdateEntry> comparer)
     {
         var modificationCommandParameters = new ModificationCommandParameters(
-            table,
-            schema,
+            entry.EntityType.GetTableMappings().Single().Table,
             sensitiveLoggingEnabled,
             comparer,
             generateParameterName,
@@ -777,17 +775,14 @@ RETURNING 1;
         return CreateModificationCommandSource().CreateModificationCommand(modificationCommandParameters);
     }
 
-    private static IModificationCommand CreateModificationCommand(
+    private static INonTrackedModificationCommand CreateModificationCommand(
         string name,
         string schema,
         bool sensitiveLoggingEnabled,
         IReadOnlyList<ColumnModificationParameters> columnModifications)
     {
-        var modificationCommandParameters = new ModificationCommandParameters(
-            name, schema, sensitiveLoggingEnabled);
-
-        var modificationCommand = CreateModificationCommandSource().CreateModificationCommand(
-            modificationCommandParameters);
+        var modificationCommand = CreateModificationCommandSource().CreateNonTrackedModificationCommand(
+            new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
 
         if (columnModifications != null)
         {

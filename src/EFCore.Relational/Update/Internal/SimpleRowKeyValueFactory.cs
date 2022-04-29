@@ -50,7 +50,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
     /// </summary>
     public virtual TKey CreateKeyValue(object?[] keyValues)
     {
-        var value = (TKey?)keyValues[0];
+        var value = keyValues[0];
         if (value == null)
         {
             throw new InvalidOperationException(
@@ -59,7 +59,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
                     _column.Name));
         }
 
-        return value;
+        return (TKey)value;
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
     /// </summary>
     public virtual TKey CreateKeyValue(IDictionary<string, object?> keyValues)
     {
-        var value = (TKey?)keyValues[_column.Name];
+        var value = keyValues[_column.Name];
         if (value == null)
         {
             throw new InvalidOperationException(
@@ -79,7 +79,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
                     _column.Name));
         }
 
-        return value;
+        return (TKey)value;
     }
 
     /// <summary>

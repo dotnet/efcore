@@ -807,7 +807,7 @@ public class ModelValidator : IModelValidator
             foreach (var propertyBase in properties)
             {
                 if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: true,
+                        forMaterialization: true,
                         forSet: true,
                         memberInfo: out _,
                         errorMessage: out var errorMessage))
@@ -816,7 +816,7 @@ public class ModelValidator : IModelValidator
                 }
 
                 if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: false,
+                        forMaterialization: false,
                         forSet: true,
                         memberInfo: out _,
                         errorMessage: out errorMessage))
@@ -825,7 +825,7 @@ public class ModelValidator : IModelValidator
                 }
 
                 if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: false,
+                        forMaterialization: false,
                         forSet: false,
                         memberInfo: out _,
                         errorMessage: out errorMessage))

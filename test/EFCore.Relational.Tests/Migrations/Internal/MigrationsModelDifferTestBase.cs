@@ -40,7 +40,8 @@ public abstract class MigrationsModelDifferTestBase
         Action<IReadOnlyList<MigrationOperation>> assertActionUp,
         Action<IReadOnlyList<MigrationOperation>> assertActionDown,
         Action<DbContextOptionsBuilder> builderOptionsAction,
-        bool skipSourceConventions = false)
+        bool skipSourceConventions = false,
+        bool enableSensitiveLogging = true)
     {
         var sourceModelBuilder = CreateModelBuilder(skipSourceConventions);
         buildCommonAction(sourceModelBuilder);
@@ -55,8 +56,12 @@ public abstract class MigrationsModelDifferTestBase
 
         var targetOptionsBuilder = TestHelpers
             .AddProviderOptions(new DbContextOptionsBuilder())
-            .UseModel(targetModel)
-            .EnableSensitiveDataLogging();
+            .UseModel(targetModel);
+
+        if (enableSensitiveLogging)
+        {
+            targetOptionsBuilder = targetOptionsBuilder.EnableSensitiveDataLogging();
+        }
 
         if (builderOptionsAction != null)
         {
@@ -114,16 +119,12 @@ public abstract class MigrationsModelDifferTestBase
         => TestHelpers.CreateConventionBuilder(configure: skipConventions ? c => c.RemoveAllConventions() : null);
 
     protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
-    {
-        var context = TestHelpers.CreateContext(options);
-        return new MigrationsModelDiffer(
+        => new MigrationsModelDiffer(
             new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
             new MigrationsAnnotationProvider(
                 new MigrationsAnnotationProviderDependencies()),
-            context.GetService<IChangeDetector>(),
-            context.GetService<IUpdateAdapterFactory>(),
-            context.GetService<CommandBatchPreparerDependencies>());
-    }
+            TestServiceFactory.Instance.Create<IRowIdentityMapFactory>(),
+            TestHelpers.CreateContext(options).GetService<CommandBatchPreparerDependencies>());
 }

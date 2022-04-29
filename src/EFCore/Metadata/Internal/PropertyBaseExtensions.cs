@@ -108,7 +108,7 @@ public static class PropertyBaseExtensions
     /// </summary>
     public static bool TryGetMemberInfo(
         this IPropertyBase propertyBase,
-        bool forConstruction,
+        bool forMaterialization,
         bool forSet,
         out MemberInfo? memberInfo,
         out string? errorMessage)
@@ -128,7 +128,7 @@ public static class PropertyBaseExtensions
 
         var mode = propertyBase.GetPropertyAccessMode();
 
-        if (forConstruction)
+        if (forMaterialization)
         {
             switch (mode)
             {

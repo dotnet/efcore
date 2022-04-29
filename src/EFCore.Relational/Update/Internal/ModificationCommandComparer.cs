@@ -83,6 +83,30 @@ public class ModificationCommandComparer : IComparer<IReadOnlyModificationComman
                 }
             }
         }
+        else
+        {
+            var xKey = x.Table?.PrimaryKey;
+            var yKey = y.Table?.PrimaryKey;
+            if (xKey != null && yKey != null)
+            {
+                for (var i = 0; i < xKey.Columns.Count; i++)
+                {
+                    var xKeyColumn = xKey.Columns[i];
+
+                    if (x.ColumnModifications.First(m => m.ColumnName == xKeyColumn.Name).Value is not IComparable xModification
+                        || y.ColumnModifications.First(m => m.ColumnName == xKeyColumn.Name).Value is not IComparable yModification)
+                    {
+                        continue;
+                    }
+
+                    result = xModification.CompareTo(yModification);
+                    if (result != 0)
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
 
         return result;
     }

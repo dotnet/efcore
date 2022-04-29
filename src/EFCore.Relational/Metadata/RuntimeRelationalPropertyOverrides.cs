@@ -17,15 +17,15 @@ public class RuntimeRelationalPropertyOverrides : AnnotatableBase, IRelationalPr
     ///     Initializes a new instance of the <see cref="RuntimeRelationalPropertyOverrides" /> class.
     /// </summary>
     /// <param name="property">The property for which the overrides are applied.</param>
-    /// <param name="columnNameOverriden">Whether the column name is overridden.</param>
+    /// <param name="columnNameOverridden">Whether the column name is overridden.</param>
     /// <param name="columnName">The column name.</param>
     public RuntimeRelationalPropertyOverrides(
         RuntimeProperty property,
-        bool columnNameOverriden,
+        bool columnNameOverridden,
         string? columnName)
     {
         Property = property;
-        if (columnNameOverriden)
+        if (columnNameOverridden)
         {
             SetAnnotation(RelationalAnnotationNames.ColumnName, columnName);
         }
@@ -51,7 +51,7 @@ public class RuntimeRelationalPropertyOverrides : AnnotatableBase, IRelationalPr
     }
 
     /// <inheritdoc />
-    bool IRelationalPropertyOverrides.ColumnNameOverriden
+    bool IRelationalPropertyOverrides.ColumnNameOverridden
     {
         [DebuggerStepThrough]
         get => FindAnnotation(RelationalAnnotationNames.ColumnName) != null;

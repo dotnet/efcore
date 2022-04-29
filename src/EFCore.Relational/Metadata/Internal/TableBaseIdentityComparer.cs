@@ -9,15 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public interface IRelationalPropertyOverrides : IAnnotatable
+public sealed class TableBaseIdentityComparer : IEqualityComparer<ITableBase>
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IProperty Property { get; }
+    private TableBaseIdentityComparer()
+    {
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,13 +21,16 @@ public interface IRelationalPropertyOverrides : IAnnotatable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    string? ColumnName { get; }
+    public static readonly TableBaseIdentityComparer Instance = new();
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    bool ColumnNameOverridden { get; }
+    /// <inheritdoc />
+    public bool Equals(ITableBase? x, ITableBase? y)
+        => ReferenceEquals(x, y)
+            || (x is null
+                ? y is null
+                : y is not null && x.Name == y.Name && x.Schema == y.Schema);
+
+    /// <inheritdoc />
+    public int GetHashCode(ITableBase obj)
+        => HashCode.Combine(obj.Name, obj.Schema);
 }

@@ -275,7 +275,7 @@ public abstract class UpdateSqlGeneratorTestBase
             columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
         }
 
-        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
+        return CreateModificationCommand(entry, columnModifications, false);
     }
 
     protected IModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
@@ -312,7 +312,7 @@ public abstract class UpdateSqlGeneratorTestBase
                 concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true)
         };
 
-        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
+        return CreateModificationCommand(entry, columnModifications, false);
     }
 
     protected IModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
@@ -337,7 +337,7 @@ public abstract class UpdateSqlGeneratorTestBase
                 concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true)
         };
 
-        return CreateModificationCommand("Ducks", Schema, entry, columnModifications, false);
+        return CreateModificationCommand(entry, columnModifications, false);
     }
 
     protected abstract TestHelpers TestHelpers { get; }
@@ -359,14 +359,12 @@ public abstract class UpdateSqlGeneratorTestBase
     }
 
     private IModificationCommand CreateModificationCommand(
-        string name,
-        string schema,
         InternalEntityEntry entry,
         IReadOnlyList<ColumnModificationParameters> columnModifications,
         bool sensitiveLoggingEnabled)
     {
         var modificationCommandParameters = new ModificationCommandParameters(
-            name, schema, sensitiveLoggingEnabled);
+            entry.EntityType.GetTableMappings().Single().Table, sensitiveLoggingEnabled);
         var modificationCommand = CreateMutableModificationCommandFactory().CreateModificationCommand(
             modificationCommandParameters);
 
@@ -374,7 +372,7 @@ public abstract class UpdateSqlGeneratorTestBase
 
         foreach (var columnModification in columnModifications)
         {
-            modificationCommand.AddColumnModification(columnModification);
+            ((INonTrackedModificationCommand)modificationCommand).AddColumnModification(columnModification);
         }
 
         return modificationCommand;

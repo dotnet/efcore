@@ -28,7 +28,7 @@ internal static class EntityFrameworkMemberInfoExtensions
                             || otherPropertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces
                                 .Contains(propertyInfo.DeclaringType)))));
 
-    public static bool IsOverridenBy(this MemberInfo? propertyInfo, MemberInfo? otherPropertyInfo)
+    public static bool IsOverriddenBy(this MemberInfo? propertyInfo, MemberInfo? otherPropertyInfo)
         => propertyInfo == null
             ? otherPropertyInfo == null
             : (otherPropertyInfo != null

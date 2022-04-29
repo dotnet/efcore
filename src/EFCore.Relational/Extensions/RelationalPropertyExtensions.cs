@@ -33,7 +33,7 @@ public static class RelationalPropertyExtensions
     public static string? GetColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var overrides = RelationalPropertyOverrides.Find(property, storeObject);
-        if (overrides?.ColumnNameOverriden == true)
+        if (overrides?.ColumnNameOverridden == true)
         {
             return overrides.ColumnName;
         }

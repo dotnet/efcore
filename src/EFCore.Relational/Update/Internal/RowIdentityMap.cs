@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,11 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPropertyOverrides
+public class RowIdentityMap<TKey> : IRowIdentityMap
+    where TKey : notnull
 {
-    private string? _columnName;
-
-    private ConfigurationSource? _columnNameConfigurationSource;
+    private readonly IUniqueConstraint _key;
+    private readonly Dictionary<TKey, INonTrackedModificationCommand> _identityMap;
+    private readonly IRowKeyValueFactory<TKey> _principalKeyValueFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,9 +24,11 @@ public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPro
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public RelationalPropertyOverrides(IReadOnlyProperty property)
+    public RowIdentityMap(IUniqueConstraint key)
     {
-        Property = property;
+        _key = key;
+        _principalKeyValueFactory = (IRowKeyValueFactory<TKey>)((UniqueConstraint)_key).GetRowKeyValueFactory();
+        _identityMap = new Dictionary<TKey, INonTrackedModificationCommand>(_principalKeyValueFactory.EqualityComparer);
     }
 
     /// <summary>
@@ -32,7 +37,7 @@ public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPro
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyProperty Property { get; }
+    public virtual IEnumerable<INonTrackedModificationCommand> Rows => _identityMap.Values;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,19 +45,10 @@ public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPro
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool IsReadOnly
-        => ((Annotatable)Property).IsReadOnly;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual string? ColumnName
+    public virtual INonTrackedModificationCommand? FindCommand(object?[] keyValues)
     {
-        get => _columnName;
-        set => SetColumnName(value, ConfigurationSource.Explicit);
+        var key = _principalKeyValueFactory.CreateKeyValue(keyValues);
+        return key != null && _identityMap.TryGetValue(key, out var command) ? command : null;
     }
 
     /// <summary>
@@ -61,75 +57,25 @@ public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPro
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? SetColumnName(string? columnName, ConfigurationSource configurationSource)
+    public virtual void Add(object?[] keyValues, INonTrackedModificationCommand command)
+        => Add(_principalKeyValueFactory.CreateKeyValue(keyValues), command);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void Add(TKey key, INonTrackedModificationCommand command)
     {
-        EnsureMutable();
-
-        _columnName = columnName;
-        _columnNameConfigurationSource = configurationSource.Max(_columnNameConfigurationSource);
-
-        return columnName;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool ColumnNameOverridden
-        => _columnNameConfigurationSource != null;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetColumnNameConfigurationSource()
-        => _columnNameConfigurationSource;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IRelationalPropertyOverrides? Find(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
-    {
-        var tableOverrides = (SortedDictionary<StoreObjectIdentifier, object>?)
-            property[RelationalAnnotationNames.RelationalOverrides];
-        return tableOverrides != null
-            && tableOverrides.TryGetValue(storeObject, out var overrides)
-                ? (IRelationalPropertyOverrides)overrides
-                : null;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static RelationalPropertyOverrides GetOrCreate(
-        IMutableProperty property,
-        in StoreObjectIdentifier storeObject)
-    {
-        var tableOverrides = (SortedDictionary<StoreObjectIdentifier, object>?)
-            property[RelationalAnnotationNames.RelationalOverrides];
-        if (tableOverrides == null)
+#if DEBUG
+        if (_identityMap.TryGetValue(key, out var existingCommand))
         {
-            tableOverrides = new SortedDictionary<StoreObjectIdentifier, object>();
-            property[RelationalAnnotationNames.RelationalOverrides] = tableOverrides;
+            Check.DebugAssert(existingCommand == command, $"Command with key {key} already added");
         }
+#endif
 
-        if (!tableOverrides.TryGetValue(storeObject, out var overrides))
-        {
-            overrides = new RelationalPropertyOverrides(property);
-            tableOverrides.Add(storeObject, overrides);
-        }
-
-        return (RelationalPropertyOverrides)overrides;
+        _identityMap[key] = command;
     }
 
     /// <summary>
@@ -138,15 +84,32 @@ public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPro
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static RelationalPropertyOverrides GetOrCreate(
-        IConventionProperty property,
-        in StoreObjectIdentifier storeObject)
-        => GetOrCreate((IMutableProperty)property, storeObject);
+    public virtual void Remove(INonTrackedModificationCommand command)
+        => Remove(_principalKeyValueFactory.CreateKeyValue(command), command);
 
-    /// <inheritdoc />
-    IProperty IRelationalPropertyOverrides.Property
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    private void Remove(TKey key, INonTrackedModificationCommand command)
     {
-        [DebuggerStepThrough]
-        get => (IProperty)Property;
+        if (_identityMap.TryGetValue(key, out var existingEntry)
+            && existingEntry == command)
+        {
+            _identityMap.Remove(key);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Clear()
+    {
+        _identityMap.Clear();
     }
 }
