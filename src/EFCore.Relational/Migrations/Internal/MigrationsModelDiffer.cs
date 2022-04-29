@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -1761,19 +1762,36 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 {
                     continue;
                 }
-                
-                if (table.IsShared && identityMap.FindCommand(key) is { } existingCommand)
+
+                if (identityMap.FindCommand(key) is { } existingCommand)
                 {
+                    if (!table.IsShared)
+                    {
+                        if (sensitiveLoggingEnabled)
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.DuplicateSeedDataSensitive(
+                                    entityType.DisplayName(),
+                                    BuildValuesString(key),
+                                    table.SchemaQualifiedName));
+                        }
+                        
+                        throw new InvalidOperationException(
+                            RelationalStrings.DuplicateSeedData(
+                                entityType.DisplayName(),
+                                table.SchemaQualifiedName));
+                    }
+                    
                     command = existingCommand;
                 }
                 else
                 {
                     command = CommandBatchPreparerDependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
                         new NonTrackedModificationCommandParameters(table, sensitiveLoggingEnabled));
+                    command.EntityState = initialState;
+                    
                     identityMap.Add(key, command);
                 }
-
-                command.EntityState = initialState;
 
                 foreach (var columnMapping in mapping.ColumnMappings)
                 {
@@ -1828,13 +1846,34 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     var existingColumnModification = command.ColumnModifications.FirstOrDefault(c => c.ColumnName == column.Name);
                     if (existingColumnModification != null)
                     {
-                        Check.DebugAssert(Equals(existingColumnModification.Value, value), $"existing value {existingColumnModification.Value} is different from {value}");
+                        if (!Equals(existingColumnModification.Value, value))
+                        {
+                            if (sensitiveLoggingEnabled)
+                            {
+                                throw new InvalidOperationException(
+                                    RelationalStrings.ConflictingSeedValuesSensitive(
+                                        entityType.DisplayName(),
+                                        BuildValuesString(key),
+                                        table.SchemaQualifiedName,
+                                        existingColumnModification.ColumnName,
+                                        Convert.ToString(existingColumnModification.Value, CultureInfo.InvariantCulture),
+                                        Convert.ToString(value, CultureInfo.InvariantCulture)));
+                            }
+
+                            throw new InvalidOperationException(
+                                RelationalStrings.ConflictingSeedValues(
+                                    entityType.DisplayName(),
+                                    table.SchemaQualifiedName,
+                                    existingColumnModification.ColumnName));
+                        }
+
                         continue;
                     }
 
                     writeValue = writeValue
                         && initialState != EntityState.Deleted
                         && property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
+                    
                     command.AddColumnModification(
                         new ColumnModificationParameters(
                             column, originalValue: value, value, property, columnMapping.TypeMapping,
@@ -2085,8 +2124,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         var dataOperations = GetDataOperations(forSource: true, diffContext)
             .Concat(GetDataOperations(forSource: false, diffContext));
-
-        var list = dataOperations.ToList();
 
         // This needs to be evaluated lazily
         foreach (var operation in dataOperations)
@@ -2393,74 +2430,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         return result;
     }
 
-    private sealed class EntryMapping
-    {
-        public HashSet<IUpdateEntry> SourceEntries { get; } = new();
-        public HashSet<IUpdateEntry> TargetEntries { get; } = new();
-        public bool RecreateRow { get; set; }
-    }
-
-    private sealed class SharedIdentityMap
-    {
-        private readonly IUpdateAdapter _updateAdapter;
-
-        private readonly Dictionary<IUpdateEntry, EntryMapping> _entryValueMap
-            = new();
-
-        public SharedIdentityMap(IUpdateAdapter updateAdapter)
-        {
-            _updateAdapter = updateAdapter;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public IEnumerable<EntryMapping> Values
-            => _entryValueMap.Values;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public EntryMapping GetOrAddValue(IUpdateEntry entry, ITable table)
-        {
-            var mainEntry = GetMainEntry(entry, table);
-            if (_entryValueMap.TryGetValue(mainEntry, out var entryMapping))
-            {
-                return entryMapping;
-            }
-
-            entryMapping = new EntryMapping();
-            _entryValueMap.Add(mainEntry, entryMapping);
-
-            return entryMapping;
-        }
-
-        private IUpdateEntry GetMainEntry(IUpdateEntry entry, ITable table)
-        {
-            var entityType = entry.EntityType;
-            var foreignKeys = table.GetRowInternalForeignKeys(entityType);
-            foreach (var foreignKey in foreignKeys)
-            {
-                var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
-                if (principalEntry != null)
-                {
-                    return GetMainEntry(principalEntry, table);
-                }
-            }
-
-            var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsSplitEntityTypePrincipal).Table;
-
-            return mainTable != table
-                ? GetMainEntry(entry, mainTable)
-                : entry;
-        }
-    }
+    private static string BuildValuesString(object?[] values)
+        => "{"
+            + string.Join(
+                ", ", values.Select(
+                    p => p == null
+                        ? "<null>"
+                        : Convert.ToString(p, CultureInfo.InvariantCulture)))
+            + "}";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

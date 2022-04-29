@@ -307,7 +307,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         RuntimeProperty runtimeProperty)
         => new(
             runtimeProperty,
-            propertyOverrides.ColumnNameOverriden,
+            propertyOverrides.ColumnNameOverridden,
             propertyOverrides.ColumnName);
 
     /// <summary>

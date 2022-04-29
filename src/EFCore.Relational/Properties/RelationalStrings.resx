@@ -172,6 +172,12 @@
   <data name="ConflictingRowValuesSensitive" xml:space="preserve">
     <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
+  <data name="ConflictingSeedValues" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+  </data>
+  <data name="ConflictingSeedValuesSensitive" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}', but have different values for the column '{column}' - '{firstValue}', '{secondValue}'.</value>
+  </data>
   <data name="CreateIndexOperationWithInvalidSortOrder" xml:space="preserve">
     <value>{numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.</value>
   </data>
@@ -321,6 +327,12 @@
   </data>
   <data name="DuplicateKeyTableMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{keyName}', but on different tables ('{table1}' and '{table2}').</value>
+  </data>
+  <data name="DuplicateSeedData" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+  </data>
+  <data name="DuplicateSeedDataSensitive" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities.</value>
   </data>
   <data name="DuplicateTrigger" xml:space="preserve">
     <value>The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.</value>

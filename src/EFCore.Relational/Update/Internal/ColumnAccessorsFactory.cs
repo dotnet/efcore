@@ -33,12 +33,12 @@ public static class ColumnAccessorsFactory
             CreateCurrentValueGetter<TColumn>(column),
             CreateOriginalValueGetter<TColumn>(column));
 
-    private static Func<IReadOnlyModificationCommand, (TColumn, bool)> CreateCurrentValueGetter<TColumn>(IColumn column)
+    private static Func<IReadOnlyModificationCommand, (TColumn?, bool)> CreateCurrentValueGetter<TColumn>(IColumn column)
         => c =>
         {
             if (c.Entries.Count > 0)
             {
-                var value = default(TColumn)!;
+                var value = default(TColumn);
                 var valueFound = false;
                 for (var i = 0; i < c.Entries.Count; i++)
                 {
@@ -70,9 +70,9 @@ public static class ColumnAccessorsFactory
 
             var modification = c.ColumnModifications.FirstOrDefault(m => m.ColumnName == column.Name);
             return modification == null
-                ? (default!, false)
+                ? (default, false)
                 : modification.Value == null
-                    ? (default!, false)
+                    ? (default, false)
                     : ((TColumn)modification.Value!, true);
         };
 

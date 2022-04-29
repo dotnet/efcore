@@ -442,7 +442,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         mainBuilder
             .Append("var ").Append(overrideVariable).AppendLine(" = new RuntimeRelationalPropertyOverrides(").IncrementIndent()
             .Append(parameters.TargetName).AppendLine(",")
-            .Append(code.Literal(overrides.ColumnNameOverriden)).AppendLine(",")
+            .Append(code.Literal(overrides.ColumnNameOverridden)).AppendLine(",")
             .Append(code.UnknownLiteral(overrides.ColumnName)).AppendLine(");").DecrementIndent();
 
         CreateAnnotations(

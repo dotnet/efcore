@@ -40,7 +40,8 @@ public abstract class MigrationsModelDifferTestBase
         Action<IReadOnlyList<MigrationOperation>> assertActionUp,
         Action<IReadOnlyList<MigrationOperation>> assertActionDown,
         Action<DbContextOptionsBuilder> builderOptionsAction,
-        bool skipSourceConventions = false)
+        bool skipSourceConventions = false,
+        bool enableSensitiveLogging = true)
     {
         var sourceModelBuilder = CreateModelBuilder(skipSourceConventions);
         buildCommonAction(sourceModelBuilder);
@@ -55,8 +56,12 @@ public abstract class MigrationsModelDifferTestBase
 
         var targetOptionsBuilder = TestHelpers
             .AddProviderOptions(new DbContextOptionsBuilder())
-            .UseModel(targetModel)
-            .EnableSensitiveDataLogging();
+            .UseModel(targetModel);
+
+        if (enableSensitiveLogging)
+        {
+            targetOptionsBuilder = targetOptionsBuilder.EnableSensitiveDataLogging();
+        }
 
         if (builderOptionsAction != null)
         {

@@ -32,7 +32,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
             ? await query.SingleOrDefaultAsync()
             : query.SingleOrDefault();
 
-        Assert.Null(staff.ManagerId); // Overriden due to bad data, see #24368
+        Assert.Null(staff.ManagerId); // Overridden due to bad data, see #24368
 
         Assert.NotNull(appraisal);
         Assert.Same(staff, appraisal.Staff);

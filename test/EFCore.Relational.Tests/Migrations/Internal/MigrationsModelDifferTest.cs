@@ -1724,6 +1724,127 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void Throws_on_null_keys_in_seed_data()
+        => Assert.Equal(RelationalStrings.NullKeyValue(
+                    "dbo.Firefly",
+                    "Id"),
+                Assert.Throws<InvalidOperationException>(() => Execute(
+                    common => common.Entity(
+                        "Firefly",
+                        x =>
+                        {
+                            x.ToTable("Firefly", "dbo");
+                            x.Property<int>("Id");
+                            x.HasData(
+                                new { Id = (int?)null });
+                        }),
+                    _ => { },
+                    _ => { },
+                    upOps => { },
+                    downOps => { })).Message);
+    
+    [ConditionalFact]
+    public void Throws_on_composite_null_keys_in_seed_data()
+        => Assert.Equal(RelationalStrings.NullKeyValue(
+                    "dbo.Firefly",
+                    "Id"),
+                Assert.Throws<InvalidOperationException>(() => Execute(
+                    common => common.Entity(
+                        "Firefly",
+                        x =>
+                        {
+                            x.ToTable("Firefly", "dbo");
+                            x.Property<int>("Id");
+                            x.Property<string>("Name");
+                            x.HasKey("Id", "Name");
+                            x.HasData(
+                                new { Id = (int?)null, Name = "Firefly 1" });
+                        }),
+                    _ => { },
+                    _ => { },
+                    upOps => { },
+                    downOps => { })).Message);
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Throws_on_duplicate_seed_data(bool enableSensitiveLogging)
+        => Assert.Equal(enableSensitiveLogging
+                ? RelationalStrings.DuplicateSeedDataSensitive(
+                    "Firefly (Dictionary<string, object>)",
+                    "{42}",
+                    "dbo.Firefly")
+                : RelationalStrings.DuplicateSeedData(
+                    "Firefly (Dictionary<string, object>)",
+                    "dbo.Firefly"),
+                Assert.Throws<InvalidOperationException>(() => Execute(
+                    common => common.Entity(
+                        "Firefly",
+                        x =>
+                        {
+                            x.ToTable("Firefly", "dbo");
+                            x.Property<int>("Id");
+                            x.HasData(
+                                new { Id = 42 },
+                                new { Id = 42 });
+                        }),
+                    _ => { },
+                    _ => { },
+                    upOps => { },
+                    downOps => { },
+                    _ => { },
+                    enableSensitiveLogging: enableSensitiveLogging)).Message);
+    
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Throws_on_conflicting_seed_data(bool enableSensitiveLogging)
+        => Assert.Equal(enableSensitiveLogging
+                ? RelationalStrings.ConflictingSeedValuesSensitive(
+                    "FireflyDetails (Dictionary<string, object>)",
+                    "{42}",
+                    "Firefly",
+                    "Name",
+                    "1",
+                    "2")
+                : RelationalStrings.ConflictingSeedValues(
+                    "FireflyDetails (Dictionary<string, object>)",
+                    "Firefly",
+                    "Name"),
+                Assert.Throws<InvalidOperationException>(() => Execute(
+                    common =>
+                    {
+                        common.Entity(
+                           "Firefly",
+                           x =>
+                           {
+                               x.ToTable("Firefly");
+                               x.Property<int>("Id");
+                               x.Property<string>("Name");
+                               x.HasData(
+                                   new { Id = 42, Name = "1" });
+                           });
+                        
+                        common.Entity(
+                            "FireflyDetails",
+                            x =>
+                            {
+                                x.ToTable("Firefly");
+                                x.Property<int>("Id");
+                                x.Property<string>("Name");
+                                x.HasOne("Firefly", null).WithOne().HasForeignKey("FireflyDetails", "Id");
+                                x.HasData(
+                                    new { Id = 42, Name = "2" });
+                            });
+                    },
+                    _ => { },
+                    _ => { },
+                    upOps => { },
+                    downOps => { },
+                    _ => { },
+                    enableSensitiveLogging: enableSensitiveLogging)).Message);
+
+    [ConditionalFact]
     public void Add_column_with_order()
         => Execute(
             source => source.Entity("Peacock").Property<int>("Id"),
