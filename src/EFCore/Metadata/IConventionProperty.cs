@@ -387,4 +387,28 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetValueComparer" />.</returns>
     ConfigurationSource? GetValueComparerConfigurationSource();
+
+    /// <summary>
+    ///     Sets the custom <see cref="ValueComparer" /> to use for the provider values for this property.
+    /// </summary>
+    /// <param name="comparer">The comparer, or <see langword="null" /> to remove any previously set comparer.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    ValueComparer? SetProviderValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Sets the custom <see cref="ValueComparer" /> to use for the provider values for this property.
+    /// </summary>
+    /// <param name="comparerType">
+    ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    Type? SetProviderValueComparer(Type? comparerType, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetProviderValueComparer" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetProviderValueComparer" />.</returns>
+    ConfigurationSource? GetProviderValueComparerConfigurationSource();
 }

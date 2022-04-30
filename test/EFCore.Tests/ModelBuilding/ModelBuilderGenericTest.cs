@@ -169,6 +169,9 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
         protected virtual TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
             => new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
+        
+        protected virtual TestPropertyBuilder<TProperty> Wrap<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
+            => new GenericTestPropertyBuilder<TProperty>(propertyBuilder);
 
         public override TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object? value)
             => Wrap(EntityTypeBuilder.HasAnnotation(annotation, value));
@@ -196,13 +199,13 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
         public override TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             where TProperty : default
-            => new GenericTestPropertyBuilder<TProperty>(EntityTypeBuilder.Property(propertyExpression));
+            => Wrap(EntityTypeBuilder.Property(propertyExpression));
 
         public override TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName)
-            => new GenericTestPropertyBuilder<TProperty>(EntityTypeBuilder.Property<TProperty>(propertyName));
+            => Wrap(EntityTypeBuilder.Property<TProperty>(propertyName));
 
         public override TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
-            => new GenericTestPropertyBuilder<TProperty>(EntityTypeBuilder.IndexerProperty<TProperty>(propertyName));
+            => Wrap(EntityTypeBuilder.IndexerProperty<TProperty>(propertyName));
 
         public override TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TEntity, TNavigation?>> navigationExpression)
@@ -451,94 +454,130 @@ public class ModelBuilderGenericTest : ModelBuilderTest
             PropertyBuilder = propertyBuilder;
         }
 
-        private PropertyBuilder<TProperty> PropertyBuilder { get; }
+        protected PropertyBuilder<TProperty> PropertyBuilder { get; }
 
         public override IMutableProperty Metadata
             => PropertyBuilder.Metadata;
 
+        protected virtual TestPropertyBuilder<TProperty> Wrap(PropertyBuilder<TProperty> propertyBuilder)
+            => new GenericTestPropertyBuilder<TProperty>(propertyBuilder);
+
         public override TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object? value)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasAnnotation(annotation, value));
+            => Wrap(PropertyBuilder.HasAnnotation(annotation, value));
 
         public override TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsRequired(isRequired));
+            => Wrap(PropertyBuilder.IsRequired(isRequired));
 
         public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasMaxLength(maxLength));
+            => Wrap(PropertyBuilder.HasMaxLength(maxLength));
 
         public override TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasPrecision(precision, scale));
+            => Wrap(PropertyBuilder.HasPrecision(precision, scale));
 
         public override TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsUnicode(unicode));
+            => Wrap(PropertyBuilder.IsUnicode(unicode));
 
         public override TestPropertyBuilder<TProperty> IsRowVersion()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsRowVersion());
+            => Wrap(PropertyBuilder.IsRowVersion());
 
         public override TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsConcurrencyToken(isConcurrencyToken));
+            => Wrap(PropertyBuilder.IsConcurrencyToken(isConcurrencyToken));
 
         public override TestPropertyBuilder<TProperty> ValueGeneratedNever()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedNever());
+            => Wrap(PropertyBuilder.ValueGeneratedNever());
 
         public override TestPropertyBuilder<TProperty> ValueGeneratedOnAdd()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnAdd());
+            => Wrap(PropertyBuilder.ValueGeneratedOnAdd());
 
         public override TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnAddOrUpdate());
+            => Wrap(PropertyBuilder.ValueGeneratedOnAddOrUpdate());
 
         public override TestPropertyBuilder<TProperty> ValueGeneratedOnUpdate()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedOnUpdate());
+            => Wrap(PropertyBuilder.ValueGeneratedOnUpdate());
 
         public override TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator<TGenerator>());
+            => Wrap(PropertyBuilder.HasValueGenerator<TGenerator>());
 
         public override TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(valueGeneratorType));
+            => Wrap(PropertyBuilder.HasValueGenerator(valueGeneratorType));
 
         public override TestPropertyBuilder<TProperty> HasValueGenerator(
             Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(factory));
+            => Wrap(PropertyBuilder.HasValueGenerator(factory));
 
         public override TestPropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGeneratorFactory<TFactory>());
+            => Wrap(PropertyBuilder.HasValueGeneratorFactory<TFactory>());
 
         public override TestPropertyBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGeneratorFactory(valueGeneratorFactoryType));
+            => Wrap(PropertyBuilder.HasValueGeneratorFactory(valueGeneratorFactoryType));
 
         public override TestPropertyBuilder<TProperty> HasField(string fieldName)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasField(fieldName));
+            => Wrap(PropertyBuilder.HasField(fieldName));
 
         public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
+            => Wrap(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TProvider>());
+            => Wrap(PropertyBuilder.HasConversion<TProvider>());
 
-        public override TestPropertyBuilder<TProperty> HasConversion(Type? providerClrType)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(providerClrType));
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion<TProvider>(valueComparer));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion<TProvider>(valueComparer, providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
-            => new GenericTestPropertyBuilder<TProperty>(
-                PropertyBuilder.HasConversion(
-                    convertToProviderExpression,
-                    convertFromProviderExpression));
+            => Wrap(PropertyBuilder.HasConversion(
+                        convertToProviderExpression,
+                        convertFromProviderExpression));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion(
+                        convertToProviderExpression,
+                        convertFromProviderExpression,
+                        valueComparer));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(
+                        convertToProviderExpression,
+                        convertFromProviderExpression,
+                        valueComparer,
+                        providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
+            => Wrap(PropertyBuilder.HasConversion(converter));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter,
+            ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter,
+            ValueComparer? valueComparer, ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer, providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
+            => Wrap(PropertyBuilder.HasConversion(converter));
 
         public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter, valueComparer));
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer));
+
+        public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer, ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(converter, valueComparer, providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TConverter, TComparer>());
-
-        public override TestPropertyBuilder<TProperty> HasConversion(Type converterType, Type? comparerType)
-            => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converterType, comparerType));
+            => Wrap(PropertyBuilder.HasConversion<TConverter, TComparer>());
+        
+        public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
+            => Wrap(PropertyBuilder.HasConversion<TConverter, TComparer, TProviderComparer>());
 
         PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance
             => PropertyBuilder;
@@ -1026,6 +1065,9 @@ public class ModelBuilderGenericTest : ModelBuilderTest
             where TNewDependentEntity : class
             => new(ownershipBuilder);
 
+        protected virtual TestPropertyBuilder<TProperty> Wrap<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
+            => new GenericTestPropertyBuilder<TProperty>(propertyBuilder);
+
         public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
             string annotation,
             object? value)
@@ -1038,14 +1080,14 @@ public class ModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestKeyBuilder<TDependentEntity>(OwnedNavigationBuilder.HasKey(propertyNames));
 
         public override TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName)
-            => new GenericTestPropertyBuilder<TProperty>(OwnedNavigationBuilder.Property<TProperty>(propertyName));
+            => Wrap(OwnedNavigationBuilder.Property<TProperty>(propertyName));
 
         public override TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
-            => new GenericTestPropertyBuilder<TProperty>(OwnedNavigationBuilder.IndexerProperty<TProperty>(propertyName));
+            => Wrap(OwnedNavigationBuilder.IndexerProperty<TProperty>(propertyName));
 
         public override TestPropertyBuilder<TProperty> Property<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-            => new GenericTestPropertyBuilder<TProperty>(OwnedNavigationBuilder.Property(propertyExpression));
+            => Wrap(OwnedNavigationBuilder.Property(propertyExpression));
 
         public override TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TDependentEntity, TNavigation?>> navigationExpression)
@@ -1151,8 +1193,7 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override DataBuilder<TDependentEntity> HasData(IEnumerable<object> data)
             => OwnedNavigationBuilder.HasData(data);
 
-        OwnedNavigationBuilder<TEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>>.
-            Instance
+        OwnedNavigationBuilder<TEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>>.Instance
             => OwnedNavigationBuilder;
     }
 }

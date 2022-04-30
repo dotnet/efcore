@@ -122,12 +122,6 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
 
         public NoNullsCustomEqualityComparer(ValueComparer comparer)
         {
-            if (comparer.Type != typeof(TKey)
-                && comparer.Type == typeof(TKey).UnwrapNullableType())
-            {
-                comparer = comparer.ToNonNullNullableComparer();
-            }
-
             _equals = (Func<TKey?, TKey?, bool>)comparer.EqualsExpression.Compile();
             _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
         }

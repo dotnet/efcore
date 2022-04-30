@@ -31,7 +31,7 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
         _constraint = constraint;
         _column = constraint.Columns.Single();
         _columnAccessors = ((Column)_column).Accessors;
-        EqualityComparer = new NoNullsCustomEqualityComparer(_column.PropertyMappings.First().TypeMapping.ProviderValueComparer);
+        EqualityComparer = new NoNullsCustomEqualityComparer(_column.ProviderValueComparer);
     }
 
     /// <summary>
@@ -139,14 +139,6 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
 
         public NoNullsCustomEqualityComparer(ValueComparer comparer)
         {
-            if (comparer.Type != typeof(TKey)
-                && comparer.Type == typeof(TKey).UnwrapNullableType())
-            {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                comparer = comparer.ToNonNullNullableComparer();
-#pragma warning restore EF1001 // Internal EF Core API usage.
-            }
-
             _equals = (Func<TKey?, TKey?, bool>)comparer.EqualsExpression.Compile();
             _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
         }

@@ -154,10 +154,33 @@ public class PropertiesConfigurationBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
+    /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
+    /// <typeparam name="TComparer">A type that derives from <see cref="ValueComparer" />.</typeparam>
+    /// <typeparam name="TProviderComparer">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</typeparam>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual PropertiesConfigurationBuilder HaveConversion<TConversion, TComparer, TProviderComparer>()
+        where TComparer : ValueComparer
+        => HaveConversion(typeof(TConversion), typeof(TComparer), typeof(TProviderComparer));
+
+    /// <summary>
+    ///     Configures the property so that the property value is converted before
+    ///     writing to the database and converted back when reading from the database.
+    /// </summary>
     /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
     /// <param name="comparerType">A type that derives from <see cref="ValueComparer" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType, Type? comparerType)
+        => HaveConversion(conversionType, comparerType, null);
+
+    /// <summary>
+    ///     Configures the property so that the property value is converted before
+    ///     writing to the database and converted back when reading from the database.
+    /// </summary>
+    /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
+    /// <param name="comparerType">A type that derives from <see cref="ValueComparer" />.</param>
+    /// <param name="providerComparerType">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType, Type? comparerType, Type? providerComparerType)
     {
         Check.NotNull(conversionType, nameof(conversionType));
 
@@ -171,6 +194,8 @@ public class PropertiesConfigurationBuilder
         }
 
         Configuration.SetValueComparer(comparerType);
+
+        Configuration.SetProviderValueComparer(providerComparerType);
 
         return this;
     }

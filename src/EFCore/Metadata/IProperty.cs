@@ -84,13 +84,17 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     ///     Gets the <see cref="ValueComparer" /> for this property.
     /// </summary>
     /// <returns>The comparer.</returns>
-    [DebuggerStepThrough]
     new ValueComparer GetValueComparer();
 
     /// <summary>
     ///     Gets the <see cref="ValueComparer" /> to use with keys for this property.
     /// </summary>
     /// <returns>The comparer.</returns>
-    [DebuggerStepThrough]
     new ValueComparer GetKeyValueComparer();
+
+    /// <summary>
+    ///     Gets the <see cref="ValueComparer" /> to use for the provider values for this property.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    new ValueComparer GetProviderValueComparer();
 }

@@ -23,6 +23,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly ValueConverter? _valueConverter;
     private readonly ValueComparer? _valueComparer;
     private readonly ValueComparer? _keyValueComparer;
+    private readonly ValueComparer? _providerValueComparer;
     private CoreTypeMapping? _typeMapping;
 
     /// <summary>
@@ -53,6 +54,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         ValueConverter? valueConverter,
         ValueComparer? valueComparer,
         ValueComparer? keyValueComparer,
+        ValueComparer? providerValueComparer,
         CoreTypeMapping? typeMapping)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
@@ -94,6 +96,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         _typeMapping = typeMapping;
         _valueComparer = valueComparer;
         _keyValueComparer = keyValueComparer ?? valueComparer;
+        _providerValueComparer = providerValueComparer;
     }
 
     /// <summary>
@@ -287,6 +290,16 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     [DebuggerStepThrough]
     ValueComparer IProperty.GetKeyValueComparer()
         => _keyValueComparer ?? TypeMapping.KeyComparer;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    ValueComparer? IReadOnlyProperty.GetProviderValueComparer()
+        => _providerValueComparer ?? TypeMapping.ProviderValueComparer;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    ValueComparer IProperty.GetProviderValueComparer()
+        => _providerValueComparer ?? TypeMapping.ProviderValueComparer;
 
     /// <inheritdoc />
     [DebuggerStepThrough]

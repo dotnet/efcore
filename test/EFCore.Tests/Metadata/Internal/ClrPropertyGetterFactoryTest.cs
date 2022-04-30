@@ -75,6 +75,9 @@ public class ClrPropertyGetterFactoryTest
         public ValueComparer GetKeyValueComparer()
             => throw new NotImplementedException();
 
+        public ValueComparer GetProviderValueComparer()
+            => throw new NotImplementedException();
+
         public bool IsForeignKey()
             => throw new NotImplementedException();
 

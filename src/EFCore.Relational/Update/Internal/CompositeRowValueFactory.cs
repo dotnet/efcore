@@ -150,7 +150,7 @@ public abstract class CompositeRowValueFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static IEqualityComparer<object?[]> CreateEqualityComparer(IReadOnlyList<IColumn> columns)
-        => new CompositeCustomComparer(columns.Select(c => c.PropertyMappings.First().TypeMapping.ProviderValueComparer).ToList());
+        => new CompositeCustomComparer(columns.Select(c => c.ProviderValueComparer).ToList());
 
     private sealed class CompositeCustomComparer : IEqualityComparer<object?[]>
     {

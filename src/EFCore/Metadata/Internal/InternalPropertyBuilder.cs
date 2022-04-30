@@ -647,10 +647,19 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalPropertyBuilder? HasKeyValueComparer(
+    public virtual InternalPropertyBuilder? HasProviderValueComparer(
         ValueComparer? comparer,
         ConfigurationSource configurationSource)
-        => HasValueComparer(comparer, configurationSource);
+    {
+        if (CanSetProviderValueComparer(comparer, configurationSource))
+        {
+            Metadata.SetProviderValueComparer(comparer, configurationSource);
+
+            return this;
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -658,8 +667,47 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetKeyValueComparer(ValueComparer? comparer, ConfigurationSource? configurationSource)
-        => CanSetValueComparer(comparer, configurationSource);
+    public virtual bool CanSetProviderValueComparer(ValueComparer? comparer, ConfigurationSource? configurationSource)
+    {
+        if (configurationSource.Overrides(Metadata.GetProviderValueComparerConfigurationSource()))
+        {
+            return true;
+        }
+
+        return Metadata[CoreAnnotationNames.ProviderValueComparerType] == null
+            && Metadata[CoreAnnotationNames.ProviderValueComparer] == comparer;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalPropertyBuilder? HasProviderValueComparer(
+        Type? comparerType,
+        ConfigurationSource configurationSource)
+    {
+        if (CanSetProviderValueComparer(comparerType, configurationSource))
+        {
+            Metadata.SetProviderValueComparer(comparerType, configurationSource);
+
+            return this;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetProviderValueComparer(Type? comparerType, ConfigurationSource? configurationSource)
+        => configurationSource.Overrides(Metadata.GetProviderValueComparerConfigurationSource())
+            || (Metadata[CoreAnnotationNames.ProviderValueComparer] == null
+                && (Type?)Metadata[CoreAnnotationNames.ProviderValueComparerType] == comparerType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1198,4 +1246,40 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     /// </summary>
     bool IConventionPropertyBuilder.CanSetValueComparer(Type? comparerType, bool fromDataAnnotation)
         => CanSetValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasProviderValueComparer(ValueComparer? comparer, bool fromDataAnnotation)
+        => HasProviderValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool IConventionPropertyBuilder.CanSetProviderValueComparer(ValueComparer? comparer, bool fromDataAnnotation)
+        => CanSetProviderValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasProviderValueComparer(Type? comparerType, bool fromDataAnnotation)
+        => HasProviderValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool IConventionPropertyBuilder.CanSetProviderValueComparer(Type? comparerType, bool fromDataAnnotation)
+        => CanSetProviderValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

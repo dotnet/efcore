@@ -731,7 +731,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     ///     <see cref="FindNavigation(string)" /> to find a navigation property.
     /// </remarks>
     /// <param name="name">The property name.</param>
-    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    /// <returns>The property.</returns>
     new IMutableProperty GetProperty(string name)
         => (IMutableProperty)((IReadOnlyEntityType)this).GetProperty(name);
 

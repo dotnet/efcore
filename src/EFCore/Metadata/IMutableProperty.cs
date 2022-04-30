@@ -235,4 +235,18 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
     /// </param>
     void SetValueComparer(Type? comparerType);
+
+    /// <summary>
+    ///     Sets the custom <see cref="ValueComparer" /> to use for the provider values for this property.
+    /// </summary>
+    /// <param name="comparer">The comparer, or <see langword="null" /> to remove any previously set comparer.</param>
+    void SetProviderValueComparer(ValueComparer? comparer);
+
+    /// <summary>
+    ///     Sets the custom <see cref="ValueComparer" /> to use for the provider values for this property.
+    /// </summary>
+    /// <param name="comparerType">
+    ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
+    /// </param>
+    void SetProviderValueComparer(Type? comparerType);
 }

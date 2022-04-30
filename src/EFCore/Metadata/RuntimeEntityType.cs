@@ -583,6 +583,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// <param name="valueConverter">The custom <see cref="ValueConverter" /> set for this property.</param>
     /// <param name="valueComparer">The <see cref="ValueComparer" /> for this property.</param>
     /// <param name="keyValueComparer">The <see cref="ValueComparer" /> to use with keys for this property.</param>
+    /// <param name="providerValueComparer">The <see cref="ValueComparer" /> to use for the provider values for this property.</param>
     /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeProperty AddProperty(
@@ -605,6 +606,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         ValueConverter? valueConverter = null,
         ValueComparer? valueComparer = null,
         ValueComparer? keyValueComparer = null,
+        ValueComparer? providerValueComparer = null,
         CoreTypeMapping? typeMapping = null)
     {
         var property = new RuntimeProperty(
@@ -628,6 +630,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
             valueConverter,
             valueComparer,
             keyValueComparer,
+            providerValueComparer,
             typeMapping);
 
         _properties.Add(property.Name, property);

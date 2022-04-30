@@ -396,6 +396,32 @@ public class InternalPropertyBuilderTest
     }
 
     [ConditionalFact]
+    public void Can_only_override_lower_or_equal_source_ProviderValueComparer()
+    {
+        var builder = CreateInternalPropertyBuilder();
+        var metadata = builder.Metadata;
+
+        Assert.NotNull(builder.HasProviderValueComparer(new CustomValueComparer<string>(), ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasProviderValueComparer(new ValueComparer<string>(false), ConfigurationSource.DataAnnotation));
+
+        Assert.IsType<ValueComparer<string>>(metadata.GetProviderValueComparer());
+
+        Assert.Null(builder.HasProviderValueComparer(new CustomValueComparer<string>(), ConfigurationSource.Convention));
+        Assert.IsType<ValueComparer<string>>(metadata.GetProviderValueComparer());
+
+        Assert.Null(builder.HasProviderValueComparer(typeof(CustomValueComparer<string>), ConfigurationSource.Convention));
+        Assert.IsType<ValueComparer<string>>(metadata.GetProviderValueComparer());
+
+        Assert.NotNull(builder.HasProviderValueComparer(typeof(CustomValueComparer<string>), ConfigurationSource.DataAnnotation));
+        Assert.IsType<CustomValueComparer<string>>(metadata.GetProviderValueComparer());
+
+        Assert.NotNull(builder.HasProviderValueComparer((ValueComparer)null, ConfigurationSource.DataAnnotation));
+        Assert.Null(metadata.GetProviderValueComparer());
+        Assert.Null(metadata[CoreAnnotationNames.ProviderValueComparer]);
+        Assert.Null(metadata[CoreAnnotationNames.ProviderValueComparerType]);
+    }
+
+    [ConditionalFact]
     public void Can_only_override_lower_or_equal_source_IsUnicode()
     {
         var builder = CreateInternalPropertyBuilder();

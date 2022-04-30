@@ -398,21 +398,41 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>();
-        public abstract TestPropertyBuilder<TProperty> HasConversion(Type providerClrType);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TProperty>> convertFromProviderExpression);
 
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer);
+
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter, ValueComparer? valueComparer);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            ValueConverter<TProperty, TProvider> converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
+        
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer);
+        public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer, ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
-            where TConverter : ValueConverter
             where TComparer : ValueComparer;
-
-        public abstract TestPropertyBuilder<TProperty> HasConversion(Type converterType, Type? comparerType);
+        
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
+            where TComparer : ValueComparer
+            where TProviderComparer : ValueComparer;
     }
 
     public abstract class TestNavigationBuilder

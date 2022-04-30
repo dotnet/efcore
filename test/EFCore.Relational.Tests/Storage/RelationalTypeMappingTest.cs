@@ -8,26 +8,38 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public abstract class RelationalTypeMappingTest
 {
-    protected class FakeValueConverter : ValueConverter<object, object>
+    protected class FakeValueConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
     {
         public FakeValueConverter()
-            : base(_ => _, _ => _)
+            : base(_ => (TProvider)(object)_, _ => (TModel)(object)_)
         {
         }
 
-        public override Type ModelClrType { get; } = typeof(object);
-        public override Type ProviderClrType { get; } = typeof(object);
+        public override Type ModelClrType { get; } = typeof(TModel);
+        public override Type ProviderClrType { get; } = typeof(TProvider);
     }
 
-    protected class FakeValueComparer : ValueComparer<object>
+    protected class FakeValueComparer<T> : ValueComparer<T>
     {
         public FakeValueComparer()
             : base(false)
         {
         }
 
-        public override Type Type { get; } = typeof(object);
+        public override Type Type { get; } = typeof(T);
     }
+
+    public static ValueConverter CreateConverter(Type modelType)
+        => (ValueConverter)Activator.CreateInstance(
+                typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
+
+    public static ValueConverter CreateConverter(Type modelType, Type providerType)
+        => (ValueConverter)Activator.CreateInstance(
+                typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
+
+    public static ValueComparer CreateComparer(Type type)
+        => (ValueComparer)Activator.CreateInstance(
+                typeof(FakeValueComparer<>).MakeGenericType(type));
 
     [ConditionalTheory]
     [InlineData(typeof(BoolTypeMapping), typeof(bool))]
@@ -68,10 +80,10 @@ public abstract class RelationalTypeMappingTest
         Assert.Same(mapping.Converter, clone.Converter);
         Assert.Same(mapping.Comparer, clone.Comparer);
         Assert.Same(mapping.KeyComparer, clone.KeyComparer);
-        Assert.Same(typeof(object), clone.ClrType);
+        Assert.Same(type, clone.ClrType);
         Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
 
-        var newConverter = new FakeValueConverter();
+        var newConverter = CreateConverter(typeof(object), type);
         clone = (RelationalTypeMapping)mapping.Clone(newConverter);
 
         Assert.NotSame(mapping, clone);
@@ -80,8 +92,9 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(DbType.VarNumeric, clone.DbType);
         Assert.Null(clone.Size);
         Assert.NotSame(mapping.Converter, clone.Converter);
-        Assert.Same(mapping.Comparer, clone.Comparer);
-        Assert.Same(mapping.KeyComparer, clone.KeyComparer);
+        Assert.NotSame(mapping.Comparer, clone.Comparer);
+        Assert.NotSame(mapping.KeyComparer, clone.KeyComparer);
+        Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
         Assert.Same(typeof(object), clone.ClrType);
         Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
     }
@@ -123,12 +136,13 @@ public abstract class RelationalTypeMappingTest
         Assert.Same(mapping.Converter, clone.Converter);
         Assert.Same(mapping.Comparer, clone.Comparer);
         Assert.Same(mapping.KeyComparer, clone.KeyComparer);
-        Assert.Same(typeof(object), clone.ClrType);
+        Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
+        Assert.Same(type, clone.ClrType);
         Assert.True(mapping.IsFixedLength);
         Assert.True(clone.IsFixedLength);
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
 
-        var newConverter = new FakeValueConverter();
+        var newConverter = CreateConverter(typeof(object), type);
         clone = (RelationalTypeMapping)mapping.Clone(newConverter);
 
         Assert.NotSame(mapping, clone);
@@ -139,8 +153,9 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(33, mapping.Size);
         Assert.Equal(33, clone.Size);
         Assert.NotSame(mapping.Converter, clone.Converter);
-        Assert.Same(mapping.Comparer, clone.Comparer);
-        Assert.Same(mapping.KeyComparer, clone.KeyComparer);
+        Assert.NotSame(mapping.Comparer, clone.Comparer);
+        Assert.NotSame(mapping.KeyComparer, clone.KeyComparer);
+        Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
         Assert.Same(typeof(object), clone.ClrType);
         Assert.True(mapping.IsFixedLength);
         Assert.True(clone.IsFixedLength);
@@ -187,12 +202,13 @@ public abstract class RelationalTypeMappingTest
         Assert.Same(mapping.Converter, clone.Converter);
         Assert.Same(mapping.Comparer, clone.Comparer);
         Assert.Same(mapping.KeyComparer, clone.KeyComparer);
-        Assert.Same(typeof(object), clone.ClrType);
+        Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
+        Assert.Same(type, clone.ClrType);
         Assert.True(mapping.IsFixedLength);
         Assert.True(clone.IsFixedLength);
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
 
-        var newConverter = new FakeValueConverter();
+        var newConverter = CreateConverter(typeof(object), type);
         clone = (RelationalTypeMapping)mapping.Clone(newConverter);
 
         Assert.NotSame(mapping, clone);
@@ -205,8 +221,9 @@ public abstract class RelationalTypeMappingTest
         Assert.False(mapping.IsUnicode);
         Assert.False(clone.IsUnicode);
         Assert.NotSame(mapping.Converter, clone.Converter);
-        Assert.Same(mapping.Comparer, clone.Comparer);
-        Assert.Same(mapping.KeyComparer, clone.KeyComparer);
+        Assert.NotSame(mapping.Comparer, clone.Comparer);
+        Assert.NotSame(mapping.KeyComparer, clone.KeyComparer);
+        Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
         Assert.Same(typeof(object), clone.ClrType);
         Assert.True(mapping.IsFixedLength);
         Assert.True(clone.IsFixedLength);
@@ -234,9 +251,10 @@ public abstract class RelationalTypeMappingTest
             => new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
                     type,
-                    new FakeValueConverter(),
-                    new FakeValueComparer(),
-                    new FakeValueComparer()),
+                    CreateConverter(type),
+                    CreateComparer(type),
+                    CreateComparer(type),
+                    CreateComparer(typeof(object))),
                 "<original>",
                 storeTypePostfix,
                 System.Data.DbType.VarNumeric,
