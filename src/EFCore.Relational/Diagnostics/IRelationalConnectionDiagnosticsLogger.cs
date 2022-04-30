@@ -21,6 +21,70 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public interface IRelationalConnectionDiagnosticsLogger : IDiagnosticsLogger<DbLoggerCategory.Database.Connection>
 {
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionCreating" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
+    InterceptionResult<DbConnection> ConnectionCreating(
+        IRelationalConnection connection,
+        DateTimeOffset startTime);
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionCreated" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <param name="duration">The amount of time before the connection was created.</param>
+    DbConnection ConnectionCreated(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration);
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionDisposing" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
+    InterceptionResult ConnectionDisposing(
+        IRelationalConnection connection,
+        DateTimeOffset startTime);
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionDisposing" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+    ValueTask<InterceptionResult> ConnectionDisposingAsync(
+        IRelationalConnection connection,
+        DateTimeOffset startTime);
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionDisposed" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <param name="duration">The amount of time before the connection was Disposed.</param>
+    void ConnectionDisposed(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration);
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionDisposed" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <param name="duration">The amount of time before the connection was Disposed.</param>
+    /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+    Task ConnectionDisposedAsync(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration);
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.ConnectionOpening" /> event.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -145,6 +209,18 @@ public interface IRelationalConnectionDiagnosticsLogger : IDiagnosticsLogger<DbL
         TimeSpan duration,
         bool logErrorAsDebug,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Whether <see cref="RelationalEventId.ConnectionCreating" /> or <see cref="RelationalEventId.ConnectionCreated" /> need
+    ///     to be logged.
+    /// </summary>
+    bool ShouldLogConnectionCreate(DateTimeOffset now);
+
+    /// <summary>
+    ///     Whether <see cref="RelationalEventId.ConnectionDisposing" /> or <see cref="RelationalEventId.ConnectionDisposed" /> need
+    ///     to be logged.
+    /// </summary>
+    bool ShouldLogConnectionDispose(DateTimeOffset now);
 
     /// <summary>
     ///     Whether <see cref="RelationalEventId.ConnectionOpening" /> or <see cref="RelationalEventId.ConnectionOpened" /> need

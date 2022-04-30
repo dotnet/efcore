@@ -3,12 +3,17 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable enable
+
 public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
 {
     protected ConnectionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
         : base(fixture)
     {
     }
+
+    protected override DbContextOptionsBuilder ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlite();
 
     protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
         => new(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);

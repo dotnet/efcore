@@ -29,6 +29,10 @@ public static class RelationalEventId
         ConnectionClosing,
         ConnectionClosed,
         ConnectionError,
+        ConnectionCreating,
+        ConnectionCreated,
+        ConnectionDisposing,
+        ConnectionDisposed,
 
         // Command events
         CommandExecuting = CoreEventId.RelationalBaseId + 100,
@@ -159,6 +163,34 @@ public static class RelationalEventId
     public static readonly EventId ConnectionClosed = MakeConnectionId(Id.ConnectionClosed);
 
     /// <summary>
+    ///     A database connection is going to be disposed. This event is only triggered when Entity Framework is responsible for
+    ///     disposing the connection.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConnectionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConnectionDisposing = MakeConnectionId(Id.ConnectionDisposing);
+
+    /// <summary>
+    ///     A database connection has been disposed. This event is only triggered when Entity Framework is responsible for
+    ///     disposing the connection.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConnectionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConnectionDisposed = MakeConnectionId(Id.ConnectionDisposed);
+
+    /// <summary>
     ///     A error occurred while opening or using a database connection.
     /// </summary>
     /// <remarks>
@@ -171,6 +203,32 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId ConnectionError = MakeConnectionId(Id.ConnectionError);
 
+    /// <summary>
+    ///     A <see cref="DbConnection"/> is about to be created by EF.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConnectionCreatingEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConnectionCreating = MakeConnectionId(Id.ConnectionCreating);
+
+    /// <summary>
+    ///     A <see cref="DbConnection"/> has been created by EF.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Connection" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ConnectionCreatedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ConnectionCreated = MakeConnectionId(Id.ConnectionCreated);
+    
     private static readonly string _sqlPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
     private static EventId MakeCommandId(Id id)

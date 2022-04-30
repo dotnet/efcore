@@ -519,6 +519,22 @@
     <value>Committing transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitting</comment>
   </data>
+  <data name="LogConnectionCreated" xml:space="preserve">
+    <value>Created DbConnection. ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.ConnectionCreated int</comment>
+  </data>
+  <data name="LogConnectionCreating" xml:space="preserve">
+    <value>Creating DbConnection.</value>
+    <comment>Debug RelationalEventId.ConnectionCreating</comment>
+  </data>
+  <data name="LogConnectionDisposed" xml:space="preserve">
+    <value>Disposed connection to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionDisposed string string</comment>
+  </data>
+  <data name="LogConnectionDisposing" xml:space="preserve">
+    <value>Disposing connection to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionDisposing string string</comment>
+  </data>
   <data name="LogConnectionError" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Error RelationalEventId.ConnectionError string string</comment>

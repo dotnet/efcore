@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 public class RelationalConnectionDiagnosticsLogger
     : DiagnosticsLogger<DbLoggerCategory.Database.Connection>, IRelationalConnectionDiagnosticsLogger
 {
+    private DateTimeOffset _suppressCreateExpiration;
+    private DateTimeOffset _suppressDisposeExpiration;
     private DateTimeOffset _suppressOpenExpiration;
     private DateTimeOffset _suppressCloseExpiration;
 
@@ -522,6 +524,245 @@ public class RelationalConnectionDiagnosticsLogger
 
     #endregion ConnectionClosed
 
+    #region ConnectionDisposing
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InterceptionResult ConnectionDisposing(
+        IRelationalConnection connection,
+        DateTimeOffset startTime)
+    {
+        _suppressDisposeExpiration = startTime + _loggingCacheTime;
+
+        var definition = RelationalResources.LogConnectionDisposing(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressDisposeExpiration = default;
+
+            definition.Log(this, connection.DbConnection.Database, connection.DbConnection.DataSource);
+        }
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressDisposeExpiration = default;
+
+            var eventData = BroadcastConnectionDisposing(
+                connection,
+                startTime,
+                async: false,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.ConnectionDisposing(connection.DbConnection, eventData, default);
+            }
+        }
+
+        return default;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ValueTask<InterceptionResult> ConnectionDisposingAsync(
+        IRelationalConnection connection,
+        DateTimeOffset startTime)
+    {
+        _suppressDisposeExpiration = startTime + _loggingCacheTime;
+
+        var definition = RelationalResources.LogConnectionDisposing(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressDisposeExpiration = default;
+
+            definition.Log(this, connection.DbConnection.Database, connection.DbConnection.DataSource);
+        }
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressDisposeExpiration = default;
+
+            var eventData = BroadcastConnectionDisposing(
+                connection,
+                startTime,
+                async: true,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.ConnectionDisposingAsync(connection.DbConnection, eventData, default);
+            }
+        }
+
+        return default;
+    }
+
+    private ConnectionEventData BroadcastConnectionDisposing(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        bool async,
+        EventDefinition<string, string> definition,
+        bool diagnosticSourceEnabled,
+        bool simpleLogEnabled)
+    {
+        var eventData = new ConnectionEventData(
+            definition,
+            ConnectionDisposing,
+            connection.DbConnection,
+            connection.Context,
+            connection.ConnectionId,
+            async,
+            startTime);
+
+        DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+        return eventData;
+
+        static string ConnectionDisposing(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
+        }
+    }
+
+    #endregion ConnectionDisposing
+
+    #region ConnectionDisposed
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ConnectionDisposed(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration)
+    {
+        var definition = RelationalResources.LogConnectionDisposed(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressDisposeExpiration = default;
+
+            definition.Log(this, connection.DbConnection.Database, connection.DbConnection.DataSource);
+        }
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressDisposeExpiration = default;
+
+            var eventData = BroadcastCollectionDisposed(
+                connection,
+                startTime,
+                duration,
+                false,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            interceptor?.ConnectionDisposed(connection.DbConnection, eventData);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task ConnectionDisposedAsync(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration)
+    {
+        var definition = RelationalResources.LogConnectionDisposed(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressDisposeExpiration = default;
+
+            definition.Log(this, connection.DbConnection.Database, connection.DbConnection.DataSource);
+        }
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressDisposeExpiration = default;
+
+            var eventData = BroadcastCollectionDisposed(
+                connection,
+                startTime,
+                duration,
+                async: true,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.ConnectionDisposedAsync(connection.DbConnection, eventData);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private ConnectionEndEventData BroadcastCollectionDisposed(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        bool async,
+        EventDefinition<string, string> definition,
+        bool diagnosticSourceEnabled,
+        bool simpleLogEnabled)
+    {
+        var eventData = new ConnectionEndEventData(
+            definition,
+            ConnectionDisposed,
+            connection.DbConnection,
+            connection.Context,
+            connection.ConnectionId,
+            async,
+            startTime,
+            duration);
+
+        DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+        return eventData;
+
+        static string ConnectionDisposed(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ConnectionEndEventData)payload;
+            return d.GenerateMessage(
+                p.Connection.Database,
+                p.Connection.DataSource);
+        }
+    }
+
+    #endregion ConnectionDisposed
+
     #region ConnectionError
 
     /// <summary>
@@ -649,7 +890,174 @@ public class RelationalConnectionDiagnosticsLogger
 
     #endregion ConnectionError
 
+    #region ConnectionCreating
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InterceptionResult<DbConnection> ConnectionCreating(
+        IRelationalConnection connection,
+        DateTimeOffset startTime)
+    {
+        _suppressCreateExpiration = startTime + _loggingCacheTime;
+
+        var definition = RelationalResources.LogConnectionCreating(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressCreateExpiration = default;
+
+            definition.Log(this);
+        }
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressCreateExpiration = default;
+
+            var eventData = BroadcastConnectionCreating(
+                connection.Context,
+                connection.ConnectionId,
+                startTime,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.ConnectionCreating(eventData, default);
+            }
+        }
+
+        return default;
+    }
+
+    private ConnectionCreatingEventData BroadcastConnectionCreating(
+        DbContext? context,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        EventDefinition definition,
+        bool diagnosticSourceEnabled,
+        bool simpleLogEnabled)
+    {
+        var eventData = new ConnectionCreatingEventData(
+            definition,
+            ConnectionCreating,
+            context,
+            connectionId,
+            startTime);
+
+        DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+        return eventData;
+
+        static string ConnectionCreating(EventDefinitionBase definition, EventData payload)
+            => ((EventDefinition)definition).GenerateMessage();
+    }
+
+    #endregion ConnectionCreating
+
+    #region ConnectionCreated
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual DbConnection ConnectionCreated(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration)
+    {
+        var definition = RelationalResources.LogConnectionCreated(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressCreateExpiration = default;
+
+            definition.Log(this, (int)duration.TotalMilliseconds);
+        }
+
+        if (NeedsEventData<IDbConnectionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressCreateExpiration = default;
+
+            var eventData = BroadcastConnectionCreated(
+                connection.DbConnection,
+                connection.Context,
+                connection.ConnectionId,
+                startTime,
+                duration,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.ConnectionCreated(eventData, connection.DbConnection);
+            }
+        }
+
+        return connection.DbConnection;
+    }
+
+    private ConnectionCreatedEventData BroadcastConnectionCreated(
+        DbConnection connection,
+        DbContext? context,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        EventDefinition<int> definition,
+        bool diagnosticSourceEnabled,
+        bool simpleLogEnabled)
+    {
+        var eventData = new ConnectionCreatedEventData(
+            definition,
+            ConnectionCreated,
+            connection,
+            context,
+            connectionId,
+            startTime,
+            duration);
+
+        DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+        return eventData;
+
+        static string ConnectionCreated(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<int>)definition;
+            var p = (ConnectionCreatedEventData)payload;
+            return d.GenerateMessage((int)p.Duration.TotalMilliseconds);
+        }
+    }
+
+    #endregion ConnectionCreated
+
     #region ShouldLog checks
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool ShouldLogConnectionCreate(DateTimeOffset now)
+        => now > _suppressCreateExpiration;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool ShouldLogConnectionDispose(DateTimeOffset now)
+        => now > _suppressDisposeExpiration;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

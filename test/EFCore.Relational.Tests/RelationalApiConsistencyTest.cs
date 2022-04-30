@@ -223,14 +223,24 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionClosedAsync)),
             typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosingAsync)),
             typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosedAsync)),
+            typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionDisposingAsync)),
+            typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionDisposedAsync)),
             typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
             typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync)),
+            typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
+            typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
-                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync))
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync)),
+            typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
+                    nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
+            typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync))
         };
 
         public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new();
