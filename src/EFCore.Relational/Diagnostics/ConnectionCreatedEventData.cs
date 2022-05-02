@@ -53,7 +53,7 @@ public class ConnectionCreatedEventData : DbContextEventData
     public virtual DateTimeOffset StartTime { get; }
 
     /// <summary>
-    ///     The duration this event.
+    ///     The duration of this event.
     /// </summary>
     public virtual TimeSpan Duration { get; }
 }
