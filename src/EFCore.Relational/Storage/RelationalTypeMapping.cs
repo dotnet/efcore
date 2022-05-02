@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -225,22 +226,21 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     private static readonly MethodInfo GetFieldValueMethod
         = GetDataReaderMethod(nameof(DbDataReader.GetFieldValue));
 
-    private static readonly IDictionary<Type, MethodInfo> GetXMethods
-        = new Dictionary<Type, MethodInfo>
-        {
-            { typeof(bool), GetDataReaderMethod(nameof(DbDataReader.GetBoolean)) },
-            { typeof(byte), GetDataReaderMethod(nameof(DbDataReader.GetByte)) },
-            { typeof(char), GetDataReaderMethod(nameof(DbDataReader.GetChar)) },
-            { typeof(DateTime), GetDataReaderMethod(nameof(DbDataReader.GetDateTime)) },
-            { typeof(decimal), GetDataReaderMethod(nameof(DbDataReader.GetDecimal)) },
-            { typeof(double), GetDataReaderMethod(nameof(DbDataReader.GetDouble)) },
-            { typeof(float), GetDataReaderMethod(nameof(DbDataReader.GetFloat)) },
-            { typeof(Guid), GetDataReaderMethod(nameof(DbDataReader.GetGuid)) },
-            { typeof(short), GetDataReaderMethod(nameof(DbDataReader.GetInt16)) },
-            { typeof(int), GetDataReaderMethod(nameof(DbDataReader.GetInt32)) },
-            { typeof(long), GetDataReaderMethod(nameof(DbDataReader.GetInt64)) },
-            { typeof(string), GetDataReaderMethod(nameof(DbDataReader.GetString)) }
-        };
+    private static readonly ConcurrentDictionary<Type, MethodInfo> GetXMethods = new()
+    {
+        [typeof(bool)] = GetDataReaderMethod(nameof(DbDataReader.GetBoolean)),
+        [typeof(byte)] = GetDataReaderMethod(nameof(DbDataReader.GetByte)),
+        [typeof(char)] = GetDataReaderMethod(nameof(DbDataReader.GetChar)),
+        [typeof(DateTime)] = GetDataReaderMethod(nameof(DbDataReader.GetDateTime)),
+        [typeof(decimal)] = GetDataReaderMethod(nameof(DbDataReader.GetDecimal)),
+        [typeof(double)] = GetDataReaderMethod(nameof(DbDataReader.GetDouble)),
+        [typeof(float)] = GetDataReaderMethod(nameof(DbDataReader.GetFloat)),
+        [typeof(Guid)] = GetDataReaderMethod(nameof(DbDataReader.GetGuid)),
+        [typeof(short)] = GetDataReaderMethod(nameof(DbDataReader.GetInt16)),
+        [typeof(int)] = GetDataReaderMethod(nameof(DbDataReader.GetInt32)),
+        [typeof(long)] = GetDataReaderMethod(nameof(DbDataReader.GetInt64)),
+        [typeof(string)] = GetDataReaderMethod(nameof(DbDataReader.GetString))
+    };
 
     private static MethodInfo GetDataReaderMethod(string name)
         => typeof(DbDataReader).GetRuntimeMethod(name, new[] { typeof(int) })!;
@@ -606,9 +606,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </summary>
     /// <returns>The method to use to read the value.</returns>
     public static MethodInfo GetDataReaderMethod(Type type)
-        => GetXMethods.TryGetValue(type, out var method)
-            ? method
-            : GetFieldValueMethod.MakeGenericMethod(type);
+        => GetXMethods.GetOrAdd(type, static t => GetFieldValueMethod.MakeGenericMethod(t));
 
     /// <summary>
     ///     Gets a custom expression tree for reading the value from the input data reader

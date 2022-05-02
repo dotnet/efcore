@@ -22,12 +22,14 @@ public readonly record struct ModificationCommandParameters
     /// </summary>
     /// <param name="table">The table containing the data to be modified.</param>
     /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+    /// <param name="detailedErrorsEnabled">Indicates whether detailed errors should be logged.</param>
     /// <param name="comparer">An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />.</param>
     /// <param name="generateParameterName">A delegate to generate parameter names.</param>
     /// <param name="logger">An <see cref="IDiagnosticsLogger{TLoggerCategory}" /> for <see cref="DbLoggerCategory.Update" />.</param>
     public ModificationCommandParameters(
         ITable table,
         bool sensitiveLoggingEnabled,
+        bool detailedErrorsEnabled = false,
         IComparer<IUpdateEntry>? comparer = null,
         Func<string>? generateParameterName = null,
         IDiagnosticsLogger<DbLoggerCategory.Update>? logger = null)
@@ -37,6 +39,7 @@ public readonly record struct ModificationCommandParameters
         Schema = table.Schema;
         GenerateParameterName = generateParameterName;
         SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+        DetailedErrorsEnabled = detailedErrorsEnabled;
         Comparer = comparer;
         Logger = logger;
     }
@@ -65,6 +68,11 @@ public readonly record struct ModificationCommandParameters
     ///     Indicates whether potentially sensitive data (e.g. database values) can be logged.
     /// </summary>
     public bool SensitiveLoggingEnabled { get; init; }
+
+    /// <summary>
+    ///     Indicates whether detailed errors should be logged.
+    /// </summary>
+    public bool DetailedErrorsEnabled { get; init; }
 
     /// <summary>
     ///     An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />.

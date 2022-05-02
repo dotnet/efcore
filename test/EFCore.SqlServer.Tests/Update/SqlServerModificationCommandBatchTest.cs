@@ -78,9 +78,6 @@ public class SqlServerModificationCommandBatchTest
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
-                new TypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies(
-                        typeMapper, new CoreSingletonOptions())),
                 new CurrentDbContext(new FakeDbContext()),
                 new FakeRelationalCommandDiagnosticsLogger()),
             maxBatchSize);

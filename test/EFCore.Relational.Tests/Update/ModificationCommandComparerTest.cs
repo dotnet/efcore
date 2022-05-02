@@ -33,21 +33,22 @@ public class ModificationCommandComparerTest
         entry1[(IProperty)key] = 1;
         entry1.SetEntityState(EntityState.Added);
         var modificationCommandAdded = modificationCommandSource.CreateModificationCommand(
-            new ModificationCommandParameters(table, false, null, new ParameterNameGenerator().GenerateNext));
+            new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
+            // new ModificationCommandParameters("A", null, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommandAdded.AddEntry(entry1, true);
 
         var entry2 = stateManager.GetOrCreateEntry(new object());
         entry2[(IProperty)key] = 2;
         entry2.SetEntityState(EntityState.Modified);
         var modificationCommandModified = modificationCommandSource.CreateModificationCommand(
-            new ModificationCommandParameters(table, false, null, new ParameterNameGenerator().GenerateNext));
+            new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommandModified.AddEntry(entry2, true);
 
         var entry3 = stateManager.GetOrCreateEntry(new object());
         entry3[(IProperty)key] = 3;
         entry3.SetEntityState(EntityState.Deleted);
         var modificationCommandDeleted = modificationCommandSource.CreateModificationCommand(
-            new ModificationCommandParameters(table, false, null, new ParameterNameGenerator().GenerateNext));
+            new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommandDeleted.AddEntry(entry3, true);
 
         var mCC = new ModificationCommandComparer();
@@ -171,7 +172,7 @@ public class ModificationCommandComparerTest
 
         var model = modelBuilder.FinalizeModel();
         var table = model.GetRelationalModel().Tables.Single();
-        
+
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
             .UseModel(model)
@@ -185,18 +186,18 @@ public class ModificationCommandComparerTest
         entry1[(IProperty)keyProperty] = value1;
         entry1.SetEntityState(EntityState.Modified);
         var modificationCommand1 = modificationCommandSource.CreateModificationCommand(
-            new ModificationCommandParameters(table, false, null, new ParameterNameGenerator().GenerateNext));
+            new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommand1.AddEntry(entry1, true);
 
         var entry2 = stateManager.GetOrCreateEntry(new object());
         entry2[(IProperty)keyProperty] = value2;
         entry2.SetEntityState(EntityState.Modified);
         var modificationCommand2 = modificationCommandSource.CreateModificationCommand(
-            new ModificationCommandParameters(table, false, null, new ParameterNameGenerator().GenerateNext));
+            new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommand2.AddEntry(entry2, true);
 
         var modificationCommand3 = modificationCommandSource.CreateModificationCommand(
-            new ModificationCommandParameters(table, false, null, new ParameterNameGenerator().GenerateNext));
+            new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommand3.AddEntry(entry1, true);
 
         var mCC = new ModificationCommandComparer();

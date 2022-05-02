@@ -382,22 +382,4 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     protected abstract Task ConsumeAsync(
         RelationalDataReader reader,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     Creates the <see cref="IRelationalValueBufferFactory" /> that will be used for creating a
-    ///     <see cref="ValueBuffer" /> to consume the data reader.
-    /// </summary>
-    /// <param name="columnModifications">
-    ///     The list of <see cref="IColumnModification" />s for all the columns
-    ///     being modified such that a ValueBuffer with appropriate slots can be created.
-    /// </param>
-    /// <returns>The factory.</returns>
-    protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
-        IReadOnlyList<IColumnModification> columnModifications)
-        => Dependencies.ValueBufferFactoryFactory
-            .Create(
-                columnModifications
-                    .Where(c => c.IsRead)
-                    .Select(c => new TypeMaterializationInfo(c.Property!.ClrType, c.Property, c.TypeMapping!))
-                    .ToArray());
 }

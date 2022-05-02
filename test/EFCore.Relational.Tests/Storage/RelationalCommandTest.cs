@@ -1340,9 +1340,10 @@ public class RelationalCommandTest
 
     private class FakeLoggingOptions : ILoggingOptions
     {
-        public FakeLoggingOptions(bool sensitiveDataLoggingEnabled)
+        public FakeLoggingOptions(bool sensitiveDataLoggingEnabled, bool detailedErrorsEnabled = false)
         {
             IsSensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
+            DetailedErrorsEnabled = detailedErrorsEnabled;
         }
 
         public void Initialize(IDbContextOptions options)
@@ -1355,6 +1356,8 @@ public class RelationalCommandTest
 
         public bool IsSensitiveDataLoggingEnabled { get; }
         public bool IsSensitiveDataLoggingWarned { get; set; }
+
+        public bool DetailedErrorsEnabled { get; }
 
         public WarningsConfiguration WarningsConfiguration
             => null;

@@ -185,9 +185,8 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
 
-            var valueBufferFactory = CreateValueBufferFactory(tableModification.ColumnModifications);
+            tableModification.PropagateResults(reader);
 
-            tableModification.PropagateResults(valueBufferFactory.Create(reader.DbDataReader));
             rowsAffected++;
         }
         while (++resultSetIndex < CommandResultSet.Count
@@ -236,9 +235,8 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
             Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
 
-            var valueBufferFactory = CreateValueBufferFactory(tableModification.ColumnModifications);
+            tableModification.PropagateResults(reader);
 
-            tableModification.PropagateResults(valueBufferFactory.Create(reader.DbDataReader));
             rowsAffected++;
         }
         while (++resultSetIndex < CommandResultSet.Count
