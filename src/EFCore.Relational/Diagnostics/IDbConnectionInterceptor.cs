@@ -46,7 +46,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult{DbConnection}.HasResult" /> is <see langword="false" />, then EF will continue as normal.
     ///     If <see cref="InterceptionResult{DbConnection}.HasResult" /> is <see langword="true" />, then EF will suppress the operation it
     ///     was about to perform and use <see cref="InterceptionResult{DbConnection}.Result" /> instead.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     InterceptionResult<DbConnection> ConnectionCreating(ConnectionCreatingEventData eventData, InterceptionResult<DbConnection> result)
