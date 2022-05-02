@@ -35,7 +35,7 @@ public interface IRelationalConnectionDiagnosticsLogger : IDiagnosticsLogger<DbL
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="startTime">The time that the operation was started.</param>
-    /// <param name="duration">The amount of time before the connection was created.</param>
+    /// <param name="duration">The amount of time it took to create the connection.</param>
     DbConnection ConnectionCreated(
         IRelationalConnection connection,
         DateTimeOffset startTime,
