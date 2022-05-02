@@ -116,7 +116,6 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             _engineEdition = GetEngineEdition(connection);
 
             databaseModel.DatabaseName = connection.Database;
-            databaseModel.DefaultSchema = GetDefaultSchema(connection);
 
             var serverCollation = GetServerCollation(connection);
             var databaseCollation = GetDatabaseCollation(connection);
@@ -227,21 +226,6 @@ SELECT HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION');";
         {
             _logger.MissingViewDefinitionRightsWarning();
         }
-    }
-
-    private string? GetDefaultSchema(DbConnection connection)
-    {
-        using var command = connection.CreateCommand();
-        command.CommandText = "SELECT SCHEMA_NAME()";
-
-        if (command.ExecuteScalar() is string schema)
-        {
-            _logger.DefaultSchemaFound(schema);
-
-            return schema;
-        }
-
-        return null;
     }
 
     private static Func<string, string>? GenerateSchemaFilter(IReadOnlyList<string> schemas)

@@ -232,7 +232,7 @@ DROP SEQUENCE [db2].[Sequence];");
     #region Model
 
     [ConditionalFact]
-    public void Set_default_schema()
+    public void Not_set_default_schema()
         => Test(
             "SELECT 1",
             Enumerable.Empty<string>(),
@@ -240,7 +240,8 @@ DROP SEQUENCE [db2].[Sequence];");
             dbModel =>
             {
                 var defaultSchema = Fixture.TestStore.ExecuteScalar<string>("SELECT SCHEMA_NAME()");
-                Assert.Equal(defaultSchema, dbModel.DefaultSchema);
+                Assert.NotEqual(defaultSchema, dbModel.DefaultSchema);
+                Assert.Null(dbModel.DefaultSchema);
             },
             null);
 

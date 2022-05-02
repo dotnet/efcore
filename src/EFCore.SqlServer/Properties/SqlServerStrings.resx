@@ -208,10 +208,6 @@
     <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {nullable}, identity: {identity}, default value: {defaultValue}, computed value: {computedValue}, computed value is stored: {stored}.</value>
     <comment>Debug SqlServerEventId.ColumnFound string string int string int int int bool bool string string bool?</comment>
   </data>
-  <data name="LogFoundDefaultSchema" xml:space="preserve">
-    <value>Found default schema '{defaultSchema}'.</value>
-    <comment>Debug SqlServerEventId.DefaultSchemaFound string</comment>
-  </data>
   <data name="LogFoundForeignKey" xml:space="preserve">
     <value>Found foreign key on table '{tableName}' with name '{foreignKeyName}', principal table '{principalTableName}', delete action {deleteAction}.</value>
     <comment>Debug SqlServerEventId.ForeignKeyFound string string string string</comment>

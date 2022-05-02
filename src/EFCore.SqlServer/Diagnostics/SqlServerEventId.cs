@@ -38,7 +38,7 @@ public static class SqlServerEventId
         ColumnFound = CoreEventId.ProviderDesignBaseId,
         ColumnNotNamedWarning,
         ColumnSkipped,
-        DefaultSchemaFound,
+        DefaultSchemaFound, // Obsolete, but must remain
         ForeignKeyColumnFound,
         ForeignKeyColumnMissingWarning,
         ForeignKeyColumnNotNamedWarning,

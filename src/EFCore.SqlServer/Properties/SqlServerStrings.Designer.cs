@@ -571,31 +571,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found default schema '{defaultSchema}'.
-        /// </summary>
-        public static EventDefinition<string> LogFoundDefaultSchema(IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema,
-                    logger,
-                    static logger => new EventDefinition<string>(
-                        logger.Options,
-                        SqlServerEventId.DefaultSchemaFound,
-                        LogLevel.Debug,
-                        "SqlServerEventId.DefaultSchemaFound",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            SqlServerEventId.DefaultSchemaFound,
-                            _resourceManager.GetString("LogFoundDefaultSchema")!)));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
         ///     Found foreign key on table '{tableName}' with name '{foreignKeyName}', principal table '{principalTableName}', delete action {deleteAction}.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogFoundForeignKey(IDiagnosticsLogger logger)
