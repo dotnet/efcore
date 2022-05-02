@@ -66,7 +66,7 @@ public interface IRelationalConnectionDiagnosticsLogger : IDiagnosticsLogger<DbL
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="startTime">The time that the operation was started.</param>
-    /// <param name="duration">The amount of time before the connection was Disposed.</param>
+    /// <param name="duration">The amount of time it took to dispose the connection.</param>
     void ConnectionDisposed(
         IRelationalConnection connection,
         DateTimeOffset startTime,
