@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
 ///     <para>
-///         A service to resolve a single <see cref="IInterceptor" /> /> from all those registered on
+///         A service to resolve a single <see cref="IInterceptor" /> from all those registered on
 ///         the <see cref="DbContext" /> or in the internal service provider.
 ///     </para>
 ///     <para>
@@ -37,7 +37,7 @@ public interface IInterceptorAggregator
     Type InterceptorType { get; }
 
     /// <summary>
-    ///     Resolves a single <see cref="IInterceptor" /> /> from all those registered on
+    ///     Resolves a single <see cref="IInterceptor" /> from all those registered on
     ///     the <see cref="DbContext" /> or in the internal service provider.
     /// </summary>
     /// <param name="interceptors">The interceptors to combine.</param>
