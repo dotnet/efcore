@@ -15,6 +15,10 @@ public class InheritanceRelationshipsQuerySqlServerTest
         fixture.TestSqlLoggerFactory.Clear();
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Include_reference_with_inheritance(bool async)
     {
         await base.Include_reference_with_inheritance(async);
@@ -1290,6 +1294,30 @@ INNER JOIN (
 ) AS [t] ON [b].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
 WHERE [b].[Id] >= 4
 ORDER BY [b].[Id]");
+    }
+
+    public override void Changes_in_derived_related_entities_are_detected()
+    {
+        base.Changes_in_derived_related_entities_are_detected();
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[BaseId], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [t].[OwnedReferenceOnBase_Id], [t].[OwnedReferenceOnBase_Name], [b1].[DerivedInheritanceRelationshipEntityId], [b1].[Id], [b1].[Name], [t].[OwnedReferenceOnDerived_Id], [t].[OwnedReferenceOnDerived_Name], [b2].[Id], [b2].[BaseParentId], [b2].[Discriminator], [b2].[Name], [b2].[DerivedProperty]
+FROM (
+    SELECT TOP(2) [b].[Id], [b].[Discriminator], [b].[Name], [b].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [b].[OwnedReferenceOnDerived_Id], [b].[OwnedReferenceOnDerived_Name]
+    FROM [BaseEntities] AS [b]
+    WHERE [b].[Name] = N'Derived1(4)'
+) AS [t]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [t].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [t].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN [BaseCollectionsOnBase] AS [b2] ON [t].[Id] = [b2].[BaseParentId]
+ORDER BY [t].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId], [b1].[Id]");
+    }
+
+    public override void Entity_can_make_separate_relationships_with_base_type_and_derived_type_both()
+    {
+        base.Entity_can_make_separate_relationships_with_base_type_and_derived_type_both();
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

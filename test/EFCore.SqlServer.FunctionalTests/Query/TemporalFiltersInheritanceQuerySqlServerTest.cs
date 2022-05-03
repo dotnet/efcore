@@ -33,6 +33,10 @@ public class TemporalFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQu
         return rewriter.Visit(serverQueryExpression);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Can_use_of_type_animal(bool async)
     {
         await base.Can_use_of_type_animal(async);
