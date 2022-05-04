@@ -9,7 +9,13 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
     {
         typeof(FromSqlSprocQueryTestBase<>),
         typeof(SqlExecutorTestBase<>),
-        typeof(UdfDbFunctionTestBase<>)
+        typeof(UdfDbFunctionTestBase<>),
+        typeof(TPCFiltersInheritanceQueryTestBase<>),
+        typeof(TPCGearsOfWarQueryRelationalTestBase<>),
+        typeof(TPCInheritanceQueryTestBase<>),
+        typeof(TPCManyToManyNoTrackingQueryRelationalTestBase<>),
+        typeof(TPCManyToManyQueryRelationalTestBase<>),
+        typeof(TPCRelationshipsQueryTestBase<>),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

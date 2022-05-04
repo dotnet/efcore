@@ -15,6 +15,10 @@ public class TPTManyToManyQuerySqlServerTest : TPTManyToManyQueryRelationalTestB
     protected override bool CanExecuteQueryString
         => true;
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Skip_navigation_all(bool async)
     {
         await base.Skip_navigation_all(async);
@@ -1637,6 +1641,77 @@ INNER JOIN (
     WHERE [e1].[Id] < 5
 ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 ORDER BY [e].[Id], [t].[Id]");
+    }
+
+    public override async Task Include_skip_navigation_then_include_inverse_works_for_tracking_query(bool async)
+    {
+        await base.Include_skip_navigation_then_include_inverse_works_for_tracking_query(async);
+
+        AssertSql(
+            @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t0].[OneId], [t0].[ThreeId], [t0].[Payload], [t0].[Id], [t0].[Name], [t0].[OneId0], [t0].[ThreeId0], [t0].[Payload0], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]
+FROM [EntityThrees] AS [e]
+LEFT JOIN (
+    SELECT [j].[OneId], [j].[ThreeId], [j].[Payload], [e0].[Id], [e0].[Name], [t].[OneId] AS [OneId0], [t].[ThreeId] AS [ThreeId0], [t].[Payload] AS [Payload0], [t].[Id] AS [Id0], [t].[CollectionInverseId], [t].[Name] AS [Name0], [t].[ReferenceInverseId]
+    FROM [JoinOneToThreePayloadFullShared] AS [j]
+    INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
+    LEFT JOIN (
+        SELECT [j0].[OneId], [j0].[ThreeId], [j0].[Payload], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
+        FROM [JoinOneToThreePayloadFullShared] AS [j0]
+        INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
+    ) AS [t] ON [e0].[Id] = [t].[OneId]
+) AS [t0] ON [e].[Id] = [t0].[ThreeId]
+ORDER BY [e].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id], [t0].[OneId0], [t0].[ThreeId0]");
+    }
+
+    public override async Task Throws_when_different_filtered_include(bool async)
+    {
+        await base.Throws_when_different_filtered_include(async);
+
+        AssertSql();
+    }
+
+    public override async Task Throws_when_different_filtered_then_include(bool async)
+    {
+        await base.Throws_when_different_filtered_then_include(async);
+
+        AssertSql();
+    }
+
+    public override async Task Throws_when_different_filtered_then_include_via_different_paths(bool async)
+    {
+        await base.Throws_when_different_filtered_then_include_via_different_paths(async);
+
+        AssertSql();
+    }
+
+    public override async Task Select_many_over_skip_navigation_where_non_equality(bool async)
+    {
+        await base.Select_many_over_skip_navigation_where_non_equality(async);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
+FROM [EntityOnes] AS [e]
+LEFT JOIN (
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId]
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+) AS [t] ON [e].[Id] = [t].[OneId] AND [e].[Id] <> [t].[Id]");
+    }
+
+    public override async Task Contains_on_skip_collection_navigation(bool async)
+    {
+        await base.Contains_on_skip_collection_navigation(async);
+
+        AssertSql(
+            @"@__entity_equality_two_0_Id='1' (Nullable = true)
+
+SELECT [e].[Id], [e].[Name]
+FROM [EntityOnes] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+    WHERE [e].[Id] = [j].[OneId] AND [e0].[Id] = @__entity_equality_two_0_Id)");
     }
 
     private void AssertSql(params string[] expected)
