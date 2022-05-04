@@ -547,7 +547,18 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// <param name="interceptors">The interceptors to add.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder AddInterceptors(IEnumerable<IInterceptor> interceptors)
-        => WithOption(e => e.WithInterceptors(Check.NotNull(interceptors, nameof(interceptors))));
+    {
+        Check.NotNull(interceptors, nameof(interceptors));
+
+        var singletonInterceptors = interceptors.OfType<ISingletonInterceptor>().ToList();
+        var builder = this;
+        if (singletonInterceptors.Count > 0)
+        {
+            builder = WithOption(e => e.WithSingletonInterceptors(singletonInterceptors));
+        }
+
+        return builder.WithOption(e => e.WithInterceptors(interceptors));
+    }
 
     /// <summary>
     ///     Adds <see cref="IInterceptor" /> instances to those registered on the context.

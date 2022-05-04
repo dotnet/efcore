@@ -55,12 +55,11 @@ public class ProxyFactory : IProxyFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Type CreateProxyType(
-        ProxiesOptionsExtension options,
         IReadOnlyEntityType entityType)
         => _generator.ProxyBuilder.CreateClassProxyType(
             entityType.ClrType,
-            GetInterfacesToProxy(options, entityType.ClrType),
-                GenerationOptions);
+            GetInterfacesToProxy(entityType),
+            GenerationOptions);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,23 +80,21 @@ public class ProxyFactory : IProxyFactory
         }
 
         return CreateLazyLoadingProxy(
-            options,
             entityType,
             context.GetService<ILazyLoader>(),
             constructorArguments);
     }
 
     private object CreateLazyLoadingProxy(
-        ProxiesOptionsExtension options,
         IEntityType entityType,
         ILazyLoader loader,
         object[] constructorArguments)
         => _generator.CreateClassProxy(
             entityType.ClrType,
-            GetInterfacesToProxy(options, entityType.ClrType),
-                GenerationOptions,
+            GetInterfacesToProxy(entityType),
+            GenerationOptions,
             constructorArguments,
-            GetNotifyChangeInterceptors(options, entityType, new LazyLoadingInterceptor(entityType, loader)));
+            GetNotifyChangeInterceptors(entityType, new LazyLoadingInterceptor(entityType, loader)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,51 +113,46 @@ public class ProxyFactory : IProxyFactory
             throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
         }
 
-        if (options.UseLazyLoadingProxies)
+        if ((bool?)entityType.Model[ProxyAnnotationNames.LazyLoading] == true)
         {
             return CreateLazyLoadingProxy(
-                options,
                 entityType,
                 context.GetService<ILazyLoader>(),
                 constructorArguments);
         }
 
         return CreateProxy(
-            options,
             entityType,
             constructorArguments);
     }
 
     private object CreateProxy(
-        ProxiesOptionsExtension options,
         IEntityType entityType,
         object[] constructorArguments)
         => _generator.CreateClassProxy(
             entityType.ClrType,
-            GetInterfacesToProxy(options, entityType.ClrType),
-                GenerationOptions,
+            GetInterfacesToProxy(entityType),
+            GenerationOptions,
             constructorArguments,
-            GetNotifyChangeInterceptors(options, entityType));
+            GetNotifyChangeInterceptors(entityType));
 
-    private static Type[] GetInterfacesToProxy(
-        ProxiesOptionsExtension options,
-        Type type)
+    private static Type[] GetInterfacesToProxy(IReadOnlyEntityType entityType)
     {
         var interfacesToProxy = new List<Type>();
 
-        if (options.UseLazyLoadingProxies)
+        if ((bool?)entityType.Model[ProxyAnnotationNames.LazyLoading] == true)
         {
             interfacesToProxy.Add(ProxyLazyLoaderInterface);
         }
 
-        if (options.UseChangeTrackingProxies)
+        if ((bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true)
         {
-            if (!NotifyPropertyChangedInterface.IsAssignableFrom(type))
+            if (!NotifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
             {
                 interfacesToProxy.Add(NotifyPropertyChangedInterface);
             }
 
-            if (!NotifyPropertyChangingInterface.IsAssignableFrom(type))
+            if (!NotifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
             {
                 interfacesToProxy.Add(NotifyPropertyChangingInterface);
             }
@@ -170,7 +162,6 @@ public class ProxyFactory : IProxyFactory
     }
 
     private static IInterceptor[] GetNotifyChangeInterceptors(
-        ProxiesOptionsExtension options,
         IEntityType entityType,
         LazyLoadingInterceptor? lazyLoadingInterceptor = null)
     {
@@ -181,16 +172,18 @@ public class ProxyFactory : IProxyFactory
             interceptors.Add(lazyLoadingInterceptor);
         }
 
-        if (options.UseChangeTrackingProxies)
+        if ((bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true)
         {
+            var checkEquality = (bool?)entityType.Model[ProxyAnnotationNames.CheckEquality] == true;
+            
             if (!NotifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
             {
-                interceptors.Add(new PropertyChangedInterceptor(entityType, options.CheckEquality));
+                interceptors.Add(new PropertyChangedInterceptor(entityType, checkEquality));
             }
 
             if (!NotifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
             {
-                interceptors.Add(new PropertyChangingInterceptor(entityType, options.CheckEquality));
+                interceptors.Add(new PropertyChangingInterceptor(entityType, checkEquality));
             }
         }
 

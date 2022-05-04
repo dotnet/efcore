@@ -143,11 +143,11 @@ namespace TestNamespace
         [ConditionalFact]
         public void Throws_for_constructor_binding()
             => Test(
-                new LazyLoadingProxiesContext(),
+                new ConstructorBindingContext(),
                 new CompiledModelCodeGenerationOptions(),
                 expectedExceptionMessage: DesignStrings.CompiledModelConstructorBinding("Lazy", "Customize()", "LazyEntityType"));
 
-        public class LazyLoadingProxiesContext : ContextBase
+        public class ConstructorBindingContext : ContextBase
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -158,6 +158,9 @@ namespace TestNamespace
                     {
                         e.Property<int>("Id");
                         e.HasKey("Id");
+                        ((EntityType)e.Metadata).ConstructorBinding = new ConstructorBinding(
+                            typeof(object).GetConstructor(Type.EmptyTypes)!,
+                            Array.Empty<ParameterBinding>());
                     });
             }
 
@@ -349,7 +352,7 @@ namespace TestNamespace
             public override object Snapshot(object instance)
                 => throw new NotImplementedException();
         }
-        
+
         [ConditionalFact]
         public void Throws_for_provider_value_comparer()
             => Test(

@@ -23,6 +23,12 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     InstantiationBinding? ConstructorBinding { get; }
 
     /// <summary>
+    ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor when creating instances with only service
+    ///     properties initialized.
+    /// </summary>
+    InstantiationBinding? ServiceOnlyConstructorBinding { get; }
+
+    /// <summary>
     ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
     /// </summary>
     new IProperty? FindDiscriminatorProperty()

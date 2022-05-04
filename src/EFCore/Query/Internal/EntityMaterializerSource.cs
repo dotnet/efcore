@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class EntityMaterializerSource : IEntityMaterializerSource
 {
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
+    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _emptyMaterializers;
+    private readonly List<IInstantiationBindingInterceptor> _bindingInterceptors;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,6 +26,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     public EntityMaterializerSource(EntityMaterializerSourceDependencies dependencies)
     {
         Dependencies = dependencies;
+        _bindingInterceptors = dependencies.SingletonInterceptors.OfType<IInstantiationBindingInterceptor>().ToList();
     }
 
     /// <summary>
@@ -47,7 +50,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
         }
 
-        var constructorBinding = entityType.ConstructorBinding!;
+        var constructorBinding = ModifyBindings(entityType, entityInstanceName, entityType.ConstructorBinding!);        
 
         var bindingInfo = new ParameterBindingInfo(
             entityType,
@@ -125,7 +128,8 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
+    public virtual Func<MaterializationContext, object> GetMaterializer(
+        IEntityType entityType)
         => Materializers.GetOrAdd(
             entityType,
             static (e, self) =>
@@ -139,4 +143,54 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                     .Compile();
             },
             this);
+
+    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> EmptyMaterializers
+        => LazyInitializer.EnsureInitialized(
+            ref _emptyMaterializers,
+            () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<MaterializationContext, object> GetEmptyMaterializer(
+        IEntityType entityType)
+        => EmptyMaterializers.GetOrAdd(
+            entityType,
+            static (e, self) =>
+            {
+                var binding = e.ServiceOnlyConstructorBinding;
+                if (binding == null)
+                {
+                    var _ = e.ConstructorBinding;
+                    binding = e.ServiceOnlyConstructorBinding;
+                    if (binding == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(e.DisplayName()));
+                    }
+                }
+                
+                binding = self.ModifyBindings(e, "v", binding);        
+
+                var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
+
+                return Expression.Lambda<Func<MaterializationContext, object>>(
+                        binding.CreateConstructorExpression(
+                            new ParameterBindingInfo(e, contextParam)),
+                        contextParam)
+                    .Compile();
+            },
+            this);
+
+    private InstantiationBinding ModifyBindings(IEntityType entityType, string entityInstanceName, InstantiationBinding binding)
+    {
+        foreach (var bindingInterceptor in _bindingInterceptors)
+        {
+            binding = bindingInterceptor.ModifyBinding(entityType, entityInstanceName, binding);
+        }
+
+        return binding;
+    }
 }
