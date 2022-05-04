@@ -480,8 +480,8 @@
     <comment>Warning RelationalEventId.BoolWithDefaultWarning string string</comment>
   </data>
   <data name="LogClosedConnection" xml:space="preserve">
-    <value>Closed connection to database '{database}' on server '{server}'.</value>
-    <comment>Debug RelationalEventId.ConnectionClosed string string</comment>
+    <value>Closed connection to database '{database}' on server '{server}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.ConnectionClosed string string int</comment>
   </data>
   <data name="LogClosingConnection" xml:space="preserve">
     <value>Closing connection to database '{database}' on server '{server}'.</value>
@@ -528,8 +528,8 @@
     <comment>Debug RelationalEventId.ConnectionCreating</comment>
   </data>
   <data name="LogConnectionDisposed" xml:space="preserve">
-    <value>Disposed connection to database '{database}' on server '{server}'.</value>
-    <comment>Debug RelationalEventId.ConnectionDisposed string string</comment>
+    <value>Disposed connection to database '{database}' on server '{server}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.ConnectionDisposed string string int</comment>
   </data>
   <data name="LogConnectionDisposing" xml:space="preserve">
     <value>Disposing connection to database '{database}' on server '{server}'.</value>

@@ -1666,9 +1666,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Closed connection to database '{database}' on server '{server}'.
+        ///     Closed connection to database '{database}' on server '{server}' ({elapsed}ms).
         /// </summary>
-        public static EventDefinition<string, string> LogClosedConnection(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, int> LogClosedConnection(IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection;
             if (definition == null)
@@ -1676,18 +1676,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection,
                     logger,
-                    static logger => new EventDefinition<string, string>(
+                    static logger => new EventDefinition<string, string, int>(
                         logger.Options,
                         RelationalEventId.ConnectionClosed,
                         LogLevel.Debug,
                         "RelationalEventId.ConnectionClosed",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, int>(
                             level,
                             RelationalEventId.ConnectionClosed,
                             _resourceManager.GetString("LogClosedConnection")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, int>)definition;
         }
 
         /// <summary>
@@ -1966,9 +1966,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Closed connection to database '{database}' on server '{server}'.
+        ///     Disposed connection to database '{database}' on server '{server}' ({elapsed}ms).
         /// </summary>
-        public static EventDefinition<string, string> LogConnectionDisposed(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, int> LogConnectionDisposed(IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposed;
             if (definition == null)
@@ -1976,18 +1976,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposed,
                     logger,
-                    static logger => new EventDefinition<string, string>(
+                    static logger => new EventDefinition<string, string, int>(
                         logger.Options,
                         RelationalEventId.ConnectionDisposed,
                         LogLevel.Debug,
                         "RelationalEventId.ConnectionDisposed",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, int>(
                             level,
                             RelationalEventId.ConnectionDisposed,
                             _resourceManager.GetString("LogConnectionDisposed")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, int>)definition;
         }
 
         /// <summary>

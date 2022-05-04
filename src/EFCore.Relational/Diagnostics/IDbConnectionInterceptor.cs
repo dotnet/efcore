@@ -63,7 +63,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     /// </param>
     /// <returns>
     ///     The result that EF will use.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     DbConnection ConnectionCreated(ConnectionCreatedEventData eventData, DbConnection result)
@@ -84,7 +84,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     InterceptionResult ConnectionOpening(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
@@ -106,7 +106,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
@@ -152,7 +152,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     InterceptionResult ConnectionClosing(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
@@ -173,7 +173,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     ValueTask<InterceptionResult> ConnectionClosingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
@@ -212,7 +212,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     InterceptionResult ConnectionDisposing(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
@@ -233,7 +233,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     ValueTask<InterceptionResult> ConnectionDisposingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
