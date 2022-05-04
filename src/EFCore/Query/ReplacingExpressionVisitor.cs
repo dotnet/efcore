@@ -50,7 +50,8 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
     {
         if (expression == null
             || expression is ShapedQueryExpression
-            || expression is EntityShaperExpression)
+            || expression is EntityShaperExpression
+            || expression is GroupByShaperExpression)
         {
             return expression;
         }

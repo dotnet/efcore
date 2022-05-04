@@ -218,9 +218,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SqlExpression? TranslateAverage(SqlExpression sqlExpression)
+    public override SqlExpression? TranslateAverage(SqlEnumerableExpression sqlEnumerableExpression)
     {
-        var visitedExpression = base.TranslateAverage(sqlExpression);
+        var visitedExpression = base.TranslateAverage(sqlEnumerableExpression);
         var argumentType = GetProviderType(visitedExpression);
         if (argumentType == typeof(decimal))
         {
@@ -237,9 +237,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SqlExpression? TranslateMax(SqlExpression sqlExpression)
+    public override SqlExpression? TranslateMax(SqlEnumerableExpression sqlEnumerableExpression)
     {
-        var visitedExpression = base.TranslateMax(sqlExpression);
+        var visitedExpression = base.TranslateMax(sqlEnumerableExpression);
         var argumentType = GetProviderType(visitedExpression);
         if (argumentType == typeof(DateTimeOffset)
             || argumentType == typeof(decimal)
@@ -259,9 +259,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SqlExpression? TranslateMin(SqlExpression sqlExpression)
+    public override SqlExpression? TranslateMin(SqlEnumerableExpression sqlEnumerableExpression)
     {
-        var visitedExpression = base.TranslateMin(sqlExpression);
+        var visitedExpression = base.TranslateMin(sqlEnumerableExpression);
         var argumentType = GetProviderType(visitedExpression);
         if (argumentType == typeof(DateTimeOffset)
             || argumentType == typeof(decimal)
@@ -281,9 +281,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SqlExpression? TranslateSum(SqlExpression sqlExpression)
+    public override SqlExpression? TranslateSum(SqlEnumerableExpression sqlEnumerableExpression)
     {
-        var visitedExpression = base.TranslateSum(sqlExpression);
+        var visitedExpression = base.TranslateSum(sqlEnumerableExpression);
         var argumentType = GetProviderType(visitedExpression);
         if (argumentType == typeof(decimal))
         {

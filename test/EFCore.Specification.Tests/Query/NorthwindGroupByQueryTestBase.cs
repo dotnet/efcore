@@ -1211,6 +1211,33 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                   into g
                   select new { g.Key.OrderID, Aggregate = g.Sum(s => s.IsAlfki ? s.OrderId : -s.OrderId) });
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_conditional_properties(bool async)
+    {
+        var groupByMonth = false;
+        var groupByCustomer = true;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                    .GroupBy(
+                        x => new
+                        {
+                            OrderMonth = groupByMonth ? (int?)x.OrderDate.Value.Month : null,
+                            Customer = groupByCustomer ? x.CustomerID : null
+                        },
+                        x => x,
+                        (key, items) => new { key.OrderMonth, key.Customer, Count = items.Count() }),
+            elementSorter: e => (e.OrderMonth, e.Customer),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.OrderMonth, a.OrderMonth);
+                Assert.Equal(e.Customer, a.Customer);
+                Assert.Equal(e.Count, a.Count);
+            });
+    }
+
     #endregion
 
     #region GroupByAfterComposition
@@ -1518,6 +1545,73 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 .Distinct()
                 .GroupBy(x => new { x.CustomerID })
                 .Select(g => new { Key = g.Key.CustomerID, Count = g.Count() }),
+            elementSorter: e => (e.Key, e.Count),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                Assert.Equal(e.Count, a.Count);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_complex_key_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer.CustomerID.Substring(0, 1))
+                .Select(g => new { Key = g.Key, Count = g.Count() }),
+            elementSorter: e => (e.Key, e.Count),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                Assert.Equal(e.Count, a.Count);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_complex_key_aggregate_2(bool async)
+        => AssertQuery(
+            async,
+            ss => from s in (from o in ss.Set<Order>()
+                             group o by o.OrderDate.Value.Month
+                             into g
+                             select new
+                             {
+                                 Month = g.Key,
+                                 Total = g.Sum(e => e.OrderID)
+                             })
+                  select new
+                  {
+                      s.Month,
+                      s.Total,
+                      Payment = ss.Set<Order>().Where(e => e.OrderDate.Value.Month == s.Month).Sum(e => e.OrderID)
+                  },
+            elementSorter: e => (e.Month, e.Total),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Month, a.Month);
+                Assert.Equal(e.Total, a.Total);
+                Assert.Equal(e.Payment, a.Payment);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_collection_of_scalar_before_GroupBy_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Select(c => new
+                {
+                    c.CustomerID,
+                    c.City,
+                    Orders = c.Orders.Select(e => e.OrderID)
+                })
+                .GroupBy(e => e.City)
+                .Select(g => new
+                {
+                    g.Key,
+                    Count = g.Count()
+                }),
             elementSorter: e => (e.Key, e.Count),
             elementAsserter: (e, a) =>
             {
@@ -2243,6 +2337,53 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                   select o,
             entryCount: 89);
 
+    [ConditionalTheory(Skip = "Issue#27480")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_left_join_GroupBy_aggregate_left_join(bool async)
+        => AssertQuery(
+            async,
+            ss => from c1 in ss.Set<Customer>()
+                  from c2 in (from c in ss.Set<Customer>()
+                              from oc1 in ss.Set<Order>()
+                                    .GroupBy(o => o.CustomerID, (o, g) => new { CustomerID = o, Count = (int?)g.Count() })
+                                    .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
+                              group new { c.CustomerID, oc1.Count } by c.CustomerID into g
+                              select new
+                              {
+                                  CustomerID = g.Key,
+                                  Count = g.Sum(x => x.Count)
+                              }).Where(x => x.CustomerID == c1.CustomerID).DefaultIfEmpty()
+                  select new
+                  {
+                      c1.CustomerID,
+                      c1.City,
+                      c2.Count
+                  },
+            ss => from c1 in ss.Set<Customer>()
+                  from c2 in (from c in ss.Set<Customer>()
+                              from oc1 in ss.Set<Order>()
+                                    .GroupBy(o => o.CustomerID, (o, g) => new { CustomerID = o, Count = (int?)g.Count() })
+                                    .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
+                              group new { c.CustomerID, Count = oc1.MaybeScalar(e => e.Count) } by c.CustomerID into g
+                              select new
+                              {
+                                  CustomerID = g.Key,
+                                  Count = g.Sum(x => x.Count)
+                              }).Where(x => x.CustomerID == c1.CustomerID).DefaultIfEmpty()
+                  select new
+                  {
+                      c1.CustomerID,
+                      c1.City,
+                      c2.Count
+                  },
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.CustomerID, a.CustomerID);
+                Assert.Equal(e.City, a.City);
+                Assert.Equal(e.Count, a.Count);
+            });
+
     #endregion
 
     #region GroupByAggregateChainComposition
@@ -2511,6 +2652,35 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             () => AssertQuery(
                 async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_complex_key_without_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer.CustomerID.Substring(0, 1))
+                .Select(g => new { Key = g.Key, Count = g.Skip(1).Take(2) }),
+            elementSorter: e => (e.Key, e.Count),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Count, a.Count);
+            },
+            entryCount: 42);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_selecting_grouping_key_list(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => new { g.Key, Data = g.Select(e => e.CustomerID).ToList() }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Key, a.Key);
+                AssertCollection(e.Data, a.Data);
+            });
 
     #endregion
 
@@ -2822,6 +2992,25 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                         HasMultipleProducts = info.OrderDetails.GroupBy(e => e.Product.ProductName).Count() > 1
                     }));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_nominal_type_count(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<Order>()
+                    .GroupBy(o => o.CustomerID)
+                    .Select(e => new Result(e.Key)));
+
+    private class Result
+    {
+        private readonly string _customerID;
+
+        public Result(string customerID)
+        {
+            _customerID = customerID;
+        }
+    }
+
     #endregion
 
     # region GroupByInSubquery
@@ -2993,7 +3182,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             },
             entryCount: 15);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue#27130")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
         => AssertQuery(
@@ -3025,7 +3214,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                     }),
             elementSorter: e => e.Key);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue#27130")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
         => AssertQuery(

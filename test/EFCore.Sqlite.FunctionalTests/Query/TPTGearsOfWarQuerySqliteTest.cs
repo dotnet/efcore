@@ -194,6 +194,12 @@ public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collections_with_Distinct(async))).Message);
 
+    public override async Task Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async))).Message);
+
     public override async Task Negate_on_binary_expression(bool async)
     {
         await base.Negate_on_binary_expression(async);

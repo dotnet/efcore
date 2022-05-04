@@ -130,11 +130,11 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
+    public override SqlExpression? TranslateLongCount(SqlEnumerableExpression sqlEnumerableExpression)
         => Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
             Dependencies.SqlExpressionFactory.Function(
                 "COUNT_BIG",
-                new[] { sqlExpression },
+                new[] { sqlEnumerableExpression.Update(sqlEnumerableExpression.SqlExpression, Array.Empty<OrderingExpression>()) },
                 nullable: false,
                 argumentsPropagateNullability: new[] { false },
                 typeof(long)));

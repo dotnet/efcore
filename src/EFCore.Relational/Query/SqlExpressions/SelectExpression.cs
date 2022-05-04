@@ -52,10 +52,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
     private List<Expression> _clientProjections = new();
     private readonly List<string?> _aliasForClientProjections = new();
-
-    private SqlExpression? _groupingCorrelationPredicate;
-    private Guid? _groupingParentSelectExpressionId;
-    private int? _groupingParentSelectExpressionTableCount;
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
     private SelectExpression(
@@ -590,7 +586,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                         || shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault:
                     {
                         var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-                        innerSelectExpression._groupingCorrelationPredicate = null;
                         var innerShaperExpression = shapedQueryExpression.ShaperExpression;
                         if (innerSelectExpression._clientProjections.Count == 0)
                         {
@@ -661,7 +656,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                         when shapedQueryExpression.ResultCardinality == ResultCardinality.Enumerable:
                     {
                         var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-                        innerSelectExpression._groupingCorrelationPredicate = null;
                         if (_identifier.Count == 0
                             || innerSelectExpression._identifier.Count == 0)
                         {
@@ -1128,8 +1122,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private int AddToProjection(SqlExpression sqlExpression, string? alias, bool assignUniqueTableAlias = true)
     {
-        sqlExpression = TryLiftGroupByAggregate(sqlExpression);
-
         var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(sqlExpression));
         if (existingIndex != -1)
         {
@@ -1182,7 +1174,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             sqlExpression = PushdownIntoSubqueryInternal().Remap(sqlExpression);
         }
 
-        sqlExpression = TryLiftGroupByAggregate(sqlExpression);
         sqlExpression = AssignUniqueAliases(sqlExpression);
 
         if (_groupBy.Count > 0)
@@ -1283,7 +1274,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var groupByAliases = new List<string?>();
         PopulateGroupByTerms(keySelectorToAdd, groupByTerms, groupByAliases, "Key");
 
-        if (groupByTerms.Any(e => e is SqlConstantExpression || e is SqlParameterExpression || e is ScalarSubqueryExpression))
+        if (groupByTerms.Any(e => e is not ColumnExpression))
         {
             // emptyKey will always hit this path.
             var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
@@ -1310,18 +1301,12 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         _groupBy.AddRange(groupByTerms);
 
-        // We generate the cloned expression before changing identifier for this SelectExpression
-        // because we are going to erase grouping for cloned expression.
-        _groupingParentSelectExpressionId = Guid.NewGuid();
-
         var clonedSelectExpression = Clone();
         var correlationPredicate = groupByTerms.Zip(clonedSelectExpression._groupBy)
             .Select(e => sqlExpressionFactory.Equal(e.First, e.Second))
             .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
         clonedSelectExpression._groupBy.Clear();
         clonedSelectExpression.ApplyPredicate(correlationPredicate);
-        clonedSelectExpression._groupingCorrelationPredicate = clonedSelectExpression.Predicate;
-        _groupingParentSelectExpressionTableCount = _tables.Count;
 
         if (!_identifier.All(e => _groupBy.Contains(e.Column)))
         {
@@ -1334,6 +1319,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         return new GroupByShaperExpression(
             keySelector,
+            shaperExpression,
             new ShapedQueryExpression(
                 clonedSelectExpression,
                 new QueryExpressionReplacingExpressionVisitor(this, clonedSelectExpression).Visit(shaperExpression)));
@@ -1404,12 +1390,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="orderingExpression">An ordering expression to use for ordering.</param>
     public void AppendOrdering(OrderingExpression orderingExpression)
     {
-        if (_groupBy.Count > 0)
-        {
-            orderingExpression = orderingExpression.Update(
-                (SqlExpression)new GroupByAggregateLiftingExpressionVisitor(this).Visit(orderingExpression.Expression));
-        }
-
         if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
         {
             AppendOrderingInternal(orderingExpression);
@@ -1522,18 +1502,12 @@ public sealed partial class SelectExpression : TableExpressionBase
             Having = Having,
             Offset = Offset,
             Limit = Limit,
-            _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
-            _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
-            _groupingCorrelationPredicate = _groupingCorrelationPredicate
         };
         Offset = null;
         Limit = null;
         IsDistinct = false;
         Predicate = null;
         Having = null;
-        _groupingCorrelationPredicate = null;
-        _groupingParentSelectExpressionId = null;
-        _groupingParentSelectExpressionTableCount = null;
         _groupBy.Clear();
         _orderings.Clear();
         _tables.Clear();
@@ -1617,9 +1591,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
             }
-
-            innerColumn1 = select1.TryLiftGroupByAggregate(innerColumn1);
-            innerColumn2 = select2.TryLiftGroupByAggregate(innerColumn2);
 
             // We have to unique-fy left side since those projections were never uniquified
             // Right side is unique already when we did it when running select2 through it.
@@ -2713,8 +2684,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             Having = Having,
             Offset = Offset,
             Limit = Limit,
-            _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
-            _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount
         };
         subquery._usedAliases = _usedAliases;
         subquery._mutable = false;
@@ -2894,7 +2863,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 if (_clientProjections[i] is ShapedQueryExpression shapedQueryExpression)
                 {
                     _clientProjections[i] = shapedQueryExpression.UpdateQueryExpression(
-                        sqlRemappingVisitor.Visit(shapedQueryExpression.QueryExpression));
+                        sqlRemappingVisitor.Remap((SelectExpression)shapedQueryExpression.QueryExpression));
                 }
             }
         }
@@ -3150,11 +3119,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         // At that point aliases are not uniquified across so we need to match tables
         => Tables.Any(e => ReferenceEquals(e, column.Table));
 
-    private SqlExpression TryLiftGroupByAggregate(SqlExpression sqlExpression)
-        => _groupBy.Count > 0
-            ? (SqlExpression)new GroupByAggregateLiftingExpressionVisitor(this).Visit(sqlExpression)
-            : sqlExpression;
-
     private void AddTable(TableExpressionBase tableExpressionBase, TableReferenceExpression tableReferenceExpression)
     {
         Check.DebugAssert(_tables.Count == _tableReferences.Count, "All the tables should have their associated TableReferences.");
@@ -3259,7 +3223,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             Offset = (SqlExpression?)visitor.Visit(Offset);
             Limit = (SqlExpression?)visitor.Visit(Limit);
-            _groupingCorrelationPredicate = (SqlExpression?)visitor.Visit(_groupingCorrelationPredicate);
 
             var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: true, out _)
                 .Zip(_identifier, (a, b) => (a, b.Comparer))
@@ -3338,9 +3301,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             var limit = (SqlExpression?)visitor.Visit(Limit);
             changed |= limit != Limit;
 
-            var groupingCorrelationPredicate = (SqlExpression?)visitor.Visit(_groupingCorrelationPredicate);
-            changed |= groupingCorrelationPredicate != _groupingCorrelationPredicate;
-
             var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: false, out var identifierChanged);
             changed |= identifierChanged;
 
@@ -3363,9 +3323,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     IsDistinct = IsDistinct,
                     Tags = Tags,
                     _usedAliases = _usedAliases,
-                    _groupingCorrelationPredicate = groupingCorrelationPredicate,
-                    _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
-                    _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
                 };
                 newSelectExpression._mutable = false;
                 newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);

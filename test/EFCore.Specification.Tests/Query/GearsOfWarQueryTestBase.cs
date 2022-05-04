@@ -5929,7 +5929,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         return AssertQueryScalar(
             async,
             ss => ss.Set<Gear>().GroupBy(g => g.FullName.StartsWith(prm)).Select(g => g.Key),
-            ss => ss.Set<Gear>().Select(g => false));
+            ss => ss.Set<Gear>().GroupBy(g => false).Select(g => g.Key));
     }
 
     [ConditionalTheory]

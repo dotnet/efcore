@@ -1192,6 +1192,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         protected override Expression VisitExtension(Expression extensionExpression)
             => extensionExpression is EntityShaperExpression
                 || extensionExpression is ShapedQueryExpression
+                || extensionExpression is GroupByShaperExpression
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
 

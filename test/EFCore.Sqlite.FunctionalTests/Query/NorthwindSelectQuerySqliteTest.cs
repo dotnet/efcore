@@ -282,6 +282,12 @@ FROM ""Orders"" AS ""o""");
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Take_on_correlated_collection_in_first(async))).Message);
 
+    public override async Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async))).Message);
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
