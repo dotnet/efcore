@@ -50,14 +50,4 @@ public class FakeSqlGenerator : UpdateSqlGenerator
         AppendBatchHeaderCalls++;
         base.AppendBatchHeader(commandStringBuilder);
     }
-
-    protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
-        => commandStringBuilder
-            .Append(SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName))
-            .Append(" = ")
-            .Append("provider_specific_identity()");
-
-    protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
-        => commandStringBuilder
-            .Append("provider_specific_rowcount() = ").Append(expectedRowsAffected);
 }
