@@ -490,7 +490,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     break;
                 case EntityState.Added:
                     _currentValue = entry.GetCurrentProviderValue(property);
-                    _write = !mapping.TypeMapping.ProviderValueComparer.Equals(_originalValue, _currentValue);
+                    _write = !mapping.Column.ProviderValueComparer.Equals(_originalValue, _currentValue);
 
                     break;
                 case EntityState.Deleted:
@@ -513,7 +513,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 && (entry.EntityState == EntityState.Unchanged
                     || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
                     || (entry.EntityState == EntityState.Added
-                        && mapping.TypeMapping.ProviderValueComparer.Equals(_originalValue, entry.GetCurrentValue(property)))))
+                        && mapping.Column.ProviderValueComparer.Equals(_originalValue, entry.GetCurrentValue(property)))))
             {
                 if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                     || entry.EntityState == EntityState.Added)

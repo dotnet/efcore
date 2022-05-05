@@ -7,15 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class ValueComparerTest
 {
-    private class SomeDbContext : DbContext
-    {
-        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
-
-        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>(new FakeValueComparer());
-    }
-
     protected class FakeValueComparer : ValueComparer<double>
     {
         public FakeValueComparer()
@@ -33,11 +24,39 @@ public class ValueComparerTest
     [ConditionalFact]
     public void Throws_for_comparer_with_wrong_type()
     {
-        using var context = new SomeDbContext();
+        using var context = new InvalidDbContext();
 
         Assert.Equal(
             CoreStrings.ComparerPropertyMismatch("double", nameof(Foo), nameof(Foo.Bar), "int"),
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+    
+    private class InvalidDbContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>(new FakeValueComparer());
+    }
+
+    [ConditionalFact]
+    public void Throws_for_provider_comparer_with_wrong_type()
+    {
+        using var context = new InvalidProviderDbContext();
+
+        Assert.Equal(
+            CoreStrings.ComparerPropertyMismatch("double", nameof(Foo), nameof(Foo.Bar), "string"),
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+    }
+
+    private class InvalidProviderDbContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>((ValueComparer)null, new FakeValueComparer());
     }
 
     [ConditionalTheory]
@@ -68,7 +87,7 @@ public class ValueComparerTest
         var comparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), new object[] { false });
         if (toNullable)
         {
-            comparer = comparer.ToNonNullNullableComparer();
+            comparer = ToNonNullNullableComparer(comparer);
         }
 
         Assert.True(comparer.Equals(value1, value1));
@@ -84,7 +103,7 @@ public class ValueComparerTest
         var keyComparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), new object[] { true });
         if (toNullable)
         {
-            keyComparer = keyComparer.ToNonNullNullableComparer();
+            keyComparer = ToNonNullNullableComparer(keyComparer);
         }
 
         Assert.True(keyComparer.Equals(value1, value1));
@@ -96,6 +115,49 @@ public class ValueComparerTest
         Assert.True(keyComparer.Equals(null, null));
 
         return comparer;
+    }
+
+    public static ValueComparer ToNonNullNullableComparer(ValueComparer comparer)
+    {
+        var type = comparer.EqualsExpression.Parameters[0].Type;
+        var nullableType = type.MakeNullable();
+
+        var newEqualsParam1 = Expression.Parameter(nullableType, "v1");
+        var newEqualsParam2 = Expression.Parameter(nullableType, "v2");
+        var newHashCodeParam = Expression.Parameter(nullableType, "v");
+        var newSnapshotParam = Expression.Parameter(nullableType, "v");
+
+        return (ValueComparer)Activator.CreateInstance(
+            typeof(NonNullNullableValueComparer<>).MakeGenericType(nullableType),
+            Expression.Lambda(
+                comparer.ExtractEqualsBody(
+                    Expression.Convert(newEqualsParam1, type),
+                    Expression.Convert(newEqualsParam2, type)),
+                newEqualsParam1, newEqualsParam2),
+            Expression.Lambda(
+                comparer.ExtractHashCodeBody(
+                    Expression.Convert(newHashCodeParam, type)),
+                newHashCodeParam),
+            Expression.Lambda(
+                Expression.Convert(
+                    comparer.ExtractSnapshotBody(
+                        Expression.Convert(newSnapshotParam, type)),
+                    nullableType),
+                newSnapshotParam))!;
+    }
+
+    private sealed class NonNullNullableValueComparer<T> : ValueComparer<T>
+    {
+        public NonNullNullableValueComparer(
+            LambdaExpression equalsExpression,
+            LambdaExpression hashCodeExpression,
+            LambdaExpression snapshotExpression)
+            : base(
+                (Expression<Func<T, T, bool>>)equalsExpression,
+                (Expression<Func<T, int>>)hashCodeExpression,
+                (Expression<Func<T, T>>)snapshotExpression)
+        {
+        }
     }
 
     private enum JustAnEnum : ushort

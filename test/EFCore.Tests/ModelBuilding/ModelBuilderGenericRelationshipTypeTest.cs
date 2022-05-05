@@ -14,6 +14,14 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTypeTestModelBuilder(testHelpers, configure);
     }
+    
+    public class GenericNonRelationshipTest : NonRelationshipTestBase
+    {
+        protected override TestModelBuilder CreateTestModelBuilder(
+            TestHelpers testHelpers,
+            Action<ModelConfigurationBuilder>? configure)
+            => new GenericTypeTestModelBuilder(testHelpers, configure);
+    }
 
     private class GenericTypeTestModelBuilder : TestModelBuilder
     {
@@ -66,6 +74,9 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
         protected override TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
             => new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
 
+        protected override TestPropertyBuilder<TProperty> Wrap<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
+            => new GenericTypeTestPropertyBuilder<TProperty>(propertyBuilder);
+
         public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
             Expression<Func<TEntity, TRelatedEntity?>> navigationExpression)
             where TRelatedEntity : class
@@ -75,10 +86,9 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             Expression<Func<TEntity, TRelatedEntity?>> navigationExpression,
             Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
             where TRelatedEntity : class
-            => Wrap(
-                EntityTypeBuilder.OwnsOne(
-                    navigationExpression,
-                    r => buildAction(new GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
+            => Wrap(EntityTypeBuilder.OwnsOne(
+                        navigationExpression,
+                        r => buildAction(new GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
         public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
             Expression<Func<TEntity, TRelatedEntity?>>? navigationExpression = null)
@@ -92,8 +102,33 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             => new GenericTypeTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasMany(navigationExpression));
     }
 
-    private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity,
-        TRelatedEntity>
+    private class GenericTypeTestPropertyBuilder<TProperty> : GenericTestPropertyBuilder<TProperty>
+    {
+        public GenericTypeTestPropertyBuilder(PropertyBuilder<TProperty> propertyBuilder)
+            : base(propertyBuilder)
+        {
+        }
+
+        protected override TestPropertyBuilder<TProperty> Wrap(PropertyBuilder<TProperty> propertyBuilder)
+            => new GenericTypeTestPropertyBuilder<TProperty>(propertyBuilder);
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>()
+            => Wrap(PropertyBuilder.HasConversion(typeof(TProvider)));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion(typeof(TProvider), valueComparer));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(typeof(TProvider), valueComparer, providerComparerType));
+        
+        public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConverter), typeof(TComparer)));
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConverter), typeof(TComparer), typeof(TProviderComparer)));
+    }
+
+    private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {

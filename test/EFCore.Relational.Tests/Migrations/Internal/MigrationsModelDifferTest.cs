@@ -9843,6 +9843,44 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void SeedData_binary_change_custom_comparer()
+        => Execute(
+            source => source.Entity(
+                "EntityWithTwoProperties",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<byte[]>("Value1").HasConversion(typeof(byte[]), null, new RightmostValueComparer());
+                }),
+            source => source.Entity(
+                "EntityWithTwoProperties",
+                x =>
+                {
+                    x.HasData(
+                        new { Id = 42, Value1 = new byte[] { 0, 1 } });
+                }),
+            target => target.Entity(
+                "EntityWithTwoProperties",
+                x =>
+                {
+                    x.HasData(
+                        new { Id = 42, Value1 = new byte[] { 1 } });
+                }),
+            upOps => Assert.Empty(upOps),
+            downOps => Assert.Empty(downOps));
+
+    private class RightmostValueComparer : ValueComparer<byte[]>
+    {
+        public RightmostValueComparer()
+            : base(false)
+        {
+        }
+
+        public override bool Equals(byte[] left, byte[] right)
+            => object.Equals(left[^1], right[^1]);
+    }
+
+    [ConditionalFact]
     public void SeedData_binary_no_change()
         => Execute(
             _ => { },

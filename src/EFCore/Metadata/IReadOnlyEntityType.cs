@@ -638,7 +638,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     <see cref="FindNavigation(string)" /> to find a navigation property.
     /// </remarks>
     /// <param name="name">The property name.</param>
-    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    /// <returns>The property.</returns>
     IReadOnlyProperty GetProperty(string name)
     {
         Check.NotEmpty(name, nameof(name));

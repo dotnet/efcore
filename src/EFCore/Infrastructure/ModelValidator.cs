@@ -868,6 +868,24 @@ public class ModelValidator : IModelValidator
                 {
                     _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
                 }
+                
+                var providerComparer = property.GetProviderValueComparer();
+                if (providerComparer == null)
+                {
+                    continue;
+                }
+
+                var typeMapping = property.GetTypeMapping();
+                var actualProviderClrType = (typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType).UnwrapNullableType();
+
+                if (providerComparer.Type.UnwrapNullableType() != actualProviderClrType)
+                {
+                    throw new InvalidOperationException(CoreStrings.ComparerPropertyMismatch(
+                        providerComparer.Type.ShortDisplayName(),
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        actualProviderClrType.ShortDisplayName()));
+                }
             }
         }
     }

@@ -348,6 +348,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             property.GetValueConverter(),
             property.GetValueComparer(),
             property.GetKeyValueComparer(),
+            property.GetProviderValueComparer(),
             property.GetTypeMapping());
 
     /// <summary>

@@ -710,6 +710,10 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual ConfigurationSource? GetProviderClrTypeConfigurationSource()
         => FindAnnotation(CoreAnnotationNames.ProviderClrType)?.GetConfigurationSource();
 
+    private Type GetEffectiveProviderClrType()
+        => TypeMapping?.Converter?.ProviderClrType
+            ?? ClrType.UnwrapNullableType();
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -814,6 +818,42 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         => ToNullableComparer(GetValueComparer(null)
             ?? TypeMapping?.Comparer);
 
+    private ValueComparer? GetValueComparer(HashSet<IProperty>? checkedProperties)
+    {
+        var comparer = (ValueComparer?)this[CoreAnnotationNames.ValueComparer];
+        if (comparer != null)
+        {
+            return comparer;
+        }
+
+        var principal = (Property?)FindFirstDifferentPrincipal();
+        if (principal == null)
+        {
+            return null;
+        }
+
+        if (checkedProperties == null)
+        {
+            checkedProperties = new HashSet<IProperty>();
+        }
+        else if (checkedProperties.Contains(this))
+        {
+            return null;
+        }
+
+        checkedProperties.Add(this);
+        return principal.GetValueComparer(checkedProperties);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetValueComparerConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.ValueComparer)?.GetConfigurationSource();
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -823,6 +863,99 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual ValueComparer? GetKeyValueComparer()
         => ToNullableComparer(GetValueComparer(null)
             ?? TypeMapping?.KeyComparer);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ValueComparer? SetProviderValueComparer(ValueComparer? comparer, ConfigurationSource configurationSource)
+    {
+        RemoveAnnotation(CoreAnnotationNames.ProviderValueComparerType);
+        return (ValueComparer?)SetOrRemoveAnnotation(CoreAnnotationNames.ProviderValueComparer, comparer, configurationSource)?.Value;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Type? SetProviderValueComparer(Type? comparerType, ConfigurationSource configurationSource)
+    {
+        ValueComparer? comparer = null;
+        if (comparerType != null)
+        {
+            if (!typeof(ValueComparer).IsAssignableFrom(comparerType))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.BadValueComparerType(comparerType.ShortDisplayName(), typeof(ValueComparer).ShortDisplayName()));
+            }
+
+            try
+            {
+                comparer = (ValueComparer?)Activator.CreateInstance(comparerType);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.CannotCreateValueComparer(
+                        comparerType.ShortDisplayName(), nameof(PropertyBuilder.HasConversion)), e);
+            }
+        }
+
+        SetProviderValueComparer(comparer, configurationSource);
+        return (Type?)SetOrRemoveAnnotation(CoreAnnotationNames.ProviderValueComparerType, comparerType, configurationSource)?.Value;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ValueComparer? GetProviderValueComparer()
+        => GetProviderValueComparer(null) ?? (GetEffectiveProviderClrType() == ClrType
+                ? GetKeyValueComparer()
+                : TypeMapping?.ProviderValueComparer);
+
+    private ValueComparer? GetProviderValueComparer(HashSet<IProperty>? checkedProperties)
+    {
+        var comparer = (ValueComparer?)this[CoreAnnotationNames.ProviderValueComparer];
+        if (comparer != null)
+        {
+            return comparer;
+        }
+
+        var principal = (Property?)FindFirstDifferentPrincipal();
+        if (principal == null
+            || principal.GetEffectiveProviderClrType() != GetEffectiveProviderClrType())
+        {
+            return null;
+        }
+
+        if (checkedProperties == null)
+        {
+            checkedProperties = new HashSet<IProperty>();
+        }
+        else if (checkedProperties.Contains(this))
+        {
+            return null;
+        }
+
+        checkedProperties.Add(this);
+        return principal.GetProviderValueComparer(checkedProperties);
+    }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetProviderValueComparerConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.ProviderValueComparer)?.GetConfigurationSource();
 
     private ValueComparer? ToNullableComparer(ValueComparer? valueComparer)
     {
@@ -877,50 +1010,14 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                     Expression.Default(ClrType)),
                 newSnapshotParam))!;
     }
-
-    private ValueComparer? GetValueComparer(HashSet<IProperty>? checkedProperties)
-    {
-        var comparer = (ValueComparer?)this[CoreAnnotationNames.ValueComparer];
-        if (comparer != null)
-        {
-            return comparer;
-        }
-
-        var principal = ((Property?)FindFirstDifferentPrincipal());
-        if (principal == null)
-        {
-            return null;
-        }
-
-        if (checkedProperties == null)
-        {
-            checkedProperties = new HashSet<IProperty>();
-        }
-        else if (checkedProperties.Contains(this))
-        {
-            return null;
-        }
-
-        checkedProperties.Add(this);
-        return principal.GetValueComparer(checkedProperties);
-    }
-
+    
     private IProperty? FindFirstDifferentPrincipal()
     {
         var principal = ((IProperty)this).FindFirstPrincipal();
 
         return principal != this ? principal : null;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetValueComparerConfigurationSource()
-        => FindAnnotation(CoreAnnotationNames.ValueComparer)?.GetConfigurationSource();
-
+    
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1655,4 +1752,58 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     ValueComparer IProperty.GetKeyValueComparer()
         => GetKeyValueComparer()!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableProperty.SetProviderValueComparer(ValueComparer? comparer)
+        => SetProviderValueComparer(comparer, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    ValueComparer? IConventionProperty.SetProviderValueComparer(ValueComparer? comparer, bool fromDataAnnotation)
+        => SetProviderValueComparer(
+            comparer,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableProperty.SetProviderValueComparer(Type? comparerType)
+        => SetProviderValueComparer(comparerType, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    Type? IConventionProperty.SetProviderValueComparer(Type? comparerType, bool fromDataAnnotation)
+        => SetProviderValueComparer(
+            comparerType,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    ValueComparer IProperty.GetProviderValueComparer()
+        => GetProviderValueComparer()!;
 }

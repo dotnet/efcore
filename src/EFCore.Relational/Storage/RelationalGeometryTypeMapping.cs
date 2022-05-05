@@ -27,7 +27,6 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
         : base(CreateRelationalTypeMappingParameters(storeType))
     {
         SpatialConverter = converter;
-        SetProviderValueComparer();
     }
 
     /// <summary>
@@ -38,25 +37,19 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     protected RelationalGeometryTypeMapping(
         RelationalTypeMappingParameters parameters,
         ValueConverter<TGeometry, TProvider>? converter)
-        : base(parameters)
+        : base(parameters.WithCoreParameters(parameters.CoreParameters with
+            {
+                ProviderValueComparer = parameters.CoreParameters.ProviderValueComparer
+                    ?? CreateProviderValueComparer(parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
+            }))
     {
         SpatialConverter = converter;
-        SetProviderValueComparer();
     }
 
-    private void SetProviderValueComparer()
-    {
-        var providerType = Converter?.ProviderClrType ?? ClrType;
-        if (providerType.IsAssignableTo(typeof(TGeometry)))
-        {
-            ProviderValueComparer = (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(providerType))!;
-        }
-    }
-
-    /// <summary>
-    ///     The underlying Geometry converter.
-    /// </summary>
-    protected virtual ValueConverter<TGeometry, TProvider>? SpatialConverter { get; }
+    private static ValueComparer? CreateProviderValueComparer(Type providerType)
+        => providerType.IsAssignableTo(typeof(TGeometry))
+            ? (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(providerType))!
+            : null;
 
     private static RelationalTypeMappingParameters CreateRelationalTypeMappingParameters(string storeType)
     {
@@ -67,9 +60,15 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
                 typeof(TGeometry),
                 null,
                 comparer,
-                comparer),
+                comparer,
+                CreateProviderValueComparer(typeof(TGeometry))),
             storeType);
     }
+
+    /// <summary>
+    ///     The underlying Geometry converter.
+    /// </summary>
+    protected virtual ValueConverter<TGeometry, TProvider>? SpatialConverter { get; }
 
     /// <summary>
     ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
