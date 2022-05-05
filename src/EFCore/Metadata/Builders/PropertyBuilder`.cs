@@ -337,7 +337,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
+    /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>()
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion>();
@@ -346,7 +346,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <param name="providerClrType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
+    /// <param name="providerClrType">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(Type? providerClrType)
         => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType);
@@ -390,7 +390,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
+    /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer)
@@ -400,9 +400,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
+    /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
-    /// <param name="providerComparer">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</param>
+    /// <param name="providerComparer">The comparer to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer, ValueComparer? providerComparer)
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion>(valueComparer, providerComparer);
@@ -411,7 +411,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
+    /// <param name="conversionType">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</param>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(
@@ -423,9 +423,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
+    /// <param name="conversionType">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</param>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
-    /// <param name="providerComparer">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</param>
+    /// <param name="providerComparer">The comparer to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(
         Type conversionType,
@@ -460,7 +460,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <param name="convertToProviderExpression">An expression to convert objects when writing data to the store.</param>
     /// <param name="convertFromProviderExpression">An expression to convert objects when reading data from the store.</param>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
-    /// <param name="providerComparer">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</param>
+    /// <param name="providerComparer">The comparer to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(
         Expression<Func<TProperty, TProvider>> convertToProviderExpression,
@@ -494,7 +494,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <typeparam name="TProvider">The store type generated by the converter.</typeparam>
     /// <param name="converter">The converter to use.</param>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
-    /// <param name="providerComparer">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</param>
+    /// <param name="providerComparer">The comparer to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(
         ValueConverter<TProperty, TProvider>? converter,
@@ -520,7 +520,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// </summary>
     /// <param name="converter">The converter to use.</param>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
-    /// <param name="providerComparer">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</param>
+    /// <param name="providerComparer">The comparer to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(
         ValueConverter? converter,
@@ -532,8 +532,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
-    /// <typeparam name="TComparer">A type that derives from <see cref="ValueComparer" />.</typeparam>
+    /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
+    /// <typeparam name="TComparer">A type that inherits from <see cref="ValueComparer" />.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion<TConversion, TComparer>()
         where TComparer : ValueComparer
@@ -543,9 +543,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
-    /// <typeparam name="TComparer">A type that derives from <see cref="ValueComparer" />.</typeparam>
-    /// <typeparam name="TProviderComparer">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</typeparam>
+    /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
+    /// <typeparam name="TComparer">A type that inherits from <see cref="ValueComparer" />.</typeparam>
+    /// <typeparam name="TProviderComparer">A type that inherits from <see cref="ValueComparer" /> to use for the provider values.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion<TConversion, TComparer, TProviderComparer>()
         where TComparer : ValueComparer
@@ -556,8 +556,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
-    /// <param name="comparerType">A type that derives from <see cref="ValueComparer" />.</param>
+    /// <param name="conversionType">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</param>
+    /// <param name="comparerType">A type that inherits from <see cref="ValueComparer" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(Type conversionType, Type? comparerType)
         => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, comparerType);
@@ -566,9 +566,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the property so that the property value is converted before
     ///     writing to the database and converted back when reading from the database.
     /// </summary>
-    /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
-    /// <param name="comparerType">A type that derives from <see cref="ValueComparer" />.</param>
-    /// <param name="providerComparerType">A type that derives from <see cref="ValueComparer" /> to use for the provider values.</param>
+    /// <param name="conversionType">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</param>
+    /// <param name="comparerType">A type that inherits from <see cref="ValueComparer" />.</param>
+    /// <param name="providerComparerType">A type that inherits from <see cref="ValueComparer" /> to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(Type conversionType, Type? comparerType, Type? providerComparerType)
         => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, comparerType, providerComparerType);
