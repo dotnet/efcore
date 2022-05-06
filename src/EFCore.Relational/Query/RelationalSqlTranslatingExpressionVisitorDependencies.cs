@@ -50,13 +50,15 @@ public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
         IModel model,
         IRelationalTypeMappingSource typeMappingSource,
         IMemberTranslatorProvider memberTranslatorProvider,
-        IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        IMethodCallTranslatorProvider methodCallTranslatorProvider,
+        IEvaluatableExpressionFilter evaluatableExpressionFilter)
     {
         SqlExpressionFactory = sqlExpressionFactory;
         Model = model;
         TypeMappingSource = typeMappingSource;
         MemberTranslatorProvider = memberTranslatorProvider;
         MethodCallTranslatorProvider = methodCallTranslatorProvider;
+        EvaluatableExpressionFilter = evaluatableExpressionFilter;
     }
 
     /// <summary>
@@ -83,4 +85,9 @@ public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
     ///     The method-call translation provider.
     /// </summary>
     public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; init; }
+
+    /// <summary>
+    ///     Evaluatable expression filter.
+    /// </summary>
+    public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; init; }
 }

@@ -57,6 +57,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     private readonly QueryCompilationContext _queryCompilationContext;
     private readonly IModel _model;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
 
@@ -73,6 +74,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         Dependencies = dependencies;
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+        _evaluatableExpressionFilter = dependencies.EvaluatableExpressionFilter;
         _queryCompilationContext = queryCompilationContext;
         _model = queryCompilationContext.Model;
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
@@ -1059,7 +1061,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             .Aggregate((a, b) => Expression.AndAlso(a, b));
     }
 
-    private static Expression GetConstantOrNotTranslated(Expression expression)
+    private Expression GetConstantOrNotTranslated(Expression expression)
         => CanEvaluate(expression)
             ? new SqlConstantExpression(
                 Expression.Constant(
@@ -1371,7 +1373,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
     }
 
-    private static bool CanEvaluate(Expression expression)
+    private bool CanEvaluate(Expression expression)
     {
 #pragma warning disable IDE0066 // Convert switch statement to expression
         switch (expression)
@@ -1380,7 +1382,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             case ConstantExpression:
                 return true;
 
-            case NewExpression newExpression:
+            case NewExpression newExpression when _evaluatableExpressionFilter.IsEvaluatableExpression(newExpression, _model):
                 return newExpression.Arguments.All(e => CanEvaluate(e));
 
             case MemberInitExpression memberInitExpression:
