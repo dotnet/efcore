@@ -771,7 +771,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 var discriminatorProperty = entityType.FindDiscriminatorProperty();
                 if (discriminatorProperty == null)
                 {
-                    // TPT
+                    if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                        && entityType.GetDerivedTypesInclusive().Count(e => !e.IsAbstract()) == 1)
+                    {
+                        return _sqlExpressionFactory.Constant(true);
+                    }
+
+                    // TPT or TPC
                     var discriminatorValues = derivedType.GetTptDiscriminatorValues();
                     if (entityReferenceExpression.SubqueryEntity != null)
                     {

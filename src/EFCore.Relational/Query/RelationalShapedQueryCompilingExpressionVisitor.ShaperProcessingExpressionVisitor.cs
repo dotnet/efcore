@@ -113,8 +113,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
             = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
-        private readonly IDictionary<ParameterExpression, int> _entityTypeIdentifyingExpressionOffsets
-            = new Dictionary<ParameterExpression, int>();
+        private readonly IDictionary<ParameterExpression, object> _entityTypeIdentifyingExpressionInfo
+            = new Dictionary<ParameterExpression, object>();
+        private readonly IDictionary<ProjectionBindingExpression, string> _singleEntityTypeDiscriminatorValues
+            = new Dictionary<ProjectionBindingExpression, string>();
 
         public ShaperProcessingExpressionVisitor(
             RelationalShapedQueryCompilingExpressionVisitor parentVisitor,
@@ -359,7 +361,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 var propertyMap = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
                 _materializationContextBindings[parameterExpression] = propertyMap;
-                _entityTypeIdentifyingExpressionOffsets[parameterExpression] = propertyMap.Values.Max() + 1;
+                _entityTypeIdentifyingExpressionInfo[parameterExpression] =
+                    // If single entity type is being selected in hierarchy then we use the value directly else we store the offset to
+                    // read discriminator value.
+                    _singleEntityTypeDiscriminatorValues.TryGetValue(projectionBindingExpression, out var value)
+                    ? value
+                    : propertyMap.Values.Max() + 1;
+
 
                 var updatedExpression = newExpression.Update(
                     new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
@@ -388,6 +396,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         var entityParameter = Expression.Parameter(entityShaperExpression.Type);
                         _variables.Add(entityParameter);
+                        if (entityShaperExpression.EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+                        {
+                            var concreteTypes = entityShaperExpression.EntityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract()).ToArray();
+                            // Single concrete TPC entity type won't have discriminator column.
+                            // We store the value here and inject it directly rather than reading from server.
+                            if (concreteTypes.Length == 1)
+                                _singleEntityTypeDiscriminatorValues[(ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression]
+                                    = concreteTypes[0].ShortName();
+                        }
+
                         var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(entityShaperExpression);
                         entityMaterializationExpression = Visit(entityMaterializationExpression);
 
@@ -867,12 +885,27 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
                 var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
-                var projectionIndex = property == null
-                    ? _entityTypeIdentifyingExpressionOffsets[mappingParameter]
-                    + methodCallExpression.Arguments[1].GetConstantValue<int>()
-                    : _materializationContextBindings[mappingParameter][property];
-                var projection = _selectExpression.Projection[projectionIndex];
+                int projectionIndex;
+                if (property == null)
+                {
+                    // This is trying to read the computed discriminator value
+                    var storedInfo = _entityTypeIdentifyingExpressionInfo[mappingParameter];
+                    if (storedInfo is string s)
+                    {
+                        // If the value is fixed then there is single entity type and discriminator is not present in query
+                        // We just return the value as-is.
+                        return Expression.Constant(s);
+                    }
 
+                    projectionIndex = (int)_entityTypeIdentifyingExpressionInfo[mappingParameter]
+                        + methodCallExpression.Arguments[1].GetConstantValue<int>();
+                }
+                else
+                {
+                    projectionIndex = _materializationContextBindings[mappingParameter][property];
+                }
+
+                var projection = _selectExpression.Projection[projectionIndex];
                 var nullable = IsNullableProjection(projection);
 
                 Check.DebugAssert(

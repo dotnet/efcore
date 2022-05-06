@@ -577,6 +577,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => new(Expression.Constant(value), typeMapping);
 
     /// <inheritdoc />
+    public virtual SqlConstantExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
+        => new(Expression.Constant(value, type), typeMapping);
+
+    /// <inheritdoc />
     public virtual SelectExpression Select(SqlExpression? projection)
         => new(projection);
 

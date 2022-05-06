@@ -435,8 +435,17 @@ public interface ISqlExpressionFactory
     /// </summary>
     /// <param name="value">A value.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
-    /// <returns>An expression representing a LIKE in a SQL tree.</returns>
+    /// <returns>An expression representing a constant in a SQL tree.</returns>
     SqlConstantExpression Constant(object? value, RelationalTypeMapping? typeMapping = null);
+
+    /// <summary>
+    ///     Creates a new <see cref="SqlConstantExpression" /> which represents a constant in a SQL tree.
+    /// </summary>
+    /// <param name="value">A value.</param>
+    /// <param name="type">The type for the constant. Useful when value is null.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    /// <returns>An expression representing a constant in a SQL tree.</returns>
+    SqlConstantExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlFragmentExpression" /> which represents a SQL token.

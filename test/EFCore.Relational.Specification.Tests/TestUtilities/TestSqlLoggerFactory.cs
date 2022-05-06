@@ -104,8 +104,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var sql = string.Join(
                 "," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""));
 
-            var newBaseLine = $@"            AssertSql(
-                {string.Join("," + indent + "//" + indent, SqlStatements.Take(20).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
+            var newBaseLine = $@"        AssertSql(
+            {string.Join("," + indent + "//" + indent, SqlStatements.Take(20).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
 
 ";
 
