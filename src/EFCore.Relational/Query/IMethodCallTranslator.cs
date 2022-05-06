@@ -33,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         // This is a 6.0.x hack to make trimming work, since the linker doesn't see our GetRequiredRuntimeMethod invocations below
         // (see #26288)
         [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(Math))]
+        [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(DateOnly))]
+        [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(TimeOnly))]
         SqlExpression? Translate(
             SqlExpression? instance,
             MethodInfo method,

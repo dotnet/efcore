@@ -26,6 +26,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The foreign key constraint name.</returns>
         public static string? GetConstraintName(this IReadOnlyForeignKey foreignKey)
         {
+            var tableName = foreignKey.DeclaringEntityType.GetTableName();
+            if (tableName == null)
+            {
+                return null;
+            }
+
             var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
             return annotation != null
                 ? (string?)annotation.Value
@@ -44,6 +50,12 @@ namespace Microsoft.EntityFrameworkCore
             in StoreObjectIdentifier storeObject,
             in StoreObjectIdentifier principalStoreObject)
         {
+            if (storeObject.StoreObjectType != StoreObjectType.Table
+                || principalStoreObject.StoreObjectType != StoreObjectType.Table)
+            {
+                return null;
+            }
+
             var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
             return annotation != null
                 ? (string?)annotation.Value
@@ -85,6 +97,12 @@ namespace Microsoft.EntityFrameworkCore
             in StoreObjectIdentifier storeObject,
             in StoreObjectIdentifier principalStoreObject)
         {
+            if (storeObject.StoreObjectType != StoreObjectType.Table
+                || principalStoreObject.StoreObjectType != StoreObjectType.Table)
+            {
+                return null;
+            }
+
             var propertyNames = foreignKey.Properties.GetColumnNames(storeObject);
             var principalPropertyNames = foreignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
             if (propertyNames == null
