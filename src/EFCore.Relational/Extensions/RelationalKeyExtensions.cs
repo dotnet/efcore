@@ -25,7 +25,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key">The key.</param>
         /// <returns>The key constraint name for this key.</returns>
         public static string? GetName(this IReadOnlyKey key)
-            => key.GetName(StoreObjectIdentifier.Table(key.DeclaringEntityType.GetTableName()!, key.DeclaringEntityType.GetSchema()));
+        {
+            var table = StoreObjectIdentifier.Create(key.DeclaringEntityType, StoreObjectType.Table);
+            return !table.HasValue ? null : key.GetName(table.Value);
+        }
 
         /// <summary>
         ///     Returns the key constraint name for this key for a particular table.
@@ -34,8 +37,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject">The identifier of the containing store object.</param>
         /// <returns>The key constraint name for this key.</returns>
         public static string? GetName(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
-            => (string?)key[RelationalAnnotationNames.Name]
+        {
+            if (storeObject.StoreObjectType != StoreObjectType.Table)
+            {
+                return null;
+            }
+
+            return (string?)key[RelationalAnnotationNames.Name]
                 ?? key.GetDefaultName(storeObject);
+        }
 
         /// <summary>
         ///     Returns the default key constraint name that would be used for this key.
@@ -65,6 +75,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The default key constraint name that would be used for this key.</returns>
         public static string? GetDefaultName(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
+            if (storeObject.StoreObjectType != StoreObjectType.Table)
+            {
+                return null;
+            }
+            
             string? name;
             if (key.IsPrimaryKey())
             {
