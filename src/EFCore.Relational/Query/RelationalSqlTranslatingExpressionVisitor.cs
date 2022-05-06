@@ -852,9 +852,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         var operand = Visit(unaryExpression.Operand);
 
         if (operand is EntityReferenceExpression entityReferenceExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked
-                || unaryExpression.NodeType == ExpressionType.TypeAs))
+            && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
             return entityReferenceExpression.Convert(unaryExpression.Type);
         }
@@ -877,8 +875,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             case ExpressionType.ConvertChecked:
             case ExpressionType.TypeAs:
                 // Object convert needs to be converted to explicit cast when mismatching types
-                if (operand.Type.IsInterface
-                    && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                if (operand.Type.IsInterface && unaryExpression.Type.IsAssignableTo(operand.Type)
+                    || unaryExpression.Type.IsInterface && operand.Type.IsAssignableTo(unaryExpression.Type)
                     || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
                     || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                 {
