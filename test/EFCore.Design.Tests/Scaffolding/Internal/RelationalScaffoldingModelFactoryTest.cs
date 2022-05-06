@@ -51,6 +51,14 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [ConditionalFact]
+    public void Capitalize_DatabaseName()
+    {
+        var database = new DatabaseModel { DatabaseName = "northwind" };
+        var model = _factory.Create(database, new ModelReverseEngineerOptions { UseDatabaseNames = true });
+        Assert.Equal("Northwind", model.GetDatabaseName());
+    }
+
+    [ConditionalFact]
     public void Creates_entity_types()
     {
         var info = new DatabaseModel
