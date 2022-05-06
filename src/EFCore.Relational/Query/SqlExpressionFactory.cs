@@ -56,11 +56,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
             CollateExpression e => ApplyTypeMappingOnCollate(e, typeMapping),
+            DistinctExpression e => ApplyTypeMappingOnDistinct(e, typeMapping),
             InExpression e => ApplyTypeMappingOnIn(e),
             LikeExpression e => ApplyTypeMappingOnLike(e),
             SqlBinaryExpression e => ApplyTypeMappingOnSqlBinary(e, typeMapping),
             SqlConstantExpression e => e.ApplyTypeMapping(typeMapping),
-            SqlEnumerableExpression e => ApplyTypeMappingOnSqlEnumerable(e, typeMapping),
             SqlFragmentExpression e => e,
             SqlFunctionExpression e => e.ApplyTypeMapping(typeMapping),
             SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
@@ -107,6 +107,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         CollateExpression collateExpression,
         RelationalTypeMapping? typeMapping)
         => collateExpression.Update(ApplyTypeMapping(collateExpression.Operand, typeMapping));
+
+    private SqlExpression ApplyTypeMappingOnDistinct(
+       DistinctExpression distinctExpression,
+       RelationalTypeMapping? typeMapping)
+       => distinctExpression.Update(ApplyTypeMapping(distinctExpression.Operand, typeMapping));
 
     private SqlExpression ApplyTypeMappingOnSqlUnary(
         SqlUnaryExpression sqlUnaryExpression,
@@ -216,20 +221,6 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ApplyTypeMapping(right, inferredTypeMapping),
             resultType,
             resultTypeMapping);
-    }
-
-    private SqlExpression ApplyTypeMappingOnSqlEnumerable(
-        SqlEnumerableExpression sqlEnumerableExpression, RelationalTypeMapping? typeMapping)
-    {
-        var sqlExpression = ApplyTypeMapping(sqlEnumerableExpression.SqlExpression, typeMapping);
-
-        var orderings = new List<OrderingExpression>();
-        foreach (var ordering in sqlEnumerableExpression.Orderings)
-        {
-            orderings.Add(ordering.Update(ApplyDefaultTypeMapping(ordering.Expression)));
-        }
-
-        return sqlEnumerableExpression.Update(sqlExpression, orderings);
     }
 
     private SqlExpression ApplyTypeMappingOnIn(InExpression inExpression)

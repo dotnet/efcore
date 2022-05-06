@@ -507,31 +507,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitSqlEnumerable(SqlEnumerableExpression sqlEnumerableExpression)
-    {
-        if (sqlEnumerableExpression.Orderings.Count != 0)
-        {
-            // TODO: Throw error here because we don't know how to print orderings.
-            // Though providers can override this method and generate orderings if they have a way to print it.
-            throw new InvalidOperationException();
-        }
-
-        if (sqlEnumerableExpression.IsDistinct)
-        {
-            _relationalCommandBuilder.Append("DISTINCT (");
-        }
-
-        Visit(sqlEnumerableExpression.SqlExpression);
-
-        if (sqlEnumerableExpression.IsDistinct)
-        {
-            _relationalCommandBuilder.Append(")");
-        }
-
-        return sqlEnumerableExpression;
-    }
-
-    /// <inheritdoc />
     protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
         _relationalCommandBuilder
@@ -632,6 +607,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             .Append(collateExpression.Collation);
 
         return collateExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitDistinct(DistinctExpression distinctExpression)
+    {
+        _relationalCommandBuilder.Append("DISTINCT (");
+        Visit(distinctExpression.Operand);
+        _relationalCommandBuilder.Append(")");
+
+        return distinctExpression;
     }
 
     /// <inheritdoc />

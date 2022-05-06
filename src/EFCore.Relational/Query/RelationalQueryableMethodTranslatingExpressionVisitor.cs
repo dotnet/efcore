@@ -1461,7 +1461,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private ShapedQueryExpression? TranslateAggregateWithPredicate(
         ShapedQueryExpression source,
         LambdaExpression? predicate,
-        Func<SqlEnumerableExpression, SqlExpression?> aggregateTranslator,
+        Func<SqlExpression, SqlExpression?> aggregateTranslator,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -1480,7 +1480,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         HandleGroupByForAggregate(selectExpression, eraseProjection: true);
 
-        var translation = aggregateTranslator(new SqlEnumerableExpression(_sqlExpressionFactory.Fragment("*"), distinct: false, null));
+        var translation = aggregateTranslator(_sqlExpressionFactory.Fragment("*"));
         if (translation == null)
         {
             return null;
@@ -1500,7 +1500,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private ShapedQueryExpression? TranslateAggregateWithSelector(
         ShapedQueryExpression source,
         LambdaExpression? selector,
-        Func<SqlEnumerableExpression, SqlExpression?> aggregateTranslator,
+        Func<SqlExpression, SqlExpression?> aggregateTranslator,
         bool throwWhenEmpty,
         Type resultType)
     {
@@ -1541,7 +1541,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        var projection = aggregateTranslator(new SqlEnumerableExpression(translatedSelector, distinct: false, null));
+        var projection = aggregateTranslator(translatedSelector);
         if (projection == null)
         {
             return null;
