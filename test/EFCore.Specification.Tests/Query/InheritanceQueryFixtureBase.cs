@@ -386,6 +386,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         if (EnableFilters)
         {
             modelBuilder.Entity<Animal>().HasQueryFilter(a => a.CountryId == 1);
+            modelBuilder.Entity<Eagle>().HasQueryFilter(e => e.Group == EagleGroup.Booted);
         }
 
         modelBuilder.Entity<AnimalQuery>().HasNoKey();

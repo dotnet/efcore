@@ -165,9 +165,6 @@
   <data name="BadDependencyRegistration" xml:space="preserve">
     <value>The service dependencies type '{dependenciesType}' has been registered incorrectly in the service collection. Service dependencies types must only be registered by Entity Framework or database providers.</value>
   </data>
-  <data name="BadFilterDerivedType" xml:space="preserve">
-    <value>The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type '{rootType}'.</value>
-  </data>
   <data name="BadFilterExpression" xml:space="preserve">
     <value>The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return bool.</value>
   </data>

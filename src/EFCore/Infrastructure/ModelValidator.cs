@@ -883,22 +883,10 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            if (entityType.GetQueryFilter() != null)
+            if (entityType.GetQueryFilter() != null && entityType.IsOwned())
             {
-                if (entityType.BaseType != null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.BadFilterDerivedType(
-                            entityType.GetQueryFilter(),
-                            entityType.DisplayName(),
-                            entityType.GetRootType().DisplayName()));
-                }
-
-                if (entityType.IsOwned())
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.BadFilterOwnedType(entityType.GetQueryFilter(), entityType.DisplayName()));
-                }
+                throw new InvalidOperationException(
+                    CoreStrings.BadFilterOwnedType(entityType.GetQueryFilter(), entityType.DisplayName()));
             }
 
             var requiredNavigationWithQueryFilter = entityType

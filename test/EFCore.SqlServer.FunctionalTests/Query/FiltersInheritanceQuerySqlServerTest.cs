@@ -19,7 +19,7 @@ public class FiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestB
         AssertSql(
             @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1))
 ORDER BY [a].[Species]");
     }
 
@@ -30,7 +30,7 @@ ORDER BY [a].[Species]");
         AssertSql(
             @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi'");
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1)) AND [a].[Discriminator] = N'Kiwi'");
     }
 
     public override async Task Can_use_is_kiwi_with_other_predicate(bool async)
@@ -40,7 +40,7 @@ WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi'");
         AssertSql(
             @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1");
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1)) AND [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1");
     }
 
     public override async Task Can_use_is_kiwi_in_projection(bool async)
@@ -53,7 +53,7 @@ WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] 
     ELSE CAST(0 AS bit)
 END
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1");
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1))");
     }
 
     public override async Task Can_use_of_type_bird(bool async)
@@ -63,7 +63,7 @@ WHERE [a].[CountryId] = 1");
         AssertSql(
             @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1))
 ORDER BY [a].[Species]");
     }
 
@@ -74,7 +74,7 @@ ORDER BY [a].[Species]");
         AssertSql(
             @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[CountryId] = 1
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1)) AND [a].[CountryId] = 1
 ORDER BY [a].[Species]");
     }
 
@@ -85,7 +85,7 @@ ORDER BY [a].[Species]");
         AssertSql(
             @"SELECT [a].[EagleId]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1");
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1))");
     }
 
     public override async Task Can_use_of_type_bird_first(bool async)
@@ -95,7 +95,7 @@ WHERE [a].[CountryId] = 1");
         AssertSql(
             @"SELECT TOP(1) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1))
 ORDER BY [a].[Species]");
     }
 
@@ -106,7 +106,7 @@ ORDER BY [a].[Species]");
         AssertSql(
             @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi'");
+WHERE [a].[CountryId] = 1 AND ([a].[Discriminator] <> N'Eagle' OR ([a].[Discriminator] = N'Eagle' AND [a].[Group] = 1)) AND [a].[Discriminator] = N'Kiwi'");
     }
 
     public override async Task Can_use_derived_set(bool async)
@@ -116,7 +116,7 @@ WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi'");
         AssertSql(
             @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] = N'Eagle' AND [a].[CountryId] = 1");
+WHERE [a].[Discriminator] = N'Eagle' AND [a].[CountryId] = 1 AND [a].[Group] = 1");
     }
 
     private void AssertSql(params string[] expected)

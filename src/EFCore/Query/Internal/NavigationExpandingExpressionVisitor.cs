@@ -1622,11 +1622,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         if (!_queryCompilationContext.IgnoreQueryFilters)
         {
             var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
-            var rootEntityType = entityType.GetRootType();
-            var queryFilter = rootEntityType.GetQueryFilter();
-            if (queryFilter != null)
+            
+            LambdaExpression? combinedPredicate = null;
+
+            // check for query filters for all related (derived and base) types
+            foreach (var filteredEntityType in entityType.GetAllBaseTypesInclusive().Concat(entityType.GetDerivedTypes()))
             {
-                if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
+                var queryFilter = filteredEntityType.GetQueryFilter();
+                if (queryFilter is null)
+                {
+                    continue;
+                }
+
+                if (!_parameterizedQueryFilterPredicateCache.TryGetValue(filteredEntityType, out var filterPredicate))
                 {
                     filterPredicate = queryFilter;
                     filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(filterPredicate);
@@ -1635,12 +1643,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // We need to do entity equality, but that requires a full method call on a query root to properly flow the
                     // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
                     var filterWrapper = Expression.Call(
-                        QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
-                        new QueryRootExpression(rootEntityType),
+                        QueryableMethods.Where.MakeGenericMethod(filteredEntityType.ClrType),
+                        new QueryRootExpression(filteredEntityType),
                         filterPredicate);
                     filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
 
-                    _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
+                    _parameterizedQueryFilterPredicateCache[filteredEntityType] = filterPredicate;
                 }
 
                 filterPredicate =
@@ -1653,14 +1661,41 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 {
                     var newFilterPredicateParameter = Expression.Parameter(sequenceType, filterPredicateParameter.Name);
                     var newFilterPredicateBody = ReplacingExpressionVisitor.Replace(
-                        filterPredicateParameter, newFilterPredicateParameter, filterPredicate.Body);
+                        filterPredicateParameter, Expression.TypeAs(newFilterPredicateParameter, filteredEntityType.ClrType), filterPredicate.Body);
                     filterPredicate = Expression.Lambda(newFilterPredicateBody, newFilterPredicateParameter);
                 }
+                
+                // wrap filters for derived types in (!(x is DerivedType) || (x is DerivedType && filterPredicate))
+                if (filteredEntityType.BaseType is not null)
+                {
+                    var param = filterPredicate.Parameters[0];
+                    var isType = Expression.TypeIs(param, filteredEntityType.ClrType);
+                    var wrappedFilter = Expression.OrElse(Expression.Not(isType), Expression.AndAlso(isType, filterPredicate.Body));
+                    
+                    filterPredicate = Expression.Lambda(wrappedFilter, param);
+                }
+                
+                // combine with existing predicate since it's possible to have more than one query filter active at a time
+                if (combinedPredicate is not null)
+                {
+                    var newFilterPredicateBody = ReplacingExpressionVisitor.Replace(
+                        filterPredicate.Parameters[0], combinedPredicate.Parameters[0], filterPredicate.Body);
+                    
+                    var combinedBody = Expression.AndAlso(combinedPredicate.Body, newFilterPredicateBody);
+                    combinedPredicate = Expression.Lambda(combinedBody, combinedPredicate.Parameters[0]);
+                }
+                else
+                {
+                    combinedPredicate = filterPredicate;
+                }
+            }
 
+            if (combinedPredicate is not null)
+            {
                 var filteredResult = Expression.Call(
                     QueryableMethods.Where.MakeGenericMethod(sequenceType),
                     navigationExpansionExpression,
-                    filterPredicate);
+                    combinedPredicate);
 
                 return Visit(filteredResult);
             }

@@ -27,7 +27,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1))
 ORDER BY [a].[Species]");
     }
 
@@ -44,7 +44,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1 AND [k].[Species] IS NOT NULL");
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1)) AND [k].[Species] IS NOT NULL");
     }
 
     public override async Task Can_use_is_kiwi_with_other_predicate(bool async)
@@ -60,7 +60,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1 AND [k].[Species] IS NOT NULL AND [a].[CountryId] = 1");
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1)) AND [k].[Species] IS NOT NULL AND [a].[CountryId] = 1");
     }
 
     public override async Task Can_use_is_kiwi_in_projection(bool async)
@@ -73,8 +73,9 @@ WHERE [a].[CountryId] = 1 AND [k].[Species] IS NOT NULL AND [a].[CountryId] = 1"
     ELSE CAST(0 AS bit)
 END
 FROM [Animals] AS [a]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1");
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1))");
     }
 
     public override async Task Can_use_of_type_bird(bool async)
@@ -90,7 +91,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1 AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1)) AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)
 ORDER BY [a].[Species]");
     }
 
@@ -107,7 +108,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1 AND [a].[CountryId] = 1 AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1)) AND [a].[CountryId] = 1 AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)
 ORDER BY [a].[Species]");
     }
 
@@ -121,7 +122,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1 AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)");
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1)) AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)");
     }
 
     public override async Task Can_use_of_type_bird_first(bool async)
@@ -137,7 +138,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1 AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1)) AND ([k].[Species] IS NOT NULL OR [e].[Species] IS NOT NULL)
 ORDER BY [a].[Species]");
     }
 
@@ -151,8 +152,9 @@ ORDER BY [a].[Species]");
 END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-WHERE [a].[CountryId] = 1 AND [k].[Species] IS NOT NULL");
+WHERE [a].[CountryId] = 1 AND ([e].[Species] IS NULL OR ([e].[Species] IS NOT NULL AND [e].[Group] = 1)) AND [k].[Species] IS NOT NULL");
     }
 
     public override async Task Can_use_derived_set(bool async)
@@ -164,7 +166,7 @@ WHERE [a].[CountryId] = 1 AND [k].[Species] IS NOT NULL");
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 INNER JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
-WHERE [a].[CountryId] = 1");
+WHERE [a].[CountryId] = 1 AND [e].[Group] = 1");
     }
 
     private void AssertSql(params string[] expected)

@@ -155,14 +155,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependenciesType);
 
         /// <summary>
-        ///     The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type '{rootType}'.
-        /// </summary>
-        public static string BadFilterDerivedType(object? filter, object? entityType, object? rootType)
-            => string.Format(
-                GetString("BadFilterDerivedType", nameof(filter), nameof(entityType), nameof(rootType)),
-                filter, entityType, rootType);
-
-        /// <summary>
         ///     The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return bool.
         /// </summary>
         public static string BadFilterExpression(object? filter, object? entityType, object? clrType)

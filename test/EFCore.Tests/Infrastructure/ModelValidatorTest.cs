@@ -168,20 +168,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_filter_on_derived_type()
-    {
-        var modelBuilder = CreateConventionalModelBuilder();
-        var entityTypeA = modelBuilder.Entity<A>().Metadata;
-        var entityTypeD = modelBuilder.Entity<D>().Metadata;
-
-        entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
-
-        VerifyError(
-            CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
-            modelBuilder);
-    }
-
-    [ConditionalFact]
     public virtual void Detects_filter_on_owned_type()
     {
         var modelBuilder = CreateConventionalModelBuilder();
