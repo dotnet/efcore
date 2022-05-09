@@ -142,7 +142,7 @@ public class Table : TableBase, ITable
 
     /// <inheritdoc />
     public virtual bool IsExcludedFromMigrations
-        => EntityTypeMappings.First().EntityType.IsTableExcludedFromMigrations();
+        => EntityTypeMappings.First().EntityType.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table(Name, Schema));
 
     /// <inheritdoc />
     public override IColumnBase? FindColumn(IProperty property)

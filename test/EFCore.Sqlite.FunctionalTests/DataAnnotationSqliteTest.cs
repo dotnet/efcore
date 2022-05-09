@@ -16,12 +16,14 @@ public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnn
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
+    protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
+
     public override IModel Non_public_annotations_are_enabled()
     {
         var model = base.Non_public_annotations_are_enabled();
 
         var relational = GetProperty<PrivateMemberAnnotationClass>(model, "PersonFirstName");
-        Assert.Equal("dsdsd", relational.GetColumnBaseName());
+        Assert.Equal("dsdsd", relational.GetColumnName());
         Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
         return model;
@@ -32,7 +34,7 @@ public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnn
         var model = base.Field_annotations_are_enabled();
 
         var relational = GetProperty<FieldAnnotationClass>(model, "_personFirstName");
-        Assert.Equal("dsdsd", relational.GetColumnBaseName());
+        Assert.Equal("dsdsd", relational.GetColumnName());
         Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
         return model;
@@ -43,7 +45,7 @@ public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnn
         var model = base.Key_and_column_work_together();
 
         var relational = GetProperty<ColumnKeyAnnotationClass1>(model, "PersonFirstName");
-        Assert.Equal("dsdsd", relational.GetColumnBaseName());
+        Assert.Equal("dsdsd", relational.GetColumnName());
         Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
         return model;

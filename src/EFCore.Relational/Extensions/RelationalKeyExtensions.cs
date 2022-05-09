@@ -68,7 +68,7 @@ public static class RelationalKeyExtensions
                 .Append("AK_")
                 .Append(tableName)
                 .Append('_')
-                .AppendJoin(key.Properties.Select(p => p.GetColumnBaseName()), "_")
+                .AppendJoin(key.Properties.Select(p => p.GetColumnName()), "_")
                 .ToString();
 
         return Uniquifier.Truncate(name, key.DeclaringEntityType.Model.GetMaxIdentifierLength());

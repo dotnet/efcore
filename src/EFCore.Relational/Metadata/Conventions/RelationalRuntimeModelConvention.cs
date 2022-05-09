@@ -138,6 +138,23 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             annotations[RelationalAnnotationNames.SqlQuery] = entityType.GetSqlQuery();
             annotations[RelationalAnnotationNames.FunctionName] = entityType.GetFunctionName();
 
+            if (annotations.TryGetValue(RelationalAnnotationNames.MappingFragments, out var mappingFragments))
+            {
+                var entityTypeMappingFragment = (IReadOnlyStoreObjectDictionary<IEntityTypeMappingFragment>)mappingFragments!;
+                var runtimeEntityTypeMappingFragment = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();
+                foreach (var fragment in entityTypeMappingFragment.GetValues())
+                {
+                    var runtimeMappingFragment = Create(fragment, runtimeEntityType);
+                    runtimeEntityTypeMappingFragment.Add(fragment.StoreObject, runtimeMappingFragment);
+
+                    CreateAnnotations(fragment, runtimeMappingFragment,
+                        static (convention, annotations, source, target, runtime) =>
+                            convention.ProcessEntityTypeMappingFragmentAnnotations(annotations, source, target, runtime));
+                }
+
+                annotations[RelationalAnnotationNames.MappingFragments] = runtimeEntityTypeMappingFragment;
+            }
+
             if (annotations.TryGetValue(RelationalAnnotationNames.Triggers, out var triggers))
             {
                 var runtimeTriggers = new SortedDictionary<string, ITrigger>(StringComparer.Ordinal);
@@ -155,6 +172,29 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
                 annotations[RelationalAnnotationNames.Triggers] = runtimeTriggers;
             }
         }
+    }
+
+    private static RuntimeEntityTypeMappingFragment Create(
+        IEntityTypeMappingFragment entityTypeMappingFragment,
+        RuntimeEntityType runtimeEntityType)
+        => new(
+            runtimeEntityType,
+            entityTypeMappingFragment.StoreObject,
+            entityTypeMappingFragment.IsTableExcludedFromMigrations);
+
+    /// <summary>
+    ///     Updates the relational property overrides annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="entityTypeMappingFragment">The source relational property overrides.</param>
+    /// <param name="runtimeEntityTypeMappingFragment">The target relational property overrides that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessEntityTypeMappingFragmentAnnotations(
+        Dictionary<string, object?> annotations,
+        IEntityTypeMappingFragment entityTypeMappingFragment,
+        RuntimeEntityTypeMappingFragment runtimeEntityTypeMappingFragment,
+        bool runtime)
+    {
     }
 
     private void CreateAnnotations<TSource, TTarget>(
@@ -283,21 +323,21 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             annotations.Remove(RelationalAnnotationNames.Comment);
             annotations.Remove(RelationalAnnotationNames.Collation);
 
-            if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var overrides))
+            if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var relationalOverrides))
             {
-                var runtimePropertyOverrides = new SortedDictionary<StoreObjectIdentifier, object>();
-                foreach (var (storeObjectIdentifier, value) in (SortedDictionary<StoreObjectIdentifier, object>?)overrides!)
+                var tableOverrides = (IReadOnlyStoreObjectDictionary<IRelationalPropertyOverrides>)relationalOverrides!;
+                var runtimeTableOverrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
+                foreach (var overrides in tableOverrides.GetValues())
                 {
-                    var runtimeOverrides = Create((IRelationalPropertyOverrides)value, runtimeProperty);
-                    runtimePropertyOverrides[storeObjectIdentifier] = runtimeOverrides;
+                    var runtimeOverrides = Create(overrides, runtimeProperty);
+                    runtimeTableOverrides.Add(overrides.StoreObject, runtimeOverrides);
 
-                    CreateAnnotations(
-                        (IRelationalPropertyOverrides)value, runtimeOverrides,
+                    CreateAnnotations(overrides, runtimeOverrides,
                         static (convention, annotations, source, target, runtime) =>
                             convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
                 }
 
-                annotations[RelationalAnnotationNames.RelationalOverrides] = runtimePropertyOverrides;
+                annotations[RelationalAnnotationNames.RelationalOverrides] = runtimeTableOverrides;
             }
         }
     }
@@ -307,6 +347,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         RuntimeProperty runtimeProperty)
         => new(
             runtimeProperty,
+            propertyOverrides.StoreObject,
             propertyOverrides.ColumnNameOverridden,
             propertyOverrides.ColumnName);
 

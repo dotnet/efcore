@@ -9,15 +9,15 @@ public static class RelationalTestModelBuilderExtensions
 {
     public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasColumnName<TProperty>(
         this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
-        string name)
+        string? name)
     {
         switch (builder)
         {
             case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
                 genericBuilder.Instance.HasColumnName(name);
                 break;
-            case IInfrastructure<PropertyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasColumnName(name);
+            case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasColumnName(name);
                 break;
         }
 
@@ -33,8 +33,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
                 genericBuilder.Instance.HasColumnType(typeName);
                 break;
-            case IInfrastructure<PropertyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasColumnType(typeName);
+            case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasColumnType(typeName);
                 break;
         }
 
@@ -50,8 +50,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
                 genericBuilder.Instance.HasDefaultValueSql(sql);
                 break;
-            case IInfrastructure<PropertyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasDefaultValueSql(sql);
+            case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasDefaultValueSql(sql);
                 break;
         }
 
@@ -67,8 +67,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
                 genericBuilder.Instance.HasComputedColumnSql(sql);
                 break;
-            case IInfrastructure<PropertyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasComputedColumnSql(sql);
+            case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasComputedColumnSql(sql);
                 break;
         }
 
@@ -84,8 +84,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
                 genericBuilder.Instance.HasDefaultValue(value);
                 break;
-            case IInfrastructure<PropertyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasDefaultValue(value);
+            case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasDefaultValue(value);
                 break;
         }
 
@@ -101,8 +101,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
                 genericBuilder.Instance.IsFixedLength(fixedLength);
                 break;
-            case IInfrastructure<PropertyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.IsFixedLength(fixedLength);
+            case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.IsFixedLength(fixedLength);
                 break;
         }
 
@@ -118,8 +118,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.UseTpcMappingStrategy();
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.UseTpcMappingStrategy();
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UseTpcMappingStrategy();
                 break;
         }
 
@@ -135,8 +135,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.UseTphMappingStrategy();
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.UseTphMappingStrategy();
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UseTphMappingStrategy();
                 break;
         }
 
@@ -152,8 +152,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.UseTptMappingStrategy();
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.UseTptMappingStrategy();
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UseTptMappingStrategy();
                 break;
         }
 
@@ -170,8 +170,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(name);
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(name);
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(name);
                 break;
         }
 
@@ -189,8 +189,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(name, schema);
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(name, schema);
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(name, schema);
                 break;
         }
 
@@ -207,8 +207,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TEntity>(b)));
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(
                     b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
                 break;
         }
@@ -218,7 +218,7 @@ public static class RelationalTestModelBuilderExtensions
 
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToTable<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
-        string? name,
+        string name,
         Action<RelationalModelBuilderTest.TestTableBuilder<TEntity>> buildAction)
         where TEntity : class
     {
@@ -229,8 +229,8 @@ public static class RelationalTestModelBuilderExtensions
                     name,
                     b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TEntity>(b)));
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(
                     name,
                     b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
                 break;
@@ -253,8 +253,8 @@ public static class RelationalTestModelBuilderExtensions
                     name, schema,
                     b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TEntity>(b)));
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(
                     name, schema,
                     b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
                 break;
@@ -263,109 +263,215 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? name)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(name);
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(name);
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(name);
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string name,
         string? schema)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(name, schema);
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(name, schema);
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(name, schema);
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
-        Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(
-                    b => buildAction(new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
-        string? name,
-        Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(
                     name,
-                    b => buildAction(new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(
                     name,
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToTable<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string name,
         string? schema,
-        Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
+        Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.ToTable(
                     name, schema,
-                    b => buildAction(new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToTable(
                     name, schema,
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> SplitToTable<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestSplitTableBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToTable(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestSplitTableBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToTable(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestSplitTableBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> SplitToTable<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestSplitTableBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToTable(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestSplitTableBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToTable(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestSplitTableBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToTable<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>> buildAction)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToTable(
+                    name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToTable(
+                    name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToTable<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>> buildAction)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToTable(
+                    name, schema,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToTable(
+                    name, schema,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(b)));
                 break;
         }
 
@@ -374,16 +480,16 @@ public static class RelationalTestModelBuilderExtensions
 
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToView<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
-        string? schema)
+        string? name)
         where TEntity : class
     {
         switch (builder)
         {
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.ToView(schema);
+                genericBuilder.Instance.ToView(name);
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToView(schema);
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name);
                 break;
         }
 
@@ -401,53 +507,241 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.ToView(name, schema);
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToView(name, schema);
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name, schema);
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToView<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
-        string? schema)
-        where TOwnerEntity : class
-        where TRelatedEntity : class
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToView<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestViewBuilder<TEntity>> buildAction)
+        where TEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
-                genericBuilder.Instance.ToView(schema);
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestViewBuilder<TEntity>(b)));
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToView(schema);
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestViewBuilder<TEntity>(b)));
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToView<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToView<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestViewBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestViewBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestViewBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string? name)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(name);
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? name,
         string? schema)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.ToView(name, schema);
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToView(name, schema);
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name, schema);
                 break;
         }
 
         return builder;
     }
-    
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>> buildAction)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToView<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>> buildAction)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(name, schema,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToView(name, schema,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> SplitToView<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestSplitViewBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestSplitViewBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestSplitViewBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> SplitToView<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestSplitViewBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToView(name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestSplitViewBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToView(name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestSplitViewBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToView<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>> buildAction)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToView(name,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> SplitToView<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>> buildAction)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.SplitToView(name, schema,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.GenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.SplitToView(name, schema,
+                    b => buildAction(
+                        new RelationalModelBuilderTest.NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
         string name,
@@ -459,8 +753,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.HasCheckConstraint(name, sql);
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasCheckConstraint(name, sql);
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasCheckConstraint(name, sql);
                 break;
         }
 
@@ -481,8 +775,8 @@ public static class RelationalTestModelBuilderExtensions
                     name, sql,
                     b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
                 break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasCheckConstraint(
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasCheckConstraint(
                     name, sql,
                     b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
                 break;
@@ -491,45 +785,45 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> HasCheckConstraint<TOwnerEntity,
-        TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint
+        <TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string name,
         string? sql)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.HasCheckConstraint(name, sql);
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasCheckConstraint(name, sql);
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasCheckConstraint(name, sql);
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> HasCheckConstraint<TOwnerEntity,
-        TRelatedEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint
+        <TOwnerEntity,TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string name,
         string sql,
         Action<RelationalModelBuilderTest.TestCheckConstraintBuilder> buildAction)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.HasCheckConstraint(
                     name, sql,
                     b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasCheckConstraint(
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasCheckConstraint(
                     name, sql,
                     b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
                 break;
@@ -538,59 +832,59 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TRelatedEntity> HasConstraintName<TOwnerEntity, TRelatedEntity>(
-        this ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> HasConstraintName<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnershipBuilder<TOwnerEntity, TDependentEntity> builder,
         string name)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnershipBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<OwnershipBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.HasConstraintName(name);
                 break;
-            case IInfrastructure<OwnershipBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasConstraintName(name);
+            case IInfrastructure<OwnershipBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasConstraintName(name);
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestReferenceReferenceBuilder<TOwnerEntity, TRelatedEntity> HasConstraintName<TOwnerEntity,
-        TRelatedEntity>(
-        this ModelBuilderTest.TestReferenceReferenceBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestReferenceReferenceBuilder<TOwnerEntity, TDependentEntity> HasConstraintName
+        <TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestReferenceReferenceBuilder<TOwnerEntity, TDependentEntity> builder,
         string name)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<ReferenceReferenceBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<ReferenceReferenceBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.HasConstraintName(name);
                 break;
-            case IInfrastructure<ReferenceReferenceBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasConstraintName(name);
+            case IInfrastructure<ReferenceReferenceBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasConstraintName(name);
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestReferenceCollectionBuilder<TOwnerEntity, TRelatedEntity> HasConstraintName<TOwnerEntity,
-        TRelatedEntity>(
-        this ModelBuilderTest.TestReferenceCollectionBuilder<TOwnerEntity, TRelatedEntity> builder,
+    public static ModelBuilderTest.TestReferenceCollectionBuilder<TOwnerEntity, TDependentEntity> HasConstraintName
+        <TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestReferenceCollectionBuilder<TOwnerEntity, TDependentEntity> builder,
         string name)
         where TOwnerEntity : class
-        where TRelatedEntity : class
+        where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<ReferenceCollectionBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+            case IInfrastructure<ReferenceCollectionBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.HasConstraintName(name);
                 break;
-            case IInfrastructure<ReferenceCollectionBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasConstraintName(name);
+            case IInfrastructure<ReferenceCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasConstraintName(name);
                 break;
         }
 
@@ -599,15 +893,15 @@ public static class RelationalTestModelBuilderExtensions
 
     public static ModelBuilderTest.TestIndexBuilder<TEntity> HasFilter<TEntity>(
         this ModelBuilderTest.TestIndexBuilder<TEntity> builder,
-        string filterExpression)
+        string? filterExpression)
     {
         switch (builder)
         {
             case IInfrastructure<IndexBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.HasFilter(filterExpression);
                 break;
-            case IInfrastructure<IndexBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasFilter(filterExpression);
+            case IInfrastructure<IndexBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasFilter(filterExpression);
                 break;
         }
 
@@ -623,8 +917,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<KeyBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.HasName(name);
                 break;
-            case IInfrastructure<KeyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasName(name);
+            case IInfrastructure<KeyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasName(name);
                 break;
         }
 
@@ -640,8 +934,8 @@ public static class RelationalTestModelBuilderExtensions
             case IInfrastructure<KeyBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.HasName(name);
                 break;
-            case IInfrastructure<KeyBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.HasName(name);
+            case IInfrastructure<KeyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasName(name);
                 break;
         }
 

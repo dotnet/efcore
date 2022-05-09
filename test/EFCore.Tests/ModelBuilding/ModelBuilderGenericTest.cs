@@ -114,7 +114,7 @@ public class ModelBuilderGenericTest : ModelBuilderTest
             => new GenericTestModelBuilder(testHelpers, configure);
     }
 
-    protected class GenericTestModelBuilder : TestModelBuilder
+    public class GenericTestModelBuilder : TestModelBuilder
     {
         public GenericTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
             : base(testHelpers, configure)

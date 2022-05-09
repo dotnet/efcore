@@ -123,7 +123,8 @@ public class TableBase : Annotatable, ITableBase
         }
 
         return !OptionalEntityTypes.TryGetValue(entityType, out var optional)
-            ? throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name))
+            ? throw new InvalidOperationException(
+                RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), ((ITableBase)this).SchemaQualifiedName))
             : optional;
     }
 
@@ -131,7 +132,8 @@ public class TableBase : Annotatable, ITableBase
     {
         if (EntityTypeMappings.All(m => m.EntityType != entityType))
         {
-            throw new InvalidOperationException(RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), Name));
+            throw new InvalidOperationException(
+                RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), ((ITableBase)this).SchemaQualifiedName));
         }
     }
 

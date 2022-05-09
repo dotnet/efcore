@@ -1093,12 +1093,13 @@ namespace TestNamespace
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField(""<Id>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            var overrides = new SortedDictionary<StoreObjectIdentifier, object>();
+            var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
             var idPrincipalDerived = new RuntimeRelationalPropertyOverrides(
                 id,
+                StoreObjectIdentifier.Table(""PrincipalDerived"", null),
                 true,
                 ""DerivedId"");
-            overrides[StoreObjectIdentifier.Table(""PrincipalDerived"", null)] = idPrincipalDerived;
+            overrides.Add(StoreObjectIdentifier.Table(""PrincipalDerived"", null), idPrincipalDerived);
             id.AddAnnotation(""Relational:RelationalOverrides"", overrides);
             id.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -1217,6 +1218,31 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             principalBaseAlternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
+            var details = runtimeEntityType.AddProperty(
+                ""Details"",
+                typeof(string),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty(""Details"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField(""<Details>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field,
+                nullable: true);
+            var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
+            var detailsDetails = new RuntimeRelationalPropertyOverrides(
+                details,
+                StoreObjectIdentifier.Table(""Details"", null),
+                false,
+                null);
+            overrides.Add(StoreObjectIdentifier.Table(""Details"", null), detailsDetails);
+            details.AddAnnotation(""Relational:RelationalOverrides"", overrides);
+            details.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+
+            var number = runtimeEntityType.AddProperty(
+                ""Number"",
+                typeof(int),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty(""Number"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField(""<Number>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.Field);
+            number.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+
             var context = runtimeEntityType.AddServiceProperty(
                 ""Context"",
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty(""Context"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
@@ -1253,6 +1279,13 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var fragments = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();
+            var detailsFragment = new RuntimeEntityTypeMappingFragment(
+                runtimeEntityType,
+                StoreObjectIdentifier.Table(""Details"", null),
+                null);
+            fragments.Add(StoreObjectIdentifier.Table(""Details"", null), detailsFragment);
+            runtimeEntityType.AddAnnotation(""Relational:MappingFragments"", fragments);
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
             runtimeEntityType.AddAnnotation(""Relational:Schema"", ""mySchema"");
             runtimeEntityType.AddAnnotation(""Relational:SqlQuery"", null);
@@ -1310,6 +1343,21 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             id.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            var details = runtimeEntityType.AddProperty(
+                ""Details"",
+                typeof(string),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty(""Details"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField(""<Details>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            details.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+
+            var number = runtimeEntityType.AddProperty(
+                ""Number"",
+                typeof(int),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty(""Number"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField(""<Number>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            number.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
             var context = runtimeEntityType.AddServiceProperty(
                 ""Context"",
@@ -1618,9 +1666,13 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => model.GetCollation()).Message);
-                    Assert.Null(model[RelationalAnnotationNames.Collation]);
+                    Assert.Equal(new[]
+                        {
+                            RelationalAnnotationNames.MaxIdentifierLength,
+                            SqlServerAnnotationNames.ValueGenerationStrategy
+                        },
+                        model.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.GetValueGenerationStrategy());
-                    Assert.Null(model[CoreAnnotationNames.PropertyAccessMode]);
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => model.GetPropertyAccessMode()).Message);
@@ -1663,6 +1715,12 @@ namespace TestNamespace
                         Assert.Throws<InvalidOperationException>(() => principalBase.GetSeedData()).Message);
 
                     var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id));
+                    Assert.Equal(new[]
+                        {
+                            RelationalAnnotationNames.RelationalOverrides,
+                            SqlServerAnnotationNames.ValueGenerationStrategy
+                        },
+                        principalId.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(typeof(long?), principalId.ClrType);
                     Assert.Equal(typeof(long?), principalId.PropertyInfo.PropertyType);
                     Assert.Equal(typeof(long?), principalId.FieldInfo.FieldType);
@@ -1672,7 +1730,7 @@ namespace TestNamespace
                     Assert.Equal(PropertySaveBehavior.Save, principalId.GetBeforeSaveBehavior());
                     Assert.Null(principalId[CoreAnnotationNames.BeforeSaveBehavior]);
                     Assert.Null(principalId[CoreAnnotationNames.AfterSaveBehavior]);
-                    Assert.Equal("Id", principalId.GetColumnBaseName());
+                    Assert.Equal("Id", principalId.GetColumnName());
                     Assert.Equal("Id", principalId.GetColumnName(StoreObjectIdentifier.Table("PrincipalBase", "mySchema")));
                     Assert.Equal("DerivedId", principalId.GetColumnName(StoreObjectIdentifier.Table("PrincipalDerived")));
                     Assert.Equal("bigint", principalId.GetColumnType());
@@ -1697,7 +1755,7 @@ namespace TestNamespace
                     Assert.Equal(typeof(Point), principalAlternateId.ClrType);
                     Assert.False(principalAlternateId.IsNullable);
                     Assert.Equal(ValueGenerated.OnAdd, principalAlternateId.ValueGenerated);
-                    Assert.Equal("AlternateId", principalAlternateId.GetColumnBaseName());
+                    Assert.Equal("AlternateId", principalAlternateId.GetColumnName());
                     Assert.Equal("geometry", principalAlternateId.GetColumnType());
                     Assert.Equal(0, ((Point)principalAlternateId.GetDefaultValue()).SRID);
                     Assert.IsType<CastingConverter<Point, Point>>(principalAlternateId.GetValueConverter());
@@ -1713,6 +1771,7 @@ namespace TestNamespace
                     Assert.Equal(2, principalBase.GetIndexes().Count());
 
                     var compositeIndex = principalBase.GetIndexes().First();
+                    Assert.Empty(compositeIndex.GetAnnotations());
                     Assert.Equal(new[] { principalAlternateId, principalId }, compositeIndex.Properties);
                     Assert.False(compositeIndex.IsUnique);
                     Assert.Null(compositeIndex.Name);
@@ -1754,6 +1813,11 @@ namespace TestNamespace
                     Assert.Equal("AK_PrincipalBase_Id", principalAlternateKey.GetName());
 
                     var principalKey = principalBase.GetKeys().Last();
+                    Assert.Equal(new[]
+                        {
+                            RelationalAnnotationNames.Name
+                        },
+                        principalKey.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(new[] { principalId, principalAlternateId }, principalKey.Properties);
                     Assert.True(principalKey.IsPrimaryKey());
                     Assert.Equal("PK", principalKey.GetName());
@@ -1765,6 +1829,11 @@ namespace TestNamespace
                     Assert.Equal(new[] { principalAlternateKey, principalKey }, principalId.GetContainingKeys());
 
                     var referenceOwnedNavigation = principalBase.GetNavigations().Single();
+                    Assert.Equal(new[]
+                        {
+                            CoreAnnotationNames.EagerLoaded
+                        },
+                        referenceOwnedNavigation.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(nameof(PrincipalBase.Owned), referenceOwnedNavigation.Name);
                     Assert.False(referenceOwnedNavigation.IsCollection);
                     Assert.True(referenceOwnedNavigation.IsEagerLoaded);
@@ -1800,7 +1869,14 @@ namespace TestNamespace
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => referenceOwnedType.GetNavigationAccessMode()).Message);
 
+                    var ownedFragment = referenceOwnedType.GetMappingFragments().Single();
+                    Assert.Equal(nameof(OwnedType.Details),
+                        referenceOwnedType.FindProperty(nameof(OwnedType.Details)).GetColumnName(ownedFragment.StoreObject));
+                    Assert.Null(referenceOwnedType.FindProperty(nameof(OwnedType.Details))
+                        .GetColumnName(StoreObjectIdentifier.Create(referenceOwnedType, StoreObjectType.Table).Value));
+
                     var referenceOwnership = referenceOwnedNavigation.ForeignKey;
+                    Assert.Empty(referenceOwnership.GetAnnotations());
                     Assert.Same(referenceOwnership, referenceOwnedType.FindOwnership());
                     Assert.True(referenceOwnership.IsOwnership);
                     Assert.True(referenceOwnership.IsRequired);
@@ -1813,6 +1889,7 @@ namespace TestNamespace
                     Assert.Same(principalKey, referenceOwnership.PrincipalKey);
 
                     var ownedServiceProperty = referenceOwnedType.GetServiceProperties().Single();
+                    Assert.Empty(ownedServiceProperty.GetAnnotations());
                     Assert.Equal(typeof(DbContext), ownedServiceProperty.ClrType);
                     Assert.Equal(typeof(DbContext), ownedServiceProperty.PropertyInfo.PropertyType);
                     Assert.Null(ownedServiceProperty.FieldInfo);
@@ -1938,7 +2015,7 @@ namespace TestNamespace
                     Assert.False(rowid.IsShadowProperty());
                     Assert.True(rowid.IsConcurrencyToken);
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, rowid.ValueGenerated);
-                    Assert.Equal("rowid", rowid.GetColumnBaseName());
+                    Assert.Equal("rowid", rowid.GetColumnName());
                     Assert.Equal("rowversion", rowid.GetColumnType());
                     Assert.Null(rowid[RelationalAnnotationNames.Comment]);
                     Assert.Equal(
@@ -1996,7 +2073,7 @@ namespace TestNamespace
                     Assert.False(dependentData.IsShadowProperty());
                     Assert.False(dependentData.IsConcurrencyToken);
                     Assert.Equal(ValueGenerated.Never, dependentData.ValueGenerated);
-                    Assert.Equal("Data", dependentData.GetColumnBaseName());
+                    Assert.Equal("Data", dependentData.GetColumnName());
                     Assert.Equal("char(20)", dependentData.GetColumnType());
                     Assert.Equal(20, dependentData.GetMaxLength());
                     Assert.False(dependentData.IsUnicode());
@@ -2013,7 +2090,7 @@ namespace TestNamespace
                     Assert.True(dependentMoney.IsShadowProperty());
                     Assert.False(dependentMoney.IsConcurrencyToken);
                     Assert.Equal(ValueGenerated.Never, dependentMoney.ValueGenerated);
-                    Assert.Equal("Money", dependentMoney.GetColumnBaseName());
+                    Assert.Equal("Money", dependentMoney.GetColumnName());
                     Assert.Equal("decimal(9,3)", dependentMoney.GetColumnType());
                     Assert.Null(dependentMoney.GetMaxLength());
                     Assert.Null(dependentMoney.IsUnicode());
@@ -2103,6 +2180,8 @@ namespace TestNamespace
                             {
                                 ob.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
                                 ob.UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                                ob.SplitToTable("Details", s => s.Property(e => e.Details));
                             });
 
                         eb.Navigation(e => e.Owned).IsRequired().HasField("_ownedField")
@@ -2671,6 +2750,9 @@ namespace TestNamespace
                     PropertyChanging?.Invoke(this, new PropertyChangingEventArgs("Context"));
                 }
             }
+
+            public int Number { get; set; }
+            public string Details { get; set; }
 
             public event PropertyChangedEventHandler PropertyChanged;
             public event PropertyChangingEventHandler PropertyChanging;
@@ -3853,7 +3935,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(typeof(Point), point.ClrType);
                     Assert.True(point.IsNullable);
                     Assert.Equal(ValueGenerated.Never, point.ValueGenerated);
-                    Assert.Equal("Point", point.GetColumnBaseName());
+                    Assert.Equal("Point", point.GetColumnName());
                     Assert.Equal("POINT", point.GetColumnType());
                     Assert.Null(point.GetValueConverter());
                     Assert.IsType<GeometryValueComparer<Point>>(point.GetValueComparer());

@@ -84,7 +84,7 @@ public static class RelationalForeignKeyExtensions
             .Append('_')
             .Append(principalTableName)
             .Append('_')
-            .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnBaseName()), "_")
+            .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnName()), "_")
             .ToString();
 
         return Uniquifier.Truncate(name, foreignKey.DeclaringEntityType.Model.GetMaxIdentifierLength());

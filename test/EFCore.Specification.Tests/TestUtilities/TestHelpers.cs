@@ -200,7 +200,14 @@ public abstract class TestHelpers
 
         customServices.AddScoped(_ => validationLogger);
 
-        var contextServices = CreateContextServices(customServices);
+        return CreateConventionBuilder(CreateContextServices(customServices), configure, validationLogger);
+    }
+
+    public TestModelBuilder CreateConventionBuilder(
+        IServiceProvider contextServices,
+        Action<TestModelConfigurationBuilder> configure = null,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
+    {
         var modelCreationDependencies = contextServices.GetRequiredService<ModelCreationDependencies>();
 
         var modelConfigurationBuilder = new TestModelConfigurationBuilder(
@@ -211,7 +218,7 @@ public abstract class TestHelpers
         return modelConfigurationBuilder.CreateModelBuilder(
             modelCreationDependencies.ModelDependencies,
             modelCreationDependencies.ModelRuntimeInitializer,
-            validationLogger);
+            validationLogger ?? contextServices.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>());
     }
 
     public virtual LoggingDefinitions LoggingDefinitions { get; } = new TestLoggingDefinitions();

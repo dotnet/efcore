@@ -411,14 +411,14 @@ public class SqlServerModelValidator : RelationalModelValidator
 
         foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
         {
+            var columnName = property.GetColumnName(storeObject);
+            if (columnName == null)
+            {
+                continue;
+            }
+            
             if (property.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn)
             {
-                var columnName = property.GetColumnName(storeObject);
-                if (columnName == null)
-                {
-                    continue;
-                }
-
                 identityColumns[columnName] = property;
             }
         }

@@ -29,7 +29,7 @@ public class TableSharingConcurrencyTokenConventionTest
         var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
-        Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
+        Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
     }
 
@@ -114,7 +114,7 @@ public class TableSharingConcurrencyTokenConventionTest
         var concurrencyProperty = animal.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
-        Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
+        Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
 
         var cat = model.FindEntityType(typeof(Cat));
@@ -124,7 +124,7 @@ public class TableSharingConcurrencyTokenConventionTest
         concurrencyProperty = animalHouse.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
-        Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
+        Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnUpdate, concurrencyProperty.ValueGenerated);
 
         var theMovie = model.FindEntityType(typeof(TheMovie));
@@ -148,7 +148,7 @@ public class TableSharingConcurrencyTokenConventionTest
         var concurrencyProperty = personEntityType.FindProperty("_TableSharingConcurrencyTokenConvention_Version");
         Assert.True(concurrencyProperty.IsConcurrencyToken);
         Assert.True(concurrencyProperty.IsShadowProperty());
-        Assert.Equal("Version", concurrencyProperty.GetColumnBaseName());
+        Assert.Equal("Version", concurrencyProperty.GetColumnName());
         Assert.Equal(ValueGenerated.OnAddOrUpdate, concurrencyProperty.ValueGenerated);
     }
 

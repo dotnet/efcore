@@ -278,17 +278,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 ordersView.GetReferencingRowInternalForeignKeys(orderType), ordersView.GetRowInternalForeignKeys(orderDetailsType));
             Assert.Equal(
-                RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.Name),
+                RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.SchemaQualifiedName),
                 Assert.Throws<InvalidOperationException>(
                     () => ordersView.GetReferencingRowInternalForeignKeys(specialCustomerType)).Message);
             Assert.Equal(
-                RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.Name),
+                RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.SchemaQualifiedName),
                 Assert.Throws<InvalidOperationException>(
                     () => ordersView.GetRowInternalForeignKeys(specialCustomerType)).Message);
             Assert.False(ordersView.IsOptional(orderType));
             Assert.True(ordersView.IsOptional(orderDetailsType));
             Assert.Equal(
-                RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.Name),
+                RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersView.SchemaQualifiedName),
                 Assert.Throws<InvalidOperationException>(
                     () => ordersView.IsOptional(specialCustomerType)).Message);
 
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (mapping == Mapping.TPC)
             {
                 Assert.Equal(
-                    RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerView.Name),
+                    RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), customerView.SchemaQualifiedName),
                     Assert.Throws<InvalidOperationException>(
                         () => customerView.IsOptional(specialCustomerType)).Message);
             }
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderPkConstraint, orderDetailsPk.GetMappedConstraints().Single());
 
             var orderDetailsPkProperty = orderDetailsPk.Properties.Single();
-            Assert.Equal("OrderId", orderDetailsPkProperty.GetColumnBaseName());
+            Assert.Equal("OrderId", orderDetailsPkProperty.GetColumnName());
 
             var billingAddressOwnership = orderDetailsType.FindNavigation(nameof(OrderDetails.BillingAddress)).ForeignKey;
             var billingAddressType = billingAddressOwnership.DeclaringEntityType;

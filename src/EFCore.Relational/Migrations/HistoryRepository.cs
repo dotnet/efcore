@@ -77,7 +77,7 @@ public abstract class HistoryRepository : IHistoryRepository
         => _migrationIdColumnName ??= EnsureModel()
             .FindEntityType(typeof(HistoryRow))!
             .FindProperty(nameof(HistoryRow.MigrationId))!
-            .GetColumnBaseName();
+            .GetColumnName();
 
     private IModel EnsureModel()
     {
@@ -111,7 +111,7 @@ public abstract class HistoryRepository : IHistoryRepository
         => _productVersionColumnName ??= EnsureModel()
             .FindEntityType(typeof(HistoryRow))!
             .FindProperty(nameof(HistoryRow.ProductVersion))!
-            .GetColumnBaseName();
+            .GetColumnName();
 
     /// <summary>
     ///     Overridden by database providers to generate SQL that tests for existence of the history table.

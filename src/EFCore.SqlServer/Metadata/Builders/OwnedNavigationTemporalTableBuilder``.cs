@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -7,9 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
-/// <typeparam name="TEntity">The entity type being configured.</typeparam>
-public class OwnedNavigationTemporalTableBuilder<TEntity> : OwnedNavigationTemporalTableBuilder
-    where TEntity : class
+/// <typeparam name="TOwnerEntity">The entity type owning the relationship.</typeparam>
+/// <typeparam name="TDependentEntity">The dependent entity type of the relationship.</typeparam>
+public class OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> : OwnedNavigationTemporalTableBuilder
+    where TOwnerEntity : class
+    where TDependentEntity : class
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,8 +34,8 @@ public class OwnedNavigationTemporalTableBuilder<TEntity> : OwnedNavigationTempo
     /// </remarks>
     /// <param name="name">The name of the history table.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public new virtual OwnedNavigationTemporalTableBuilder<TEntity> UseHistoryTable(string name)
-        => (OwnedNavigationTemporalTableBuilder<TEntity>)base.UseHistoryTable(name);
+    public new virtual OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name)
+        => (OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>)base.UseHistoryTable(name);
 
     /// <summary>
     ///     Configures a history table for the entity mapped to a temporal table.
@@ -45,6 +47,6 @@ public class OwnedNavigationTemporalTableBuilder<TEntity> : OwnedNavigationTempo
     /// <param name="name">The name of the history table.</param>
     /// <param name="schema">The schema of the history table.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public new virtual OwnedNavigationTemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema)
-        => (OwnedNavigationTemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
+    public new virtual OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema)
+        => (OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>)base.UseHistoryTable(name, schema);
 }

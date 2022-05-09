@@ -103,10 +103,15 @@ public class StoreGenerationConvention : IPropertyAnnotationChangedConvention, I
                 continue;
             }
 
-            var schema = entityType.GetSchema();
             foreach (var declaredProperty in entityType.GetDeclaredProperties())
             {
-                Validate(declaredProperty, StoreObjectIdentifier.Table(tableName, schema));
+                var declaringTable = declaredProperty.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
+                if (declaringTable.Name == null)
+                {
+                    continue;
+                }
+                
+                Validate(declaredProperty, declaringTable);
             }
         }
     }

@@ -99,23 +99,23 @@ public class SqlServerMetadataExtensionsTest
             .Property(e => e.Name)
             .Metadata;
 
-        Assert.Equal("Name", property.GetColumnBaseName());
+        Assert.Equal("Name", property.GetColumnName());
         Assert.Null(((IConventionProperty)property).GetColumnNameConfigurationSource());
 
         ((IConventionProperty)property).SetColumnName("Eman", fromDataAnnotation: true);
 
-        Assert.Equal("Eman", property.GetColumnBaseName());
+        Assert.Equal("Eman", property.GetColumnName());
         Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionProperty)property).GetColumnNameConfigurationSource());
 
         property.SetColumnName("MyNameIs");
 
         Assert.Equal("Name", property.Name);
-        Assert.Equal("MyNameIs", property.GetColumnBaseName());
+        Assert.Equal("MyNameIs", property.GetColumnName());
         Assert.Equal(ConfigurationSource.Explicit, ((IConventionProperty)property).GetColumnNameConfigurationSource());
 
         property.SetColumnName(null);
 
-        Assert.Equal("Name", property.GetColumnBaseName());
+        Assert.Equal("Name", property.GetColumnName());
         Assert.Null(((IConventionProperty)property).GetColumnNameConfigurationSource());
     }
 

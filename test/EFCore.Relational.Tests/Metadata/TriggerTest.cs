@@ -52,7 +52,8 @@ public class TriggerTest
 
         var exception = Assert.Throws<InvalidOperationException>(() => modelBuilder
             .Entity<Customer>()
-            .ToTable(null, tb => tb.HasTrigger("Customer_Trigger")));
+            .ToTable((string)null)
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger")));
 
         Assert.Equal(RelationalStrings.TriggerOnUnmappedEntityType("Customer_Trigger", "Customer"), exception.Message);
     }

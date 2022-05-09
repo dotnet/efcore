@@ -78,7 +78,6 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
             }
 
             entityType.RemoveTrigger(name);
-            trigger = null;
         }
         else
         {

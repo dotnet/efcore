@@ -49,6 +49,7 @@ public class RelationalModelValidator : ModelValidator
     {
         base.Validate(model, logger);
 
+        ValidateMappingFragments(model, logger);
         ValidatePropertyOverrides(model, logger);
         ValidateSqlQueries(model, logger);
         ValidateDbFunctions(model, logger);
@@ -451,7 +452,7 @@ public class RelationalModelValidator : ModelValidator
             var entityType = typesToValidate.Dequeue();
             var key = entityType.FindPrimaryKey();
             var comment = entityType.GetComment();
-            var isExcluded = entityType.IsTableExcludedFromMigrations();
+            var isExcluded = entityType.IsTableExcludedFromMigrations(storeObject);
             var typesToValidateLeft = typesToValidate.Count;
             var directlyConnectedTypes = unvalidatedTypes.Where(
                 unvalidatedType =>
@@ -497,7 +498,7 @@ public class RelationalModelValidator : ModelValidator
                     comment = nextComment;
                 }
 
-                if (isExcluded.Equals(!nextEntityType.IsTableExcludedFromMigrations()))
+                if (isExcluded.Equals(!nextEntityType.IsTableExcludedFromMigrations(storeObject)))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.IncompatibleTableExcludedMismatch(
@@ -712,7 +713,12 @@ public class RelationalModelValidator : ModelValidator
 
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                var columnName = property.GetColumnName(storeObject)!;
+                var columnName = property.GetColumnName(storeObject);
+                if (columnName == null)
+                {
+                    continue;
+                }
+                
                 missingConcurrencyTokens?.Remove(columnName);
                 if (!propertyMappings.TryGetValue(columnName, out var duplicateProperty))
                 {
@@ -1374,13 +1380,10 @@ public class RelationalModelValidator : ModelValidator
                         logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
                     }
 
-                    if (entityType.GetDirectlyDerivedTypes().Any())
+                    foreach (var fk in entityType.GetDeclaredReferencingForeignKeys())
                     {
-                        foreach (var fk in entityType.GetDeclaredReferencingForeignKeys())
-                        {
-                            AssertNonInternal(fk, StoreObjectType.View);
-                            AssertNonInternal(fk, StoreObjectType.Table);
-                        }
+                        AssertNonInternal(fk, StoreObjectType.View);
+                        AssertNonInternal(fk, StoreObjectType.Table);
                     }
                 }
                 else if (primaryKey == null)
@@ -1423,8 +1426,9 @@ public class RelationalModelValidator : ModelValidator
             if (!foreignKey.PrincipalKey.IsPrimaryKey()
                 || foreignKey.PrincipalEntityType == foreignKey.DeclaringEntityType
                 || !foreignKey.IsUnique
+                || foreignKey.DeclaringEntityType.FindPrimaryKey() == null
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                || !PropertyListComparer.Instance.Equals(foreignKey.Properties, foreignKey.PrincipalKey.Properties))
+                || !PropertyListComparer.Instance.Equals(foreignKey.Properties, foreignKey.DeclaringEntityType.FindPrimaryKey()!.Properties))
 #pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 return;
@@ -1546,6 +1550,130 @@ public class RelationalModelValidator : ModelValidator
     }
 
     /// <summary>
+    ///     Validates the entity type mapping fragments.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateMappingFragments(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            var fragments = EntityTypeMappingFragment.Get(entityType);
+            if (fragments == null)
+            {
+                continue;
+            }
+
+            if (entityType.BaseType != null
+                || entityType.GetDirectlyDerivedTypes().Any())
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.EntitySplittingHierarchy(entityType.DisplayName(), fragments.First().StoreObject.DisplayName()));
+            }
+
+            var anyTableFragments = false;
+            var anyViewFragments = false;
+            foreach (var fragment in fragments)
+            {
+                var mainStoreObject = StoreObjectIdentifier.Create(entityType, fragment.StoreObject.StoreObjectType);
+                if (mainStoreObject == null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.EntitySplittingUnmappedMainFragment(
+                            entityType.DisplayName(), fragment.StoreObject.DisplayName(), fragment.StoreObject.StoreObjectType));
+                }
+
+                if (fragment.StoreObject == mainStoreObject)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.EntitySplittingConflictingMainFragment(
+                            entityType.DisplayName(), fragment.StoreObject.DisplayName()));
+                }
+
+                var propertiesFound = false;
+                foreach (var property in entityType.GetProperties())
+                {
+                    var columnName = property.GetColumnName(fragment.StoreObject);
+                    if (columnName == null)
+                    {
+                        if (property.IsPrimaryKey())
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.EntitySplittingMissingPrimaryKey(
+                                    entityType.DisplayName(), fragment.StoreObject.DisplayName()));
+                        }
+
+                        continue;
+                    }
+                    
+                    if (!property.IsPrimaryKey())
+                    {
+                        propertiesFound = true;
+                    }
+                }
+
+                if (!propertiesFound)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.EntitySplittingMissingProperties(
+                            entityType.DisplayName(), fragment.StoreObject.DisplayName()));
+                }
+
+                switch (fragment.StoreObject.StoreObjectType)
+                {
+                    case StoreObjectType.Table:
+                        anyTableFragments = true;
+                        break;
+                    case StoreObjectType.View:
+                        anyViewFragments = true;
+                        break;
+                }
+            }
+
+            if (anyTableFragments)
+            {
+                ValidateMainMapping(entityType, StoreObjectIdentifier.Create(entityType, StoreObjectType.Table));
+            }
+
+            if (anyViewFragments)
+            {
+                ValidateMainMapping(entityType, StoreObjectIdentifier.Create(entityType, StoreObjectType.View));
+            }
+        }
+
+        static StoreObjectIdentifier? ValidateMainMapping(IEntityType entityType, StoreObjectIdentifier? mainObject)
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.IsPrimaryKey())
+                {
+                    continue;
+                }
+
+                if (mainObject != null)
+                {
+                    var columnName = property.GetColumnName(mainObject.Value);
+                    if (columnName != null)
+                    {
+                        mainObject = null;
+                    }
+                }
+            }
+
+            if (mainObject != null)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.EntitySplittingMissingPropertiesMainFragment(
+                        entityType.DisplayName(), mainObject.Value.DisplayName()));
+            }
+
+            return mainObject;
+        }
+    }
+
+    /// <summary>
     ///     Validates the table-specific property overrides.
     /// </summary>
     /// <param name="model">The model to validate.</param>
@@ -1558,68 +1686,152 @@ public class RelationalModelValidator : ModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                var tableOverrides = (SortedDictionary<StoreObjectIdentifier, object>?)
-                    property[RelationalAnnotationNames.RelationalOverrides];
-                if (tableOverrides == null)
+                var storeObjectOverrides = RelationalPropertyOverrides.Get(property);
+                if (storeObjectOverrides == null)
                 {
                     continue;
                 }
 
-                foreach (var storeOverride in tableOverrides.Keys)
+                foreach (var storeObjectOverride in storeObjectOverrides)
                 {
-                    var name = storeOverride.Name;
-                    var schema = storeOverride.Schema;
-                    switch (storeOverride.StoreObjectType)
+                    if (GetAllMappedStoreObjects(property, storeObjectOverride.StoreObject.StoreObjectType)
+                        .Any(o => o == storeObjectOverride.StoreObject))
+                    {
+                        continue;
+                    }
+
+                    var storeObject = storeObjectOverride.StoreObject;
+                    switch (storeObject.StoreObjectType)
                     {
                         case StoreObjectType.Table:
-                            if (!entityType.GetDerivedTypesInclusive().Any(
-                                    d =>
-                                        d.GetTableName() == name
-                                        && d.GetSchema() == schema))
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.TableOverrideMismatch(
-                                        entityType.DisplayName() + "." + property.Name,
-                                        (schema == null ? "" : schema + ".") + name));
-                            }
-
-                            break;
+                            throw new InvalidOperationException(
+                                RelationalStrings.TableOverrideMismatch(
+                                    entityType.DisplayName() + "." + property.Name,
+                                    storeObjectOverride.StoreObject.DisplayName()));
                         case StoreObjectType.View:
-                            if (!entityType.GetDerivedTypesInclusive().Any(
-                                    d =>
-                                        d.GetViewName() == name
-                                        && d.GetViewSchema() == schema))
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.ViewOverrideMismatch(
-                                        entityType.DisplayName() + "." + property.Name,
-                                        (schema == null ? "" : schema + ".") + name));
-                            }
-
-                            break;
+                            throw new InvalidOperationException(
+                                RelationalStrings.ViewOverrideMismatch(
+                                    entityType.DisplayName() + "." + property.Name,
+                                    storeObjectOverride.StoreObject.DisplayName()));
                         case StoreObjectType.SqlQuery:
-                            if (entityType.GetDerivedTypesInclusive().All(d => d.GetDefaultSqlQueryName() != name))
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.SqlQueryOverrideMismatch(
-                                        entityType.DisplayName() + "." + property.Name, name));
-                            }
-
-                            break;
+                            throw new InvalidOperationException(
+                                RelationalStrings.SqlQueryOverrideMismatch(
+                                    entityType.DisplayName() + "." + property.Name,
+                                    storeObjectOverride.StoreObject.DisplayName()));
                         case StoreObjectType.Function:
-                            if (entityType.GetDerivedTypesInclusive().All(d => d.GetFunctionName() != name))
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.FunctionOverrideMismatch(
-                                        entityType.DisplayName() + "." + property.Name, name));
-                            }
-
-                            break;
+                            throw new InvalidOperationException(
+                                RelationalStrings.FunctionOverrideMismatch(
+                                    entityType.DisplayName() + "." + property.Name,
+                                    storeObjectOverride.StoreObject.DisplayName()));
                         default:
-                            throw new NotSupportedException(storeOverride.StoreObjectType.ToString());
+                            throw new NotSupportedException(storeObject.StoreObjectType.ToString());
                     }
                 }
             }
+        }
+    }
+
+    private static IEnumerable<StoreObjectIdentifier> GetAllMappedStoreObjects(
+        IReadOnlyProperty property, StoreObjectType storeObjectType)
+    {
+        var mappingStrategy = property.DeclaringEntityType.GetMappingStrategy()
+            ?? (property.DeclaringEntityType.GetDiscriminatorPropertyName() != null
+                ? RelationalAnnotationNames.TphMappingStrategy
+                : RelationalAnnotationNames.TptMappingStrategy);
+        if (property.IsPrimaryKey())
+        {
+            var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObjectType);
+            if (declaringStoreObject != null)
+            {
+                yield return declaringStoreObject.Value;
+            }
+
+            if (storeObjectType == StoreObjectType.Function
+                || storeObjectType == StoreObjectType.SqlQuery)
+            {
+                yield break;
+            }
+
+            foreach (var fragment in property.DeclaringEntityType.GetMappingFragments())
+            {
+                yield return fragment.StoreObject;
+            }
+
+            foreach (var containingType in property.DeclaringEntityType.GetDerivedTypes())
+            {
+                var storeObject = StoreObjectIdentifier.Create(containingType, storeObjectType);
+                if (storeObject != null)
+                {
+                    yield return storeObject.Value;
+
+                    if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
+                    {
+                        yield break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObjectType);
+            if (storeObjectType == StoreObjectType.Function
+                || storeObjectType == StoreObjectType.SqlQuery)
+            {
+                if (declaringStoreObject != null)
+                {
+                    yield return declaringStoreObject.Value;
+                }
+                yield break;
+            }
+
+            if (declaringStoreObject != null)
+            {
+                if (property.DeclaringEntityType.GetMappingFragments().Any())
+                {
+                    foreach (var fragment in property.DeclaringEntityType.GetMappingFragments())
+                    {
+                        var overrides = RelationalPropertyOverrides.Find(property, fragment.StoreObject);
+                        if (overrides != null)
+                        {
+                            yield return fragment.StoreObject;
+                            yield break;
+                        }
+                    }
+                }
+
+                yield return declaringStoreObject.Value;
+                if (mappingStrategy != RelationalAnnotationNames.TpcMappingStrategy)
+                {
+                    yield break;
+                }
+            }
+
+            var tableFound = false;
+            var queue = new Queue<IReadOnlyEntityType>();
+            queue.Enqueue(property.DeclaringEntityType);
+            while (queue.Count > 0 && !tableFound)
+            {
+                foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
+                {
+                    var storeObject = StoreObjectIdentifier.Create(containingType, storeObjectType);
+                    if (storeObject != null)
+                    {
+                        yield return storeObject.Value;
+                        tableFound = true;
+                        if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
+                        {
+                            yield break;
+                        }
+                    }
+
+                    if (!tableFound
+                        || mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+                    {
+                        queue.Enqueue(containingType);
+                    }
+                    continue;
+                }
+            }            
         }
     }
 

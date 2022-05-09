@@ -19,8 +19,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
     private static readonly string _eol = Environment.NewLine;
 
     private static readonly object _queryBaselineFileLock = new();
-    private static readonly HashSet<string> _overriddenMethods = new();
-    private static readonly object _queryBaselineRewritingLock = new();
     private static readonly ConcurrentDictionary<string, QueryBaselineRewritingFileInfo> _queryBaselineRewritingFileInfos = new();
 
     public TestSqlLoggerFactory()
@@ -149,17 +147,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             lock (_queryBaselineFileLock)
             {
                 File.AppendAllText(logFile, contents);
-
-                // if (!_overriddenMethods.Any())
-                // {
-                //     File.Delete(logFile);
-                // }
-                //
-                // if (!_overriddenMethods.Contains(methodName))
-                // {
-                //     File.AppendAllText(logFile, overrideString);
-                //     _overriddenMethods.Add(methodName);
-                // }
             }
 
             throw;

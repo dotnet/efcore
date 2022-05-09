@@ -93,18 +93,30 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
         {
-            typeof(OwnedNavigationBuilder<,>).GetMethod(
+            typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string) }),
-            typeof(OwnedNavigationBuilder<,>).GetMethod(
+            typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(Type), typeof(string) }),
-            typeof(OwnedNavigationBuilder<,>).GetMethod(
+            typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(Type), typeof(string) }),
-            typeof(OwnedNavigationBuilder<,>).GetMethod(
+            typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(string) }),
-            typeof(OwnedNavigationBuilder<,>).GetMethod(
+            typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(Type), typeof(string) }),
-            typeof(OwnedNavigationBuilder<,>).GetMethod(
+            typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string) }),
+            typeof(OwnedNavigationBuilder).GetMethod(
+                nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+            typeof(OwnedNavigationBuilder).GetMethod(
+                nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+            typeof(OwnedNavigationBuilder).GetMethod(
+                nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+            typeof(OwnedNavigationBuilder).GetMethod(
+                nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+            typeof(OwnedNavigationBuilder).GetMethod(
+                nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+            typeof(OwnedNavigationBuilder).GetMethod(
+                nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
             typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.FindAnnotation)),
             typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.GetAnnotations)),

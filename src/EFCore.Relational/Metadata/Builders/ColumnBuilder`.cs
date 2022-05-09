@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -7,9 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
-/// <typeparam name="TEntity">The entity type being configured.</typeparam>
-public class OwnedNavigationTableBuilder<TEntity> : OwnedNavigationTableBuilder
-    where TEntity : class
+public class ColumnBuilder<TProperty> : ColumnBuilder, IInfrastructure<PropertyBuilder<TProperty>>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -18,19 +16,24 @@ public class OwnedNavigationTableBuilder<TEntity> : OwnedNavigationTableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public OwnedNavigationTableBuilder(string? name, string? schema, OwnedNavigationBuilder referenceOwnershipBuilder)
-        : base(name, schema, referenceOwnershipBuilder)
+    public ColumnBuilder(in StoreObjectIdentifier storeObject, PropertyBuilder<TProperty> propertyBuilder)
+        : base(storeObject, propertyBuilder)
     {
     }
 
+    private PropertyBuilder<TProperty> PropertyBuilder
+        => (PropertyBuilder<TProperty>) ((IInfrastructure<PropertyBuilder>)this).Instance;
+
     /// <summary>
-    ///     Configures the table to be ignored by migrations.
+    ///     Configures the column that the property maps to when targeting a relational database.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
-    /// <param name="excluded">A value indicating whether the table should be managed by migrations.</param>
+    /// <param name="name">The name of the column.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public new virtual OwnedNavigationTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
-        => (OwnedNavigationTableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
+    public new virtual ColumnBuilder<TProperty> HasColumnName(string? name)
+        => (ColumnBuilder<TProperty>)base.HasColumnName(name);
+
+    PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance => PropertyBuilder;
 }
