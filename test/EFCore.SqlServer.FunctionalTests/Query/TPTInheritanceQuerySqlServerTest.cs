@@ -13,6 +13,10 @@ public class TPTInheritanceQuerySqlServerTest : TPTInheritanceQueryTestBase<TPTI
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Byte_enum_value_constant_used_in_projection(bool async)
     {
         await base.Byte_enum_value_constant_used_in_projection(async);
@@ -613,6 +617,48 @@ FROM [Animals] AS [a]");
             @"SELECT [a].[Name]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]");
+    }
+
+    public override async Task Can_query_all_animal_views(bool async)
+    {
+        await base.Can_query_all_animal_views(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_used_when_projection_over_derived_type(bool async)
+    {
+        await base.Discriminator_used_when_projection_over_derived_type(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_used_when_projection_over_derived_type2(bool async)
+    {
+        await base.Discriminator_used_when_projection_over_derived_type2(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_used_when_projection_over_of_type(bool async)
+    {
+        await base.Discriminator_used_when_projection_over_of_type(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_with_cast_in_shadow_property(bool async)
+    {
+        await base.Discriminator_with_cast_in_shadow_property(async);
+
+        AssertSql();
+    }
+
+    public override void Using_from_sql_throws()
+    {
+        base.Using_from_sql_throws();
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

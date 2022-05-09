@@ -1318,7 +1318,7 @@ public class RelationalModelValidator : ModelValidator
             var mappingStrategy = (string?)entityType[RelationalAnnotationNames.MappingStrategy];
             if (mappingStrategy != null)
             {
-                ValidateMappingStrategy(mappingStrategy, entityType);
+                ValidateMappingStrategy(entityType, mappingStrategy);
                 var storeObject = entityType.GetSchemaQualifiedTableName()
                     ?? entityType.GetSchemaQualifiedViewName()
                     ?? entityType.GetFunctionName();
@@ -1389,9 +1389,9 @@ public class RelationalModelValidator : ModelValidator
     /// <summary>
     ///     Validates that the given mapping strategy is supported
     /// </summary>
-    /// <param name="mappingStrategy">The mapping strategy.</param>
     /// <param name="entityType">The entity type.</param>
-    protected virtual void ValidateMappingStrategy(string? mappingStrategy, IEntityType entityType)
+    /// <param name="mappingStrategy">The mapping strategy.</param>
+    protected virtual void ValidateMappingStrategy(IEntityType entityType, string? mappingStrategy)
     {
         switch (mappingStrategy)
         {

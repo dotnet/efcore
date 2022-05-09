@@ -2075,8 +2075,12 @@ ORDER BY ""g"".""FullName""");
         await base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
 
         AssertSql(
-            @"SELECT 0
-FROM ""Gears"" AS ""g""");
+            @"SELECT ""t"".""Key""
+FROM (
+    SELECT 0 AS ""Key""
+    FROM ""Gears"" AS ""g""
+) AS ""t""
+GROUP BY ""t"".""Key""");
     }
 
     public override async Task Non_unicode_parameter_is_used_for_non_unicode_column(bool async)
@@ -2134,9 +2138,12 @@ WHERE ""t"".""Name"" IS NOT NULL");
         await base.GroupBy_with_boolean_grouping_key(async);
 
         AssertSql(
-            @"SELECT ""g"".""CityOfBirthName"", ""g"".""HasSoulPatch"", ""g"".""Nickname"" = 'Marcus' AS ""IsMarcus"", COUNT(*) AS ""Count""
-FROM ""Gears"" AS ""g""
-GROUP BY ""g"".""CityOfBirthName"", ""g"".""HasSoulPatch"", ""g"".""Nickname"" = 'Marcus'");
+            @"SELECT ""t"".""CityOfBirthName"", ""t"".""HasSoulPatch"", ""t"".""IsMarcus"", COUNT(*) AS ""Count""
+FROM (
+    SELECT ""g"".""CityOfBirthName"", ""g"".""HasSoulPatch"", ""g"".""Nickname"" = 'Marcus' AS ""IsMarcus""
+    FROM ""Gears"" AS ""g""
+) AS ""t""
+GROUP BY ""t"".""CityOfBirthName"", ""t"".""HasSoulPatch"", ""t"".""IsMarcus""");
     }
 
     public override async Task Correlated_collections_on_select_many(bool async)
@@ -6866,9 +6873,12 @@ LIMIT @__p_0");
         await base.Group_by_nullable_property_HasValue_and_project_the_grouping_key(async);
 
         AssertSql(
-            @"SELECT ""w"".""SynergyWithId"" IS NOT NULL
-FROM ""Weapons"" AS ""w""
-GROUP BY ""w"".""SynergyWithId"" IS NOT NULL");
+            @"SELECT ""t"".""Key""
+FROM (
+    SELECT ""w"".""SynergyWithId"" IS NOT NULL AS ""Key""
+    FROM ""Weapons"" AS ""w""
+) AS ""t""
+GROUP BY ""t"".""Key""");
     }
 
     public override async Task Query_with_complex_let_containing_ordering_and_filter_projecting_firstOrDefault_element_of_let(bool async)
@@ -7679,9 +7689,10 @@ LIMIT 1");
         Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
             bool async)
     {
-        await base
-            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
-                async);
+        Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async))).Message);
 
         AssertSql();
     }

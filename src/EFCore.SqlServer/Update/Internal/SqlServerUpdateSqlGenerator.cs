@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
+public class SqlServerUpdateSqlGenerator : SelectingUpdateSqlGenerator, ISqlServerUpdateSqlGenerator
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,7 +49,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         // (without INTO), which is also the default behavior, doesn't require a transaction and is the most efficient.
         if (command.ColumnModifications.All(o => !o.IsRead) || !HasAnyTriggers(command))
         {
-            return base.AppendInsertOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+            return AppendInsertReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
         }
 
         // SQL Server doesn't allow INSERT ... OUTPUT on tables with triggers.
@@ -107,33 +107,9 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     {
         // We normally do a simple UPDATE with an OUTPUT clause (either for the generated columns, or for "1" for concurrency checking).
         // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do UPDATE+SELECT.
-        if (!HasAnyTriggers(command))
-        {
-            return base.AppendUpdateOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
-        }
-
-        var name = command.TableName;
-        var schema = command.Schema;
-        var operations = command.ColumnModifications;
-
-        var writeOperations = operations.Where(o => o.IsWrite).ToList();
-        var conditionOperations = operations.Where(o => o.IsCondition).ToList();
-        var readOperations = operations.Where(o => o.IsRead).ToList();
-
-        AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, Array.Empty<IColumnModification>(), conditionOperations);
-
-        if (readOperations.Count > 0)
-        {
-            var keyOperations = operations.Where(o => o.IsKey).ToList();
-
-            requiresTransaction = true;
-
-            return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
-        }
-
-        requiresTransaction = false;
-
-        return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+        return HasAnyTriggers(command)
+            ? AppendUpdateAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
+            : AppendUpdateReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
     }
 
     /// <summary>
@@ -172,22 +148,9 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     {
         // We normally do a simple DELETE, with an OUTPUT clause emitting "1" for concurrency checking.
         // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do UPDATE+SELECT.
-        if (!HasAnyTriggers(command))
-        {
-            return base.AppendDeleteOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
-        }
-
-        var name = command.TableName;
-        var schema = command.Schema;
-        var operations = command.ColumnModifications;
-
-        var conditionOperations = operations.Where(o => o.IsCondition).ToList();
-
-        requiresTransaction = false;
-
-        AppendDeleteCommand(commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations);
-
-        return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+        return HasAnyTriggers(command)
+            ? AppendDeleteAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
+            : AppendDeleteReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
     }
 
     /// <summary>
@@ -350,35 +313,6 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         return AppendMergeWithOutputInto(
             commandStringBuilder, modificationCommands, commandPosition, writeOperations, keyOperations, readOperations,
             out requiresTransaction);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual ResultSetMapping AppendInsertAndSelectOperations(
-        StringBuilder commandStringBuilder,
-        IReadOnlyModificationCommand command,
-        int commandPosition,
-        out bool requiresTransaction)
-    {
-        var name = command.TableName;
-        var schema = command.Schema;
-        var operations = command.ColumnModifications;
-
-        var writeOperations = operations.Where(o => o.IsWrite).ToList();
-        var readOperations = operations.Where(o => o.IsRead).ToList();
-        var keyOperations = operations.Where(o => o.IsKey).ToList();
-
-        Check.DebugAssert(readOperations.Count > 0, "AppendInsertAndSelectOperations called without any read operations");
-
-        requiresTransaction = true;
-
-        AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, readOperations: Array.Empty<IColumnModification>());
-
-        return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
     }
 
     private ResultSetMapping AppendInsertMultipleRows(
@@ -845,7 +779,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual ResultSetMapping AppendSelectAffectedCountCommand(
+    protected override ResultSetMapping AppendSelectAffectedCountCommand(
         StringBuilder commandStringBuilder,
         string name,
         string? schema,

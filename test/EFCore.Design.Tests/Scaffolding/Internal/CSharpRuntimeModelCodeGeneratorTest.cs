@@ -349,6 +349,29 @@ namespace TestNamespace
             public override object Snapshot(object instance)
                 => throw new NotImplementedException();
         }
+        
+        [ConditionalFact]
+        public void Throws_for_provider_value_comparer()
+            => Test(
+                new ProviderValueComparerContext(),
+                new CompiledModelCodeGenerationOptions(),
+                expectedExceptionMessage: DesignStrings.CompiledModelValueComparer(
+                    "MyEntity", "Id", nameof(PropertyBuilder.HasConversion)));
+
+        public class ProviderValueComparerContext : ContextBase
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity(
+                    "MyEntity", e =>
+                    {
+                        e.Property<int>("Id").HasConversion(typeof(int), null, new FakeValueComparer());
+                        e.HasKey("Id");
+                    });
+            }
+        }
 
         [ConditionalFact]
         public void Throws_for_custom_type_mapping()
@@ -367,7 +390,7 @@ namespace TestNamespace
                 modelBuilder.Entity(
                     "MyEntity", e =>
                     {
-                        e.Property<int>("Id").Metadata.SetTypeMapping(new InMemoryTypeMapping(typeof(int[])));
+                        e.Property<int>("Id").Metadata.SetTypeMapping(new InMemoryTypeMapping(typeof(int)));
                         e.HasKey("Id");
                     });
             }
@@ -1083,7 +1106,8 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueConverter: new CastingConverter<Point, Point>(),
-                valueComparer: new CSharpRuntimeModelCodeGeneratorTest.CustomValueComparer<Point>());
+                valueComparer: new CSharpRuntimeModelCodeGeneratorTest.CustomValueComparer<Point>(),
+                providerValueComparer: new CSharpRuntimeModelCodeGeneratorTest.CustomValueComparer<Point>());
             alternateId.AddAnnotation(""Relational:ColumnType"", ""geometry"");
             alternateId.AddAnnotation(""Relational:DefaultValue"", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POINT Z(0 0 0)""));
             alternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
@@ -1674,6 +1698,7 @@ namespace TestNamespace
                     Assert.IsType<CastingConverter<Point, Point>>(principalAlternateId.GetValueConverter());
                     Assert.IsType<CustomValueComparer<Point>>(principalAlternateId.GetValueComparer());
                     Assert.IsType<CustomValueComparer<Point>>(principalAlternateId.GetKeyValueComparer());
+                    Assert.IsType<CustomValueComparer<Point>>(principalAlternateId.GetProviderValueComparer());
                     Assert.Equal(SqlServerValueGenerationStrategy.None, principalAlternateId.GetValueGenerationStrategy());
                     Assert.Equal(PropertyAccessMode.FieldDuringConstruction, principalAlternateId.GetPropertyAccessMode());
                     Assert.Null(principalAlternateId[CoreAnnotationNames.PropertyAccessMode]);
@@ -2049,7 +2074,7 @@ namespace TestNamespace
                             .HasColumnType("geometry")
                             .HasDefaultValue(
                                 NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
-                            .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>>();
+                            .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
 
                         eb.HasIndex(e => e.AlternateId, "AlternateIndex")
                             .IsUnique()

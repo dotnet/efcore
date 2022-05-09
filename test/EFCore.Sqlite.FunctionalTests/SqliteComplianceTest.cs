@@ -9,7 +9,8 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
     {
         typeof(FromSqlSprocQueryTestBase<>),
         typeof(SqlExecutorTestBase<>),
-        typeof(UdfDbFunctionTestBase<>)
+        typeof(UdfDbFunctionTestBase<>),
+        typeof(TPCRelationshipsQueryTestBase<>), // internal class is added
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

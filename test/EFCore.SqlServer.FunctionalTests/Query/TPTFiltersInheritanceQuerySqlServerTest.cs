@@ -14,6 +14,10 @@ public class TPTFiltersInheritanceQuerySqlServerTest : TPTFiltersInheritanceQuer
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Can_use_of_type_animal(bool async)
     {
         await base.Can_use_of_type_animal(async);
@@ -167,6 +171,25 @@ FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
 INNER JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
 WHERE [a].[CountryId] = 1 AND [e].[Group] = 1");
+    }
+
+    public override async Task Can_use_IgnoreQueryFilters_and_GetDatabaseValues(bool async)
+    {
+        await base.Can_use_IgnoreQueryFilters_and_GetDatabaseValues(async);
+
+        AssertSql(
+            @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group]
+FROM [Animals] AS [a]
+INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+INNER JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]",
+            //
+            @"@__p_0='Aquila chrysaetos canadensis' (Size = 100)
+
+SELECT TOP(1) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group]
+FROM [Animals] AS [a]
+INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+INNER JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+WHERE [a].[Species] = @__p_0");
     }
 
     private void AssertSql(params string[] expected)

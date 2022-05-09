@@ -23,7 +23,7 @@ public abstract class CoreTypeMapping
     /// <summary>
     ///     Parameter object for use in the <see cref="CoreTypeMapping" /> hierarchy.
     /// </summary>
-    protected readonly struct CoreTypeMappingParameters
+    protected readonly record struct CoreTypeMappingParameters
     {
         /// <summary>
         ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object.
@@ -32,40 +32,48 @@ public abstract class CoreTypeMapping
         /// <param name="converter">Converts types to and from the store whenever this mapping is used.</param>
         /// <param name="comparer">Supports custom value snapshotting and comparisons.</param>
         /// <param name="keyComparer">Supports custom comparisons between keys--e.g. PK to FK comparison.</param>
+        /// <param name="providerValueComparer">Supports custom comparisons between converted provider values.</param>
         /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
         public CoreTypeMappingParameters(
             Type clrType,
             ValueConverter? converter = null,
             ValueComparer? comparer = null,
             ValueComparer? keyComparer = null,
+            ValueComparer? providerValueComparer = null,
             Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
         {
             ClrType = clrType;
             Converter = converter;
             Comparer = comparer;
             KeyComparer = keyComparer;
+            ProviderValueComparer = providerValueComparer;
             ValueGeneratorFactory = valueGeneratorFactory;
         }
 
         /// <summary>
         ///     The mapping CLR type.
         /// </summary>
-        public Type ClrType { get; }
+        public Type ClrType { get; init; }
 
         /// <summary>
         ///     The mapping converter.
         /// </summary>
-        public ValueConverter? Converter { get; }
+        public ValueConverter? Converter { get; init; }
 
         /// <summary>
         ///     The mapping comparer.
         /// </summary>
-        public ValueComparer? Comparer { get; }
+        public ValueComparer? Comparer { get; init; }
 
         /// <summary>
         ///     The mapping key comparer.
         /// </summary>
-        public ValueComparer? KeyComparer { get; }
+        public ValueComparer? KeyComparer { get; init; }
+
+        /// <summary>
+        ///     The provider comparer.
+        /// </summary>
+        public ValueComparer? ProviderValueComparer { get; init; }
 
         /// <summary>
         ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
@@ -85,11 +93,13 @@ public abstract class CoreTypeMapping
                 converter == null ? Converter : converter.ComposeWith(Converter),
                 Comparer,
                 KeyComparer,
+                ProviderValueComparer,
                 ValueGeneratorFactory);
     }
 
     private ValueComparer? _comparer;
     private ValueComparer? _keyComparer;
+    private ValueComparer? _providerValueComparer;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.
@@ -106,10 +116,9 @@ public abstract class CoreTypeMapping
 
         Check.DebugAssert(
             parameters.Comparer == null
-            || parameters.ClrType == null
             || converter != null
-            || parameters.Comparer.Type == parameters.ClrType,
-            $"Expected {parameters.ClrType}, got {parameters.Comparer?.Type}");
+            || parameters.Comparer.Type == clrType,
+            $"Expected {clrType}, got {parameters.Comparer?.Type}");
         if (parameters.Comparer?.Type == clrType)
         {
             _comparer = parameters.Comparer;
@@ -117,13 +126,21 @@ public abstract class CoreTypeMapping
 
         Check.DebugAssert(
             parameters.KeyComparer == null
-            || parameters.ClrType == null
             || converter != null
             || parameters.KeyComparer.Type == parameters.ClrType,
             $"Expected {parameters.ClrType}, got {parameters.KeyComparer?.Type}");
         if (parameters.KeyComparer?.Type == clrType)
         {
             _keyComparer = parameters.KeyComparer;
+        }
+
+        Check.DebugAssert(
+            parameters.ProviderValueComparer == null
+            || parameters.ProviderValueComparer.Type == (converter?.ProviderClrType ?? clrType),
+            $"Expected {converter?.ProviderClrType ?? clrType}, got {parameters.ProviderValueComparer?.Type}");
+        if (parameters.ProviderValueComparer?.Type == (converter?.ProviderClrType ?? clrType))
+        {
+            _providerValueComparer = parameters.ProviderValueComparer;
         }
 
         ValueGeneratorFactory = parameters.ValueGeneratorFactory
@@ -173,6 +190,17 @@ public abstract class CoreTypeMapping
             ref _keyComparer,
             this,
             static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
+
+    /// <summary>
+    ///     A <see cref="ValueComparer" /> for the provider CLR type values.
+    /// </summary>
+    public virtual ValueComparer ProviderValueComparer
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _providerValueComparer,
+            this,
+            static c => (c.Converter?.ProviderClrType ?? c.ClrType) == c.ClrType
+                    ? c.KeyComparer
+                    : ValueComparer.CreateDefault(c.Converter?.ProviderClrType ?? c.ClrType, favorStructuralComparisons: true));
 
     /// <summary>
     ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />

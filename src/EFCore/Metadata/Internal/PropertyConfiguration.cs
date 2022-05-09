@@ -78,6 +78,13 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
                     }
 
                     break;
+                case CoreAnnotationNames.ProviderValueComparerType:
+                    if (ClrType.UnwrapNullableType() == property.ClrType.UnwrapNullableType())
+                    {
+                        property.SetProviderValueComparer((Type?)annotation.Value);
+                    }
+
+                    break;
                 default:
                     if (!CoreAnnotationNames.AllNames.Contains(annotation.Name))
                     {
@@ -258,5 +265,25 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
         }
 
         this[CoreAnnotationNames.ValueComparerType] = comparerType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SetProviderValueComparer(Type? comparerType)
+    {
+        if (comparerType != null)
+        {
+            if (!typeof(ValueComparer).IsAssignableFrom(comparerType))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.BadValueComparerType(comparerType.ShortDisplayName(), typeof(ValueComparer).ShortDisplayName()));
+            }
+        }
+
+        this[CoreAnnotationNames.ProviderValueComparerType] = comparerType;
     }
 }

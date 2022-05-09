@@ -111,6 +111,24 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         /// <summary>
         ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
+        ///     core parameters.
+        /// </summary>
+        /// <param name="coreParameters">Parameters for the <see cref="CoreTypeMapping" /> base class.</param>
+        /// <returns>The new parameter object.</returns>
+        public RelationalTypeMappingParameters WithCoreParameters(in CoreTypeMappingParameters coreParameters)
+            => new(
+                coreParameters,
+                StoreType,
+                StoreTypePostfix,
+                DbType,
+                Unicode,
+                Size,
+                FixedLength,
+                Precision,
+                Scale);
+
+        /// <summary>
+        ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
         ///     mapping info.
         /// </summary>
         /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
@@ -261,8 +279,6 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
             => this;
     }
 
-    private ValueComparer? _providerValueComparer;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
     /// </summary>
@@ -379,19 +395,6 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </summary>
     protected virtual string SqlLiteralFormatString
         => "{0}";
-
-    /// <summary>
-    ///     A <see cref="ValueComparer" /> for the provider CLR type values.
-    /// </summary>
-    public virtual ValueComparer ProviderValueComparer
-    {
-        get => NonCapturingLazyInitializer.EnsureInitialized(
-                   ref _providerValueComparer,
-                   this,
-                   static c => ValueComparer.CreateDefault(c.Converter?.ProviderClrType ?? c.ClrType, favorStructuralComparisons: true));
-        
-        protected set => _providerValueComparer = value;
-    }
 
     /// <summary>
     ///     Creates a copy of this mapping.

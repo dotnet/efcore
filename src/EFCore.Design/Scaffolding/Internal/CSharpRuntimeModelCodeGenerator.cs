@@ -678,6 +678,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
+        var providerValueComparerType = (Type?)property[CoreAnnotationNames.ProviderValueComparerType];
+        if (providerValueComparerType == null
+            && property[CoreAnnotationNames.ProviderValueComparer] != null)
+        {
+            throw new InvalidOperationException(
+                DesignStrings.CompiledModelValueComparer(
+                    property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
+        }
+
         var valueConverterType = (Type?)property[CoreAnnotationNames.ValueConverterType];
         if (valueConverterType == null
             && property.GetValueConverter() != null)
@@ -806,6 +815,16 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("valueComparer: new ")
                 .Append(_code.Reference(valueComparerType))
+                .Append("()");
+        }
+
+        if (providerValueComparerType != null)
+        {
+            AddNamespace(providerValueComparerType, parameters.Namespaces);
+
+            mainBuilder.AppendLine(",")
+                .Append("providerValueComparer: new ")
+                .Append(_code.Reference(providerValueComparerType))
                 .Append("()");
         }
 

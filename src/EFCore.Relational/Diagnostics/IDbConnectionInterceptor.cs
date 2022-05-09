@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
@@ -30,6 +32,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public interface IDbConnectionInterceptor : IInterceptor
 {
     /// <summary>
+    ///     Called just before EF creates a <see cref="DbConnection"/>. This event is not triggered if the application provides the
+    ///     connection to use.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    /// <param name="result">
+    ///     Represents the current result if one exists.
+    ///     This value will have <see cref="InterceptionResult{DbConnection}.HasResult" /> set to <see langword="true" /> if some previous
+    ///     interceptor suppressed execution by calling <see cref="InterceptionResult{DbConnection}.SuppressWithResult" />.
+    ///     This value is typically used as the return value for the implementation of this method.
+    /// </param>
+    /// <returns>
+    ///     If <see cref="InterceptionResult{DbConnection}.HasResult" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult{DbConnection}.HasResult" /> is <see langword="true" />, then EF will suppress the operation it
+    ///     was about to perform and use <see cref="InterceptionResult{DbConnection}.Result" /> instead.
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
+    ///     should return the <paramref name="result" /> value passed in.
+    /// </returns>
+    InterceptionResult<DbConnection> ConnectionCreating(ConnectionCreatingEventData eventData, InterceptionResult<DbConnection> result)
+        => result;
+
+    /// <summary>
+    ///     Called just after EF creates a <see cref="DbConnection"/>. This event is not triggered if the application provides the
+    ///     connection to use.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    /// <param name="result">
+    ///     The connection that has been created.
+    ///     This value is typically used as the return value for the implementation of this method.
+    /// </param>
+    /// <returns>
+    ///     The result that EF will use.
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
+    ///     is to return the <paramref name="result" /> value passed in.
+    /// </returns>
+    DbConnection ConnectionCreated(ConnectionCreatedEventData eventData, DbConnection result)
+        => result;
+
+    /// <summary>
     ///     Called just before EF intends to call <see cref="DbConnection.Open()" />.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -44,7 +84,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     InterceptionResult ConnectionOpening(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
@@ -66,7 +106,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
@@ -98,7 +138,7 @@ public interface IDbConnectionInterceptor : IInterceptor
         => Task.CompletedTask;
 
     /// <summary>
-    ///     Called just before EF intends to call <see cref="DbConnection.CloseAsync()" />.
+    ///     Called just before EF intends to call <see cref="DbConnection.Close()" />.
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="eventData">Contextual information about the connection.</param>
@@ -112,14 +152,14 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     InterceptionResult ConnectionClosing(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
         => result;
 
     /// <summary>
-    ///     Called just before EF intends to call <see cref="DbConnection.Close()" /> in an async context.
+    ///     Called just before EF intends to call <see cref="DbConnection.CloseAsync()" /> in an async context.
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="eventData">Contextual information about the connection.</param>
@@ -133,7 +173,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
     ///     it was about to perform.
-    ///     A normal implementation of this method for any interceptor that is not attempting to suppress
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
     ValueTask<InterceptionResult> ConnectionClosingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
@@ -155,6 +195,66 @@ public interface IDbConnectionInterceptor : IInterceptor
     /// <param name="eventData">Contextual information about the connection.</param>
     /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
     Task ConnectionClosedAsync(DbConnection connection, ConnectionEndEventData eventData)
+        => Task.CompletedTask;
+
+    /// <summary>
+    ///     Called just before EF intends to call <see cref="Component.Dispose()" /> for the <see cref="DbConnection"/>.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    /// <param name="result">
+    ///     Represents the current result if one exists.
+    ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
+    ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
+    ///     This value is typically used as the return value for the implementation of this method.
+    /// </param>
+    /// <returns>
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, the EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
+    ///     it was about to perform.
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
+    ///     the operation is to return the <paramref name="result" /> value passed in.
+    /// </returns>
+    InterceptionResult ConnectionDisposing(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+        => result;
+
+    /// <summary>
+    ///     Called just before EF intends to call <see cref="DbConnection.DisposeAsync()" /> in an async context.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    /// <param name="result">
+    ///     Represents the current result if one exists.
+    ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
+    ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
+    ///     This value is typically used as the return value for the implementation of this method.
+    /// </param>
+    /// <returns>
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     it was about to perform.
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
+    ///     the operation is to return the <paramref name="result" /> value passed in.
+    /// </returns>
+    ValueTask<InterceptionResult> ConnectionDisposingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+        => new(result);
+
+    /// <summary>
+    ///     Called just after EF has called <see cref="Component.Dispose()" /> in an async context.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    void ConnectionDisposed(DbConnection connection, ConnectionEndEventData eventData)
+    {
+    }
+
+    /// <summary>
+    ///     Called just after EF has called <see cref="DbConnection.DisposeAsync()" />.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
+    Task ConnectionDisposedAsync(DbConnection connection, ConnectionEndEventData eventData)
         => Task.CompletedTask;
 
     /// <summary>

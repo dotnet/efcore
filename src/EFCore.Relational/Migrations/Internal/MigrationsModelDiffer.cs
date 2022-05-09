@@ -2062,7 +2062,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
                     var sourceValue = sourceColumnModification.OriginalValue;
                     var targetValue = targetColumnModification.Value;
-                    var comparer = targetMapping.TypeMapping.ProviderValueComparer;
+                    var comparer = targetColumn.ProviderValueComparer;
                     if (sourceColumn.ProviderClrType == targetColumn.ProviderClrType
                         && comparer.Equals(sourceValue, targetValue))
                     {

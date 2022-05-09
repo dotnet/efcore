@@ -1666,9 +1666,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Closed connection to database '{database}' on server '{server}'.
+        ///     Closed connection to database '{database}' on server '{server}' ({elapsed}ms).
         /// </summary>
-        public static EventDefinition<string, string> LogClosedConnection(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, int> LogClosedConnection(IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection;
             if (definition == null)
@@ -1676,18 +1676,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection,
                     logger,
-                    static logger => new EventDefinition<string, string>(
+                    static logger => new EventDefinition<string, string, int>(
                         logger.Options,
                         RelationalEventId.ConnectionClosed,
                         LogLevel.Debug,
                         "RelationalEventId.ConnectionClosed",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, int>(
                             level,
                             RelationalEventId.ConnectionClosed,
                             _resourceManager.GetString("LogClosedConnection")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, int>)definition;
         }
 
         /// <summary>
@@ -1913,6 +1913,106 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Created DbConnection ({elapsed}ms).
+        /// </summary>
+        public static EventDefinition<int> LogConnectionCreated(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreated;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreated,
+                    logger,
+                    static logger => new EventDefinition<int>(
+                        logger.Options,
+                        RelationalEventId.ConnectionCreated,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCreated",
+                        level => LoggerMessage.Define<int>(
+                            level,
+                            RelationalEventId.ConnectionCreated,
+                            _resourceManager.GetString("LogConnectionCreated")!)));
+            }
+
+            return (EventDefinition<int>)definition;
+        }
+
+        /// <summary>
+        ///     Creating DbConnection.
+        /// </summary>
+        public static EventDefinition LogConnectionCreating(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreating;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreating,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.ConnectionCreating,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCreating",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.ConnectionCreating,
+                            _resourceManager.GetString("LogConnectionCreating")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Disposed connection to database '{database}' on server '{server}' ({elapsed}ms).
+        /// </summary>
+        public static EventDefinition<string, string, int> LogConnectionDisposed(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposed;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposed,
+                    logger,
+                    static logger => new EventDefinition<string, string, int>(
+                        logger.Options,
+                        RelationalEventId.ConnectionDisposed,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionDisposed",
+                        level => LoggerMessage.Define<string, string, int>(
+                            level,
+                            RelationalEventId.ConnectionDisposed,
+                            _resourceManager.GetString("LogConnectionDisposed")!)));
+            }
+
+            return (EventDefinition<string, string, int>)definition;
+        }
+
+        /// <summary>
+        ///     Disposing connection to database '{database}' on server '{server}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogConnectionDisposing(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposing;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposing,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionDisposing,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionDisposing",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionDisposing,
+                            _resourceManager.GetString("LogConnectionDisposing")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>

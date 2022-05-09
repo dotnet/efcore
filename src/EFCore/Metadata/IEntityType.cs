@@ -458,7 +458,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     ///     <see cref="FindNavigation(string)" /> to find a navigation property.
     /// </remarks>
     /// <param name="name">The property name.</param>
-    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    /// <returns>The property.</returns>
     new IProperty GetProperty(string name)
         => (IProperty)((IReadOnlyEntityType)this).GetProperty(name);
 

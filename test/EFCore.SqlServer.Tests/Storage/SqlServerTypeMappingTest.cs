@@ -111,9 +111,9 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             literalGenerator,
             StoreTypePostfix.None,
             "udtType",
-            new FakeValueConverter(),
-            new FakeValueComparer(),
-            new FakeValueComparer(),
+            CreateConverter(typeof(object)),
+            CreateComparer(typeof(object)),
+            CreateComparer(typeof(object)),
             DbType.VarNumeric,
             false,
             33,
@@ -141,7 +141,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.True(clone.IsFixedLength);
         Assert.Same(literalGenerator, clone.LiteralGenerator);
 
-        var newConverter = new FakeValueConverter();
+        var newConverter = CreateConverter(typeof(object));
         clone = (SqlServerUdtTypeMapping)mapping.Clone(newConverter);
 
         Assert.NotSame(mapping, clone);

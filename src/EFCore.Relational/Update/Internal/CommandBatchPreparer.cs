@@ -612,7 +612,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             var column = columns[columnIndex];
             object? originalValue = null;
             object? currentValue = null;
-            RelationalTypeMapping? typeMapping = null;
+            ValueComparer? providerValueComparer = null;
             for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
             {
                 var entry = command.Entries[entryIndex];
@@ -641,12 +641,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             break;
                     }
 
-                    typeMapping = columnMapping!.TypeMapping;
+                    providerValueComparer = property.GetProviderValueComparer();
                 }
             }
 
-            if (typeMapping != null
-                && !typeMapping.ProviderValueComparer.Equals(originalValue, currentValue))
+            if (providerValueComparer != null
+                && !providerValueComparer.Equals(originalValue, currentValue))
             {
                 return true;
             }

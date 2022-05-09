@@ -43,7 +43,7 @@ public interface ISaveChangesInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is true, then EF will suppress the operation it
     ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result" /> instead.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
@@ -63,7 +63,7 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// </param>
     /// <returns>
     ///     The result that EF will use.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     int SavedChanges(SaveChangesCompletedEventData eventData, int result)
@@ -92,7 +92,7 @@ public interface ISaveChangesInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is true, then EF will suppress the operation it
     ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result" /> instead.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
@@ -117,7 +117,7 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     The result that EF will use.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>

@@ -254,7 +254,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         public double Volume { get; }
     }
 
-    [ConditionalFact(Skip = "Issue #27738")]
+    [ConditionalFact]
     public virtual void Can_insert_and_read_back_with_case_insensitive_string_key()
     {
         using (var context = CreateContext())

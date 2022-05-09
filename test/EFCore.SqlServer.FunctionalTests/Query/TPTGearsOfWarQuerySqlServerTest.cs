@@ -7393,15 +7393,15 @@ GROUP BY [g].[CityOfBirthName], [g].[HasSoulPatch]");
         await base.GroupBy_with_boolean_grouping_key(async);
 
         AssertSql(
-            @"SELECT [g].[CityOfBirthName], [g].[HasSoulPatch], CASE
-    WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsMarcus], COUNT(*) AS [Count]
-FROM [Gears] AS [g]
-GROUP BY [g].[CityOfBirthName], [g].[HasSoulPatch], CASE
-    WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END");
+            @"SELECT [t].[CityOfBirthName], [t].[HasSoulPatch], [t].[IsMarcus], COUNT(*) AS [Count]
+FROM (
+    SELECT [g].[CityOfBirthName], [g].[HasSoulPatch], CASE
+        WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsMarcus]
+    FROM [Gears] AS [g]
+) AS [t]
+GROUP BY [t].[CityOfBirthName], [t].[HasSoulPatch], [t].[IsMarcus]");
     }
 
     public override async Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool async)
@@ -7435,8 +7435,12 @@ GROUP BY [c].[Name]");
         await base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
 
         AssertSql(
-            @"SELECT CAST(0 AS bit)
-FROM [Gears] AS [g]");
+            @"SELECT [t].[Key]
+FROM (
+    SELECT CAST(0 AS bit) AS [Key]
+    FROM [Gears] AS [g]
+) AS [t]
+GROUP BY [t].[Key]");
     }
 
     public override async Task Group_by_with_having_StartsWith_with_null_parameter_as_argument(bool async)
@@ -7874,15 +7878,15 @@ WHERE [s].[Banner5] = @__byteArrayParam_0");
         await base.Group_by_nullable_property_HasValue_and_project_the_grouping_key(async);
 
         AssertSql(
-            @"SELECT CASE
-    WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
-FROM [Weapons] AS [w]
-GROUP BY CASE
-    WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END");
+            @"SELECT [t].[Key]
+FROM (
+    SELECT CASE
+        WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [Weapons] AS [w]
+) AS [t]
+GROUP BY [t].[Key]");
     }
 
     public override async Task Group_by_nullable_property_and_project_the_grouping_key_HasValue(bool async)
@@ -9300,6 +9304,27 @@ OUTER APPLY (
 ORDER BY [g].[Nickname], [g].[SquadId], [t].[IsAutomatic]");
     }
 
+    public override async Task
+        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+    {
+        await base
+            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async);
+
+        AssertSql(
+            @"SELECT [g].[Nickname], [g].[SquadId], [t0].[Key], [t0].[Count]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT [t].[Key], COUNT(*) AS [Count]
+    FROM (
+        SELECT CAST(LEN([w].[Name]) AS int) AS [Key]
+        FROM [Weapons] AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]
+    ) AS [t]
+    GROUP BY [t].[Key]
+) AS [t0]
+ORDER BY [g].[Nickname], [g].[SquadId]");
+    }
+
     public override async Task Sum_with_no_data_nullable_double(bool async)
     {
         await base.Sum_with_no_data_nullable_double(async);
@@ -9589,17 +9614,6 @@ ORDER BY [g].[Nickname], [g].[SquadId]");
     public override async Task Project_discriminator_columns(bool async)
     {
         await base.Project_discriminator_columns(async);
-
-        AssertSql();
-    }
-
-    public override async Task
-        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
-            bool async)
-    {
-        await base
-            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
-                async);
 
         AssertSql();
     }
