@@ -538,7 +538,7 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
                     var relationalTypeMappingSource =
                         (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
                     return !string.IsNullOrEmpty(dbFunction._storeType)
-                        ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                        ? relationalTypeMappingSource.FindMapping(dbFunction.ReturnType, dbFunction._storeType)!
                         : relationalTypeMappingSource.FindMapping(dbFunction.ReturnType, (IModel)dbFunction.Model)!;
                 })
             : _typeMapping;

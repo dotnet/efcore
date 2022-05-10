@@ -31,9 +31,6 @@ public abstract class TPCGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtu
         modelBuilder.Entity<Faction>().UseTpcMappingStrategy();
         modelBuilder.Entity<LocustLeader>().UseTpcMappingStrategy();
 
-        // Work-around for issue#27947
-        modelBuilder.Entity<Faction>().ToTable((string)null);
-
         modelBuilder.Entity<Gear>().ToTable("Gears");
         modelBuilder.Entity<Officer>().ToTable("Officers");
 
