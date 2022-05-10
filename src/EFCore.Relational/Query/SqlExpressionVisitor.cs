@@ -39,6 +39,9 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             case CrossJoinExpression crossJoinExpression:
                 return VisitCrossJoin(crossJoinExpression);
 
+            case DistinctExpression distinctExpression:
+                return VisitDistinct(distinctExpression);
+
             case ExceptExpression exceptExpression:
                 return VisitExcept(exceptExpression);
 
@@ -89,9 +92,6 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
 
             case SqlConstantExpression sqlConstantExpression:
                 return VisitSqlConstant(sqlConstantExpression);
-
-            case SqlEnumerableExpression sqlEnumerableExpression:
-                return VisitSqlEnumerable(sqlEnumerableExpression);
 
             case SqlFragmentExpression sqlFragmentExpression:
                 return VisitSqlFragment(sqlFragmentExpression);
@@ -149,6 +149,13 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="crossJoinExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
+
+    /// <summary>
+    ///     Visits the children of the distinct expression.
+    /// </summary>
+    /// <param name="distinctExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitDistinct(DistinctExpression distinctExpression);
 
     /// <summary>
     ///     Visits the children of the except expression.
@@ -268,13 +275,6 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="sqlConstantExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
-
-    /// <summary>
-    ///     Visits the children of the sql enumerable expression.
-    /// </summary>
-    /// <param name="sqlEnumerableExpression">The expression to visit.</param>
-    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
-    protected abstract Expression VisitSqlEnumerable(SqlEnumerableExpression sqlEnumerableExpression);
 
     /// <summary>
     ///     Visits the children of the sql fragent expression.
