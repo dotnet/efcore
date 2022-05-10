@@ -31,7 +31,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1))
 ORDER BY [t].[Species]");
     }
 
@@ -48,7 +48,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] = N'Kiwi'");
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1)) AND [t].[Discriminator] = N'Kiwi'");
     }
 
     public override async Task Can_use_is_kiwi_with_other_predicate(bool async)
@@ -64,7 +64,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] = N'Kiwi' AND [t].[CountryId] = 1");
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1)) AND [t].[Discriminator] = N'Kiwi' AND [t].[CountryId] = 1");
     }
 
     public override async Task Can_use_is_kiwi_in_projection(bool async)
@@ -83,7 +83,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1");
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1))");
     }
 
     public override async Task Can_use_of_type_bird(bool async)
@@ -99,7 +99,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1)) AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
 ORDER BY [t].[Species]");
     }
 
@@ -116,7 +116,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1)) AND [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
 ORDER BY [t].[Species]");
     }
 
@@ -133,7 +133,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')");
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1)) AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')");
     }
 
     public override async Task Can_use_of_type_bird_first(bool async)
@@ -149,7 +149,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1)) AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
 ORDER BY [t].[Species]");
     }
 
@@ -166,7 +166,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] = N'Kiwi'");
+WHERE [t].[CountryId] = 1 AND ([t].[Discriminator] <> N'Eagle' OR ([t].[Discriminator] = N'Eagle' AND [t].[Group] = 1)) AND [t].[Discriminator] = N'Kiwi'");
     }
 
     public override async Task Can_use_derived_set(bool async)
@@ -176,7 +176,7 @@ WHERE [t].[CountryId] = 1 AND [t].[Discriminator] = N'Kiwi'");
         AssertSql(
             @"SELECT [e].[Species], [e].[CountryId], [e].[Name], [e].[EagleId], [e].[IsFlightless], [e].[Group]
 FROM [Eagle] AS [e]
-WHERE [e].[CountryId] = 1");
+WHERE [e].[CountryId] = 1 AND [e].[Group] = 1");
     }
 
     public override async Task Can_use_IgnoreQueryFilters_and_GetDatabaseValues(bool async)
