@@ -1376,10 +1376,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
     }
 
-    internal void UpdatePredicate(SqlExpression predicate)
-    {
-        Predicate = predicate;
-    }
 
     /// <summary>
     ///     Applies grouping from given key selector.
