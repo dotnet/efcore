@@ -46,6 +46,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = new();
     private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers = new();
     private readonly List<int> _tptLeftJoinTables = new();
+    private readonly Dictionary<TpcTablesExpression, (ColumnExpression, List<string>)> _tpcDiscriminatorValues
+        = new(ReferenceEqualityComparer.Instance);
 
     private bool _mutable = true;
     private HashSet<string> _usedAliases = new();
@@ -257,7 +259,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         discriminatorColumnName = currentName;
                     }
 
-                    var subSelectExpressions = new Queue<SelectExpression>();
+                    var subSelectExpressions = new List<SelectExpression>();
+                    var tableAlias = GenerateUniqueAlias(_usedAliases, "t");
+                    var discriminatorValues = new List<string>();
                     for (var i = 0; i < entityTypes.Length; i++)
                     {
                         var et = entityTypes[i];
@@ -282,47 +286,20 @@ public sealed partial class SelectExpression : TableExpressionBase
                             new(
                                 sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(et.ShortName())),
                                 discriminatorColumnName));
-                        subSelectExpressions.Enqueue(selectExpression);
+                        discriminatorValues.Add(et.ShortName());
+                        subSelectExpressions.Add(selectExpression);
+                        selectExpression._mutable = false;
                     }
 
-                    var count = subSelectExpressions.Count;
-                    while (subSelectExpressions.Count > 1)
-                    {
-                        if (count == 1)
-                        {
-                            subSelectExpressions.Enqueue(subSelectExpressions.Dequeue());
-                            count = subSelectExpressions.Count;
-                            continue;
-                        }
-
-                        var select1 = subSelectExpressions.Dequeue();
-                        var select2 = subSelectExpressions.Dequeue();
-                        select1._mutable = false;
-                        select2._mutable = false;
-                        var alias = GenerateUniqueAlias(_usedAliases, "t");
-                        var selectExpression = new SelectExpression(alias: null);
-                        var unionExpression = new UnionExpression(alias, select1, select2, distinct: false);
-                        var tableReferenceExpression = new TableReferenceExpression(selectExpression, alias);
-                        selectExpression._tables.Add(unionExpression);
-                        selectExpression._tableReferences.Add(tableReferenceExpression);
-                        selectExpression._projection.AddRange(
-                            select1._projection.Select(p =>
-                                new ProjectionExpression(new ConcreteColumnExpression(p, tableReferenceExpression), p.Alias)));
-                        subSelectExpressions.Enqueue(selectExpression);
-                        count -= 2;
-                    }
-
-                    var finalSelectExpression = subSelectExpressions.Dequeue();
-                    _tables.AddRange(finalSelectExpression._tables);
-                    foreach (var tableReference in finalSelectExpression._tableReferences)
-                    {
-                        tableReference.UpdateTableReference(finalSelectExpression, this);
-                        _tableReferences.Add(tableReference);
-                    }
+                    var tpcTables = new TpcTablesExpression(tableAlias, entityType, subSelectExpressions);
+                    var tpcTableReference = new TableReferenceExpression(this, tableAlias);
+                    _tables.Add(tpcTables);
+                    _tableReferences.Add(tpcTableReference);
+                    var firstSelectExpression = subSelectExpressions[0];
                     var columns = new Dictionary<IProperty, ColumnExpression>();
                     for (var i = 0; i < properties.Length; i++)
                     {
-                        columns[properties[i]] = (ColumnExpression)finalSelectExpression._projection[i].Expression;
+                        columns[properties[i]] = new ConcreteColumnExpression(firstSelectExpression._projection[i], tpcTableReference);
                     }
 
                     foreach (var property in entityType.FindPrimaryKey()!.Properties)
@@ -330,8 +307,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         var columnExpression = columns[property];
                         _identifier.Add((columnExpression, property.GetKeyValueComparer()));
                     }
-
-                    var entityProjection = new EntityProjectionExpression(entityType, columns, finalSelectExpression._projection[^1].Expression);
+                    var discriminatorColumn = new ConcreteColumnExpression(firstSelectExpression._projection[^1], tpcTableReference);
+                    _tpcDiscriminatorValues[tpcTables] = (discriminatorColumn, discriminatorValues);
+                    var entityProjection = new EntityProjectionExpression(entityType, columns, discriminatorColumn);
                     _projectionMapping[new ProjectionMember()] = entityProjection;
                 }
             }
@@ -1350,6 +1328,59 @@ public sealed partial class SelectExpression : TableExpressionBase
             sqlExpression = PushdownIntoSubqueryInternal().Remap(sqlExpression);
         }
 
+        if ((sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.Equal }
+            || sqlExpression is InExpression { Subquery: null, IsNegated: false })
+            && _groupBy.Count == 0)
+        {
+            // If the intersection is empty then we don't remove predicate so that the filter empty out all results.
+            if (sqlExpression is SqlBinaryExpression sqlBinaryExpression)
+            {
+                if (sqlBinaryExpression.Left is ColumnExpression leftColumn
+                    && leftColumn.Table is TpcTablesExpression leftTpc
+                    && _tpcDiscriminatorValues.TryGetValue(leftTpc, out var leftTuple)
+                    && leftTuple.Item1.Equals(leftColumn)
+                    && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
+                    && rightConstant.Value is string s1)
+                {
+                    var newList = leftTuple.Item2.Intersect(new List<string> { s1 }).ToList();
+                    if (newList.Count > 0)
+                    {
+                        _tpcDiscriminatorValues[leftTpc] = (leftColumn, newList);
+                        return;
+                    }
+                }
+                else if (sqlBinaryExpression.Right is ColumnExpression rightColumn
+                   && rightColumn.Table is TpcTablesExpression rightTpc
+                   && _tpcDiscriminatorValues.TryGetValue(rightTpc, out var rightTuple)
+                   && rightTuple.Item1.Equals(rightColumn)
+                   && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
+                   && leftConstant.Value is string s2)
+                {
+                    var newList = rightTuple.Item2.Intersect(new List<string> { s2 }).ToList();
+                    if (newList.Count > 0)
+                    {
+                        _tpcDiscriminatorValues[rightTpc] = (rightColumn, newList);
+                        return;
+                    }
+                }
+            }
+            else if (sqlExpression is InExpression inExpression
+                && inExpression.Item is ColumnExpression itemColumn
+                && itemColumn.Table is TpcTablesExpression itemTpc
+                && _tpcDiscriminatorValues.TryGetValue(itemTpc, out var itemTuple)
+                && itemTuple.Item1.Equals(itemColumn)
+                && inExpression.Values is SqlConstantExpression itemConstant
+                && itemConstant.Value is string[] values)
+            {
+                var newList = itemTuple.Item2.Intersect(values).ToList();
+                if (newList.Count > 0)
+                {
+                    _tpcDiscriminatorValues[itemTpc] = (itemColumn, newList);
+                    return;
+                }
+            }
+        }
+
         sqlExpression = AssignUniqueAliases(sqlExpression);
 
         if (_groupBy.Count > 0)
@@ -1375,7 +1406,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     sqlExpression.TypeMapping);
         }
     }
-
 
     /// <summary>
     ///     Applies grouping from given key selector.
@@ -1688,6 +1718,12 @@ public sealed partial class SelectExpression : TableExpressionBase
         _projectionMapping.Clear();
         select1._identifier.AddRange(_identifier);
         _identifier.Clear();
+        select1._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
+        foreach (var kvp in _tpcDiscriminatorValues)
+        {
+            select1._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
+        }
+        _tpcDiscriminatorValues.Clear();
 
         // Remap tableReferences in select1
         foreach (var tableReference in select1._tableReferences)
@@ -1821,6 +1857,9 @@ public sealed partial class SelectExpression : TableExpressionBase
         };
         _tables.Add(setExpression);
         _tableReferences.Add(tableReferenceExpression);
+
+        select1._projectionMapping.Clear();
+        select2._projectionMapping.Clear();
 
         // Mark both inner subqueries as immutable
         select1._mutable = false;
@@ -2385,7 +2424,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             || innerSelectExpression.IsDistinct
             || innerSelectExpression.Predicate != null
             || innerSelectExpression.Tables.Count > 1
-            || innerSelectExpression.GroupBy.Count > 0)
+            || innerSelectExpression.GroupBy.Count > 0
+            || innerSelectExpression._tpcDiscriminatorValues.Count > 0)
         {
             joinPredicate = innerSelectExpression.PushdownIntoSubqueryInternal().Remap(joinPredicate);
             innerPushdownOccurred = true;
@@ -2863,6 +2903,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         Offset = null;
         Limit = null;
         subquery._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
+        foreach (var kvp in _tpcDiscriminatorValues)
+        {
+            subquery._tpcDiscriminatorValues.Add(kvp.Key, kvp.Value);
+        }
+        _tpcDiscriminatorValues.Clear();
         _tptLeftJoinTables.Clear();
 
         var subqueryTableReferenceExpression = new TableReferenceExpression(this, subquery.Alias!);
@@ -3134,7 +3179,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     public SelectExpression Prune()
         => Prune(referencedColumns: null);
 
-    private SelectExpression Prune(IReadOnlyCollection<string>? referencedColumns = null)
+    internal SelectExpression Prune(IReadOnlyCollection<string>? referencedColumns = null)
     {
         if (referencedColumns != null
             && !IsDistinct)
@@ -3168,6 +3213,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                 i--;
 
                 continue;
+            }
+
+            if (table is TpcTablesExpression tpcTablesExpression)
+            {
+                _tables[i] = tpcTablesExpression.Prune(_tpcDiscriminatorValues[tpcTablesExpression].Item2, columnsMap[tableAlias]);
             }
 
             if (UnwrapJoinExpression(table) is SelectExpression innerSelectExpression)
@@ -3492,6 +3542,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 };
                 newSelectExpression._mutable = false;
                 newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
+                foreach (var kvp in _tpcDiscriminatorValues)
+                {
+                    newSelectExpression._tpcDiscriminatorValues.Add(kvp.Key, kvp.Value);
+                }
 
                 newSelectExpression._identifier.AddRange(identifier.Zip(_identifier).Select(e => (e.First, e.Second.Comparer)));
                 newSelectExpression._childIdentifiers.AddRange(

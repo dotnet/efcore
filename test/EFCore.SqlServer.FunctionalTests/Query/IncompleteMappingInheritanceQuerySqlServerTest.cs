@@ -629,6 +629,32 @@ SET NOCOUNT ON;
 INSERT INTO [Animals] ([Species], [CountryId], [Discriminator], [EagleId], [Group], [IsFlightless], [Name])
 VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
     }
+    public override async Task Using_is_operator_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'");
+    }
+
+    public override async Task Using_is_operator_with_of_type_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_with_of_type_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'");
+    }
+
+    public override async Task Using_OfType_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_OfType_on_multiple_type_with_no_result(async);
+
+        AssertSql();
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

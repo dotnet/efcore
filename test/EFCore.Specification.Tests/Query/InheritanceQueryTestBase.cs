@@ -480,6 +480,31 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<Bird>().Select(a => new { a.Name }),
             elementSorter: e => e.Name);
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Using_is_operator_on_multiple_type_with_no_result(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => e is Kiwi).Where(e => e is Eagle),
+            elementSorter: e => e.Name);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Using_is_operator_with_of_type_on_multiple_type_with_no_result(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => e is Kiwi).OfType<Eagle>(),
+            elementSorter: e => e.Name);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Using_OfType_on_multiple_type_with_no_result(bool async)
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Animal>().OfType<Eagle>().OfType<Kiwi>(),
+                elementSorter: e => e.Name));
+
     protected InheritanceContext CreateContext()
         => Fixture.CreateContext();
 

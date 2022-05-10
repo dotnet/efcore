@@ -76,6 +76,16 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
                 return shapedQueryExpression;
             }
 
+            if (expression is TpcTablesExpression tpcTablesExpression)
+            {
+                foreach (var se in tpcTablesExpression.SelectExpressions)
+                {
+                    Visit(se);
+                }
+
+                return expression;
+            }
+
             return base.Visit(expression);
         }
     }
@@ -142,6 +152,15 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
             public override Expression? Visit(Expression? expression)
             {
                 var visitedExpression = base.Visit(expression);
+                if (visitedExpression is TpcTablesExpression tpcTablesExpression)
+                {
+                    // We need to look inside SelectExpressions in TPC for aliases
+                    foreach (var selectExpression in tpcTablesExpression.SelectExpressions)
+                    {
+                        Visit(selectExpression);
+                    }
+                }
+
                 if (visitedExpression is TableExpressionBase tableExpressionBase
                     && !_visitedTableExpressionBases.Contains(tableExpressionBase)
                     && tableExpressionBase.Alias != null)
