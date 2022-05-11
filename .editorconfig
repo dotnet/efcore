@@ -9,6 +9,7 @@ root = true
 indent_style = space
 trim_trailing_whitespace = true
 guidelines = 140
+max_line_length = 140
 
 # Code files
 [*.{cs,csx,vb,vbx}]
@@ -214,14 +215,6 @@ dotnet_naming_rule.type_parameter_naming.symbols = type_parameter_symbol
 dotnet_naming_rule.type_parameter_naming.style = type_parameter_style
 dotnet_naming_rule.type_parameter_naming.severity = suggestion
 
-# Private Fields
-dotnet_naming_symbols.private_field_symbol.applicable_kinds = field
-dotnet_naming_symbols.private_field_symbol.applicable_accessibilities = private
-
-dotnet_naming_rule.private_field_naming.symbols = private_field_symbol
-dotnet_naming_rule.private_field_naming.style = _camelCase
-dotnet_naming_rule.private_field_naming.severity = suggestion
-
 # Visible Fields
 dotnet_naming_symbols.public_field_symbol.applicable_kinds = field
 dotnet_naming_symbols.public_field_symbol.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
@@ -229,6 +222,15 @@ dotnet_naming_symbols.public_field_symbol.applicable_accessibilities = public, i
 dotnet_naming_rule.public_field_naming.symbols = public_field_symbol
 dotnet_naming_rule.public_field_naming.style = pascal_case_style
 dotnet_naming_rule.public_field_naming.severity = suggestion
+
+# Private constant Fields
+dotnet_naming_symbols.const_field_symbol.applicable_kinds = field
+dotnet_naming_symbols.const_field_symbol.applicable_accessibilities = private
+dotnet_naming_symbols.const_field_symbol.required_modifiers = const
+
+dotnet_naming_rule.const_field_naming.symbols = const_field_symbol
+dotnet_naming_rule.const_field_naming.style = pascal_case_style
+dotnet_naming_rule.const_field_naming.severity = suggestion
 
 # Parameters
 dotnet_naming_symbols.parameter_symbol.applicable_kinds = parameter

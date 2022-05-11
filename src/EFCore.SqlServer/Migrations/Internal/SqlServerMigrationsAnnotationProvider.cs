@@ -1,206 +1,138 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
 {
     /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    ///     </para>
+    ///     Initializes a new instance of this class.
     /// </summary>
-    public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
+    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+#pragma warning disable EF1001 // Internal EF Core API usage.
+    public SqlServerMigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        : base(dependencies)
     {
-        /// <summary>
-        ///     Initializes a new instance of this class.
-        /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public SqlServerMigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
-            : base(dependencies)
+    }
+
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRemove(IRelationalModel model)
+        => model.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.EditionOptions);
+
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRemove(ITable table)
+        => table.GetAnnotations();
+
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRemove(IUniqueConstraint constraint)
+    {
+        if (constraint.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
         {
+            yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalPeriodStartColumnName,
+                constraint.Table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
+
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalPeriodEndColumnName,
+                constraint.Table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableName,
+                constraint.Table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                constraint.Table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
         }
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IModel model)
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRemove(IColumn column)
+    {
+        if (column.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
         {
-            var maxSize = model.GetDatabaseMaxSize();
-            var serviceTier = model.GetServiceTierSql();
-            var performanceLevel = model.GetPerformanceLevelSql();
-            if (maxSize != null
-                || serviceTier != null
-                || performanceLevel != null)
-            {
-                var options = new StringBuilder();
+            yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
 
-                if (maxSize != null)
-                {
-                    options.Append("MAXSIZE = ");
-                    options.Append(maxSize);
-                    options.Append(", ");
-                }
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableName,
+                column.Table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
-                if (serviceTier != null)
-                {
-                    options.Append("EDITION = ");
-                    options.Append(serviceTier);
-                    options.Append(", ");
-                }
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                column.Table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
 
-                if (performanceLevel != null)
-                {
-                    options.Append("SERVICE_OBJECTIVE = ");
-                    options.Append(performanceLevel);
-                    options.Append(", ");
-                }
-
-                options.Remove(options.Length - 2, 2);
-
-                yield return new Annotation(SqlServerAnnotationNames.EditionOptions, options.ToString());
-            }
-
-            foreach (var annotationForRemove in ForRemove(model))
-            {
-                yield return annotationForRemove;
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IEntityType entityType) => ForRemove(entityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IKey key)
-        {
-            var isClustered = key.IsClustered();
-            if (isClustered.HasValue)
+            if (column[SqlServerAnnotationNames.TemporalPeriodStartColumnName] is string periodStartColumnName)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.Clustered,
-                    isClustered.Value);
+                    SqlServerAnnotationNames.TemporalPeriodStartColumnName,
+                    periodStartColumnName);
+            }
+
+            if (column[SqlServerAnnotationNames.TemporalPeriodEndColumnName] is string periodEndColumnName)
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalPeriodEndColumnName,
+                    periodEndColumnName);
             }
         }
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IIndex index)
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRename(ITable table)
+    {
+        if (table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
         {
-            var isClustered = index.IsClustered();
-            if (isClustered.HasValue)
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.Clustered,
-                    isClustered.Value);
-            }
+            yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
 
-            var includeProperties = index.GetIncludeProperties();
-            if (includeProperties != null)
-            {
-                var includeColumns = (IReadOnlyList<string>)includeProperties
-                    .Select(p => index.DeclaringEntityType.FindProperty(p).GetColumnName())
-                    .ToArray();
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableName,
+                table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
-                yield return new Annotation(
-                    SqlServerAnnotationNames.Include,
-                    includeColumns);
-            }
-
-            var isOnline = index.IsCreatedOnline();
-            if (isOnline.HasValue)
-            {
-                yield return new Annotation(
-                    SqlServerAnnotationNames.CreatedOnline,
-                    isOnline.Value);
-            }
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
         }
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<IAnnotation> For(IProperty property)
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRename(IColumn column)
+    {
+        if (column.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
         {
-            if (property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
-            {
-                var seed = property.GetIdentitySeed();
-                var increment = property.GetIdentityIncrement();
+            yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
 
-                yield return new Annotation(
-                    SqlServerAnnotationNames.Identity,
-                    string.Format(CultureInfo.InvariantCulture, "{0}, {1}", seed ?? 1, increment ?? 1));
-            }
-        }
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableName,
+                column.Table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IModel model)
-        {
-            if (model.GetEntityTypes().Any(e => e.BaseType == null && e.IsMemoryOptimized()))
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                column.Table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
+
+            if (column[SqlServerAnnotationNames.TemporalPeriodStartColumnName] is string periodStartColumnName)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
+                    SqlServerAnnotationNames.TemporalPeriodStartColumnName,
+                    periodStartColumnName);
             }
-        }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override IEnumerable<IAnnotation> ForRemove(IEntityType entityType)
-        {
-            if (IsMemoryOptimized(entityType))
+            if (column[SqlServerAnnotationNames.TemporalPeriodEndColumnName] is string periodEndColumnName)
             {
                 yield return new Annotation(
-                    SqlServerAnnotationNames.MemoryOptimized,
-                    true);
+                    SqlServerAnnotationNames.TemporalPeriodEndColumnName,
+                    periodEndColumnName);
             }
         }
-
-        private static bool IsMemoryOptimized(IEntityType entityType)
-            => entityType.GetAllBaseTypesInclusive().Any(t => t.IsMemoryOptimized());
     }
 }

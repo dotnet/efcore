@@ -1,22 +1,21 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+/// <summary>
+///     A factory for creating <see cref="QuerySqlGenerator" /> instances.
+/// </summary>
+/// <remarks>
+///     The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+/// </remarks>
+public interface IQuerySqlGeneratorFactory
 {
     /// <summary>
-    ///     <para>
-    ///         A factory for creating <see cref="QuerySqlGenerator" /> instances.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    ///     </para>
+    ///     Creates a new <see cref="QuerySqlGenerator" />.
     /// </summary>
-    public interface IQuerySqlGeneratorFactory
-    {
-        QuerySqlGenerator Create();
-    }
+    /// <returns>A SQL generator.</returns>
+    QuerySqlGenerator Create();
 }

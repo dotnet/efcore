@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
             {
                 _fixture = CreateFixture();
                 _fixture.Initialize(0, 1000, 0, 0);
+                _context = _fixture.CreateContext(disableBatching: Batching);
             }
 
             public virtual void InitializeContext()
             {
-                _context = _fixture.CreateContext(disableBatching: Batching);
                 _transaction = _context.Database.BeginTransaction();
             }
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
                 }
 
                 _transaction.Dispose();
-                _context.Dispose();
+                _context.ChangeTracker.Clear();
             }
 
             [Benchmark]

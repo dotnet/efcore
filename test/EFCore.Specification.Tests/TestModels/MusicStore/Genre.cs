@@ -1,20 +1,18 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
+namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
+
+public class Genre
 {
-    public class Genre
-    {
-        public int GenreId { get; set; }
+    public int GenreId { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+    [Required]
+    public string Name { get; set; }
 
-        public string Description { get; set; }
+    public string Description { get; set; }
 
-        public List<Album> Albums { get; set; }
-    }
+    public List<Album> Albums { get; set; }
 }

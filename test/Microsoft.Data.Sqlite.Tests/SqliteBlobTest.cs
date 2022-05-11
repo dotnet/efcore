@@ -1,5 +1,5 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.IO;
@@ -15,7 +15,7 @@ namespace Microsoft.Data.Sqlite
         private const string Column = "value";
         private const long Rowid = 1;
 
-        private readonly SqliteConnection _connection = new SqliteConnection("Data Source=:memory:");
+        private readonly SqliteConnection _connection = new("Data Source=:memory:");
 
         public SqliteBlobTest()
         {
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Sqlite
         public void Ctor_throws_when_table_null()
         {
             var ex = Assert.Throws<ArgumentNullException>(
-                () => new SqliteBlob(_connection, null, Column, Rowid));
+                () => new SqliteBlob(_connection, null!, Column, Rowid));
             Assert.Equal("tableName", ex.ParamName);
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Sqlite
         public void Ctor_throws_when_column_null()
         {
             var ex = Assert.Throws<ArgumentNullException>(
-                () => new SqliteBlob(_connection, Table, null, Rowid));
+                () => new SqliteBlob(_connection, Table, null!, Rowid));
             Assert.Equal("columnName", ex.ParamName);
         }
 
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Sqlite
             using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => stream.Read(null, 0, 1));
+                    () => stream.Read(null!, 0, 1));
 
                 Assert.Equal("buffer", ex.ParamName);
             }
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Sqlite
             using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<ArgumentNullException>(
-                    () => stream.Write(null, 0, 0));
+                    () => stream.Write(null!, 0, 0));
                 Assert.Equal("buffer", ex.ParamName);
             }
         }
@@ -419,6 +419,22 @@ namespace Microsoft.Data.Sqlite
 
             var ex = Assert.Throws<ObjectDisposedException>(
                 () => stream.Write(new byte[] { 3 }, 0, 1));
+        }
+
+        [Fact]
+        public void Empty_works()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+
+            connection.ExecuteNonQuery(
+            @"
+                CREATE TABLE """" ("""" BLOB);
+                INSERT INTO """" (rowid, """") VALUES(1, X'02');
+            ");
+
+            using var stream = new SqliteBlob(connection, "", "", 1);
+            Assert.Equal(2, stream.ReadByte());
         }
 
         protected Stream CreateStream(bool readOnly = false)

@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Globalization;
@@ -11,8 +11,8 @@ namespace Microsoft.Data.Sqlite.TestUtilities
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class UseCultureAttribute : BeforeAfterTestAttribute
     {
-        private CultureInfo _originalCulture;
-        private CultureInfo _originalUICulture;
+        private CultureInfo? _originalCulture;
+        private CultureInfo? _originalUICulture;
 
         public UseCultureAttribute(string culture)
             : this(culture, culture)
@@ -39,8 +39,8 @@ namespace Microsoft.Data.Sqlite.TestUtilities
 
         public override void After(MethodInfo methodUnderTest)
         {
-            CultureInfo.CurrentCulture = _originalCulture;
-            CultureInfo.CurrentUICulture = _originalUICulture;
+            CultureInfo.CurrentCulture = _originalCulture!;
+            CultureInfo.CurrentUICulture = _originalUICulture!;
         }
     }
 }

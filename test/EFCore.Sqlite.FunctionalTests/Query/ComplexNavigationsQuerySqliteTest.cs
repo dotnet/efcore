@@ -1,37 +1,45 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading.Tasks;
-using Xunit;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqliteFixture>
 {
-    public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryTestBase<ComplexNavigationsQuerySqliteFixture>
+    public ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture)
+        : base(fixture)
     {
-        public ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(bool isAsync)
-        {
-            return base.SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Project_collection_navigation_nested_with_take(bool isAsync)
-        {
-            return base.Project_collection_navigation_nested_with_take(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Include_inside_subquery(bool isAsync)
-        {
-            return base.Include_inside_subquery(isAsync);
-        }
-
-        // Sqlite does not support cross/outer apply
-        public override Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async) => null;
     }
+
+    public override async Task Let_let_contains_from_outer_let(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Let_let_contains_from_outer_let(async))).Message);
+
+    public override async Task Prune_does_not_throw_null_ref(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Prune_does_not_throw_null_ref(async))).Message);
+
+    public override async Task Join_with_result_selector_returning_queryable_throws_validation_error(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Join_with_result_selector_returning_queryable_throws_validation_error(async))).Message);
+
+    public override async Task Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(async))).Message);
+
+    public override Task GroupJoin_client_method_in_OrderBy(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.GroupJoin_client_method_in_OrderBy(async),
+            CoreStrings.QueryUnableToTranslateMethod(
+                "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQuerySqliteFixture>",
+                "ClientMethodNullableInt"));
 }

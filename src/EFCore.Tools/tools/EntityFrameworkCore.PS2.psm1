@@ -14,16 +14,22 @@ $versionErrorMessage = 'The Entity Framework Core Package Manager Console Tools 
     The name of the migration.
 
 .PARAMETER OutputDir
-    The directory (and sub-namespace) to use. Paths are relative to the project directory. Defaults to "Migrations".
+    The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
 
 .PARAMETER Context
-    The DbContext type to use.
+    The DbContext to use.
 
 .PARAMETER Project
     The project to use.
 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Namespace
+    The namespace to use. Matches the directory by default.
+
+.PARAMETER Args
+    Arguments passed to the application.
 
 .LINK
     Remove-Migration
@@ -35,9 +41,68 @@ function Add-Migration(
     $OutputDir,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Namespace,
+    $Args)
 {
     WarnIfEF6 'Add-Migration'
+    throw $UpdatePowerShell
+}
+
+<#
+.SYNOPSIS
+    Creates an executable to update the database.
+
+.DESCRIPTION
+    Creates an executable to update the database.
+
+.PARAMETER Output
+    The path of executable file to create.
+
+.PARAMETER Force
+    Overwrite existing files.
+
+.PARAMETER SelfContained
+    Also bundle the .NET runtime so it doesn't need to be installed on the machine.
+
+.PARAMETER TargetRuntime
+    The target runtime to bundle for.
+
+.PARAMETER Configuration
+    The configuration to use for the bundle.
+
+.PARAMETER Framework
+    The target framework. Defaults to the first one in the project.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    Script-Migration
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Bundle-Migration(
+    $Output,
+    [switch] $Force,
+    [switch] $SelfContained,
+    $TargetRuntime,
+    $Configuration,
+    $Framework,
+    $Context,
+    $Project,
+    $StartupProject,
+    $Args)
+{
     throw $UpdatePowerShell
 }
 
@@ -57,6 +122,9 @@ function Add-Migration(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Update-Database
     about_EntityFrameworkCore
@@ -64,7 +132,8 @@ function Add-Migration(
 function Drop-Database(
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -77,10 +146,10 @@ function Enable-Migrations
 
 <#
 .SYNOPSIS
-    Gets information about DbContext types.
+    Lists and gets information about available DbContext types.
 
 .DESCRIPTION
-    Gets information about DbContext types.
+    Lists and gets information about available DbContext types.
 
 .PARAMETER Context
     The DbContext to use.
@@ -91,13 +160,59 @@ function Enable-Migrations
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     about_EntityFrameworkCore
 #>
 function Get-DbContext(
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
+{
+    throw $UpdatePowerShell
+}
+
+<#
+.SYNOPSIS
+    Lists available migrations.
+
+.DESCRIPTION
+    Lists available migrations.
+
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
+.PARAMETER NoConnect
+    Don't connect to the database.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    Add-Migration
+    Remove-Migration
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Get-Migration(
+    $Connection,
+    [switch] $NoConnect,
+    $Context,
+    $Project,
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -121,15 +236,20 @@ function Get-DbContext(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Add-Migration
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Remove-Migration(
     [switch] $Force,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -151,10 +271,10 @@ function Remove-Migration(
     The directory to put files in. Paths are relative to the project directory.
 
 .PARAMETER ContextDir
-    The directory to put DbContext file in. Paths are relative to the project directory.
+    The directory to put the DbContext file in. Paths are relative to the project directory.
 
 .PARAMETER Context
-    The name of the DbContext to generate.
+    The name of the DbContext. Defaults to the database name.
 
 .PARAMETER Schemas
     The schemas of tables to generate entity types for.
@@ -171,11 +291,26 @@ function Remove-Migration(
 .PARAMETER Force
     Overwrite existing files.
 
+.PARAMETER NoOnConfiguring
+    Don't generate DbContext.OnConfiguring.
+
 .PARAMETER Project
     The project to use.
 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Namespace
+    The namespace to use. Matches the directory by default.
+
+.PARAMETER ContextNamespace
+    The namespace of the DbContext class. Matches the directory by default.
+
+.PARAMETER NoPluralize
+    Don't use the pluralizer.
+
+.PARAMETER Args
+    Arguments passed to the application.
 
 .LINK
     about_EntityFrameworkCore
@@ -191,18 +326,23 @@ function Scaffold-DbContext(
     [switch] $DataAnnotations,
     [switch] $UseDatabaseNames,
     [switch] $Force,
+    [switch] $NoOnConfiguring,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Namespace,
+    $ContextNamespace,
+    [switch] $NoPluralize,
+    $Args)
 {
     throw $UpdatePowerShell
 }
 
 <#
 .SYNOPSIS
-    Generates a SQL script from current DbContext.
+    Generates a SQL script from the DbContext. Bypasses any migrations.
 
 .DESCRIPTION
-    Generates a SQL script from current DbContext.
+    Generates a SQL script from the DbContext. Bypasses any migrations.
 
 .PARAMETER Output
     The file to write the result to.
@@ -216,6 +356,9 @@ function Scaffold-DbContext(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     about_EntityFrameworkCore
 #>
@@ -223,7 +366,8 @@ function Script-DbContext(
     $Output,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -239,10 +383,13 @@ function Script-DbContext(
     The starting migration. Defaults to '0' (the initial database).
 
 .PARAMETER To
-    The ending migration. Defaults to the last migration.
+    The target migration. Defaults to the last migration.
 
 .PARAMETER Idempotent
     Generate a script that can be used on a database at any migration.
+
+.PARAMETER NoTransactions
+    Don't generate SQL transaction statements.
 
 .PARAMETER Output
     The file to write the result to.
@@ -256,18 +403,24 @@ function Script-DbContext(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Update-Database
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Script-Migration(
     $From,
     $To,
     [switch] $Idempotent,
+    [switch] $NoTransactions,
     $Output,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     throw $UpdatePowerShell
 }
@@ -282,6 +435,9 @@ function Script-Migration(
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -291,15 +447,20 @@ function Script-Migration(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Script-Migration
     about_EntityFrameworkCore
 #>
 function Update-Database(
     $Migration,
+    $Connection,
     $Context,
     $Project,
-    $StartupProject)
+    $StartupProject,
+    $Args)
 {
     WarnIfEF6 'Update-Database'
     throw $UpdatePowerShell

@@ -1,22 +1,22 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Design;
 
-namespace Microsoft.EntityFrameworkCore.Design
+/// <summary>
+///     Enables configuring design-time services. Tools will automatically discover implementations of this
+///     interface that are in the startup assembly.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///     for more information and examples.
+/// </remarks>
+public interface IDesignTimeServices
 {
     /// <summary>
-    ///     Enables configuring design-time services. Tools will automatically discover implementations of this
-    ///     interface that are in the startup assembly.
+    ///     Configures design-time services. Use this method to override the default design-time services with your
+    ///     own implementations.
     /// </summary>
-    public interface IDesignTimeServices
-    {
-        /// <summary>
-        ///     Configures design-time services. Use this method to override the default design-time services with your
-        ///     own implementations.
-        /// </summary>
-        /// <param name="serviceCollection"> The design-time service collection. </param>
-        void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection);
-    }
+    /// <param name="serviceCollection">The design-time service collection.</param>
+    void ConfigureDesignTimeServices(IServiceCollection serviceCollection);
 }

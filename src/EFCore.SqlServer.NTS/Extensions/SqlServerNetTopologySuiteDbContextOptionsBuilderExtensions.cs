@@ -1,36 +1,36 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore;
+
+/// <summary>
+///     NetTopologySuite specific extension methods for <see cref="SqlServerDbContextOptionsBuilder" />.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     for more information and examples.
+/// </remarks>
+public static class SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions
 {
     /// <summary>
-    ///     NetTopologySuite specific extension methods for <see cref="SqlServerDbContextOptionsBuilder" />.
+    ///     Use NetTopologySuite to access SQL Server spatial data.
     /// </summary>
-    public static class SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions
+    /// <param name="optionsBuilder">The build being used to configure SQL Server.</param>
+    /// <returns>The options builder so that further configuration can be chained.</returns>
+    public static SqlServerDbContextOptionsBuilder UseNetTopologySuite(
+        this SqlServerDbContextOptionsBuilder optionsBuilder)
     {
-        /// <summary>
-        ///     Use NetTopologySuite to access SQL Server spatial data.
-        /// </summary>
-        /// <param name="optionsBuilder"> The build being used to configure SQL Server. </param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
-        public static SqlServerDbContextOptionsBuilder UseNetTopologySuite(
-            [NotNull] this SqlServerDbContextOptionsBuilder optionsBuilder)
-        {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+        var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
 
-            var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
+        var extension = coreOptionsBuilder.Options.FindExtension<SqlServerNetTopologySuiteOptionsExtension>()
+            ?? new SqlServerNetTopologySuiteOptionsExtension();
 
-            var extension = coreOptionsBuilder.Options.FindExtension<SqlServerNetTopologySuiteOptionsExtension>()
-                ?? new SqlServerNetTopologySuiteOptionsExtension();
+        ((IDbContextOptionsBuilderInfrastructure)coreOptionsBuilder).AddOrUpdateExtension(extension);
 
-            ((IDbContextOptionsBuilderInfrastructure)coreOptionsBuilder).AddOrUpdateExtension(extension);
-
-            return optionsBuilder;
-        }
+        return optionsBuilder;
     }
 }

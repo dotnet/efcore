@@ -1,72 +1,31 @@
 <Project>
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>3.1.26</VersionPrefix>
-    <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
+    <VersionPrefix>7.0.0</VersionPrefix>
+    <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>5</PreReleaseVersionIteration>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
     <!--
         When StabilizePackageVersion is set to 'true', this branch will produce stable outputs for 'Shipping' packages
     -->
-    <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">true</StabilizePackageVersion>
+    <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">false</StabilizePackageVersion>
     <DotNetFinalVersionKind Condition="'$(StabilizePackageVersion)' == 'true'">release</DotNetFinalVersionKind>
   </PropertyGroup>
   <PropertyGroup Label="Arcade settings">
-    <!-- Opt-in to using the ref assembly version bundled with Arcade. -->
-    <UsingToolNetFrameworkReferenceAssemblies>True</UsingToolNetFrameworkReferenceAssemblies>
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
-  <PropertyGroup Label="Dependencies from nuget.org">
-    <CastleCorePackageVersion>4.4.0</CastleCorePackageVersion>
-    <MicrosoftAzureCosmosPackageVersion>3.3.3</MicrosoftAzureCosmosPackageVersion>
-    <MicrosoftCodeAnalysisCSharpPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpPackageVersion>
-    <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>3.3.1</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
-    <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
-    <NetTopologySuitePackageVersion>2.0.0</NetTopologySuitePackageVersion>
-    <NetTopologySuiteIOSpatiaLitePackageVersion>2.0.0</NetTopologySuiteIOSpatiaLitePackageVersion>
-    <NetTopologySuiteIOSqlServerBytesPackageVersion>2.0.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
-    <SQLitePCLRawBundleESqlite3PackageVersion>2.0.4</SQLitePCLRawBundleESqlite3PackageVersion>
-    <SQLitePCLRawBundleESqlcipherPackageVersion>2.0.4</SQLitePCLRawBundleESqlcipherPackageVersion>
-    <SQLitePCLRawCorePackageVersion>2.0.4</SQLitePCLRawCorePackageVersion>
-    <StyleCopAnalyzersPackageVersion>1.1.118</StyleCopAnalyzersPackageVersion>
-    <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
-    <MicrosoftDataSqlClientPackageVersion>1.1.3</MicrosoftDataSqlClientPackageVersion>
+  <PropertyGroup Label="Dependencies from dotnet/runtime">
+    <MicrosoftExtensionsCachingMemoryVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>7.0.0-preview.5.22258.4</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
-  <PropertyGroup Label="Dependencies from aspnet/Extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.1.25</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.1.25</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.1.25</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.1.25</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.1.25</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.1.25-servicing.22218.4</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.1.25</MicrosoftExtensionsLoggingPackageVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftBclAsyncInterfacesVersion>1.1.1</MicrosoftBclAsyncInterfacesVersion>
-    <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
-    <MicrosoftCSharpPackageVersion>4.7.0</MicrosoftCSharpPackageVersion>
-    <SystemTextJsonPackageVersion>4.7.2</SystemTextJsonPackageVersion>
-    <SystemIOPipelinesPackageVersion>4.7.5</SystemIOPipelinesPackageVersion>
-    <SystemRuntimeCompilerServicesUnsafePackageVersion>4.7.1</SystemRuntimeCompilerServicesUnsafePackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.7.1</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.7.0</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.7.1</SystemDiagnosticsDiagnosticSourcePackageVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.1.6</MicrosoftDotNetPlatformAbstractionsPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.1.25</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreAppRefPackageVersion>3.1.0</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.1.25</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
-    <MicrosoftNETCoreAppInternalPackageVersion>3.1.25-servicing.22218.2</MicrosoftNETCoreAppInternalPackageVersion>
-    <NETStandardLibraryRefPackageVersion>2.1.0</NETStandardLibraryRefPackageVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/roslyn">
-    <MicrosoftNetCompilersToolsetVersion>3.4.1-beta4-20127-10</MicrosoftNetCompilersToolsetVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependency version settings">
-    <!--
-      Win-x64 is used here because we have picked an arbitrary runtime identifier to flow the version of the latest NETCore.App runtime.
-      All Runtime.$rid packages should have the same version.
-    -->
-    <MicrosoftNETCoreAppRuntimeVersion>$(MicrosoftNETCoreAppRuntimewinx64PackageVersion)</MicrosoftNETCoreAppRuntimeVersion>
+  <PropertyGroup Label="Other dependencies">
+    <MicrosoftCodeAnalysisVersion>4.1.0</MicrosoftCodeAnalysisVersion>
   </PropertyGroup>
 </Project>

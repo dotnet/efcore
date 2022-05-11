@@ -1,18 +1,15 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Tools;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+public class CommandExceptionTest
 {
-    public class CommandExceptionTest
+    [Fact]
+    public void Ctor_works()
     {
-        [Fact]
-        public void Ctor_works()
-        {
-            var ex = new CommandException("Message1");
+        var ex = new CommandException("Message1");
 
-            Assert.Equal("Message1", ex.Message);
-        }
+        Assert.Equal("Message1", ex.Message);
     }
 }
