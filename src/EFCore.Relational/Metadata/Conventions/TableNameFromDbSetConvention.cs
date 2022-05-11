@@ -9,7 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
+public class TableNameFromDbSetConvention :
+    IEntityTypeAddedConvention,
+    IEntityTypeBaseTypeChangedConvention,
+    IModelFinalizingConvention
 {
     private readonly IDictionary<Type, string> _sets;
 
@@ -115,11 +118,20 @@ public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityT
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
             if (entityType.GetTableName() != null
-                && entityType.GetViewNameConfigurationSource() != null
                 && _sets.ContainsKey(entityType.ClrType))
             {
-                // Undo the convention change if the entity type is mapped to a view
-                entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+                if (entityType.GetViewNameConfigurationSource() != null)
+                {
+                    // Undo the convention change if the entity type is mapped to a view
+                    entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+                }
+                
+                if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                    && entityType.IsAbstract())
+                {
+                    // Undo the convention change if the entity type is mapped using TPC
+                    entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+                }
             }
         }
     }

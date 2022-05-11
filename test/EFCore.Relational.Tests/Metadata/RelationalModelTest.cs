@@ -919,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                         if (mapToTables)
                         {
-                            cb.ToTable("AbstractBase");
+                            cb.ToTable(t => { });
                         }
                     }
 

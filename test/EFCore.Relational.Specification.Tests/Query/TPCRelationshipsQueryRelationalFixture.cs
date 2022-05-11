@@ -11,14 +11,16 @@ public abstract class TPCRelationshipsQueryRelationalFixture : InheritanceRelati
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(
-            w =>
-                w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+            w => w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<BaseInheritanceRelationshipEntity>().UseTpcMappingStrategy();
+        modelBuilder.Entity<BaseInheritanceRelationshipEntity>().UseTpcMappingStrategy()
+            // Table-sharing is not supported in TPC mapping
+            .OwnsMany(e => e.OwnedCollectionOnBase, e => e.ToTable("OwnedCollections"))
+            .OwnsOne(e => e.OwnedReferenceOnBase, e => e.ToTable("OwnedReferences"));
         modelBuilder.Entity<BaseReferenceOnBase>().UseTpcMappingStrategy();
         modelBuilder.Entity<BaseCollectionOnBase>().UseTpcMappingStrategy();
         modelBuilder.Entity<BaseReferenceOnDerived>().UseTpcMappingStrategy();
