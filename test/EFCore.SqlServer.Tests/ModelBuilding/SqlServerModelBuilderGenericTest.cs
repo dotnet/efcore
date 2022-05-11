@@ -1004,7 +1004,7 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             Assert.Equal("bar", owner.GetViewName());
             Assert.Equal("foo", owner.GetViewSchema());
 
-            Assert.Equal("FK_Order__CustomerId", owned.GetForeignKeys().Single().GetConstraintName());
+            Assert.Null(owned.GetForeignKeys().Single().GetConstraintName());
             Assert.Equal("IX_Order_CustomerId", owned.GetIndexes().Single().GetDatabaseName());
             Assert.Equal("PK_Order", owned.FindPrimaryKey().GetName());
             Assert.Equal(
