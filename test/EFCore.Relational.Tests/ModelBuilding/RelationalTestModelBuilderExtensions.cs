@@ -372,6 +372,82 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToView<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string? schema)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(schema);
+                break;
+            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.ToView(schema);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToView<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string? name,
+        string? schema)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(name, schema);
+                break;
+            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.ToView(name, schema);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToView<TOwnerEntity, TRelatedEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+        string? schema)
+        where TOwnerEntity : class
+        where TRelatedEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(schema);
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.ToView(schema);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToView<TOwnerEntity, TRelatedEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
+        string? name,
+        string? schema)
+        where TOwnerEntity : class
+        where TRelatedEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
+                genericBuilder.Instance.ToView(name, schema);
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.ToView(name, schema);
+                break;
+        }
+
+        return builder;
+    }
+    
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
         string name,

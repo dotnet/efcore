@@ -936,6 +936,84 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             Assert.Null(owned.GetSchema());
         }
 
+        [ConditionalFact]
+        public virtual void Owned_type_collections_can_be_mapped_to_a_view()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().OwnsMany(
+                c => c.Orders,
+                r =>
+                {
+                    r.HasKey(o => o.OrderId);
+                    r.Ignore(o => o.OrderCombination);
+                    r.Ignore(o => o.Details);
+                    r.ToView("bar", "foo");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(Customer));
+            var ownership = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
+            var owned = ownership.DeclaringEntityType;
+            Assert.True(ownership.IsOwnership);
+            Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+            Assert.Empty(ownership.GetMappedConstraints());
+
+            Assert.Equal(nameof(Customer), owner.GetTableName());
+            Assert.Null(owner.GetSchema());
+
+            Assert.Null(owned.GetForeignKeys().Single().GetConstraintName());
+            Assert.Single(owned.GetIndexes());
+            Assert.Null(owned.FindPrimaryKey().GetName());
+            Assert.Equal(
+                new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
+                owned.GetProperties().Select(p => p.GetColumnBaseName()));
+            Assert.Null(owned.GetTableName());
+            Assert.Null(owned.GetSchema());
+            Assert.Equal("bar", owned.GetViewName());
+            Assert.Equal("foo", owned.GetViewSchema());
+        }
+
+        [ConditionalFact]
+        public virtual void Owner_can_be_mapped_to_a_view()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().OwnsMany(
+                c => c.Orders,
+                r =>
+                {
+                    r.HasKey(o => o.OrderId);
+                    r.Ignore(o => o.OrderCombination);
+                    r.Ignore(o => o.Details);
+                })
+                .ToView("bar", "foo");
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(Customer));
+            var ownership = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
+            var owned = ownership.DeclaringEntityType;
+            Assert.True(ownership.IsOwnership);
+            Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+            Assert.Empty(ownership.GetMappedConstraints());
+
+            Assert.Null(owner.GetTableName());
+            Assert.Null(owner.GetSchema());
+            Assert.Equal("bar", owner.GetViewName());
+            Assert.Equal("foo", owner.GetViewSchema());
+
+            Assert.Null(owned.GetForeignKeys().Single().GetConstraintName());
+            Assert.Equal("IX_Order_CustomerId", owned.GetIndexes().Single().GetDatabaseName());
+            Assert.Equal("PK_Order", owned.FindPrimaryKey().GetName());
+            Assert.Equal(
+                new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
+                owned.GetProperties().Select(p => p.GetColumnBaseName()));
+            Assert.Equal(nameof(Order), owned.GetTableName());
+            Assert.Null(owned.GetSchema());
+        }
+        
         public override void Can_configure_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
