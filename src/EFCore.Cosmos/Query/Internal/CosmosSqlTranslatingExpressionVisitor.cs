@@ -33,6 +33,8 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo StringEqualsWithStringComparisonStatic
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
+    private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(object.GetType))!;
+
     private readonly QueryCompilationContext _queryCompilationContext;
     private readonly IModel _model;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -145,6 +147,22 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                     ifFalse));
         }
 
+        if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual
+            && binaryExpression.Left.Type == typeof(Type))
+        {
+            if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
+                && IsTypeConstant(binaryExpression.Right, out var type1))
+            {
+                return ProcessGetType(entityReference1!, type1!, binaryExpression.NodeType == ExpressionType.Equal);
+            }
+
+            if (IsGetTypeMethodCall(binaryExpression.Right, out var entityReference2)
+                && IsTypeConstant(binaryExpression.Left, out var type2))
+            {
+                return ProcessGetType(entityReference2!, type2!, binaryExpression.NodeType == ExpressionType.Equal);
+            }
+        }
+
         var left = TryRemoveImplicitConvert(binaryExpression.Left);
         var right = TryRemoveImplicitConvert(binaryExpression.Right);
 
@@ -198,6 +216,77 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                     sqlLeft,
                     sqlRight,
                     null);
+
+        Expression ProcessGetType(EntityReferenceExpression entityReferenceExpression, Type comparisonType, bool match)
+        {
+            var entityType = entityReferenceExpression.EntityType;
+
+            if (entityType.BaseType == null
+                && !entityType.GetDirectlyDerivedTypes().Any())
+            {
+                // No hierarchy
+                return _sqlExpressionFactory.Constant((entityType.ClrType == comparisonType) == match);
+            }
+
+            if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
+            {
+                // EntitySet will never contain a type of base type
+                return _sqlExpressionFactory.Constant(!match);
+            }
+
+            var derivedType = entityType.GetDerivedTypesInclusive().SingleOrDefault(et => et.ClrType == comparisonType);
+            // If no derived type matches then fail the translation
+            if (derivedType != null)
+            {
+                // If the derived type is abstract type then predicate will always be false
+                if (derivedType.IsAbstract())
+                {
+                    return _sqlExpressionFactory.Constant(!match);
+                }
+
+                // Or add predicate for matching that particular type discriminator value
+                // All hierarchies have discriminator property
+                if (TryBindMember(entityReferenceExpression, MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()))
+                        is SqlExpression discriminatorColumn)
+                {
+                    return match
+                        ? _sqlExpressionFactory.Equal(
+                            discriminatorColumn,
+                            _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()))
+                        : _sqlExpressionFactory.NotEqual(
+                            discriminatorColumn,
+                            _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()));
+                }
+            }
+
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        bool IsGetTypeMethodCall(Expression expression, out EntityReferenceExpression entityReferenceExpression)
+        {
+            entityReferenceExpression = null;
+            if (expression is not MethodCallExpression methodCallExpression
+                || methodCallExpression.Method != GetTypeMethodInfo)
+            {
+                return false;
+            }
+
+            entityReferenceExpression = Visit(methodCallExpression.Object) as EntityReferenceExpression;
+            return entityReferenceExpression != null;
+        }
+
+        static bool IsTypeConstant(Expression expression, out Type type)
+        {
+            type = null;
+            if (expression is not UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+                || unaryExpression.Operand is not ConstantExpression constantExpression)
+            {
+                return false;
+            }
+
+            type = constantExpression.Value as Type;
+            return type != null;
+        }
 
         static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
         {

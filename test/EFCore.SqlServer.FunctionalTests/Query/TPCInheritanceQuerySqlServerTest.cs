@@ -615,6 +615,7 @@ FROM [Kiwi] AS [k]");
 
         AssertSql();
     }
+
     public override async Task Using_is_operator_on_multiple_type_with_no_result(bool async)
     {
         await base.Using_is_operator_on_multiple_type_with_no_result(async);
@@ -646,6 +647,81 @@ WHERE [t].[Discriminator] = N'Eagle'");
         await base.Using_OfType_on_multiple_type_with_no_result(async);
 
         AssertSql();
+    }
+
+    public override async Task GetType_in_hierarchy_in_abstract_base_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_abstract_base_type(async);
+
+        AssertSql(
+            @"SELECT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
+FROM (
+    SELECT [e].[Species], [e].[CountryId], [e].[Name], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+    FROM [Eagle] AS [e]
+    UNION ALL
+    SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+    FROM [Kiwi] AS [k]
+) AS [t]
+WHERE 0 = 1");
+    }
+
+    public override async Task GetType_in_hierarchy_in_intermediate_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_intermediate_type(async);
+
+        AssertSql(
+            @"SELECT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
+FROM (
+    SELECT [e].[Species], [e].[CountryId], [e].[Name], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+    FROM [Eagle] AS [e]
+    UNION ALL
+    SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+    FROM [Kiwi] AS [k]
+) AS [t]
+WHERE 0 = 1");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling(async);
+
+        AssertSql(
+            @"SELECT [e].[Species], [e].[CountryId], [e].[Name], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+FROM [Eagle] AS [e]");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2(async);
+
+        AssertSql(
+            @"SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+FROM [Kiwi] AS [k]");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(async);
+
+        AssertSql(
+            @"SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+FROM [Kiwi] AS [k]");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(async);
+
+        AssertSql(
+            @"SELECT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
+FROM (
+    SELECT [e].[Species], [e].[CountryId], [e].[Name], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+    FROM [Eagle] AS [e]
+    UNION ALL
+    SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+    FROM [Kiwi] AS [k]
+) AS [t]
+WHERE [t].[Discriminator] <> N'Kiwi'");
     }
 
     private void AssertSql(params string[] expected)

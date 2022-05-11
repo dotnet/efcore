@@ -1713,6 +1713,64 @@ WHERE EXISTS (
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
     WHERE [e].[Id] = [j].[OneId] AND [e0].[Id] = @__entity_equality_two_0_Id)");
     }
+    public override async Task GetType_in_hierarchy_in_base_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_base_type(async);
+
+        AssertSql(
+            @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+    WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+END AS [Discriminator]
+FROM [Roots] AS [r]
+LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
+LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
+WHERE [l].[Id] IS NULL AND [b].[Id] IS NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_intermediate_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_intermediate_type(async);
+
+        AssertSql(
+            @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+    WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+END AS [Discriminator]
+FROM [Roots] AS [r]
+LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
+LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
+WHERE [l].[Id] IS NULL AND [b].[Id] IS NOT NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type(async);
+
+        AssertSql(
+            @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+    WHEN [b].[Id] IS NOT NULL THEN N'EntityBranch'
+END AS [Discriminator]
+FROM [Roots] AS [r]
+LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
+LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
+WHERE [l].[Id] IS NOT NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_querying_base_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_querying_base_type(async);
+
+        AssertSql(
+            @"SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
+    WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
+END AS [Discriminator]
+FROM [Roots] AS [r]
+INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
+LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
+WHERE 0 = 1");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

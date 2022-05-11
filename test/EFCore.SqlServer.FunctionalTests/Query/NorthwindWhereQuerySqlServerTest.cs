@@ -2489,6 +2489,44 @@ FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] LIKE N'F%') OR [c].[City] = N'Seattle'");
     }
 
+    public override async Task GetType_on_non_hierarchy1(bool async)
+    {
+        await base.GetType_on_non_hierarchy1(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+    }
+
+    public override async Task GetType_on_non_hierarchy2(bool async)
+    {
+        await base.GetType_on_non_hierarchy2(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1");
+    }
+
+    public override async Task GetType_on_non_hierarchy3(bool async)
+    {
+        await base.GetType_on_non_hierarchy3(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1");
+    }
+
+    public override async Task GetType_on_non_hierarchy4(bool async)
+    {
+        await base.GetType_on_non_hierarchy4(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+    }
+
     public override async Task Where_poco_closure(bool async)
     {
         await base.Where_poco_closure(async);

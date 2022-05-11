@@ -2205,18 +2205,58 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"", ""FISSA"") OR (c[""City""] = ""Seattle"")))");
     }
 
-    public async override Task Where_Like_and_comparison(bool async)
+    public override async Task Where_Like_and_comparison(bool async)
     {
         await AssertTranslationFailed(() => base.Where_Like_and_comparison(async));
 
         AssertSql();
     }
 
-    public async override Task Where_Like_or_comparison(bool async)
+    public override async Task Where_Like_or_comparison(bool async)
     {
         await AssertTranslationFailed(() => base.Where_Like_or_comparison(async));
 
         AssertSql();
+    }
+
+    public override async Task GetType_on_non_hierarchy1(bool async)
+    {
+        await base.GetType_on_non_hierarchy1(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task GetType_on_non_hierarchy2(bool async)
+    {
+        await base.GetType_on_non_hierarchy2(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
+    }
+
+    public override async Task GetType_on_non_hierarchy3(bool async)
+    {
+        await base.GetType_on_non_hierarchy3(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
+    }
+
+    public override async Task GetType_on_non_hierarchy4(bool async)
+    {
+        await base.GetType_on_non_hierarchy4(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
     }
 
     public override async Task Where_compare_null_with_cast_to_object(bool async)
