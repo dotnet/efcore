@@ -99,14 +99,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                         arguments,
                         dbFunction.IsNullable,
                         argumentsPropagateNullability,
-                        method.ReturnType.UnwrapNullableType())
+                        method.ReturnType.UnwrapNullableType(),
+                        dbFunction.TypeMapping)
                     : _sqlExpressionFactory.Function(
                         dbFunction.Schema,
                         dbFunction.Name,
                         arguments,
                         dbFunction.IsNullable,
                         argumentsPropagateNullability,
-                        method.ReturnType.UnwrapNullableType());
+                        method.ReturnType.UnwrapNullableType(),
+                        dbFunction.TypeMapping);
             }
 
             return _plugins.Concat(_translators)
