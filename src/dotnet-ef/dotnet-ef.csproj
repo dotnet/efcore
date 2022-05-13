@@ -12,10 +12,10 @@ dotnet ef dbcontext scaffold
 dotnet ef database drop
 dotnet ef database update
     </Description>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>
     <!-- Because this project uses a custom nuspec, this is necessary to ensure the generated shims are in the publish directory. -->
     <PackagedShimOutputRootDirectory>$(OutDir)</PackagedShimOutputRootDirectory>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
