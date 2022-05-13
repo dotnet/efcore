@@ -503,7 +503,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         {
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
-                && methodCallExpression.Arguments[0] is GroupByShaperExpression groupByShaperExpression)
+                && methodCallExpression.Arguments[0] is RelationalGroupByShaperExpression groupByShaperExpression)
             {
                 return new EnumerableExpression(groupByShaperExpression.ElementSelector);
             }
@@ -517,17 +517,24 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     case nameof(Queryable.Average):
                         if (methodCallExpression.Arguments.Count == 2)
                         {
-                            ProcessSelector(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            enumerableExpression = ProcessSelector(
+                                enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                         }
 
                         result = TranslateAggregate(methodCallExpression.Method, enumerableExpression);
                         break;
 
                     case nameof(Queryable.Count):
-                        if (methodCallExpression.Arguments.Count == 2
-                            && !ProcessPredicate(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()))
+                        if (methodCallExpression.Arguments.Count == 2)
                         {
-                            break;
+                            var newEnumerableExpression = ProcessPredicate(
+                                enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            if (newEnumerableExpression == null)
+                            {
+                                break;
+                            }
+
+                            enumerableExpression = newEnumerableExpression;
                         }
 
                         result = TranslateAggregate(methodCallExpression.Method, enumerableExpression);
@@ -535,27 +542,25 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
 
                     case nameof(Queryable.Distinct):
-                        if (enumerableExpression.Selector is EntityShaperExpression entityShaperExpression
-                            && entityShaperExpression.EntityType.FindPrimaryKey() != null)
-                        {
-                            result = enumerableExpression;
-                        }
-                        else if (!enumerableExpression.IsDistinct)
-                        {
-                            enumerableExpression.ApplyDistinct();
-                            result = enumerableExpression;
-                        }
-                        else
-                        {
-                            result = null;
-                        }
+                        result = enumerableExpression.Selector is EntityShaperExpression entityShaperExpression
+                            && entityShaperExpression.EntityType.FindPrimaryKey() != null
+                            ? enumerableExpression
+                            : !enumerableExpression.IsDistinct
+                                ? enumerableExpression.ApplyDistinct()
+                                : (Expression?)null;
                         break;
 
                     case nameof(Queryable.LongCount):
-                        if (methodCallExpression.Arguments.Count == 2
-                            && !ProcessPredicate(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()))
+                        if (methodCallExpression.Arguments.Count == 2)
                         {
-                            break;
+                            var newEnumerableExpression = ProcessPredicate(
+                                enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            if (newEnumerableExpression == null)
+                            {
+                                break;
+                            }
+
+                            enumerableExpression = newEnumerableExpression;
                         }
 
                         result = TranslateAggregate(methodCallExpression.Method, enumerableExpression);
@@ -564,7 +569,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     case nameof(Queryable.Max):
                         if (methodCallExpression.Arguments.Count == 2)
                         {
-                            ProcessSelector(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            enumerableExpression = ProcessSelector(
+                                enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                         }
 
                         result = TranslateAggregate(methodCallExpression.Method, enumerableExpression);
@@ -573,42 +579,31 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     case nameof(Queryable.Min):
                         if (methodCallExpression.Arguments.Count == 2)
                         {
-                            ProcessSelector(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            enumerableExpression = ProcessSelector(
+                                enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                         }
 
                         result = TranslateAggregate(methodCallExpression.Method, enumerableExpression);
                         break;
 
                     case nameof(Queryable.OrderBy):
-                        if (ProcessOrderByThenBy(
-                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: false, ascending: true))
-                        {
-                            result = enumerableExpression;
-                        }
+                        result = ProcessOrderByThenBy(
+                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: false, ascending: true);
                         break;
 
                     case nameof(Queryable.OrderByDescending):
-                        if (ProcessOrderByThenBy(
-                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: false, ascending: false))
-                        {
-                            result = enumerableExpression;
-                        }
+                        result = ProcessOrderByThenBy(
+                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: false, ascending: false);
                         break;
 
                     case nameof(Queryable.ThenBy):
-                        if (ProcessOrderByThenBy(
-                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: true, ascending: true))
-                        {
-                            result = enumerableExpression;
-                        }
+                        result = ProcessOrderByThenBy(
+                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: true, ascending: true);
                         break;
 
                     case nameof(Queryable.ThenByDescending):
-                        if (ProcessOrderByThenBy(
-                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: true, ascending: false))
-                        {
-                            result = enumerableExpression;
-                        }
+                        result = ProcessOrderByThenBy(
+                            enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(), thenBy: true, ascending: false);
                         break;
 
                     case nameof(Queryable.Select):
@@ -618,17 +613,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     case nameof(Queryable.Sum):
                         if (methodCallExpression.Arguments.Count == 2)
                         {
-                            ProcessSelector(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            enumerableExpression = ProcessSelector(
+                                enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                         }
 
                         result = TranslateAggregate(methodCallExpression.Method, enumerableExpression);
                         break;
 
                     case nameof(Queryable.Where):
-                        if (ProcessPredicate(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()))
-                        {
-                            result = enumerableExpression;
-                        }
+                        result = ProcessPredicate(enumerableExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
                         break;
                 }
 
@@ -1151,46 +1144,34 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], enumerableExpression.Selector, lambdaExpression.Body);
 
     private static EnumerableExpression ProcessSelector(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
-    {
-        var selectorBody = RemapLambda(enumerableExpression, lambdaExpression);
-        enumerableExpression.ApplySelector(selectorBody);
-        return enumerableExpression;
-    }
+        => enumerableExpression.ApplySelector(RemapLambda(enumerableExpression, lambdaExpression));
 
-    private bool ProcessOrderByThenBy(
+    private EnumerableExpression? ProcessOrderByThenBy(
         EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression, bool thenBy, bool ascending)
     {
         var lambdaBody = RemapLambda(enumerableExpression, lambdaExpression);
         var keySelector = TranslateInternal(lambdaBody);
         if (keySelector == null)
         {
-            return false;
+            return null;
         }
 
         var orderingExpression = new OrderingExpression(keySelector, ascending);
-        if (thenBy)
-        {
-            enumerableExpression.AppendOrdering(orderingExpression);
-        }
-        else
-        {
-            enumerableExpression.ApplyOrdering(orderingExpression);
-        }
-
-        return true;
+        return thenBy
+            ? enumerableExpression.AppendOrdering(orderingExpression)
+            : enumerableExpression.ApplyOrdering(orderingExpression);
     }
 
-    private bool ProcessPredicate(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
+    private EnumerableExpression? ProcessPredicate(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
     {
         var lambdaBody = RemapLambda(enumerableExpression, lambdaExpression);
         var predicate = TranslateInternal(lambdaBody);
         if (predicate == null)
         {
-            return false;
+            return null;
         }
 
-        enumerableExpression.ApplyPredicate(predicate);
-        return true;
+        return enumerableExpression.ApplyPredicate(predicate);
     }
 
     private SqlExpression? TranslateAggregate(MethodInfo methodInfo, EnumerableExpression enumerableExpression)
