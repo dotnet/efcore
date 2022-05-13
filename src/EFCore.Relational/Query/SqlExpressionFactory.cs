@@ -637,13 +637,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return;
         }
 
-        var table = selectExpression.Tables[0] switch
-        {
-            TableExpression te => te.Table,
-            TableValuedFunctionExpression tvfe => tvfe.StoreFunction,
-            _ => entityType.GetDefaultMappings().Single().Table,
-        };
-
+        var table = ((ITableBasedExpression)selectExpression.Tables[0]).Table;
         if (table.IsOptional(entityType))
         {
             var entityProjectionExpression = GetMappedEntityProjectionExpression(selectExpression);

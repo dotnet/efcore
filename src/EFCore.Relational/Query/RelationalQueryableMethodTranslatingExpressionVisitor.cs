@@ -77,8 +77,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     _sqlExpressionFactory.Select(
                         fromSqlQueryRootExpression.EntityType,
                         new FromSqlExpression(
-                            fromSqlQueryRootExpression.EntityType.GetDefaultMappings().Single().Table.Name[..1]
-                                .ToLowerInvariant(),
+                            fromSqlQueryRootExpression.EntityType.GetDefaultMappings().Single().Table,
                             fromSqlQueryRootExpression.Sql,
                             fromSqlQueryRootExpression.Argument)));
 
@@ -127,9 +126,14 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 when queryRootExpression.GetType() == typeof(QueryRootExpression)
                 && queryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
                     ISqlQuery sqlQuery:
-                return Visit(
-                    new FromSqlQueryRootExpression(
-                        queryRootExpression.EntityType, sqlQuery.Sql, Expression.Constant(Array.Empty<object>(), typeof(object[]))));
+                return CreateShapedQueryExpression(
+                    queryRootExpression.EntityType,
+                    _sqlExpressionFactory.Select(
+                        queryRootExpression.EntityType,
+                        new FromSqlExpression(
+                            queryRootExpression.EntityType.GetDefaultMappings().Single().Table,
+                            sqlQuery.Sql,
+                            Expression.Constant(Array.Empty<object>(), typeof(object[])))));
 
             case GroupByShaperExpression groupByShaperExpression:
                 var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;

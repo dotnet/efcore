@@ -374,13 +374,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTphWithCustomTable(entityType.DisplayName()));
         }
 
-        var table = tableExpressionBase switch
-        {
-            TableExpression tableExpression => tableExpression.Table,
-            TableValuedFunctionExpression tableValuedFunctionExpression => tableValuedFunctionExpression.StoreFunction,
-            _ => entityType.GetDefaultMappings().Single().Table
-        };
-
+        var table = ((ITableBasedExpression)tableExpressionBase).Table;
         var tableReferenceExpression = new TableReferenceExpression(this, tableExpressionBase.Alias!);
         AddTable(tableExpressionBase, tableReferenceExpression);
 
