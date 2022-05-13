@@ -1456,13 +1456,13 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     Applies grouping from given key selector and generate <see cref="GroupByShaperExpression" /> to shape results.
+    ///     Applies grouping from given key selector and generate <see cref="RelationalGroupByShaperExpression" /> to shape results.
     /// </summary>
     /// <param name="keySelector">An key selector expression for the GROUP BY.</param>
     /// <param name="shaperExpression">The shaper expression for current query.</param>
     /// <param name="sqlExpressionFactory">The sql expression factory to use.</param>
-    /// <returns>A <see cref="GroupByShaperExpression" /> which represents the result of the grouping operation.</returns>
-    public GroupByShaperExpression ApplyGrouping(
+    /// <returns>A <see cref="RelationalGroupByShaperExpression" /> which represents the result of the grouping operation.</returns>
+    public RelationalGroupByShaperExpression ApplyGrouping(
         Expression keySelector,
         Expression shaperExpression,
         ISqlExpressionFactory sqlExpressionFactory)
@@ -1524,7 +1524,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
-        return new GroupByShaperExpression(
+        return new RelationalGroupByShaperExpression(
             keySelector,
             shaperExpression,
             new ShapedQueryExpression(
