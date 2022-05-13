@@ -1082,6 +1082,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             {
                 var innerSelectExpression = BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
                     entityProjectionExpression,
+                    targetEntityType.GetViewOrTableMappings().Single().Table,
                     navigation);
 
                 var innerShapedQuery = CreateShapedQueryExpression(
@@ -1137,7 +1138,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             if (innerShaper == null)
             {
                 // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
-                // So there is no handling for dependent having TPT
+                // So there is no handling for dependent having TPT/TPC
                 // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
                 // TODO: The following code should also handle Function and SqlQuery mappings
                 var table = navigation.DeclaringEntityType.BaseType == null
@@ -1177,6 +1178,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     table = targetEntityType.GetViewOrTableMappings().Single().Table;
                     var innerSelectExpression = BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
                         entityProjectionExpression,
+                        table,
                         navigation);
 
                     var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
@@ -1237,6 +1239,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             SelectExpression BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
                 EntityProjectionExpression entityProjectionExpression,
+                ITableBase targetTable,
                 INavigation navigation)
             {
                 // just need any column - we use it only to extract the table it originated from
@@ -1247,7 +1250,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                             : foreignKey.PrincipalKey.Properties[0]);
 
                 var sourceTable = FindRootTableExpressionForColumn(sourceColumn);
-                var ownedTable = new TableExpression(targetEntityType.GetTableMappings().Single().Table);
+                var ownedTable = new TableExpression(targetTable);
 
                 foreach (var annotation in sourceTable.GetAnnotations())
                 {

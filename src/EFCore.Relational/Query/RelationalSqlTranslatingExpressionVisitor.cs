@@ -1093,50 +1093,34 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             var propertyAccess = entityProjectionExpression.BindProperty(property);
 
             var entityType = entityReferenceExpression.EntityType;
-            var table = entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
-            if ((table?.IsOptional(entityType)) != true)
+            if (entityType.FindDiscriminatorProperty() != null
+                || entityType.FindPrimaryKey() == null
+                || entityType.GetRootType() != entityType
+                || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+            {
+                return propertyAccess;
+            }
+
+            var table = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+                ?? entityType.GetDefaultMappings().Single().Table;
+            if (!table.IsOptional(entityType))
             {
                 return propertyAccess;
             }
 
             // this is optional dependent sharing table
-            var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
+            var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table).ToList();
             if (nonPrincipalSharedNonPkProperties.Contains(property))
             {
                 // The column is not being shared with principal side so we can always use directly
                 return propertyAccess;
             }
 
-            SqlExpression? condition = null;
-            // Property is being shared with principal side, so we need to make it conditional access
-            var allRequiredNonPkPropertiesCondition =
-                entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
-            if (allRequiredNonPkPropertiesCondition.Count > 0)
-            {
-                condition = allRequiredNonPkPropertiesCondition.Select(p => entityProjectionExpression.BindProperty(p))
-                    .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
-                    .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
-            }
-
-            if (nonPrincipalSharedNonPkProperties.Count != 0
-                && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
-            {
-                // If all non principal shared properties are nullable then we need additional condition
-                var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                    .Select(p => entityProjectionExpression.BindProperty(p))
-                    .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
-                    .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
-
-                condition = condition == null
-                    ? atLeastOneNonNullValueInNullableColumnsCondition
-                    : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
-            }
-
-            if (condition == null)
-            {
-                // if we cannot compute condition then we just return property access (and hope for the best)
-                return propertyAccess;
-            }
+            var condition = nonPrincipalSharedNonPkProperties
+                .Where(e => !e.IsNullable)
+                .Select(p => entityProjectionExpression.BindProperty(p))
+                .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
 
             return _sqlExpressionFactory.Case(
                 new List<CaseWhenClause> { new(condition, propertyAccess) },
@@ -1192,7 +1176,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         {
             enumerableExpression.ApplyOrdering(orderingExpression);
         }
-        
+
         return true;
     }
 
@@ -1406,36 +1390,29 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             || IsNullSqlConstantExpression(right))
         {
             var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
-            var entityType1 = nonNullEntityReference.EntityType;
-            var table = entityType1.GetViewOrTableMappings().FirstOrDefault()?.Table;
-            if (table?.IsOptional(entityType1) == true)
+            var nullComparedEntityType = nonNullEntityReference.EntityType;
+            var nullComparedEntityTypePrimaryKeyProperties = nullComparedEntityType.FindPrimaryKey()?.Properties;
+            if (nullComparedEntityTypePrimaryKeyProperties == null)
             {
-                Expression? condition = null;
-                // Optional dependent sharing table
-                var requiredNonPkProperties = entityType1.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
-                if (requiredNonPkProperties.Count > 0)
-                {
-                    condition = requiredNonPkProperties.Select(
-                            p =>
-                            {
-                                var comparison = Expression.Call(
-                                    ObjectEqualsMethodInfo,
-                                    Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                                    Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                        nodeType == ExpressionType.Equal
+                            ? equalsMethod ? nameof(object.Equals) : "=="
+                            : equalsMethod
+                                ? "!" + nameof(object.Equals)
+                                : "!=",
+                        nullComparedEntityType.DisplayName()));
+            }
 
-                                return nodeType == ExpressionType.Equal
-                                    ? (Expression)comparison
-                                    : Expression.Not(comparison);
-                            })
-                        .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
-                }
-
-                var allNonPrincipalSharedNonPkProperties = entityType1.GetNonPrincipalSharedNonPkProperties(table);
-                // We don't need condition for nullable property if there exist at least one required property which is non shared.
-                if (allNonPrincipalSharedNonPkProperties.Count != 0
-                    && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+            if (nullComparedEntityType.GetRootType() == nullComparedEntityType
+                && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
+            {
+                var table = nullComparedEntityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+                    ?? nullComparedEntityType.GetDefaultMappings().Single().Table;
+                if (table.IsOptional(nullComparedEntityType))
                 {
-                    var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
+                    var condition = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table)
+                        .Where(e => !e.IsNullable)
                         .Select(
                             p =>
                             {
@@ -1448,40 +1425,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                                     ? (Expression)comparison
                                     : Expression.Not(comparison);
                             })
-                        .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r));
+                        .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
 
-                    condition = condition == null
-                        ? atLeastOneNonNullValueInNullablePropertyCondition
-                        : nodeType == ExpressionType.Equal
-                            ? Expression.OrElse(condition, atLeastOneNonNullValueInNullablePropertyCondition)
-                            : Expression.AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
-                }
-
-                if (condition != null)
-                {
                     result = Visit(condition);
                     return true;
                 }
-
-                result = null;
-                return false;
-            }
-
-            var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
-            if (primaryKeyProperties1 == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                        nodeType == ExpressionType.Equal
-                            ? equalsMethod ? nameof(object.Equals) : "=="
-                            : equalsMethod
-                                ? "!" + nameof(object.Equals)
-                                : "!=",
-                        entityType1.DisplayName()));
             }
 
             result = Visit(
-                primaryKeyProperties1.Select(
+                nullComparedEntityTypePrimaryKeyProperties.Select(
                     p =>
                     {
                         var comparison = Expression.Call(
@@ -1702,19 +1654,19 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     }
 
     private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
-{
-    protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is SqlExpression sqlExpression
-            && extensionExpression is not SqlFragmentExpression)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (sqlExpression.TypeMapping == null)
+            if (extensionExpression is SqlExpression sqlExpression
+                && extensionExpression is not SqlFragmentExpression)
             {
-                throw new InvalidOperationException(RelationalStrings.NullTypeMappingInSqlTree(sqlExpression.Print()));
+                if (sqlExpression.TypeMapping == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.NullTypeMappingInSqlTree(sqlExpression.Print()));
+                }
             }
-        }
 
-        return base.VisitExtension(extensionExpression);
+            return base.VisitExtension(extensionExpression);
+        }
     }
-}
 }

@@ -51,10 +51,12 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
     protected override LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
     {
         LambdaExpression baseCondition;
-        if (entityType.FindDiscriminatorProperty() == null
+        // Generate discriminator condition
+        var containsDiscriminatorProperty = entityType.FindDiscriminatorProperty() != null;
+        if (!containsDiscriminatorProperty
             && entityType.GetDirectlyDerivedTypes().Any())
         {
-            // TPT
+            // TPT/TPC
             var valueBufferParameter = Parameter(typeof(ValueBuffer));
             var discriminatorValueVariable = Variable(typeof(string), "discriminator");
             var expressions = new List<Expression>
@@ -84,51 +86,29 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
             baseCondition = base.GenerateMaterializationCondition(entityType, nullable);
         }
 
-        if (entityType.FindPrimaryKey() != null)
+        if (containsDiscriminatorProperty
+            || entityType.FindPrimaryKey() == null
+            || entityType.GetRootType() != entityType
+            || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
         {
-            var table = entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
-            if (table != null
-                && table.IsOptional(entityType))
-            {
-                // Optional dependent
-                var body = baseCondition.Body;
-                var valueBufferParameter = baseCondition.Parameters[0];
-                Expression? condition = null;
-                var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
-                if (requiredNonPkProperties.Count > 0)
-                {
-                    condition = requiredNonPkProperties
-                        .Select(
-                            p => NotEqual(
-                                valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                Constant(null)))
-                        .Aggregate((a, b) => AndAlso(a, b));
-                }
+            return baseCondition;
+        }
 
-                var allNonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
-                // We don't need condition for nullable property if there exist at least one required property which is non shared.
-                if (allNonPrincipalSharedNonPkProperties.Count != 0
-                    && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
-                {
-                    var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
-                        .Select(
-                            p => NotEqual(
-                                valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                Constant(null)))
-                        .Aggregate((a, b) => OrElse(a, b));
+        var table = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+            ?? entityType.GetDefaultMappings().Single().Table;
+        if (table.IsOptional(entityType))
+        {
+            // Optional dependent
+            var valueBufferParameter = baseCondition.Parameters[0];
+            var condition = entityType.GetNonPrincipalSharedNonPkProperties(table)
+                .Where(e => !e.IsNullable)
+                .Select(
+                        p => NotEqual(
+                            valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                            Constant(null)))
+                .Aggregate((a, b) => AndAlso(a, b));
 
-                    condition = condition == null
-                        ? atLeastOneNonNullValueInNullablePropertyCondition
-                        : AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
-                }
-
-                if (condition != null)
-                {
-                    body = Condition(condition, body, Default(typeof(IEntityType)));
-                }
-
-                return Lambda(body, valueBufferParameter);
-            }
+            return Lambda(Condition(condition, baseCondition.Body, Default(typeof(IEntityType))), valueBufferParameter);
         }
 
         return baseCondition;
