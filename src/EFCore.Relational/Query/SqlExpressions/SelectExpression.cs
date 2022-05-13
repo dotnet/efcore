@@ -109,7 +109,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var columns = new Dictionary<IProperty, ColumnExpression>();
                 foreach (var baseType in entityType.GetAllBaseTypesInclusive())
                 {
-                    var table = baseType.GetViewOrTableMappings().Single(m => !tables.Contains(m.Table)).Table;
+                    var table = GetTableBaseFiltered(baseType, tables);
                     tables.Add(table);
                     var tableExpression = new TableExpression(table);
                     var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias);
@@ -146,7 +146,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var caseWhenClauses = new List<CaseWhenClause>();
                 foreach (var derivedType in entityType.GetDerivedTypes())
                 {
-                    var table = derivedType.GetViewOrTableMappings().Single(m => !tables.Contains(m.Table)).Table;
+                    var table = GetTableBaseFiltered(derivedType, tables);
                     tables.Add(table);
                     var tableExpression = new TableExpression(table);
                     var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias);
@@ -192,7 +192,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 if (entityTypes.Length == 1)
                 {
                     // For single entity case, we don't need discriminator.
-                    var table = entityTypes[0].GetViewOrTableMappings().Single().Table;
+                    var table = GetTableBase(entityTypes[0]);
                     var tableExpression = new TableExpression(table);
 
                     var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias!);
@@ -217,7 +217,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
                 else
                 {
-                    var tables = entityTypes.Select(e => e.GetViewOrTableMappings().Single().Table).ToArray();
+                    var tables = entityTypes.Select(e => GetTableBase(e)).ToArray();
                     var properties = GetAllPropertiesInHierarchy(entityType).ToArray();
                     var propertyNamesMap = new Dictionary<IProperty, string>();
                     foreach (var property in entityTypes[0].GetProperties())
@@ -330,7 +330,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
                 else
                 {
-                    table = entityType.GetViewOrTableMappings().Single().Table;
+                    table = GetTableBase(entityType);
                     tableExpression = new TableExpression(table);
                 }
 
@@ -358,6 +358,11 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             break;
         }
+
+        static ITableBase GetTableBase(IEntityType entityType) => entityType.GetViewOrTableMappings().Single().Table;
+
+        static ITableBase GetTableBaseFiltered(IEntityType entityType, List<ITableBase> existingTables)
+            => entityType.GetViewOrTableMappings().Single(m => !existingTables.Contains(m.Table)).Table;
     }
 
     internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpressionBase)
