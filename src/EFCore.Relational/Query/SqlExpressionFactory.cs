@@ -593,139 +593,63 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         return selectExpression;
     }
 
-    private void AddSelfConditions(SelectExpression selectExpression, IEntityType entityType, ITableBase? table = null)
+    /***
+     * We need to add additional conditions on basic SelectExpression for certain cases
+     * - If we are selecting from TPH then we need to add condition for discriminator if mapping is incomplete
+     * - When we are selecting optional dependent sharing table, we need to add condition to figure out existence
+     *  ** Optional Dependent **
+     *  - Only root type can be the dependent
+     *  - Dependents will have a non-principal-non-PK-shared required property
+     *  - Principal can be any type in TPH/TPT or leaf type in TPC
+     *  - Dependent side can be TPH or TPT but not TPC
+     ***/
+    private void AddConditions(SelectExpression selectExpression, IEntityType entityType)
     {
-        // Add conditions if TPH
-        var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
+        // First add condition for discriminator mapping
+        var discriminatorProperty = entityType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null
+            && (!entityType.GetRootType().GetIsDiscriminatorMappingComplete()
+                || !entityType.GetAllBaseTypesInclusiveAscending()
+                    .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e))))
+        {
+            var discriminatorColumn = GetMappedEntityProjectionExpression(selectExpression).BindProperty(discriminatorProperty);
+            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
+            var predicate = concreteEntityTypes.Count == 1
+                ? (SqlExpression)Equal(discriminatorColumn, Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                : In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false);
+
+            selectExpression.ApplyPredicate(predicate);
+
+            // If discriminator predicate is added then it will also serve as condition for existence of dependents in table sharing
+            return;
+        }
+
+        // Keyless entities cannot be table sharing
         if (entityType.FindPrimaryKey() == null)
         {
             return;
         }
 
-        // Add conditions if dependent sharing table with principal
-        table ??= entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
-        if (table != null
-            && table.IsOptional(entityType)
-            && !discriminatorAdded)
+        // Add conditions if this is optional dependent with table sharing
+        if (entityType.GetRootType() != entityType // Non-root cannot be dependent
+            || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy) // Dependent cannot be TPC
         {
-            AddOptionalDependentConditions(selectExpression, entityType, table);
-        }
-    }
-
-    private void AddConditions(SelectExpression selectExpression, IEntityType entityType, ITableBase? table = null)
-    {
-        AddSelfConditions(selectExpression, entityType, table);
-        // Add inner join to principal if table sharing
-        table ??= entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
-        if (table != null)
-        {
-            var linkingFks = table.GetRowInternalForeignKeys(entityType);
-            var first = true;
-            foreach (var foreignKey in linkingFks)
-            {
-                if (first)
-                {
-                    AddInnerJoin(selectExpression, foreignKey, table);
-                    first = false;
-                }
-                else
-                {
-                    var dependentSelectExpression = new SelectExpression(entityType, this);
-                    AddSelfConditions(dependentSelectExpression, entityType, table);
-                    AddInnerJoin(dependentSelectExpression, foreignKey, table);
-                    selectExpression.ApplyUnion(dependentSelectExpression, distinct: true);
-                }
-            }
-        }
-    }
-
-    private void AddInnerJoin(SelectExpression selectExpression, IForeignKey foreignKey, ITableBase? table)
-    {
-        var outerEntityProjection = GetMappedEntityProjectionExpression(selectExpression);
-        var outerIsPrincipal = foreignKey.PrincipalEntityType.IsAssignableFrom(outerEntityProjection.EntityType);
-
-        var innerSelect = outerIsPrincipal
-            ? new SelectExpression(foreignKey.DeclaringEntityType, this)
-            : new SelectExpression(foreignKey.PrincipalEntityType, this);
-
-        if (outerIsPrincipal)
-        {
-            AddSelfConditions(innerSelect, foreignKey.DeclaringEntityType, table);
-        }
-        else
-        {
-            AddConditions(innerSelect, foreignKey.PrincipalEntityType, table);
+            return;
         }
 
-        var innerEntityProjection = GetMappedEntityProjectionExpression(innerSelect);
-
-        var outerKey = (outerIsPrincipal ? foreignKey.PrincipalKey.Properties : foreignKey.Properties)
-            .Select(p => outerEntityProjection.BindProperty(p));
-        var innerKey = (outerIsPrincipal ? foreignKey.Properties : foreignKey.PrincipalKey.Properties)
-            .Select(p => innerEntityProjection.BindProperty(p));
-
-        var joinPredicate = outerKey.Zip(innerKey, Equal).Aggregate(AndAlso);
-
-        selectExpression.AddInnerJoin(innerSelect, joinPredicate);
-    }
-
-    private bool AddDiscriminatorCondition(SelectExpression selectExpression, IEntityType entityType)
-    {
-        var discriminatorProperty = entityType.FindDiscriminatorProperty();
-        if (discriminatorProperty == null
-            || (entityType.GetRootType().GetIsDiscriminatorMappingComplete()
-                && entityType.GetAllBaseTypesInclusiveAscending()
-                    .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e))))
+        var table = ((ITableBasedExpression)selectExpression.Tables[0]).Table;
+        if (table.IsOptional(entityType))
         {
-            return false;
+            var entityProjectionExpression = GetMappedEntityProjectionExpression(selectExpression);
+            var predicate = entityType.GetNonPrincipalSharedNonPkProperties(table)
+                .Where(e => !e.IsNullable)
+                .Select(e => IsNotNull(e, entityProjectionExpression))
+                .Aggregate((l, r) => AndAlso(l, r));
+            selectExpression.ApplyPredicate(predicate);
         }
-
-        var discriminatorColumn = GetMappedEntityProjectionExpression(selectExpression).BindProperty(discriminatorProperty);
-        var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-        var predicate = concreteEntityTypes.Count == 1
-            ? (SqlExpression)Equal(discriminatorColumn, Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-            : In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false);
-
-        selectExpression.ApplyPredicate(predicate);
-
-        return true;
 
         bool HasSiblings(IEntityType entityType)
             => entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
-    }
-
-    private void AddOptionalDependentConditions(
-        SelectExpression selectExpression,
-        IEntityType entityType,
-        ITableBase table)
-    {
-        SqlExpression? predicate = null;
-        var entityProjectionExpression = GetMappedEntityProjectionExpression(selectExpression);
-        var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
-        if (requiredNonPkProperties.Count > 0)
-        {
-            predicate = requiredNonPkProperties.Select(e => IsNotNull(e, entityProjectionExpression))
-                .Aggregate((l, r) => AndAlso(l, r));
-        }
-
-        var allNonSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
-        // We don't need condition for nullable property if there exist at least one required property which is non shared.
-        if (allNonSharedNonPkProperties.Count != 0
-            && allNonSharedNonPkProperties.All(p => p.IsNullable))
-        {
-            var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
-                .Select(e => IsNotNull(e, entityProjectionExpression))
-                .Aggregate((a, b) => OrElse(a, b));
-
-            predicate = predicate == null
-                ? atLeastOneNonNullValueInNullablePropertyCondition
-                : AndAlso(predicate, atLeastOneNonNullValueInNullablePropertyCondition);
-        }
-
-        if (predicate != null)
-        {
-            selectExpression.ApplyPredicate(predicate);
-        }
     }
 
     private static EntityProjectionExpression GetMappedEntityProjectionExpression(SelectExpression selectExpression)

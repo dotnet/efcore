@@ -187,6 +187,12 @@ public static class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
+        var entityTypeConventionBuilder = entityTypeBuilder.GetInfrastructure();
+        if (entityTypeConventionBuilder.Metadata[RelationalAnnotationNames.TableName] == null)
+        {
+            entityTypeConventionBuilder.ToTable(entityTypeBuilder.Metadata.GetDefaultTableName());
+        }
+        
         buildAction(new TableBuilder<TEntity>(null, null, entityTypeBuilder));
 
         return entityTypeBuilder;

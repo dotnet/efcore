@@ -1364,17 +1364,26 @@ public class RelationalModelValidator : ModelValidator
             }
             else
             {
-                var pk = entityType.FindPrimaryKey();
+                var primaryKey = entityType.FindPrimaryKey();
                 if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    var storeGeneratedProperty = pk?.Properties.FirstOrDefault(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0);
+                    var storeGeneratedProperty = primaryKey?.Properties.FirstOrDefault(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0);
                     if (storeGeneratedProperty != null
                         && entityType.GetTableName() != null)
                     {
                         logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
                     }
+
+                    if (entityType.GetDirectlyDerivedTypes().Any())
+                    {
+                        foreach (var fk in entityType.GetDeclaredReferencingForeignKeys())
+                        {
+                            AssertNonInternal(fk, StoreObjectType.View);
+                            AssertNonInternal(fk, StoreObjectType.Table);
+                        }
+                    }
                 }
-                else if (pk == null)
+                else if (primaryKey == null)
                 {
                     throw new InvalidOperationException(
                        RelationalStrings.KeylessMappingStrategy(mappingStrategy ?? RelationalAnnotationNames.TptMappingStrategy, entityType.DisplayName()));
@@ -1383,6 +1392,31 @@ public class RelationalModelValidator : ModelValidator
                 ValidateNonTphMapping(entityType, forTables: false);
                 ValidateNonTphMapping(entityType, forTables: true);
             }
+        }
+
+        static void AssertNonInternal(IForeignKey foreignKey, StoreObjectType storeObjectType)
+        {
+            if (!foreignKey.PrincipalKey.IsPrimaryKey()
+                || foreignKey.PrincipalEntityType == foreignKey.DeclaringEntityType
+                || !foreignKey.IsUnique
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                || !PropertyListComparer.Instance.Equals(foreignKey.Properties, foreignKey.PrincipalKey.Properties))
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            {
+                return;
+            }
+
+            var storeObjectId = StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObjectType);
+            if (storeObjectId == null
+                || storeObjectId != StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObjectType))
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.TpcTableSharing(
+                foreignKey.DeclaringEntityType.DisplayName(),
+                storeObjectId.Value.DisplayName(),
+                foreignKey.PrincipalEntityType.DisplayName()));
         }
     }
 
@@ -1428,6 +1462,26 @@ public class RelationalModelValidator : ModelValidator
             }
 
             derivedTypes[(name, schema)] = entityType;
+        }
+
+        var storeObject = StoreObjectIdentifier.Create(rootEntityType, forTables ? StoreObjectType.Table : StoreObjectType.View);
+        if (storeObject == null)
+        {
+            return;
+        }
+        
+        var internalForeignKey = rootEntityType.FindRowInternalForeignKeys(storeObject.Value).FirstOrDefault();
+        if (internalForeignKey != null
+            && derivedTypes.Count > 1
+            && rootEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            var derivedTypePair = derivedTypes.First(kv => kv.Value != rootEntityType);
+            var (derivedName, derivedSchema) = derivedTypePair.Key;
+            throw new InvalidOperationException(RelationalStrings.TpcTableSharingDependent(
+                rootEntityType.DisplayName(),
+                storeObject.Value.DisplayName(),
+                derivedTypePair.Value.DisplayName(),
+                derivedSchema == null ? derivedName : $"{derivedSchema}.{derivedName}"));
         }
     }
 

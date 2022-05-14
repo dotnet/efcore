@@ -1909,6 +1909,22 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_table_sharing_with_TPC_on_dependent()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+
+        modelBuilder.Entity<Animal>()
+            .ToTable("Animal")
+            .HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Person>(c => c.Id);
+
+        modelBuilder.Entity<Person>().ToTable("Animal").UseTpcMappingStrategy();
+        modelBuilder.Entity<Employee>().ToTable("Employee");
+
+        VerifyError(RelationalStrings.TpcTableSharingDependent("Person", "Animal", "Employee", "Employee"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_on_valid_view_sharing_with_TPC()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -1928,6 +1944,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Person>().ToView("Cat");
 
         Validate(modelBuilder);
+    }
+    
+    [ConditionalFact]
+    public virtual void Detects_view_sharing_on_base_with_TPC()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+
+        modelBuilder.Entity<Animal>()
+            .UseTpcMappingStrategy()
+            .ToView("Animal")
+            .HasOne(c => c.FavoritePerson).WithOne().HasForeignKey<Person>(c => c.Id);
+
+        modelBuilder.Entity<Cat>(x => x.ToView("Cat"));
+
+        modelBuilder.Entity<Person>().ToView("Animal");
+
+        VerifyError(RelationalStrings.TpcTableSharing("Person", "Animal", "Animal"),
+            modelBuilder);
     }
 
     [ConditionalFact]
