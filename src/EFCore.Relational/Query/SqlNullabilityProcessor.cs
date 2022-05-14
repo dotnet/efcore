@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -164,6 +165,10 @@ public class SqlNullabilityProcessor
 
             case TableExpression tableExpression:
                 return tableExpression;
+
+            case TpcTablesExpression tpcTablesExpression:
+                // Since components are simple select only we can skip them.
+                return tpcTablesExpression;
 
             case UnionExpression unionExpression:
             {

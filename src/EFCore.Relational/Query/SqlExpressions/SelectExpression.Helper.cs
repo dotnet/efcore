@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -402,6 +403,17 @@ public sealed partial class SelectExpression
                 }
 
                 _visitedSelectExpressions.Add(innerSelectExpression);
+            }
+
+            if (expression is TpcTablesExpression tpcTablesExpression)
+            {
+                // We uniquify aliases in inner selectexpressions too
+                foreach (var selectExpression in tpcTablesExpression.SelectExpressions)
+                {
+                    Visit(selectExpression);
+                }
+
+                return expression;
             }
 
             return base.Visit(expression);
@@ -812,6 +824,10 @@ public sealed partial class SelectExpression
                 var newProjections = selectExpression._projection.Select(Visit).ToList<ProjectionExpression>();
 
                 var newTables = selectExpression._tables.Select(Visit).ToList<TableExpressionBase>();
+                var tpcTableMap = selectExpression._tables.Zip(newTables)
+                    .Where(e => e.First is TpcTablesExpression)
+                    .ToDictionary(e => (TpcTablesExpression)e.First, e => (TpcTablesExpression)e.Second);
+
                 // Since we are cloning we need to generate new table references
                 // In other cases (like VisitChildren), we just reuse the same table references and update the SelectExpression inside it.
                 // We initially assign old SelectExpression in table references and later update it once we construct clone
@@ -845,6 +861,10 @@ public sealed partial class SelectExpression
                 newSelectExpression._mutable = selectExpression._mutable;
 
                 newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
+                foreach (var kvp in selectExpression._tpcDiscriminatorValues)
+                {
+                    newSelectExpression._tpcDiscriminatorValues[tpcTableMap[kvp.Key]] = kvp.Value;
+                }
                 // Since identifiers are ColumnExpression, they are not visited since they don't contain SelectExpression inside it.
                 newSelectExpression._identifier.AddRange(selectExpression._identifier);
                 newSelectExpression._childIdentifiers.AddRange(selectExpression._childIdentifiers);
@@ -860,6 +880,19 @@ public sealed partial class SelectExpression
                     selectExpression, newSelectExpression._tableReferences).Visit(newSelectExpression);
 
                 return newSelectExpression;
+            }
+
+            if (expression is TpcTablesExpression tpcTablesExpression)
+            {
+                // Deep clone
+                var subSelectExpressions = tpcTablesExpression.SelectExpressions.Select(Visit).ToList<SelectExpression>();
+                var newTpcTable = new TpcTablesExpression(tpcTablesExpression.Alias, tpcTablesExpression.EntityType, subSelectExpressions);
+                foreach (var annotation in tpcTablesExpression.GetAnnotations())
+                {
+                    newTpcTable.AddAnnotation(annotation.Name, annotation.Value);
+                }
+
+                return newTpcTable;
             }
 
             return expression is IClonableTableExpressionBase cloneable ? cloneable.Clone() : base.Visit(expression);

@@ -660,6 +660,43 @@ INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]");
 
         AssertSql();
     }
+    public override async Task Using_is_operator_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [k].[Species] IS NOT NULL AND [e].[Species] IS NOT NULL");
+    }
+
+    public override async Task Using_is_operator_with_of_type_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_with_of_type_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], CASE
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [k].[Species] IS NOT NULL AND [e].[Species] IS NOT NULL");
+    }
+
+    public override async Task Using_OfType_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_OfType_on_multiple_type_with_no_result(async);
+
+        AssertSql();
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

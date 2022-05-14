@@ -1192,6 +1192,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expected, actual);
 
         /// <summary>
+        ///     The entity type '{dependentType}' is mapped to '{storeObject}'. However the principal entity type '{principalEntityType}' is also mapped to '{storeObject}' and it's using the TPC mapping strategy. Only leaf entity types in a TPC hierarchy can use table-sharing.
+        /// </summary>
+        public static string TpcTableSharing(object? dependentType, object? storeObject, object? principalEntityType)
+            => string.Format(
+                GetString("TpcTableSharing", nameof(dependentType), nameof(storeObject), nameof(principalEntityType)),
+                dependentType, storeObject, principalEntityType);
+
+        /// <summary>
+        ///     The entity type '{dependentType}' is mapped to '{storeObject}'. However one of its derived types '{derivedType}' is mapped to '{otherStoreObject}'. Hierarchies using table-sharing cannot be mapped using the TPC mapping strategy.
+        /// </summary>
+        public static string TpcTableSharingDependent(object? dependentType, object? storeObject, object? derivedType, object? otherStoreObject)
+            => string.Format(
+                GetString("TpcTableSharingDependent", nameof(dependentType), nameof(storeObject), nameof(derivedType), nameof(otherStoreObject)),
+                dependentType, storeObject, derivedType, otherStoreObject);
+
+        /// <summary>
         ///     '{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string TphTableMismatch(object? entityType, object? table, object? otherEntityType, object? otherTable)
@@ -1916,7 +1932,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Created DbConnection ({elapsed}ms).
+        ///     Created DbConnection. ({elapsed}ms).
         /// </summary>
         public static EventDefinition<int> LogConnectionCreated(IDiagnosticsLogger logger)
         {

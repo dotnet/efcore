@@ -25,10 +25,6 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase
         modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
         modelBuilder.Entity<Drink>().UseTpcMappingStrategy();
 
-        // Work-around for issue#27947
-        modelBuilder.Entity<Animal>().ToTable((string)null);
-        modelBuilder.Entity<Plant>().ToTable((string)null);
-
         modelBuilder.Entity<Flower>().ToTable("Flowers");
         modelBuilder.Entity<Rose>().ToTable("Roses");
         modelBuilder.Entity<Daisy>().ToTable("Daisies");
