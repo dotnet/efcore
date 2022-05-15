@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>, INavigationAddedConvention
+public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>, INavigationAddedConvention, IForeignKeyPrincipalEndChangedConvention, IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="DeleteBehaviorAttributeConvention" />.
@@ -55,9 +55,74 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         }
 
         var foreignKey = navigationBuilder.Metadata.ForeignKey;
+        if (foreignKey.IsUnique)
+        {
+            return;
+        }
+        
         if (foreignKey.GetDeleteBehaviorConfigurationSource() != ConfigurationSource.Explicit)
         {
             foreignKey.SetDeleteBehavior(navAttribute.Behavior);
+        }
+    }
+
+    /// <summary>
+    ///     Called after the principal end of a foreign key is changed.
+    /// </summary>
+    /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    public void ProcessForeignKeyPrincipalEndChanged(IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+    {
+        if (!relationshipBuilder.Metadata.IsUnique)
+        {
+            return;
+        }
+
+        var navigation = relationshipBuilder.Metadata.DependentToPrincipal;
+        if (navigation == null)
+        {
+            return;
+        }
+        
+        var navAttribute = navigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+        if (navAttribute == null)
+        {
+            return;
+        }
+        
+        if (relationshipBuilder.Metadata.GetDeleteBehaviorConfigurationSource() != ConfigurationSource.Explicit)
+        {
+            relationshipBuilder.Metadata.SetDeleteBehavior(navAttribute.Behavior);
+        }
+    }
+
+    /// <summary>
+    ///     Called when a model is being finalized.
+    /// </summary>
+    /// <param name="modelBuilder">The builder for the model.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
+    public void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+    {
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+        {
+            foreach (var navigation in entityType.GetNavigations())
+            {
+                if (!navigation.ForeignKey.IsUnique)
+                {
+                    return;
+                }
+                
+                var navAttribute = navigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+                if (navAttribute == null)
+                {
+                    return;
+                }
+                
+                if (!navigation.IsOnDependent)
+                {
+                    throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty);
+                }
+            }
         }
     }
 }

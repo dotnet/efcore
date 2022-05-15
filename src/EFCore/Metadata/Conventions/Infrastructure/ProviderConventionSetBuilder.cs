@@ -214,6 +214,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(requiredNavigationAttributeConvention);
         conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(nonNullableNavigationConvention);
+        conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.PropertyNullabilityChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
@@ -242,6 +243,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.ModelFinalizingConventions.Add(new QueryFilterRewritingConvention(Dependencies));
         conventionSet.ModelFinalizingConventions.Add(inversePropertyAttributeConvention);
         conventionSet.ModelFinalizingConventions.Add(backingFieldConvention);
+        conventionSet.ModelFinalizingConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.ModelFinalizedConventions.Add(new RuntimeModelConvention(Dependencies));
 
