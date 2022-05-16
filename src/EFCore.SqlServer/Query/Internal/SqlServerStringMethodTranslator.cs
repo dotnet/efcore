@@ -443,7 +443,10 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
         if (startIndex is not null)
         {
-            charIndexArguments.Add(_sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1)));
+            charIndexArguments.Add(
+                startIndex is SqlConstantExpression { Value : int constantStartIndex }
+                    ? _sqlExpressionFactory.Constant(constantStartIndex + 1, typeof(int))
+                    : _sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1)));
         }
 
         var argumentsPropagateNullability = Enumerable.Repeat(true, charIndexArguments.Count);
@@ -473,6 +476,15 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         }
 
         charIndexExpression = _sqlExpressionFactory.Subtract(charIndexExpression, _sqlExpressionFactory.Constant(1));
+
+        // If the pattern is an empty string, we need to special case to always return 0 (since CHARINDEX return 0, which we'd subtract to
+        // -1). Handle separately for constant and non-constant patterns.
+        if (searchExpression is SqlConstantExpression { Value : string constantSearchPattern })
+        {
+            return constantSearchPattern == string.Empty
+                ? _sqlExpressionFactory.Constant(0, typeof(int))
+                : charIndexExpression;
+        }
 
         return _sqlExpressionFactory.Case(
             new[]

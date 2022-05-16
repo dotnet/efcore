@@ -674,13 +674,7 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CASE
-    WHEN N'Sea' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
-END <> -1 OR CASE
-    WHEN N'Sea' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
-END IS NULL");
+WHERE (CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1) <> -1 OR [c].[City] IS NULL");
     }
 
     public override async Task Where_string_replace(bool async)

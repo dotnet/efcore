@@ -812,9 +812,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], """") = 0))");
     }
 
-    public override async Task Indexof_with_one_arg(bool async)
+    public override async Task Indexof_with_one_constant_arg(bool async)
     {
-        await base.Indexof_with_one_arg(async);
+        await base.Indexof_with_one_constant_arg(async);
 
         AssertSql(
             @"SELECT c
@@ -822,14 +822,38 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], ""a"") = 1))");
     }
 
-    public override async Task Indexof_with_starting_position(bool async)
+    public override async Task Indexof_with_one_parameter_arg(bool async)
     {
-        await base.Indexof_with_starting_position(async);
+        await base.Indexof_with_one_parameter_arg(async);
+
+        AssertSql(
+            @"@__pattern_0='a'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], @__pattern_0) = 1))");
+    }
+
+    public override async Task Indexof_with_constant_starting_position(bool async)
+    {
+        await base.Indexof_with_constant_starting_position(async);
 
         AssertSql(
             @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], ""a"", 2) = 4))");
+    }
+
+    public override async Task Indexof_with_parameter_starting_position(bool async)
+    {
+        await base.Indexof_with_parameter_starting_position(async);
+
+        AssertSql(
+            @"@__start_0='2'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], ""a"", @__start_0) = 4))");
     }
 
     public override async Task Replace_with_emptystring(bool async)

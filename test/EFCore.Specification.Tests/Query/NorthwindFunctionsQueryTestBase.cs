@@ -1413,7 +1413,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Indexof_with_one_arg(bool async)
+    public virtual Task Indexof_with_one_constant_arg(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf("a") == 1),
@@ -1421,11 +1421,35 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Indexof_with_starting_position(bool async)
+    public virtual Task Indexof_with_one_parameter_arg(bool async)
+    {
+        var pattern = "a";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf(pattern) == 1),
+            entryCount: 32);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Indexof_with_constant_starting_position(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf("a", 2) == 4),
             entryCount: 15);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Indexof_with_parameter_starting_position(bool async)
+    {
+        var start = 2;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf("a", start) == 4),
+            entryCount: 15);
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

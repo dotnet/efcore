@@ -1248,36 +1248,15 @@ FROM [Entities1] AS [e]");
         AssertSql(
             @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END = [e].[NullableIntA] OR (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NULL AND [e].[NullableIntA] IS NULL)",
+WHERE (CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1) = [e].[NullableIntA] OR ([e].[NullableStringA] IS NULL AND [e].[NullableIntA] IS NULL)",
             //
             @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
-END = [e].[NullableIntA] OR (CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
-END IS NULL AND [e].[NullableIntA] IS NULL)",
+WHERE (CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1) = [e].[NullableIntA] OR ([e].[NullableStringA] IS NULL AND [e].[NullableIntA] IS NULL)",
             //
             @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END <> [e].[NullableIntB] OR CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NULL OR [e].[NullableIntB] IS NULL) AND (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
+WHERE ((CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1) <> [e].[NullableIntB] OR [e].[NullableStringA] IS NULL OR [e].[NullableIntB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
     }
 
     public override async Task Where_IndexOf_empty(bool async)
@@ -1293,10 +1272,7 @@ END IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
         await base.Select_IndexOf(async);
 
         AssertSql(
-            @"SELECT CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END
+            @"SELECT CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 FROM [Entities1] AS [e]
 ORDER BY [e].[Id]");
     }
@@ -1308,63 +1284,15 @@ ORDER BY [e].[Id]");
         AssertSql(
             @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END = CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
-END OR (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NULL AND CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
-END IS NULL)",
+WHERE (CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1) = (CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL)",
             //
             @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END <> CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
-END OR CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NULL OR CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
-END IS NULL) AND (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NOT NULL OR CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
-END IS NOT NULL)",
+WHERE ((CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1) <> (CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1) OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL)",
             //
             @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END <> CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
-END OR CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NULL OR CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
-END IS NULL) AND (CASE
-    WHEN N'oo' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
-END IS NOT NULL OR CASE
-    WHEN N'ar' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
-END IS NOT NULL)");
+WHERE ((CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1) <> (CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1) OR [e].[NullableStringA] IS NULL) AND [e].[NullableStringA] IS NOT NULL");
     }
 
     public override async Task Null_semantics_applied_when_comparing_two_functions_with_multiple_nullable_arguments(bool async)
