@@ -807,9 +807,19 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (LOWER(c[""CustomerID""]) = ""a
         await base.Indexof_with_emptystring(async);
 
         AssertSql(
-            @"SELECT INDEX_OF(c[""ContactName""], """") AS c
+            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], """") = 0))");
+    }
+
+    public override async Task Indexof_with_one_arg(bool async)
+    {
+        await base.Indexof_with_one_arg(async);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], ""a"") = 1))");
     }
 
     public override async Task Indexof_with_starting_position(bool async)
@@ -817,9 +827,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         await base.Indexof_with_starting_position(async);
 
         AssertSql(
-            @"SELECT INDEX_OF(c[""ContactName""], ""a"", 3) AS c
+            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (INDEX_OF(c[""ContactName""], ""a"", 2) = 4))");
     }
 
     public override async Task Replace_with_emptystring(bool async)
@@ -827,9 +837,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         await base.Replace_with_emptystring(async);
 
         AssertSql(
-            @"SELECT REPLACE(c[""ContactName""], ""ari"", """") AS c
+            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (REPLACE(c[""ContactName""], ""ia"", """") = ""Mar Anders""))");
     }
 
     public override async Task Replace_using_property_arguments(bool async)
@@ -837,9 +847,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         await base.Replace_using_property_arguments(async);
 
         AssertSql(
-            @"SELECT REPLACE(c[""ContactName""], c[""ContactName""], c[""CustomerID""]) AS c
+            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (REPLACE(c[""ContactName""], c[""ContactName""], c[""CustomerID""]) = c[""CustomerID""]))");
     }
 
     public override async Task Substring_with_one_arg_with_zero_startindex(bool async)
@@ -1290,16 +1300,6 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5))");
             @"SELECT c[""UnitPrice""]
 FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5))");
-    }
-
-    public override async Task Indexof_with_one_arg(bool async)
-    {
-        await base.Indexof_with_one_arg(async);
-
-        AssertSql(
-            @"SELECT INDEX_OF(c[""ContactName""], ""a"") AS c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
     }
 
     private void AssertSql(params string[] expected)

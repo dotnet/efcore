@@ -1571,9 +1571,8 @@ WHERE [o].[CustomerID] = N'ALFKI' AND ((CONVERT(nvarchar(max), [o].[OrderDate]) 
         await base.Indexof_with_emptystring(async);
 
         AssertSql(
-            @"SELECT 0
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
     }
 
     public override async Task Indexof_with_one_arg(bool async)
@@ -1581,12 +1580,12 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         await base.Indexof_with_one_arg(async);
 
         AssertSql(
-            @"SELECT CASE
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CASE
     WHEN N'a' = N'' THEN 0
     ELSE CAST(CHARINDEX(N'a', [c].[ContactName]) AS int) - 1
-END
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+END = 1");
     }
 
     public override async Task Indexof_with_starting_position(bool async)
@@ -1594,12 +1593,12 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         await base.Indexof_with_starting_position(async);
 
         AssertSql(
-            @"SELECT CASE
-    WHEN N'a' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'a', [c].[ContactName], 3 + 1) AS int) - 1
-END
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE CASE
+    WHEN N'a' = N'' THEN 0
+    ELSE CAST(CHARINDEX(N'a', [c].[ContactName], 2 + 1) AS int) - 1
+END = 4");
     }
 
     public override async Task Replace_with_emptystring(bool async)
@@ -1607,9 +1606,9 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         await base.Replace_with_emptystring(async);
 
         AssertSql(
-            @"SELECT REPLACE([c].[ContactName], N'ari', N'')
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE REPLACE([c].[ContactName], N'ia', N'') = N'Mar Anders'");
     }
 
     public override async Task Replace_using_property_arguments(bool async)
@@ -1617,9 +1616,9 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         await base.Replace_using_property_arguments(async);
 
         AssertSql(
-            @"SELECT REPLACE([c].[ContactName], [c].[ContactName], [c].[CustomerID])
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE REPLACE([c].[ContactName], [c].[ContactName], [c].[CustomerID]) = [c].[CustomerID]");
     }
 
     public override async Task Substring_with_one_arg_with_zero_startindex(bool async)
