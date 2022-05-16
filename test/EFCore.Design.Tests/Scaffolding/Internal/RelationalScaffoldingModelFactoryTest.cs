@@ -139,6 +139,27 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
     }
 
+    [ConditionalTheory]
+    [InlineData("PascalCase")]
+    [InlineData("camelCase")]
+    [InlineData("snake-case")]
+    [InlineData("MixedCASE")]
+    [InlineData("separated_by_underscores")]
+    [InlineData("PascalCase_withUnderscore")]
+    [InlineData("ALL_CAPS")]
+    [InlineData("numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999")]
+    [InlineData("We1!*~&%rdCh@r^act()0rs")]
+    public void Get_DatabaseName(string expectedValue)
+    {
+        var options = new ModelReverseEngineerOptions { UseDatabaseNames = false };
+
+        var database = new DatabaseModel { DatabaseName = expectedValue };
+        var model = _factory.Create(database, options);
+        Assert.Equal(expectedValue, model.GetDatabaseName());
+
+    }
+
+
     [ConditionalFact]
     public void Loads_column_types()
     {
