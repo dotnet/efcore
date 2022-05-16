@@ -54,6 +54,13 @@ Microsoft.EntityFrameworkCore.DbSet
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="buildTransitive\**\*">
+      <Pack>True</Pack>
+      <PackagePath>buildTransitive</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Properties\CoreStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CoreStrings.Designer.cs</LastGenOutput>
