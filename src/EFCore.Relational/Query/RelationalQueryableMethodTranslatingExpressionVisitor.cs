@@ -157,6 +157,35 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <inheritdoc />
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        NonQueryExpression CheckTranslated(NonQueryExpression? translated)
+            => translated
+                ?? throw new InvalidOperationException(
+                    TranslationErrorDetails == null
+                        ? CoreStrings.TranslationFailed(methodCallExpression.Print())
+                        : CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+
+        var method = methodCallExpression.Method;
+        if (method.DeclaringType == typeof(RelationalQueryableExtensions))
+        {
+            var source = Visit(methodCallExpression.Arguments[0]);
+            if (source is ShapedQueryExpression shapedQueryExpression)
+            {
+                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
+                switch (method.Name)
+                {
+                    case nameof(RelationalQueryableExtensions.BulkDelete)
+                        when genericMethod == RelationalQueryableExtensions.BulkDeleteMethodInfo:
+                        return CheckTranslated(TranslateBulkDelete(shapedQueryExpression));
+                }
+            }
+        }
+
+        return base.VisitMethodCall(methodCallExpression);
+    }
+
+    /// <inheritdoc />
     protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
         => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
 
@@ -944,6 +973,100 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
 
         return source;
+    }
+
+    /// <summary>
+    ///     Translates <see cref="RelationalQueryableExtensions.BulkDelete{TSource}(IQueryable{TSource})" />  method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual NonQueryExpression? TranslateBulkDelete(ShapedQueryExpression source)
+    {
+        if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
+        {
+            var selectExpression = (SelectExpression)source.QueryExpression;
+
+            // TODO: support for multi-table joins
+            // TODO: Support for non-table reference?
+            if (IsValidSelectExpressionForBulkDelete(selectExpression, entityShaperExpression, out var table))
+            {
+                selectExpression.ReplaceProjection(new List<Expression>());
+                selectExpression.ApplyProjection();
+
+                return new NonQueryExpression(new DeleteExpression(table, selectExpression));
+            }
+            else
+            {
+                // We need to convert to PK support
+                var entityType = entityShaperExpression.EntityType;
+                var clrType = entityType.ClrType;
+                var pk = entityType.FindPrimaryKey();
+                if (pk != null)
+                {
+                    var entityParameter = Expression.Parameter(clrType);
+                    Expression predicateBody;
+                    if (pk.Properties.Count == 1)
+                    {
+                        predicateBody = Expression.Call(
+                            QueryableMethods.Contains.MakeGenericMethod(clrType), source, entityParameter);
+                    }
+                    else
+                    {
+                        var innerParameter = Expression.Parameter(clrType);
+                        predicateBody = Expression.Call(
+                            QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
+                            source,
+                            Expression.Quote(Expression.Lambda(Expression.Equal(innerParameter, entityParameter), innerParameter)));
+                    }
+
+                    var newSource = Expression.Call(
+                        QueryableMethods.Where.MakeGenericMethod(clrType),
+                        new EntityQueryRootExpression(entityType),
+                        Expression.Quote(Expression.Lambda(predicateBody, entityParameter)));
+
+                    return TranslateBulkDelete((ShapedQueryExpression)Visit(newSource));
+                }
+                else
+                {
+                    // TODO: Exception message
+                    throw new InvalidOperationException("specific message about keyless");
+                }
+            }
+        }
+
+        // TODO: Throw better exception message indicating that delete requires an entity type
+        return null;
+    }
+
+    /// <summary>
+    ///     Validates if the current select expression can be used for bulk delete operation or it requires to be pushed into a subquery.
+    /// </summary>
+    /// <param name="selectExpression">The select expression to validate.</param>
+    /// <param name="entityShaperExpression">The entity shaper expression on which delete operation is being applied.</param>
+    /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
+    /// <returns> das </returns>
+    protected virtual bool IsValidSelectExpressionForBulkDelete(
+        SelectExpression selectExpression,
+        EntityShaperExpression entityShaperExpression,
+        [NotNullWhen(true)] out TableExpression? tableExpression)
+    {
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            && !selectExpression.IsDistinct
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] is TableExpression)
+        {
+            tableExpression = (TableExpression)selectExpression.Tables[0];
+
+            return true;
+        }
+
+        tableExpression = null;
+        return false;
     }
 
     /// <summary>

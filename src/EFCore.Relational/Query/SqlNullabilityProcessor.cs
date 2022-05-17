@@ -77,9 +77,11 @@ public class SqlNullabilityProcessor
 
         var result = queryExpression switch
         {
-            SelectExpression selectExpression => Visit(selectExpression),
-            _ => throw new InvalidOperationException()
+            SelectExpression selectExpression => (Expression)Visit(selectExpression),
+            DeleteExpression deleteExpression => deleteExpression.Update(Visit(deleteExpression.SelectExpression)),
+            _ => throw new InvalidOperationException(),
         };
+
         canCache = _canCache;
 
         return result;
@@ -1581,7 +1583,7 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;
@@ -1791,7 +1793,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;

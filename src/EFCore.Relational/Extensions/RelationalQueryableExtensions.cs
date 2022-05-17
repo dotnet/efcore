@@ -48,6 +48,8 @@ public static class RelationalQueryableExtensions
         throw new NotSupportedException(RelationalStrings.NoDbCommand);
     }
 
+    #region FromSql
+
     /// <summary>
     ///     Creates a LINQ query based on a raw SQL query.
     /// </summary>
@@ -162,6 +164,10 @@ public static class RelationalQueryableExtensions
             Expression.Constant(arguments));
     }
 
+    #endregion
+
+    #region SplitQuery
+
     /// <summary>
     ///     Returns a new query which is configured to load the collections in the query results in a single database query.
     /// </summary>
@@ -224,4 +230,33 @@ public static class RelationalQueryableExtensions
 
     internal static readonly MethodInfo AsSplitQueryMethodInfo
         = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery))!;
+
+    #endregion
+
+    #region BulkDelete
+
+    /// <summary>
+    ///     TBD
+    /// </summary>
+    /// <param name="source">The source query.</param>
+    /// <returns> TBD </returns>
+    public static int BulkDelete<TSource>(this IQueryable<TSource> source)
+        => source.Provider.Execute<int>(Expression.Call(BulkDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression));
+
+    /// <summary>
+    ///     TBD
+    /// </summary>
+    /// <param name="source">The source query.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns> TBD </returns>
+    public static Task<int> BulkDeleteAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
+        => source.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<Task<int>>(
+                Expression.Call(BulkDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression), cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+
+    internal static readonly MethodInfo BulkDeleteMethodInfo
+        = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(BulkDelete))!;
+
+    #endregion
 }
