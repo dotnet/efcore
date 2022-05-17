@@ -618,6 +618,37 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task ExecuteDelete_throws_for_table_sharing(bool async)
+    {
+        await InitializeAsync(OnModelCreating);
+
+        if (async)
+        {
+            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+                CreateContext,
+                UseTransaction,
+                async context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("ExecuteDelete", "Vehicles"))[21..],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Vehicle>().ExecuteDeleteAsync())).Message));
+        }
+        else
+        {
+            TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext,
+                UseTransaction,
+                context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("ExecuteDelete", "Vehicles"))[21..],
+                    Assert.Throws<InvalidOperationException>(() => context.Set<Vehicle>().ExecuteDelete()).Message));
+        }
+    }
+
+    public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override string StoreName
         => "TableSplittingTest";
 

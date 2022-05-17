@@ -344,7 +344,7 @@ public abstract class TestHelpers
 
         Assert.False(
             methods.Count > 0,
-            "\r\n-- Missing test overrides --\r\n" + methodCalls);
+            "\r\n-- Missing test overrides --\r\n\r\n" + methodCalls);
     }
 
     public static void ExecuteWithStrategyInTransaction<TContext>(

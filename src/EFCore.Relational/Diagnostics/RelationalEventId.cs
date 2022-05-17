@@ -85,6 +85,7 @@ public static class RelationalEventId
         Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning,
         Obsolete_ValueConversionSqlLiteralWarning,
         MultipleCollectionIncludeWarning,
+        BulkOperationFailed,
 
         // Model validation events
         ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
@@ -740,6 +741,19 @@ public static class RelationalEventId
     ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
     /// </remarks>
     public static readonly EventId MultipleCollectionIncludeWarning = MakeQueryId(Id.MultipleCollectionIncludeWarning);
+
+    /// <summary>
+    ///     An error occurred while executing a bulk operation.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="DbContextTypeErrorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId BulkOperationFailed = MakeQueryId(Id.BulkOperationFailed);
 
     private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 

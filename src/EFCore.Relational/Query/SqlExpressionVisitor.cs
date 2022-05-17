@@ -42,6 +42,9 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             case CrossJoinExpression crossJoinExpression:
                 return VisitCrossJoin(crossJoinExpression);
 
+            case DeleteExpression deleteExpression:
+                return VisitDelete(deleteExpression);
+
             case DistinctExpression distinctExpression:
                 return VisitDistinct(distinctExpression);
 
@@ -160,6 +163,13 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="crossJoinExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
+
+    /// <summary>
+    ///     Visits the children of the delete expression.
+    /// </summary>
+    /// <param name="deleteExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitDelete(DeleteExpression deleteExpression);
 
     /// <summary>
     ///     Visits the children of the distinct expression.

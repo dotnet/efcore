@@ -2313,6 +2313,46 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.BulkOperationFailed" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+    /// <param name="exception">The exception that caused this failure.</param>
+    public static void BulkOperationFailed(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        Type contextType,
+        Exception exception)
+    {
+        var definition = RelationalResources.LogExceptionDuringBulkOperation(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                contextType, Environment.NewLine, exception,
+                exception);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new DbContextTypeErrorEventData(
+                definition,
+                BulkOperationFailed,
+                contextType,
+                exception);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string BulkOperationFailed(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<Type, string, Exception>)definition;
+        var p = (DbContextTypeErrorEventData)payload;
+        return d.GenerateMessage(p.ContextType, Environment.NewLine, p.Exception);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.MultipleCollectionIncludeWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

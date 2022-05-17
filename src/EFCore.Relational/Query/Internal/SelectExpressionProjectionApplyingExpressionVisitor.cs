@@ -33,10 +33,14 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression is ShapedQueryExpression shapedQueryExpression
-            && shapedQueryExpression.QueryExpression is SelectExpression selectExpression
-                ? shapedQueryExpression.UpdateShaperExpression(
+        => extensionExpression switch
+        {
+            ShapedQueryExpression shapedQueryExpression
+            when shapedQueryExpression.QueryExpression is SelectExpression selectExpression
+                => shapedQueryExpression.UpdateShaperExpression(
                     selectExpression.ApplyProjection(
-                        shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality, _querySplittingBehavior))
-                : base.VisitExtension(extensionExpression);
+                        shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality, _querySplittingBehavior)),
+            NonQueryExpression nonQueryExpression => nonQueryExpression,
+            _ => base.VisitExtension(extensionExpression),
+        };
 }

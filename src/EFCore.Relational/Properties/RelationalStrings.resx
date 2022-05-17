@@ -379,6 +379,27 @@
   <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
     <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
+  <data name="ExecuteDeleteOnTableSplitting" xml:space="preserve">
+    <value>The operation '{operation}' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.</value>
+  </data>
+  <data name="ExecuteOperationOnEntitySplitting" xml:space="preserve">
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting is not supported.</value>
+  </data>
+  <data name="ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator" xml:space="preserve">
+    <value>The operation '{operation}' cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.</value>
+  </data>
+  <data name="ExecuteOperationOnNonEntityType" xml:space="preserve">
+    <value>The operation '{operation}' requires an entity type which corresponds to the database table to be modified. The current operation is being applied on a non-entity projection. Remove any projection to non-entity types.</value>
+  </data>
+  <data name="ExecuteOperationOnTPC" xml:space="preserve">
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.</value>
+  </data>
+  <data name="ExecuteOperationOnTPT" xml:space="preserve">
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT is not supported.</value>
+  </data>
+  <data name="ExecuteOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
+    <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, please file an issue.</value>
+  </data>
   <data name="FromSqlMissingColumn" xml:space="preserve">
     <value>The required column '{column}' was not present in the results of a 'FromSql' operation.</value>
   </data>
@@ -591,6 +612,10 @@
     <value>The configured column orders for the table '{table}' contains duplicates. Ensure the specified column order values are distinct. Conflicting columns: {columns}</value>
     <comment>Error RelationalEventId.DuplicateColumnOrders string string</comment>
   </data>
+  <data name="LogExceptionDuringBulkOperation" xml:space="preserve">
+    <value>An exception occurred while executing a bulk operation for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error RelationalEventId.BulkOperationFailed Type string Exception</comment>
+  </data>
   <data name="LogExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Information RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
@@ -791,6 +816,9 @@
   </data>
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
+  </data>
+  <data name="NonQueryTranslationFailedWithDetails" xml:space="preserve">
+    <value>The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.</value>
   </data>
   <data name="NonScalarFunctionCannotBeNullable" xml:space="preserve">
     <value>Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.</value>

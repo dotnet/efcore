@@ -5,8 +5,6 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class ManyToManyHeterogeneousQueryTestBase : NonSharedModelTestBase
 {
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
-
     protected override string StoreName
         => "ManyToManyHeterogeneousQueryTests";
 

@@ -166,6 +166,15 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitDelete(DeleteExpression deleteExpression)
+        => deleteExpression.Update((SelectExpression)Visit(deleteExpression.SelectExpression));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitDistinct(DistinctExpression distinctExpression)
     {
         var parentSearchCondition = _isSearchCondition;
