@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -49,21 +52,13 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
             return;
         }
 
-        if (!navigationBuilder.Metadata.IsOnDependent)
-        {
-            throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty);
-        }
-
         var foreignKey = navigationBuilder.Metadata.ForeignKey;
-        if (foreignKey.IsUnique)
+        if (!navigationBuilder.Metadata.IsOnDependent && foreignKey.IsUnique)
         {
             return;
         }
-        
-        if (foreignKey.GetDeleteBehaviorConfigurationSource() != ConfigurationSource.Explicit)
-        {
-            foreignKey.SetDeleteBehavior(navAttribute.Behavior);
-        }
+
+        foreignKey.Builder.OnDelete(navAttribute.Behavior, fromDataAnnotation: true);
     }
 
     /// <summary>
@@ -79,21 +74,13 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         }
 
         var navigation = relationshipBuilder.Metadata.DependentToPrincipal;
-        if (navigation == null)
-        {
-            return;
-        }
-        
-        var navAttribute = navigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+        var navAttribute = navigation?.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
         if (navAttribute == null)
         {
             return;
         }
         
-        if (relationshipBuilder.Metadata.GetDeleteBehaviorConfigurationSource() != ConfigurationSource.Explicit)
-        {
-            relationshipBuilder.Metadata.SetDeleteBehavior(navAttribute.Behavior);
-        }
+        relationshipBuilder.OnDelete(navAttribute.Behavior, fromDataAnnotation: true);
     }
 
     /// <summary>
@@ -107,11 +94,6 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         {
             foreach (var navigation in entityType.GetNavigations())
             {
-                if (!navigation.ForeignKey.IsUnique)
-                {
-                    return;
-                }
-                
                 var navAttribute = navigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
                 if (navAttribute == null)
                 {

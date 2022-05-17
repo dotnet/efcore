@@ -116,14 +116,31 @@ public class DeleteBehaviorAttributeConventionTest
     {
         var modelBuilder = CreateModelBuilder();
 
+        modelBuilder.Entity<Post_On_Principal>()
+            .Property(e => e.Blog_On_PrincipalId);
 
         Assert.Equal(
             CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty,
             Assert.Throws<InvalidOperationException>(() =>
-                modelBuilder.Entity<Post_On_Principal>()
-                    .Property(e => e.Blog_On_PrincipalId)).Message
+                modelBuilder.FinalizeModel()).Message
         );
     }
+
+    [ConditionalFact]
+    public void Throw_InvalidOperationException_if_attribute_was_set_on_principal_one_to_one_relationship()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<Post_On_Principal_OneToOne>()
+            .Property(e => e.Blog_On_PrincipalId);
+
+        Assert.Equal(
+            CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty,
+            Assert.Throws<InvalidOperationException>(() =>
+                modelBuilder.FinalizeModel()).Message
+        );
+    }
+
 
     #region DeleteBehaviorAttribute not set
     private class Blog
@@ -271,6 +288,26 @@ public class DeleteBehaviorAttributeConventionTest
         public int? Blog_On_PrincipalId { get; set; }
     }
     #endregion
+
+    #region DeleteBehaviourAttribute set on principal 1:1 relationship
+    private class Blog_On_Principal_OneToOne
+    {
+        public int Id { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.Restrict)]
+        public Post_On_Principal_OneToOne Post_On_Principal_OneToOne { get; set; }
+    }
+
+    private class Post_On_Principal_OneToOne
+    {
+        public int Id { get; set; }
+
+        public Blog_On_Principal_OneToOne Blog_On_Principal_OneToOne { get; set; }
+
+        public int? Blog_On_PrincipalId { get; set; }
+    }
+    #endregion
+
 
     private static ModelBuilder CreateModelBuilder()
         => InMemoryTestHelpers.Instance.CreateConventionBuilder();
