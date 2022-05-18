@@ -54,7 +54,7 @@ public class RelationalScaffoldingModelFactoryTest
     public void Capitalize_DatabaseName()
     {
         var database = new DatabaseModel { DatabaseName = "northwind" };
-        var model = _factory.Create(database, new ModelReverseEngineerOptions { UseDatabaseNames = true });
+        var model = _factory.Create(database, new ModelReverseEngineerOptions { UseDatabaseNames = false });
         Assert.Equal("Northwind", model.GetDatabaseName());
     }
 
@@ -151,7 +151,7 @@ public class RelationalScaffoldingModelFactoryTest
     [InlineData("We1!*~&%rdCh@r^act()0rs")]
     public void Get_DatabaseName(string expectedValue)
     {
-        var options = new ModelReverseEngineerOptions { UseDatabaseNames = false };
+        var options = new ModelReverseEngineerOptions { UseDatabaseNames = true };
 
         var database = new DatabaseModel { DatabaseName = expectedValue };
         var model = _factory.Create(database, options);
