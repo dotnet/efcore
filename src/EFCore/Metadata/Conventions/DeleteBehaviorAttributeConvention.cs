@@ -29,7 +29,7 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
     /// </summary>
     /// <param name="navigationBuilder">The builder for the navigation.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public void ProcessNavigationAdded(IConventionNavigationBuilder navigationBuilder, IConventionContext<IConventionNavigationBuilder> context)
+    public virtual void ProcessNavigationAdded(IConventionNavigationBuilder navigationBuilder, IConventionContext<IConventionNavigationBuilder> context)
     {
         var navAttribute = navigationBuilder.Metadata.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
         if (navAttribute == null)
@@ -51,7 +51,7 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
     /// </summary>
     /// <param name="relationshipBuilder">The builder for the foreign key.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public void ProcessForeignKeyPrincipalEndChanged(IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+    public virtual void ProcessForeignKeyPrincipalEndChanged(IConventionForeignKeyBuilder relationshipBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
     {
         if (!relationshipBuilder.Metadata.IsUnique)
         {
@@ -73,7 +73,7 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
     /// </summary>
     /// <param name="modelBuilder">The builder for the model.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+    public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
