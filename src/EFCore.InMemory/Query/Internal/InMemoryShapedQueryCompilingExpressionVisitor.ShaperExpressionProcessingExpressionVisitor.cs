@@ -256,9 +256,9 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
         private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
             TEntity entity,
-            TIncludedEntity relatedEntity,
+            TIncludedEntity? relatedEntity,
             INavigationBase navigation,
-            INavigationBase inverseNavigation,
+            INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery)
             where TIncludingEntity : class, TEntity
@@ -298,7 +298,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             Func<QueryContext, ValueBuffer, TIncludedEntity> innerShaper,
             TEntity entity,
             INavigationBase navigation,
-            INavigationBase inverseNavigation,
+            INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery,
             bool setLoaded)
