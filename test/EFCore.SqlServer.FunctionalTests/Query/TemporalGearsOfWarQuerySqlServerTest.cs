@@ -5434,6 +5434,9 @@ FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'");
     }
 
+    public override Task DateTimeOffsetNow_minus_timespan(bool async)
+        => AssertTranslationFailed(() => base.DateTimeOffsetNow_minus_timespan(async));
+
     public override async Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool async)
     {
         await base.Conditional_with_conditions_evaluating_to_false_gets_optimized(async);

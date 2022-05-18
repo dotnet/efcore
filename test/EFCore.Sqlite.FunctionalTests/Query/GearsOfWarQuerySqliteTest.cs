@@ -102,6 +102,9 @@ public class GearsOfWarQuerySqliteTest : GearsOfWarQueryRelationalTestBase<Gears
         AssertSql();
     }
 
+    public override Task DateTimeOffsetNow_minus_timespan(bool async)
+        => AssertTranslationFailed(() => base.DateTimeOffsetNow_minus_timespan(async));
+
     public override async Task DateTimeOffset_Date_returns_datetime(bool async)
     {
         await AssertTranslationFailed(() => base.DateTimeOffset_Date_returns_datetime(async));
