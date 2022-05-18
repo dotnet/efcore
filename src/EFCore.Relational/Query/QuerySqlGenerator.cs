@@ -61,23 +61,33 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
     /// <summary>
-    ///     Gets a relational command for a <see cref="SelectExpression" />.
+    ///     Gets a relational command for a query expression.
     /// </summary>
-    /// <param name="selectExpression">A select expression to print in command text.</param>
-    /// <returns>A relational command with a SQL represented by the select expression.</returns>
-    public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
+    /// <param name="queryExpression">A query expression to print in command text.</param>
+    /// <returns>A relational command with a SQL represented by the query expression.</returns>
+    public virtual IRelationalCommand GetCommand(Expression queryExpression)
     {
         _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
-        GenerateTagsHeaderComment(selectExpression);
+        switch (queryExpression)
+        {
+            case SelectExpression selectExpression:
+            {
+                GenerateTagsHeaderComment(selectExpression);
 
-        if (selectExpression.IsNonComposedFromSql())
-        {
-            GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
-        }
-        else
-        {
-            VisitSelect(selectExpression);
+                if (selectExpression.IsNonComposedFromSql())
+                {
+                    GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
+                }
+                else
+                {
+                    VisitSelect(selectExpression);
+                }
+            }
+            break;
+
+            default:
+                throw new InvalidOperationException();
         }
 
         return _relationalCommandBuilder.Build();

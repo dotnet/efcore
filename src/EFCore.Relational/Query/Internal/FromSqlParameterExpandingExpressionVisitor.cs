@@ -26,7 +26,6 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
     private IReadOnlyDictionary<string, object?> _parametersValues;
     private ParameterNameGenerator _parameterNameGenerator;
     private bool _canCache;
-    private SelectExpression _selectExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,7 +43,6 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
         _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
         _parametersValues = default!;
         _parameterNameGenerator = default!;
-        _selectExpression = default!;
     }
 
     /// <summary>
@@ -58,8 +56,8 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SelectExpression Expand(
-        SelectExpression selectExpression,
+    public virtual Expression Expand(
+        Expression queryExpression,
         IReadOnlyDictionary<string, object?> parameterValues,
         out bool canCache)
     {
@@ -67,9 +65,8 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
         _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
         _parametersValues = parameterValues;
         _canCache = true;
-        _selectExpression = selectExpression;
 
-        var result = (SelectExpression)Visit(selectExpression);
+        var result = Visit(queryExpression);
         canCache = _canCache;
 
         return result;

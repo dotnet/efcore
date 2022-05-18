@@ -32,19 +32,18 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SelectExpression Optimize(
-        SelectExpression selectExpression,
+    public override Expression Optimize(
+        Expression queryExpression,
         IReadOnlyDictionary<string, object?> parametersValues,
         out bool canCache)
     {
-        var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
+        var optimizedQueryExpression = base.Optimize(queryExpression, parametersValues, out canCache);
 
-        optimizedSelectExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
-            .Process(optimizedSelectExpression, parametersValues, out var canCache2);
+        optimizedQueryExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
+            .Process(optimizedQueryExpression, parametersValues, out var canCache2);
 
         canCache &= canCache2;
 
-        return (SelectExpression)new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory)
-            .Visit(optimizedSelectExpression);
+        return new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory).Visit(optimizedQueryExpression);
     }
 }
