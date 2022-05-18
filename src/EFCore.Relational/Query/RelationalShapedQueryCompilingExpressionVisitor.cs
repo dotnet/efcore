@@ -52,7 +52,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         var splitQuery = querySplittingBehavior == QuerySplittingBehavior.SplitQuery;
         var collectionCount = 0;
         var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
-            shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders, ref collectionCount);
+            shapedQueryExpression.ShaperExpression,
+            out var relationalCommandCache, out var readerColumns, out var relatedDataLoaders, ref collectionCount);
         if (querySplittingBehavior == null
             && collectionCount > 1)
         {
@@ -65,6 +66,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 typeof(FromSqlQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                 Expression.Constant(relationalCommandCache),
+                Expression.Constant(readerColumns, typeof(IReadOnlyList<ReaderColumn?>)),
                 Expression.Constant(
                     selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList(),
                     typeof(IReadOnlyList<string>)),
@@ -90,6 +92,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 typeof(SplitQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors().Single(),
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                 Expression.Constant(relationalCommandCache),
+                Expression.Constant(readerColumns, typeof(IReadOnlyList<ReaderColumn?>)),
                 Expression.Constant(shaper.Compile()),
                 relatedDataLoadersParameter,
                 relatedDataLoadersAsyncParameter,
@@ -104,6 +107,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             typeof(SingleQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
             Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
             Expression.Constant(relationalCommandCache),
+            Expression.Constant(readerColumns, typeof(IReadOnlyList<ReaderColumn?>)),
             Expression.Constant(shaper.Compile()),
             Expression.Constant(_contextType),
             Expression.Constant(
