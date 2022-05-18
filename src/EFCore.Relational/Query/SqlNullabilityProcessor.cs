@@ -59,14 +59,14 @@ public class SqlNullabilityProcessor
     protected virtual IReadOnlyDictionary<string, object?> ParameterValues { get; private set; }
 
     /// <summary>
-    ///     Processes a <see cref="SelectExpression" /> to apply null semantics and optimize it.
+    ///     Processes a query expression to apply null semantics and optimize it.
     /// </summary>
-    /// <param name="selectExpression">A select expression to process.</param>
+    /// <param name="queryExpression">A query expression to process.</param>
     /// <param name="parameterValues">A dictionary of parameter values in use.</param>
-    /// <param name="canCache">A bool value indicating whether the select expression can be cached.</param>
-    /// <returns>An optimized select expression.</returns>
-    public virtual SelectExpression Process(
-        SelectExpression selectExpression,
+    /// <param name="canCache">A bool value indicating whether the query expression can be cached.</param>
+    /// <returns>An optimized query expression.</returns>
+    public virtual Expression Process(
+        Expression queryExpression,
         IReadOnlyDictionary<string, object?> parameterValues,
         out bool canCache)
     {
@@ -75,7 +75,11 @@ public class SqlNullabilityProcessor
         _nullValueColumns.Clear();
         ParameterValues = parameterValues;
 
-        var result = Visit(selectExpression);
+        var result = queryExpression switch
+        {
+            SelectExpression selectExpression => Visit(selectExpression),
+            _ => throw new InvalidOperationException()
+        };
         canCache = _canCache;
 
         return result;
