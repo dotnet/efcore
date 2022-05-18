@@ -6796,6 +6796,9 @@ FROM [Missions] AS [m]
 WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'");
     }
 
+    public override Task DateTimeOffsetNow_minus_timespan(bool async)
+        => AssertTranslationFailed(() => base.DateTimeOffsetNow_minus_timespan(async));
+
     public override async Task Navigation_inside_interpolated_string_expanded(bool async)
     {
         await base.Navigation_inside_interpolated_string_expanded(async);

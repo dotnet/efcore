@@ -50,6 +50,9 @@ public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase
     public override Task DateTimeOffset_Contains_Less_than_Greater_than(bool async)
         => AssertTranslationFailed(() => base.DateTimeOffset_Contains_Less_than_Greater_than(async));
 
+    public override Task DateTimeOffsetNow_minus_timespan(bool async)
+        => AssertTranslationFailed(() => base.DateTimeOffsetNow_minus_timespan(async));
+
     public override Task DateTimeOffset_Date_returns_datetime(bool async)
         => AssertTranslationFailed(() => base.DateTimeOffset_Date_returns_datetime(async));
 

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
 {
-    private static readonly HashSet<string?> DateTimeDataTypes
+    private static readonly HashSet<string> DateTimeDataTypes
         = new()
         {
             "time",
@@ -21,6 +21,16 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             "datetime",
             "datetime2",
             "datetimeoffset"
+        };
+
+    private static readonly HashSet<Type> DateTimeClrTypes
+        = new()
+        {
+            typeof(TimeOnly),
+            typeof(DateOnly),
+            typeof(TimeSpan),
+            typeof(DateTime),
+            typeof(DateTimeOffset)
         };
 
     private static readonly HashSet<ExpressionType> ArithmeticOperatorTypes
@@ -82,14 +92,32 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             }
         }
 
-        return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
-            ? QueryCompilationContext.NotTranslatedExpression
-            : visitedExpression is SqlBinaryExpression sqlBinary
-            && ArithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-            && (DateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                || DateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                ? QueryCompilationContext.NotTranslatedExpression
-                : visitedExpression;
+        var visitedExpression = base.VisitBinary(binaryExpression);
+
+        if (visitedExpression is SqlBinaryExpression sqlBinaryExpression
+            && ArithmeticOperatorTypes.Contains(sqlBinaryExpression.OperatorType))
+        {
+            var inferredProviderType = GetProviderType(sqlBinaryExpression.Left) ?? GetProviderType(sqlBinaryExpression.Right);
+            if (inferredProviderType != null)
+            {
+                if (DateTimeDataTypes.Contains(inferredProviderType))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+            }
+            else
+            {
+                var leftType = sqlBinaryExpression.Left.Type;
+                var rightType = sqlBinaryExpression.Right.Type;
+                if (DateTimeClrTypes.Contains(leftType)
+                    || DateTimeClrTypes.Contains(rightType))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+            }
+        }
+
+        return visitedExpression;
     }
 
     /// <summary>
@@ -117,7 +145,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 isBinaryMaxDataType ? typeof(long) : typeof(int));
 
             return isBinaryMaxDataType
-                ? (Expression)Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+                ? Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
                 : dataLengthSqlFunction;
         }
 

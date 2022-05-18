@@ -5364,6 +5364,17 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateTimeOffsetNow_minus_timespan(bool async)
+    {
+        var timeSpan = new TimeSpan(1000);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(e => e.Timeline > DateTimeOffset.Now - timeSpan));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_inside_interpolated_string_expanded(bool async)
         => AssertQuery(
             async,
