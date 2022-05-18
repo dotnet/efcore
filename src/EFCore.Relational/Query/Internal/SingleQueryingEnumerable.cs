@@ -16,6 +16,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
 {
     private readonly RelationalQueryContext _relationalQueryContext;
     private readonly RelationalCommandCache _relationalCommandCache;
+    private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
     private readonly Type _contextType;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -32,6 +33,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     public SingleQueryingEnumerable(
         RelationalQueryContext relationalQueryContext,
         RelationalCommandCache relationalCommandCache,
+        IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
         Type contextType,
         bool standAloneStateManager,
@@ -40,6 +42,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     {
         _relationalQueryContext = relationalQueryContext;
         _relationalCommandCache = relationalCommandCache;
+        _readerColumns = readerColumns;
         _shaper = shaper;
         _contextType = contextType;
         _queryLogger = relationalQueryContext.QueryLogger;
@@ -114,6 +117,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -131,6 +135,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _readerColumns = queryingEnumerable._readerColumns;
             _shaper = queryingEnumerable._shaper;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
@@ -230,7 +235,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 new RelationalCommandParameterObject(
                     enumerator._relationalQueryContext.Connection,
                     enumerator._relationalQueryContext.ParameterValues,
-                    enumerator._relationalCommandCache.ReaderColumns,
+                    enumerator._readerColumns,
                     enumerator._relationalQueryContext.Context,
                     enumerator._relationalQueryContext.CommandLogger,
                     enumerator._detailedErrorsEnabled,
@@ -263,6 +268,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -281,6 +287,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _readerColumns = queryingEnumerable._readerColumns;
             _shaper = queryingEnumerable._shaper;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
@@ -383,7 +390,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                     new RelationalCommandParameterObject(
                         enumerator._relationalQueryContext.Connection,
                         enumerator._relationalQueryContext.ParameterValues,
-                        enumerator._relationalCommandCache.ReaderColumns,
+                        enumerator._readerColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
                         enumerator._detailedErrorsEnabled, CommandSource.LinqQuery),

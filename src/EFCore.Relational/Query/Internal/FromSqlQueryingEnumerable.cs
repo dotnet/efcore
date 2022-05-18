@@ -16,6 +16,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
 {
     private readonly RelationalQueryContext _relationalQueryContext;
     private readonly RelationalCommandCache _relationalCommandCache;
+    private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly IReadOnlyList<string> _columnNames;
     private readonly Func<QueryContext, DbDataReader, int[], T> _shaper;
     private readonly Type _contextType;
@@ -33,6 +34,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
     public FromSqlQueryingEnumerable(
         RelationalQueryContext relationalQueryContext,
         RelationalCommandCache relationalCommandCache,
+        IReadOnlyList<ReaderColumn?>? readerColumns,
         IReadOnlyList<string> columnNames,
         Func<QueryContext, DbDataReader, int[], T> shaper,
         Type contextType,
@@ -42,6 +44,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
     {
         _relationalQueryContext = relationalQueryContext;
         _relationalCommandCache = relationalCommandCache;
+        _readerColumns = readerColumns;
         _columnNames = columnNames;
         _shaper = shaper;
         _contextType = contextType;
@@ -144,6 +147,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly IReadOnlyList<string> _columnNames;
         private readonly Func<QueryContext, DbDataReader, int[], T> _shaper;
         private readonly Type _contextType;
@@ -161,6 +165,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _readerColumns = queryingEnumerable._readerColumns;
             _columnNames = queryingEnumerable._columnNames;
             _shaper = queryingEnumerable._shaper;
             _contextType = queryingEnumerable._contextType;
@@ -232,7 +237,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
                 new RelationalCommandParameterObject(
                     enumerator._relationalQueryContext.Connection,
                     enumerator._relationalQueryContext.ParameterValues,
-                    enumerator._relationalCommandCache.ReaderColumns,
+                    enumerator._readerColumns,
                     enumerator._relationalQueryContext.Context,
                     enumerator._relationalQueryContext.CommandLogger,
                     enumerator._detailedErrorsEnabled, CommandSource.FromSqlQuery));
@@ -262,6 +267,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly IReadOnlyList<string> _columnNames;
         private readonly Func<QueryContext, DbDataReader, int[], T> _shaper;
         private readonly Type _contextType;
@@ -279,6 +285,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _readerColumns = queryingEnumerable._readerColumns;
             _columnNames = queryingEnumerable._columnNames;
             _shaper = queryingEnumerable._shaper;
             _contextType = queryingEnumerable._contextType;
@@ -352,7 +359,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
                     new RelationalCommandParameterObject(
                         enumerator._relationalQueryContext.Connection,
                         enumerator._relationalQueryContext.ParameterValues,
-                        enumerator._relationalCommandCache.ReaderColumns,
+                        enumerator._readerColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
                         enumerator._detailedErrorsEnabled, CommandSource.FromSqlQuery),
