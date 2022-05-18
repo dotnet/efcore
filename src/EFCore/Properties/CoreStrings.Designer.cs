@@ -575,6 +575,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, entityClrType, genericType);
 
         /// <summary>
+        ///     The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.
+        /// </summary>
+        public static string DeleteBehaviorAttributeNotOnNavigationProperty
+            => GetString("DeleteBehaviorAttributeNotOnNavigationProperty");
+
+        /// <summary>
+        ///     The [DeleteBehavior] attribute may only be specified on dependent side of the relationship.
+        /// </summary>
+        public static string DeleteBehaviorAttributeOnPrincipalProperty
+            => GetString("DeleteBehaviorAttributeOnPrincipalProperty");
+
+        /// <summary>
         ///     You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key on '{entityType}'. The foreign key must be defined on a type that is part of the relationship.
         /// </summary>
         public static string DependentEntityTypeNotInRelationship(object? dependentEntityType, object? principalEntityType, object? entityType)
@@ -1966,6 +1978,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("PoolingOptionsModified");
 
         /// <summary>
+        ///     The derived type '{derivedType}' cannot have the [PrimaryKey] attribute since primary keys may only be declared on the root type. Move the attribute to '{rootType}', or remove '{rootType}' from the model by using [NotMapped] attribute or calling 'EntityTypeBuilder.Ignore' on the base type in 'OnModelCreating'.
+        /// </summary>
+        public static string PrimaryKeyAttributeOnDerivedEntity(object? derivedType, object? rootType)
+            => string.Format(
+                GetString("PrimaryKeyAttributeOnDerivedEntity", nameof(derivedType), nameof(rootType)),
+                derivedType, rootType);
+
+        /// <summary>
+        ///     The [PrimaryKey] attribute on the entity type '{entityType}' is invalid because the property '{propertyName}' was marked as unmapped by [NotMapped] attribute or 'Ignore()' in 'OnModelCreating'. A primary key cannot use unmapped properties.
+        /// </summary>
+        public static string PrimaryKeyDefinedOnIgnoredProperty(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("PrimaryKeyDefinedOnIgnoredProperty", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     The [PrimaryKey] attribute on the entity type '{entityType}' references properties {properties}, but no property with name '{propertyName}' exists on that entity type or any of its base types.
+        /// </summary>
+        public static string PrimaryKeyDefinedOnNonExistentProperty(object? entityType, object? properties, object? propertyName)
+            => string.Format(
+                GetString("PrimaryKeyDefinedOnNonExistentProperty", nameof(entityType), nameof(properties), nameof(propertyName)),
+                entityType, properties, propertyName);
+
+        /// <summary>
         ///     When creating the relationship between '{navigationSpecification1}' and '{navigationSpecification2}' the entity type '{targetEntityType}' cannot be set as principal.
         /// </summary>
         public static string PrincipalEndIncompatibleNavigations(object? navigationSpecification1, object? navigationSpecification2, object? targetEntityType)
@@ -1996,30 +2032,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("PrincipalOwnedType", nameof(referencingEntityTypeOrNavigation), nameof(referencedEntityTypeOrNavigation), nameof(ownedType)),
                 referencingEntityTypeOrNavigation, referencedEntityTypeOrNavigation, ownedType);
-
-        /// <summary>
-        ///     The derived type '{derivedType}' cannot have the [PrimaryKey] attribute since primary keys may only be declared on the root type. Move the attribute to '{rootType}', or remove '{rootType}' from the model by using [NotMapped] attribute or calling 'EntityTypeBuilder.Ignore' on the base type in 'OnModelCreating'.
-        /// </summary>
-        public static string PrimaryKeyAttributeOnDerivedEntity(object? derivedType, object? rootType)
-            => string.Format(
-                GetString("PrimaryKeyAttributeOnDerivedEntity", nameof(derivedType), nameof(rootType)),
-                derivedType, rootType);
-
-        /// <summary>
-        ///     The [PrimaryKey] attribute on the entity type '{entityType}' is invalid because the property '{propertyName}' was marked as unmapped by [NotMapped] attribute or 'Ignore()' in 'OnModelCreating'. A primary key cannot use unmapped properties.
-        /// </summary>
-        public static string PrimaryKeyDefinedOnIgnoredProperty(object? entityType, object? propertyName)
-            => string.Format(
-                GetString("PrimaryKeyDefinedOnIgnoredProperty", nameof(entityType), nameof(propertyName)),
-                entityType, propertyName);
-
-        /// <summary>
-        ///     The [PrimaryKey] attribute on the entity type '{entityType}' references properties {properties}, but no property with name '{propertyName}' exists on that entity type or any of its base types.
-        /// </summary>
-        public static string PrimaryKeyDefinedOnNonExistentProperty(object? entityType, object? properties, object? propertyName)
-            => string.Format(
-                GetString("PrimaryKeyDefinedOnNonExistentProperty", nameof(entityType), nameof(properties), nameof(propertyName)),
-                entityType, properties, propertyName);
 
         /// <summary>
         ///     '{property}' cannot be used as a property on entity type '{entityType}' because it is configured as a navigation.

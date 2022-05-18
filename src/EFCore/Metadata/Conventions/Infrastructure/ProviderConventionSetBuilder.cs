@@ -116,6 +116,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         var backingFieldAttributeConvention = new BackingFieldAttributeConvention(Dependencies);
         var unicodeAttributeConvention = new UnicodeAttributeConvention(Dependencies);
         var precisionAttributeConvention = new PrecisionAttributeConvention(Dependencies);
+        var deleteBehaviorAttributeConvention = new DeleteBehaviorAttributeConvention(Dependencies);
 
         conventionSet.PropertyAddedConventions.Add(backingFieldAttributeConvention);
         conventionSet.PropertyAddedConventions.Add(backingFieldConvention);
@@ -131,6 +132,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.PropertyAddedConventions.Add(unicodeAttributeConvention);
         conventionSet.PropertyAddedConventions.Add(precisionAttributeConvention);
+        conventionSet.PropertyAddedConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.EntityTypePrimaryKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.EntityTypePrimaryKeyChangedConventions.Add(valueGeneratorConvention);
@@ -186,6 +188,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
         conventionSet.NavigationAddedConventions.Add(foreignKeyAttributeConvention);
+        conventionSet.NavigationAddedConventions.Add(deleteBehaviorAttributeConvention);
 
         var manyToManyJoinEntityTypeConvention = new ManyToManyJoinEntityTypeConvention(Dependencies);
         conventionSet.SkipNavigationAddedConventions.Add(new NavigationBackingFieldAttributeConvention(Dependencies));
@@ -213,6 +216,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
         conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(requiredNavigationAttributeConvention);
         conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(nonNullableNavigationConvention);
+        conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.PropertyNullabilityChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
@@ -241,6 +245,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.ModelFinalizingConventions.Add(new QueryFilterRewritingConvention(Dependencies));
         conventionSet.ModelFinalizingConventions.Add(inversePropertyAttributeConvention);
         conventionSet.ModelFinalizingConventions.Add(backingFieldConvention);
+        conventionSet.ModelFinalizingConventions.Add(deleteBehaviorAttributeConvention);
 
         conventionSet.ModelFinalizedConventions.Add(new RuntimeModelConvention(Dependencies));
 
