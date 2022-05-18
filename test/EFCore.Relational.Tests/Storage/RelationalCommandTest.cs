@@ -344,6 +344,85 @@ public class RelationalCommandTest
         Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task Can_ExecuteReader_multiple_times(bool async)
+    {
+        var diagnosticEvents = new List<Tuple<string, object>>();
+
+        var logger = new RelationalCommandDiagnosticsLogger(
+            new ListLoggerFactory(),
+            new FakeLoggingOptions(false),
+            new ListDiagnosticSource(diagnosticEvents),
+            new TestRelationalLoggingDefinitions(),
+            new NullDbContextLogger(),
+            CreateOptions());
+
+        DbDataReader CreateDbDataReader()
+            => new FakeDbDataReader(new[] { "Id", "Name" }, new List<object[]> { new object[] { 1, "Foo" }, new object[] { 2, "Bar" } });
+
+        var fakeDbConnection = new FakeDbConnection(
+            ConnectionString,
+            new FakeCommandExecutor(
+                executeReader: (c, b) => CreateDbDataReader(),
+                executeReaderAsync: (c, b, ct) => Task.FromResult<DbDataReader>(CreateDbDataReader())));
+        var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
+
+        var options = CreateOptions(optionsExtension);
+
+        var relationalCommand = CreateRelationalCommand();
+
+        await using (var relationalReader = await ExecuteReader(
+                         relationalCommand,
+                         new RelationalCommandParameterObject(new FakeRelationalConnection(options), null, null, null, logger), async))
+        {
+            var dbDataReader = relationalReader.DbDataReader;
+
+            Assert.True(await Read(relationalReader, async));
+            Assert.Equal(1, dbDataReader.GetInt32(0));
+            Assert.Equal("Foo", dbDataReader.GetString(1));
+
+            Assert.True(await Read(relationalReader, async));
+            Assert.Equal(2, dbDataReader.GetInt32(0));
+            Assert.Equal("Bar", dbDataReader.GetString(1));
+
+            Assert.False(await Read(relationalReader, async));
+
+            diagnosticEvents.Clear();
+        }
+
+        var diagnostic = diagnosticEvents.Single();
+        Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnostic.Item1);
+        var dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnostic.Item2;
+        Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
+
+        diagnosticEvents.Clear();
+
+        await using (var relationalReader = await ExecuteReader(
+                         relationalCommand,
+                         new RelationalCommandParameterObject(new FakeRelationalConnection(options), null, null, null, logger), async))
+        {
+            var dbDataReader = relationalReader.DbDataReader;
+
+            Assert.True(await Read(relationalReader, async));
+            Assert.Equal(1, dbDataReader.GetInt32(0));
+            Assert.Equal("Foo", dbDataReader.GetString(1));
+
+            Assert.True(await Read(relationalReader, async));
+            Assert.Equal(2, dbDataReader.GetInt32(0));
+            Assert.Equal("Bar", dbDataReader.GetString(1));
+
+            Assert.False(await Read(relationalReader, async));
+
+            diagnosticEvents.Clear();
+        }
+
+        diagnostic = diagnosticEvents.Single();
+        Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnostic.Item1);
+        dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnostic.Item2;
+        Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
+    }
+
     public static TheoryData CommandActions
         => new TheoryData<Delegate, DbCommandMethod, bool>
         {
@@ -946,14 +1025,15 @@ public class RelationalCommandTest
             ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger);
         }
 
-        Assert.Equal(4, logFactory.Log.Count);
+        Assert.Equal(5, logFactory.Log.Count);
 
         Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
         Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
         Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
-        Assert.Equal(LogLevel.Information, logFactory.Log[3].Level);
+        Assert.Equal(LogLevel.Debug, logFactory.Log[3].Level);
+        Assert.Equal(LogLevel.Information, logFactory.Log[4].Level);
 
-        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(2))
+        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
         {
             Assert.EndsWith(
                 "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
@@ -1005,18 +1085,19 @@ public class RelationalCommandTest
             ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger);
         }
 
-        Assert.Equal(5, logFactory.Log.Count);
+        Assert.Equal(6, logFactory.Log.Count);
         Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
         Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
-        Assert.Equal(LogLevel.Warning, logFactory.Log[2].Level);
+        Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
+        Assert.Equal(LogLevel.Warning, logFactory.Log[3].Level);
         Assert.Equal(
             CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
-            logFactory.Log[2].Message);
+            logFactory.Log[3].Message);
 
-        Assert.Equal(LogLevel.Debug, logFactory.Log[3].Level);
-        Assert.Equal(LogLevel.Information, logFactory.Log[4].Level);
+        Assert.Equal(LogLevel.Debug, logFactory.Log[4].Level);
+        Assert.Equal(LogLevel.Information, logFactory.Log[5].Level);
 
-        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
+        foreach (var (_, _, message, _, _) in logFactory.Log.Skip(4))
         {
             Assert.EndsWith(
                 "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
@@ -1063,14 +1144,15 @@ public class RelationalCommandTest
             ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger);
         }
 
-        Assert.Equal(4, diagnostic.Count);
+        Assert.Equal(5, diagnostic.Count);
         Assert.Equal(RelationalEventId.CommandCreating.Name, diagnostic[0].Item1);
         Assert.Equal(RelationalEventId.CommandCreated.Name, diagnostic[1].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[2].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuted.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandInitialized.Name, diagnostic[2].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuted.Name, diagnostic[4].Item1);
 
-        var beforeData = (CommandEventData)diagnostic[2].Item2;
-        var afterData = (CommandExecutedEventData)diagnostic[3].Item2;
+        var beforeData = (CommandEventData)diagnostic[3].Item2;
+        var afterData = (CommandExecutedEventData)diagnostic[4].Item2;
 
         Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], beforeData.Command);
         Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], afterData.Command);
@@ -1139,14 +1221,15 @@ public class RelationalCommandTest
                     => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
 
-        Assert.Equal(4, diagnostic.Count);
+        Assert.Equal(5, diagnostic.Count);
         Assert.Equal(RelationalEventId.CommandCreating.Name, diagnostic[0].Item1);
         Assert.Equal(RelationalEventId.CommandCreated.Name, diagnostic[1].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[2].Item1);
-        Assert.Equal(RelationalEventId.CommandError.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandInitialized.Name, diagnostic[2].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandError.Name, diagnostic[4].Item1);
 
-        var beforeData = (CommandEventData)diagnostic[2].Item2;
-        var afterData = (CommandErrorEventData)diagnostic[3].Item2;
+        var beforeData = (CommandEventData)diagnostic[3].Item2;
+        var afterData = (CommandErrorEventData)diagnostic[4].Item2;
 
         Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
         Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
@@ -1217,14 +1300,15 @@ public class RelationalCommandTest
                     => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
         }
 
-        Assert.Equal(4, diagnostic.Count);
+        Assert.Equal(5, diagnostic.Count);
         Assert.Equal(RelationalEventId.CommandCreating.Name, diagnostic[0].Item1);
         Assert.Equal(RelationalEventId.CommandCreated.Name, diagnostic[1].Item1);
-        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[2].Item1);
-        Assert.Equal(RelationalEventId.CommandCanceled.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandInitialized.Name, diagnostic[2].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[3].Item1);
+        Assert.Equal(RelationalEventId.CommandCanceled.Name, diagnostic[4].Item1);
 
-        var beforeData = (CommandEventData)diagnostic[2].Item2;
-        var afterData = (CommandEndEventData)diagnostic[3].Item2;
+        var beforeData = (CommandEventData)diagnostic[3].Item2;
+        var afterData = (CommandEndEventData)diagnostic[4].Item2;
 
         Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
         Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
@@ -1256,9 +1340,10 @@ public class RelationalCommandTest
 
     private class FakeLoggingOptions : ILoggingOptions
     {
-        public FakeLoggingOptions(bool sensitiveDataLoggingEnabled)
+        public FakeLoggingOptions(bool sensitiveDataLoggingEnabled, bool detailedErrorsEnabled = false)
         {
             IsSensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
+            DetailedErrorsEnabled = detailedErrorsEnabled;
         }
 
         public void Initialize(IDbContextOptions options)
@@ -1271,6 +1356,8 @@ public class RelationalCommandTest
 
         public bool IsSensitiveDataLoggingEnabled { get; }
         public bool IsSensitiveDataLoggingWarned { get; set; }
+
+        public bool DetailedErrorsEnabled { get; }
 
         public WarningsConfiguration WarningsConfiguration
             => null;
@@ -1287,4 +1374,17 @@ public class RelationalCommandTest
                 new ExceptionDetector()),
             commandText,
             parameters ?? Array.Empty<IRelationalParameter>());
+
+    private Task<RelationalDataReader> ExecuteReader(
+        IRelationalCommand relationalCommand,
+        RelationalCommandParameterObject parameterObject,
+        bool async)
+        => async
+            ? relationalCommand.ExecuteReaderAsync(parameterObject)
+            : Task.FromResult(relationalCommand.ExecuteReader(parameterObject));
+
+    private Task<bool> Read(RelationalDataReader relationalReader, bool async)
+        => async ? relationalReader.ReadAsync() : Task.FromResult(relationalReader.Read());
+
+    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 }

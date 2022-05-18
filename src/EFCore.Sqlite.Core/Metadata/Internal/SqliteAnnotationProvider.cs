@@ -69,5 +69,5 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     }
 
     private static bool HasConverter(IProperty property)
-        => (property.GetValueConverter() ?? property.FindTypeMapping()?.Converter) != null;
+        => property.FindTypeMapping()?.Converter != null;
 }

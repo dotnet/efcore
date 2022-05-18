@@ -118,8 +118,8 @@ public class ClrCollectionAccessorFactory
         var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
         var memberInfoForRead = navigation.GetMemberInfo(forMaterialization: false, forSet: false);
-        navigation.TryGetMemberInfo(forConstruction: false, forSet: true, out var memberInfoForWrite, out _);
-        navigation.TryGetMemberInfo(forConstruction: true, forSet: true, out var memberInfoForMaterialization, out _);
+        navigation.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
+        navigation.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
 
         var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
         if (memberAccessForRead.Type != typeof(TCollection))

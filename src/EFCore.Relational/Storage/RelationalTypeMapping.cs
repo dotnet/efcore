@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -106,6 +108,24 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         ///     Indicates which values should be appended to the store type name.
         /// </summary>
         public StoreTypePostfix StoreTypePostfix { get; }
+
+        /// <summary>
+        ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
+        ///     core parameters.
+        /// </summary>
+        /// <param name="coreParameters">Parameters for the <see cref="CoreTypeMapping" /> base class.</param>
+        /// <returns>The new parameter object.</returns>
+        public RelationalTypeMappingParameters WithCoreParameters(in CoreTypeMappingParameters coreParameters)
+            => new(
+                coreParameters,
+                StoreType,
+                StoreTypePostfix,
+                DbType,
+                Unicode,
+                Size,
+                FixedLength,
+                Precision,
+                Scale);
 
         /// <summary>
         ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
@@ -224,22 +244,21 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     private static readonly MethodInfo GetFieldValueMethod
         = GetDataReaderMethod(nameof(DbDataReader.GetFieldValue));
 
-    private static readonly IDictionary<Type, MethodInfo> GetXMethods
-        = new Dictionary<Type, MethodInfo>
-        {
-            { typeof(bool), GetDataReaderMethod(nameof(DbDataReader.GetBoolean)) },
-            { typeof(byte), GetDataReaderMethod(nameof(DbDataReader.GetByte)) },
-            { typeof(char), GetDataReaderMethod(nameof(DbDataReader.GetChar)) },
-            { typeof(DateTime), GetDataReaderMethod(nameof(DbDataReader.GetDateTime)) },
-            { typeof(decimal), GetDataReaderMethod(nameof(DbDataReader.GetDecimal)) },
-            { typeof(double), GetDataReaderMethod(nameof(DbDataReader.GetDouble)) },
-            { typeof(float), GetDataReaderMethod(nameof(DbDataReader.GetFloat)) },
-            { typeof(Guid), GetDataReaderMethod(nameof(DbDataReader.GetGuid)) },
-            { typeof(short), GetDataReaderMethod(nameof(DbDataReader.GetInt16)) },
-            { typeof(int), GetDataReaderMethod(nameof(DbDataReader.GetInt32)) },
-            { typeof(long), GetDataReaderMethod(nameof(DbDataReader.GetInt64)) },
-            { typeof(string), GetDataReaderMethod(nameof(DbDataReader.GetString)) }
-        };
+    private static readonly ConcurrentDictionary<Type, MethodInfo> GetXMethods = new()
+    {
+        [typeof(bool)] = GetDataReaderMethod(nameof(DbDataReader.GetBoolean)),
+        [typeof(byte)] = GetDataReaderMethod(nameof(DbDataReader.GetByte)),
+        [typeof(char)] = GetDataReaderMethod(nameof(DbDataReader.GetChar)),
+        [typeof(DateTime)] = GetDataReaderMethod(nameof(DbDataReader.GetDateTime)),
+        [typeof(decimal)] = GetDataReaderMethod(nameof(DbDataReader.GetDecimal)),
+        [typeof(double)] = GetDataReaderMethod(nameof(DbDataReader.GetDouble)),
+        [typeof(float)] = GetDataReaderMethod(nameof(DbDataReader.GetFloat)),
+        [typeof(Guid)] = GetDataReaderMethod(nameof(DbDataReader.GetGuid)),
+        [typeof(short)] = GetDataReaderMethod(nameof(DbDataReader.GetInt16)),
+        [typeof(int)] = GetDataReaderMethod(nameof(DbDataReader.GetInt32)),
+        [typeof(long)] = GetDataReaderMethod(nameof(DbDataReader.GetInt64)),
+        [typeof(string)] = GetDataReaderMethod(nameof(DbDataReader.GetString))
+    };
 
     private static MethodInfo GetDataReaderMethod(string name)
         => typeof(DbDataReader).GetRuntimeMethod(name, new[] { typeof(int) })!;
@@ -274,55 +293,17 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         StoreTypeNameBase = storeTypeNameBase;
         StoreType = ProcessStoreType(parameters, storeType, storeTypeNameBase);
-    }
 
-    /// <summary>
-    ///     Processes the store type name to add appropriate postfix/prefix text as needed.
-    /// </summary>
-    /// <param name="parameters">The parameters for this mapping.</param>
-    /// <param name="storeType">The specified store type name.</param>
-    /// <param name="storeTypeNameBase">The calculated based name</param>
-    /// <returns>The store type name to use.</returns>
-    protected virtual string ProcessStoreType(
-        RelationalTypeMappingParameters parameters,
-        string storeType,
-        string storeTypeNameBase)
-    {
-        var size = parameters.Size;
-
-        if (size != null
-            && parameters.StoreTypePostfix == StoreTypePostfix.Size)
+        static string GetBaseName(string storeType)
         {
-            storeType = storeTypeNameBase + "(" + size + ")";
-        }
-        else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                 || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
-        {
-            var precision = parameters.Precision;
-            if (precision != null)
+            var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
+            if (openParen >= 0)
             {
-                var scale = parameters.Scale;
-                storeType = storeTypeNameBase
-                    + "("
-                    + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
-                        ? precision.ToString()
-                        : precision + "," + scale)
-                    + ")";
+                storeType = storeType[..openParen];
             }
+
+            return storeType;
         }
-
-        return storeType;
-    }
-
-    private static string GetBaseName(string storeType)
-    {
-        var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
-        if (openParen >= 0)
-        {
-            storeType = storeType[..openParen];
-        }
-
-        return storeType;
     }
 
     /// <summary>
@@ -356,48 +337,6 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     ///     Returns the parameters used to create this type mapping.
     /// </summary>
     protected new virtual RelationalTypeMappingParameters Parameters { get; }
-
-    /// <summary>
-    ///     Creates a copy of this mapping.
-    /// </summary>
-    /// <param name="parameters">The parameters for this mapping.</param>
-    /// <returns>The newly created mapping.</returns>
-    protected abstract RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters);
-
-    /// <summary>
-    ///     Creates a copy of this mapping.
-    /// </summary>
-    /// <param name="storeType">The name of the database type.</param>
-    /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
-    /// <returns>The newly created mapping.</returns>
-    public virtual RelationalTypeMapping Clone(string storeType, int? size)
-        => Clone(Parameters.WithStoreTypeAndSize(storeType, size));
-
-    /// <summary>
-    ///     Creates a copy of this mapping.
-    /// </summary>
-    /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
-    /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
-    /// <returns>The newly created mapping.</returns>
-    public virtual RelationalTypeMapping Clone(int? precision, int? scale)
-        => Clone(Parameters.WithPrecisionAndScale(precision, scale));
-
-    /// <summary>
-    ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
-    ///     added.
-    /// </summary>
-    /// <param name="converter">The converter to use.</param>
-    /// <returns>A new type mapping</returns>
-    public override CoreTypeMapping Clone(ValueConverter? converter)
-        => Clone(Parameters.WithComposedConverter(converter));
-
-    /// <summary>
-    ///     Clones the type mapping to update facets from the mapping info, if needed.
-    /// </summary>
-    /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
-    /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
-    public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
-        => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
 
     /// <summary>
     ///     Gets the name of the database type.
@@ -456,6 +395,86 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </summary>
     protected virtual string SqlLiteralFormatString
         => "{0}";
+
+    /// <summary>
+    ///     Creates a copy of this mapping.
+    /// </summary>
+    /// <param name="parameters">The parameters for this mapping.</param>
+    /// <returns>The newly created mapping.</returns>
+    protected abstract RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters);
+
+    /// <summary>
+    ///     Creates a copy of this mapping.
+    /// </summary>
+    /// <param name="storeType">The name of the database type.</param>
+    /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
+    /// <returns>The newly created mapping.</returns>
+    public virtual RelationalTypeMapping Clone(string storeType, int? size)
+        => Clone(Parameters.WithStoreTypeAndSize(storeType, size));
+
+    /// <summary>
+    ///     Creates a copy of this mapping.
+    /// </summary>
+    /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
+    /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
+    /// <returns>The newly created mapping.</returns>
+    public virtual RelationalTypeMapping Clone(int? precision, int? scale)
+        => Clone(Parameters.WithPrecisionAndScale(precision, scale));
+
+    /// <summary>
+    ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
+    ///     added.
+    /// </summary>
+    /// <param name="converter">The converter to use.</param>
+    /// <returns>A new type mapping</returns>
+    public override CoreTypeMapping Clone(ValueConverter? converter)
+        => Clone(Parameters.WithComposedConverter(converter));
+
+    /// <summary>
+    ///     Clones the type mapping to update facets from the mapping info, if needed.
+    /// </summary>
+    /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
+    /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
+    public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
+        => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
+
+    /// <summary>
+    ///     Processes the store type name to add appropriate postfix/prefix text as needed.
+    /// </summary>
+    /// <param name="parameters">The parameters for this mapping.</param>
+    /// <param name="storeType">The specified store type name.</param>
+    /// <param name="storeTypeNameBase">The calculated based name</param>
+    /// <returns>The store type name to use.</returns>
+    protected virtual string ProcessStoreType(
+        RelationalTypeMappingParameters parameters,
+        string storeType,
+        string storeTypeNameBase)
+    {
+        var size = parameters.Size;
+
+        if (size != null
+            && parameters.StoreTypePostfix == StoreTypePostfix.Size)
+        {
+            storeType = storeTypeNameBase + "(" + size + ")";
+        }
+        else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
+                 || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+        {
+            var precision = parameters.Precision;
+            if (precision != null)
+            {
+                var scale = parameters.Scale;
+                storeType = storeTypeNameBase
+                    + "("
+                    + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
+                        ? precision.ToString()
+                        : precision + "," + scale)
+                    + ")";
+            }
+        }
+
+        return storeType;
+    }
 
     /// <summary>
     ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
@@ -590,9 +609,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </summary>
     /// <returns>The method to use to read the value.</returns>
     public static MethodInfo GetDataReaderMethod(Type type)
-        => GetXMethods.TryGetValue(type, out var method)
-            ? method
-            : GetFieldValueMethod.MakeGenericMethod(type);
+        => GetXMethods.GetOrAdd(type, static t => GetFieldValueMethod.MakeGenericMethod(t));
 
     /// <summary>
     ///     Gets a custom expression tree for reading the value from the input data reader

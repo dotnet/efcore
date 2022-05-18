@@ -227,6 +227,17 @@ public interface IAnnotationCodeGenerator
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
     ///     and removes the annotations.
     /// </summary>
+    /// <param name="trigger">The trigger to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        ITrigger trigger,
+        IDictionary<string, IAnnotation> annotations)
+        => Array.Empty<MethodCallCodeFragment>();
+
+    /// <summary>
+    ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
+    ///     and removes the annotations.
+    /// </summary>
     /// <param name="annotatable">The annotatable to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
@@ -240,6 +251,8 @@ public interface IAnnotationCodeGenerator
             INavigation navigation => GenerateFluentApiCalls(navigation, annotations),
             ISkipNavigation skipNavigation => GenerateFluentApiCalls(skipNavigation, annotations),
             IIndex index => GenerateFluentApiCalls(index, annotations),
+            ITrigger trigger => GenerateFluentApiCalls(trigger, annotations),
+
             _ => throw new ArgumentException(RelationalStrings.UnhandledAnnotatableType(annotatable.GetType()))
         };
 

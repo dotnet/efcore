@@ -506,7 +506,12 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     protected override Expression VisitOrdering(OrderingExpression orderingExpression)
     {
+        var parentSearchCondition = _isSearchCondition;
+        _isSearchCondition = false;
+
         var expression = (SqlExpression)Visit(orderingExpression.Expression);
+
+        _isSearchCondition = parentSearchCondition;
 
         return orderingExpression.Update(expression);
     }

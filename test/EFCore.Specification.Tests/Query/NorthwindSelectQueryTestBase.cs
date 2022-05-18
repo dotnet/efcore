@@ -411,14 +411,15 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
                 .Where(c => c.CustomerID.StartsWith("A"))
-                .Select(c => new
-                {
-                    OrderDates = c.Orders
-                        .Where(o => o.OrderID < 10500)
-                        .OrderBy(o => o.OrderID)
-                        .Take(3)
-                        .Select(o => new { Date = o.OrderDate })
-                }),
+                .Select(
+                    c => new
+                    {
+                        OrderDates = c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .OrderBy(o => o.OrderID)
+                            .Take(3)
+                            .Select(o => new { Date = o.OrderDate })
+                    }),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e.OrderDates, a.OrderDates, ordered: true));
 
@@ -430,14 +431,15 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
                 .Where(c => c.CustomerID.StartsWith("A"))
-                .Select(c => new
-                {
-                    OrderDates = c.Orders
-                        .OrderBy(o => o.OrderID)
-                        .Where(o => o.OrderID < 10500)
-                        .Select(o => o.OrderDate)
-                        .FirstOrDefault()
-                }),
+                .Select(
+                    c => new
+                    {
+                        OrderDates = c.Orders
+                            .OrderBy(o => o.OrderID)
+                            .Where(o => o.OrderID < 10500)
+                            .Select(o => o.OrderDate)
+                            .FirstOrDefault()
+                    }),
             assertOrder: true);
 
     [ConditionalTheory]
@@ -448,15 +450,16 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
                 .Where(c => c.CustomerID.StartsWith("A"))
-                .Select(c => new
-                {
-                    OrderDates = ss.Set<Order>()
-                        .OrderBy(o => o.OrderID)
-                        .Where(o => o.OrderID < 10500)
-                        .Where(o => c.CustomerID == o.CustomerID)
-                        .Select(o => o.OrderDate)
-                        .FirstOrDefault()
-                }),
+                .Select(
+                    c => new
+                    {
+                        OrderDates = ss.Set<Order>()
+                            .OrderBy(o => o.OrderID)
+                            .Where(o => o.OrderID < 10500)
+                            .Where(o => c.CustomerID == o.CustomerID)
+                            .Select(o => o.OrderDate)
+                            .FirstOrDefault()
+                    }),
             assertOrder: true);
 
     [ConditionalTheory]
@@ -467,17 +470,19 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
                 .Where(c => c.CustomerID.StartsWith("A"))
-                .Select(c => new
-                {
-                    Order = (int?)c.Orders
-                        .OrderBy(o => o.OrderID)
-                        .Where(o => o.OrderID < 10500)
-                        .Select(o => o.OrderDetails
-                            .Where(od => od.OrderID > 10)
-                            .Select(od => od.ProductID)
-                            .Count())
-                        .FirstOrDefault()
-                }),
+                .Select(
+                    c => new
+                    {
+                        Order = (int?)c.Orders
+                            .OrderBy(o => o.OrderID)
+                            .Where(o => o.OrderID < 10500)
+                            .Select(
+                                o => o.OrderDetails
+                                    .Where(od => od.OrderID > 10)
+                                    .Select(od => od.ProductID)
+                                    .Count())
+                            .FirstOrDefault()
+                    }),
             assertOrder: true);
 
     [ConditionalTheory]
@@ -488,20 +493,21 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
                 .Where(c => c.CustomerID.StartsWith("A"))
-                .Select(c => new
-                {
-                    Order = (int?)c.Orders
-                        .OrderBy(o => o.OrderID)
-                        .Where(o => o.OrderID < 10500)
-                        .Select(
-                            o => o.OrderDetails
-                                .OrderBy(od => od.OrderID)
-                                .ThenBy(od => od.ProductID)
-                                .Where(od => od.OrderID != c.Orders.Count)
-                                .Select(od => od.ProductID)
-                                .FirstOrDefault())
-                        .FirstOrDefault()
-                }),
+                .Select(
+                    c => new
+                    {
+                        Order = (int?)c.Orders
+                            .OrderBy(o => o.OrderID)
+                            .Where(o => o.OrderID < 10500)
+                            .Select(
+                                o => o.OrderDetails
+                                    .OrderBy(od => od.OrderID)
+                                    .ThenBy(od => od.ProductID)
+                                    .Where(od => od.OrderID != c.Orders.Count)
+                                    .Select(od => od.ProductID)
+                                    .FirstOrDefault())
+                            .FirstOrDefault()
+                    }),
             assertOrder: true);
 
     [ConditionalTheory]
@@ -512,20 +518,21 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
                 .Where(c => c.CustomerID.StartsWith("A"))
-                .Select(c => new
-                {
-                    Order = (int?)c.Orders
-                        .OrderBy(o => o.OrderID)
-                        .Where(o => o.OrderID < 10500)
-                        .Select(
-                            o => o.OrderDetails
-                                .OrderBy(od => od.OrderID)
-                                .ThenBy(od => od.ProductID)
-                                .Where(od => od.OrderID != c.CustomerID.Length)
-                                .Select(od => od.ProductID)
-                                .FirstOrDefault())
-                        .FirstOrDefault()
-                }),
+                .Select(
+                    c => new
+                    {
+                        Order = (int?)c.Orders
+                            .OrderBy(o => o.OrderID)
+                            .Where(o => o.OrderID < 10500)
+                            .Select(
+                                o => o.OrderDetails
+                                    .OrderBy(od => od.OrderID)
+                                    .ThenBy(od => od.ProductID)
+                                    .Where(od => od.OrderID != c.CustomerID.Length)
+                                    .Select(od => od.ProductID)
+                                    .FirstOrDefault())
+                            .FirstOrDefault()
+                    }),
             assertOrder: true);
 
     [ConditionalTheory]
@@ -2390,21 +2397,20 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
         => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                    .Where(c => c.CustomerID.StartsWith("F"))
-                    .Select(c => new
+                .Where(c => c.CustomerID.StartsWith("F"))
+                .Select(
+                    c => new
                     {
                         c.CustomerID,
-                        ListWithSubList = c.Orders.OrderBy(e => e.OrderID).Select(o => o.OrderDetails.Select(e => new
-                        {
-                            e.OrderID,
-                            e.ProductID
-                        }))
+                        ListWithSubList = c.Orders.OrderBy(e => e.OrderID)
+                            .Select(o => o.OrderDetails.Select(e => new { e.OrderID, e.ProductID }))
                     }),
             elementSorter: e => e.CustomerID,
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.CustomerID, a.CustomerID);
-                AssertCollection(e.ListWithSubList, a.ListWithSubList, ordered: true,
+                AssertCollection(
+                    e.ListWithSubList, a.ListWithSubList, ordered: true,
                     elementAsserter: (ee, aa) => AssertCollection(ee, aa, elementSorter: i => (i.OrderID, i.ProductID)));
             });
 
@@ -2419,18 +2425,63 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             async,
             ss => ss.Set<Customer>()
                 .Where(c => c.CustomerID.StartsWith("F"))
-                .Select(c => new
-                {
-                    c.CustomerID,
-                    Orders = customersToLoad.Contains("FISSA")
-                        ? c.Orders.Select(e => new OrderDto())
-                        : results
-                }),
+                .Select(
+                    c => new
+                    {
+                        c.CustomerID,
+                        Orders = customersToLoad.Contains("FISSA")
+                            ? c.Orders.Select(e => new OrderDto())
+                            : results
+                    }),
             elementSorter: e => e.CustomerID,
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.CustomerID, a.CustomerID);
                 AssertEqual(e.Orders.Count(), a.Orders.Count());
             });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task List_from_result_of_single_result(bool async)
+    {
+        return AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Customer>()
+                .OrderBy(c => c.CustomerID)
+                .Select(c => c.Orders.Select(e => e.OrderID)),
+            asserter: (e, a) => AssertCollection(e, a, elementSorter: e => e, elementAsserter: (ee, aa) => AssertEqual(ee, aa)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task List_from_result_of_single_result_2(bool async)
+    {
+        return AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Customer>()
+                .OrderBy(c => c.CustomerID)
+                .Select(c => c.Orders.Select(e => new { e.OrderID, e.OrderDate })),
+            asserter: (e, a) => AssertCollection(
+                e, a, elementSorter: e => e.OrderID,
+                elementAsserter: (ee, aa) =>
+                {
+                    AssertEqual(ee.OrderID, aa.OrderID);
+                    AssertEqual(ee.OrderDate, aa.OrderDate);
+                }));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task List_from_result_of_single_result_3(bool async)
+    {
+        return AssertFirstOrDefault(
+            async,
+            ss => ss.Set<Customer>()
+                .OrderBy(c => c.CustomerID)
+                .Select(
+                    c => c.Orders.OrderBy(o => o.OrderDate)
+                        .Select(e => e.OrderDetails.Select(od => od.ProductID)).FirstOrDefault()),
+            asserter: (e, a) => AssertCollection(e, a, elementSorter: e => e, elementAsserter: (ee, aa) => AssertEqual(ee, aa)));
     }
 }

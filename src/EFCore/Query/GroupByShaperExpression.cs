@@ -21,8 +21,8 @@ public class GroupByShaperExpression : Expression, IPrintableExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="GroupByShaperExpression" /> class.
     /// </summary>
-    /// <param name="keySelector">An expression representing key selector for the grouping element.</param>
-    /// <param name="groupingEnumerable">An expression representing element selector for the grouping element.</param>
+    /// <param name="keySelector">An expression representing key selector for the grouping result.</param>
+    /// <param name="groupingEnumerable">An expression representing subquery for enumerable over the grouping result.</param>
     public GroupByShaperExpression(
         Expression keySelector,
         ShapedQueryExpression groupingEnumerable)
@@ -32,12 +32,12 @@ public class GroupByShaperExpression : Expression, IPrintableExpression
     }
 
     /// <summary>
-    ///     The expression representing the key selector for this grouping element.
+    ///     The expression representing the key selector for this grouping result.
     /// </summary>
     public virtual Expression KeySelector { get; }
 
     /// <summary>
-    ///     The expression representing the element selector for this grouping element.
+    ///     The expression representing the subquery for the enumerable over this grouping result.
     /// </summary>
     public virtual ShapedQueryExpression GroupingEnumerable { get; }
 
@@ -71,7 +71,7 @@ public class GroupByShaperExpression : Expression, IPrintableExpression
             : this;
 
     /// <inheritdoc />
-    void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+    public virtual void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.AppendLine($"{nameof(GroupByShaperExpression)}:");
         expressionPrinter.Append("KeySelector: ");

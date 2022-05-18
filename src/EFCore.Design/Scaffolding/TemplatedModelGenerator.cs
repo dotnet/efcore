@@ -21,7 +21,7 @@ internal abstract class TemplatedModelGenerator : ModelCodeGenerator
     /// Gets the subdirectory under the project to look for templates in.
     /// </summary>
     /// <value>The subdirectory.</value>
-    protected static string TemplatesDirectory { get; } = Path.Combine("Templates", "EFCore");
+    protected static string TemplatesDirectory { get; } = Path.Combine("CodeTemplates", "EFCore");
 
     /// <inheritdoc/>
     public override string? Language

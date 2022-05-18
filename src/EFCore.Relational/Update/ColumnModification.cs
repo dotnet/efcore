@@ -26,7 +26,7 @@ public class ColumnModification : IColumnModification
     private string? _parameterName;
     private string? _originalParameterName;
     private readonly Func<string>? _generateParameterName;
-    private readonly object? _originalValue;
+    private object? _originalValue;
     private object? _value;
     private readonly bool _sensitiveLoggingEnabled;
     private List<IColumnModification>? _sharedColumnModifications;
@@ -37,6 +37,7 @@ public class ColumnModification : IColumnModification
     /// <param name="columnModificationParameters">Creation parameters.</param>
     public ColumnModification(in ColumnModificationParameters columnModificationParameters)
     {
+        Column = columnModificationParameters.Column;
         ColumnName = columnModificationParameters.ColumnName;
         _originalValue = columnModificationParameters.OriginalValue;
         _value = columnModificationParameters.Value;
@@ -55,110 +56,95 @@ public class ColumnModification : IColumnModification
         UseParameter = _generateParameterName != null;
     }
 
-    /// <summary>
-    ///     The <see cref="IUpdateEntry" /> that represents the entity that is being modified.
-    /// </summary>
+    /// <inheritdoc />
     public virtual IUpdateEntry? Entry { get; }
 
-    /// <summary>
-    ///     The property that maps to the column.
-    /// </summary>
+    /// <inheritdoc />
     public virtual IProperty? Property { get; }
 
-    /// <summary>
-    ///     The relational type mapping for the column.
-    /// </summary>
+    /// <inheritdoc />
+    public virtual IColumn? Column { get; }
+
+    /// <inheritdoc />
     public virtual RelationalTypeMapping? TypeMapping { get; }
 
-    /// <summary>
-    ///     A value indicating whether the column could contain a null value.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool? IsNullable { get; }
 
-    /// <summary>
-    ///     Indicates whether a value must be read from the database for the column.
-    /// </summary>
-    public virtual bool IsRead { get; }
+    /// <inheritdoc />
+    public virtual bool IsRead { get; set; }
 
-    /// <summary>
-    ///     Indicates whether a value must be written to the database for the column.
-    /// </summary>
-    public virtual bool IsWrite { get; }
+    /// <inheritdoc />
+    public virtual bool IsWrite { get; set; }
 
-    /// <summary>
-    ///     Indicates whether the column is used in the <c>WHERE</c> clause when updating.
-    /// </summary>
-    public virtual bool IsCondition { get; }
+    /// <inheritdoc />
+    public virtual bool IsCondition { get; set; }
 
-    /// <summary>
-    ///     Indicates whether the column is part of a primary or alternate key.
-    /// </summary>
-    public virtual bool IsKey { get; }
+    /// <inheritdoc />
+    public virtual bool IsKey { get; set; }
 
-    /// <summary>
-    ///     Indicates whether the original value of the property must be passed as a parameter to the SQL.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool UseOriginalValueParameter
         => UseParameter && UseOriginalValue;
 
-    /// <summary>
-    ///     Indicates whether the current value of the property must be passed as a parameter to the SQL.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool UseCurrentValueParameter
         => UseParameter && UseCurrentValue;
 
-    /// <summary>
-    ///     Indicates whether the original value of the property should be used.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool UseOriginalValue
         => IsCondition;
 
-    /// <summary>
-    ///     Indicates whether the current value of the property should be used.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool UseCurrentValue
         => IsWrite;
 
-    /// <summary>
-    ///     Indicates whether the value of the property must be passed as a parameter to the SQL as opposed to being inlined.
-    /// </summary>
+    /// <inheritdoc />
     public virtual bool UseParameter { get; }
 
-    /// <summary>
-    ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
-    /// </summary>
+    /// <inheritdoc />
     public virtual string? ParameterName
         => _parameterName ??= UseCurrentValueParameter ? _generateParameterName!() : null;
 
-    /// <summary>
-    ///     The parameter name to use for the original value parameter (<see cref="UseOriginalValueParameter" />), if needed.
-    /// </summary>
+    /// <inheritdoc />
     public virtual string? OriginalParameterName
         => _originalParameterName ??= UseOriginalValueParameter ? _generateParameterName!() : null;
 
-    /// <summary>
-    ///     The name of the column.
-    /// </summary>
+    /// <inheritdoc />
     public virtual string ColumnName { get; }
 
-    /// <summary>
-    ///     The database type of the column.
-    /// </summary>
+    /// <inheritdoc />
     public virtual string? ColumnType { get; }
 
-    /// <summary>
-    ///     The original value of the property mapped to this column.
-    /// </summary>
+    /// <inheritdoc />
     public virtual object? OriginalValue
-        => Entry == null
+    {
+        get => Entry == null
             ? _originalValue
             : Entry.SharedIdentityEntry == null
                 ? Entry.GetOriginalValue(Property!)
                 : Entry.SharedIdentityEntry.GetOriginalValue(Property!);
+        set
+        {
+            if (Entry == null)
+            {
+                _originalValue = value;
+            }
+            else
+            {
+                Entry.SetOriginalValue(Property!, value);
+                if (_sharedColumnModifications != null)
+                {
+                    foreach (var sharedModification in _sharedColumnModifications)
+                    {
+                        sharedModification.OriginalValue = value;
+                    }
+                }
+            }
+        }
+    }
 
-    /// <summary>
-    ///     Gets or sets the current value of the property mapped to this column.
-    /// </summary>
+    /// <inheritdoc />
     public virtual object? Value
     {
         get => Entry == null
@@ -186,10 +172,7 @@ public class ColumnModification : IColumnModification
         }
     }
 
-    /// <summary>
-    ///     Adds a modification affecting the same database value.
-    /// </summary>
-    /// <param name="modification">The modification for the shared column.</param>
+    /// <inheritdoc />
     public virtual void AddSharedColumnModification(IColumnModification modification)
     {
         Check.DebugAssert(Entry is not null, "Entry is not null");
@@ -258,4 +241,8 @@ public class ColumnModification : IColumnModification
 
         _sharedColumnModifications.Add(modification);
     }
+
+    /// <inheritdoc />
+    public virtual void ResetParameterNames()
+        => _parameterName = _originalParameterName = null;
 }

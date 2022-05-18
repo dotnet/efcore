@@ -40,58 +40,48 @@ public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
     }
 
-    /// <summary>
-    ///     Creates a new value generator for the given property.
-    /// </summary>
-    /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
-    ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
-    ///     this entity type may be different from the declared entity type on <paramref name="property" />
-    /// </param>
-    /// <returns>The newly created value generator.</returns>
-    public override ValueGenerator Create(IProperty property, IEntityType entityType)
+    /// <inheritdoc />
+    protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
     {
         if (property.ValueGenerated != ValueGenerated.Never)
         {
-            var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-
-            if (propertyType.IsInteger()
-                || propertyType == typeof(decimal)
-                || propertyType == typeof(float)
-                || propertyType == typeof(double))
+            if (clrType.IsInteger()
+                || clrType == typeof(decimal)
+                || clrType == typeof(float)
+                || clrType == typeof(double))
             {
                 return _numberFactory.Create(property, entityType);
             }
 
-            if (propertyType == typeof(DateTime))
+            if (clrType == typeof(DateTime))
             {
                 return new TemporaryDateTimeValueGenerator();
             }
 
-            if (propertyType == typeof(DateTimeOffset))
+            if (clrType == typeof(DateTimeOffset))
             {
                 return new TemporaryDateTimeOffsetValueGenerator();
             }
 
             if (property.GetDefaultValueSql() != null)
             {
-                if (propertyType == typeof(Guid))
+                if (clrType == typeof(Guid))
                 {
                     return new TemporaryGuidValueGenerator();
                 }
 
-                if (propertyType == typeof(string))
+                if (clrType == typeof(string))
                 {
                     return new TemporaryStringValueGenerator();
                 }
 
-                if (propertyType == typeof(byte[]))
+                if (clrType == typeof(byte[]))
                 {
                     return new TemporaryBinaryValueGenerator();
                 }
             }
         }
 
-        return base.Create(property, entityType);
+        return base.FindForType(property, entityType, clrType);
     }
 }

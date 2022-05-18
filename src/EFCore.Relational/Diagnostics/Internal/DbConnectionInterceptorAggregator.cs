@@ -29,6 +29,30 @@ public class DbConnectionInterceptorAggregator : InterceptorAggregator<IDbConnec
             _interceptors = interceptors.ToArray();
         }
 
+        public InterceptionResult<DbConnection> ConnectionCreating(
+            ConnectionCreatingEventData eventData, 
+            InterceptionResult<DbConnection> result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = _interceptors[i].ConnectionCreating(eventData, result);
+            }
+
+            return result;
+        }
+
+        public DbConnection ConnectionCreated(
+            ConnectionCreatedEventData eventData, 
+            DbConnection result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = _interceptors[i].ConnectionCreated(eventData, result);
+            }
+
+            return result;
+        }
+
         public InterceptionResult ConnectionOpening(
             DbConnection connection,
             ConnectionEventData eventData,
@@ -123,6 +147,54 @@ public class DbConnectionInterceptorAggregator : InterceptorAggregator<IDbConnec
             for (var i = 0; i < _interceptors.Length; i++)
             {
                 await _interceptors[i].ConnectionClosedAsync(connection, eventData)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        public InterceptionResult ConnectionDisposing(
+            DbConnection connection,
+            ConnectionEventData eventData,
+            InterceptionResult result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = _interceptors[i].ConnectionDisposing(connection, eventData, result);
+            }
+
+            return result;
+        }
+
+        public async ValueTask<InterceptionResult> ConnectionDisposingAsync(
+            DbConnection connection,
+            ConnectionEventData eventData,
+            InterceptionResult result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = await _interceptors[i].ConnectionDisposingAsync(connection, eventData, result)
+                    .ConfigureAwait(false);
+            }
+
+            return result;
+        }
+
+        public void ConnectionDisposed(
+            DbConnection connection,
+            ConnectionEndEventData eventData)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                _interceptors[i].ConnectionDisposed(connection, eventData);
+            }
+        }
+
+        public async Task ConnectionDisposedAsync(
+            DbConnection connection,
+            ConnectionEndEventData eventData)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                await _interceptors[i].ConnectionDisposedAsync(connection, eventData)
                     .ConfigureAwait(false);
             }
         }

@@ -48,7 +48,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
                     b.Property(e => e.Down);
                     b.Property<int>("Charm");
                     b.Property<string>("Strange");
-                    b.Property<string>("__id").HasConversion((Type)null);
+                    b.Property<string>("__id").HasConversion(null);
                 });
 
             var model = modelBuilder.FinalizeModel();

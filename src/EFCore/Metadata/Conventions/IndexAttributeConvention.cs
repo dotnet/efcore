@@ -29,7 +29,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
-        => CheckIndexAttributesAndEnsureIndex(entityTypeBuilder.Metadata, false);
+        => CheckIndexAttributesAndEnsureIndex(entityTypeBuilder.Metadata, shouldThrow: false);
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
@@ -43,7 +43,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
             return;
         }
 
-        CheckIndexAttributesAndEnsureIndex(entityTypeBuilder.Metadata, false);
+        CheckIndexAttributesAndEnsureIndex(entityTypeBuilder.Metadata, shouldThrow: false);
     }
 
     /// <inheritdoc />
@@ -53,7 +53,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            CheckIndexAttributesAndEnsureIndex(entityType, true);
+            CheckIndexAttributesAndEnsureIndex(entityType, shouldThrow: true);
         }
     }
 
@@ -62,7 +62,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
         bool shouldThrow)
     {
         foreach (var indexAttribute in
-                 entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
+                 entityType.ClrType.GetCustomAttributes<IndexAttribute>(inherit: true))
         {
             IConventionIndexBuilder? indexBuilder;
             if (!shouldThrow)
@@ -100,7 +100,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
                 }
                 catch (InvalidOperationException exception)
                 {
-                    CheckMissingProperties(indexAttribute, entityType, exception);
+                    CheckMissingProperties(entityType, indexAttribute, exception);
 
                     throw;
                 }
@@ -108,7 +108,10 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
 
             if (indexBuilder == null)
             {
-                CheckIgnoredProperties(indexAttribute, entityType);
+                if (shouldThrow)
+                {
+                    CheckIgnoredProperties(entityType, indexAttribute);
+                }
             }
             else
             {
@@ -119,15 +122,13 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
 
                 if (indexBuilder is not null && indexAttribute.IsDescending is not null)
                 {
-                    indexBuilder = indexBuilder.IsDescending(indexAttribute.IsDescending, fromDataAnnotation: true);
+                    indexBuilder.IsDescending(indexAttribute.IsDescending, fromDataAnnotation: true);
                 }
             }
         }
     }
 
-    private static void CheckIgnoredProperties(
-        IndexAttribute indexAttribute,
-        IConventionEntityType entityType)
+    private static void CheckIgnoredProperties(IConventionEntityType entityType, IndexAttribute indexAttribute)
     {
         foreach (var propertyName in indexAttribute.PropertyNames)
         {
@@ -153,9 +154,9 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
     }
 
     private static void CheckMissingProperties(
-        IndexAttribute indexAttribute,
         IConventionEntityType entityType,
-        InvalidOperationException innerException)
+        IndexAttribute indexAttribute,
+        InvalidOperationException exception)
     {
         foreach (var propertyName in indexAttribute.PropertyNames)
         {
@@ -169,7 +170,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
                             entityType.DisplayName(),
                             indexAttribute.PropertyNames.Format(),
                             propertyName),
-                        innerException);
+                        exception);
                 }
 
                 throw new InvalidOperationException(
@@ -178,7 +179,7 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
                         entityType.DisplayName(),
                         indexAttribute.PropertyNames.Format(),
                         propertyName),
-                    innerException);
+                    exception);
             }
         }
     }

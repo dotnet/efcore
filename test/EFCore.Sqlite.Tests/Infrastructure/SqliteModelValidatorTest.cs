@@ -50,24 +50,6 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
                 nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
     }
 
-    public override void Detects_incompatible_shared_columns_with_shared_table()
-    {
-        var modelBuilder = CreateConventionalModelBuilder();
-
-        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
-        modelBuilder.Entity<A>().ToTable("Table");
-        modelBuilder.Entity<B>().Property(a => a.P0).HasColumnName(nameof(A.P0));
-        modelBuilder.Entity<B>().ToTable("Table");
-
-        modelBuilder.Entity<A>().Property(b => b.P0);
-        modelBuilder.Entity<B>().Property(d => d.P0);
-
-        VerifyError(
-            RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder);
-    }
-
     [ConditionalFact]
     public void Detects_schemas()
     {

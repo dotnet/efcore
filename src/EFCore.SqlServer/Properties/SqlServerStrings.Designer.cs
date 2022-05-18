@@ -212,6 +212,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NoSavepointRelease");
 
         /// <summary>
+        ///     Could not save changes because the target table has computed column with a function that performs data access. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-computed-columns for more information.
+        /// </summary>
+        public static string SaveChangesFailedBecauseOfComputedColumnWithFunction
+            => GetString("SaveChangesFailedBecauseOfComputedColumnWithFunction");
+
+        /// <summary>
+        ///     Could not save changes because the target table has database triggers. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-triggers for more information.
+        /// </summary>
+        public static string SaveChangesFailedBecauseOfTriggers
+            => GetString("SaveChangesFailedBecauseOfTriggers");
+
+        /// <summary>
         ///     SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
         /// </summary>
         public static string SequenceBadType(object? property, object? entityType, object? propertyType)

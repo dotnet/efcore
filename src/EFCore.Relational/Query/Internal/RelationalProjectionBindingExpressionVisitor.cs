@@ -146,61 +146,58 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
                             materializeCollectionNavigationExpression.Navigation,
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
+                }
 
-                    case MethodCallExpression methodCallExpression:
-                        if (methodCallExpression.Method.IsGenericMethod
+                var translation = _sqlTranslator.Translate(expression);
+                if (translation != null)
+                {
+                    return AddClientProjection(translation, expression.Type.MakeNullable());
+                }
+
+                if (expression is MethodCallExpression methodCallExpression)
+                {
+                    if (methodCallExpression.Method.IsGenericMethod
                             && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
                             && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
                             && methodCallExpression.Arguments.Count == 1
                             && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                    {
+                        var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                            methodCallExpression.Arguments[0]);
+                        if (subquery != null)
                         {
-                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                methodCallExpression.Arguments[0]);
-                            if (subquery != null)
-                            {
-                                _clientProjections!.Add(subquery);
-                                // expression.Type here will be List<T>
-                                return new CollectionResultExpression(
-                                    new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
-                                    navigation: null,
-                                    methodCallExpression.Method.GetGenericArguments()[0]);
-                            }
+                            _clientProjections!.Add(subquery);
+                            // expression.Type here will be List<T>
+                            return new CollectionResultExpression(
+                                new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
+                                navigation: null,
+                                methodCallExpression.Method.GetGenericArguments()[0]);
                         }
-                        else
+                    }
+                    else
+                    {
+                        var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+                        if (subquery != null)
                         {
-                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-                            if (subquery != null)
+                            _clientProjections!.Add(subquery);
+                            var type = expression.Type;
+                            if (type.IsGenericType
+                                && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
                             {
-                                // This simplifies the check when subquery is translated and can be lifted as scalar.
-                                var scalarTranslation = _sqlTranslator.Translate(subquery);
-                                if (scalarTranslation != null)
-                                {
-                                    return AddClientProjection(scalarTranslation, expression.Type.MakeNullable());
-                                }
-
-                                _clientProjections!.Add(subquery);
-                                var type = expression.Type;
-                                if (type.IsGenericType
-                                    && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
-                                {
-                                    type = typeof(IEnumerable<>).MakeGenericType(type.GetSequenceType());
-                                }
-                                var projectionBindingExpression = new ProjectionBindingExpression(
-                                    _selectExpression, _clientProjections.Count - 1, type);
-                                return subquery.ResultCardinality == ResultCardinality.Enumerable
-                                    ? new CollectionResultExpression(
-                                        projectionBindingExpression, navigation: null, subquery.ShaperExpression.Type)
-                                    : projectionBindingExpression;
+                                type = typeof(List<>).MakeGenericType(type.GetSequenceType());
                             }
-                        }
 
-                        break;
+                            var projectionBindingExpression = new ProjectionBindingExpression(
+                                _selectExpression, _clientProjections.Count - 1, type);
+                            return subquery.ResultCardinality == ResultCardinality.Enumerable
+                                ? new CollectionResultExpression(
+                                    projectionBindingExpression, navigation: null, subquery.ShaperExpression.Type)
+                                : projectionBindingExpression;
+                        }
+                    }
                 }
 
-                var translation = _sqlTranslator.Translate(expression);
-                return translation != null
-                    ? AddClientProjection(translation, expression.Type.MakeNullable())
-                    : base.Visit(expression);
+                return base.Visit(expression);
             }
             else
             {

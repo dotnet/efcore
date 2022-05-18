@@ -49,14 +49,12 @@ public sealed record ModificationCommandBatchFactoryDependencies
         IRelationalCommandBuilderFactory commandBuilderFactory,
         ISqlGenerationHelper sqlGenerationHelper,
         IUpdateSqlGenerator updateSqlGenerator,
-        IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
         ICurrentDbContext currentContext,
         IRelationalCommandDiagnosticsLogger logger)
     {
         CommandBuilderFactory = commandBuilderFactory;
         SqlGenerationHelper = sqlGenerationHelper;
         UpdateSqlGenerator = updateSqlGenerator;
-        ValueBufferFactoryFactory = valueBufferFactoryFactory;
         CurrentContext = currentContext;
         Logger = logger;
     }
@@ -80,11 +78,6 @@ public sealed record ModificationCommandBatchFactoryDependencies
     ///     The update SQL generator.
     /// </summary>
     public IUpdateSqlGenerator UpdateSqlGenerator { get; init; }
-
-    /// <summary>
-    ///     The value buffer factory.
-    /// </summary>
-    public IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; init; }
 
     /// <summary>
     ///     Contains the <see cref="DbContext" /> currently in use.

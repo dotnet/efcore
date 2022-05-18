@@ -40,7 +40,8 @@ public abstract class MigrationsModelDifferTestBase
         Action<IReadOnlyList<MigrationOperation>> assertActionUp,
         Action<IReadOnlyList<MigrationOperation>> assertActionDown,
         Action<DbContextOptionsBuilder> builderOptionsAction,
-        bool skipSourceConventions = false)
+        bool skipSourceConventions = false,
+        bool enableSensitiveLogging = true)
     {
         var sourceModelBuilder = CreateModelBuilder(skipSourceConventions);
         buildCommonAction(sourceModelBuilder);
@@ -55,8 +56,12 @@ public abstract class MigrationsModelDifferTestBase
 
         var targetOptionsBuilder = TestHelpers
             .AddProviderOptions(new DbContextOptionsBuilder())
-            .UseModel(targetModel)
-            .EnableSensitiveDataLogging();
+            .UseModel(targetModel);
+
+        if (enableSensitiveLogging)
+        {
+            targetOptionsBuilder = targetOptionsBuilder.EnableSensitiveDataLogging();
+        }
 
         if (builderOptionsAction != null)
         {
@@ -82,24 +87,7 @@ public abstract class MigrationsModelDifferTestBase
     }
 
     protected void AssertMultidimensionalArray<T>(T[,] values, params Action<T>[] assertions)
-        => Assert.Collection(ToOnedimensionalArray(values), assertions);
-
-    protected static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
-    {
-        Check.DebugAssert(
-            values.GetLength(firstDimension ? 1 : 0) == 1,
-            $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
-
-        var result = new T[values.Length];
-        for (var i = 0; i < values.Length; i++)
-        {
-            result[i] = firstDimension
-                ? values[i, 0]
-                : values[0, i];
-        }
-
-        return result;
-    }
+        => Assert.Collection(values.Cast<T>(), assertions);
 
     protected static T[][] ToJaggedArray<T>(T[,] twoDimensionalArray, bool firstDimension = false)
     {
@@ -131,16 +119,12 @@ public abstract class MigrationsModelDifferTestBase
         => TestHelpers.CreateConventionBuilder(configure: skipConventions ? c => c.RemoveAllConventions() : null);
 
     protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
-    {
-        var context = TestHelpers.CreateContext(options);
-        return new MigrationsModelDiffer(
+        => new MigrationsModelDiffer(
             new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
             new MigrationsAnnotationProvider(
                 new MigrationsAnnotationProviderDependencies()),
-            context.GetService<IChangeDetector>(),
-            context.GetService<IUpdateAdapterFactory>(),
-            context.GetService<CommandBatchPreparerDependencies>());
-    }
+            TestServiceFactory.Instance.Create<IRowIdentityMapFactory>(),
+            TestHelpers.CreateContext(options).GetService<CommandBatchPreparerDependencies>());
 }

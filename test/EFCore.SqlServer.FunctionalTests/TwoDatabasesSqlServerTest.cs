@@ -23,5 +23,6 @@ public class TwoDatabasesSqlServerTest : TwoDatabasesTestBase, IClassFixture<Sql
     protected override TwoDatabasesWithDataContext CreateBackingContext(string databaseName)
         => new(Fixture.CreateOptions(SqlServerTestStore.Create(databaseName)));
 
-    protected override string DummyConnectionString { get; } = "Database=DoesNotExist";
+    protected override string DummyConnectionString
+        => "Database=DoesNotExist";
 }

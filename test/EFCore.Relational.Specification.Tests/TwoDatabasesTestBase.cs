@@ -73,8 +73,10 @@ public abstract class TwoDatabasesTestBase
         Assert.Equal(new[] { "Modified One", "Modified Two" }, context2.Foos.Select(e => e.Bar).ToList());
     }
 
-    [ConditionalFact]
-    public virtual void Can_set_connection_string_in_interceptor()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_set_connection_string_in_interceptor(bool withConnectionString)
     {
         using var context1 = CreateBackingContext("TwoDatabasesIntercept");
 
@@ -83,10 +85,10 @@ public abstract class TwoDatabasesTestBase
         context1.Database.EnsureCreatedResiliently();
 
         using (var context = new TwoDatabasesContext(
-                   CreateTestOptions(new DbContextOptionsBuilder(), withConnectionString: true)
+                   CreateTestOptions(new DbContextOptionsBuilder(), withConnectionString)
                        .AddInterceptors(
                            new ConnectionStringConnectionInterceptor(
-                               connectionString1, DummyConnectionString))
+                               connectionString1, withConnectionString ? DummyConnectionString : ""))
                        .Options))
         {
             var data = context.Foos.ToList();

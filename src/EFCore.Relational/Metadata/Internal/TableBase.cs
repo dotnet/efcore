@@ -63,7 +63,7 @@ public class TableBase : Annotatable, ITableBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedSet<TableMappingBase> EntityTypeMappings { get; }
+    public virtual SortedSet<ITableMappingBase> EntityTypeMappings { get; }
         = new(TableMappingBaseComparer.Instance);
 
     /// <summary>
@@ -72,7 +72,7 @@ public class TableBase : Annotatable, ITableBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedDictionary<string, ColumnBase> Columns { get; protected set; }
+    public virtual SortedDictionary<string, IColumnBase> Columns { get; protected set; }
         = new(StringComparer.Ordinal);
 
     /// <inheritdoc />

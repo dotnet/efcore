@@ -76,6 +76,11 @@ public readonly record struct ColumnModificationParameters
     ///     Indicates whether the column is part of a primary or alternate key.
     /// </summary>
     public bool IsKey { get; init; }
+    
+    /// <summary>
+    ///     The column.
+    /// </summary>
+    public IColumn? Column { get; init; }
 
     /// <summary>
     ///     The name of the column.
@@ -116,6 +121,7 @@ public readonly record struct ColumnModificationParameters
         bool sensitiveLoggingEnabled,
         bool? isNullable = null)
     {
+        Column = null;
         ColumnName = columnName;
         OriginalValue = originalValue;
         Value = value;
@@ -131,8 +137,51 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = null;
         Entry = null;
+    }
+    
+    /// <summary>
+    ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
+    /// </summary>
+    /// <param name="column">The column.</param>
+    /// <param name="originalValue">The original value of the property mapped to this column.</param>
+    /// <param name="value">The current value of the property mapped to this column.</param>
+    /// <param name="property">The property that maps to the column.</param>
+    /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
+    /// <param name="read">Indicates whether a value must be read from the database for the column.</param>
+    /// <param name="write">Indicates whether a value must be written to the database for the column.</param>
+    /// <param name="key">Indicates whether the column part of a primary or alternate key.</param>
+    /// <param name="condition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+    /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+    /// <param name="isNullable">A value indicating whether the value could be null.</param>
+    public ColumnModificationParameters(
+        IColumn column,
+        object? originalValue,
+        object? value,
+        IProperty? property,
+        RelationalTypeMapping? typeMapping,
+        bool read,
+        bool write,
+        bool key,
+        bool condition,
+        bool sensitiveLoggingEnabled,
+        bool? isNullable = null)
+    {
+        Column = column;
+        ColumnName = column.Name;
+        OriginalValue = originalValue;
+        Value = value;
+        Property = property;
+        ColumnType = column.StoreType;
+        TypeMapping = typeMapping;
+        IsRead = read;
+        IsWrite = write;
+        IsKey = key;
+        IsCondition = condition;
+        SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+        IsNullable = isNullable;
 
-        //IsConcurrencyToken = false;
+        GenerateParameterName = null;
+        Entry = null;
     }
 
     /// <summary>
@@ -160,6 +209,7 @@ public readonly record struct ColumnModificationParameters
         bool columnIsCondition,
         bool sensitiveLoggingEnabled)
     {
+        Column = column;
         ColumnName = column.Name;
         OriginalValue = null;
         Value = null;
@@ -175,7 +225,5 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = generateParameterName;
         Entry = entry;
-
-        //IsConcurrencyToken = false;
     }
 }

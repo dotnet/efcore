@@ -31,6 +31,11 @@ public interface ILoggingOptions : ISingletonOptions
     bool IsSensitiveDataLoggingWarned { get; set; }
 
     /// <summary>
+    ///     Reflects the option set by <see cref="DbContextOptionsBuilder.EnableDetailedErrors" />.
+    /// </summary>
+    bool DetailedErrorsEnabled { get; }
+
+    /// <summary>
     ///     Reflects the option set by <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
     /// </summary>
     WarningsConfiguration WarningsConfiguration { get; }

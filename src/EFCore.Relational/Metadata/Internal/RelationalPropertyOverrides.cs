@@ -77,7 +77,7 @@ public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPro
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool ColumnNameOverriden
+    public virtual bool ColumnNameOverridden
         => _columnNameConfigurationSource != null;
 
     /// <summary>

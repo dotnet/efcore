@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -244,7 +242,27 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
         }
 
         [ConditionalFact]
-        public virtual void TPT_identifying_FK_are_created_only_on_declaring_type()
+        public virtual void Can_override_TPC_with_TPH()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<P>();
+            modelBuilder.Entity<T>();
+            modelBuilder.Entity<Q>();
+            modelBuilder.Entity<PBase>()
+                .UseTpcMappingStrategy()
+                .UseTphMappingStrategy();
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal("Discriminator", model.FindEntityType(typeof(PBase)).GetDiscriminatorPropertyName());
+            Assert.Equal(nameof(PBase), model.FindEntityType(typeof(PBase)).GetDiscriminatorValue());
+            Assert.Equal(nameof(P), model.FindEntityType(typeof(P)).GetDiscriminatorValue());
+            Assert.Equal(nameof(Q), model.FindEntityType(typeof(Q)).GetDiscriminatorValue());
+        }
+
+        [ConditionalFact]
+        public virtual void TPT_identifying_FK_is_created_only_on_declaring_table()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<BigMak>()
@@ -273,11 +291,13 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             var principalType = model.FindEntityType(typeof(BigMak));
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Empty(principalType.GetIndexes());
+            Assert.Null(principalType.FindDiscriminatorProperty());
 
             var ingredientType = model.FindEntityType(typeof(Ingredient));
 
             var bunType = model.FindEntityType(typeof(Bun));
             Assert.Empty(bunType.GetIndexes());
+            Assert.Null(bunType.FindDiscriminatorProperty());
             var bunFk = bunType.GetDeclaredForeignKeys().Single(fk => !fk.IsBaseLinking());
             Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName());
             Assert.Equal(
@@ -304,6 +324,64 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
                     StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table).Value,
                     StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value));
             Assert.Single(sesameBunFk.GetMappedConstraints());
+        }
+
+        [ConditionalFact]
+        public virtual void TPC_identifying_FKs_are_created_on_all_tables()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<BigMak>()
+                .Ignore(b => b.Bun)
+                .Ignore(b => b.Pickles);
+            modelBuilder.Entity<Ingredient>(
+                b =>
+                {
+                    b.ToTable("Ingredients");
+                    b.Ignore(i => i.BigMak);
+                    b.UseTpcMappingStrategy();
+                });
+            modelBuilder.Entity<Bun>(
+                b =>
+                {
+                    b.ToTable("Buns");
+                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                    b.UseTpcMappingStrategy();
+                });
+            modelBuilder.Entity<SesameBun>(
+                b =>
+                {
+                    b.ToTable("SesameBuns");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var principalType = model.FindEntityType(typeof(BigMak));
+            Assert.Empty(principalType.GetForeignKeys());
+            Assert.Empty(principalType.GetIndexes());
+            Assert.Null(principalType.FindDiscriminatorProperty());
+
+            var ingredientType = model.FindEntityType(typeof(Ingredient));
+
+            var bunType = model.FindEntityType(typeof(Bun));
+            Assert.Empty(bunType.GetIndexes());
+            Assert.Null(bunType.FindDiscriminatorProperty());
+            var bunFk = bunType.GetDeclaredForeignKeys().Single();
+            Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName());
+            Assert.Equal(
+                "FK_Buns_BigMak_Id", bunFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(principalType, StoreObjectType.Table).Value));
+            Assert.Equal(2, bunFk.GetMappedConstraints().Count());
+
+            Assert.Empty(bunType.GetDeclaredForeignKeys().Where(fk => fk.IsBaseLinking()));
+
+            var sesameBunType = model.FindEntityType(typeof(SesameBun));
+            Assert.Empty(sesameBunType.GetIndexes());
+            Assert.Empty(sesameBunType.GetDeclaredForeignKeys());
+            Assert.Equal(
+                "FK_SesameBuns_BigMak_Id", bunFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(principalType, StoreObjectType.Table).Value));
         }
 
         [ConditionalFact]
@@ -858,6 +936,84 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             Assert.Null(owned.GetSchema());
         }
 
+        [ConditionalFact]
+        public virtual void Owned_type_collections_can_be_mapped_to_a_view()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().OwnsMany(
+                c => c.Orders,
+                r =>
+                {
+                    r.HasKey(o => o.OrderId);
+                    r.Ignore(o => o.OrderCombination);
+                    r.Ignore(o => o.Details);
+                    r.ToView("bar", "foo");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(Customer));
+            var ownership = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
+            var owned = ownership.DeclaringEntityType;
+            Assert.True(ownership.IsOwnership);
+            Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+            Assert.Empty(ownership.GetMappedConstraints());
+
+            Assert.Equal(nameof(Customer), owner.GetTableName());
+            Assert.Null(owner.GetSchema());
+
+            Assert.Null(owned.GetForeignKeys().Single().GetConstraintName());
+            Assert.Single(owned.GetIndexes());
+            Assert.Null(owned.FindPrimaryKey().GetName());
+            Assert.Equal(
+                new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
+                owned.GetProperties().Select(p => p.GetColumnBaseName()));
+            Assert.Null(owned.GetTableName());
+            Assert.Null(owned.GetSchema());
+            Assert.Equal("bar", owned.GetViewName());
+            Assert.Equal("foo", owned.GetViewSchema());
+        }
+
+        [ConditionalFact]
+        public virtual void Owner_can_be_mapped_to_a_view()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().OwnsMany(
+                c => c.Orders,
+                r =>
+                {
+                    r.HasKey(o => o.OrderId);
+                    r.Ignore(o => o.OrderCombination);
+                    r.Ignore(o => o.Details);
+                })
+                .ToView("bar", "foo");
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(Customer));
+            var ownership = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
+            var owned = ownership.DeclaringEntityType;
+            Assert.True(ownership.IsOwnership);
+            Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
+            Assert.Empty(ownership.GetMappedConstraints());
+
+            Assert.Null(owner.GetTableName());
+            Assert.Null(owner.GetSchema());
+            Assert.Equal("bar", owner.GetViewName());
+            Assert.Equal("foo", owner.GetViewSchema());
+
+            Assert.Null(owned.GetForeignKeys().Single().GetConstraintName());
+            Assert.Equal("IX_Order_CustomerId", owned.GetIndexes().Single().GetDatabaseName());
+            Assert.Equal("PK_Order", owned.FindPrimaryKey().GetName());
+            Assert.Equal(
+                new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
+                owned.GetProperties().Select(p => p.GetColumnBaseName()));
+            Assert.Equal(nameof(Order), owned.GetTableName());
+            Assert.Null(owned.GetSchema());
+        }
+        
         public override void Can_configure_owned_type()
         {
             var modelBuilder = CreateModelBuilder();

@@ -22,8 +22,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
         switch (extensionExpression)
         {
             case ShapedQueryExpression shapedQueryExpression:
-                return shapedQueryExpression.Update(
-                    Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+                return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
 
             case CaseExpression caseExpression:
                 return VisitCase(caseExpression);
@@ -82,14 +81,14 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             case RowNumberExpression rowNumberExpression:
                 return VisitRowNumber(rowNumberExpression);
 
+            case ScalarSubqueryExpression scalarSubqueryExpression:
+                return VisitScalarSubquery(scalarSubqueryExpression);
+
             case SelectExpression selectExpression:
                 return VisitSelect(selectExpression);
 
             case SqlBinaryExpression sqlBinaryExpression:
                 return VisitSqlBinary(sqlBinaryExpression);
-
-            case SqlUnaryExpression sqlUnaryExpression:
-                return VisitSqlUnary(sqlUnaryExpression);
 
             case SqlConstantExpression sqlConstantExpression:
                 return VisitSqlConstant(sqlConstantExpression);
@@ -103,8 +102,8 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             case SqlParameterExpression sqlParameterExpression:
                 return VisitSqlParameter(sqlParameterExpression);
 
-            case ScalarSubqueryExpression scalarSubqueryExpression:
-                return VisitScalarSubquery(scalarSubqueryExpression);
+            case SqlUnaryExpression sqlUnaryExpression:
+                return VisitSqlUnary(sqlUnaryExpression);
 
             case TableExpression tableExpression:
                 return VisitTable(tableExpression);

@@ -2070,15 +2070,15 @@ LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g0] ON
         await base.GroupBy_with_boolean_grouping_key(async);
 
         AssertSql(
-            @"SELECT [g].[CityOfBirthName], [g].[HasSoulPatch], CASE
-    WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [IsMarcus], COUNT(*) AS [Count]
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-GROUP BY [g].[CityOfBirthName], [g].[HasSoulPatch], CASE
-    WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END");
+            @"SELECT [t].[CityOfBirthName], [t].[HasSoulPatch], [t].[IsMarcus], COUNT(*) AS [Count]
+FROM (
+    SELECT [g].[CityOfBirthName], [g].[HasSoulPatch], CASE
+        WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsMarcus]
+    FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+) AS [t]
+GROUP BY [t].[CityOfBirthName], [t].[HasSoulPatch], [t].[IsMarcus]");
     }
 
     public override async Task Correlated_collections_with_Distinct(bool async)
@@ -3804,8 +3804,12 @@ ORDER BY [l].[Name], [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId
         await base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
 
         AssertSql(
-            @"SELECT CAST(0 AS bit)
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]");
+            @"SELECT [t].[Key]
+FROM (
+    SELECT CAST(0 AS bit) AS [Key]
+    FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+) AS [t]
+GROUP BY [t].[Key]");
     }
 
     public override async Task Where_is_properly_lifted_from_subquery_created_by_include(bool async)
@@ -5853,15 +5857,15 @@ WHERE [t].[Name] IS NOT NULL");
         await base.Group_by_nullable_property_HasValue_and_project_the_grouping_key(async);
 
         AssertSql(
-            @"SELECT CASE
-    WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
-FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-GROUP BY CASE
-    WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END");
+            @"SELECT [t].[Key]
+FROM (
+    SELECT CASE
+        WHEN [w].[SynergyWithId] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+) AS [t]
+GROUP BY [t].[Key]");
     }
 
     public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3(bool async)
@@ -8160,7 +8164,19 @@ WHERE [s].[Name] = N'Kilo' AND COALESCE((
             .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
                 async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [g].[Nickname], [g].[SquadId], [t0].[Key], [t0].[Count]
+FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+OUTER APPLY (
+    SELECT [t].[Key], COUNT(*) AS [Count]
+    FROM (
+        SELECT CAST(LEN([w].[Name]) AS int) AS [Key]
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]
+    ) AS [t]
+    GROUP BY [t].[Key]
+) AS [t0]
+ORDER BY [g].[Nickname], [g].[SquadId]");
     }
 
     public override async Task Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(

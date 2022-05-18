@@ -325,10 +325,62 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             annotations[RelationalAnnotationNames.ViewSchema] = entityType.GetViewSchema();
             annotations[RelationalAnnotationNames.SqlQuery] = entityType.GetSqlQuery();
             annotations[RelationalAnnotationNames.FunctionName] = entityType.GetFunctionName();
+
+            if (annotations.TryGetAndRemove(
+                    RelationalAnnotationNames.Triggers,
+                    out SortedDictionary<string, ITrigger> triggers))
+            {
+                parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
+                var triggersVariable = Dependencies.CSharpHelper.Identifier("triggers", parameters.ScopeVariables, capitalize: false);
+                parameters.MainBuilder
+                    .Append("var ").Append(triggersVariable).AppendLine(" = new SortedDictionary<string, ITrigger>();").AppendLine();
+
+                foreach (var (_, trigger) in triggers)
+                {
+                    Create(trigger, triggersVariable, parameters);
+                }
+
+                GenerateSimpleAnnotation(RelationalAnnotationNames.Triggers, triggersVariable, parameters);
+            }
         }
 
         base.Generate(entityType, parameters);
     }
+
+    private void Create(ITrigger trigger, string triggersVariable, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var code = Dependencies.CSharpHelper;
+        var triggerVariable = code.Identifier(trigger.ModelName, parameters.ScopeVariables, capitalize: false);
+        var mainBuilder = parameters.MainBuilder;
+        mainBuilder
+            .Append("var ").Append(triggerVariable).AppendLine(" = new RuntimeTrigger(").IncrementIndent()
+            .Append(parameters.TargetName).AppendLine(",")
+            .Append(code.Literal(trigger.ModelName)).AppendLine(",")
+            .Append(code.UnknownLiteral(trigger.Name)).AppendLine(",")
+            .Append(code.Literal(trigger.TableName)).AppendLine(",")
+            .Append(code.UnknownLiteral(trigger.TableSchema))
+            .AppendLine(");")
+            .DecrementIndent()
+            .AppendLine();
+
+        CreateAnnotations(
+            trigger,
+            Generate,
+            parameters with { TargetName = triggerVariable });
+
+        mainBuilder
+            .Append(triggersVariable).Append("[").Append(code.Literal(trigger.ModelName)).Append("] = ")
+            .Append(triggerVariable).AppendLine(";")
+            .AppendLine();
+    }
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
+    /// <param name="trigger">The trigger to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    public virtual void Generate(ITrigger trigger, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => GenerateSimpleAnnotations(parameters);
 
     /// <summary>
     ///     Generates code to create the given annotations.
@@ -390,7 +442,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         mainBuilder
             .Append("var ").Append(overrideVariable).AppendLine(" = new RuntimeRelationalPropertyOverrides(").IncrementIndent()
             .Append(parameters.TargetName).AppendLine(",")
-            .Append(code.Literal(overrides.ColumnNameOverriden)).AppendLine(",")
+            .Append(code.Literal(overrides.ColumnNameOverridden)).AppendLine(",")
             .Append(code.UnknownLiteral(overrides.ColumnName)).AppendLine(");").DecrementIndent();
 
         CreateAnnotations(

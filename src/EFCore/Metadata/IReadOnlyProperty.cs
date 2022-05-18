@@ -156,6 +156,12 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ValueComparer? GetKeyValueComparer();
 
     /// <summary>
+    ///     Gets the <see cref="ValueComparer" /> to use for the provider values for this property.
+    /// </summary>
+    /// <returns>The comparer, or <see langword="null" /> if none has been set.</returns>
+    ValueComparer? GetProviderValueComparer();
+
+    /// <summary>
     ///     Finds the first principal property that the given property is constrained by
     ///     if the given property is part of a foreign key.
     /// </summary>

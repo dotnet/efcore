@@ -44,6 +44,7 @@ public class OperationLogger : ILogger
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IDisposable BeginScope<TState>(TState state)
+        where TState : notnull
         => NullScope.Instance;
 
     /// <summary>

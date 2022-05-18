@@ -106,8 +106,8 @@ LIMIT 1",
 @p3='00000001-0000-0000-0000-000000000001'
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();",
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3
+RETURNING 1;",
             //
             @"@p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 11)
@@ -115,8 +115,8 @@ SELECT changes();",
 @p3='00000001-0000-0000-0000-000000000001'
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();");
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3
+RETURNING 1;");
     }
 
     public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
@@ -133,10 +133,8 @@ SELECT changes();");
 @p6='0' (Nullable = true)
 
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""AdditionalDetails_Value"", ""Details_Name"", ""Details_Value"")
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
-SELECT ""Unique_No""
-FROM ""Sample""
-WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6)
+RETURNING ""Unique_No"";");
     }
 
     // Sqlite does not support length

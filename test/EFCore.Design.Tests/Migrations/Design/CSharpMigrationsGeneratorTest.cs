@@ -74,8 +74,13 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.IsFixedLength,
             RelationalAnnotationNames.Collation,
             RelationalAnnotationNames.IsStored,
+            RelationalAnnotationNames.TpcMappingStrategy,
+            RelationalAnnotationNames.TphMappingStrategy,
+            RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
-            RelationalAnnotationNames.ModelDependencies
+            RelationalAnnotationNames.ModelDependencies,
+            RelationalAnnotationNames.Triggers, // Appears on entity but requires provider-specific support
+            RelationalAnnotationNames.GetReaderFieldValue
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -92,6 +97,15 @@ public class CSharpMigrationsGeneratorTest
                     + "entityTypeBuilder."
                     + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
                     + @"(""WithAnnotations"", ""MySchema"")")
+            },
+            {
+                RelationalAnnotationNames.MappingStrategy,
+                (RelationalAnnotationNames.TphMappingStrategy,
+                    _toTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder.UseTphMappingStrategy()")
             },
             {
                 CoreAnnotationNames.DiscriminatorProperty, ("Id",
@@ -198,8 +212,14 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.Filter,
             RelationalAnnotationNames.DbFunctions,
             RelationalAnnotationNames.MaxIdentifierLength,
+            RelationalAnnotationNames.MappingStrategy,
+            RelationalAnnotationNames.TpcMappingStrategy,
+            RelationalAnnotationNames.TphMappingStrategy,
+            RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
-            RelationalAnnotationNames.ModelDependencies
+            RelationalAnnotationNames.ModelDependencies,
+            RelationalAnnotationNames.Triggers,
+            RelationalAnnotationNames.GetReaderFieldValue
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";

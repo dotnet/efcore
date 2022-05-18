@@ -111,9 +111,9 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             literalGenerator,
             StoreTypePostfix.None,
             "udtType",
-            new FakeValueConverter(),
-            new FakeValueComparer(),
-            new FakeValueComparer(),
+            CreateConverter(typeof(object)),
+            CreateComparer(typeof(object)),
+            CreateComparer(typeof(object)),
             DbType.VarNumeric,
             false,
             33,
@@ -141,7 +141,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.True(clone.IsFixedLength);
         Assert.Same(literalGenerator, clone.LiteralGenerator);
 
-        var newConverter = new FakeValueConverter();
+        var newConverter = CreateConverter(typeof(object));
         clone = (SqlServerUdtTypeMapping)mapping.Clone(newConverter);
 
         Assert.NotSame(mapping, clone);
@@ -314,6 +314,38 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     }
 
     [ConditionalFact]
+    public virtual void String_Utf8()
+    {
+        var typeMappingSource = GetTypeMappingSource();
+
+        var utf8StringMapping = typeMappingSource.FindMapping(typeof(string), "varchar(max)", unicode: true)!;
+        Assert.Same(typeof(string), utf8StringMapping.ClrType);
+        Assert.Equal("varchar(max)", utf8StringMapping.StoreType);
+        Assert.True(utf8StringMapping.IsUnicode);
+        Test_GenerateSqlLiteral_helper(utf8StringMapping, "Text", "'Text'");
+
+        using var command = CreateTestCommand();
+        var parameter = utf8StringMapping.CreateParameter(command, "foo", "hello");
+        Assert.Equal(DbType.String, parameter.DbType);
+    }
+
+    [ConditionalFact]
+    public virtual void Char_Utf8()
+    {
+        var typeMappingSource = GetTypeMappingSource();
+
+        var utf8StringMapping = typeMappingSource.FindMapping(typeof(char), "varchar(max)", unicode: true)!;
+        Assert.Same(typeof(char), utf8StringMapping.ClrType);
+        Assert.Equal("varchar(max)", utf8StringMapping.StoreType);
+        Assert.True(utf8StringMapping.IsUnicode);
+        Test_GenerateSqlLiteral_helper(utf8StringMapping, "T", "'T'");
+
+        using var command = CreateTestCommand();
+        var parameter = utf8StringMapping.CreateParameter(command, "foo", "h");
+        Assert.Equal(DbType.String, parameter.DbType);
+    }
+
+    [ConditionalFact]
     public virtual void DateOnly_code_literal_generated_correctly()
     {
         var typeMapping = new DateOnlyTypeMapping("date", DbType.Date);
@@ -340,10 +372,12 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     }
 
     public static RelationalTypeMapping GetMapping(string type)
-        => new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
-            .FindMapping(type);
+        => GetTypeMappingSource().FindMapping(type);
+
+    public static SqlServerTypeMappingSource GetTypeMappingSource()
+        => new(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     protected virtual void Test_GenerateCodeLiteral_helper(
         RelationalTypeMapping typeMapping,

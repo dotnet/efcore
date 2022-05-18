@@ -27,6 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalStrings).Assembly);
 
         /// <summary>
+        ///     The corresponding CLR type for entity type '{entityType}' cannot be instantiated, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string AbstractTpc(object? entityType, object? storeObject)
+            => string.Format(
+                GetString("AbstractTpc", nameof(entityType), nameof(storeObject)),
+                entityType, storeObject);
+
+        /// <summary>
         ///     Unable to deserialize a sequence from model metadata. See inner exception for details.
         /// </summary>
         [Obsolete]
@@ -150,6 +158,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ConflictingRowValuesSensitive", nameof(firstEntityType), nameof(secondEntityType), nameof(keyValue), nameof(firstConflictingValue), nameof(secondConflictingValue), nameof(column)),
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
+
+        /// <summary>
+        ///     A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        /// </summary>
+        public static string ConflictingSeedValues(object? entityType, object? table, object? column)
+            => string.Format(
+                GetString("ConflictingSeedValues", nameof(entityType), nameof(table), nameof(column)),
+                entityType, table, column);
+
+        /// <summary>
+        ///     A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}', but have different values for the column '{column}' - '{firstValue}', '{secondValue}'.
+        /// </summary>
+        public static string ConflictingSeedValuesSensitive(object? entityType, object? keyValue, object? table, object? column, object? firstValue, object? secondValue)
+            => string.Format(
+                GetString("ConflictingSeedValuesSensitive", nameof(entityType), nameof(keyValue), nameof(table), nameof(column), nameof(firstValue), nameof(secondValue)),
+                entityType, keyValue, table, column, firstValue, secondValue);
 
         /// <summary>
         ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
@@ -296,6 +320,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
+        ///     The derived entity type '{entityType}' was configured with the '{strategy}' mapping strategy. Only the root entity type should be configured with a mapping strategy. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string DerivedStrategy(object? entityType, object? strategy)
+            => string.Format(
+                GetString("DerivedStrategy", nameof(entityType), nameof(strategy)),
+                entityType, strategy);
+
+        /// <summary>
         ///     Using 'Distinct' operation on a projection containing a collection is not supported.
         /// </summary>
         public static string DistinctOnCollectionNotSupported
@@ -412,6 +444,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateColumnNamePrecisionMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(precision1), nameof(precision2)),
                 entityType1, property1, entityType2, property2, columnName, table, precision1, precision2);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use differing provider types ('{type1}' and '{type2}').
+        /// </summary>
+        public static string DuplicateColumnNameProviderTypeMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table, object? type1, object? type2)
+            => string.Format(
+                GetString("DuplicateColumnNameProviderTypeMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(type1), nameof(type2)),
+                entityType1, property1, entityType2, property2, columnName, table, type1, type2);
 
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different scales ('{scale1}' and '{scale2}').
@@ -532,6 +572,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateKeyTableMismatch", nameof(keyProperties1), nameof(entityType1), nameof(keyProperties2), nameof(entityType2), nameof(keyName), nameof(table1), nameof(table2)),
                 keyProperties1, entityType1, keyProperties2, entityType2, keyName, table1, table2);
+
+        /// <summary>
+        ///     A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        /// </summary>
+        public static string DuplicateSeedData(object? entityType, object? table)
+            => string.Format(
+                GetString("DuplicateSeedData", nameof(entityType), nameof(table)),
+                entityType, table);
+
+        /// <summary>
+        ///     A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities.
+        /// </summary>
+        public static string DuplicateSeedDataSensitive(object? entityType, object? keyValue, object? table)
+            => string.Format(
+                GetString("DuplicateSeedDataSensitive", nameof(entityType), nameof(keyValue), nameof(table)),
+                entityType, keyValue, table);
+
+        /// <summary>
+        ///     The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.
+        /// </summary>
+        public static string DuplicateTrigger(object? trigger, object? entityType, object? conflictingEntityType)
+            => string.Format(
+                GetString("DuplicateTrigger", nameof(trigger), nameof(entityType), nameof(conflictingEntityType)),
+                trigger, entityType, conflictingEntityType);
 
         /// <summary>
         ///     Either {param1} or {param2} must be null.
@@ -760,6 +824,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseEntityType);
 
         /// <summary>
+        ///     The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported.
+        /// </summary>
+        public static string InvalidMappingStrategy(object? mappingStrategy, object? entityType)
+            => string.Format(
+                GetString("InvalidMappingStrategy", nameof(mappingStrategy), nameof(entityType)),
+                mappingStrategy, entityType);
+
+        /// <summary>
         ///     The specified 'MaxBatchSize' value '{value}' is not valid. It must be a positive number.
         /// </summary>
         public static string InvalidMaxBatchSize(object? value)
@@ -774,6 +846,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("InvalidMinBatchSize", nameof(value)),
                 value);
+
+        /// <summary>
+        ///     The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string KeylessMappingStrategy(object? mappingStrategy, object? entityType)
+            => string.Format(
+                GetString("KeylessMappingStrategy", nameof(mappingStrategy), nameof(entityType)),
+                mappingStrategy, entityType);
 
         /// <summary>
         ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.
@@ -794,9 +874,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
         /// </summary>
-        public static string MethodOnNonTPHRootNotSupported(object? methodName, object? entityType)
+        public static string MethodOnNonTphRootNotSupported(object? methodName, object? entityType)
             => string.Format(
-                GetString("MethodOnNonTPHRootNotSupported", nameof(methodName), nameof(entityType)),
+                GetString("MethodOnNonTphRootNotSupported", nameof(methodName), nameof(entityType)),
                 methodName, entityType);
 
         /// <summary>
@@ -844,7 +924,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter);
 
         /// <summary>
-        ///     Cannot execute an ModificationCommandBatch which hasn't been completed.
+        ///     Cannot add commands to a completed ModificationCommandBatch.
         /// </summary>
         public static string ModificationCommandBatchAlreadyComplete
             => GetString("ModificationCommandBatchAlreadyComplete");
@@ -853,7 +933,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Cannot execute an ModificationCommandBatch which hasn't been completed.
         /// </summary>
         public static string ModificationCommandBatchNotComplete
-            => GetString("ModificationCommandBatchNotCompleted");
+            => GetString("ModificationCommandBatchNotComplete");
 
         /// <summary>
         ///     Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.
@@ -898,12 +978,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoActiveTransaction");
 
         /// <summary>
-        ///     A relational store has been configured without specifying either the DbConnection or connection string to use.
-        /// </summary>
-        public static string NoConnectionOrConnectionString
-            => GetString("NoConnectionOrConnectionString");
-
-        /// <summary>
         ///     Cannot create a DbCommand for a non-relational query.
         /// </summary>
         public static string NoDbCommand
@@ -932,19 +1006,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameterName, functionName);
 
         /// <summary>
-        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        ///     The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.
         /// </summary>
-        public static string NonTPHTableClash(object? entityType, object? otherEntityType, object? table)
+        public static string NonTphMappingStrategy(object? mappingStrategy, object? entityType)
             => string.Format(
-                GetString("NonTPHTableClash", nameof(entityType), nameof(otherEntityType), nameof(table)),
+                GetString("NonTphMappingStrategy", nameof(mappingStrategy), nameof(entityType)),
+                mappingStrategy, entityType);
+
+        /// <summary>
+        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string NonTphTableClash(object? entityType, object? otherEntityType, object? table)
+            => string.Format(
+                GetString("NonTphTableClash", nameof(entityType), nameof(otherEntityType), nameof(table)),
                 entityType, otherEntityType, table);
 
         /// <summary>
-        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string NonTPHViewClash(object? entityType, object? otherEntityType, object? view)
+        public static string NonTphViewClash(object? entityType, object? otherEntityType, object? view)
             => string.Format(
-                GetString("NonTPHViewClash", nameof(entityType), nameof(otherEntityType), nameof(view)),
+                GetString("NonTphViewClash", nameof(entityType), nameof(otherEntityType), nameof(view)),
                 entityType, otherEntityType, view);
 
         /// <summary>
@@ -952,6 +1034,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string NoProviderConfigured
             => GetString("NoProviderConfigured");
+
+        /// <summary>
+        ///     Unable to modify a row in table '{table}' because its key column '{keyColumn}' is null.
+        /// </summary>
+        public static string NullKeyValue(object? table, object? keyColumn)
+            => string.Format(
+                GetString("NullKeyValue", nameof(table), nameof(keyColumn)),
+                table, keyColumn);
 
         /// <summary>
         ///     Expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
@@ -1022,9 +1112,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.
         /// </summary>
-        public static string SelectExpressionNonTPHWithCustomTable(object? entityType)
+        public static string SelectExpressionNonTphWithCustomTable(object? entityType)
             => string.Format(
-                GetString("SelectExpressionNonTPHWithCustomTable", nameof(entityType)),
+                GetString("SelectExpressionNonTphWithCustomTable", nameof(entityType)),
                 entityType);
 
         /// <summary>
@@ -1072,9 +1162,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
         /// </summary>
-        public static string TableValuedFunctionNonTPH(object? dbFunction, object? entityType)
+        public static string TableValuedFunctionNonTph(object? dbFunction, object? entityType)
             => string.Format(
-                GetString("TableValuedFunctionNonTPH", nameof(dbFunction), nameof(entityType)),
+                GetString("TableValuedFunctionNonTph", nameof(dbFunction), nameof(entityType)),
                 dbFunction, entityType);
 
         /// <summary>
@@ -1102,19 +1192,35 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expected, actual);
 
         /// <summary>
+        ///     The entity type '{dependentType}' is mapped to '{storeObject}'. However the principal entity type '{principalEntityType}' is also mapped to '{storeObject}' and it's using the TPC mapping strategy. Only leaf entity types in a TPC hierarchy can use table-sharing.
+        /// </summary>
+        public static string TpcTableSharing(object? dependentType, object? storeObject, object? principalEntityType)
+            => string.Format(
+                GetString("TpcTableSharing", nameof(dependentType), nameof(storeObject), nameof(principalEntityType)),
+                dependentType, storeObject, principalEntityType);
+
+        /// <summary>
+        ///     The entity type '{dependentType}' is mapped to '{storeObject}'. However one of its derived types '{derivedType}' is mapped to '{otherStoreObject}'. Hierarchies using table-sharing cannot be mapped using the TPC mapping strategy.
+        /// </summary>
+        public static string TpcTableSharingDependent(object? dependentType, object? storeObject, object? derivedType, object? otherStoreObject)
+            => string.Format(
+                GetString("TpcTableSharingDependent", nameof(dependentType), nameof(storeObject), nameof(derivedType), nameof(otherStoreObject)),
+                dependentType, storeObject, derivedType, otherStoreObject);
+
+        /// <summary>
         ///     '{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string TPHTableMismatch(object? entityType, object? table, object? otherEntityType, object? otherTable)
+        public static string TphTableMismatch(object? entityType, object? table, object? otherEntityType, object? otherTable)
             => string.Format(
-                GetString("TPHTableMismatch", nameof(entityType), nameof(table), nameof(otherEntityType), nameof(otherTable)),
+                GetString("TphTableMismatch", nameof(entityType), nameof(table), nameof(otherEntityType), nameof(otherTable)),
                 entityType, table, otherEntityType, otherTable);
 
         /// <summary>
         ///     '{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
-        public static string TPHViewMismatch(object? entityType, object? view, object? otherEntityType, object? otherView)
+        public static string TphViewMismatch(object? entityType, object? view, object? otherEntityType, object? otherView)
             => string.Format(
-                GetString("TPHViewMismatch", nameof(entityType), nameof(view), nameof(otherEntityType), nameof(otherView)),
+                GetString("TphViewMismatch", nameof(entityType), nameof(view), nameof(otherEntityType), nameof(otherView)),
                 entityType, view, otherEntityType, otherView);
 
         /// <summary>
@@ -1134,6 +1240,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string TransactionSuppressedMigrationInUserTransaction
             => GetString("TransactionSuppressedMigrationInUserTransaction");
+
+        /// <summary>
+        ///     Trigger '{trigger}' cannot be defined on entity type '{entityType}' since that entity type isn't mapped to a database table. See https://aka.ms/efcore-docs-triggers for more information on triggers.
+        /// </summary>
+        public static string TriggerOnUnmappedEntityType(object? trigger, object? entityType)
+            => string.Format(
+                GetString("TriggerOnUnmappedEntityType", nameof(trigger), nameof(entityType)),
+                trigger, entityType);
+
+        /// <summary>
+        ///     Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.
+        /// </summary>
+        public static string TriggerWithMismatchedTable(object? trigger, object? triggerTable, object? entityType, object? entityTable)
+            => string.Format(
+                GetString("TriggerWithMismatchedTable", nameof(trigger), nameof(triggerTable), nameof(entityType), nameof(entityTable)),
+                trigger, triggerTable, entityType, entityTable);
 
         /// <summary>
         ///     Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.
@@ -1560,9 +1682,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Closed connection to database '{database}' on server '{server}'.
+        ///     Closed connection to database '{database}' on server '{server}' ({elapsed}ms).
         /// </summary>
-        public static EventDefinition<string, string> LogClosedConnection(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, int> LogClosedConnection(IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection;
             if (definition == null)
@@ -1570,18 +1692,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection,
                     logger,
-                    static logger => new EventDefinition<string, string>(
+                    static logger => new EventDefinition<string, string, int>(
                         logger.Options,
                         RelationalEventId.ConnectionClosed,
                         LogLevel.Debug,
                         "RelationalEventId.ConnectionClosed",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, int>(
                             level,
                             RelationalEventId.ConnectionClosed,
                             _resourceManager.GetString("LogClosedConnection")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, int>)definition;
         }
 
         /// <summary>
@@ -1735,6 +1857,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Initialized DbCommand for '{executionType}' ({elapsed}ms).
+        /// </summary>
+        public static EventDefinition<string, int> LogCommandInitialized(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandInitialized;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandInitialized,
+                    logger,
+                    static logger => new EventDefinition<string, int>(
+                        logger.Options,
+                        RelationalEventId.CommandInitialized,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandInitialized",
+                        level => LoggerMessage.Define<string, int>(
+                            level,
+                            RelationalEventId.CommandInitialized,
+                            _resourceManager.GetString("LogCommandInitialized")!)));
+            }
+
+            return (EventDefinition<string, int>)definition;
+        }
+
+        /// <summary>
         ///     Committed transaction.
         /// </summary>
         public static EventDefinition LogCommittedTransaction(IDiagnosticsLogger logger)
@@ -1782,6 +1929,106 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Created DbConnection. ({elapsed}ms).
+        /// </summary>
+        public static EventDefinition<int> LogConnectionCreated(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreated;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreated,
+                    logger,
+                    static logger => new EventDefinition<int>(
+                        logger.Options,
+                        RelationalEventId.ConnectionCreated,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCreated",
+                        level => LoggerMessage.Define<int>(
+                            level,
+                            RelationalEventId.ConnectionCreated,
+                            _resourceManager.GetString("LogConnectionCreated")!)));
+            }
+
+            return (EventDefinition<int>)definition;
+        }
+
+        /// <summary>
+        ///     Creating DbConnection.
+        /// </summary>
+        public static EventDefinition LogConnectionCreating(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreating;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionCreating,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.ConnectionCreating,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionCreating",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.ConnectionCreating,
+                            _resourceManager.GetString("LogConnectionCreating")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Disposed connection to database '{database}' on server '{server}' ({elapsed}ms).
+        /// </summary>
+        public static EventDefinition<string, string, int> LogConnectionDisposed(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposed;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposed,
+                    logger,
+                    static logger => new EventDefinition<string, string, int>(
+                        logger.Options,
+                        RelationalEventId.ConnectionDisposed,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionDisposed",
+                        level => LoggerMessage.Define<string, string, int>(
+                            level,
+                            RelationalEventId.ConnectionDisposed,
+                            _resourceManager.GetString("LogConnectionDisposed")!)));
+            }
+
+            return (EventDefinition<string, string, int>)definition;
+        }
+
+        /// <summary>
+        ///     Disposing connection to database '{database}' on server '{server}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogConnectionDisposing(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposing;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionDisposing,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.ConnectionDisposing,
+                        LogLevel.Debug,
+                        "RelationalEventId.ConnectionDisposing",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.ConnectionDisposing,
+                            _resourceManager.GetString("LogConnectionDisposing")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
@@ -2051,6 +2298,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         LogLevel.Error,
                         "RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables",
                         _resourceManager.GetString("LogForeignKeyPropertiesMappedToUnrelatedTables")!));
+            }
+
+            return (FallbackEventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If this foreign key on '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.
+        /// </summary>
+        public static FallbackEventDefinition LogForeignKeyTpcPrincipal(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTpcPrincipal;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyTpcPrincipal,
+                    logger,
+                    static logger => new FallbackEventDefinition(
+                        logger.Options,
+                        RelationalEventId.ForeignKeyTpcPrincipalWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.ForeignKeyTpcPrincipalWarning",
+                        _resourceManager.GetString("LogForeignKeyTpcPrincipal")!));
             }
 
             return (FallbackEventDefinition)definition;
@@ -2651,6 +2920,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The property '{property}' on entity type '{entityType}' is configured with a database-generated default, however the entity type is mapped to the database using table per concrete class strategy. Make sure that the generated values are unique across all the tables, duplicated values could result in errors or data corruption.
+        /// </summary>
+        public static EventDefinition<string, string> LogTpcStoreGeneratedIdentity(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogTpcStoreGeneratedIdentity;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogTpcStoreGeneratedIdentity,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.TpcStoreGeneratedIdentityWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.TpcStoreGeneratedIdentityWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.TpcStoreGeneratedIdentityWarning,
+                            _resourceManager.GetString("LogTpcStoreGeneratedIdentity")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>

@@ -59,7 +59,7 @@ public sealed record DatabaseDependencies
     public IQueryCompilationContextFactory QueryCompilationContextFactory { get; init; }
 
     /// <summary>
-    ///     Factory for creating model data tracker.
+    ///     Factory for creating update adapters.
     /// </summary>
     public IUpdateAdapterFactory UpdateAdapterFactory { get; init; }
 }

@@ -22,7 +22,7 @@ public interface ISqlQueryColumn : IColumnBase
     /// <summary>
     ///     Gets the property mappings.
     /// </summary>
-    new IEnumerable<ISqlQueryColumnMapping> PropertyMappings { get; }
+    new IReadOnlyList<ISqlQueryColumnMapping> PropertyMappings { get; }
 
     /// <summary>
     ///     <para>

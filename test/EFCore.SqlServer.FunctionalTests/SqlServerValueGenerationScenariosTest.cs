@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
@@ -792,6 +794,21 @@ public class SqlServerValueGenerationScenariosTest
         }
     }
 
+    public class BlogContextComputedColumnWithTriggerMetadata : BlogContextComputedColumn
+    {
+        public BlogContextComputedColumnWithTriggerMetadata(string databaseName)
+            : base(databaseName)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<FullNameBlog>().ToTable(tb => tb.HasTrigger("SomeTrigger"));
+        }
+    }
+
     // #6044
     [ConditionalFact]
     public void Insert_and_update_with_computed_column_with_function()
@@ -855,6 +872,75 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
     public void Insert_and_update_with_computed_column_with_querying_function()
     {
         using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using (var context = new BlogContextComputedColumnWithTriggerMetadata(testStore.Name))
+        {
+            context.GetService<IRelationalDatabaseCreator>().CreateTables();
+
+            context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+
+            context.Database.ExecuteSqlRaw(
+                @"CREATE FUNCTION [dbo].[GetFullName](@Id int)
+RETURNS nvarchar(max) WITH SCHEMABINDING AS
+BEGIN
+    DECLARE @FullName nvarchar(max);
+    SELECT @FullName = [FirstName] + [LastName] FROM [dbo].[FullNameBlogs] WHERE [Id] = @Id;
+    RETURN @FullName
+END");
+
+            context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
+        }
+
+        try
+        {
+            using (var context = new BlogContextComputedColumnWithTriggerMetadata(testStore.Name))
+            {
+                var blog = context.Add(
+                    new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
+
+                context.SaveChanges();
+
+                Assert.Equal("OneUnicorn", blog.FullName);
+            }
+
+            using (var context = new BlogContextComputedColumnWithTriggerMetadata(testStore.Name))
+            {
+                var blog = context.FullNameBlogs.Single();
+
+                Assert.Equal("OneUnicorn", blog.FullName);
+
+                blog.LastName = "Pegasus";
+
+                context.SaveChanges();
+
+                Assert.Equal("OnePegasus", blog.FullName);
+            }
+
+            using (var context = new BlogContextComputedColumnWithTriggerMetadata(testStore.Name))
+            {
+                var blog1 = context.Add(
+                    new FullNameBlog { FirstName = "Hank", LastName = "Unicorn" }).Entity;
+                var blog2 = context.Add(
+                    new FullNameBlog { FirstName = "Jeff", LastName = "Unicorn" }).Entity;
+
+                context.SaveChanges();
+
+                Assert.Equal("HankUnicorn", blog1.FullName);
+                Assert.Equal("JeffUnicorn", blog2.FullName);
+            }
+        }
+        finally
+        {
+            using var context = new BlogContextComputedColumnWithTriggerMetadata(testStore.Name);
+            context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+            context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task Insert_with_computed_column_with_function_without_metadata_configuration(bool async)
+    {
+        using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
         using (var context = new BlogContextComputedColumn(testStore.Name))
         {
             context.GetService<IRelationalDatabaseCreator>().CreateTables();
@@ -877,45 +963,67 @@ END");
         {
             using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                var blog = context.Add(
-                    new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
+                context.Add(new FullNameBlog());
 
-                context.SaveChanges();
+                var exception = async
+                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
-                Assert.Equal("OneUnicorn", blog.FullName);
+                Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction, exception.Message);
+
+                var sqlException = Assert.IsType<SqlException>(exception.InnerException);
+                Assert.Equal(4186, sqlException.Number);
             }
+        }
+        finally
+        {
+            using var context = new BlogContextComputedColumnWithTriggerMetadata(testStore.Name);
+            context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
+            context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
+        }
+    }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task Insert_with_trigger_without_metadata_configuration(bool async)
+    {
+        // Execute an insert against a table which has a trigger, but which haven't identified as such in our metadata.
+        // This causes a specialized exception to be thrown, directing users to the relevant docs.
+        using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using (var context = new BlogContextComputedColumn(testStore.Name))
+        {
+            context.GetService<IRelationalDatabaseCreator>().CreateTables();
+
+            context.Database.ExecuteSqlRaw(
+                @"CREATE OR ALTER TRIGGER [FullNameBlogs_Trigger]
+ON [FullNameBlogs]
+FOR INSERT, UPDATE, DELETE AS
+BEGIN
+	IF @@ROWCOUNT = 0
+		return
+END");
+        }
+
+        try
+        {
             using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                var blog = context.FullNameBlogs.Single();
+                context.Add(new FullNameBlog());
 
-                Assert.Equal("OneUnicorn", blog.FullName);
+                var exception = async
+                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
-                blog.LastName = "Pegasus";
+                Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfTriggers, exception.Message);
 
-                context.SaveChanges();
-
-                Assert.Equal("OnePegasus", blog.FullName);
-            }
-
-            using (var context = new BlogContextComputedColumn(testStore.Name))
-            {
-                var blog1 = context.Add(
-                    new FullNameBlog { FirstName = "Hank", LastName = "Unicorn" }).Entity;
-                var blog2 = context.Add(
-                    new FullNameBlog { FirstName = "Jeff", LastName = "Unicorn" }).Entity;
-
-                context.SaveChanges();
-
-                Assert.Equal("HankUnicorn", blog1.FullName);
-                Assert.Equal("JeffUnicorn", blog2.FullName);
+                var sqlException = Assert.IsType<SqlException>(exception.InnerException);
+                Assert.Equal(334, sqlException.Number);
             }
         }
         finally
         {
             using var context = new BlogContextComputedColumn(testStore.Name);
-            context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
-            context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
+            context.Database.ExecuteSqlRaw("DROP TRIGGER [FullNameBlogs_Trigger]");
         }
     }
 
@@ -1392,7 +1500,7 @@ END");
                     v => v.Value,
                     v => new NeedsConverter(v),
                     new ValueComparer<NeedsConverter>(
-                        (l, r) => l.Value == r.Value,
+                        (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
                         v => v.Value.GetHashCode(),
                         v => new NeedsConverter(v.Value)))
                 .HasDefaultValue(new NeedsConverter(999));
@@ -1404,4 +1512,6 @@ END");
                     SqlServerTestStore.CreateConnectionString(_databaseName),
                     b => b.UseNetTopologySuite().ApplyConfiguration());
     }
+
+    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 }

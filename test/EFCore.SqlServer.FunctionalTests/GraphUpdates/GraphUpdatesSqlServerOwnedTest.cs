@@ -493,8 +493,6 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
                     b.HasDiscriminator<string>("ProviderId")
                         .HasValue<ProviderContract1>("prov1")
                         .HasValue<ProviderContract2>("prov2");
-
-                    b.HasKey("PartnerId", "ProviderId");
                 });
 
             modelBuilder.Entity<EventDescriptorZ>(

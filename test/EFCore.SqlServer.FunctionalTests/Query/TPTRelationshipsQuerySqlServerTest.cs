@@ -14,6 +14,10 @@ public class TPTRelationshipsQuerySqlServerTest
         fixture.TestSqlLoggerFactory.Clear();
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override void Changes_in_derived_related_entities_are_detected()
     {
         base.Changes_in_derived_related_entities_are_detected();
@@ -1885,6 +1889,13 @@ INNER JOIN (
 ) AS [t] ON [b].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
 WHERE [b].[Id] >= 4
 ORDER BY [b].[Id]");
+    }
+
+    public override void Entity_can_make_separate_relationships_with_base_type_and_derived_type_both()
+    {
+        base.Entity_can_make_separate_relationships_with_base_type_and_derived_type_both();
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

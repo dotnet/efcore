@@ -89,4 +89,8 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint, bool designTime)
         => Enumerable.Empty<IAnnotation>();
+
+    /// <inheritdoc />
+    public virtual IEnumerable<IAnnotation> For(ITrigger trigger, bool designTime)
+        => Enumerable.Empty<IAnnotation>();
 }

@@ -217,13 +217,22 @@ ORDER BY [t].[Id]");
         await base.GroupBy_Aggregate_over_navigations_repeated(async);
 
         AssertSql(
-            @"SELECT MIN([o].[HourlyRate]) AS [HourlyRate], MIN([c].[Id]) AS [CustomerId], MIN([c0].[Name]) AS [CustomerName]
+            @"SELECT (
+    SELECT MIN([o].[HourlyRate])
+    FROM [TimeSheets] AS [t0]
+    LEFT JOIN [Order] AS [o] ON [t0].[OrderId] = [o].[Id]
+    WHERE [t0].[OrderId] IS NOT NULL AND [t].[OrderId] = [t0].[OrderId]) AS [HourlyRate], (
+    SELECT MIN([c].[Id])
+    FROM [TimeSheets] AS [t1]
+    INNER JOIN [Project] AS [p] ON [t1].[ProjectId] = [p].[Id]
+    INNER JOIN [Customers] AS [c] ON [p].[CustomerId] = [c].[Id]
+    WHERE [t1].[OrderId] IS NOT NULL AND [t].[OrderId] = [t1].[OrderId]) AS [CustomerId], (
+    SELECT MIN([c0].[Name])
+    FROM [TimeSheets] AS [t2]
+    INNER JOIN [Project] AS [p0] ON [t2].[ProjectId] = [p0].[Id]
+    INNER JOIN [Customers] AS [c0] ON [p0].[CustomerId] = [c0].[Id]
+    WHERE [t2].[OrderId] IS NOT NULL AND [t].[OrderId] = [t2].[OrderId]) AS [CustomerName]
 FROM [TimeSheets] AS [t]
-LEFT JOIN [Order] AS [o] ON [t].[OrderId] = [o].[Id]
-INNER JOIN [Project] AS [p] ON [t].[ProjectId] = [p].[Id]
-INNER JOIN [Customers] AS [c] ON [p].[CustomerId] = [c].[Id]
-INNER JOIN [Project] AS [p0] ON [t].[ProjectId] = [p0].[Id]
-INNER JOIN [Customers] AS [c0] ON [p0].[CustomerId] = [c0].[Id]
 WHERE [t].[OrderId] IS NOT NULL
 GROUP BY [t].[OrderId]");
     }
@@ -250,13 +259,7 @@ GROUP BY [o].[CustomerId], [o].[Number]");
             @"SELECT [t].[Value] AS [A], (
     SELECT MAX([t0].[Id])
     FROM [Table] AS [t0]
-    WHERE [t0].[Value] = ((
-        SELECT MAX([t1].[Id])
-        FROM [Table] AS [t1]
-        WHERE [t].[Value] = [t1].[Value] OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) * 6) OR ([t0].[Value] IS NULL AND (
-        SELECT MAX([t1].[Id])
-        FROM [Table] AS [t1]
-        WHERE [t].[Value] = [t1].[Value] OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) IS NULL)) AS [B]
+    WHERE [t0].[Value] = (MAX([t].[Id]) * 6) OR ([t0].[Value] IS NULL AND MAX([t].[Id]) IS NULL)) AS [B]
 FROM [Table] AS [t]
 GROUP BY [t].[Value]");
     }
@@ -267,10 +270,7 @@ GROUP BY [t].[Value]");
 
         AssertSql(
             @"SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
-    SELECT TOP(1) (
-        SELECT COALESCE(SUM([t1].[Id]), 0)
-        FROM [Table] AS [t1]
-        WHERE [t].[Value] = [t1].[Value] OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) + COALESCE(SUM([t0].[Id]), 0)
+    SELECT TOP(1) COALESCE(SUM([t].[Id]), 0) + COALESCE(SUM([t0].[Id]), 0)
     FROM [Table] AS [t0]
     GROUP BY [t0].[Value]
     ORDER BY (SELECT 1)), 0) AS [C]
@@ -283,13 +283,31 @@ GROUP BY [t].[Value]");
         await base.Group_by_multiple_aggregate_joining_different_tables(async);
 
         AssertSql(
-            @"SELECT COUNT(DISTINCT ([c].[Value1])) AS [Test1], COUNT(DISTINCT ([c0].[Value2])) AS [Test2]
+            @"SELECT (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [c].[Value1]
+        FROM (
+            SELECT [p0].[Id], [p0].[Child1Id], [p0].[Child2Id], [p0].[ChildFilter1Id], [p0].[ChildFilter2Id], 1 AS [Key]
+            FROM [Parents] AS [p0]
+        ) AS [t1]
+        LEFT JOIN [Child1] AS [c] ON [t1].[Child1Id] = [c].[Id]
+        WHERE [t].[Key] = [t1].[Key]
+    ) AS [t0]) AS [Test1], (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [c0].[Value2]
+        FROM (
+            SELECT [p1].[Id], [p1].[Child1Id], [p1].[Child2Id], [p1].[ChildFilter1Id], [p1].[ChildFilter2Id], 1 AS [Key]
+            FROM [Parents] AS [p1]
+        ) AS [t3]
+        LEFT JOIN [Child2] AS [c0] ON [t3].[Child2Id] = [c0].[Id]
+        WHERE [t].[Key] = [t3].[Key]
+    ) AS [t2]) AS [Test2]
 FROM (
-    SELECT [p].[Child1Id], [p].[Child2Id], 1 AS [Key]
+    SELECT 1 AS [Key]
     FROM [Parents] AS [p]
 ) AS [t]
-LEFT JOIN [Child1] AS [c] ON [t].[Child1Id] = [c].[Id]
-LEFT JOIN [Child2] AS [c0] ON [t].[Child2Id] = [c0].[Id]
 GROUP BY [t].[Key]");
     }
 
@@ -298,27 +316,39 @@ GROUP BY [t].[Key]");
         await base.Group_by_multiple_aggregate_joining_different_tables_with_query_filter(async);
 
         AssertSql(
-            @"SELECT COUNT(DISTINCT ([t0].[Value1])) AS [Test1], (
-    SELECT DISTINCT COUNT(DISTINCT ([t2].[Value2]))
+            @"SELECT (
+    SELECT COUNT(*)
     FROM (
-        SELECT [p0].[Id], [p0].[Child1Id], [p0].[Child2Id], [p0].[ChildFilter1Id], [p0].[ChildFilter2Id], 1 AS [Key]
-        FROM [Parents] AS [p0]
-    ) AS [t1]
-    LEFT JOIN (
-        SELECT [c0].[Id], [c0].[Filter2], [c0].[Value2]
-        FROM [ChildFilter2] AS [c0]
-        WHERE [c0].[Filter2] = N'Filter2'
-    ) AS [t2] ON [t1].[ChildFilter2Id] = [t2].[Id]
-    WHERE [t].[Key] = [t1].[Key]) AS [Test2]
+        SELECT DISTINCT [t2].[Value1]
+        FROM (
+            SELECT [p0].[Id], [p0].[Child1Id], [p0].[Child2Id], [p0].[ChildFilter1Id], [p0].[ChildFilter2Id], 1 AS [Key]
+            FROM [Parents] AS [p0]
+        ) AS [t0]
+        LEFT JOIN (
+            SELECT [c].[Id], [c].[Filter1], [c].[Value1]
+            FROM [ChildFilter1] AS [c]
+            WHERE [c].[Filter1] = N'Filter1'
+        ) AS [t2] ON [t0].[ChildFilter1Id] = [t2].[Id]
+        WHERE [t].[Key] = [t0].[Key]
+    ) AS [t1]) AS [Test1], (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [t5].[Value2]
+        FROM (
+            SELECT [p1].[Id], [p1].[Child1Id], [p1].[Child2Id], [p1].[ChildFilter1Id], [p1].[ChildFilter2Id], 1 AS [Key]
+            FROM [Parents] AS [p1]
+        ) AS [t4]
+        LEFT JOIN (
+            SELECT [c0].[Id], [c0].[Filter2], [c0].[Value2]
+            FROM [ChildFilter2] AS [c0]
+            WHERE [c0].[Filter2] = N'Filter2'
+        ) AS [t5] ON [t4].[ChildFilter2Id] = [t5].[Id]
+        WHERE [t].[Key] = [t4].[Key]
+    ) AS [t3]) AS [Test2]
 FROM (
-    SELECT [p].[ChildFilter1Id], 1 AS [Key]
+    SELECT 1 AS [Key]
     FROM [Parents] AS [p]
 ) AS [t]
-LEFT JOIN (
-    SELECT [c].[Id], [c].[Value1]
-    FROM [ChildFilter1] AS [c]
-    WHERE [c].[Filter1] = N'Filter1'
-) AS [t0] ON [t].[ChildFilter1Id] = [t0].[Id]
 GROUP BY [t].[Key]");
     }
 
@@ -360,5 +390,23 @@ INNER JOIN (
     WHERE [t].[row] <= 1
 ) AS [t0] ON [p].[Id] = [t0].[ParentId]
 WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
+    }
+
+    public override async Task StoreType_for_UDF_used(bool async)
+    {
+        await base.StoreType_for_UDF_used(async);
+
+        AssertSql(
+            @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [m].[Id], [m].[SomeDate]
+FROM [MyEntities] AS [m]
+WHERE [m].[SomeDate] = @__date_0",
+                //
+                @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [m].[Id], [m].[SomeDate]
+FROM [MyEntities] AS [m]
+WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0");
     }
 }

@@ -125,15 +125,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     /// <returns>The connection string.</returns>
     /// <exception cref="InvalidOperationException">when connection string cannot be obtained.</exception>
     protected virtual string GetValidatedConnectionString()
-    {
-        var connectionString = ConnectionString;
-        if (connectionString == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
-        }
-
-        return connectionString;
-    }
+        => ConnectionString!;
 
     /// <summary>
     ///     Gets or sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
@@ -151,13 +143,32 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     {
         get
         {
-            if (_connection == null
-                && _connectionString == null)
+            if (_connection != null)
             {
-                throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
+                return _connection;
             }
 
-            return _connection ??= CreateDbConnection();
+            var logger = Dependencies.ConnectionLogger;
+            var startTime = DateTimeOffset.UtcNow;
+
+            if (logger.ShouldLogConnectionCreate(startTime))
+            {
+                _stopwatch.Restart();
+
+                var interceptionResult = logger.ConnectionCreating(this, startTime);
+
+                _connection = interceptionResult.HasResult
+                    ? interceptionResult.Result
+                    : CreateDbConnection();
+            
+                _connection = logger.ConnectionCreated(this, startTime, _stopwatch.Elapsed);            
+            }
+            else
+            {
+                _connection = CreateDbConnection();
+            }
+
+            return _connection;
         }
         set
         {
@@ -869,14 +880,14 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                     {
                         _stopwatch.Restart();
 
-                        var interceptionResult = Dependencies.ConnectionLogger.ConnectionClosing(this, startTime);
+                        var interceptionResult = logger.ConnectionClosing(this, startTime);
 
                         if (!interceptionResult.IsSuppressed)
                         {
                             CloseDbConnection();
                         }
 
-                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, _stopwatch.Elapsed);
+                        logger.ConnectionClosed(this, startTime, _stopwatch.Elapsed);
                     }
                     else
                     {
@@ -887,7 +898,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                 }
                 catch (Exception e)
                 {
-                    Dependencies.ConnectionLogger.ConnectionError(this, e, startTime, _stopwatch.Elapsed, false);
+                    logger.ConnectionError(this, e, startTime, _stopwatch.Elapsed, false);
 
                     throw;
                 }
@@ -937,7 +948,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                     {
                         _stopwatch.Restart();
 
-                        var interceptionResult = await Dependencies.ConnectionLogger.ConnectionClosingAsync(this, startTime)
+                        var interceptionResult = await logger.ConnectionClosingAsync(this, startTime)
                             .ConfigureAwait(false);
 
                         if (!interceptionResult.IsSuppressed)
@@ -945,7 +956,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                             await CloseDbConnectionAsync().ConfigureAwait(false);
                         }
 
-                        await Dependencies.ConnectionLogger.ConnectionClosedAsync(this, startTime, _stopwatch.Elapsed)
+                        await logger.ConnectionClosedAsync(this, startTime, _stopwatch.Elapsed)
                             .ConfigureAwait(false);
                     }
                     else
@@ -957,7 +968,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                 }
                 catch (Exception e)
                 {
-                    await Dependencies.ConnectionLogger.ConnectionErrorAsync(
+                    await logger.ConnectionErrorAsync(
                             this,
                             e,
                             startTime,
@@ -1070,12 +1081,54 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     ///     providers to make a different call instead.
     /// </summary>
     protected virtual void DisposeDbConnection()
-        => DbConnection.Dispose();
+    {
+        var logger = Dependencies.ConnectionLogger;
+        var startTime = DateTimeOffset.UtcNow;
+
+        if (logger.ShouldLogConnectionDispose(startTime))
+        {
+            _stopwatch.Restart();
+
+            var interceptionResult = logger.ConnectionDisposing(this, startTime);
+
+            if (!interceptionResult.IsSuppressed)
+            {
+                DbConnection.Dispose();
+            }
+
+            logger.ConnectionDisposed(this, startTime, _stopwatch.Elapsed);
+        }
+        else
+        {
+            DbConnection.Dispose();
+        }
+    }
 
     /// <summary>
     ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.DisposeAsync" /> but can be overridden by
     ///     providers to make a different call instead.
     /// </summary>
-    protected virtual ValueTask DisposeDbConnectionAsync()
-        => DbConnection.DisposeAsync();
+    protected virtual async ValueTask DisposeDbConnectionAsync()
+    {
+        var logger = Dependencies.ConnectionLogger;
+        var startTime = DateTimeOffset.UtcNow;
+
+        if (logger.ShouldLogConnectionDispose(startTime))
+        {
+            _stopwatch.Restart();
+
+            var interceptionResult = await logger.ConnectionDisposingAsync(this, startTime).ConfigureAwait(false);
+
+            if (!interceptionResult.IsSuppressed)
+            {
+                await DbConnection.DisposeAsync().ConfigureAwait(false);
+            }
+
+            await logger.ConnectionDisposedAsync(this, startTime, _stopwatch.Elapsed).ConfigureAwait(false);
+        }
+        else
+        {
+            await DbConnection.DisposeAsync().ConfigureAwait(false);
+        }
+    }
 }

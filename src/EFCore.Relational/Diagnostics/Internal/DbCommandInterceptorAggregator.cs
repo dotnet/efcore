@@ -53,6 +53,18 @@ public class DbCommandInterceptorAggregator : InterceptorAggregator<IDbCommandIn
             return result;
         }
 
+        public DbCommand CommandInitialized(
+            CommandEndEventData eventData,
+            DbCommand result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = _interceptors[i].CommandInitialized(eventData, result);
+            }
+
+            return result;
+        }
+
         public InterceptionResult<DbDataReader> ReaderExecuting(
             DbCommand command,
             CommandEventData eventData,

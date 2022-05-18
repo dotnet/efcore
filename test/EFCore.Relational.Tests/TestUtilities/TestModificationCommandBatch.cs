@@ -5,16 +5,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestModificationCommandBatch : SingularModificationCommandBatch
 {
-    private readonly int _maxBatchSize;
-
     public TestModificationCommandBatch(
         ModificationCommandBatchFactoryDependencies dependencies,
         int? maxBatchSize)
         : base(dependencies)
-    {
-        _maxBatchSize = maxBatchSize ?? 1;
-    }
+        => MaxBatchSize = maxBatchSize ?? 42;
 
-    protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
-        => ModificationCommands.Count < _maxBatchSize;
+    protected override int MaxBatchSize { get; }
 }

@@ -22,6 +22,12 @@ public interface ITableBase : IAnnotatable
     string? Schema { get; }
 
     /// <summary>
+    ///     Gets the schema-qualified name of the table in the database.
+    /// </summary>
+    string SchemaQualifiedName
+        => Schema == null ? Name : Schema + "." + Name;
+
+    /// <summary>
     ///     Gets the database model.
     /// </summary>
     IRelationalModel Model { get; }

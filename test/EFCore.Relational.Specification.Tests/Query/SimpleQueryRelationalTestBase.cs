@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using NameSpace1;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -48,6 +50,56 @@ namespace Microsoft.EntityFrameworkCore.Query
                 mb.HasNoKey();
                 mb.ToTable((string)null);
             }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task StoreType_for_UDF_used(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context27954>();
+            using var context = contextFactory.CreateContext();
+
+            var date = new DateTime(2012, 12, 12);
+            var query1 = context.Set<MyEntity>().Where(x => x.SomeDate == date);
+            var query2 = context.Set<MyEntity>().Where(x => MyEntity.Modify(x.SomeDate) == date);
+
+            if (async)
+            {
+                await query1.ToListAsync();
+                await Assert.ThrowsAnyAsync<Exception>(() => query2.ToListAsync());
+            }
+            else
+            {
+                query1.ToList();
+                Assert.ThrowsAny<Exception>(() => query2.ToList());
+            }
+        }
+
+        protected class Context27954 : DbContext
+        {
+            public Context27954(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<MyEntity> MyEntities { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .HasDbFunction(typeof(MyEntity).GetMethod(nameof(MyEntity.Modify)))
+                    .HasName("ModifyDate")
+                    .HasStoreType("datetime")
+                    .HasSchema("dbo");
+            }
+        }
+
+        protected class MyEntity
+        {
+            public int Id { get; set; }
+            [Column(TypeName = "datetime")]
+            public DateTime SomeDate { get; set; }
+            public static DateTime Modify(DateTime date) => throw new NotSupportedException();
         }
     }
 }

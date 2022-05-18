@@ -667,22 +667,21 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             return CurrentValueType.Normal;
         }
 
-        equals ??= ValuesEqualFunc(property);
         var defaultValue = property.ClrType.GetDefaultValue();
         var value = ReadPropertyValue(property);
-        if (!equals(value, defaultValue))
+        if (!AreEqual(value, defaultValue, property, equals))
         {
             return CurrentValueType.Normal;
         }
 
         if (_storeGeneratedValues.TryGetValue(tempIndex, out value)
-            && !equals(value, defaultValue))
+            && !AreEqual(value, defaultValue, property, equals))
         {
             return CurrentValueType.StoreGenerated;
         }
 
         if (_temporaryValues.TryGetValue(tempIndex, out value)
-            && !equals(value, defaultValue))
+            && !AreEqual(value, defaultValue, property, equals))
         {
             return CurrentValueType.Temporary;
         }
@@ -1167,19 +1166,17 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 var defaultValue = propertyClrType.GetDefaultValue();
                 var property = (IProperty)propertyBase;
 
-                var equals = ValuesEqualFunc(property);
-
                 if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                    && !equals(generatedValue, defaultValue))
+                    && !AreEqual(generatedValue, defaultValue, property))
                 {
                     return generatedValue;
                 }
 
                 var value = ReadPropertyValue(propertyBase);
-                if (equals(value, defaultValue))
+                if (AreEqual(value, defaultValue, property))
                 {
                     if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
-                        && !equals(generatedValue, defaultValue))
+                        && !AreEqual(generatedValue, defaultValue, property))
                     {
                         return generatedValue;
                     }
@@ -1221,22 +1218,21 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         var asProperty = propertyBase as IProperty;
         int propertyIndex;
         CurrentValueType currentValueType;
-        Func<object?, object?, bool> equals;
-
+        
+        var valuesEqual = false;
         if (asProperty != null)
         {
             propertyIndex = asProperty.GetIndex();
-            equals = ValuesEqualFunc(asProperty);
-            currentValueType = GetValueType(asProperty, equals);
+            valuesEqual = AreEqual(currentValue, value, asProperty);
+            currentValueType = GetValueType(asProperty);
         }
         else
         {
             propertyIndex = -1;
-            equals = ReferenceEquals;
+            valuesEqual = ReferenceEquals(currentValue, value);
             currentValueType = CurrentValueType.Normal;
         }
 
-        var valuesEqual = equals(currentValue, value);
 
         if (!valuesEqual
             || (propertyIndex != -1
@@ -1250,7 +1246,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 && valueType == CurrentValueType.Normal
                 && (!asProperty.ClrType.IsNullableType()
                     || asProperty.GetContainingForeignKeys().Any(
-                        fk => (fk.DeleteBehavior == DeleteBehavior.Cascade
+                        fk => fk.IsRequired
+                                && (fk.DeleteBehavior == DeleteBehavior.Cascade
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
             {
@@ -1303,7 +1300,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     if (valueType == CurrentValueType.StoreGenerated)
                     {
                         var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                        if (!equals(currentValue, defaultValue))
+                        if (!AreEqual(currentValue, defaultValue, asProperty!))
                         {
                             WritePropertyValue(asProperty, defaultValue, isMaterialization);
                         }
@@ -1314,13 +1311,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     else
                     {
                         var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                        if (!equals(currentValue, defaultValue))
+                        if (!AreEqual(currentValue, defaultValue, asProperty!))
                         {
                             WritePropertyValue(asProperty, defaultValue, isMaterialization);
                         }
 
                         if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                            && !equals(generatedValue, defaultValue))
+                            && !AreEqual(generatedValue, defaultValue, asProperty!))
                         {
                             _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
                         }
@@ -1390,8 +1387,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
     }
 
-    private static Func<object?, object?, bool> ValuesEqualFunc(IProperty property)
-        => property.GetValueComparer().Equals;
+    private static bool AreEqual(object? value, object? otherValue, IProperty property)
+        => property.GetValueComparer().Equals(value, otherValue);
+    
+    private static bool AreEqual(object? value, object? otherValue, IProperty property, Func<object?, object?, bool>? equals)
+        => equals != null
+            ? equals(value, otherValue)
+            : AreEqual(value, otherValue, property);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1409,9 +1411,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 if (storeGeneratedIndex != -1
                     && _storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var value))
                 {
-                    var equals = ValuesEqualFunc(property);
                     var defaultValue = property.ClrType.GetDefaultValue();
-                    if (!equals(value, defaultValue))
+                    if (!AreEqual(value, defaultValue, property))
                     {
                         this[property] = value;
                     }
@@ -1470,7 +1471,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
                 if (property.IsKey()
                     && property.IsForeignKey()
-                    && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
+                    && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown)
+                    && !IsStoreGenerated(property))
                 {
                     if (property.GetContainingForeignKeys().Any(fk => fk.IsOwnership))
                     {
@@ -1683,12 +1685,11 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
 
         var defaultValue = property.ClrType.GetDefaultValue();
-        var equals = ValuesEqualFunc(property);
 
         return (!_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                || equals(defaultValue, generatedValue))
+                || AreEqual(defaultValue, generatedValue, property))
             && (!_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
-                || equals(defaultValue, generatedValue));
+                || AreEqual(defaultValue, generatedValue, property));
     }
 
     /// <summary>

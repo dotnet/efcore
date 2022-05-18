@@ -34,6 +34,11 @@ public interface ITable : ITableBase
     IEnumerable<IForeignKeyConstraint> ForeignKeyConstraints { get; }
 
     /// <summary>
+    ///     Gets the foreign key constraints referencing this table.
+    /// </summary>
+    IEnumerable<IForeignKeyConstraint> ReferencingForeignKeyConstraints { get; }
+
+    /// <summary>
     ///     Gets the unique constraints including the primary key for this table.
     /// </summary>
     IEnumerable<IUniqueConstraint> UniqueConstraints { get; }
@@ -52,6 +57,11 @@ public interface ITable : ITableBase
     ///     Gets the check constraints for this table.
     /// </summary>
     IEnumerable<ICheckConstraint> CheckConstraints { get; }
+
+    /// <summary>
+    ///     Gets the triggers for this table.
+    /// </summary>
+    IEnumerable<ITrigger> Triggers { get; }
 
     /// <summary>
     ///     Gets the comment for this table.
@@ -98,8 +108,9 @@ public interface ITable : ITableBase
         }
 
         builder.Append(Name);
-
-        if (IsExcludedFromMigrations)
+        
+        if (EntityTypeMappings.First().EntityType is not RuntimeEntityType
+            && IsExcludedFromMigrations)
         {
             builder.Append(" ExcludedFromMigrations");
         }

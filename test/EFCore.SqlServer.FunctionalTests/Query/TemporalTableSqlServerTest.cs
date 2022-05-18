@@ -445,26 +445,7 @@ ORDER BY [t].[Id], [o].[MainEntityManyId]");
         AssertSql(
             @"SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[End], [v].[FuelType], [v].[Start], [v].[GrainGeometry]
 FROM [Vehicles] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [v]
-INNER JOIN (
-    SELECT [v0].[Name], [v0].[Discriminator], [v0].[End], [v0].[SeatingCapacity], [v0].[Start], [v0].[AttachedVehicleName]
-    FROM [Vehicles] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [v0]
-    WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
-) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL
-UNION
-SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelTank_Discriminator], [v1].[End], [v1].[FuelType], [v1].[Start], [v1].[GrainGeometry]
-FROM [Vehicles] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [v1]
-INNER JOIN (
-    SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator], [v2].[End], [v2].[Start], [t2].[Name] AS [Name0]
-    FROM [Vehicles] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [v2]
-    INNER JOIN (
-        SELECT [v3].[Name], [v3].[Discriminator], [v3].[End], [v3].[SeatingCapacity], [v3].[Start], [v3].[AttachedVehicleName]
-        FROM [Vehicles] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [v3]
-        WHERE [v3].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
-    ) AS [t2] ON [v2].[Name] = [t2].[Name]
-    WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
-) AS [t1] ON [v1].[Name] = [t1].[Name]
-WHERE [v1].[Capacity] IS NOT NULL AND [v1].[FuelTank_Discriminator] IS NOT NULL");
+WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL");
     }
 
     protected Task<ContextFactory<TransportationContext>> InitializeAsync(

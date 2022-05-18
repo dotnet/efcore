@@ -79,7 +79,9 @@ public static class PropertyExtensions
     public static bool RequiresValueGenerator(this IReadOnlyProperty property)
         => (property.ValueGenerated.ForAdd()
                 && property.IsKey()
-                && (!property.IsForeignKey() || property.IsForeignKeyToSelf()))
+                && (!property.IsForeignKey()
+                    || property.IsForeignKeyToSelf()
+                    || (property.GetContainingForeignKeys().All(fk => fk.Properties.Any(p => p != property && p.IsNullable)))))
             || property.GetValueGeneratorFactory() != null;
 
     /// <summary>

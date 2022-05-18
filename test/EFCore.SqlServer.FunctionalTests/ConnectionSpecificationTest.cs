@@ -51,10 +51,7 @@ public class ConnectionSpecificationTest
         {
             using var context = new NoneInOnConfiguringContext();
 
-            Assert.Equal(
-                RelationalStrings.NoConnectionOrConnectionString,
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Customers.Any()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Customers.Any());
         }
     }
 

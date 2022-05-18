@@ -90,8 +90,8 @@ public sealed class ForeignKeyConstraintComparer : IEqualityComparer<IForeignKey
         hashCode.Add(obj.Name);
         hashCode.Add(obj.Columns, ColumnListComparer.Instance);
         hashCode.Add(obj.PrincipalColumns, ColumnListComparer.Instance);
-        hashCode.Add(obj.Table.Name);
         hashCode.Add(obj.PrincipalTable.Name);
+        hashCode.Add(obj.Table.Name);
         return hashCode.ToHashCode();
     }
 }

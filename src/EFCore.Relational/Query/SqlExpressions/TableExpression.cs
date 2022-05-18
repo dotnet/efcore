@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     application or database provider code. If this is a problem for your application or provider, then please file
 ///     an issue at <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
 /// </remarks>
-public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase
+public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase, ITableBasedExpression
 {
     internal TableExpression(ITableBase table)
         : this(table, annotations: null)
@@ -27,6 +27,9 @@ public sealed class TableExpression : TableExpressionBase, IClonableTableExpress
         Schema = table.Schema;
         Table = table;
     }
+
+    /// <inheritdoc />
+    ITableBase ITableBasedExpression.Table => Table;
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

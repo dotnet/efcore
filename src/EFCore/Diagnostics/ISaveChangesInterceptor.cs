@@ -43,12 +43,11 @@ public interface ISaveChangesInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is true, then EF will suppress the operation it
     ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result" /> instead.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
-    InterceptionResult<int> SavingChanges(
-        DbContextEventData eventData,
-        InterceptionResult<int> result);
+    InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+        => result;
 
     /// <summary>
     ///     Called at the end of <see cref="O:DbContext.SaveChanges" />.
@@ -64,19 +63,19 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// </param>
     /// <returns>
     ///     The result that EF will use.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
-    int SavedChanges(
-        SaveChangesCompletedEventData eventData,
-        int result);
+    int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+        => result;
 
     /// <summary>
     ///     Called when an exception has been thrown in <see cref="O:DbContext.SaveChanges" />.
     /// </summary>
     /// <param name="eventData">Contextual information about the failure.</param>
-    void SaveChangesFailed(
-        DbContextErrorEventData eventData);
+    void SaveChangesFailed(DbContextErrorEventData eventData)
+    {
+    }
 
     /// <summary>
     ///     Called at the start of <see cref="O:DbContext.SaveChangesAsync" />.
@@ -93,14 +92,15 @@ public interface ISaveChangesInterceptor : IInterceptor
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is false, the EF will continue as normal.
     ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is true, then EF will suppress the operation it
     ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result" /> instead.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+        => new(result);
 
     /// <summary>
     ///     Called at the end of <see cref="O:DbContext.SaveChangesAsync" />.
@@ -117,14 +117,15 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     The result that EF will use.
-    ///     A normal implementation of this method for any interceptor that is not attempting to change the result
+    ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     ValueTask<int> SavedChangesAsync(
         SaveChangesCompletedEventData eventData,
         int result,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+        => new(result);
 
     /// <summary>
     ///     Called when an exception has been thrown in <see cref="O:DbContext.SaveChangesAsync" />.
@@ -133,15 +134,16 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    Task SaveChangesFailedAsync(
-        DbContextErrorEventData eventData,
-        CancellationToken cancellationToken = default);
+    Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 
     /// <summary>
     ///     Called when <see cref="O:DbContext.SaveChanges" /> was canceled.
     /// </summary>
     /// <param name="eventData">Contextual information about the failure.</param>
-    void SaveChangesCanceled(DbContextEventData eventData);
+    void SaveChangesCanceled(DbContextEventData eventData)
+    {
+    }
 
     /// <summary>
     ///     Called when <see cref="O:DbContext.SaveChangesAsync" /> was canceled.
@@ -150,5 +152,6 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    Task SaveChangesCanceledAsync(DbContextEventData eventData, CancellationToken cancellationToken = default);
+    Task SaveChangesCanceledAsync(DbContextEventData eventData, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }

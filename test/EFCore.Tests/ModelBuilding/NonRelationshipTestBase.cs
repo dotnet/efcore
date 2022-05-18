@@ -750,9 +750,10 @@ public abstract partial class ModelBuilderTest
                 {
                     b.Property(e => e.Up);
                     b.Property(e => e.Down).HasConversion<byte[]>();
-                    b.Property<int>("Charm").HasConversion(typeof(long), typeof(CustomValueComparer<int>));
-                    b.Property<string>("Strange").HasConversion<byte[]>();
-                    b.Property<string>("Strange").HasConversion((Type)null);
+                    b.Property<int>("Charm").HasConversion<long, CustomValueComparer<int>>();
+                    b.Property<string>("Strange").HasConversion<byte[]>(new CustomValueComparer<string>(), new CustomValueComparer<byte[]>());
+                    b.Property<string>("Strange").HasConversion(null);
+                    b.Property<string>("Top").HasConversion<string>(new CustomValueComparer<string>());
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -765,14 +766,22 @@ public abstract partial class ModelBuilderTest
             var down = entityType.FindProperty("Down");
             Assert.Same(typeof(byte[]), down.GetProviderClrType());
             Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
 
             var charm = entityType.FindProperty("Charm");
             Assert.Same(typeof(long), charm.GetProviderClrType());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
 
             var strange = entityType.FindProperty("Strange");
             Assert.Null(strange.GetProviderClrType());
             Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetProviderValueComparer());
+
+            var top = entityType.FindProperty("Top");
+            Assert.Same(typeof(string), top.GetProviderClrType());
+            Assert.IsType<CustomValueComparer<string>>(top.GetValueComparer());
+            Assert.IsType<CustomValueComparer<string>>(top.GetProviderValueComparer());
         }
 
         [ConditionalFact]
@@ -799,7 +808,7 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Properties_can_have_value_converter_set_non_generic()
+        public virtual void Properties_can_have_non_generic_value_converter_set()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -811,51 +820,67 @@ public abstract partial class ModelBuilderTest
                 {
                     b.Property(e => e.Up);
                     b.Property(e => e.Down).HasConversion(stringConverter);
-                    b.Property<int>("Charm").HasConversion(intConverter);
+                    b.Property<int>("Charm").HasConversion(intConverter, null, new CustomValueComparer<long>());
                     b.Property<string>("Strange").HasConversion(stringConverter);
-                    b.Property<string>("Strange").HasConversion((ValueConverter)null);
+                    b.Property<string>("Strange").HasConversion(null);
                 });
 
             var model = modelBuilder.FinalizeModel();
             var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
             Assert.Null(entityType.FindProperty("Up").GetValueConverter());
-            Assert.Same(stringConverter, entityType.FindProperty("Down").GetValueConverter());
-            Assert.Same(intConverter, entityType.FindProperty("Charm").GetValueConverter());
+            
+            var down = entityType.FindProperty("Down");
+            Assert.Same(stringConverter, down.GetValueConverter());
+            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
+            
+            var charm = entityType.FindProperty("Charm");
+            Assert.Same(intConverter, charm.GetValueConverter());
+            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(charm.GetValueComparer());
+            Assert.IsType<CustomValueComparer<long>>(charm.GetProviderValueComparer());
+
             Assert.Null(entityType.FindProperty("Strange").GetValueConverter());
         }
 
         [ConditionalFact]
-        public virtual void Properties_can_have_value_converter_type_set()
+        public virtual void Properties_can_have_custom_type_value_converter_type_set()
         {
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<Quarks>(
                 b =>
                 {
-                    b.Property(e => e.Up);
-                    b.Property(e => e.Down).HasConversion(typeof(UTF8StringToBytesConverter));
+                    b.Property(e => e.Up).HasConversion<int, CustomValueComparer<int>>();
+                    b.Property(e => e.Down).HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>, CustomValueComparer<byte[]>>();
                     b.Property<int>("Charm").HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
-                    b.Property<string>("Strange").HasConversion(
-                        typeof(UTF8StringToBytesConverter), typeof(CustomValueComparer<string>));
-                    b.Property<string>("Strange").HasConversion((ValueConverter)null, null);
+                    b.Property<string>("Strange").HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>>();
+                    b.Property<string>("Strange").HasConversion(null, null);
                 });
 
             var model = modelBuilder.FinalizeModel();
             var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
-            Assert.Null(entityType.FindProperty("Up").GetValueConverter());
+            var up = entityType.FindProperty("Up");
+            Assert.Equal(typeof(int), up.GetProviderClrType());
+            Assert.Null(up.GetValueConverter());
+            Assert.IsType<CustomValueComparer<int>>(up.GetValueComparer());
+            Assert.IsType<CustomValueComparer<int>>(up.GetProviderValueComparer());
 
             var down = entityType.FindProperty("Down");
             Assert.IsType<UTF8StringToBytesConverter>(down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.IsType<CustomValueComparer<string>>(down.GetValueComparer());
+            Assert.IsType<CustomValueComparer<byte[]>>(down.GetProviderValueComparer());
 
             var charm = entityType.FindProperty("Charm");
             Assert.IsType<CastingConverter<int, long>>(charm.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
 
-            Assert.Null(entityType.FindProperty("Strange").GetValueConverter());
-            Assert.IsAssignableFrom<ValueComparer.DefaultValueComparer<string>>(entityType.FindProperty("Strange").GetValueComparer());
+            var strange = entityType.FindProperty("Strange");
+            Assert.Null(strange.GetValueConverter());
+            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetProviderValueComparer());
         }
 
         private class UTF8StringToBytesConverter : StringToBytesConverter
@@ -883,16 +908,76 @@ public abstract partial class ModelBuilderTest
                 b =>
                 {
                     b.Property(e => e.Up);
-                    b.Property(e => e.Down).HasConversion(v => v.ToCharArray(), v => new string(v));
-                    b.Property<int>("Charm").HasConversion(v => (long)v, v => (int)v);
+                    b.Property(e => e.Down).HasConversion(v => int.Parse(v), v => v.ToString());
+                    b.Property<int>("Charm").HasConversion(v => (long)v, v => (int)v, new CustomValueComparer<int>());
+                    b.Property<float>("Strange").HasConversion(v => (double)v, v => (float)v, new CustomValueComparer<float>(), new CustomValueComparer<double>());
                 });
 
-            var model = (IReadOnlyModel)modelBuilder.Model;
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(Quarks));
+            
+            var up = entityType.FindProperty("Up");
+            Assert.Null(up.GetProviderClrType());
+            Assert.Null(up.GetValueConverter());
+            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetProviderValueComparer());
+
+            var down = entityType.FindProperty("Down");
+            Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
+            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(down.GetProviderValueComparer());
+
+            var charm = entityType.FindProperty("Charm");
+            Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
+            Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+
+            var strange = entityType.FindProperty("Strange");
+            Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());
+            Assert.IsType<CustomValueComparer<float>>(strange.GetValueComparer());
+            Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
+        }
+        
+        [ConditionalFact]
+        public virtual void Properties_can_have_value_converter_set()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Quarks>(
+                b =>
+                {
+                    b.Property(e => e.Up);
+                    b.Property(e => e.Down).HasConversion(
+                        new ValueConverter<string, int>(v => int.Parse(v), v => v.ToString()));
+                    b.Property<int>("Charm").HasConversion(
+                        new ValueConverter<int, long>(v => v, v => (int)v), new CustomValueComparer<int>());
+                    b.Property<float>("Strange").HasConversion(
+                        new ValueConverter<float, double>(v => (double)v, v => (float)v), new CustomValueComparer<float>(), new CustomValueComparer<double>());
+                });
+
+            var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(Quarks));
 
-            Assert.Null(entityType.FindProperty("Up").GetValueConverter());
-            Assert.NotNull(entityType.FindProperty("Down").GetValueConverter());
-            Assert.NotNull(entityType.FindProperty("Charm").GetValueConverter());
+            var up = entityType.FindProperty("Up");
+            Assert.Null(up.GetProviderClrType());
+            Assert.Null(up.GetValueConverter());
+            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetProviderValueComparer());
+
+            var down = entityType.FindProperty("Down");
+            Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
+            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(down.GetProviderValueComparer());
+
+            var charm = entityType.FindProperty("Charm");
+            Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
+            Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
+            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+
+            var strange = entityType.FindProperty("Strange");
+            Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());
+            Assert.IsType<CustomValueComparer<float>>(strange.GetValueComparer());
+            Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
         }
 
         [ConditionalFact]
@@ -991,7 +1076,7 @@ public abstract partial class ModelBuilderTest
 
             var wierd = entityType.FindProperty("Wierd");
             Assert.IsType<NumberToStringConverter<int>>(wierd.GetValueConverter());
-            Assert.IsType<CustomValueComparer<int>>(wierd.GetValueComparer());
+            Assert.IsType<ValueComparer<int?>>(wierd.GetValueComparer());
         }
 
         [ConditionalFact]
@@ -1001,7 +1086,7 @@ public abstract partial class ModelBuilderTest
                 c =>
                 {
                     c.Properties<int?>().HaveConversion<NumberToStringConverter<int?>, CustomValueComparer<int?>>();
-                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
+                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>, CustomValueComparer<string>>();
                 });
 
             modelBuilder.Entity<Quarks>(
@@ -1016,10 +1101,12 @@ public abstract partial class ModelBuilderTest
             var id = entityType.FindProperty("Id");
             Assert.IsType<NumberToStringConverter<int>>(id.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(id.GetValueComparer());
+            Assert.IsType<CustomValueComparer<string>>(id.GetProviderValueComparer());
 
             var wierd = entityType.FindProperty("Wierd");
             Assert.IsType<NumberToStringConverter<int?>>(wierd.GetValueConverter());
             Assert.IsType<CustomValueComparer<int?>>(wierd.GetValueComparer());
+            Assert.IsType<CustomValueComparer<string>>(wierd.GetProviderValueComparer());
         }
 
         [ConditionalFact]

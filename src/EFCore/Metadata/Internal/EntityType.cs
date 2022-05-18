@@ -427,9 +427,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    // Note this is ISet because there is no suitable readonly interface in the profiles we are using
     [DebuggerStepThrough]
-    public virtual ISet<EntityType> GetDirectlyDerivedTypes()
+    public virtual IReadOnlySet<EntityType> GetDirectlyDerivedTypes()
         => _directlyDerivedTypes;
 
     /// <summary>
@@ -3033,24 +3032,31 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             return Enumerable.Empty<IDictionary<string, object?>>();
         }
-
+        
+        List<IPropertyBase>? propertiesList = null;
+        Dictionary<string, IPropertyBase>? propertiesMap = null;
         var data = new List<Dictionary<string, object?>>();
         var valueConverters = new Dictionary<string, ValueConverter?>(StringComparer.Ordinal);
-        var properties = GetProperties()
-            .Concat<IPropertyBase>(GetNavigations())
-            .Concat(GetSkipNavigations())
-            .ToDictionary(p => p.Name);
         foreach (var rawSeed in _data)
         {
             var seed = new Dictionary<string, object?>(StringComparer.Ordinal);
             data.Add(seed);
             var type = rawSeed.GetType();
 
+            propertiesList ??= GetProperties()
+                .Concat<IPropertyBase>(GetNavigations())
+                .Concat(GetSkipNavigations())
+                .ToList();
             if (ClrType.IsAssignableFrom(type))
             {
                 // non-anonymous type
-                foreach (var propertyBase in properties.Values)
+                foreach (var propertyBase in propertiesList)
                 {
+                    if (propertyBase.IsShadowProperty())
+                    {
+                        continue;
+                    }
+                    
                     ValueConverter? valueConverter = null;
                     if (providerValues
                         && propertyBase is IProperty property
@@ -3060,7 +3066,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                         valueConverters[propertyBase.Name] = valueConverter;
                     }
 
-                    propertyBase.TryGetMemberInfo(forConstruction: false, forSet: false, out var memberInfo, out _);
+                    var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
 
                     object? value = null;
                     switch (memberInfo)
@@ -3098,9 +3104,13 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             else
             {
                 // anonymous type
+                propertiesMap ??= GetProperties()
+                    .Concat<IPropertyBase>(GetNavigations())
+                    .Concat(GetSkipNavigations())
+                    .ToDictionary(p => p.Name);
                 foreach (var memberInfo in type.GetMembersInHierarchy())
                 {
-                    if (!properties.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
+                    if (!propertiesMap.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
                     {
                         continue;
                     }
@@ -3129,6 +3139,15 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         return data;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<object> GetRawSeedData()
+        => _data ?? Enumerable.Empty<object>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

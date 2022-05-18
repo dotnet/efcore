@@ -87,8 +87,13 @@ public class EntityProjectionExpression : Expression
             propertyExpressionMap[property] = columnExpression.MakeNullable();
         }
 
-        // We don't need to process DiscriminatorExpression because they are already nullable
-        return new EntityProjectionExpression(EntityType, propertyExpressionMap, DiscriminatorExpression);
+        var discriminatorExpression = DiscriminatorExpression;
+        if (discriminatorExpression is ColumnExpression ce)
+        {
+            // if discriminator is column then we need to make it nullable
+            discriminatorExpression = ce.MakeNullable();
+        }
+        return new EntityProjectionExpression(EntityType, propertyExpressionMap, discriminatorExpression);
     }
 
     /// <summary>

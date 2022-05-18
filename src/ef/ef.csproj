@@ -8,6 +8,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <CheckEolTargetFramework>False</CheckEolTargetFramework>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
 
   <ItemGroup>

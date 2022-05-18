@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -159,6 +160,8 @@ public sealed partial class SelectExpression
         private readonly SelectExpression _subquery;
         private readonly TableReferenceExpression _tableReferenceExpression;
         private readonly Dictionary<SqlExpression, ColumnExpression> _mappings;
+        private readonly HashSet<SqlExpression> _correlatedTerms;
+        private bool _groupByDiscovery;
 
         public SqlRemappingVisitor(
             Dictionary<SqlExpression, ColumnExpression> mappings,
@@ -168,15 +171,28 @@ public sealed partial class SelectExpression
             _subquery = subquery;
             _tableReferenceExpression = tableReferenceExpression;
             _mappings = mappings;
+            _groupByDiscovery = subquery._groupBy.Count > 0;
+            _correlatedTerms = new HashSet<SqlExpression>(ReferenceEqualityComparer.Instance);
         }
 
         [return: NotNullIfNotNull("sqlExpression")]
         public SqlExpression? Remap(SqlExpression? sqlExpression)
             => (SqlExpression?)Visit(sqlExpression);
 
-        [return: NotNullIfNotNull("sqlExpression")]
-        public SelectExpression? Remap(SelectExpression? sqlExpression)
-            => (SelectExpression?)Visit(sqlExpression);
+        [return: NotNullIfNotNull("selectExpression")]
+        public SelectExpression? Remap(SelectExpression? selectExpression)
+        {
+            var result = (SelectExpression?)Visit(selectExpression);
+
+            if (_correlatedTerms.Count > 0)
+            {
+                new EnclosingTermFindingVisitor(_correlatedTerms).Visit(selectExpression);
+                _groupByDiscovery = false;
+                result = (SelectExpression?)Visit(selectExpression);
+            }
+
+            return result;
+        }
 
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
@@ -188,13 +204,68 @@ public sealed partial class SelectExpression
                     return outer;
 
                 case ColumnExpression columnExpression
-                    when _subquery.ContainsTableReference(columnExpression):
-                    var outerColumn = _subquery.GenerateOuterColumn(_tableReferenceExpression, columnExpression);
-                    _mappings[columnExpression] = outerColumn;
+                    when _groupByDiscovery
+                        && _subquery.ContainsTableReference(columnExpression):
+                    _correlatedTerms.Add(columnExpression);
+                    return columnExpression;
+
+                case SqlExpression sqlExpression
+                    when !_groupByDiscovery
+                        && sqlExpression is not SqlConstantExpression or SqlParameterExpression
+                        && _correlatedTerms.Contains(sqlExpression):
+                    var outerColumn = _subquery.GenerateOuterColumn(_tableReferenceExpression, sqlExpression);
+                    _mappings[sqlExpression] = outerColumn;
                     return outerColumn;
+
+                case ColumnExpression columnExpression
+                    when !_groupByDiscovery
+                        && _subquery.ContainsTableReference(columnExpression):
+                    var outerColumn1 = _subquery.GenerateOuterColumn(_tableReferenceExpression, columnExpression);
+                    _mappings[columnExpression] = outerColumn1;
+                    return outerColumn1;
 
                 default:
                     return base.Visit(expression);
+            }
+        }
+
+        private sealed class EnclosingTermFindingVisitor : ExpressionVisitor
+        {
+            private readonly HashSet<SqlExpression> _correlatedTerms;
+            private bool _doesNotContainLocalTerms;
+
+            public EnclosingTermFindingVisitor(HashSet<SqlExpression> correlatedTerms)
+            {
+                _correlatedTerms = correlatedTerms;
+                _doesNotContainLocalTerms = true;
+            }
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (expression is SqlExpression sqlExpression)
+                {
+                    if (_correlatedTerms.Contains(sqlExpression)
+                        || sqlExpression is SqlConstantExpression or SqlParameterExpression)
+                    {
+                        _correlatedTerms.Add(sqlExpression);
+                        return sqlExpression;
+                    }
+
+                    var parentDoesNotContainLocalTerms = _doesNotContainLocalTerms;
+                    _doesNotContainLocalTerms = sqlExpression is not ColumnExpression;
+                    base.Visit(expression);
+                    if (_doesNotContainLocalTerms)
+                    {
+                        _correlatedTerms.Add(sqlExpression);
+                    }
+
+                    _doesNotContainLocalTerms = _doesNotContainLocalTerms && parentDoesNotContainLocalTerms;
+
+                    return expression;
+                }
+
+                return base.Visit(expression);
             }
         }
     }
@@ -332,6 +403,17 @@ public sealed partial class SelectExpression
                 }
 
                 _visitedSelectExpressions.Add(innerSelectExpression);
+            }
+
+            if (expression is TpcTablesExpression tpcTablesExpression)
+            {
+                // We uniquify aliases in inner selectexpressions too
+                foreach (var selectExpression in tpcTablesExpression.SelectExpressions)
+                {
+                    Visit(selectExpression);
+                }
+
+                return expression;
             }
 
             return base.Visit(expression);
@@ -742,6 +824,10 @@ public sealed partial class SelectExpression
                 var newProjections = selectExpression._projection.Select(Visit).ToList<ProjectionExpression>();
 
                 var newTables = selectExpression._tables.Select(Visit).ToList<TableExpressionBase>();
+                var tpcTableMap = selectExpression._tables.Zip(newTables)
+                    .Where(e => e.First is TpcTablesExpression)
+                    .ToDictionary(e => (TpcTablesExpression)e.First, e => (TpcTablesExpression)e.Second);
+
                 // Since we are cloning we need to generate new table references
                 // In other cases (like VisitChildren), we just reuse the same table references and update the SelectExpression inside it.
                 // We initially assign old SelectExpression in table references and later update it once we construct clone
@@ -759,7 +845,6 @@ public sealed partial class SelectExpression
                 var newOrderings = selectExpression._orderings.Select(Visit).ToList<OrderingExpression>();
                 var offset = (SqlExpression?)Visit(selectExpression.Offset);
                 var limit = (SqlExpression?)Visit(selectExpression.Limit);
-                var groupingCorrelationPredicate = (SqlExpression?)Visit(selectExpression._groupingCorrelationPredicate);
 
                 var newSelectExpression = new SelectExpression(
                     selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, selectExpression.GetAnnotations())
@@ -772,13 +857,14 @@ public sealed partial class SelectExpression
                     Tags = selectExpression.Tags,
                     _usedAliases = selectExpression._usedAliases.ToHashSet(),
                     _projectionMapping = newProjectionMappings,
-                    _groupingCorrelationPredicate = groupingCorrelationPredicate,
-                        _groupingParentSelectExpressionId = selectExpression._groupingParentSelectExpressionId,
-                        _groupingParentSelectExpressionTableCount = selectExpression._groupingParentSelectExpressionTableCount,
                 };
                 newSelectExpression._mutable = selectExpression._mutable;
 
                 newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
+                foreach (var kvp in selectExpression._tpcDiscriminatorValues)
+                {
+                    newSelectExpression._tpcDiscriminatorValues[tpcTableMap[kvp.Key]] = kvp.Value;
+                }
                 // Since identifiers are ColumnExpression, they are not visited since they don't contain SelectExpression inside it.
                 newSelectExpression._identifier.AddRange(selectExpression._identifier);
                 newSelectExpression._childIdentifiers.AddRange(selectExpression._childIdentifiers);
@@ -794,6 +880,19 @@ public sealed partial class SelectExpression
                     selectExpression, newSelectExpression._tableReferences).Visit(newSelectExpression);
 
                 return newSelectExpression;
+            }
+
+            if (expression is TpcTablesExpression tpcTablesExpression)
+            {
+                // Deep clone
+                var subSelectExpressions = tpcTablesExpression.SelectExpressions.Select(Visit).ToList<SelectExpression>();
+                var newTpcTable = new TpcTablesExpression(tpcTablesExpression.Alias, tpcTablesExpression.EntityType, subSelectExpressions);
+                foreach (var annotation in tpcTablesExpression.GetAnnotations())
+                {
+                    newTpcTable.AddAnnotation(annotation.Name, annotation.Value);
+                }
+
+                return newTpcTable;
             }
 
             return expression is IClonableTableExpressionBase cloneable ? cloneable.Clone() : base.Visit(expression);
@@ -824,199 +923,5 @@ public sealed partial class SelectExpression
                         concreteColumnExpression.TypeMapping!,
                         concreteColumnExpression.IsNullable)
                     : base.Visit(expression);
-    }
-
-    private sealed class GroupByAggregateLiftingExpressionVisitor : ExpressionVisitor
-    {
-        private readonly SelectExpression _selectExpression;
-
-        public GroupByAggregateLiftingExpressionVisitor(SelectExpression selectExpression)
-        {
-            _selectExpression = selectExpression;
-        }
-
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            if (expression is ScalarSubqueryExpression scalarSubqueryExpression)
-            {
-                // A scalar subquery on a GROUP BY may represent aggregation which can be lifted.
-                var subquery = scalarSubqueryExpression.Subquery;
-                if (subquery.Limit == null
-                    && subquery.Offset == null
-                    && subquery._groupBy.Count == 0
-                    && subquery.Predicate != null
-                    && subquery._groupingParentSelectExpressionId == _selectExpression._groupingParentSelectExpressionId
-                    && subquery.Predicate.Equals(subquery._groupingCorrelationPredicate))
-
-                {
-                    var initialTableCounts = 0;
-                    initialTableCounts = _selectExpression._groupingParentSelectExpressionTableCount!.Value;
-                    var potentialTableCount = Math.Min(_selectExpression._tables.Count, subquery._tables.Count);
-                    // First verify that subquery has same structure for initial tables,
-                    // If not then subquery may have different root than grouping element.
-                    for (var i = 0; i < initialTableCounts; i++)
-                    {
-                        if (!string.Equals(
-                                _selectExpression._tableReferences[i].Alias,
-                                subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
-                        {
-                            initialTableCounts = 0;
-                            break;
-                        }
-                    }
-
-                    if (initialTableCounts > 0)
-                    {
-                        // If initial table structure matches and
-                        // Parent has additional joins lifted already one of them is a subquery join
-                        // Then we abort lifting if any of the joins from the subquery to lift are a subquery join
-                        if (_selectExpression._tables.Skip(initialTableCounts)
-                            .Select(e => UnwrapJoinExpression(e))
-                            .Any(e => e is SelectExpression))
-                        {
-                            for (var i = initialTableCounts; i < subquery._tables.Count; i++)
-                            {
-                                if (UnwrapJoinExpression(subquery._tables[i]) is SelectExpression)
-                                {
-                                    // If any of the join is to subquery then we abort the lifting group by term altogether.
-                                    initialTableCounts = 0;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (initialTableCounts > 0)
-                    {
-                        // We need to copy over owned join which are coming from same initial tables.
-                        for (var i = 0; i < initialTableCounts; i++)
-                        {
-                            if (_selectExpression._tables[i] is SelectExpression originalNestedSelectExpression
-                                && subquery._tables[i] is SelectExpression subqueryNestedSelectExpression)
-                            {
-                                CopyOverOwnedJoinInSameTable(originalNestedSelectExpression, subqueryNestedSelectExpression);
-                            }
-                        }
-
-
-                        for (var i = initialTableCounts; i < potentialTableCount; i++)
-                        {
-                            // Try to match additional tables for the cases where we can match exact so we can avoid lifting
-                            // same joins to parent
-                            if (!string.Equals(
-                                    _selectExpression._tableReferences[i].Alias,
-                                    subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
-                            {
-                                break;
-                            }
-
-                            var outerTableExpressionBase = _selectExpression._tables[i];
-                            var innerTableExpressionBase = subquery._tables[i];
-
-                            if (outerTableExpressionBase is InnerJoinExpression outerInnerJoin
-                                && innerTableExpressionBase is InnerJoinExpression innerInnerJoin)
-                            {
-                                outerTableExpressionBase = outerInnerJoin.Table as TableExpression;
-                                innerTableExpressionBase = innerInnerJoin.Table as TableExpression;
-                            }
-                            else if (outerTableExpressionBase is LeftJoinExpression outerLeftJoin
-                                     && innerTableExpressionBase is LeftJoinExpression innerLeftJoin)
-                            {
-                                outerTableExpressionBase = outerLeftJoin.Table as TableExpression;
-                                innerTableExpressionBase = innerLeftJoin.Table as TableExpression;
-                            }
-
-                            if (outerTableExpressionBase is TableExpression outerTable
-                                && innerTableExpressionBase is TableExpression innerTable
-                                && !(string.Equals(outerTable.Name, innerTable.Name, StringComparison.OrdinalIgnoreCase)
-                                    && string.Equals(outerTable.Schema, innerTable.Schema, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                break;
-                            }
-
-                            initialTableCounts++;
-                        }
-                    }
-
-                    if (initialTableCounts > 0)
-                    {
-                        // If there are no initial table then this is not correlated grouping subquery
-                        // We only replace columns from initial tables.
-                        // Additional tables may have been added to outer from other terms which may end up matching on table alias
-                        var columnExpressionReplacingExpressionVisitor =
-                            new ColumnExpressionReplacingExpressionVisitor(
-                                subquery, _selectExpression._tableReferences.Take(initialTableCounts));
-                        {
-                            // If subquery has more tables then we expanded join on it.
-                            for (var i = initialTableCounts; i < subquery._tables.Count; i++)
-                            {
-                                // We re-use the same table reference with updated selectExpression
-                                // So we don't need to remap those columns, they will transfer automatically.
-                                var table = subquery._tables[i];
-                                var tableReference = subquery._tableReferences[i];
-                                table = (TableExpressionBase)columnExpressionReplacingExpressionVisitor.Visit(table);
-                                tableReference.UpdateTableReference(subquery, _selectExpression);
-                                _selectExpression.AddTable(table, tableReference);
-                            }
-                        }
-
-                        var updatedProjection = columnExpressionReplacingExpressionVisitor.Visit(subquery._projection[0].Expression);
-
-                        return updatedProjection;
-                    }
-                }
-            }
-
-            return base.Visit(expression);
-        }
-
-        private static void CopyOverOwnedJoinInSameTable(SelectExpression target, SelectExpression source)
-        {
-            if (target._projection.Count != source._projection.Count)
-            {
-                var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(
-                            source, target._tableReferences);
-                var minProjectionCount = Math.Min(target._projection.Count, source._projection.Count);
-                var initialProjectionCount = 0;
-                for (var i = 0; i < minProjectionCount; i++)
-                {
-                    var projectionToCopy = source._projection[i];
-                    var transformedProjection =
-                        (ProjectionExpression)columnExpressionReplacingExpressionVisitor.Visit(projectionToCopy);
-                    if (!transformedProjection.Equals(target._projection[i]))
-                    {
-                        break;
-                    }
-
-                    initialProjectionCount++;
-                }
-
-                if (initialProjectionCount < source._projection.Count)
-                {
-                    for (var i = initialProjectionCount; i < source._projection.Count; i++)
-                    {
-                        var projectionToCopy = source._projection[i].Expression;
-                        if (projectionToCopy is not ConcreteColumnExpression columnToCopy)
-                        {
-                            continue;
-                        }
-
-                        var transformedProjection =
-                            (ConcreteColumnExpression)columnExpressionReplacingExpressionVisitor.Visit(projectionToCopy);
-                        if (target._projection.FindIndex(e => e.Expression.Equals(transformedProjection)) == -1)
-                        {
-                            target._projection.Add(new ProjectionExpression(transformedProjection, transformedProjection.Name));
-                            if (UnwrapJoinExpression(columnToCopy.Table) is SelectExpression innerSelectExpression)
-                            {
-                                var tableIndex = source._tableReferences.FindIndex(e => e.Alias == columnToCopy.TableAlias);
-                                CopyOverOwnedJoinInSameTable(
-                                    (SelectExpression)UnwrapJoinExpression(target._tables[tableIndex]), innerSelectExpression);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }

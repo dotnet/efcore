@@ -28,19 +28,8 @@ public class SingularModificationCommandBatch : AffectedCountModificationCommand
     }
 
     /// <summary>
-    ///     Only returns <see langword="true" /> if the no command has already been added.
+    ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch; always returns 1.
     /// </summary>
-    /// <param name="modificationCommand">The command to potentially add.</param>
-    /// <returns><see langword="true" /> if no command has already been added.</returns>
-    protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
-        => ModificationCommands.Count == 0;
-
-    /// <summary>
-    ///     Returns <see langword="true" /> since only a single command is generated so the command text must be valid.
-    /// </summary>
-    /// <returns>
-    ///     <see langword="true" />
-    /// </returns>
-    protected override bool IsCommandTextValid()
-        => true;
+    protected override int MaxBatchSize
+        => 1;
 }

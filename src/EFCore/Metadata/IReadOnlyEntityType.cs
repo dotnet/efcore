@@ -125,7 +125,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         => new[] { this }.Concat(GetDerivedTypes());
 
     /// <summary>
-    ///     Gets all types in the model that directly derive from a given entity type.
+    ///     Gets all types in the model that directly derive from a given entity type, in a deterministic top-to-bottom ordering.
     /// </summary>
     /// <returns>The derived types.</returns>
     IEnumerable<IReadOnlyEntityType> GetDirectlyDerivedTypes();
@@ -638,7 +638,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     <see cref="FindNavigation(string)" /> to find a navigation property.
     /// </remarks>
     /// <param name="name">The property name.</param>
-    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    /// <returns>The property.</returns>
     IReadOnlyProperty GetProperty(string name)
     {
         Check.NotEmpty(name, nameof(name));

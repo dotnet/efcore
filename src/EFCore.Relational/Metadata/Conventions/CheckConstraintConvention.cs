@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that ensures that the check constraints on the derived types are compatible with
-///     the check constraints on the base type. And also ensures that the declaring type is current.
+///     A convention that ensures that the check constraints on the derived types are compatible with the check constraints on the base
+///     type. And also ensures that the declaring type is current.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.

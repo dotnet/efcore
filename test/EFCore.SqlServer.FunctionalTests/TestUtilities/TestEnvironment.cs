@@ -37,6 +37,8 @@ public static class TestEnvironment
 
     private static bool? _supportsTemporalTablesCascadeDelete;
 
+    private static bool? _supportsUtf8;
+
     private static byte? _productMajorVersion;
 
     private static int? _engineEdition;
@@ -231,6 +233,35 @@ public static class TestEnvironment
             }
 
             return _supportsTemporalTablesCascadeDelete.Value;
+        }
+    }
+
+    public static bool IsUtf8Supported
+    {
+        get
+        {
+            if (!IsConfigured)
+            {
+                return false;
+            }
+
+            if (_supportsUtf8.HasValue)
+            {
+                return _supportsUtf8.Value;
+            }
+
+            try
+            {
+                _productMajorVersion = GetProductMajorVersion();
+
+                _supportsUtf8 = _productMajorVersion >= 15 || IsSqlAzure;
+            }
+            catch (PlatformNotSupportedException)
+            {
+                _supportsUtf8 = false;
+            }
+
+            return _supportsUtf8.Value;
         }
     }
 

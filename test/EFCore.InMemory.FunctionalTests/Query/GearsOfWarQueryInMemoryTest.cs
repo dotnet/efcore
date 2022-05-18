@@ -29,14 +29,6 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
                     .Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
                         async))).Message);
 
-    public override async Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
-        // Grouping by constant. Issue #19683.
-        => Assert.Equal(
-            "1",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Group_by_on_StartsWith_with_null_parameter_as_argument(async)))
-            .Actual);
-
     public override async Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
         // Distinct. Issue #24325.
         => Assert.Equal(

@@ -40,6 +40,13 @@ public class TestRelationalCommandBuilderFactory : IRelationalCommandBuilderFact
             return this;
         }
 
+        public IRelationalCommandBuilder RemoveParameterAt(int index)
+        {
+            _parameters.RemoveAt(index);
+
+            return this;
+        }
+
         [Obsolete("Code trying to add parameter should add type mapped parameter using TypeMappingSource directly.")]
         public IRelationalTypeMappingSource TypeMappingSource
             => Dependencies.TypeMappingSource;

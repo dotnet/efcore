@@ -80,11 +80,16 @@ public class PropertyAccessorsFactory
         var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
         if (storeGeneratedIndex >= 0)
         {
+            var comparer = (propertyBase as IProperty)?.GetValueComparer()
+                ?? ValueComparer.CreateDefault(propertyBase.ClrType, favorStructuralComparisons: true);
+
             if (useStoreGeneratedValues)
             {
                 currentValueExpression = Expression.Condition(
-                    Expression.Equal(
-                        currentValueExpression,
+                    comparer.ExtractEqualsBody(
+                        comparer.Type != currentValueExpression.Type
+                            ? Expression.Convert(currentValueExpression, comparer.Type)
+                            : currentValueExpression,
                         Expression.Constant(default(TProperty), typeof(TProperty))),
                     Expression.Call(
                         entryParameter,
@@ -94,8 +99,10 @@ public class PropertyAccessorsFactory
             }
 
             currentValueExpression = Expression.Condition(
-                Expression.Equal(
-                    currentValueExpression,
+                comparer.ExtractEqualsBody(
+                    comparer.Type != currentValueExpression.Type
+                        ? Expression.Convert(currentValueExpression, comparer.Type)
+                        : currentValueExpression,
                     Expression.Constant(default(TProperty), typeof(TProperty))),
                 Expression.Call(
                     entryParameter,

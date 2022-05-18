@@ -13,6 +13,10 @@ public class TPTInheritanceQuerySqlServerTest : TPTInheritanceQueryTestBase<TPTI
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Byte_enum_value_constant_used_in_projection(bool async)
     {
         await base.Byte_enum_value_constant_used_in_projection(async);
@@ -101,26 +105,17 @@ WHERE [c].[Id] = 1",
             @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 @p1='1'
 @p2='Little spotted kiwi' (Size = 4000)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-INSERT INTO [Animals] ([Species], [CountryId], [Name])
-VALUES (@p0, @p1, @p2);",
-            //
-            @"@p3='Apteryx owenii' (Nullable = false) (Size = 100)
+@p3='Apteryx owenii' (Nullable = false) (Size = 100)
 @p4=NULL (Size = 100)
 @p5='True'
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
-VALUES (@p3, @p4, @p5);",
-            //
-            @"@p6='Apteryx owenii' (Nullable = false) (Size = 100)
+@p6='Apteryx owenii' (Nullable = false) (Size = 100)
 @p7='0' (Size = 1)
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
+INSERT INTO [Animals] ([Species], [CountryId], [Name])
+VALUES (@p0, @p1, @p2);
+INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
+VALUES (@p3, @p4, @p5);
 INSERT INTO [Kiwi] ([Species], [FoundOn])
 VALUES (@p6, @p7);",
             //
@@ -136,8 +131,8 @@ WHERE [a].[Species] LIKE N'%owenii'",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Birds] SET [EagleId] = @p0
-WHERE [Species] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p1;",
             //
             @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
 FROM [Animals] AS [a]
@@ -146,28 +141,19 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 WHERE [a].[Species] LIKE N'%owenii'",
             //
             @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
+@p1='Apteryx owenii' (Nullable = false) (Size = 100)
+@p2='Apteryx owenii' (Nullable = false) (Size = 100)
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Kiwi]
+OUTPUT 1
 WHERE [Species] = @p0;
-SELECT @@ROWCOUNT;",
-            //
-            @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
 DELETE FROM [Birds]
+OUTPUT 1
 WHERE [Species] = @p1;
-SELECT @@ROWCOUNT;",
-            //
-            @"@p2='Apteryx owenii' (Nullable = false) (Size = 100)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
 DELETE FROM [Animals]
-WHERE [Species] = @p2;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p2;",
             //
             @"SELECT COUNT(*)
 FROM [Animals] AS [a]
@@ -533,11 +519,19 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]",
             @"@p0='Haliaeetus leucocephalus' (Nullable = false) (Size = 100)
 @p1='0'
 @p2='Bald eagle' (Size = 4000)
+@p3='Haliaeetus leucocephalus' (Nullable = false) (Size = 100)
+@p4='Apteryx haastii' (Size = 100)
+@p5='False'
+@p6='Haliaeetus leucocephalus' (Nullable = false) (Size = 100)
+@p7='1'
 
-SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Animals] ([Species], [CountryId], [Name])
-VALUES (@p0, @p1, @p2);");
+VALUES (@p0, @p1, @p2);
+INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
+VALUES (@p3, @p4, @p5);
+INSERT INTO [Eagle] ([Species], [Group])
+VALUES (@p6, @p7);");
     }
 
     public override async Task Subquery_OfType(bool async)
@@ -623,6 +617,85 @@ FROM [Animals] AS [a]");
             @"SELECT [a].[Name]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]");
+    }
+
+    public override async Task Can_query_all_animal_views(bool async)
+    {
+        await base.Can_query_all_animal_views(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_used_when_projection_over_derived_type(bool async)
+    {
+        await base.Discriminator_used_when_projection_over_derived_type(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_used_when_projection_over_derived_type2(bool async)
+    {
+        await base.Discriminator_used_when_projection_over_derived_type2(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_used_when_projection_over_of_type(bool async)
+    {
+        await base.Discriminator_used_when_projection_over_of_type(async);
+
+        AssertSql();
+    }
+
+    public override async Task Discriminator_with_cast_in_shadow_property(bool async)
+    {
+        await base.Discriminator_with_cast_in_shadow_property(async);
+
+        AssertSql();
+    }
+
+    public override void Using_from_sql_throws()
+    {
+        base.Using_from_sql_throws();
+
+        AssertSql();
+    }
+    public override async Task Using_is_operator_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [k].[Species] IS NOT NULL AND [e].[Species] IS NOT NULL");
+    }
+
+    public override async Task Using_is_operator_with_of_type_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_with_of_type_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], CASE
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [k].[Species] IS NOT NULL AND [e].[Species] IS NOT NULL");
+    }
+
+    public override async Task Using_OfType_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_OfType_on_multiple_type_with_no_result(async);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

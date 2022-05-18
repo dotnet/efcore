@@ -1,16 +1,511 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
+
+#nullable enable
 
 public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture>
 {
     public StoreGeneratedSqlServerTest(StoreGeneratedSqlServerFixture fixture)
         : base(fixture)
     {
+    }
+
+    protected class WrappedIntHiLoClass
+    {
+        public int Value { get; set; }
+    }
+
+    protected class WrappedIntHiLoClassConverter : ValueConverter<WrappedIntHiLoClass, int>
+    {
+        public WrappedIntHiLoClassConverter()
+            : base(
+                v => v.Value,
+                v => new WrappedIntHiLoClass { Value = v })
+        {
+        }
+    }
+
+    protected class WrappedIntHiLoClassComparer : ValueComparer<WrappedIntHiLoClass?>
+    {
+        public WrappedIntHiLoClassComparer()
+            : base(
+                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+                v => v != null ? v.Value : 0,
+                v => v == null ? null : new() { Value = v.Value })
+        {
+        }
+    }
+
+    protected class WrappedIntHiLoClassValueGenerator : ValueGenerator<WrappedIntHiLoClass>
+    {
+        public override WrappedIntHiLoClass Next(EntityEntry entry)
+            => new() { Value = 66 };
+
+        public override bool GeneratesTemporaryValues
+            => false;
+    }
+
+    protected struct WrappedIntHiLoStruct
+    {
+        public int Value { get; set; }
+    }
+
+    protected class WrappedIntHiLoStructConverter : ValueConverter<WrappedIntHiLoStruct, int>
+    {
+        public WrappedIntHiLoStructConverter()
+            : base(
+                v => v.Value,
+                v => new WrappedIntHiLoStruct { Value = v })
+        {
+        }
+    }
+
+    protected class WrappedIntHiLoStructValueGenerator : ValueGenerator<WrappedIntHiLoStruct>
+    {
+        public override WrappedIntHiLoStruct Next(EntityEntry entry)
+            => new() { Value = 66 };
+
+        public override bool GeneratesTemporaryValues
+            => false;
+    }
+
+    protected record WrappedIntHiLoRecord
+    {
+        public int Value { get; set; }
+    }
+
+    protected class WrappedIntHiLoRecordConverter : ValueConverter<WrappedIntHiLoRecord, int>
+    {
+        public WrappedIntHiLoRecordConverter()
+            : base(
+                v => v.Value,
+                v => new WrappedIntHiLoRecord { Value = v })
+        {
+        }
+    }
+
+    protected class WrappedIntHiLoRecordValueGenerator : ValueGenerator<WrappedIntHiLoRecord>
+    {
+        public override WrappedIntHiLoRecord Next(EntityEntry entry)
+            => new() { Value = 66 };
+
+        public override bool GeneratesTemporaryValues
+            => false;
+    }
+
+    protected class WrappedIntHiLoKeyClass
+    {
+        public int Value { get; set; }
+    }
+
+    protected class WrappedIntHiLoKeyClassConverter : ValueConverter<WrappedIntHiLoKeyClass, int>
+    {
+        public WrappedIntHiLoKeyClassConverter()
+            : base(
+                v => v.Value,
+                v => new WrappedIntHiLoKeyClass { Value = v })
+        {
+        }
+    }
+
+    protected class WrappedIntHiLoKeyClassComparer : ValueComparer<WrappedIntHiLoKeyClass?>
+    {
+        public WrappedIntHiLoKeyClassComparer()
+            : base(
+                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+                v => v != null ? v.Value : 0,
+                v => v == null ? null : new() { Value = v.Value })
+        {
+        }
+    }
+
+    protected struct WrappedIntHiLoKeyStruct
+    {
+        public int Value { get; set; }
+
+        public override bool Equals(object? obj)
+            => obj is WrappedIntHiLoKeyStruct other && Value == other.Value;
+
+        public override int GetHashCode()
+            => Value;
+
+        public static bool operator ==(WrappedIntHiLoKeyStruct left, WrappedIntHiLoKeyStruct right)
+            => left.Equals(right);
+
+        public static bool operator !=(WrappedIntHiLoKeyStruct left, WrappedIntHiLoKeyStruct right)
+            => !left.Equals(right);
+    }
+
+    protected class WrappedIntHiLoKeyStructConverter : ValueConverter<WrappedIntHiLoKeyStruct, int>
+    {
+        public WrappedIntHiLoKeyStructConverter()
+            : base(
+                v => v.Value,
+                v => new WrappedIntHiLoKeyStruct { Value = v })
+        {
+        }
+    }
+
+    protected record WrappedIntHiLoKeyRecord
+    {
+        public int Value { get; set; }
+    }
+
+    protected class WrappedIntHiLoKeyRecordConverter : ValueConverter<WrappedIntHiLoKeyRecord, int>
+    {
+        public WrappedIntHiLoKeyRecordConverter()
+            : base(
+                v => v.Value,
+                v => new WrappedIntHiLoKeyRecord { Value = v })
+        {
+        }
+    }
+
+    protected class WrappedIntHiLoClassPrincipal
+    {
+        public WrappedIntHiLoKeyClass Id { get; set; } = null!;
+        public ICollection<WrappedIntHiLoClassDependentShadow> Dependents { get; } = new List<WrappedIntHiLoClassDependentShadow>();
+        public ICollection<WrappedIntHiLoClassDependentRequired> RequiredDependents { get; } = new List<WrappedIntHiLoClassDependentRequired>();
+        public ICollection<WrappedIntHiLoClassDependentOptional> OptionalDependents { get; } = new List<WrappedIntHiLoClassDependentOptional>();
+    }
+
+    protected class WrappedIntHiLoClassDependentShadow
+    {
+        public WrappedIntHiLoClass Id { get; set; } = null!;
+        public WrappedIntHiLoClassPrincipal? Principal { get; set; }
+    }
+
+    protected class WrappedIntHiLoClassDependentRequired
+    {
+        public WrappedIntHiLoClass Id { get; set; } = null!;
+        public WrappedIntHiLoKeyClass PrincipalId { get; set; } = null!;
+        public WrappedIntHiLoClassPrincipal Principal { get; set; } = null!;
+    }
+
+    protected class WrappedIntHiLoClassDependentOptional
+    {
+        public WrappedIntHiLoClass Id { get; set; } = null!;
+        public WrappedIntHiLoKeyClass? PrincipalId { get; set; }
+        public WrappedIntHiLoClassPrincipal? Principal { get; set; }
+    }
+
+    protected class WrappedIntHiLoStructPrincipal
+    {
+        public WrappedIntHiLoKeyStruct Id { get; set; }
+        public ICollection<WrappedIntHiLoStructDependentShadow> Dependents { get; } = new List<WrappedIntHiLoStructDependentShadow>();
+        public ICollection<WrappedIntHiLoStructDependentOptional> OptionalDependents { get; } = new List<WrappedIntHiLoStructDependentOptional>();
+        public ICollection<WrappedIntHiLoStructDependentRequired> RequiredDependents { get; } = new List<WrappedIntHiLoStructDependentRequired>();
+    }
+
+    protected class WrappedIntHiLoStructDependentShadow
+    {
+        public WrappedIntHiLoStruct Id { get; set; }
+        public WrappedIntHiLoStructPrincipal? Principal { get; set; }
+    }
+
+    protected class WrappedIntHiLoStructDependentOptional
+    {
+        public WrappedIntHiLoStruct Id { get; set; }
+        public WrappedIntHiLoKeyStruct? PrincipalId { get; set; }
+        public WrappedIntHiLoStructPrincipal? Principal { get; set; }
+    }
+
+    protected class WrappedIntHiLoStructDependentRequired
+    {
+        public WrappedIntHiLoStruct Id { get; set; }
+        public WrappedIntHiLoKeyStruct PrincipalId { get; set; }
+        public WrappedIntHiLoStructPrincipal Principal { get; set; } = null!;
+    }
+
+    protected class WrappedIntHiLoRecordPrincipal
+    {
+        public WrappedIntHiLoKeyRecord Id { get; set; } = null!;
+        public ICollection<WrappedIntHiLoRecordDependentShadow> Dependents { get; } = new List<WrappedIntHiLoRecordDependentShadow>();
+        public ICollection<WrappedIntHiLoRecordDependentOptional> OptionalDependents { get; } = new List<WrappedIntHiLoRecordDependentOptional>();
+        public ICollection<WrappedIntHiLoRecordDependentRequired> RequiredDependents { get; } = new List<WrappedIntHiLoRecordDependentRequired>();
+    }
+
+    protected class WrappedIntHiLoRecordDependentShadow
+    {
+        public WrappedIntHiLoRecord Id { get; set; } = null!;
+        public WrappedIntHiLoRecordPrincipal? Principal { get; set; }
+    }
+
+    protected class WrappedIntHiLoRecordDependentOptional
+    {
+        public WrappedIntHiLoRecord Id { get; set; } = null!;
+        public WrappedIntHiLoKeyRecord? PrincipalId { get; set; }
+        public WrappedIntHiLoRecordPrincipal? Principal { get; set; }
+    }
+
+    protected class WrappedIntHiLoRecordDependentRequired
+    {
+        public WrappedIntHiLoRecord Id { get; set; } = null!;
+        public WrappedIntHiLoKeyRecord PrincipalId { get; set; } = null!;
+        public WrappedIntHiLoRecordPrincipal Principal { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual void Insert_update_and_delete_with_wrapped_int_key_using_hi_lo()
+    {
+        var id1 = 0;
+        var id2 = 0;
+        var id3 = 0;
+        ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var principal1 = context.Add(
+                    new WrappedIntHiLoClassPrincipal
+                    {
+                        Dependents = { new(), new() },
+                        OptionalDependents = { new(), new() },
+                        RequiredDependents = { new(), new() }
+                    }).Entity;
+
+                var principal2 = context.Add(
+                    new WrappedIntHiLoStructPrincipal
+                    {
+                        Dependents = { new(), new() },
+                        OptionalDependents = { new(), new() },
+                        RequiredDependents = { new(), new() }
+                    }).Entity;
+
+                var principal3 = context.Add(
+                    new WrappedIntHiLoRecordPrincipal
+                    {
+                        Dependents = { new(), new() },
+                        OptionalDependents = { new(), new() },
+                        RequiredDependents = { new(), new() }
+                    }).Entity;
+
+                context.SaveChanges();
+
+                id1 = principal1.Id.Value;
+                Assert.NotEqual(0, id1);
+                foreach (var dependent in principal1.Dependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, context.Entry(dependent).Property<WrappedIntHiLoKeyClass?>("PrincipalId").CurrentValue!.Value);
+                }
+                foreach (var dependent in principal1.OptionalDependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId!.Value);
+                }
+                foreach (var dependent in principal1.RequiredDependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId.Value);
+                }
+
+                id2 = principal2.Id.Value;
+                Assert.NotEqual(0, id2);
+                foreach (var dependent in principal2.Dependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal2, dependent.Principal);
+                    Assert.Equal(id2, context.Entry(dependent).Property<WrappedIntHiLoKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
+                }
+                foreach (var dependent in principal2.OptionalDependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal2, dependent.Principal);
+                    Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
+                }
+                foreach (var dependent in principal2.RequiredDependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal2, dependent.Principal);
+                    Assert.Equal(id2, dependent.PrincipalId.Value);
+                }
+
+                id3 = principal3.Id.Value;
+                Assert.NotEqual(0, id3);
+                foreach (var dependent in principal3.Dependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal3, dependent.Principal);
+                    Assert.Equal(id3, context.Entry(dependent).Property<WrappedIntHiLoKeyRecord?>("PrincipalId").CurrentValue!.Value);
+                }
+                foreach (var dependent in principal3.OptionalDependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal3, dependent.Principal);
+                    Assert.Equal(id3, dependent.PrincipalId!.Value);
+                }
+                foreach (var dependent in principal3.RequiredDependents)
+                {
+                    Assert.NotEqual(0, dependent.Id.Value);
+                    Assert.Same(principal3, dependent.Principal);
+                    Assert.Equal(id3, dependent.PrincipalId.Value);
+                }
+            },
+            context =>
+            {
+                var principal1 = context.Set<WrappedIntHiLoClassPrincipal>()
+                    .Include(e => e.Dependents)
+                    .Include(e => e.OptionalDependents)
+                    .Include(e => e.RequiredDependents)
+                    .Single();
+
+                Assert.Equal(principal1.Id.Value, id1);
+                foreach (var dependent in principal1.Dependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, context.Entry(dependent).Property<WrappedIntHiLoKeyClass?>("PrincipalId").CurrentValue!.Value);
+                }
+                foreach (var dependent in principal1.OptionalDependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId!.Value);
+                }
+                foreach (var dependent in principal1.RequiredDependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId.Value);
+                }
+
+                var principal2 = context.Set<WrappedIntHiLoStructPrincipal>()
+                    .Include(e => e.Dependents)
+                    .Include(e => e.OptionalDependents)
+                    .Include(e => e.RequiredDependents)
+                    .Single();
+
+                Assert.Equal(principal2.Id.Value, id2);
+                foreach (var dependent in principal2.Dependents)
+                {
+                    Assert.Same(principal2, dependent.Principal);
+                    Assert.Equal(id2, context.Entry(dependent).Property<WrappedIntHiLoKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
+                }
+                foreach (var dependent in principal2.OptionalDependents)
+                {
+                    Assert.Same(principal2, dependent.Principal);
+                    Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
+                }
+                foreach (var dependent in principal2.RequiredDependents)
+                {
+                    Assert.Same(principal2, dependent.Principal);
+                    Assert.Equal(id2, dependent.PrincipalId.Value);
+                }
+
+                var principal3 = context.Set<WrappedIntHiLoRecordPrincipal>()
+                    .Include(e => e.Dependents)
+                    .Include(e => e.OptionalDependents)
+                    .Include(e => e.RequiredDependents)
+                    .Single();
+
+                Assert.Equal(principal3.Id.Value, id3);
+                foreach (var dependent in principal3.Dependents)
+                {
+                    Assert.Same(principal3, dependent.Principal);
+                    Assert.Equal(id3, context.Entry(dependent).Property<WrappedIntHiLoKeyRecord?>("PrincipalId").CurrentValue!.Value);
+                }
+                foreach (var dependent in principal3.OptionalDependents)
+                {
+                    Assert.Same(principal3, dependent.Principal);
+                    Assert.Equal(id3, dependent.PrincipalId!.Value);
+                }
+                foreach (var dependent in principal3.RequiredDependents)
+                {
+                    Assert.Same(principal3, dependent.Principal);
+                    Assert.Equal(id3, dependent.PrincipalId.Value);
+                }
+
+                principal1.Dependents.Remove(principal1.Dependents.First());
+                principal2.Dependents.Remove(principal2.Dependents.First());
+                principal3.Dependents.Remove(principal3.Dependents.First());
+
+                principal1.OptionalDependents.Remove(principal1.OptionalDependents.First());
+                principal2.OptionalDependents.Remove(principal2.OptionalDependents.First());
+                principal3.OptionalDependents.Remove(principal3.OptionalDependents.First());
+
+                principal1.RequiredDependents.Remove(principal1.RequiredDependents.First());
+                principal2.RequiredDependents.Remove(principal2.RequiredDependents.First());
+                principal3.RequiredDependents.Remove(principal3.RequiredDependents.First());
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var dependents1 = context.Set<WrappedIntHiLoClassDependentShadow>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, dependents1.Count);
+                Assert.Null(
+                    context.Entry(dependents1.Single(e => e.Principal == null))
+                        .Property<WrappedIntHiLoKeyClass?>("PrincipalId").CurrentValue);
+
+                var optionalDependents1 = context.Set<WrappedIntHiLoClassDependentOptional>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, optionalDependents1.Count);
+                Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
+
+                var requiredDependents1 = context.Set<WrappedIntHiLoClassDependentRequired>().Include(e => e.Principal).ToList();
+                Assert.Single(requiredDependents1);
+
+                var dependents2 = context.Set<WrappedIntHiLoStructDependentShadow>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, dependents2.Count);
+                Assert.Null(
+                    context.Entry(dependents2.Single(e => e.Principal == null))
+                        .Property<WrappedIntHiLoKeyStruct?>("PrincipalId").CurrentValue);
+
+                var optionalDependents2 = context.Set<WrappedIntHiLoStructDependentOptional>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, optionalDependents2.Count);
+                Assert.Null(optionalDependents2.Single(e => e.Principal == null).PrincipalId);
+
+                var requiredDependents2 = context.Set<WrappedIntHiLoStructDependentRequired>().Include(e => e.Principal).ToList();
+                Assert.Single(requiredDependents2);
+
+                var dependents3 = context.Set<WrappedIntHiLoRecordDependentShadow>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, dependents3.Count);
+                Assert.Null(
+                    context.Entry(dependents3.Single(e => e.Principal == null))
+                        .Property<WrappedIntHiLoKeyRecord?>("PrincipalId").CurrentValue);
+
+                var optionalDependents3 = context.Set<WrappedIntHiLoRecordDependentOptional>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, optionalDependents3.Count);
+                Assert.Null(optionalDependents3.Single(e => e.Principal == null).PrincipalId);
+
+                var requiredDependents3 = context.Set<WrappedIntHiLoRecordDependentRequired>().Include(e => e.Principal).ToList();
+                Assert.Single(requiredDependents3);
+
+                context.Remove(dependents1.Single(e => e.Principal != null));
+                context.Remove(optionalDependents1.Single(e => e.Principal != null));
+                context.Remove(requiredDependents1.Single());
+                context.Remove(requiredDependents1.Single().Principal);
+
+                context.Remove(dependents2.Single(e => e.Principal != null));
+                context.Remove(optionalDependents2.Single(e => e.Principal != null));
+                context.Remove(requiredDependents2.Single());
+                context.Remove(requiredDependents2.Single().Principal);
+
+                context.Remove(dependents3.Single(e => e.Principal != null));
+                context.Remove(optionalDependents3.Single(e => e.Principal != null));
+                context.Remove(requiredDependents3.Single());
+                context.Remove(requiredDependents3.Single().Principal);
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                Assert.Equal(1, context.Set<WrappedIntHiLoClassDependentShadow>().Count());
+                Assert.Equal(1, context.Set<WrappedIntHiLoStructDependentShadow>().Count());
+                Assert.Equal(1, context.Set<WrappedIntHiLoRecordDependentShadow>().Count());
+
+                Assert.Equal(1, context.Set<WrappedIntHiLoClassDependentOptional>().Count());
+                Assert.Equal(1, context.Set<WrappedIntHiLoStructDependentOptional>().Count());
+                Assert.Equal(1, context.Set<WrappedIntHiLoRecordDependentOptional>().Count());
+
+                Assert.Equal(0, context.Set<WrappedIntHiLoClassDependentRequired>().Count());
+                Assert.Equal(0, context.Set<WrappedIntHiLoStructDependentRequired>().Count());
+                Assert.Equal(0, context.Set<WrappedIntHiLoRecordDependentRequired>().Count());
+            });
     }
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -70,7 +565,7 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                         e => e);
 
                     var stateManager = context.GetService<IStateManager>();
-                    var key = context.Model.FindEntityType(typeof(Darwin)).FindPrimaryKey();
+                    var key = context.Model.FindEntityType(typeof(Darwin))!.FindPrimaryKey()!;
 
                     foreach (var entity in entities)
                     {
@@ -78,7 +573,7 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                             entity,
                             stateManager.TryGetEntry(
                                 key,
-                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue }).Entity);
+                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue })!.Entity);
                     }
 
                     // DbUpdateException : An error occurred while updating the entries. See the
@@ -92,7 +587,7 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     {
                         Assert.Equal(0, entity.Id);
                         Assert.Null(entity._id);
-                        Assert.Null(entity.Species.DarwinId);
+                        Assert.Null(entity.Species!.DarwinId);
                         foreach (var species in entity.MixedMetaphors)
                         {
                             Assert.Null(species.MetaphoricId);
@@ -100,7 +595,7 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     }
 
                     Assert.Equal(1777, entities[100].Id);
-                    Assert.Equal(1777, entities[100].Species.DarwinId);
+                    Assert.Equal(1777, entities[100].Species!.DarwinId);
                     foreach (var species in entities[100].MixedMetaphors)
                     {
                         Assert.Equal(1777, species.MetaphoricId);
@@ -119,7 +614,7 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                             entity,
                             stateManager.TryGetEntry(
                                 key,
-                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue }).Entity);
+                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue })!.Entity);
                     }
                 });
         }
@@ -222,7 +717,34 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
 
             modelBuilder.Entity<NonStoreGenDependent>().Property(e => e.HasTemp).HasDefaultValue(777);
 
+            modelBuilder.Entity<CompositePrincipal>().Property(e => e.Id).UseIdentityColumn();
+
+            modelBuilder.Entity<WrappedIntHiLoClassPrincipal>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoStructPrincipal>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoRecordPrincipal>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoClassDependentShadow>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoStructDependentShadow>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoRecordDependentShadow>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoClassDependentOptional>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoStructDependentOptional>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoRecordDependentOptional>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoClassDependentRequired>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoStructDependentRequired>().Property(e => e.Id).UseHiLo();
+            modelBuilder.Entity<WrappedIntHiLoRecordDependentRequired>().Property(e => e.Id).UseHiLo();
+
             base.OnModelCreating(modelBuilder, context);
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
+
+            configurationBuilder.Properties<WrappedIntHiLoClass>().HaveConversion<WrappedIntHiLoClassConverter, WrappedIntHiLoClassComparer>();
+            configurationBuilder.Properties<WrappedIntHiLoKeyClass>().HaveConversion<WrappedIntHiLoKeyClassConverter, WrappedIntHiLoKeyClassComparer>();
+            configurationBuilder.Properties<WrappedIntHiLoStruct>().HaveConversion<WrappedIntHiLoStructConverter>();
+            configurationBuilder.Properties<WrappedIntHiLoKeyStruct>().HaveConversion<WrappedIntHiLoKeyStructConverter>();
+            configurationBuilder.Properties<WrappedIntHiLoRecord>().HaveConversion<WrappedIntHiLoRecordConverter>();
+            configurationBuilder.Properties<WrappedIntHiLoKeyRecord>().HaveConversion<WrappedIntHiLoKeyRecordConverter>();
         }
     }
 }

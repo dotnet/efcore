@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
@@ -68,6 +68,12 @@ public static class RelationalForeignKeyExtensions
         var principalTableName = foreignKey.PrincipalEntityType.GetTableName();
         if (tableName == null
             || principalTableName == null)
+        {
+            return null;
+        }
+
+        if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && foreignKey.PrincipalEntityType.GetDerivedTypes().Any(et => StoreObjectIdentifier.Create(et, StoreObjectType.Table) != null))
         {
             return null;
         }
@@ -148,6 +154,12 @@ public static class RelationalForeignKeyExtensions
         if (rootForeignKey != foreignKey)
         {
             return rootForeignKey.GetConstraintName(storeObject, principalStoreObject);
+        }
+
+        if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && foreignKey.PrincipalEntityType.GetDerivedTypes().Any(et => StoreObjectIdentifier.Create(et, StoreObjectType.Table) != null))
+        {
+            return null;
         }
 
         var baseName = new StringBuilder()

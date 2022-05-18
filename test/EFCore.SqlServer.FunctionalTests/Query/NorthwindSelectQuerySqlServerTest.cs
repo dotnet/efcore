@@ -1872,18 +1872,21 @@ ORDER BY [t].[OrderDate], [t].[CustomerID]");
         await base.Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(async);
 
         AssertSql(
-            @"SELECT [t].[OrderID], [t].[c], [t0].[Outer], [t0].[Inner], [t0].[OrderDate]
+            @"SELECT [t0].[OrderID], [t0].[Complex], [t1].[Outer], [t1].[Inner], [t1].[OrderDate]
 FROM (
-    SELECT [o].[OrderID], DATEPART(month, [o].[OrderDate]) AS [c]
-    FROM [Orders] AS [o]
-    GROUP BY [o].[OrderID], DATEPART(month, [o].[OrderDate])
-) AS [t]
-OUTER APPLY (
-    SELECT [t].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
-    FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] = [t].[OrderID] AND [o0].[OrderID] IN (10248, 10249, 10250)
+    SELECT [t].[OrderID], [t].[Complex]
+    FROM (
+        SELECT [o].[OrderID], DATEPART(month, [o].[OrderDate]) AS [Complex]
+        FROM [Orders] AS [o]
+    ) AS [t]
+    GROUP BY [t].[OrderID], [t].[Complex]
 ) AS [t0]
-ORDER BY [t].[OrderID]");
+OUTER APPLY (
+    SELECT [t0].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] = [t0].[OrderID] AND [o0].[OrderID] IN (10248, 10249, 10250)
+) AS [t1]
+ORDER BY [t0].[OrderID]");
     }
 
     public override async Task Select_nested_collection_deep(bool async)
@@ -2249,7 +2252,22 @@ FROM [Customers] AS [c]");
     {
         await base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [t0].[CustomerID], [t0].[Complex], [t1].[Outer], [t1].[Inner], [t1].[OrderDate]
+FROM (
+    SELECT [t].[CustomerID], [t].[Complex]
+    FROM (
+        SELECT [o].[CustomerID], DATEPART(month, [o].[OrderDate]) AS [Complex]
+        FROM [Orders] AS [o]
+    ) AS [t]
+    GROUP BY [t].[CustomerID], [t].[Complex]
+) AS [t0]
+OUTER APPLY (
+    SELECT [t0].[CustomerID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[CustomerID] = [t0].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [t0].[CustomerID] IS NULL)) AND [o0].[OrderID] IN (10248, 10249, 10250)
+) AS [t1]
+ORDER BY [t0].[CustomerID], [t0].[Complex]");
     }
 
     public override async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool async)
@@ -2280,6 +2298,59 @@ LEFT JOIN (
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0]");
+    }
+
+    public override async Task List_from_result_of_single_result(bool async)
+    {
+        await base.List_from_result_of_single_result(async);
+
+        AssertSql(
+            @"SELECT [t].[CustomerID], [o].[OrderID]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID]");
+    }
+
+    public override async Task List_from_result_of_single_result_2(bool async)
+    {
+        await base.List_from_result_of_single_result_2(async);
+
+        AssertSql(
+            @"SELECT [t].[CustomerID], [o].[OrderID], [o].[OrderDate]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID]");
+    }
+
+    public override async Task List_from_result_of_single_result_3(bool async)
+    {
+        await base.List_from_result_of_single_result_3(async);
+
+        AssertSql(
+            @"SELECT [t].[CustomerID], [t0].[OrderID], [o0].[ProductID], [o0].[OrderID], [t0].[c]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN (
+    SELECT [t1].[c], [t1].[OrderID], [t1].[CustomerID]
+    FROM (
+        SELECT 1 AS [c], [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [t1]
+    WHERE [t1].[row] <= 1
+) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+LEFT JOIN [Order Details] AS [o0] ON [t0].[OrderID] = [o0].[OrderID]
+ORDER BY [t].[CustomerID], [t0].[OrderID], [o0].[OrderID]");
     }
 
     public override async Task Using_enumerable_parameter_in_projection(bool async)

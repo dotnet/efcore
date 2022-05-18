@@ -42,7 +42,12 @@ public interface IForeignKeyConstraint : IAnnotatable
     /// <summary>
     ///     Gets the columns that are referenced by the foreign key constraint.
     /// </summary>
-    IReadOnlyList<IColumn> PrincipalColumns { get; }
+    IReadOnlyList<IColumn> PrincipalColumns => PrincipalUniqueConstraint.Columns;
+
+    /// <summary>
+    ///     Gets the unique constraint on the columns referenced by the foreign key constraint.
+    /// </summary>
+    IUniqueConstraint PrincipalUniqueConstraint { get; }
 
     /// <summary>
     ///     Gets the action to be performed when the referenced row is deleted.
@@ -78,11 +83,11 @@ public interface IForeignKeyConstraint : IAnnotatable
             .Append(' ')
             .Append(Table.Name)
             .Append(' ')
-            .Append(ColumnBase.Format(Columns))
+            .Append(ColumnBase<IColumnMappingBase>.Format(Columns))
             .Append(" -> ")
             .Append(PrincipalTable.Name)
             .Append(' ')
-            .Append(ColumnBase.Format(PrincipalColumns));
+            .Append(ColumnBase<IColumnMappingBase>.Format(PrincipalColumns));
 
         if (OnDeleteAction != ReferentialAction.NoAction)
         {

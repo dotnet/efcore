@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
 {
-    private readonly ICollection<int>? _additionalErrorNumbers;
+    private readonly HashSet<int>? _additionalErrorNumbers;
 
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -96,7 +96,7 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
     public SqlServerRetryingExecutionStrategy(
         ExecutionStrategyDependencies dependencies,
-        ICollection<int> errorNumbersToAdd)
+        IEnumerable<int> errorNumbersToAdd)
         : this(dependencies, DefaultMaxRetryCount, DefaultMaxDelay, errorNumbersToAdd)
     {
     }
@@ -112,13 +112,13 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
         DbContext context,
         int maxRetryCount,
         TimeSpan maxRetryDelay,
-        ICollection<int>? errorNumbersToAdd)
+        IEnumerable<int>? errorNumbersToAdd)
         : base(
             context,
             maxRetryCount,
             maxRetryDelay)
     {
-        _additionalErrorNumbers = errorNumbersToAdd;
+        _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
     }
 
     /// <summary>
@@ -132,10 +132,10 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
         ExecutionStrategyDependencies dependencies,
         int maxRetryCount,
         TimeSpan maxRetryDelay,
-        ICollection<int>? errorNumbersToAdd)
+        IEnumerable<int>? errorNumbersToAdd)
         : base(dependencies, maxRetryCount, maxRetryDelay)
     {
-        _additionalErrorNumbers = errorNumbersToAdd;
+        _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
     }
 
     /// <summary>

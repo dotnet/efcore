@@ -11,6 +11,7 @@ public class TemporaryNumberValueGeneratorFactoryTest
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
         builder.Entity<AnEntity>();
+        builder.FinalizeModel();
         return (IModel)builder.Model;
     }
 

@@ -1245,7 +1245,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                        // ReSharper disable once ConstantNullCoalescingCondition
+                            // ReSharper disable once ConstantNullCoalescingCondition
                         select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
             var result = query.ToList();
@@ -1259,7 +1259,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                        // ReSharper disable once ConstantNullCoalescingCondition
+                            // ReSharper disable once ConstantNullCoalescingCondition
                         select new
                         {
                             One = eRootJoined,
@@ -1284,7 +1284,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                        // ReSharper disable once MergeConditionalExpression
+                            // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                         select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -1442,15 +1442,18 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             Contacts.AddRange(
                 new ServiceOperatorContact6986
                 {
-                    UserName = "service.operator@esoterix.co.uk", ServiceOperator6986 = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk",
+                    ServiceOperator6986 = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact6986
                 {
-                    UserName = "uwe@esoterix.co.uk", Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk",
+                    Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact6986
                 {
-                    UserName = "hp@esoterix.co.uk", Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk",
+                    Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact6986 { UserName = "noroles@esoterix.co.uk" });
             SaveChanges();
@@ -2871,17 +2874,16 @@ FROM [Bases] AS [b]");
             Assert.Empty(query);
 
             AssertSql(
-                @"SELECT [t1].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
+                @"SELECT [t0].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
-    FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
-    WHERE [t0].[Exists] IS NOT NULL
-) AS [t1] ON [t].[Id] = CASE
-    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
+    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
+    FROM [Table] AS [t1]
+    WHERE [t1].[Exists] IS NOT NULL
+) AS [t0] ON [t].[Id] = CASE
+    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
 END
-GROUP BY [t1].[AnotherEntity11818_Name]");
+GROUP BY [t0].[AnotherEntity11818_Name]");
         }
 
         using (var context = contextFactory.CreateContext())
@@ -2904,25 +2906,23 @@ GROUP BY [t1].[AnotherEntity11818_Name]");
             Assert.Empty(query);
 
             AssertSql(
-                @"SELECT [t1].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+                @"SELECT [t0].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
-    FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
-    WHERE [t0].[Exists] IS NOT NULL
-) AS [t1] ON [t].[Id] = CASE
-    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
+    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
+    FROM [Table] AS [t1]
+    WHERE [t1].[Exists] IS NOT NULL
+) AS [t0] ON [t].[Id] = CASE
+    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
-    SELECT [t4].[Id], [t4].[MaumarEntity11818_Exists], [t4].[MaumarEntity11818_Name]
-    FROM [Table] AS [t4]
-    INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
-    WHERE [t4].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t3] ON [t].[Id] = CASE
-    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
+    SELECT [t3].[Id], [t3].[MaumarEntity11818_Exists], [t3].[MaumarEntity11818_Name]
+    FROM [Table] AS [t3]
+    WHERE [t3].[MaumarEntity11818_Exists] IS NOT NULL
+) AS [t2] ON [t].[Id] = CASE
+    WHEN [t2].[MaumarEntity11818_Exists] IS NOT NULL THEN [t2].[Id]
 END
-GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
+GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]");
         }
 
         using (var context = contextFactory.CreateContext())
@@ -2943,25 +2943,23 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             Assert.Null(query);
 
             AssertSql(
-                @"SELECT TOP(1) [t1].[AnotherEntity11818_Name] AS [MyKey], [t3].[MaumarEntity11818_Name] AS [cnt]
+                @"SELECT TOP(1) [t0].[AnotherEntity11818_Name] AS [MyKey], [t2].[MaumarEntity11818_Name] AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
-    FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
-    WHERE [t0].[Exists] IS NOT NULL
-) AS [t1] ON [t].[Id] = CASE
-    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
+    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
+    FROM [Table] AS [t1]
+    WHERE [t1].[Exists] IS NOT NULL
+) AS [t0] ON [t].[Id] = CASE
+    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
-    SELECT [t4].[Id], [t4].[MaumarEntity11818_Exists], [t4].[MaumarEntity11818_Name]
-    FROM [Table] AS [t4]
-    INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
-    WHERE [t4].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t3] ON [t].[Id] = CASE
-    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
+    SELECT [t3].[Id], [t3].[MaumarEntity11818_Exists], [t3].[MaumarEntity11818_Name]
+    FROM [Table] AS [t3]
+    WHERE [t3].[MaumarEntity11818_Exists] IS NOT NULL
+) AS [t2] ON [t].[Id] = CASE
+    WHEN [t2].[MaumarEntity11818_Exists] IS NOT NULL THEN [t2].[Id]
 END
-GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
+GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]");
         }
     }
 
@@ -3587,7 +3585,8 @@ FROM [Prices] AS [p]");
             AddRange(
                 new Employee13025
                 {
-                    Name = "Test1", Devices = new List<EmployeeDevice13025> { new() { DeviceId = 1, Device = "Battery" } }
+                    Name = "Test1",
+                    Devices = new List<EmployeeDevice13025> { new() { DeviceId = 1, Device = "Battery" } }
                 });
 
             SaveChanges();
@@ -3985,12 +3984,11 @@ ORDER BY [p].[Id]");
             AssertSql(
                 @"@p0='BaseEntity13079' (Nullable = false) (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [BaseEntities] ([Discriminator])
-VALUES (@p0);
-SELECT [Id]
-FROM [BaseEntities]
-WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
+OUTPUT INSERTED.[Id]
+VALUES (@p0);");
         }
     }
 
@@ -8494,7 +8492,8 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]");
             Add(
                 new SecondOwner23211
                 {
-                    Dependents = new List<SecondDependent23211> { new(), new() }, Owned = new OwnedType23211 { Value = "A" }
+                    Dependents = new List<SecondDependent23211> { new(), new() },
+                    Owned = new OwnedType23211 { Value = "A" }
                 });
 
             SaveChanges();
@@ -8689,7 +8688,8 @@ WHERE [l].[Name] = N'My Location'");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y, Right = x.right
+                                Left = y,
+                                Right = x.right
                             })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
@@ -8731,7 +8731,8 @@ WHERE [a0].[Id] IS NULL");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y, Right = x.right
+                                Left = y,
+                                Right = x.right
                             })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
@@ -8773,7 +8774,8 @@ WHERE [a0].[Id] IS NULL");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y, Right = x.right
+                                Left = y,
+                                Right = x.right
                             }))
                 .ToList();
 
@@ -8813,7 +8815,8 @@ LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y, Right = x.right
+                                Left = y,
+                                Right = x.right
                             }))
                 .ToList();
 
@@ -9134,8 +9137,8 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
 @p2='String Value' (Size = 12) (DbType = Object)
 @p3='2020-01-01T00:00:00.0000000' (Nullable = true) (DbType = Object)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int, [_Position] [int]);
 MERGE [BaseEntities] USING (
 VALUES (@p0, 0),
 (@p1, 1),
@@ -9144,11 +9147,7 @@ VALUES (@p0, 0),
 WHEN NOT MATCHED THEN
 INSERT ([Value])
 VALUES (i.[Value])
-OUTPUT INSERTED.[Id], i._Position
-INTO @inserted0;
-
-SELECT [i].[Id] FROM @inserted0 i
-ORDER BY [i].[_Position];");
+OUTPUT INSERTED.[Id], i._Position;");
         }
     }
 
@@ -10153,7 +10152,8 @@ ORDER BY [t].[Id]");
                         .Select(
                             c => new CollectionViewModel25225
                             {
-                                Id = c.Id, ParentId = c.ParentId,
+                                Id = c.Id,
+                                ParentId = c.ParentId,
                             })
                         .ToArray()
                 });

@@ -288,7 +288,12 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
         set => SetName(value, ConfigurationSource.Explicit);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual string? GetName(in StoreObjectIdentifier storeObject)
     {
         if (storeObject.StoreObjectType != StoreObjectType.Table)
@@ -296,15 +301,55 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
             return null;
         }
 
-        foreach (var containingType in EntityType.GetDerivedTypesInclusive())
+        if (EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
         {
-            if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+            foreach (var containingType in EntityType.GetDerivedTypesInclusive())
             {
-                return _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject);
+                if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                {
+                    return _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject);
+                }
             }
+
+            return null;
         }
 
-        return null;
+        var declaringStoreObject = StoreObjectIdentifier.Create(EntityType, storeObject.StoreObjectType);
+        if (declaringStoreObject == null)
+        {
+            var tableFound = false;
+            var queue = new Queue<IReadOnlyEntityType>();
+            queue.Enqueue(EntityType);
+            while (queue.Count > 0 && !tableFound)
+            {
+                foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
+                {
+                    declaringStoreObject = StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType);
+                    if (declaringStoreObject == null)
+                    {
+                        queue.Enqueue(containingType);
+                        continue;
+                    }
+
+                    if (declaringStoreObject == storeObject)
+                    {
+                        tableFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!tableFound)
+            {
+                return null;
+            }
+        }
+        else if (declaringStoreObject != storeObject)
+        {
+            return null;
+        }
+
+        return _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject);
     }
 
     /// <summary>

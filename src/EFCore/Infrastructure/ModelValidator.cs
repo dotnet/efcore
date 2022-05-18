@@ -807,7 +807,7 @@ public class ModelValidator : IModelValidator
             foreach (var propertyBase in properties)
             {
                 if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: true,
+                        forMaterialization: true,
                         forSet: true,
                         memberInfo: out _,
                         errorMessage: out var errorMessage))
@@ -816,7 +816,7 @@ public class ModelValidator : IModelValidator
                 }
 
                 if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: false,
+                        forMaterialization: false,
                         forSet: true,
                         memberInfo: out _,
                         errorMessage: out errorMessage))
@@ -825,7 +825,7 @@ public class ModelValidator : IModelValidator
                 }
 
                 if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: false,
+                        forMaterialization: false,
                         forSet: false,
                         memberInfo: out _,
                         errorMessage: out errorMessage))
@@ -867,6 +867,24 @@ public class ModelValidator : IModelValidator
                     || property.IsUniqueIndex())
                 {
                     _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
+                }
+                
+                var providerComparer = property.GetProviderValueComparer();
+                if (providerComparer == null)
+                {
+                    continue;
+                }
+
+                var typeMapping = property.GetTypeMapping();
+                var actualProviderClrType = (typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType).UnwrapNullableType();
+
+                if (providerComparer.Type.UnwrapNullableType() != actualProviderClrType)
+                {
+                    throw new InvalidOperationException(CoreStrings.ComparerPropertyMismatch(
+                        providerComparer.Type.ShortDisplayName(),
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        actualProviderClrType.ShortDisplayName()));
                 }
             }
         }

@@ -20,24 +20,26 @@ public readonly record struct ModificationCommandParameters
     /// <summary>
     ///     Creates a new <see cref="ModificationCommandParameters" /> instance.
     /// </summary>
-    /// <param name="tableName">The name of the table containing the data to be modified.</param>
-    /// <param name="schemaName">The schema containing the table, or <see langword="null" /> to use the default schema.</param>
+    /// <param name="table">The table containing the data to be modified.</param>
     /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+    /// <param name="detailedErrorsEnabled">Indicates whether detailed errors should be logged.</param>
     /// <param name="comparer">An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />.</param>
     /// <param name="generateParameterName">A delegate to generate parameter names.</param>
     /// <param name="logger">An <see cref="IDiagnosticsLogger{TLoggerCategory}" /> for <see cref="DbLoggerCategory.Update" />.</param>
     public ModificationCommandParameters(
-        string tableName,
-        string? schemaName,
+        ITable table,
         bool sensitiveLoggingEnabled,
+        bool detailedErrorsEnabled = false,
         IComparer<IUpdateEntry>? comparer = null,
         Func<string>? generateParameterName = null,
         IDiagnosticsLogger<DbLoggerCategory.Update>? logger = null)
     {
-        TableName = tableName;
-        Schema = schemaName;
+        Table = table;
+        TableName = table.Name;
+        Schema = table.Schema;
         GenerateParameterName = generateParameterName;
         SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+        DetailedErrorsEnabled = detailedErrorsEnabled;
         Comparer = comparer;
         Logger = logger;
     }
@@ -53,6 +55,11 @@ public readonly record struct ModificationCommandParameters
     public string? Schema { get; init; }
 
     /// <summary>
+    ///     The table containing the data to be modified.
+    /// </summary>
+    public ITable? Table { get; init; }
+
+    /// <summary>
     ///     A delegate to generate parameter names.
     /// </summary>
     public Func<string>? GenerateParameterName { get; init; }
@@ -61,6 +68,11 @@ public readonly record struct ModificationCommandParameters
     ///     Indicates whether potentially sensitive data (e.g. database values) can be logged.
     /// </summary>
     public bool SensitiveLoggingEnabled { get; init; }
+
+    /// <summary>
+    ///     Indicates whether detailed errors should be logged.
+    /// </summary>
+    public bool DetailedErrorsEnabled { get; init; }
 
     /// <summary>
     ///     An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />.

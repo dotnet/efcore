@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -26,11 +29,15 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlServer(), injectedInterceptors);
     }
 
+    protected override DbContextOptionsBuilder ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer();
+
     protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
         => new(optionsBuilder.UseSqlServer(new FakeDbConnection()).Options);
 
     public class FakeDbConnection : DbConnection
     {
+        [AllowNull]
         public override string ConnectionString { get; set; }
 
         public override string Database

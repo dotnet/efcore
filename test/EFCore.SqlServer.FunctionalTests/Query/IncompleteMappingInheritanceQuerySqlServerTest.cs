@@ -21,6 +21,10 @@ public class IncompleteMappingInheritanceQuerySqlServerTest : InheritanceRelatio
     }
 
     [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    [ConditionalFact]
     public virtual void Common_property_shares_column()
     {
         using var context = CreateContext();
@@ -404,8 +408,8 @@ WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Animals] SET [EagleId] = @p0
-WHERE [Species] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p1;",
             //
             @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
@@ -416,8 +420,8 @@ WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Animals]
-WHERE [Species] = @p0;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p0;",
             //
             @"SELECT COUNT(*)
 FROM [Animals] AS [a]
@@ -571,6 +575,85 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')");
             @"SELECT [a].[Name]
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')");
+    }
+
+    public override async Task Can_use_backwards_is_animal(bool async)
+    {
+        await base.Can_use_backwards_is_animal(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'");
+    }
+
+    public override async Task Can_use_backwards_of_type_animal(bool async)
+    {
+        await base.Can_use_backwards_of_type_animal(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'");
+    }
+
+    public override async Task Discriminator_with_cast_in_shadow_property(bool async)
+    {
+        await base.Discriminator_with_cast_in_shadow_property(async);
+
+        AssertSql(
+            @"SELECT [a].[EagleId] AS [Predator]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND N'Kiwi' = [a].[Discriminator]");
+    }
+
+    public override void Setting_foreign_key_to_a_different_type_throws()
+    {
+        base.Setting_foreign_key_to_a_different_type_throws();
+
+        AssertSql(
+            @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'",
+            //
+            @"@p0='Haliaeetus leucocephalus' (Nullable = false) (Size = 100)
+@p1='0'
+@p2='Eagle' (Nullable = false) (Size = 4000)
+@p3='Apteryx haastii' (Size = 100)
+@p4='1' (Nullable = true)
+@p5='False' (Nullable = true)
+@p6='Bald eagle' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Animals] ([Species], [CountryId], [Discriminator], [EagleId], [Group], [IsFlightless], [Name])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
+    }
+    public override async Task Using_is_operator_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'");
+    }
+
+    public override async Task Using_is_operator_with_of_type_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_is_operator_with_of_type_on_multiple_type_with_no_result(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'");
+    }
+
+    public override async Task Using_OfType_on_multiple_type_with_no_result(bool async)
+    {
+        await base.Using_OfType_on_multiple_type_with_no_result(async);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

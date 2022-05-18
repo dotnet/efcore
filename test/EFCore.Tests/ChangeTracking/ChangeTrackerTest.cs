@@ -2016,27 +2016,70 @@ public class ChangeTrackerTest
         }
     }
 
-        [ConditionalTheory] // Issues #16546 #25360; Change reverted in #27174.
-    [InlineData(false, false, false, true, false)]
-    [InlineData(true, false, false, true, false)]
-    [InlineData(false, true, false, true, false)]
-    [InlineData(true, true, false, true, false)]
-    [InlineData(false, false, true, true, false)]
-    [InlineData(true, false, true, true, false)]
-    [InlineData(false, true, false, false, true)]
-    [InlineData(true, true, false, false, true)]
-    [InlineData(false, false, true, false, true)]
-    [InlineData(true, false, true, false, true)]
-    [InlineData(false, true, false, true, true)]
-    [InlineData(true, true, false, true, true)]
-    [InlineData(false, false, true, true, true)]
-    [InlineData(true, false, true, true, true)]
-    public void Optional_relationship_with_cascade_still_cascades(
-        bool delayCascade,
+    [ConditionalTheory] // Issues #16546 #25360; Change reverted in #27174.
+    [InlineData(null, false, false, true, false, false)]
+    [InlineData(null, true, false, true, false, false)]
+    [InlineData(null, false, true, true, false, false)]
+    [InlineData(null, true, false, false, true, false)]
+    [InlineData(null, false, true, false, true, false)]
+    [InlineData(null, true, false, true, true, false)]
+    [InlineData(null, false, true, true, true, false)]
+    [InlineData(CascadeTiming.Immediate, false, false, true, false, false)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, false, false)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, false, false)]
+    [InlineData(CascadeTiming.Immediate, true, false, false, true, false)]
+    [InlineData(CascadeTiming.Immediate, false, true, false, true, false)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, true, false)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, false)]
+    [InlineData(CascadeTiming.Never, false, false, true, false, false)]
+    [InlineData(CascadeTiming.Never, true, false, true, false, false)]
+    [InlineData(CascadeTiming.Never, false, true, true, false, false)]
+    [InlineData(CascadeTiming.Never, true, false, false, true, false)]
+    [InlineData(CascadeTiming.Never, false, true, false, true, false)]
+    [InlineData(CascadeTiming.Never, true, false, true, true, false)]
+    [InlineData(CascadeTiming.Never, false, true, true, true, false)]
+    [InlineData(null, false, false, true, false, true)]
+    [InlineData(null, true, false, true, false, true)]
+    [InlineData(null, false, true, true, false, true)]
+    [InlineData(null, true, false, false, true, true)]
+    [InlineData(null, false, true, false, true, true)]
+    [InlineData(null, true, false, true, true, true)]
+    [InlineData(null, false, true, true, true, true)]
+    [InlineData(CascadeTiming.Immediate, false, false, true, false, true)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, false, true)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, false, true)]
+    [InlineData(CascadeTiming.Immediate, true, false, false, true, true)]
+    [InlineData(CascadeTiming.Immediate, false, true, false, true, true)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, true, true)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, true)]
+    [InlineData(CascadeTiming.Never, false, false, true, false, true)]
+    [InlineData(CascadeTiming.Never, true, false, true, false, true)]
+    [InlineData(CascadeTiming.Never, false, true, true, false, true)]
+    [InlineData(CascadeTiming.Never, true, false, false, true, true)]
+    [InlineData(CascadeTiming.Never, false, true, false, true, true)]
+    [InlineData(CascadeTiming.Never, true, false, true, true, true)]
+    [InlineData(CascadeTiming.Never, false, true, true, true, true)]
+    public void Optional_relationship_with_cascade_does_not_delete_orphans(
+        CascadeTiming? orphanTiming,
         bool setProperty,
         bool setCurrentValue,
         bool useForeignKey,
-        bool useNavigation)
+        bool useNavigation,
+        bool forceCascade)
     {
         Kontainer detachedContainer;
         using (var context = new KontainerContext())
@@ -2076,9 +2119,9 @@ public class ChangeTrackerTest
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
 
-            if (delayCascade)
+            if (orphanTiming != null)
             {
-                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+                context.ChangeTracker.DeleteOrphansTiming = orphanTiming.Value;
             }
 
             if (setProperty)
@@ -2115,30 +2158,224 @@ public class ChangeTrackerTest
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
 
-                if (delayCascade
-                    || (useForeignKey && setProperty))
+            if (forceCascade)
             {
-                Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
+                context.ChangeTracker.CascadeChanges();
+            }
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
+
+            context.SaveChanges();
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
+        }
+    }
+
+    [ConditionalTheory] // Issues #16546 #25360; Change reverted in #27174.
+    [InlineData(null, false, false, true, false, false)]
+    [InlineData(null, true, false, true, false, false)]
+    [InlineData(null, false, true, true, false, false)]
+    [InlineData(null, true, false, false, true, false)]
+    [InlineData(null, false, true, false, true, false)]
+    [InlineData(null, true, false, true, true, false)]
+    [InlineData(null, false, true, true, true, false)]
+    [InlineData(CascadeTiming.Immediate, false, false, true, false, false)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, false, false)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, false, false)]
+    [InlineData(CascadeTiming.Immediate, true, false, false, true, false)]
+    [InlineData(CascadeTiming.Immediate, false, true, false, true, false)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, true, false)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, false)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, false)]
+    [InlineData(CascadeTiming.Never, false, false, true, false, false)]
+    [InlineData(CascadeTiming.Never, true, false, true, false, false)]
+    [InlineData(CascadeTiming.Never, false, true, true, false, false)]
+    [InlineData(CascadeTiming.Never, true, false, false, true, false)]
+    [InlineData(CascadeTiming.Never, false, true, false, true, false)]
+    [InlineData(CascadeTiming.Never, true, false, true, true, false)]
+    [InlineData(CascadeTiming.Never, false, true, true, true, false)]
+    [InlineData(null, false, false, true, false, true)]
+    [InlineData(null, true, false, true, false, true)]
+    [InlineData(null, false, true, true, false, true)]
+    [InlineData(null, true, false, false, true, true)]
+    [InlineData(null, false, true, false, true, true)]
+    [InlineData(null, true, false, true, true, true)]
+    [InlineData(null, false, true, true, true, true)]
+    [InlineData(CascadeTiming.Immediate, false, false, true, false, true)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, false, true)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, false, true)]
+    [InlineData(CascadeTiming.Immediate, true, false, false, true, true)]
+    [InlineData(CascadeTiming.Immediate, false, true, false, true, true)]
+    [InlineData(CascadeTiming.Immediate, true, false, true, true, true)]
+    [InlineData(CascadeTiming.Immediate, false, true, true, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, false, true, false, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, false, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, false, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, false, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, false, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, true, false, true, true, true)]
+    [InlineData(CascadeTiming.OnSaveChanges, false, true, true, true, true)]
+    [InlineData(CascadeTiming.Never, false, false, true, false, true)]
+    [InlineData(CascadeTiming.Never, true, false, true, false, true)]
+    [InlineData(CascadeTiming.Never, false, true, true, false, true)]
+    [InlineData(CascadeTiming.Never, true, false, false, true, true)]
+    [InlineData(CascadeTiming.Never, false, true, false, true, true)]
+    [InlineData(CascadeTiming.Never, true, false, true, true, true)]
+    [InlineData(CascadeTiming.Never, false, true, true, true, true)]
+    public void Optional_relationship_with_cascade_can_be_forced_to_delete_orphans(
+        CascadeTiming? orphanTiming,
+        bool setProperty,
+        bool setCurrentValue,
+        bool useForeignKey,
+        bool useNavigation,
+        bool forceCascade)
+    {
+        Kontainer detachedContainer;
+        using (var context = new KontainerContext())
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new Kontainer
+                {
+                    Name = "C1",
+                    Rooms = { new KontainerRoom { Number = 1, Troduct = new Troduct { Description = "Heavy Engine XT3" } } }
+                }
+            );
+
+            context.SaveChanges();
+
+            detachedContainer = context.Set<Kontainer>()
+                .Include(container => container.Rooms)
+                .ThenInclude(room => room.Troduct)
+                .AsNoTracking()
+                .Single();
+        }
+
+        using (var context = new KontainerContext())
+        {
+            var attachedContainer = context.Set<Kontainer>()
+                .Include(container => container.Rooms)
+                .ThenInclude(room => room.Troduct)
+                .Single();
+
+            var attachedRoom = attachedContainer.Rooms.Single();
+            var attachedTroduct = attachedRoom.Troduct;
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+
+            if (orphanTiming != null)
+            {
+                context.ChangeTracker.DeleteOrphansTiming = orphanTiming.Value;
+            }
+
+            if (setProperty)
+            {
+                if (useForeignKey)
+                {
+                    attachedRoom.TroductId = null;
+                }
+
+                if (useNavigation)
+                {
+                    attachedRoom.Troduct = null;
+                }
+            }
+            else if (setCurrentValue)
+            {
+                if (useForeignKey)
+                {
+                    context.Entry(attachedRoom).Property(e => e.TroductId).CurrentValue = null;
+                }
+
+                if (useNavigation)
+                {
+                    context.Entry(attachedRoom).Reference(e => e.Troduct).CurrentValue = null;
+                }
             }
             else
             {
-                // Deleted because FK with cascade has been set to null
-                Assert.Equal(EntityState.Deleted, context.Entry(attachedRoom).State);
+                var detachedRoom = detachedContainer.Rooms.Single();
+                detachedRoom.TroductId = null;
+                context.Entry(attachedRoom).CurrentValues.SetValues(detachedRoom);
             }
 
-            context.ChangeTracker.CascadeChanges();
+            context.Entry(attachedRoom).GetInfrastructure()
+                .HandleNullForeignKey(context.Entry(attachedRoom).Property(e => e.TroductId).Metadata);
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
 
+            if (orphanTiming == null
+                || orphanTiming == CascadeTiming.Immediate)
+            {
+                Assert.Equal(EntityState.Deleted, context.Entry(attachedRoom).State);
+            }
+            else
+            {
+                Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
+            }
 
+            if (forceCascade)
+            {
+                context.ChangeTracker.CascadeChanges();
+            }
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+
+            if (orphanTiming == null
+                || orphanTiming == CascadeTiming.Immediate
+                || forceCascade)
+            {
+                Assert.Equal(EntityState.Deleted, context.Entry(attachedRoom).State);
+            }
+            else
+            {
+                Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
+            }
+
+            if (orphanTiming == CascadeTiming.Never
+                && !forceCascade)
+            {
                 Assert.Equal(
-                    useForeignKey && setProperty ? EntityState.Modified : EntityState.Deleted,
-                    context.Entry(attachedRoom).State);
+                    CoreStrings.RelationshipConceptualNull(nameof(Troduct), nameof(KontainerRoom)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.SaveChanges()).Message);
 
-            context.SaveChanges();
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+                Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
+            }
+            else
+            {
+                context.SaveChanges();
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+                Assert.Equal(EntityState.Detached, context.Entry(attachedRoom).State);
+            }
         }
     }
 

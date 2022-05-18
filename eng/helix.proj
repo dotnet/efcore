@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <XUnitPublishTargetFramework>net6.0</XUnitPublishTargetFramework>
+    <XUnitPublishTargetFramework>net7.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.2-pre.9</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>

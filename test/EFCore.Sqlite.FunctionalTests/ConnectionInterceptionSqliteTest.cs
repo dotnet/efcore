@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
@@ -9,6 +11,9 @@ public abstract class ConnectionInterceptionSqliteTestBase : ConnectionIntercept
         : base(fixture)
     {
     }
+
+    protected override DbContextOptionsBuilder ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlite();
 
     protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
         => new(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);

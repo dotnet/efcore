@@ -16,6 +16,10 @@ public class TPTManyToManyNoTrackingQuerySqlServerTest : TPTManyToManyNoTracking
     protected override bool CanExecuteQueryString
         => true;
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Skip_navigation_all(bool async)
     {
         await base.Skip_navigation_all(async);
@@ -1638,6 +1642,71 @@ INNER JOIN (
     WHERE [e1].[Id] < 5
 ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 ORDER BY [e].[Id], [t].[Id]");
+    }
+
+    public override async Task Include_skip_navigation_then_include_inverse_throws_in_no_tracking(bool async)
+    {
+        await base.Include_skip_navigation_then_include_inverse_throws_in_no_tracking(async);
+
+        AssertSql();
+    }
+
+    public override async Task Include_skip_navigation_then_include_inverse_works_for_tracking_query(bool async)
+    {
+        await base.Include_skip_navigation_then_include_inverse_works_for_tracking_query(async);
+
+        AssertSql();
+    }
+
+    public override async Task Throws_when_different_filtered_include(bool async)
+    {
+        await base.Throws_when_different_filtered_include(async);
+
+        AssertSql();
+    }
+
+    public override async Task Throws_when_different_filtered_then_include(bool async)
+    {
+        await base.Throws_when_different_filtered_then_include(async);
+
+        AssertSql();
+    }
+
+    public override async Task Throws_when_different_filtered_then_include_via_different_paths(bool async)
+    {
+        await base.Throws_when_different_filtered_then_include_via_different_paths(async);
+
+        AssertSql();
+    }
+
+    public override async Task Select_many_over_skip_navigation_where_non_equality(bool async)
+    {
+        await base.Select_many_over_skip_navigation_where_non_equality(async);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
+FROM [EntityOnes] AS [e]
+LEFT JOIN (
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId]
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+) AS [t] ON [e].[Id] = [t].[OneId] AND [e].[Id] <> [t].[Id]");
+    }
+
+    public override async Task Contains_on_skip_collection_navigation(bool async)
+    {
+        await base.Contains_on_skip_collection_navigation(async);
+
+        AssertSql(
+            @"@__entity_equality_two_0_Id='1' (Nullable = true)
+
+SELECT [e].[Id], [e].[Name]
+FROM [EntityOnes] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+    WHERE [e].[Id] = [j].[OneId] AND [e0].[Id] = @__entity_equality_two_0_Id)");
     }
 
     private void AssertSql(params string[] expected)

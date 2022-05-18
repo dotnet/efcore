@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -15,7 +16,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 {
     private readonly int _minBatchSize;
     private readonly bool _sensitiveLoggingEnabled;
-    private readonly Multigraph<IReadOnlyModificationCommand, IAnnotatable> _modificationCommandGraph = new();
+    private readonly bool _detailedErrorsEnabled;
+    private readonly Multigraph<IReadOnlyModificationCommand, IAnnotatable> _modificationCommandGraph;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,12 +29,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         _minBatchSize =
             dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
-            ?? 4;
+            ?? 1;
+
+        _modificationCommandGraph = new(dependencies.ModificationCommandComparer);
         Dependencies = dependencies;
 
         if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
         {
             _sensitiveLoggingEnabled = true;
+        }
+
+        if (dependencies.LoggingOptions.DetailedErrorsEnabled)
+        {
+            _detailedErrorsEnabled = true;
         }
     }
 
@@ -56,16 +65,14 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         var parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
         var commands = CreateModificationCommands(entries, updateAdapter, parameterNameGenerator.GenerateNext);
-        var sortedCommandSets = TopologicalSort(commands);
+        var commandSets = TopologicalSort(commands);
 
-        for (var commandSetIndex = 0; commandSetIndex < sortedCommandSets.Count; commandSetIndex++)
+        for (var commandSetIndex = 0; commandSetIndex < commandSets.Count; commandSetIndex++)
         {
-            var independentCommandSet = sortedCommandSets[commandSetIndex];
-
-            independentCommandSet.Sort(Dependencies.ModificationCommandComparer);
+            var commandSet = commandSets[commandSetIndex];
 
             var batch = Dependencies.ModificationCommandBatchFactory.Create();
-            foreach (var modificationCommand in independentCommandSet)
+            foreach (var modificationCommand in commandSet)
             {
                 (modificationCommand as ModificationCommand)?.AssertColumnsNotInitialized();
                 if (modificationCommand.EntityState == EntityState.Modified
@@ -74,7 +81,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     continue;
                 }
 
-                if (!batch.AddCommand(modificationCommand))
+                if (!batch.TryAddCommand(modificationCommand))
                 {
                     if (batch.ModificationCommands.Count == 1
                         || batch.ModificationCommands.Count >= _minBatchSize)
@@ -107,7 +114,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 }
             }
 
-            var hasMoreCommandSets = commandSetIndex < sortedCommandSets.Count - 1;
+            var hasMoreCommandSets = commandSetIndex < commandSets.Count - 1;
 
             if (batch.ModificationCommands.Count == 1
                 || batch.ModificationCommands.Count >= _minBatchSize)
@@ -144,7 +151,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         parameterNameGenerator.Reset();
         var batch = Dependencies.ModificationCommandBatchFactory.Create();
-        batch.AddCommand(modificationCommand);
+        batch.TryAddCommand(modificationCommand);
         return batch;
     }
 
@@ -191,16 +198,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                     command = sharedCommandsMap.GetOrAddValue(
                         entry,
-                        (n, s, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(
+                        (t, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(
                             new ModificationCommandParameters(
-                                n, s, _sensitiveLoggingEnabled, comparer, generateParameterName, Dependencies.UpdateLogger)));
+                                t, _sensitiveLoggingEnabled, _detailedErrorsEnabled, comparer, generateParameterName,
+                                Dependencies.UpdateLogger)));
                     isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                 }
                 else
                 {
                     command = Dependencies.ModificationCommandFactory.CreateModificationCommand(
                         new ModificationCommandParameters(
-                            table.Name, table.Schema, _sensitiveLoggingEnabled, comparer: null, generateParameterName,
+                            table, _sensitiveLoggingEnabled, _detailedErrorsEnabled, comparer: null, generateParameterName,
                             Dependencies.UpdateLogger));
                 }
 
@@ -273,21 +281,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual IReadOnlyList<List<IReadOnlyModificationCommand>> TopologicalSort(
+    public virtual IReadOnlyList<List<IReadOnlyModificationCommand>> TopologicalSort(
         IEnumerable<IReadOnlyModificationCommand> commands)
     {
         _modificationCommandGraph.Clear();
         _modificationCommandGraph.AddVertices(commands);
 
-        // The predecessors map allows to populate the graph in linear time
-        var predecessorsMap = CreateKeyValuePredecessorMap(_modificationCommandGraph);
-        AddForeignKeyEdges(_modificationCommandGraph, predecessorsMap);
+        AddForeignKeyEdges(_modificationCommandGraph);
 
         AddUniqueValueEdges(_modificationCommandGraph);
 
         AddSameTableEdges(_modificationCommandGraph);
 
-        return _modificationCommandGraph.BatchingTopologicalSort(static (_, _, edges) => edges.All(e => e is IEntityType), FormatCycle);
+        return _modificationCommandGraph.BatchingTopologicalSort(static (_, _, edges) => edges.All(e => e is ITable), FormatCycle);
     }
 
     private string FormatCycle(
@@ -296,16 +302,22 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         var builder = new StringBuilder();
         for (var i = 0; i < data.Count; i++)
         {
-            var (command1, command2, annotatables) = data[i];
+            var (command1, command2, edges) = data[i];
             Format(command1, builder);
 
-            switch (annotatables.First())
+            switch (edges.First())
             {
-                case IForeignKey foreignKey:
+                case IForeignKeyConstraint foreignKey:
                     Format(foreignKey, command1, command2, builder);
                     break;
-                case IIndex index:
+                case IUniqueConstraint key:
+                    Format(key, command1, command2, builder);
+                    break;
+                case ITableIndex index:
                     Format(index, command1, command2, builder);
+                    break;
+                default:
+                    builder.AppendLine(" <-");
                     break;
             }
 
@@ -359,12 +371,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     }
 
     private void Format(
-        IForeignKey foreignKey,
+        IForeignKeyConstraint foreignKey,
         IReadOnlyModificationCommand source,
         IReadOnlyModificationCommand target,
         StringBuilder builder)
     {
-        var reverseDependency = !source.Entries.Any(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
+        var reverseDependency = source.Table != foreignKey.Table;
         if (reverseDependency)
         {
             builder.AppendLine(" <-");
@@ -374,54 +386,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             builder.Append(' ');
         }
 
-        if (foreignKey.DependentToPrincipal != null
-            || foreignKey.PrincipalToDependent != null)
-        {
-            if (!reverseDependency
-                && foreignKey.DependentToPrincipal != null)
-            {
-                builder.Append(foreignKey.DependentToPrincipal.Name);
-                builder.Append(' ');
-            }
+        builder.Append("ForeignKey { ");
 
-            if (foreignKey.PrincipalToDependent != null)
-            {
-                builder.Append(foreignKey.PrincipalToDependent.Name);
-                builder.Append(' ');
-            }
-
-            if (reverseDependency
-                && foreignKey.DependentToPrincipal != null)
-            {
-                builder.Append(foreignKey.DependentToPrincipal.Name);
-                builder.Append(' ');
-            }
-        }
-        else
-        {
-            builder.Append("ForeignKey ");
-        }
-
+        var rowForeignKeyValueFactory = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory();
         var dependentCommand = reverseDependency ? target : source;
-        var dependentEntry = dependentCommand.Entries.First(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
-        builder.Append("{ ");
-        for (var i = 0; i < foreignKey.Properties.Count; i++)
-        {
-            var property = foreignKey.Properties[i];
-            builder.Append('\'');
-            builder.Append(property.Name);
-            builder.Append('\'');
-            if (_sensitiveLoggingEnabled)
-            {
-                builder.Append(": ");
-                builder.Append(dependentEntry.GetCurrentValue(property));
-            }
-
-            if (i != foreignKey.Properties.Count - 1)
-            {
-                builder.Append(", ");
-            }
-        }
+        var values = rowForeignKeyValueFactory.CreateDependentKeyValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
+        FormatValues(values, foreignKey.Columns, dependentCommand, builder);
 
         builder.Append(" } ");
 
@@ -431,7 +401,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    private void Format(IIndex index, IReadOnlyModificationCommand source, IReadOnlyModificationCommand target, StringBuilder builder)
+    private void Format(IUniqueConstraint key, IReadOnlyModificationCommand source, IReadOnlyModificationCommand target, StringBuilder builder)
     {
         var reverseDependency = source.EntityState != EntityState.Deleted;
         if (reverseDependency)
@@ -443,28 +413,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             builder.Append(' ');
         }
 
-        builder.Append("Index ");
-
+        builder.Append("Key { ");
+        var rowForeignKeyValueFactory = ((UniqueConstraint)key).GetRowKeyValueFactory();
         var dependentCommand = reverseDependency ? target : source;
-        var dependentEntry = dependentCommand.Entries.First(e => index.DeclaringEntityType.IsAssignableFrom(e.EntityType));
-        builder.Append("{ ");
-        for (var i = 0; i < index.Properties.Count; i++)
-        {
-            var property = index.Properties[i];
-            builder.Append('\'');
-            builder.Append(property.Name);
-            builder.Append('\'');
-            if (_sensitiveLoggingEnabled)
-            {
-                builder.Append(": ");
-                builder.Append(dependentEntry.GetCurrentValue(property));
-            }
-
-            if (i != index.Properties.Count - 1)
-            {
-                builder.Append(", ");
-            }
-        }
+        var values = rowForeignKeyValueFactory.CreateKeyValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
+        FormatValues(values, key.Columns, dependentCommand, builder);
 
         builder.Append(" } ");
 
@@ -474,181 +427,226 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    // Builds a map from foreign key values to list of modification commands, with an entry for every command
-    // that may need to precede some other command involving that foreign key value.
-    private Dictionary<IKeyValueIndex, List<IReadOnlyModificationCommand>> CreateKeyValuePredecessorMap(
-        Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph)
+    private void Format(ITableIndex index, IReadOnlyModificationCommand source, IReadOnlyModificationCommand target, StringBuilder builder)
     {
-        var predecessorsMap = new Dictionary<IKeyValueIndex, List<IReadOnlyModificationCommand>>();
-        foreach (var command in commandGraph.Vertices)
+        var reverseDependency = source.EntityState != EntityState.Deleted;
+        if (reverseDependency)
         {
-            if (command.EntityState == EntityState.Modified
-                || command.EntityState == EntityState.Added)
-            {
-                // ReSharper disable once ForCanBeConvertedToForeach
-                for (var i = 0; i < command.Entries.Count; i++)
-                {
-                    var entry = command.Entries[i];
-                    foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
-                    {
-                        if (!IsMapped(foreignKey, command, principal: true)
-                            || !IsModified(foreignKey.PrincipalKey.Properties, entry))
-                        {
-                            continue;
-                        }
-
-                        var principalKeyValue = Dependencies.KeyValueIndexFactorySource
-                            .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                            .CreatePrincipalKeyValue(entry, foreignKey);
-
-                        if (principalKeyValue != null)
-                        {
-                            if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
-                            {
-                                predecessorCommands = new List<IReadOnlyModificationCommand>();
-                                predecessorsMap.Add(principalKeyValue, predecessorCommands);
-                            }
-
-                            predecessorCommands.Add(command);
-                        }
-                    }
-                }
-            }
-
-            if (command.EntityState == EntityState.Modified
-                || command.EntityState == EntityState.Deleted)
-            {
-                foreach (var entry in command.Entries)
-                {
-                    foreach (var foreignKey in entry.EntityType.GetForeignKeys())
-                    {
-                        if (!IsMapped(foreignKey, command, principal: false)
-                            || !IsModified(foreignKey.Properties, entry))
-                        {
-                            continue;
-                        }
-
-                        var dependentKeyValue = Dependencies.KeyValueIndexFactorySource
-                            .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                            .CreateDependentKeyValueFromOriginalValues(entry, foreignKey);
-
-                        if (dependentKeyValue != null)
-                        {
-                            if (!predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
-                            {
-                                predecessorCommands = new List<IReadOnlyModificationCommand>();
-                                predecessorsMap.Add(dependentKeyValue, predecessorCommands);
-                            }
-
-                            predecessorCommands.Add(command);
-                        }
-                    }
-                }
-            }
+            builder.AppendLine(" <-");
+        }
+        else
+        {
+            builder.Append(' ');
         }
 
-        return predecessorsMap;
+        builder.Append("Index { ");
+
+        var rowForeignKeyValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+        var dependentCommand = reverseDependency ? target : source;
+        var values = rowForeignKeyValueFactory.CreateValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
+        FormatValues(values, index.Columns, dependentCommand, builder);
+
+        builder.Append(" } ");
+
+        if (!reverseDependency)
+        {
+            builder.AppendLine("<-");
+        }
+    }
+
+    private void FormatValues(object[] values, IReadOnlyList<IColumn> columns, IReadOnlyModificationCommand dependentCommand, StringBuilder builder)
+    {
+        for (var i = 0; i < columns.Count; i++)
+        {
+            var column = columns[i];
+            builder.Append('\'');
+            builder.Append(column.Name);
+            builder.Append('\'');
+            if (_sensitiveLoggingEnabled)
+            {
+                builder.Append(": ");
+                builder.Append(values[i]);
+            }
+
+            if (i != columns.Count - 1)
+            {
+                builder.Append(", ");
+            }
+        }
     }
 
     private void AddForeignKeyEdges(
-        Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
-        Dictionary<IKeyValueIndex, List<IReadOnlyModificationCommand>> predecessorsMap)
+        Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph)
     {
+        var predecessorsMap = new Dictionary<object, List<IReadOnlyModificationCommand>>();
+        var originalPredecessorsMap = new Dictionary<object, List<IReadOnlyModificationCommand>>();
         foreach (var command in commandGraph.Vertices)
         {
-            switch (command.EntityState)
+            if (command.EntityState is EntityState.Modified or EntityState.Added)
             {
-                case EntityState.Modified:
-                case EntityState.Added:
-                    // ReSharper disable once ForCanBeConvertedToForeach
-                    for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
+                foreach (var foreignKey in command.Table!.ReferencingForeignKeyConstraints)
+                {
+                    if (!IsModified(foreignKey.PrincipalUniqueConstraint.Columns, command))
                     {
-                        var entry = command.Entries[entryIndex];
-                        foreach (var foreignKey in entry.EntityType.GetForeignKeys())
-                        {
-                            if (!IsMapped(foreignKey, command, principal: false)
-                                || !IsModified(foreignKey.Properties, entry))
-                            {
-                                continue;
-                            }
-
-                            var dependentKeyValue = Dependencies.KeyValueIndexFactorySource
-                                .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                                .CreateDependentKeyValue(entry, foreignKey);
-                            if (dependentKeyValue == null)
-                            {
-                                continue;
-                            }
-
-                            AddMatchingPredecessorEdge(
-                                predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey);
-                        }
+                        continue;
                     }
 
-                    break;
-                case EntityState.Deleted:
-                    // ReSharper disable once ForCanBeConvertedToForeach
-                    for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
-                    {
-                        var entry = command.Entries[entryIndex];
-                        foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
-                        {
-                            if (!IsMapped(foreignKey, command, principal: true))
-                            {
-                                continue;
-                            }
+                    var principalKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
+                        .CreatePrincipalValueIndex(command);
+                    Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
 
-                            var principalKeyValue = Dependencies.KeyValueIndexFactorySource
-                                .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
-                                .CreatePrincipalKeyValueFromOriginalValues(entry, foreignKey);
-                            if (principalKeyValue != null)
-                            {
-                                AddMatchingPredecessorEdge(
-                                    predecessorsMap, principalKeyValue, commandGraph, command, foreignKey);
-                            }
-                        }
+                    if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
+                    {
+                        predecessorCommands = new List<IReadOnlyModificationCommand>();
+                        predecessorsMap.Add(principalKeyValue, predecessorCommands);
                     }
 
-                    break;
+                    predecessorCommands.Add(command);
+                }
+            }
+
+            if (command.EntityState is EntityState.Modified or EntityState.Deleted)
+            {
+                foreach (var foreignKey in command.Table!.ForeignKeyConstraints)
+                {
+                    if (!IsModified(foreignKey.Columns, command))
+                    {
+                        continue;
+                    }
+
+                    var dependentKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
+                        .CreateDependentValueIndex(command, fromOriginalValues: true);
+                    if (dependentKeyValue != null)
+                    {
+                        if (!originalPredecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
+                        {
+                            predecessorCommands = new();
+                            originalPredecessorsMap.Add(dependentKeyValue, predecessorCommands);
+                        }
+
+                        predecessorCommands.Add(command);
+                    }
+                }
             }
         }
-    }
 
-    private static bool IsMapped(IForeignKey foreignKey, IReadOnlyModificationCommand command, bool principal)
-    {
-        foreach (var constraint in foreignKey.GetMappedConstraints())
+        foreach (var command in commandGraph.Vertices)
         {
-            if (principal)
+            if (command.EntityState is EntityState.Modified or EntityState.Added)
             {
-                if (constraint.PrincipalTable.Name == command.TableName
-                    && constraint.PrincipalTable.Schema == command.Schema)
+                foreach (var foreignKey in command.Table!.ForeignKeyConstraints)
                 {
-                    return true;
+                    if (!IsModified(foreignKey.Columns, command))
+                    {
+                        continue;
+                    }
+
+                    var dependentKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
+                        .CreateDependentValueIndex(command);
+
+                    if (dependentKeyValue is null || !predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
+                    {
+                        continue;
+                    }
+
+                    foreach (var predecessor in predecessorCommands)
+                    {
+                        if (predecessor != command)
+                        {
+                            // If we're adding/inserting a dependent where the principal key is being database-generated, then
+                            // the dependency edge represents a batching boundary: fetch the principal database-generated
+                            // property from the database in separate batch, in order to populate the dependent foreign key
+                            // property in the next.
+                            var requiresBatchingBoundary = false;
+
+                            for (var i = 0; i < foreignKey.PrincipalColumns.Count; i++)
+                            {
+                                for (var j = 0; j < predecessor.Entries.Count; j++)
+                                {
+                                    var entry = predecessor.Entries[j];
+
+                                    if (foreignKey.PrincipalColumns[i].FindColumnMapping(entry.EntityType) is IColumnMapping columnMapping
+                                        && entry.IsStoreGenerated(columnMapping.Property))
+                                    {
+                                        requiresBatchingBoundary = true;
+                                        goto AfterLoop;
+                                    }
+                                }
+                            }
+                            AfterLoop:
+                            
+                            commandGraph.AddEdge(predecessor, command, foreignKey, requiresBatchingBoundary);
+                        }
+                    }
                 }
             }
-            else
+
+            if (command.EntityState is EntityState.Modified or EntityState.Deleted)
             {
-                if (constraint.Table.Name == command.TableName
-                    && constraint.Table.Schema == command.Schema)
+                foreach (var foreignKey in command.Table!.ReferencingForeignKeyConstraints)
                 {
-                    return true;
+                    if (!IsModified(foreignKey.PrincipalUniqueConstraint.Columns, command))
+                    {
+                        continue;
+                    }
+
+                    var principalKeyValue = ((ForeignKeyConstraint)foreignKey).GetRowForeignKeyValueFactory()
+                        .CreatePrincipalValueIndex(command, fromOriginalValues: true);
+                    Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
+                    AddMatchingPredecessorEdge(
+                        originalPredecessorsMap, principalKeyValue, commandGraph, command, foreignKey);
                 }
             }
         }
-
-        return false;
     }
 
-    private static bool IsModified(IReadOnlyList<IProperty> properties, IUpdateEntry entry)
+    private static bool IsModified(IReadOnlyList<IColumn> columns, IReadOnlyModificationCommand command)
     {
-        if (entry.EntityState != EntityState.Modified)
+        if (command.EntityState != EntityState.Modified)
         {
             return true;
         }
 
-        foreach (var property in properties)
+        for (var columnIndex = 0; columnIndex < columns.Count; columnIndex++)
         {
-            if (entry.IsModified(property))
+            var column = columns[columnIndex];
+            object? originalValue = null;
+            object? currentValue = null;
+            ValueComparer? providerValueComparer = null;
+            for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
+            {
+                var entry = command.Entries[entryIndex];
+                var columnMapping = column.FindColumnMapping(entry.EntityType);
+                var property = columnMapping?.Property;
+                if (property != null
+                    && ((property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                         || (!property.IsPrimaryKey() && entry.EntityState != EntityState.Modified)))
+                {
+                    switch (entry.EntityState)
+                    {
+                        case EntityState.Added:
+                            currentValue = entry.GetCurrentProviderValue(property);
+                            break;
+                        case EntityState.Deleted:
+                        case EntityState.Unchanged:
+                            originalValue ??= entry.GetOriginalProviderValue(property);
+                            break;
+                        case EntityState.Modified:
+                            if (entry.IsModified(property))
+                            {
+                                return true;
+                            }
+
+                            originalValue ??= entry.GetOriginalProviderValue(property);
+                            break;
+                    }
+
+                    providerValueComparer = property.GetProviderValueComparer();
+                }
+            }
+
+            if (providerValueComparer != null
+                && !providerValueComparer.Equals(originalValue, currentValue))
             {
                 return true;
             }
@@ -662,7 +660,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         T keyValue,
         Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
         IReadOnlyModificationCommand command,
-        IAnnotatable edge)
+        IAnnotatable edgeAnnotatable)
         where T : notnull
     {
         if (predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))
@@ -671,7 +669,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             {
                 if (predecessor != command)
                 {
-                    commandGraph.AddEdge(predecessor, command, edge);
+                    commandGraph.AddEdge(predecessor, command, edgeAnnotatable);
                 }
             }
         }
@@ -679,72 +677,55 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
     private void AddUniqueValueEdges(Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph)
     {
-        Dictionary<IIndex, Dictionary<object[], IReadOnlyModificationCommand>>? indexPredecessorsMap = null;
-        var keyPredecessorsMap = new Dictionary<(IKey, IKeyValueIndex), List<IReadOnlyModificationCommand>>();
+        Dictionary<object, List<IReadOnlyModificationCommand>>? indexPredecessorsMap = null;
+        var keyPredecessorsMap = new Dictionary<object, List<IReadOnlyModificationCommand>>();
         foreach (var command in commandGraph.Vertices)
         {
-            if (command.EntityState != EntityState.Modified
-                && command.EntityState != EntityState.Deleted)
+            if (command.EntityState is EntityState.Added)
             {
                 continue;
             }
 
-            for (var entryIndex = 0; entryIndex < command.Entries.Count; entryIndex++)
+            foreach (var index in command.Table!.Indexes)
             {
-                var entry = command.Entries[entryIndex];
-                foreach (var index in entry.EntityType.GetIndexes())
-                {
-                    if (!index.IsUnique
-                        || !index.GetMappedTableIndexes().Any()
-                        || !IsModified(index.Properties, entry))
-                    {
-                        continue;
-                    }
-
-                    var valueFactory = index.GetNullableValueFactory<object[]>();
-                    if (valueFactory.TryCreateFromOriginalValues(entry, out var indexValue))
-                    {
-                        indexPredecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], IReadOnlyModificationCommand>>();
-                        if (!indexPredecessorsMap.TryGetValue(index, out var predecessorCommands))
-                        {
-                            predecessorCommands = new Dictionary<object[], IReadOnlyModificationCommand>(valueFactory.EqualityComparer);
-                            indexPredecessorsMap.Add(index, predecessorCommands);
-                        }
-
-                        if (!predecessorCommands.ContainsKey(indexValue))
-                        {
-                            predecessorCommands.Add(indexValue, command);
-                        }
-                    }
-                }
-
-                if (command.EntityState != EntityState.Deleted)
+                if (!index.IsUnique
+                    || !IsModified(index.Columns, command))
                 {
                     continue;
                 }
 
-                foreach (var key in entry.EntityType.GetKeys())
+                var indexValue = ((TableIndex)index).GetRowIndexValueFactory()
+                    .CreateValueIndex(command, fromOriginalValues: true);
+                if (indexValue != null)
                 {
-                    if (!key.GetMappedConstraints().Any())
+                    indexPredecessorsMap ??= new();
+                    if (!indexPredecessorsMap.TryGetValue(indexValue, out var predecessorCommands))
                     {
-                        continue;
+                        predecessorCommands = new();
+                        indexPredecessorsMap.Add(indexValue, predecessorCommands);
                     }
 
-                    var principalKeyValue = Dependencies.KeyValueIndexFactorySource
-                        .GetKeyValueIndexFactory(key)
-                        .CreatePrincipalKeyValue(entry, null);
-
-                    if (principalKeyValue != null)
-                    {
-                        if (!keyPredecessorsMap.TryGetValue((key, principalKeyValue), out var predecessorCommands))
-                        {
-                            predecessorCommands = new List<IReadOnlyModificationCommand>();
-                            keyPredecessorsMap.Add((key, principalKeyValue), predecessorCommands);
-                        }
-
-                        predecessorCommands.Add(command);
-                    }
+                    predecessorCommands.Add(command);
                 }
+            }
+
+            if (command.EntityState is not EntityState.Deleted)
+            {
+                continue;
+            }
+
+            foreach (var key in command.Table.UniqueConstraints)
+            {
+                var keyValue = ((UniqueConstraint)key).GetRowKeyValueFactory()
+                    .CreateValueIndex(command, fromOriginalValues: true);
+                Check.DebugAssert(keyValue != null, "null keyValue");
+                if (!keyPredecessorsMap.TryGetValue((key, keyValue), out var predecessorCommands))
+                {
+                    predecessorCommands = new List<IReadOnlyModificationCommand>();
+                    keyPredecessorsMap.Add((key, keyValue), predecessorCommands);
+                }
+
+                predecessorCommands.Add(command);
             }
         }
 
@@ -752,30 +733,25 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         {
             foreach (var command in commandGraph.Vertices)
             {
-                if (command.EntityState == EntityState.Deleted)
+                if (command.EntityState is EntityState.Deleted)
                 {
                     continue;
                 }
 
-                foreach (var entry in command.Entries)
+                foreach (var index in command.Table!.Indexes)
                 {
-                    foreach (var index in entry.EntityType.GetIndexes())
+                    if (!index.IsUnique
+                        || !IsModified(index.Columns, command))
                     {
-                        if (!index.IsUnique
-                            || !index.GetMappedTableIndexes().Any()
-                            || !IsModified(index.Properties, entry))
-                        {
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        var valueFactory = index.GetNullableValueFactory<object[]>();
-                        if (valueFactory.TryCreateFromCurrentValues(entry, out var indexValue)
-                            && indexPredecessorsMap.TryGetValue(index, out var predecessorCommands)
-                            && predecessorCommands.TryGetValue(indexValue, out var predecessor)
-                            && predecessor != command)
-                        {
-                            commandGraph.AddEdge(predecessor, command, index);
-                        }
+                    var indexValue = ((TableIndex)index).GetRowIndexValueFactory()
+                        .CreateValueIndex(command);
+                    if (indexValue != null)
+                    {
+                        AddMatchingPredecessorEdge(
+                            indexPredecessorsMap, indexValue, commandGraph, command, index);
                     }
                 }
             }
@@ -785,30 +761,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         {
             foreach (var command in commandGraph.Vertices)
             {
-                if (command.EntityState != EntityState.Added)
+                if (command.EntityState is not EntityState.Added)
                 {
                     continue;
                 }
 
-                foreach (var entry in command.Entries)
+                foreach (var key in command.Table!.UniqueConstraints)
                 {
-                    foreach (var key in entry.EntityType.GetKeys())
-                    {
-                        if (!key.GetMappedConstraints().Any())
-                        {
-                            continue;
-                        }
+                    var keyValue = ((UniqueConstraint)key).GetRowKeyValueFactory()
+                        .CreateValueIndex(command, fromOriginalValues: true);
+                    Check.DebugAssert(keyValue != null, "null keyValue");
 
-                        var principalKeyValue = Dependencies.KeyValueIndexFactorySource
-                            .GetKeyValueIndexFactory(key)
-                            .CreatePrincipalKeyValue(entry, null);
-
-                        if (principalKeyValue != null)
-                        {
-                            AddMatchingPredecessorEdge(
-                                keyPredecessorsMap, (key, principalKeyValue), commandGraph, command, key);
-                        }
-                    }
+                    AddMatchingPredecessorEdge(
+                        keyPredecessorsMap, keyValue, commandGraph, command, key);
                 }
             }
         }
@@ -846,13 +811,13 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         for (var i = 0; i < deletedCommands.List.Count - 1; i++)
                         {
                             var deleted = deletedCommands.List[i];
-                            modificationCommandGraph.AddEdge(deleted, lastDelete, deleted.Entries[0].EntityType);
+                            modificationCommandGraph.AddEdge(deleted, lastDelete, deleted.Table!);
                         }
 
                         deletedDictionary[table] = (deletedCommands.List, true);
                     }
 
-                    modificationCommandGraph.AddEdge(lastDelete, command, command.Entries[0].EntityType);
+                    modificationCommandGraph.AddEdge(lastDelete, command, command.Table!);
                 }
             }
         }

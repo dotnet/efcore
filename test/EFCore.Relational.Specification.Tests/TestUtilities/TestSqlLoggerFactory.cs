@@ -104,8 +104,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var sql = string.Join(
                 "," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""));
 
-            var newBaseLine = $@"            AssertSql(
-                {string.Join("," + indent + "//" + indent, SqlStatements.Take(20).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
+            var newBaseLine = $@"        AssertSql(
+            {string.Join("," + indent + "//" + indent, SqlStatements.Take(20).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
 
 ";
 
@@ -287,7 +287,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         indentBuilder.Append("    ");
                         var indent = indentBuilder.ToString();
                         var newBaseLine = $@"AssertSql(
-{indent}{string.Join(",\n" + indent + "//\n" + indent, SqlStatements.Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))})";
+{indent}{string.Join("," + Environment.NewLine + indent + "//" + Environment.NewLine + indent, SqlStatements.Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))})";
                         var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n' or '\r');
 
                         writer.Write(newBaseLine);

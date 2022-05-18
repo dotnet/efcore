@@ -242,6 +242,107 @@ public class RelationalCommandDiagnosticsLogger
 
     #endregion CommandCreated
 
+    #region CommandInitialized
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual DbCommand CommandInitialized(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbCommandMethod commandMethod,
+        DbContext? context,
+        Guid commandId,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource)
+    {
+        var definition = RelationalResources.LogCommandInitialized(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressCommandCreateExpiration = default;
+
+            definition.Log(this, commandMethod.ToString(), (int)duration.TotalMilliseconds);
+        }
+
+        if (NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressCommandCreateExpiration = default;
+
+            var eventData = BroadcastCommandInitialized(
+                connection.DbConnection,
+                command,
+                context,
+                commandMethod,
+                commandId,
+                connectionId,
+                async: false,
+                startTime,
+                duration,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled,
+                commandSource);
+
+            if (interceptor != null)
+            {
+                return interceptor.CommandInitialized(eventData, command);
+            }
+        }
+
+        return command;
+    }
+
+    private CommandEndEventData BroadcastCommandInitialized(
+        DbConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        bool async,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        EventDefinition<string, int> definition,
+        bool diagnosticSourceEnabled,
+        bool simpleLogEnabled,
+        CommandSource commandSource)
+    {
+        var eventData = new CommandEndEventData(
+            definition,
+            CommandInitialized,
+            connection,
+            command,
+            context,
+            executeMethod,
+            commandId,
+            connectionId,
+            async,
+            false,
+            startTime,
+            duration,
+            commandSource);
+
+        DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+        return eventData;
+
+        static string CommandInitialized(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, int>)definition;
+            var p = (CommandEndEventData)payload;
+            return d.GenerateMessage(p.ExecuteMethod.ToString(), (int)p.Duration.TotalMilliseconds);
+        }
+    }
+
+    #endregion CommandInitialized
+
     #region CommandExecuting
 
     /// <summary>
