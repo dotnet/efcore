@@ -51,6 +51,14 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [ConditionalFact]
+    public void Capitalize_DatabaseName()
+    {
+        var database = new DatabaseModel { DatabaseName = "northwind" };
+        var model = _factory.Create(database, new ModelReverseEngineerOptions { UseDatabaseNames = false });
+        Assert.Equal("Northwind", model.GetDatabaseName());
+    }
+
+    [ConditionalFact]
     public void Creates_entity_types()
     {
         var info = new DatabaseModel
@@ -130,6 +138,27 @@ public class RelationalScaffoldingModelFactoryTest
         var model = _factory.Create(info, new ModelReverseEngineerOptions());
         Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
     }
+
+    [ConditionalTheory]
+    [InlineData("PascalCase")]
+    [InlineData("camelCase")]
+    [InlineData("snake-case")]
+    [InlineData("MixedCASE")]
+    [InlineData("separated_by_underscores")]
+    [InlineData("PascalCase_withUnderscore")]
+    [InlineData("ALL_CAPS")]
+    [InlineData("numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999")]
+    [InlineData("We1!*~&%rdCh@r^act()0rs")]
+    public void Get_DatabaseName(string expectedValue)
+    {
+        var options = new ModelReverseEngineerOptions { UseDatabaseNames = true };
+
+        var database = new DatabaseModel { DatabaseName = expectedValue };
+        var model = _factory.Create(database, options);
+        Assert.Equal(expectedValue, model.GetDatabaseName());
+
+    }
+
 
     [ConditionalFact]
     public void Loads_column_types()

@@ -166,7 +166,10 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
         if (!string.IsNullOrEmpty(databaseModel.DatabaseName))
         {
-            modelBuilder.Model.SetDatabaseName(databaseModel.DatabaseName);
+            modelBuilder.Model.SetDatabaseName(
+                            !_options.UseDatabaseNames && !string.IsNullOrEmpty(databaseModel.DatabaseName)
+                    ? _candidateNamingService.GenerateCandidateIdentifier(databaseModel.DatabaseName)
+                        : databaseModel.DatabaseName);
         }
 
         if (!string.IsNullOrEmpty(databaseModel.Collation))
