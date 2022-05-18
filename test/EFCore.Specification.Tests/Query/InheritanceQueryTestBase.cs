@@ -505,6 +505,52 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 ss => ss.Set<Animal>().OfType<Eagle>().OfType<Kiwi>(),
                 elementSorter: e => e.Name));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_abstract_base_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => e.GetType() == typeof(Animal)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_intermediate_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => e.GetType() == typeof(Bird)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_leaf_type_with_sibling(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => e.GetType() == typeof(Eagle)),
+            entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_leaf_type_with_sibling2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => e.GetType() == typeof(Kiwi)),
+            entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => typeof(Kiwi) == e.GetType()),
+            entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Animal>().Where(e => typeof(Kiwi) != e.GetType()),
+            entryCount: 1);
+
     protected InheritanceContext CreateContext()
         => Fixture.CreateContext();
 

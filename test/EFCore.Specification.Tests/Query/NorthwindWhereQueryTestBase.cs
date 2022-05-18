@@ -478,7 +478,8 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
 
     [ConditionalTheory]
-    [InlineData(false)] public virtual Task Where_bitwise_xor(bool async)
+    [InlineData(false)]
+    public virtual Task Where_bitwise_xor(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => (c.CustomerID == "ALFKI") ^ true),
@@ -1065,7 +1066,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss =>
                 from c in ss.Set<Customer>()
                 from e in ss.Set<Employee>()
-                // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                 where (c.City == "London" && c.Country == "UK")
                     && (e.City == "London" && e.Country == "UK")
@@ -2402,4 +2403,34 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(c => EF.Functions.Like(c.CustomerID, "F%") || c.City == "Seattle"),
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") || c.City == "Seattle"),
             entryCount: 9);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_on_non_hierarchy1(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.GetType() == typeof(Customer)),
+            entryCount: 91);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_on_non_hierarchy2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.GetType() != typeof(Customer)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_on_non_hierarchy3(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.GetType() == typeof(Order)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_on_non_hierarchy4(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.GetType() != typeof(Order)),
+            entryCount: 91);
 }

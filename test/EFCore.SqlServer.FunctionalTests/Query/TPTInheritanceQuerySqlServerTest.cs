@@ -660,6 +660,7 @@ INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]");
 
         AssertSql();
     }
+
     public override async Task Using_is_operator_on_multiple_type_with_no_result(bool async)
     {
         await base.Using_is_operator_on_multiple_type_with_no_result(async);
@@ -696,6 +697,102 @@ WHERE [k].[Species] IS NOT NULL AND [e].[Species] IS NOT NULL");
         await base.Using_OfType_on_multiple_type_with_no_result(async);
 
         AssertSql();
+    }
+
+    public override async Task GetType_in_hierarchy_in_abstract_base_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_abstract_base_type(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE 0 = 1");
+    }
+
+    public override async Task GetType_in_hierarchy_in_intermediate_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_intermediate_type(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE 0 = 1");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [e].[Species] IS NOT NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [k].[Species] IS NOT NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [k].[Species] IS NOT NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(async);
+
+        AssertSql(
+            @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+    WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+    WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+WHERE [k].[Species] IS NULL");
     }
 
     private void AssertSql(params string[] expected)

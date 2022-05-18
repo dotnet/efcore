@@ -438,6 +438,66 @@ FROM root c
 WHERE c[""Discriminator""] IN (""Eagle"", ""Kiwi"")");
     }
 
+    public override async Task GetType_in_hierarchy_in_abstract_base_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_abstract_base_type(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND false)");
+    }
+
+    public override async Task GetType_in_hierarchy_in_intermediate_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_intermediate_type(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND false)");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] = ""Eagle""))");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] = ""Kiwi""))");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] = ""Kiwi""))");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(async);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] != ""Kiwi""))");
+    }
+
     protected override bool EnforcesFkConstraints
         => false;
 

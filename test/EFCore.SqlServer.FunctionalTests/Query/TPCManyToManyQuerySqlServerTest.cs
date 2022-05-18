@@ -1765,6 +1765,49 @@ WHERE EXISTS (
     WHERE [e].[Id] = [j].[OneId] AND [e0].[Id] = @__entity_equality_two_0_Id)");
     }
 
+    public override async Task GetType_in_hierarchy_in_base_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_base_type(async);
+
+        AssertSql(
+            @"SELECT [r].[Id], [r].[Name], NULL AS [Number], NULL AS [IsGreen], N'EntityRoot' AS [Discriminator]
+FROM [Roots] AS [r]");
+    }
+
+    public override async Task GetType_in_hierarchy_in_intermediate_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_intermediate_type(async);
+
+        AssertSql(
+            @"SELECT [b].[Id], [b].[Name], [b].[Number], NULL AS [IsGreen], N'EntityBranch' AS [Discriminator]
+FROM [Branches] AS [b]");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type(async);
+
+        AssertSql(
+            @"SELECT [l].[Id], [l].[Name], [l].[Number], [l].[IsGreen], N'EntityLeaf' AS [Discriminator]
+FROM [Leaves] AS [l]");
+    }
+
+    public override async Task GetType_in_hierarchy_in_querying_base_type(bool async)
+    {
+        await base.GetType_in_hierarchy_in_querying_base_type(async);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator]
+FROM (
+    SELECT [b].[Id], [b].[Name], [b].[Number], NULL AS [IsGreen], N'EntityBranch' AS [Discriminator]
+    FROM [Branches] AS [b]
+    UNION ALL
+    SELECT [l].[Id], [l].[Name], [l].[Number], [l].[IsGreen], N'EntityLeaf' AS [Discriminator]
+    FROM [Leaves] AS [l]
+) AS [t]
+WHERE 0 = 1");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

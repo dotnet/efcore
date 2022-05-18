@@ -725,6 +725,38 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
             entryCount: 11);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_base_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityRoot>().Where(e => e.GetType() == typeof(EntityRoot)),
+            entryCount: 10);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_intermediate_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityRoot>().Where(e => e.GetType() == typeof(EntityBranch)),
+            entryCount: 6);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_leaf_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityRoot>().Where(e => e.GetType() == typeof(EntityLeaf)),
+            entryCount: 4);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GetType_in_hierarchy_in_querying_base_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityBranch>().Where(e => e.GetType() == typeof(EntityRoot)),
+            entryCount: 0);
+
     // When adding include test here always add a tracking version and a split version in relational layer.
     // Keep this line at the bottom for next dev writing tests to see.
 

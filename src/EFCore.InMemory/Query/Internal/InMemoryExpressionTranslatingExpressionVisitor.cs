@@ -64,6 +64,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo InMemoryLikeMethodInfo =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InMemoryLike))!;
 
+    private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(object.GetType))!;
+
     // Regex special chars defined here:
     // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
     private static readonly char[] RegexSpecialChars
@@ -205,6 +207,22 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
         }
 
+        if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual
+            && binaryExpression.Left.Type == typeof(Type))
+        {
+            if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
+                && IsTypeConstant(binaryExpression.Right, out var type1))
+            {
+                return ProcessGetType(entityReference1!, type1!, binaryExpression.NodeType == ExpressionType.Equal);
+            }
+
+            if (IsGetTypeMethodCall(binaryExpression.Right, out var entityReference2)
+                && IsTypeConstant(binaryExpression.Left, out var type2))
+            {
+                return ProcessGetType(entityReference2!, type2!, binaryExpression.NodeType == ExpressionType.Equal);
+            }
+        }
+
         var newLeft = Visit(binaryExpression.Left);
         var newRight = Visit(binaryExpression.Right);
 
@@ -317,6 +335,75 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             binaryExpression.IsLiftedToNull,
             binaryExpression.Method,
             binaryExpression.Conversion);
+
+        Expression ProcessGetType(EntityReferenceExpression entityReferenceExpression, Type comparisonType, bool match)
+        {
+            var entityType = entityReferenceExpression.EntityType;
+
+            if (entityType.BaseType == null
+                && !entityType.GetDirectlyDerivedTypes().Any())
+            {
+                // No hierarchy
+                return Expression.Constant((entityType.ClrType == comparisonType) == match);
+            }
+            if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
+            {
+                // EntitySet will never contain a type of base type
+                return Expression.Constant(!match);
+            }
+
+            var derivedType = entityType.GetDerivedTypesInclusive().SingleOrDefault(et => et.ClrType == comparisonType);
+            // If no derived type matches then fail the translation
+            if (derivedType != null)
+            {
+                // If the derived type is abstract type then predicate will always be false
+                if (derivedType.IsAbstract())
+                {
+                    return Expression.Constant(!match);
+                }
+
+                // Or add predicate for matching that particular type discriminator value
+                // All hierarchies have discriminator property
+                var discriminatorProperty = entityType.FindDiscriminatorProperty()!;
+                var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
+                // KeyValueComparer is not null at runtime
+                var valueComparer = discriminatorProperty.GetKeyValueComparer();
+
+                var result = valueComparer.ExtractEqualsBody(
+                    boundProperty!,
+                    Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
+
+                return match ? result : Expression.Not(result);
+            }
+
+            return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        bool IsGetTypeMethodCall(Expression expression, out EntityReferenceExpression? entityReferenceExpression)
+        {
+            entityReferenceExpression = null;
+            if (expression is not MethodCallExpression methodCallExpression
+                || methodCallExpression.Method != GetTypeMethodInfo)
+            {
+                return false;
+            }
+
+            entityReferenceExpression = Visit(methodCallExpression.Object) as EntityReferenceExpression;
+            return entityReferenceExpression != null;
+        }
+
+        static bool IsTypeConstant(Expression expression, out Type? type)
+        {
+            type = null;
+            if (expression is not UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+                || unaryExpression.Operand is not ConstantExpression constantExpression)
+            {
+                return false;
+            }
+
+            type = constantExpression.Value as Type;
+            return type != null;
+        }
     }
 
     /// <summary>
