@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys can only be set using 'HasKey' in 'OnModelCreating'.
+        ///     The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys configured by placing the [PrimaryKey] attribute on the entity type class, or by using 'HasKey' in 'OnModelCreating'.
         /// </summary>
         public static string CompositePKWithDataAnnotation(object? entityType)
             => string.Format(
@@ -461,6 +461,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ConflictingForeignKeyAttributes", nameof(propertyList), nameof(entityType), nameof(principalEntityType)),
                 propertyList, entityType, principalEntityType);
+
+        /// <summary>
+        ///     The entity type '{entity}' has both [Keyless] and [PrimaryKey] attributes; one must be removed.
+        /// </summary>
+        public static string ConflictingKeylessAndPrimaryKeyAttributes(object? entity)
+            => string.Format(
+                GetString("ConflictingKeylessAndPrimaryKeyAttributes", nameof(entity)),
+                entity);
 
         /// <summary>
         ///     The property or navigation '{member}' cannot be added to the entity type '{entityType}' because a property or navigation with the same name already exists on entity type '{conflictingEntityType}'.
@@ -571,12 +579,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string DeleteBehaviorAttributeNotOnNavigationProperty
             => GetString("DeleteBehaviorAttributeNotOnNavigationProperty");
-        
-        /// <summary>
-        ///     The [DeleteBehavior] attribute may only be specified on dependent side of the relationship.
-        /// </summary>
-        public static string DeleteBehaviorAttributeOnPrincipalProperty
-            => GetString("DeleteBehaviorAttributeOnPrincipalProperty");
         
         /// <summary>
         ///     You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key on '{entityType}'. The foreign key must be defined on a type that is part of the relationship.
@@ -2002,6 +2004,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 referencingEntityTypeOrNavigation, referencedEntityTypeOrNavigation, ownedType);
 
         /// <summary>
+        ///     The derived type '{derivedType}' cannot have the [PrimaryKey] attribute since primary keys may only be declared on the root type. Move the attribute to '{rootType}', or remove '{rootType}' from the model by using [NotMapped] attribute or calling 'EntityTypeBuilder.Ignore' on the base type in 'OnModelCreating'.
+        /// </summary>
+        public static string PrimaryKeyAttributeOnDerivedEntity(object? derivedType, object? rootType)
+            => string.Format(
+                GetString("PrimaryKeyAttributeOnDerivedEntity", nameof(derivedType), nameof(rootType)),
+                derivedType, rootType);
+
+        /// <summary>
+        ///     The [PrimaryKey] attribute on the entity type '{entityType}' is invalid because the property '{propertyName}' was marked as unmapped by [NotMapped] attribute or 'Ignore()' in 'OnModelCreating'. A primary key cannot use unmapped properties.
+        /// </summary>
+        public static string PrimaryKeyDefinedOnIgnoredProperty(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("PrimaryKeyDefinedOnIgnoredProperty", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     The [PrimaryKey] attribute on the entity type '{entityType}' references properties {properties}, but no property with name '{propertyName}' exists on that entity type or any of its base types.
+        /// </summary>
+        public static string PrimaryKeyDefinedOnNonExistentProperty(object? entityType, object? properties, object? propertyName)
+            => string.Format(
+                GetString("PrimaryKeyDefinedOnNonExistentProperty", nameof(entityType), nameof(properties), nameof(propertyName)),
+                entityType, properties, propertyName);
+
+        /// <summary>
         ///     '{property}' cannot be used as a property on entity type '{entityType}' because it is configured as a navigation.
         /// </summary>
         public static string PropertyCalledOnNavigation(object? property, object? entityType)
@@ -2762,14 +2788,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ValueCannotBeNull", "0_property", "1_entityType", nameof(propertyType)),
                 property, entityType, propertyType);
-
-        /// <summary>
-        ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.
-        /// </summary>
-        public static string ValueGenWithConversion(object? entityType, object? property, object? converter)
-            => string.Format(
-                GetString("ValueGenWithConversion", nameof(entityType), nameof(property), nameof(converter)),
-                entityType, property, converter);
 
         /// <summary>
         ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.
