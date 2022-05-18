@@ -4,7 +4,8 @@
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Configures the property or field to indicate how a delete operation is applied to dependent entities
+///     Configures the navigation property on the dependent side of a relationship
+///     to indicate how a delete operation is applied to dependent entities
 ///     in a relationship when it is deleted or the relationship is severed.
 /// </summary>
 /// <remarks>
@@ -19,11 +20,11 @@ public sealed class DeleteBehaviorAttribute : Attribute
     /// <param name="behavior">The <see cref="DeleteBehavior" /> to be configured.</param>
     public DeleteBehaviorAttribute(DeleteBehavior behavior)
     {
-        Behavior = behavior;
+        this.Behavior = behavior;
     }
-    
+
     /// <summary>
-    ///     The <see cref="DeleteBehavior" /> to be configured.
+    ///     Gets the <see cref="DeleteBehavior" /> to be configured.
     /// </summary>
     public DeleteBehavior Behavior { get; }
 }

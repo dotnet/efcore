@@ -1,18 +1,15 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable InconsistentNaming
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class DeleteBehaviorAttributeConventionTest
 {
@@ -121,8 +118,7 @@ public class DeleteBehaviorAttributeConventionTest
 
         Assert.Equal(
             CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty,
-            Assert.Throws<InvalidOperationException>(() =>
-                modelBuilder.FinalizeModel()).Message
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message
         );
     }
 
@@ -136,11 +132,12 @@ public class DeleteBehaviorAttributeConventionTest
 
         Assert.Equal(
             CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty,
-            Assert.Throws<InvalidOperationException>(() =>
-                modelBuilder.FinalizeModel()).Message
+            Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message
         );
     }
 
+    private static ModelBuilder CreateModelBuilder()
+        => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
     #region DeleteBehaviorAttribute not set
     private class Blog
@@ -307,8 +304,4 @@ public class DeleteBehaviorAttributeConventionTest
         public int? Blog_On_PrincipalId { get; set; }
     }
     #endregion
-
-
-    private static ModelBuilder CreateModelBuilder()
-        => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 }
