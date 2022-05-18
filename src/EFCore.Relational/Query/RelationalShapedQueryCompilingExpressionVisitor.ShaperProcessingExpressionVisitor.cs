@@ -1151,9 +1151,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
             TEntity entity,
-            TIncludedEntity relatedEntity,
+            TIncludedEntity? relatedEntity,
             INavigationBase navigation,
-            INavigationBase inverseNavigation,
+            INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery)
             where TEntity : class
@@ -1240,7 +1240,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
             IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TIncludedEntity> innerShaper,
-            INavigationBase inverseNavigation,
+            INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery)
             where TIncludingEntity : class
@@ -1395,8 +1395,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
-            Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator> relatedDataLoaders,
-            INavigationBase inverseNavigation,
+            Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
+            INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery)
             where TIncludingEntity : class
@@ -1476,8 +1476,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
-            Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task> relatedDataLoaders,
-            INavigationBase inverseNavigation,
+            Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
+            INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery)
             where TIncludingEntity : class
@@ -1720,7 +1720,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
-            Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator> relatedDataLoaders)
+            Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders)
             where TRelatedEntity : TElement
             where TCollection : class, ICollection<TElement>
         {
@@ -1796,7 +1796,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
-            Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task> relatedDataLoaders)
+            Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders)
             where TRelatedEntity : TElement
             where TCollection : class, ICollection<TElement>
         {
