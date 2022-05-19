@@ -178,11 +178,10 @@ OUTER APPLY (
 ORDER BY [l].[Id], [t0].[Id]");
     }
 
+    [ConditionalTheory(Skip = "See issue#28058")]
     public override async Task Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(bool async)
     {
-        // Nested collection with ToList. Issue #23303.
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => base.Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(async));
+        await base.Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(async);
 
         AssertSql(
             @"SELECT [l].[Id], [t0].[Id], [t1].[Name], [t1].[Id], [t0].[c]

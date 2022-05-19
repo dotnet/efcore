@@ -21,33 +21,34 @@ public class ComplexNavigationsCollectionsSharedTypeQuerySqlServerTest
 
     public override async Task Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(bool async)
     {
-        // Nested collection with ToList. Issue #23303.
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => base.Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(async));
+        await base.Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(async);
 
         AssertSql(
-            @"SELECT [l].[Id], [t0].[Id], [t1].[Name], [t1].[Id], [t0].[c]
+            @"SELECT [l].[Id], [t0].[Id], [t0].[Id0], [t1].[Name], [t1].[Id], [t0].[c]
 FROM [Level1] AS [l]
-LEFT JOIN (
-    SELECT [t].[c], [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Required_Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToMany_Optional_Inverse2Id]
-    FROM (
-        SELECT 1 AS [c], [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
-        FROM [Level1] AS [l0]
-        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l0].[Level2_Name] <> N'Foo' OR [l0].[Level2_Name] IS NULL)
-    ) AS [t]
-    WHERE [t].[row] <= 1
-) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
 OUTER APPLY (
-    SELECT [l1].[Name], [l1].[Id]
-    FROM [Level1] AS [l1]
+    SELECT TOP(1) 1 AS [c], [l0].[Id], [t].[Id] AS [Id0], [t].[OneToOne_Required_PK_Date], [t].[Level1_Required_Id], [t].[OneToMany_Required_Inverse2Id]
+    FROM [Level1] AS [l0]
+    LEFT JOIN (
+        SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
+        FROM [Level1] AS [l1]
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
+    ) AS [t] ON [l0].[Id] = CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([t].[Level2_Name] <> N'Foo' OR [t].[Level2_Name] IS NULL)
+) AS [t0]
+OUTER APPLY (
+    SELECT [l2].[Name], [l2].[Id]
+    FROM [Level1] AS [l2]
     WHERE EXISTS (
         SELECT 1
-        FROM [Level1] AS [l2]
-        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] = [l2].[OneToMany_Optional_Inverse2Id] AND [l2].[Id] = CASE
-            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
+        FROM [Level1] AS [l3]
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l2].[Id] = [l3].[OneToMany_Optional_Inverse2Id] AND [l3].[Id] = CASE
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
         END)
 ) AS [t1]
-ORDER BY [l].[Id], [t0].[Id]");
+ORDER BY [l].[Id], [t0].[Id], [t0].[Id0]");
     }
 
     public override async Task SelectMany_with_Include1(bool async)

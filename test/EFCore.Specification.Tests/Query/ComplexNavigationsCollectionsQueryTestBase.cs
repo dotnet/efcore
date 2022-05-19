@@ -414,11 +414,11 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
             async,
             ss => from l1 in ss.Set<Level1>()
                   orderby l1.Id
-                  let inner = (from l2 in l1.OneToMany_Optional1
+                  let inner = (from l2 in ss.Set<Level2>()
                                where l2.Name != "Foo"
-                               let innerL1s = from innerL1 in ss.Set<Level1>()
+                               let innerL1s = (from innerL1 in ss.Set<Level1>()
                                               where innerL1.OneToMany_Optional1.Any(innerL2 => innerL2.Id == l2.Id)
-                                              select innerL1.Name
+                                              select innerL1.Name).AsEnumerable()
                                select innerL1s.ToList()).FirstOrDefault()
                   select inner.ToList(),
             assertOrder: true,
