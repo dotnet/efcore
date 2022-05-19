@@ -187,7 +187,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         var lastConcatStartPoint = 0;
         var concatCount = 1;
         var concatStartList = new List<int>();
-        var castApplied = false;
+        var insideConcat = false;
         for (i = 0; i < stringValue.Length; i++)
         {
             var lineFeed = stringValue[i] == '\n';
@@ -282,12 +282,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 
         for (var j = concatStartList.Count - 1; j >= 0; j--)
         {
-            if (castApplied && j == 0)
-            {
-                builder.Insert(concatStartList[j], "CAST(");
-            }
-
-            builder.Insert(concatStartList[j], "CONCAT(");
+            builder.Insert(concatStartList[j], "CONCAT(CAST(");
             builder.Append(')');
         }
 
@@ -307,7 +302,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         {
             if (builder.Length != 0)
             {
-                if (!castApplied)
+                if (!insideConcat)
                 {
                     builder.Append(" AS ");
                     if (_isUtf16)
@@ -316,7 +311,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                     }
 
                     builder.Append("varchar(max))");
-                    castApplied = true;
+                    insideConcat = true;
                 }
 
                 builder.Append(", ");
@@ -331,6 +326,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                 {
                     lastConcatStartPoint = builder.Length;
                     concatCount = 1;
+                    insideConcat = false;
                 }
             }
         }
