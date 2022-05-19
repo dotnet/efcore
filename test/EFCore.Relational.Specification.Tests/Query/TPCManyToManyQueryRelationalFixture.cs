@@ -11,8 +11,7 @@ public abstract class TPCManyToManyQueryRelationalFixture : ManyToManyQueryRelat
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(
-            w =>
-                w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+            w => w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
