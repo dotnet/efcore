@@ -1137,6 +1137,64 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Flattened_GroupJoin_on_interface_generic(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27343>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        var entitySet = context.Parents.AsQueryable<IDocumentType27343>();
+
+        var query = from p in entitySet
+                    join c in context.Set<Child27343>()
+                    on p.Id equals c.Id into grouping
+                    from c in grouping.DefaultIfEmpty()
+                    select c;
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Empty(result);
+    }
+
+    protected class Context27343 : DbContext
+    {
+        public Context27343(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Parent27343> Parents { get; set; }
+
+        public void Seed()
+        {
+
+            SaveChanges();
+        }
+    }
+
+    protected interface IDocumentType27343
+    {
+        public int Id { get; }
+    }
+
+    protected class Parent27343 : IDocumentType27343
+    {
+        public int Id { get; set; }
+        public List<Child27343> Children { get; set; }
+    }
+
+    protected class Child27343
+    {
+        public int Id { get; set; }
+        public int SomeInteger { get; set; }
+        public DateTime? SomeNullableDateTime { get; set; }
+        public DateTime? SomeOtherNullableDateTime { get; set; }
+        public Parent27343 Parent { get; set; }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
     {
         var contextFactory = await InitializeAsync<Context28039>();
@@ -1172,7 +1230,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public DbSet<TableData> TableData { get; set; }
     }
 
-    public class TableData : EntityBase
+    protected class TableData : EntityBase
     {
         public int TableId { get; set; }
         public string ParcelNumber { get; set; }
@@ -1181,18 +1239,18 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
 
     }
 
-    public abstract class EntityBase
+    protected abstract class EntityBase
     {
         [Key]
         public int ID { get; set; }
     }
-    public class IndexData : EntityBase
+    protected class IndexData : EntityBase
     {
         public string Parcel { get; set; }
         public int RowId { get; set; }
     }
 
-    internal class SearchResult
+    protected class SearchResult
     {
         public string ParcelNumber { get; set; }
         public int RowId { get; set; }

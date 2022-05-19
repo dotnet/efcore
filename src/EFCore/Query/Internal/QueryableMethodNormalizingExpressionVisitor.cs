@@ -332,9 +332,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         || innerQueryableElementType != genericType)
                     {
                         while (innerArgument is UnaryExpression
-                               {
-                                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                               } unaryExpression
+                            {
+                                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                            } unaryExpression
                                && unaryExpression.Type.TryGetElementType(typeof(IEnumerable<>)) != null)
                         {
                             innerArgument = unaryExpression.Operand;
@@ -484,36 +484,12 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         resultSelectorBody,
                         groupJoinResultSelector.Parameters[0],
                         selectManyResultSelector.Parameters[1]);
+                    var genericArguments = groupJoinMethod.Method.GetGenericArguments();
+                    genericArguments[^1] = resultSelector.ReturnType;
 
-                    // join case
-                    if (defaultIfEmpty)
-                    {
-                        // left join
-                        return Expression.Call(
-                            QueryableExtensions.LeftJoinMethodInfo.MakeGenericMethod(
-                                outer.Type.GetSequenceType(),
-                                inner.Type.GetSequenceType(),
-                                outerKeySelector.ReturnType,
-                                resultSelector.ReturnType),
-                            outer,
-                            inner,
-                            outerKeySelector,
-                            innerKeySelector,
-                            resultSelector);
-                    }
-
-                    // inner join
                     return Expression.Call(
-                        QueryableMethods.Join.MakeGenericMethod(
-                            outer.Type.GetSequenceType(),
-                            inner.Type.GetSequenceType(),
-                            outerKeySelector.ReturnType,
-                            resultSelector.ReturnType),
-                        outer,
-                        inner,
-                        outerKeySelector,
-                        innerKeySelector,
-                        resultSelector);
+                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(genericArguments),
+                        outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
                 // TODO: Convert correlated patterns to SelectMany
                 //else
@@ -599,35 +575,12 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         groupJoinResultSelector.Parameters[0],
                         innerKeySelector.Parameters[0]);
 
-                    // join case
-                    if (defaultIfEmpty)
-                    {
-                        // left join
-                        return Expression.Call(
-                            QueryableExtensions.LeftJoinMethodInfo.MakeGenericMethod(
-                                outer.Type.GetSequenceType(),
-                                inner.Type.GetSequenceType(),
-                                outerKeySelector.ReturnType,
-                                resultSelector.ReturnType),
-                            outer,
-                            inner,
-                            outerKeySelector,
-                            innerKeySelector,
-                            resultSelector);
-                    }
+                    var genericArguments = groupJoinMethod.Method.GetGenericArguments();
+                    genericArguments[^1] = resultSelector.ReturnType;
 
-                    // inner join
                     return Expression.Call(
-                        QueryableMethods.Join.MakeGenericMethod(
-                            outer.Type.GetSequenceType(),
-                            inner.Type.GetSequenceType(),
-                            outerKeySelector.ReturnType,
-                            resultSelector.ReturnType),
-                        outer,
-                        inner,
-                        outerKeySelector,
-                        innerKeySelector,
-                        resultSelector);
+                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(genericArguments),
+                        outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
             }
         }
