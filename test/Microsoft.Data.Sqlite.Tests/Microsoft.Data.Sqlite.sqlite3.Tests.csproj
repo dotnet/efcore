@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net7.0;net461</TargetFrameworks>
     <DefineConstants>$(DefineConstants);SQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_sqlite3" Version="2.0.6" />
+    <PackageReference Include="SQLitePCLRaw.bundle_sqlite3" Version="2.1.0-pre20220427180151" />
   </ItemGroup>
 
 </Project>

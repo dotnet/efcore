@@ -2,10 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+using System.ComponentModel.DataAnnotations.Schema;
+using NameSpace1;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -14,9 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected void ClearLog() => TestSqlLoggerFactory.Clear();
+        protected void ClearLog()
+            => TestSqlLoggerFactory.Clear();
 
-        protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
+        protected void AssertSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -26,19 +26,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = contextFactory.CreateContext();
             //var good1 = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
             //var good2 = context.Set<NameSpace2.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
-            var bad = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
+            var bad = context.Set<TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
         }
 
         protected class Context23981 : DbContext
         {
             public Context23981(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                var mb = modelBuilder.Entity(typeof(NameSpace1.TestQuery));
+                var mb = modelBuilder.Entity(typeof(TestQuery));
 
                 mb.HasBaseType((Type)null);
                 mb.HasNoKey();
@@ -50,6 +50,56 @@ namespace Microsoft.EntityFrameworkCore.Query
                 mb.HasNoKey();
                 mb.ToTable((string)null);
             }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task StoreType_for_UDF_used(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context27954>();
+            using var context = contextFactory.CreateContext();
+
+            var date = new DateTime(2012, 12, 12);
+            var query1 = context.Set<MyEntity>().Where(x => x.SomeDate == date);
+            var query2 = context.Set<MyEntity>().Where(x => MyEntity.Modify(x.SomeDate) == date);
+
+            if (async)
+            {
+                await query1.ToListAsync();
+                await Assert.ThrowsAnyAsync<Exception>(() => query2.ToListAsync());
+            }
+            else
+            {
+                query1.ToList();
+                Assert.ThrowsAny<Exception>(() => query2.ToList());
+            }
+        }
+
+        protected class Context27954 : DbContext
+        {
+            public Context27954(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<MyEntity> MyEntities { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .HasDbFunction(typeof(MyEntity).GetMethod(nameof(MyEntity.Modify)))
+                    .HasName("ModifyDate")
+                    .HasStoreType("datetime")
+                    .HasSchema("dbo");
+            }
+        }
+
+        protected class MyEntity
+        {
+            public int Id { get; set; }
+            [Column(TypeName = "datetime")]
+            public DateTime SomeDate { get; set; }
+            public static DateTime Modify(DateTime date) => throw new NotSupportedException();
         }
     }
 }

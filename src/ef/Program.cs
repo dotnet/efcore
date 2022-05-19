@@ -6,43 +6,42 @@ using System.Text;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Commands;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools;
+
+internal static class Program
 {
-    internal static class Program
+    private static int Main(string[] args)
     {
-        private static int Main(string[] args)
+        if (Console.IsOutputRedirected)
         {
-            if (Console.IsOutputRedirected)
+            Console.OutputEncoding = Encoding.UTF8;
+        }
+
+        var app = new CommandLineApplication { Name = "ef" };
+
+        new RootCommand().Configure(app);
+
+        try
+        {
+            return app.Execute(args);
+        }
+        catch (Exception ex)
+        {
+            var wrappedException = ex as WrappedException;
+            if (ex is CommandException
+                || ex is CommandParsingException
+                || (wrappedException?.Type == "Microsoft.EntityFrameworkCore.Design.OperationException"))
             {
-                Console.OutputEncoding = Encoding.UTF8;
+                Reporter.WriteVerbose(ex.ToString());
+            }
+            else
+            {
+                Reporter.WriteInformation(ex.ToString());
             }
 
-            var app = new CommandLineApplication { Name = "ef" };
+            Reporter.WriteError(ex.Message);
 
-            new RootCommand().Configure(app);
-
-            try
-            {
-                return app.Execute(args);
-            }
-            catch (Exception ex)
-            {
-                var wrappedException = ex as WrappedException;
-                if (ex is CommandException
-                    || ex is CommandParsingException
-                    || (wrappedException?.Type == "Microsoft.EntityFrameworkCore.Design.OperationException"))
-                {
-                    Reporter.WriteVerbose(ex.ToString());
-                }
-                else
-                {
-                    Reporter.WriteInformation(ex.ToString());
-                }
-
-                Reporter.WriteError(ex.Message);
-
-                return 1;
-            }
+            return 1;
         }
     }
 }

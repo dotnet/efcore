@@ -1,50 +1,46 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+/// <summary>
+///     Represents entity type mapping to a table-like object.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+/// </remarks>
+public interface ITableMappingBase : IAnnotatable
 {
     /// <summary>
-    ///     Represents entity type mapping to a table-like object.
+    ///     Gets the mapped entity type.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
-    /// </remarks>
-    public interface ITableMappingBase : IAnnotatable
-    {
-        /// <summary>
-        ///     Gets the mapped entity type.
-        /// </summary>
-        IEntityType EntityType { get; }
+    IEntityType EntityType { get; }
 
-        /// <summary>
-        ///     Gets the target table-like object.
-        /// </summary>
-        ITableBase Table { get; }
+    /// <summary>
+    ///     Gets the target table-like object.
+    /// </summary>
+    ITableBase Table { get; }
 
-        /// <summary>
-        ///     Gets the properties mapped to columns on the target table.
-        /// </summary>
-        IEnumerable<IColumnMappingBase> ColumnMappings { get; }
+    /// <summary>
+    ///     Gets the properties mapped to columns on the target table.
+    /// </summary>
+    IEnumerable<IColumnMappingBase> ColumnMappings { get; }
 
-        /// <summary>
-        ///     Gets the value indicating whether this is the mapping for the principal entity type
-        ///     if the table-like object is shared.
-        /// </summary>
-        bool IsSharedTablePrincipal { get; }
+    /// <summary>
+    ///     Gets the value indicating whether this is the mapping for the principal entity type
+    ///     if the table-like object is shared.
+    /// </summary>
+    bool IsSharedTablePrincipal { get; }
 
-        /// <summary>
-        ///     Gets the value indicating whether this is the mapping for the principal table-like object
-        ///     if the entity type is split.
-        /// </summary>
-        bool IsSplitEntityTypePrincipal { get; }
+    /// <summary>
+    ///     Gets the value indicating whether this is the mapping for the principal table-like object
+    ///     if the entity type is split.
+    /// </summary>
+    bool IsSplitEntityTypePrincipal { get; }
 
-        /// <summary>
-        ///     Gets the value indicating whether the mapped table-like object includes rows for the derived entity types.
-        ///     Set to <see langword="false" /> for inherited mappings.
-        /// </summary>
-        bool IncludesDerivedTypes { get; }
-    }
+    /// <summary>
+    ///     Gets the value indicating whether the mapped table-like object includes rows for the derived entity types.
+    ///     Set to <see langword="false" /> for inherited mappings.
+    /// </summary>
+    bool IncludesDerivedTypes { get; }
 }

@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 Session = new Dictionary<string, object>
                 {
-                    ["ContextType"] = context!,
+                    ["ContextType"] = context,
                     ["Assembly"] = assembly,
                     ["StartupAssembly"] = startupAssembly
                 }
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 publishArgs.Add(runtime);
 
                 var baseLength = runtime.IndexOfAny(new[] { '-', '.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' });
-                var baseRID = runtime.Substring(0, baseLength);
-                var exe = string.Equals(baseRID, "win", StringComparison.OrdinalIgnoreCase)
+                var baseRid = runtime.Substring(0, baseLength);
+                var exe = string.Equals(baseRid, "win", StringComparison.OrdinalIgnoreCase)
                     ? ".exe"
                     : null;
 

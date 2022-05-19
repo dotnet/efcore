@@ -3,11 +3,10 @@
 
 using NetTopologySuite.Geometries;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
+namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
+
+public class MultiLineStringEntity
 {
-    public class MultiLineStringEntity
-    {
-        public int Id { get; set; }
-        public MultiLineString MultiLineString { get; set; }
-    }
+    public int Id { get; set; }
+    public MultiLineString MultiLineString { get; set; }
 }

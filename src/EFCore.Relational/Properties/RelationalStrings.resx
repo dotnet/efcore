@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AbstractTpc" xml:space="preserve">
+    <value>The corresponding CLR type for entity type '{entityType}' cannot be instantiated, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize a sequence from model metadata. See inner exception for details.</value>
     <comment>Obsolete</comment>
@@ -169,9 +172,14 @@
   <data name="ConflictingRowValuesSensitive" xml:space="preserve">
     <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
-  <data name="DatabaseModelMissing" xml:space="preserve">
-    <value>The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.</value>
-    <comment>Obsolete</comment>
+  <data name="ConflictingSeedValues" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+  </data>
+  <data name="ConflictingSeedValuesSensitive" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}', but have different values for the column '{column}' - '{firstValue}', '{secondValue}'.</value>
+  </data>
+  <data name="CreateIndexOperationWithInvalidSortOrder" xml:space="preserve">
+    <value>{numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.</value>
   </data>
   <data name="DataOperationNoProperty" xml:space="preserve">
     <value>There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.</value>
@@ -224,9 +232,8 @@
   <data name="DeleteDataOperationValuesCountMismatch" xml:space="preserve">
     <value>The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key values and key columns.</value>
   </data>
-  <data name="DerivedTypeTable" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.</value>
-    <comment>Obsolete</comment>
+  <data name="DerivedStrategy" xml:space="preserve">
+    <value>The derived entity type '{entityType}' was configured with the '{strategy}' mapping strategy. Only the root entity type should be configured with a mapping strategy. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
     <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
@@ -273,6 +280,9 @@
   <data name="DuplicateColumnNamePrecisionMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different precisions ('{precision1}' and '{precision2}').</value>
   </data>
+  <data name="DuplicateColumnNameProviderTypeMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use differing provider types ('{type1}' and '{type2}').</value>
+  </data>
   <data name="DuplicateColumnNameScaleMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different scales ('{scale1}' and '{scale2}').</value>
   </data>
@@ -298,22 +308,34 @@
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different uniqueness configurations.</value>
   </data>
   <data name="DuplicateIndexColumnMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).</value>
   </data>
   <data name="DuplicateIndexFiltersMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').</value>
+  </data>
+  <data name="DuplicateIndexSortOrdersMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different sort orders.</value>
   </data>
   <data name="DuplicateIndexTableMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').</value>
   </data>
   <data name="DuplicateIndexUniquenessMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.</value>
   </data>
   <data name="DuplicateKeyColumnMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different columns ({columnNames1} and {columnNames2}).</value>
   </data>
   <data name="DuplicateKeyTableMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{keyName}', but on different tables ('{table1}' and '{table2}').</value>
+  </data>
+  <data name="DuplicateSeedData" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+  </data>
+  <data name="DuplicateSeedDataSensitive" xml:space="preserve">
+    <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities.</value>
+  </data>
+  <data name="DuplicateTrigger" xml:space="preserve">
+    <value>The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.</value>
   </data>
   <data name="EitherOfTwoValuesMustBeNull" xml:space="preserve">
     <value>Either {param1} or {param2} must be null.</value>
@@ -402,11 +424,17 @@
   <data name="InvalidMappedSqlQueryDerivedType" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to a SQL query, but is derived from '{baseEntityType}'. Derived entity types cannot be mapped to a different SQL query than the base entity type.</value>
   </data>
+  <data name="InvalidMappingStrategy" xml:space="preserve">
+    <value>The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported.</value>
+  </data>
   <data name="InvalidMaxBatchSize" xml:space="preserve">
     <value>The specified 'MaxBatchSize' value '{value}' is not valid. It must be a positive number.</value>
   </data>
   <data name="InvalidMinBatchSize" xml:space="preserve">
     <value>The specified 'MinBatchSize' value '{value}' is not valid. It must be a positive number.</value>
+  </data>
+  <data name="KeylessMappingStrategy" xml:space="preserve">
+    <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.</value>
@@ -452,8 +480,8 @@
     <comment>Warning RelationalEventId.BoolWithDefaultWarning string string</comment>
   </data>
   <data name="LogClosedConnection" xml:space="preserve">
-    <value>Closed connection to database '{database}' on server '{server}'.</value>
-    <comment>Debug RelationalEventId.ConnectionClosed string string</comment>
+    <value>Closed connection to database '{database}' on server '{server}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.ConnectionClosed string string int</comment>
   </data>
   <data name="LogClosingConnection" xml:space="preserve">
     <value>Closing connection to database '{database}' on server '{server}'.</value>
@@ -462,6 +490,10 @@
   <data name="LogColumnOrderIgnoredWarning" xml:space="preserve">
     <value>The order of column '{table}.{column}' was ignored. Column orders are only used when the table is first created.</value>
     <comment>Warning RelationalEventId.ColumnOrderIgnoredWarning string string</comment>
+  </data>
+  <data name="LogCommandCanceled" xml:space="preserve">
+    <value>A DbCommand was canceled ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+    <comment>Debug RelationalEventId.CommandCanceled string string System.Data.CommandType int string string</comment>
   </data>
   <data name="LogCommandCreated" xml:space="preserve">
     <value>Created DbCommand for '{executionType}' ({elapsed}ms).</value>
@@ -475,6 +507,10 @@
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Error RelationalEventId.CommandError string string System.Data.CommandType int string string</comment>
   </data>
+  <data name="LogCommandInitialized" xml:space="preserve">
+    <value>Initialized DbCommand for '{executionType}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.CommandInitialized string int</comment>
+  </data>
   <data name="LogCommittedTransaction" xml:space="preserve">
     <value>Committed transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitted</comment>
@@ -482,6 +518,22 @@
   <data name="LogCommittingTransaction" xml:space="preserve">
     <value>Committing transaction.</value>
     <comment>Debug RelationalEventId.TransactionCommitting</comment>
+  </data>
+  <data name="LogConnectionCreated" xml:space="preserve">
+    <value>Created DbConnection. ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.ConnectionCreated int</comment>
+  </data>
+  <data name="LogConnectionCreating" xml:space="preserve">
+    <value>Creating DbConnection.</value>
+    <comment>Debug RelationalEventId.ConnectionCreating</comment>
+  </data>
+  <data name="LogConnectionDisposed" xml:space="preserve">
+    <value>Disposed connection to database '{database}' on server '{server}' ({elapsed}ms).</value>
+    <comment>Debug RelationalEventId.ConnectionDisposed string string int</comment>
+  </data>
+  <data name="LogConnectionDisposing" xml:space="preserve">
+    <value>Disposing connection to database '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.ConnectionDisposing string string</comment>
   </data>
   <data name="LogConnectionError" xml:space="preserve">
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
@@ -526,6 +578,10 @@
   <data name="LogForeignKeyPropertiesMappedToUnrelatedTables" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. Either the properties {foreignKeyProperties} aren't mapped to table '{table}', or the principal properties {principalProperties} aren't mapped to table '{principalTable}'. All foreign key properties must map to the table to which the dependent type is mapped, and all principal properties must map to a single table to which the principal type is mapped.</value>
     <comment>Error RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables string string string string string string string</comment>
+  </data>
+  <data name="LogForeignKeyTpcPrincipal" xml:space="preserve">
+    <value>The foreign key {foreignKeyProperties} on the entity type '{entityType}' targeting '{principalEntityType}' cannot be represented in the database. '{principalEntityType}' is mapped using the table per concrete type meaning that the derived entities will not be present in {'principalTable'}. If this foreign key on '{entityType}' will never reference entities derived from '{principalEntityType}' then the foreign key constraint name can be specified explicitly to force it to be created.</value>
+    <comment>Warning RelationalEventId.ForeignKeyTpcPrincipalWarning string string string string string string string</comment>
   </data>
   <data name="LogGeneratingDown" xml:space="preserve">
     <value>Generating down script for migration '{migration}'.</value>
@@ -595,10 +651,6 @@
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning string string</comment>
   </data>
-  <data name="LogQueryPossibleExceptionWithAggregateOperatorWarning" xml:space="preserve">
-    <value>Possible unintended use of a potentially throwing aggregate operator ('Min', 'Max', 'Average') in a subquery. Client evaluation will be used and the operator will throw if no data exists. Changing the subquery result type to a nullable type will allow the operator to be translated.</value>
-    <comment>Obsolete Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning</comment>
-  </data>
   <data name="LogReleasedTransactionSavepoint" xml:space="preserve">
     <value>Released transaction savepoint.</value>
     <comment>Debug RelationalEventId.ReleasedTransactionSavepoint</comment>
@@ -627,6 +679,10 @@
     <value>Rolling back transaction.</value>
     <comment>Debug RelationalEventId.TransactionRollingBack</comment>
   </data>
+  <data name="LogTpcStoreGeneratedIdentity" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is configured with a database-generated default, however the entity type is mapped to the database using table per concrete class strategy. Make sure that the generated values are unique across all the tables, duplicated values could result in errors or data corruption.</value>
+    <comment>Warning RelationalEventId.TpcStoreGeneratedIdentityWarning string string</comment>
+  </data>
   <data name="LogTransactionError" xml:space="preserve">
     <value>An error occurred using a transaction.</value>
     <comment>Error RelationalEventId.TransactionError</comment>
@@ -650,7 +706,7 @@
   <data name="MappedFunctionNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.</value>
   </data>
-  <data name="MethodOnNonTPHRootNotSupported" xml:space="preserve">
+  <data name="MethodOnNonTphRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="MigrationDownMissing" xml:space="preserve">
@@ -671,6 +727,12 @@
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value was provided for the required parameter '{parameter}'.</value>
   </data>
+  <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
+    <value>Cannot add commands to a completed ModificationCommandBatch.</value>
+  </data>
+  <data name="ModificationCommandBatchNotComplete" xml:space="preserve">
+    <value>Cannot execute an ModificationCommandBatch which hasn't been completed.</value>
+  </data>
   <data name="ModificationCommandInvalidEntityState" xml:space="preserve">
     <value>Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.</value>
   </data>
@@ -689,9 +751,6 @@
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
   </data>
-  <data name="NoConnectionOrConnectionString" xml:space="preserve">
-    <value>A relational store has been configured without specifying either the DbConnection or connection string to use.</value>
-  </data>
   <data name="NoDbCommand" xml:space="preserve">
     <value>Cannot create a DbCommand for a non-relational query.</value>
   </data>
@@ -704,14 +763,20 @@
   <data name="NonScalarFunctionParameterCannotPropagatesNullability" xml:space="preserve">
     <value>Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.</value>
   </data>
-  <data name="NonTPHTableClash" xml:space="preserve">
-    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  <data name="NonTphMappingStrategy" xml:space="preserve">
+    <value>The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.</value>
   </data>
-  <data name="NonTPHViewClash" xml:space="preserve">
-    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  <data name="NonTphTableClash" xml:space="preserve">
+    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
+  <data name="NonTphViewClash" xml:space="preserve">
+    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
     <value>No relational database providers are configured. Configure a database provider using 'OnConfiguring' or by creating an ImmutableDbContextOptions with a configured database provider and passing it to the context.</value>
+  </data>
+  <data name="NullKeyValue" xml:space="preserve">
+    <value>Unable to modify a row in table '{table}' because its key column '{keyColumn}' is null.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>Expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
@@ -728,11 +793,11 @@
   <data name="ProjectionMappingCountMismatch" xml:space="preserve">
     <value>Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.</value>
   </data>
+  <data name="PropertyNotMapped" xml:space="preserve">
+    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.</value>
-  </data>
-  <data name="QueryFromSqlInsideExists" xml:space="preserve">
-    <value>The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information.</value>
   </data>
   <data name="ReadonlyEntitySaved" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.</value>
@@ -740,7 +805,7 @@
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational database provider.</value>
   </data>
-  <data name="SelectExpressionNonTPHWithCustomTable" xml:space="preserve">
+  <data name="SelectExpressionNonTphWithCustomTable" xml:space="preserve">
     <value>Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
@@ -761,7 +826,7 @@
   <data name="TableOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the table '{table}', but isn't mapped to a column on that table. Remove the specific configuration, or map an entity type that contains this property to '{table}'.</value>
   </data>
-  <data name="TableValuedFunctionNonTPH" xml:space="preserve">
+  <data name="TableValuedFunctionNonTph" xml:space="preserve">
     <value>The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
   <data name="TimeoutTooBig" xml:space="preserve">
@@ -773,10 +838,16 @@
   <data name="TooFewReaderFields" xml:space="preserve">
     <value>The underlying reader doesn't have as many fields as expected. Expected: {expected}, actual: {actual}.</value>
   </data>
-  <data name="TPHTableMismatch" xml:space="preserve">
+  <data name="TpcTableSharing" xml:space="preserve">
+    <value>The entity type '{dependentType}' is mapped to '{storeObject}'. However the principal entity type '{principalEntityType}' is also mapped to '{storeObject}' and it's using the TPC mapping strategy. Only leaf entity types in a TPC hierarchy can use table-sharing.</value>
+  </data>
+  <data name="TpcTableSharingDependent" xml:space="preserve">
+    <value>The entity type '{dependentType}' is mapped to '{storeObject}'. However one of its derived types '{derivedType}' is mapped to '{otherStoreObject}'. Hierarchies using table-sharing cannot be mapped using the TPC mapping strategy.</value>
+  </data>
+  <data name="TphTableMismatch" xml:space="preserve">
     <value>'{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
-  <data name="TPHViewMismatch" xml:space="preserve">
+  <data name="TphViewMismatch" xml:space="preserve">
     <value>'{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="TransactionAlreadyStarted" xml:space="preserve">
@@ -787,6 +858,12 @@
   </data>
   <data name="TransactionSuppressedMigrationInUserTransaction" xml:space="preserve">
     <value>User transaction is not supported with a TransactionSuppressed migrations.</value>
+  </data>
+  <data name="TriggerOnUnmappedEntityType" xml:space="preserve">
+    <value>Trigger '{trigger}' cannot be defined on entity type '{entityType}' since that entity type isn't mapped to a database table. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>
+  </data>
+  <data name="TriggerWithMismatchedTable" xml:space="preserve">
+    <value>Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.</value>

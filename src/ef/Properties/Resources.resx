@@ -322,7 +322,7 @@
     <value> (Pending)</value>
   </data>
   <data name="PendingUnknown" xml:space="preserve">
-    <value>Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurrs while accessing the database.</value>
+    <value>Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurs while accessing the database.</value>
   </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>

@@ -1,71 +1,66 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Storage
+public class BytesToStringConverterTest
 {
-    public class BytesToStringConverterTest
+    private static readonly BytesToStringConverter _bytesToStringConverter = new();
+
+    [ConditionalFact]
+    public void Can_convert_strings_to_bytes()
     {
-        private static readonly BytesToStringConverter _bytesToStringConverter = new();
+        var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
+        Assert.False(_bytesToStringConverter.ConvertsNulls);
 
-        [ConditionalFact]
-        public void Can_convert_strings_to_bytes()
+        Assert.Equal("U3DEsW7MiGFsIFRhcA==", converter(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }));
+        Assert.Equal("", converter(Array.Empty<byte>()));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_bytes_to_strings()
+    {
+        var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();
+
+        Assert.Equal(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }, converter("U3DEsW7MiGFsIFRhcA=="));
+        Assert.Equal(Array.Empty<byte>(), converter(""));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_strings_to_long_non_char_bytes()
+    {
+        var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
+
+        Assert.Equal(CreateLongBytesString(), converter(CreateLongBytes()));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_long_non_char_bytes_to_strings()
+    {
+        var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();
+
+        Assert.Equal(CreateLongBytes(), converter(CreateLongBytesString()));
+    }
+
+    private static byte[] CreateLongBytes()
+    {
+        var longBinary = new byte[1000];
+        for (var i = 0; i < longBinary.Length; i++)
         {
-            var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
-            Assert.False(_bytesToStringConverter.ConvertsNulls);
-
-            Assert.Equal("U3DEsW7MiGFsIFRhcA==", converter(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }));
-            Assert.Equal("", converter(Array.Empty<byte>()));
+            longBinary[i] = (byte)i;
         }
 
-        [ConditionalFact]
-        public void Can_convert_bytes_to_strings()
-        {
-            var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();
+        return longBinary;
+    }
 
-            Assert.Equal(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }, converter("U3DEsW7MiGFsIFRhcA=="));
-            Assert.Equal(Array.Empty<byte>(), converter(""));
+    private static string CreateLongBytesString()
+    {
+        var longBinary = new byte[1000];
+        for (var i = 0; i < longBinary.Length; i++)
+        {
+            longBinary[i] = (byte)i;
         }
 
-        [ConditionalFact]
-        public void Can_convert_strings_to_long_non_char_bytes()
-        {
-            var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
-
-            Assert.Equal(CreateLongBytesString(), converter(CreateLongBytes()));
-        }
-
-        [ConditionalFact]
-        public void Can_convert_long_non_char_bytes_to_strings()
-        {
-            var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();
-
-            Assert.Equal(CreateLongBytes(), converter(CreateLongBytesString()));
-        }
-
-        private static byte[] CreateLongBytes()
-        {
-            var longBinary = new byte[1000];
-            for (var i = 0; i < longBinary.Length; i++)
-            {
-                longBinary[i] = (byte)i;
-            }
-
-            return longBinary;
-        }
-
-        private static string CreateLongBytesString()
-        {
-            var longBinary = new byte[1000];
-            for (var i = 0; i < longBinary.Length; i++)
-            {
-                longBinary[i] = (byte)i;
-            }
-
-            return Convert.ToBase64String(longBinary);
-        }
+        return Convert.ToBase64String(longBinary);
     }
 }

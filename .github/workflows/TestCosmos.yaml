@@ -7,6 +7,8 @@ on:
       - feature/*
       - release/*
 
+permissions: {}
+
 jobs:
   build:
     runs-on: windows-latest

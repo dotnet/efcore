@@ -1,39 +1,37 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.DotNet.Cli.CommandLine;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools;
+
+internal static class Program
 {
-    internal static class Program
+    private static int Main(string[] args)
     {
-        private static int Main(string[] args)
+        var app = new CommandLineApplication(throwOnUnexpectedArg: false) { Name = "dotnet ef" };
+
+        new RootCommand().Configure(app);
+
+        try
         {
-            var app = new CommandLineApplication(throwOnUnexpectedArg: false) { Name = "dotnet ef" };
-
-            new RootCommand().Configure(app);
-
-            try
+            return app.Execute(args);
+        }
+        catch (Exception ex)
+        {
+            if (ex is CommandException
+                || ex is CommandParsingException)
             {
-                return app.Execute(args);
+                Reporter.WriteVerbose(ex.ToString());
             }
-            catch (Exception ex)
+            else
             {
-                if (ex is CommandException
-                    || ex is CommandParsingException)
-                {
-                    Reporter.WriteVerbose(ex.ToString());
-                }
-                else
-                {
-                    Reporter.WriteInformation(ex.ToString());
-                }
-
-                Reporter.WriteError(ex.Message);
-
-                return 1;
+                Reporter.WriteInformation(ex.ToString());
             }
+
+            Reporter.WriteError(ex.Message);
+
+            return 1;
         }
     }
 }

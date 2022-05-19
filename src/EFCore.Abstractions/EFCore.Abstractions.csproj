@@ -7,7 +7,16 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Abstractions</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq.Expressions" />
+    <Using Include="System.Reflection" />
+    <Using Include="Microsoft.EntityFrameworkCore" />
+    <Using Include="Microsoft.EntityFrameworkCore.Diagnostics" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\CodeAnnotations.cs" />

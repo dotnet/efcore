@@ -1,5 +1,4 @@
 <#@ assembly name="System.Core" #>
-<#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Linq" #>
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
 <#
-    var maxParameters = 15;
+    const int maxParameters = 15;
 
     for (var parameterCount = 0; parameterCount <= maxParameters; parameterCount++)
     {
@@ -54,7 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             TContext context<#= parameterList #>)
             => ExecuteCore(context<#= argumentList #>);
 
-<# if (parameterCount < 15) { #>
+<#
+        if (parameterCount < 15)
+        {
+#>
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -65,9 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             TContext context<#= parameterList #>, CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken<#= argumentList #>);
 
-<# } #>
 <#
-     }
+        }
+#>
+<#
+    }
 #>
         /// <inheritdoc />
         protected override Func<QueryContext, Task<TResult>> CreateCompiledQuery(

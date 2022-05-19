@@ -1,154 +1,144 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+/// <summary>
+///     <para>
+///         Creates keys that uniquely identifies a query. This is used to store and lookup
+///         compiled versions of a query in a cache.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+/// <remarks>
+///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+///     <see cref="DbContext" /> instance will use its own instance of this service.
+///     The implementation may depend on other services registered with any lifetime.
+///     The implementation does not need to be thread-safe.
+/// </remarks>
+public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGenerator
 {
     /// <summary>
+    ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKeyGenerator" /> class.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+    /// <param name="relationalDependencies">Parameter object containing relational dependencies for this service.</param>
+    public RelationalCompiledQueryCacheKeyGenerator(
+        CompiledQueryCacheKeyGeneratorDependencies dependencies,
+        RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
+        : base(dependencies)
+    {
+        RelationalDependencies = relationalDependencies;
+    }
+
+    /// <summary>
+    ///     Relational provider-specific dependencies for this service.
+    /// </summary>
+    protected virtual RelationalCompiledQueryCacheKeyGeneratorDependencies RelationalDependencies { get; }
+
+    /// <summary>
+    ///     Generates the cache key for the given query.
+    /// </summary>
+    /// <param name="query">The query to get the cache key for.</param>
+    /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
+    /// <returns>The cache key.</returns>
+    public override object GenerateCacheKey(Expression query, bool async)
+        => GenerateCacheKeyCore(query, async);
+
+    /// <summary>
+    ///     Generates the cache key for the given query.
+    /// </summary>
+    /// <param name="query">The query to get the cache key for.</param>
+    /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
+    /// <returns>The cache key.</returns>
+    protected new RelationalCompiledQueryCacheKey
+        GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
+    {
+        var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
+
+        return new RelationalCompiledQueryCacheKey(
+            base.GenerateCacheKeyCore(query, async),
+            relationalOptions.UseRelationalNulls,
+            relationalOptions.QuerySplittingBehavior,
+            shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy);
+    }
+
+    /// <summary>
     ///     <para>
-    ///         Creates keys that uniquely identifies a query. This is used to store and lookup
+    ///         A key that uniquely identifies a query. This is used to store and lookup
     ///         compiled versions of a query in a cache.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
     /// </summary>
-    public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGenerator
+    protected readonly struct RelationalCompiledQueryCacheKey : IEquatable<RelationalCompiledQueryCacheKey>
     {
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKeyGenerator" /> class.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-        /// <param name="relationalDependencies">Parameter object containing relational dependencies for this service.</param>
-        public RelationalCompiledQueryCacheKeyGenerator(
-            CompiledQueryCacheKeyGeneratorDependencies dependencies,
-            RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
-            : base(dependencies)
-        {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+        private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
+        private readonly bool _useRelationalNulls;
+        private readonly QuerySplittingBehavior? _querySplittingBehavior;
+        private readonly bool _shouldBuffer;
 
-            RelationalDependencies = relationalDependencies;
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
+        /// </summary>
+        /// <param name="compiledQueryCacheKey">The non-relational cache key.</param>
+        /// <param name="useRelationalNulls">True to use relational null logic.</param>
+        /// <param name="querySplittingBehavior"><see cref="QuerySplittingBehavior" /> to use when loading related collections.</param>
+        /// <param name="shouldBuffer"><see langword="true" /> if the query should be buffered.</param>
+        public RelationalCompiledQueryCacheKey(
+            CompiledQueryCacheKey compiledQueryCacheKey,
+            bool useRelationalNulls,
+            QuerySplittingBehavior? querySplittingBehavior,
+            bool shouldBuffer)
+        {
+            _compiledQueryCacheKey = compiledQueryCacheKey;
+            _useRelationalNulls = useRelationalNulls;
+            _querySplittingBehavior = querySplittingBehavior;
+            _shouldBuffer = shouldBuffer;
         }
 
         /// <summary>
-        ///     Relational provider-specific dependencies for this service.
+        ///     Determines if this key is equivalent to a given object (i.e. if they are keys for the same query).
         /// </summary>
-        protected virtual RelationalCompiledQueryCacheKeyGeneratorDependencies RelationalDependencies { get; }
+        /// <param name="obj">
+        ///     The object to compare this key to.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
+        ///     otherwise <see langword="false" />.
+        /// </returns>
+        public override bool Equals(object? obj)
+            => obj is RelationalCompiledQueryCacheKey key
+                && Equals(key);
 
         /// <summary>
-        ///     Generates the cache key for the given query.
+        ///     Indicates whether the current object is equal to another object of the same type.
         /// </summary>
-        /// <param name="query">The query to get the cache key for.</param>
-        /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
-        /// <returns>The cache key.</returns>
-        public override object GenerateCacheKey(Expression query, bool async)
-            => GenerateCacheKeyCore(query, async);
+        /// <param name="other">
+        ///     An object to compare with this object.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
+        public bool Equals(RelationalCompiledQueryCacheKey other)
+            => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
+                && _useRelationalNulls == other._useRelationalNulls
+                && _querySplittingBehavior == other._querySplittingBehavior
+                && _shouldBuffer == other._shouldBuffer;
 
         /// <summary>
-        ///     Generates the cache key for the given query.
+        ///     Gets the hash code for the key.
         /// </summary>
-        /// <param name="query">The query to get the cache key for.</param>
-        /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
-        /// <returns>The cache key.</returns>
-        protected new RelationalCompiledQueryCacheKey
-            GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
-        {
-            var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
-
-            return new RelationalCompiledQueryCacheKey(
-                base.GenerateCacheKeyCore(query, async),
-                relationalOptions.UseRelationalNulls,
-                relationalOptions.QuerySplittingBehavior,
-                shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy);
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         A key that uniquely identifies a query. This is used to store and lookup
-        ///         compiled versions of a query in a cache.
-        ///     </para>
-        ///     <para>
-        ///         This type is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        /// </summary>
-        protected readonly struct RelationalCompiledQueryCacheKey : IEquatable<RelationalCompiledQueryCacheKey>
-        {
-            private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
-            private readonly bool _useRelationalNulls;
-            private readonly QuerySplittingBehavior? _querySplittingBehavior;
-            private readonly bool _shouldBuffer;
-
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
-            /// </summary>
-            /// <param name="compiledQueryCacheKey">The non-relational cache key.</param>
-            /// <param name="useRelationalNulls">True to use relational null logic.</param>
-            /// <param name="querySplittingBehavior"><see cref="QuerySplittingBehavior" /> to use when loading related collections.</param>
-            /// <param name="shouldBuffer"><see langword="true" /> if the query should be buffered.</param>
-            public RelationalCompiledQueryCacheKey(
-                CompiledQueryCacheKey compiledQueryCacheKey,
-                bool useRelationalNulls,
-                QuerySplittingBehavior? querySplittingBehavior,
-                bool shouldBuffer)
-            {
-                _compiledQueryCacheKey = compiledQueryCacheKey;
-                _useRelationalNulls = useRelationalNulls;
-                _querySplittingBehavior = querySplittingBehavior;
-                _shouldBuffer = shouldBuffer;
-            }
-
-            /// <summary>
-            ///     Determines if this key is equivalent to a given object (i.e. if they are keys for the same query).
-            /// </summary>
-            /// <param name="obj">
-            ///     The object to compare this key to.
-            /// </param>
-            /// <returns>
-            ///     <see langword="true" /> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
-            ///     otherwise <see langword="false" />.
-            /// </returns>
-            public override bool Equals(object? obj)
-                => obj is RelationalCompiledQueryCacheKey key
-                    && Equals(key);
-
-            /// <summary>
-            ///     Indicates whether the current object is equal to another object of the same type.
-            /// </summary>
-            /// <param name="other">
-            ///     An object to compare with this object.
-            /// </param>
-            /// <returns>
-            ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-            /// </returns>
-            public bool Equals(RelationalCompiledQueryCacheKey other)
-                => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
-                    && _useRelationalNulls == other._useRelationalNulls
-                    && _querySplittingBehavior == other._querySplittingBehavior
-                    && _shouldBuffer == other._shouldBuffer;
-
-            /// <summary>
-            ///     Gets the hash code for the key.
-            /// </summary>
-            /// <returns>
-            ///     The hash code for the key.
-            /// </returns>
-            public override int GetHashCode()
-                => HashCode.Combine(
-                    _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
-        }
+        /// <returns>
+        ///     The hash code for the key.
+        /// </returns>
+        public override int GetHashCode()
+            => HashCode.Combine(
+                _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
     }
 }

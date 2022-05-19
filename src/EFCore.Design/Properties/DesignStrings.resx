@@ -192,6 +192,9 @@
   <data name="DuplicateMigrationName" xml:space="preserve">
     <value>The name '{migrationName}' is used by an existing migration.</value>
   </data>
+  <data name="EncodingIgnored" xml:space="preserve">
+    <value>The encoding '{encoding}' specified in the output directive will be ignored. EF Core always scaffolds files using the encoding 'utf-8'.</value>
+  </data>
   <data name="ErrorConnecting" xml:space="preserve">
     <value>An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}</value>
   </data>
@@ -380,6 +383,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="UnhandledEnumValue" xml:space="preserve">
     <value>Unhandled enum value '{enumValue}'.</value>
+  </data>
+  <data name="UnknownDirectiveProcessor" xml:space="preserve">
+    <value>Failed to resolve type for directive processor {name}.</value>
   </data>
   <data name="UnknownLiteral" xml:space="preserve">
     <value>Cannot scaffold C# literals of type '{literalType}'. The provider should implement CoreTypeMapping.GenerateCodeLiteral to support using it at design time.</value>
