@@ -1374,13 +1374,10 @@ public class RelationalModelValidator : ModelValidator
                         logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
                     }
 
-                    if (entityType.GetDirectlyDerivedTypes().Any())
+                    foreach (var fk in entityType.GetDeclaredReferencingForeignKeys())
                     {
-                        foreach (var fk in entityType.GetDeclaredReferencingForeignKeys())
-                        {
-                            AssertNonInternal(fk, StoreObjectType.View);
-                            AssertNonInternal(fk, StoreObjectType.Table);
-                        }
+                        AssertNonInternal(fk, StoreObjectType.View);
+                        AssertNonInternal(fk, StoreObjectType.Table);
                     }
                 }
                 else if (primaryKey == null)
@@ -1399,8 +1396,9 @@ public class RelationalModelValidator : ModelValidator
             if (!foreignKey.PrincipalKey.IsPrimaryKey()
                 || foreignKey.PrincipalEntityType == foreignKey.DeclaringEntityType
                 || !foreignKey.IsUnique
+                || foreignKey.DeclaringEntityType.FindPrimaryKey() == null
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                || !PropertyListComparer.Instance.Equals(foreignKey.Properties, foreignKey.PrincipalKey.Properties))
+                || !PropertyListComparer.Instance.Equals(foreignKey.Properties, foreignKey.DeclaringEntityType.FindPrimaryKey()!.Properties))
 #pragma warning restore EF1001 // Internal EF Core API usage.
             {
                 return;
@@ -1425,7 +1423,7 @@ public class RelationalModelValidator : ModelValidator
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="mappingStrategy">The mapping strategy.</param>
-    protected virtual void ValidateMappingStrategy(IEntityType entityType, string? mappingStrategy)
+    protected virtual void  ValidateMappingStrategy(IEntityType entityType, string? mappingStrategy)
     {
         switch (mappingStrategy)
         {
