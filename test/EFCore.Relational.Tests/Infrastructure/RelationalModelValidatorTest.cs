@@ -485,9 +485,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionalModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-            modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
+        modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
         modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 10");
+        modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 10");
         modelBuilder.Entity<B>().ToTable("Table");
 
         var model = Validate(modelBuilder);
@@ -502,9 +502,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionalModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-            modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
+        modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
         modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
+        modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
         modelBuilder.Entity<B>().ToTable("Table");
 
         var model = Validate(modelBuilder);
@@ -1853,7 +1853,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
         modelBuilder.Entity<Cat>().ToTable("Cat").ToView("Cat");
         modelBuilder.Entity<Dog>().ToTable("Dog").ToView("Cat");
-        
+
         VerifyError(
             RelationalStrings.NonTphViewClash(nameof(Dog), nameof(Cat), "Cat"),
             modelBuilder);
@@ -1945,7 +1945,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         Validate(modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_view_sharing_on_base_with_TPC()
     {
@@ -2509,6 +2509,56 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 });
 
         VerifyError(RelationalStrings.TriggerOnUnmappedEntityType("Animal_Trigger", "Animal"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_when_non_tph_entity_type_short_names_are_not_unique()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<TpcBase>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Outer.TpcDerived>().ToTable("TpcDerived1");
+        modelBuilder.Entity<Outer2.TpcDerived>().ToTable("TpcDerived2");
+
+        VerifyError(
+            RelationalStrings.EntityShortNameNotUnique(
+                "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+Outer2+TpcDerived",
+                "TpcDerived",
+                "Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorTest+Outer+TpcDerived"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_when_non_tph_entity_type_discriminator_set_to_non_string()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<TpcBase>().UseTpcMappingStrategy();
+        modelBuilder.Entity<Outer.TpcDerived>().ToTable("TpcDerived1");
+        modelBuilder.Entity<Outer2.TpcDerived>().ToTable("TpcDerived2");
+        modelBuilder.Entity<TpcBase>().Metadata.SetDiscriminatorProperty(null);
+        modelBuilder.Entity<Outer2.TpcDerived>().Metadata.SetDiscriminatorValue(1);
+
+        VerifyError(RelationalStrings.NonTphDiscriminatorValueNotString(1, "TpcDerived"), modelBuilder);
+    }
+
+    private class TpcBase
+    {
+        public int Id { get; set; }
+    }
+
+    private class Outer
+    {
+        public class TpcDerived : TpcBase
+        {
+            public string Value { get; set; }
+        }
+    }
+
+    private class Outer2
+    {
+        public class TpcDerived : TpcBase
+        {
+            public string Value { get; set; }
+        }
     }
 
     protected override void SetBaseType(IMutableEntityType entityType, IMutableEntityType baseEntityType)

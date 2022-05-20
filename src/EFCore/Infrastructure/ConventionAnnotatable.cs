@@ -133,9 +133,16 @@ public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatabl
     ///     Removes the given annotation from this object.
     /// </summary>
     /// <param name="name">The annotation to remove.</param>
+    /// <param name="configurationSource">The configuration source of the annotation to be removed.</param>
     /// <returns>The annotation that was removed.</returns>
-    public new virtual ConventionAnnotation? RemoveAnnotation(string name)
-        => (ConventionAnnotation?)base.RemoveAnnotation(name);
+    public virtual ConventionAnnotation? RemoveAnnotation(string name, ConfigurationSource configurationSource)
+    {
+        var annotation = FindAnnotation(name);
+        return annotation == null
+            || !configurationSource.Overrides(annotation.GetConfigurationSource())
+            ? null
+            : (ConventionAnnotation?)base.RemoveAnnotation(name);
+    }
 
     /// <inheritdoc />
     protected override Annotation CreateAnnotation(string name, object? value)
@@ -201,8 +208,8 @@ public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatabl
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionAnnotation? IConventionAnnotatable.RemoveAnnotation(string name)
-        => RemoveAnnotation(name);
+    IConventionAnnotation? IConventionAnnotatable.RemoveAnnotation(string name, bool fromDataAnnotation)
+        => RemoveAnnotation(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

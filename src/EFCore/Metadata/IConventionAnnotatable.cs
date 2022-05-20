@@ -66,8 +66,9 @@ public interface IConventionAnnotatable : IReadOnlyAnnotatable
     ///     Removes the annotation with the given name from this object.
     /// </summary>
     /// <param name="name">The name of the annotation to remove.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The annotation that was removed.</returns>
-    IConventionAnnotation? RemoveAnnotation(string name);
+    IConventionAnnotation? RemoveAnnotation(string name, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Gets the annotation with the given name, throwing if it does not exist.

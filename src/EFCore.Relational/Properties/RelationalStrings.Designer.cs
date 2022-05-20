@@ -1405,6 +1405,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string VisitChildrenMustBeOverridden
             => GetString("VisitChildrenMustBeOverridden");
 
+        /// <summary>
+        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call entityTypeBuilder.Metadata.SetDiscriminatorValue("NewShortName").
+        /// </summary>
+        public static string EntityShortNameNotUnique(object? entityType1, object? discriminatorValue, object? entityType2)
+            => string.Format(
+                GetString("EntityShortNameNotUnique", nameof(entityType1), nameof(discriminatorValue), nameof(entityType2)),
+                entityType1, discriminatorValue, entityType2);
+
+        /// <summary>
+        ///     The specified discriminator value '{value}' for '{entityType}' is not a string. Configure a string discriminator value instead.
+        /// </summary>
+        public static string NonTphDiscriminatorValueNotString(object? value, object? entityType)
+            => string.Format(
+                GetString("NonTphDiscriminatorValueNotString", nameof(value), nameof(entityType)),
+                value, entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

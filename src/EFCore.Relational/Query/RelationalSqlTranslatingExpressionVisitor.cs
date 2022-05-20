@@ -1128,7 +1128,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     }
 
                     // TPT or TPC
-                    var discriminatorValues = derivedType.GetTptDiscriminatorValues();
+                    var discriminatorValues = derivedType.GetConcreteDerivedTypesInclusive().Select(e => e.GetDiscriminatorValue()).ToList();
                     if (entityReferenceExpression.SubqueryEntity != null)
                     {
                         var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;

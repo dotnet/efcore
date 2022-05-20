@@ -160,41 +160,6 @@ public class EntityTypeExtensionsTest
         Assert.Null(entityType.GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
-    public void Setting_discriminator_value_when_discriminator_not_set_throws()
-    {
-        var modelBuilder = new ModelBuilder();
-
-        var entityType = modelBuilder
-            .Entity<Customer>()
-            .Metadata;
-
-        Assert.Equal(
-            CoreStrings.NoDiscriminatorForValue("Customer", "Customer"),
-            Assert.Throws<InvalidOperationException>(
-                () => entityType.SetDiscriminatorValue("V")).Message);
-    }
-
-    [ConditionalFact]
-    public void Setting_incompatible_discriminator_value_throws()
-    {
-        var modelBuilder = new ModelBuilder();
-
-        var entityType = modelBuilder
-            .Entity<Customer>()
-            .Metadata;
-
-        var property = entityType.AddProperty("D", typeof(int));
-        entityType.SetDiscriminatorProperty(property);
-
-        Assert.Equal(
-            CoreStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
-            Assert.Throws<InvalidOperationException>(
-                () => entityType.SetDiscriminatorValue("V")).Message);
-
-        entityType.SetDiscriminatorValue(null);
-    }
-
     private static IMutableModel CreateModel()
         => new Model();
 

@@ -120,15 +120,16 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     object? SetDiscriminatorValue(object? value, bool fromDataAnnotation = false)
-        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, EntityType.CheckDiscriminatorValue(this, value), fromDataAnnotation)
+        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation)
             ?.Value;
 
     /// <summary>
     ///     Removes the discriminator value for this entity type.
     /// </summary>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The removed discriminator value.</returns>
-    object? RemoveDiscriminatorValue()
-        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
+    object? RemoveDiscriminatorValue(bool fromDataAnnotation = false)
+        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue, fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.

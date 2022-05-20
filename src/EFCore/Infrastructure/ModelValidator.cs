@@ -604,11 +604,17 @@ public class ModelValidator : IModelValidator
                 continue;
             }
 
-            var discriminatorValue = derivedType.GetDiscriminatorValue();
+            var discriminatorValue = derivedType[CoreAnnotationNames.DiscriminatorValue];
             if (discriminatorValue == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NoDiscriminatorValue(derivedType.DisplayName()));
+            }
+
+            if (!discriminatorProperty.ClrType.IsInstanceOfType(discriminatorValue))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.DiscriminatorValueIncompatible(discriminatorValue, discriminatorProperty.Name, discriminatorProperty.ClrType));
             }
 
             if (discriminatorValues.TryGetValue(discriminatorValue, out var duplicateEntityType))

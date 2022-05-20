@@ -1080,7 +1080,8 @@ namespace TestNamespace
             var runtimeEntityType = model.AddEntityType(
                 ""Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase"",
                 typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase),
-                baseEntityType);
+                baseEntityType,
+                discriminatorValue: ""PrincipalBase"");
 
             var id = runtimeEntityType.AddProperty(
                 ""Id"",
@@ -1549,7 +1550,8 @@ namespace TestNamespace
             var runtimeEntityType = model.AddEntityType(
                 ""Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentBase<byte?>>"",
                 typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>),
-                baseEntityType);
+                baseEntityType,
+                discriminatorValue: ""PrincipalDerived<DependentBase<byte?>>"");
 
             return runtimeEntityType;
         }
@@ -1828,7 +1830,7 @@ namespace TestNamespace
                     Assert.False(principalDerived.IsOwned());
                     Assert.IsType<ConstructorBinding>(principalDerived.ConstructorBinding);
                     Assert.Equal(ChangeTrackingStrategy.Snapshot, principalDerived.GetChangeTrackingStrategy());
-                    Assert.Null(principalDerived.GetDiscriminatorValue());
+                    Assert.Equal("PrincipalDerived<DependentBase<byte?>>", principalDerived.GetDiscriminatorValue());
 
                     var tptForeignKey = principalDerived.GetForeignKeys().Single();
                     Assert.False(tptForeignKey.IsOwnership);
@@ -2358,7 +2360,8 @@ namespace TestNamespace
             var runtimeEntityType = model.AddEntityType(
                 ""Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase"",
                 typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase),
-                baseEntityType);
+                baseEntityType,
+                discriminatorValue: ""PrincipalBase"");
 
             var id = runtimeEntityType.AddProperty(
                 ""Id"",
@@ -2463,7 +2466,8 @@ namespace TestNamespace
             var runtimeEntityType = model.AddEntityType(
                 ""Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentBase<byte?>>"",
                 typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>),
-                baseEntityType);
+                baseEntityType,
+                discriminatorValue: ""PrincipalDerived<DependentBase<byte?>>"");
 
             return runtimeEntityType;
         }
@@ -2495,7 +2499,7 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBaseView", principalBase.GetViewName());
                     Assert.Equal("TPC", principalBase.GetViewSchema());
 
-                    Assert.Null(principalBase.GetDiscriminatorValue());
+                    Assert.Equal("PrincipalBase", principalBase.GetDiscriminatorValue());
                     Assert.Null(principalBase.FindDiscriminatorProperty());
                     Assert.Equal("TPC", principalBase.GetMappingStrategy());
 
@@ -2514,7 +2518,7 @@ namespace TestNamespace
                     Assert.Equal("PrincipalDerivedView", principalDerived.GetViewName());
                     Assert.Equal("TPC", principalBase.GetViewSchema());
 
-                    Assert.Null(principalDerived.GetDiscriminatorValue());
+                    Assert.Equal("PrincipalDerived<DependentBase<byte?>>", principalDerived.GetDiscriminatorValue());
                     Assert.Null(principalDerived.FindDiscriminatorProperty());
                     Assert.Equal("TPC", principalDerived.GetMappingStrategy());
 
