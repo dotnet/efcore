@@ -803,6 +803,82 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_round_works_correctly_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new
+                {
+                    o.OrderID,
+                    Sum = o.OrderDetails.Sum(i => Math.Round(i.UnitPrice, 2))
+                }),
+            elementSorter: e => e.OrderID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.OrderID, a.OrderID);
+                Assert.Equal(e.Sum, a.Sum);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_round_works_correctly_in_projection_2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new
+                {
+                    o.OrderID,
+                    Sum = o.OrderDetails.Select(i => i.UnitPrice * i.UnitPrice).Sum(i => Math.Round(i, 2))
+                }),
+            elementSorter: e => e.OrderID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.OrderID, a.OrderID);
+                Assert.Equal(e.Sum, a.Sum);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_truncate_works_correctly_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new
+                {
+                    o.OrderID,
+                    Sum = o.OrderDetails.Sum(i => Math.Truncate(i.UnitPrice))
+                }),
+            elementSorter: e => e.OrderID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.OrderID, a.OrderID);
+                Assert.Equal(e.Sum, a.Sum);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_truncate_works_correctly_in_projection_2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new
+                {
+                    o.OrderID,
+                    Sum = o.OrderDetails.Select(i => i.UnitPrice * i.UnitPrice).Sum(i => Math.Truncate(i))
+                }),
+            elementSorter: e => e.OrderID,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.OrderID, a.OrderID);
+                Assert.Equal(e.Sum, a.Sum);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_math_round_int(bool async)
         => AssertQuery(
             async,

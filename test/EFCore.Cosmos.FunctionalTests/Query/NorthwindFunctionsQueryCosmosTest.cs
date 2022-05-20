@@ -350,6 +350,18 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5)) AND (ROUND(c[""UnitPrice""]) > 10.0))");
     }
 
+    public override Task Sum_over_round_works_correctly_in_projection(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_round_works_correctly_in_projection(async));
+
+    public override Task Sum_over_round_works_correctly_in_projection_2(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_round_works_correctly_in_projection_2(async));
+
+    public override Task Sum_over_truncate_works_correctly_in_projection(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_truncate_works_correctly_in_projection(async));
+
+    public override Task Sum_over_truncate_works_correctly_in_projection_2(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_truncate_works_correctly_in_projection_2(async));
+
     public override async Task Select_math_round_int(bool async)
     {
         await base.Select_math_round_int(async);

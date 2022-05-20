@@ -102,6 +102,18 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
     public override Task Where_math_round(bool async)
         => AssertTranslationFailed(() => base.Where_math_round(async));
 
+    public override Task Sum_over_round_works_correctly_in_projection(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_round_works_correctly_in_projection(async));
+
+    public override Task Sum_over_round_works_correctly_in_projection_2(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_round_works_correctly_in_projection_2(async));
+
+    public override Task Sum_over_truncate_works_correctly_in_projection(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_truncate_works_correctly_in_projection(async));
+
+    public override Task Sum_over_truncate_works_correctly_in_projection_2(bool async)
+        => AssertTranslationFailed(() => base.Sum_over_truncate_works_correctly_in_projection_2(async));
+
     public override Task Where_math_round2(bool async)
         => AssertTranslationFailed(() => base.Where_math_round2(async));
 
