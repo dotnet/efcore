@@ -751,7 +751,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                         var innerExpression = RemoveConvert(innerShaperExpression);
                         if (!(innerExpression is EntityShaperExpression
-                                || innerExpression is IncludeExpression))
+                             || innerExpression is IncludeExpression))
                         {
                             var sentinelExpression = innerSelectExpression.Limit!;
                             var sentinelNullableType = sentinelExpression.Type.MakeNullable();

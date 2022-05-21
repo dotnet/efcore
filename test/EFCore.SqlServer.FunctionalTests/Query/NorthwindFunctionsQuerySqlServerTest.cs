@@ -774,6 +774,58 @@ FROM [Order Details] AS [o]
 WHERE [o].[Quantity] < CAST(5 AS smallint) AND ROUND([o].[UnitPrice], 0) > 10.0");
     }
 
+    public override async Task Sum_over_round_works_correctly_in_projection(bool async)
+    {
+        await base.Sum_over_round_works_correctly_in_projection(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], (
+    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice], 2)), 0.0)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+    }
+
+    public override async Task Sum_over_round_works_correctly_in_projection_2(bool async)
+    {
+        await base.Sum_over_round_works_correctly_in_projection_2(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], (
+    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice] * [o0].[UnitPrice], 2)), 0.0)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+    }
+
+    public override async Task Sum_over_truncate_works_correctly_in_projection(bool async)
+    {
+        await base.Sum_over_truncate_works_correctly_in_projection(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], (
+    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice], 0, 1)), 0.0)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+    }
+
+    public override async Task Sum_over_truncate_works_correctly_in_projection_2(bool async)
+    {
+        await base.Sum_over_truncate_works_correctly_in_projection_2(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], (
+    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice] * [o0].[UnitPrice], 0, 1)), 0.0)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+    }
+
     public override async Task Select_math_round_int(bool async)
     {
         await base.Select_math_round_int(async);

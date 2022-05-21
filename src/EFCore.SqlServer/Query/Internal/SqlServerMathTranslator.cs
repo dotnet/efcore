@@ -134,13 +134,20 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         if (TruncateMethodInfos.Contains(method))
         {
             var argument = arguments[0];
-            // Result of ROUND for float/double is always double in server side
+            // C# has Round over decimal/double/float only so our argument will be one of those types (compiler puts convert node)
+            // In database result will be same type except for float which returns double which we need to cast back to float.
+            var resultType = argument.Type;
+            if (resultType == typeof(float))
+            {
+                resultType = typeof(double);
+            }
+
             var result = (SqlExpression)_sqlExpressionFactory.Function(
                 "ROUND",
                 new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
                 argumentsPropagateNullability: new[] { true, false, false },
-                typeof(double));
+                resultType);
 
             if (argument.Type == typeof(float))
             {
@@ -154,13 +161,20 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         {
             var argument = arguments[0];
             var digits = arguments.Count == 2 ? arguments[1] : _sqlExpressionFactory.Constant(0);
-            // Result of ROUND for float/double is always double in server side
+            // C# has Round over decimal/double/float only so our argument will be one of those types (compiler puts convert node)
+            // In database result will be same type except for float which returns double which we need to cast back to float.
+            var resultType = argument.Type;
+            if (resultType == typeof(float))
+            {
+                resultType = typeof(double);
+            }
+
             var result = (SqlExpression)_sqlExpressionFactory.Function(
                 "ROUND",
                 new[] { argument, digits },
                 nullable: true,
                 argumentsPropagateNullability: new[] { true, true },
-                typeof(double));
+                resultType);
 
             if (argument.Type == typeof(float))
             {
