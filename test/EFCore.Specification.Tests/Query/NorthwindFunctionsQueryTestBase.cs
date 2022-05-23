@@ -1482,38 +1482,66 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Indexof_with_emptystring(bool async)
-        => AssertQueryScalar(
+        => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf(string.Empty)));
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf(string.Empty) == 0),
+            entryCount: 91);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Indexof_with_one_arg(bool async)
-        => AssertQueryScalar(
+    public virtual Task Indexof_with_one_constant_arg(bool async)
+        => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("a")));
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf("a") == 1),
+            entryCount: 32);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Indexof_with_starting_position(bool async)
-        => AssertQueryScalar(
+    public virtual Task Indexof_with_one_parameter_arg(bool async)
+    {
+        var pattern = "a";
+
+        return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("a", 3)));
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf(pattern) == 1),
+            entryCount: 32);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Indexof_with_constant_starting_position(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf("a", 2) == 4),
+            entryCount: 15);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Indexof_with_parameter_starting_position(bool async)
+    {
+        var start = 2;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf("a", start) == 4),
+            entryCount: 15);
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Replace_with_emptystring(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Replace("ari", string.Empty)));
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Replace("ia", string.Empty) == "Mar Anders"),
+            entryCount: 1);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Replace_using_property_arguments(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Select(c => c.ContactName.Replace(c.ContactName, c.CustomerID)));
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Replace(c.ContactName, c.CustomerID) == c.CustomerID),
+            entryCount: 91);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

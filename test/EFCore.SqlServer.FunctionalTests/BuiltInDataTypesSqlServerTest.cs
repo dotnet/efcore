@@ -83,10 +83,7 @@ WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
 
             Assert.Equal(-1, Assert.Single(results));
             AssertSql(
-                @"SELECT CASE
-    WHEN 'a' = '' THEN 0
-    ELSE CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
-END
+                @"SELECT CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[Int] = 81");
         }

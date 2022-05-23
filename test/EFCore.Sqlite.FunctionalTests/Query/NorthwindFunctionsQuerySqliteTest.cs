@@ -339,19 +339,57 @@ WHERE ""c"".""Region"" IS NULL OR trim(""c"".""Region"") = ''");
         await base.Indexof_with_emptystring(async);
 
         AssertSql(
-            @"SELECT instr(""c"".""ContactName"", '') - 1
+            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" = 'ALFKI'");
+WHERE (instr(""c"".""ContactName"", '') - 1) = 0");
     }
+
+    public override async Task Indexof_with_one_constant_arg(bool async)
+    {
+        await base.Indexof_with_one_constant_arg(async);
+
+        AssertSql(
+            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (instr(""c"".""ContactName"", 'a') - 1) = 1");
+    }
+
+    public override async Task Indexof_with_one_parameter_arg(bool async)
+    {
+        await base.Indexof_with_one_parameter_arg(async);
+
+        AssertSql(
+            @"@__pattern_0='a' (Size = 1)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (instr(""c"".""ContactName"", @__pattern_0) - 1) = 1");
+    }
+
+    public override Task Indexof_with_constant_starting_position(bool async)
+        => AssertTranslationFailed(() => base.Indexof_with_constant_starting_position(async));
+
+    public override Task Indexof_with_parameter_starting_position(bool async)
+        => AssertTranslationFailed(() => base.Indexof_with_parameter_starting_position(async));
 
     public override async Task Replace_with_emptystring(bool async)
     {
         await base.Replace_with_emptystring(async);
 
         AssertSql(
-            @"SELECT replace(""c"".""ContactName"", 'ari', '')
+            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" = 'ALFKI'");
+WHERE replace(""c"".""ContactName"", 'ia', '') = 'Mar Anders'");
+    }
+
+    public override async Task Replace_using_property_arguments(bool async)
+    {
+        await base.Replace_using_property_arguments(async);
+
+        AssertSql(
+            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE replace(""c"".""ContactName"", ""c"".""ContactName"", ""c"".""CustomerID"") = ""c"".""CustomerID""");
     }
 
     public override async Task Substring_with_one_arg_with_zero_startindex(bool async)
