@@ -2648,7 +2648,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The entity of type '{entityType}' is an optional dependent using table sharing. The entity does not have any property with a non-default value to identify whether the entity exists. This means that when it is queried no object instance will be created instead of an instance with all properties set to default values. Any nested dependents will also be lost. Either don't save any instance with only default values or mark the incoming navigation as required in the model. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.
+        ///     The entity of type '{entityType}' is an optional dependent using table sharing. The entity does not have any property with a non-null value to identify whether the entity exists. This means that when it is queried no object instance will be created instead of an instance with all properties set to null values. Any nested dependents will also be lost. Either don't save any instance with only null values or mark the incoming navigation as required in the model. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.
         /// </summary>
         public static EventDefinition<string> LogOptionalDependentWithAllNullProperties(IDiagnosticsLogger logger)
         {
@@ -2673,7 +2673,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The entity of type '{entityType}' with primary key values {keyValues} is an optional dependent using table sharing. The entity does not have any property with a non-default value to identify whether the entity exists. This means that when it is queried no object instance will be created instead of an instance with all properties set to default values. Any nested dependents will also be lost. Either don't save any instance with only default values or mark the incoming navigation as required in the model.
+        ///     The entity of type '{entityType}' with primary key values {keyValues} is an optional dependent using table sharing. The entity does not have any property with a non-null value to identify whether the entity exists. This means that when it is queried no object instance will be created instead of an instance with all properties set to null values. Any nested dependents will also be lost. Either don't save any instance with only null values or mark the incoming navigation as required in the model.
         /// </summary>
         public static EventDefinition<string, string> LogOptionalDependentWithAllNullPropertiesSensitive(IDiagnosticsLogger logger)
         {
