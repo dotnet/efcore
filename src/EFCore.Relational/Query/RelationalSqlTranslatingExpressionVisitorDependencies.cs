@@ -50,13 +50,15 @@ public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
         IModel model,
         IRelationalTypeMappingSource typeMappingSource,
         IMemberTranslatorProvider memberTranslatorProvider,
-        IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        IMethodCallTranslatorProvider methodCallTranslatorProvider,
+        IAggregateMethodCallTranslatorProvider aggregateMethodCallTranslatorProvider)
     {
         SqlExpressionFactory = sqlExpressionFactory;
         Model = model;
         TypeMappingSource = typeMappingSource;
         MemberTranslatorProvider = memberTranslatorProvider;
         MethodCallTranslatorProvider = methodCallTranslatorProvider;
+        AggregateMethodCallTranslatorProvider = aggregateMethodCallTranslatorProvider;
     }
 
     /// <summary>
@@ -65,7 +67,7 @@ public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
     /// <summary>
-    ///     The expression factory.
+    ///     The model.
     /// </summary>
     public IModel Model { get; init; }
 
@@ -80,7 +82,12 @@ public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
     public IMemberTranslatorProvider MemberTranslatorProvider { get; init; }
 
     /// <summary>
-    ///     The method-call translation provider.
+    ///     The scalar method-call translation provider.
     /// </summary>
     public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; init; }
+
+    /// <summary>
+    ///     The aggregate method-call translation provider.
+    /// </summary>
+    public IAggregateMethodCallTranslatorProvider AggregateMethodCallTranslatorProvider { get; }
 }

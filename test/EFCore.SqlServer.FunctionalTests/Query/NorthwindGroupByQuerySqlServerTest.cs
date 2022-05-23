@@ -626,9 +626,9 @@ END) AS [Min], MAX(CASE
     WHEN 1 = [t].[Key] THEN [t].[OrderDate]
 END) AS [Max], COALESCE(SUM(CASE
     WHEN 1 = [t].[Key] THEN [t].[OrderID]
-END), 0) AS [Sum], AVG(CAST(CASE
-    WHEN 1 = [t].[Key] THEN [t].[OrderID]
-END AS float)) AS [Average]
+END), 0) AS [Sum], AVG(CASE
+    WHEN 1 = [t].[Key] THEN CAST([t].[OrderID] AS float)
+END) AS [Average]
 FROM (
     SELECT [o].[OrderID], [o].[OrderDate], 1 AS [Key]
     FROM [Orders] AS [o]
@@ -1782,9 +1782,9 @@ END");
         await base.GroupBy_Where_Average(async);
 
         AssertSql(
-            @"SELECT AVG(CAST(CASE
-    WHEN [o].[OrderID] < 10300 THEN [o].[OrderID]
-END AS float))
+            @"SELECT AVG(CASE
+    WHEN [o].[OrderID] < 10300 THEN CAST([o].[OrderID] AS float)
+END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
     }

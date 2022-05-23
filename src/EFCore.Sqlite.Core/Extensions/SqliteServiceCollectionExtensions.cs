@@ -112,6 +112,7 @@ public static class SqliteServiceCollectionExtensions
 
             // New Query Pipeline
             .TryAdd<IMethodCallTranslatorProvider, SqliteMethodCallTranslatorProvider>()
+            .TryAdd<IAggregateMethodCallTranslatorProvider, SqliteAggregateMethodCallTranslatorProvider>()
             .TryAdd<IMemberTranslatorProvider, SqliteMemberTranslatorProvider>()
             .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqliteQueryableMethodTranslatingExpressionVisitorFactory>()

@@ -3,14 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-/// <summary>
-///     Represents a filter for evaluatable expressions.
-/// </summary>
-/// <remarks>
-///     The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-/// </remarks>
+/// <inheritdoc />
 public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
 {
     /// <summary>
@@ -37,12 +30,7 @@ public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
     /// </summary>
     protected virtual RelationalEvaluatableExpressionFilterDependencies RelationalDependencies { get; }
 
-    /// <summary>
-    ///     Checks whether the given expression can be evaluated.
-    /// </summary>
-    /// <param name="expression">The expression.</param>
-    /// <param name="model">The model.</param>
-    /// <returns><see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise.</returns>
+    /// <inheritdoc />
     public override bool IsEvaluatableExpression(Expression expression, IModel model)
     {
         if (expression is MethodCallExpression methodCallExpression)
