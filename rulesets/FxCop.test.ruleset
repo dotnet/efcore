@@ -2,7 +2,7 @@
 <!-- Docs: https://github.com/dotnet/roslyn-analyzers/blob/master/src/Microsoft.CodeAnalysis.FxCopAnalyzers/Microsoft.CodeAnalysis.FxCopAnalyzers.md -->
 <!-- RuleSet copied from  -->
 <RuleSet Name="FxCop" Description="FxCop" ToolsVersion="15.0">
-   <Rules AnalyzerId="Microsoft.CodeAnalysis.FxCopAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.FxCopAnalyzers">
+   <Rules AnalyzerId="Microsoft.CodeAnalysis.NetAnalyzers" RuleNamespace="Microsoft.CodeAnalysis.NetAnalyzers">
       <Rule Id="CA1000" Action="None" />             <!-- Do not declare static members on generic types -->
       <Rule Id="CA1001" Action="None" />             <!-- Types that own disposable fields should be disposable -->
       <Rule Id="CA1003" Action="None" />             <!-- Use generic event handler instances -->

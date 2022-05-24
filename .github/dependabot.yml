@@ -27,7 +27,6 @@ updates:
       - dependency-name: Microsoft.CodeAnalysis.CSharp*
       # New analyzer rules would need to be disabled
       - dependency-name: DotNetAnalyzers.DocumentationAnalyzers
-      - dependency-name: Microsoft.CodeAnalysis.FxCopAnalyzers
       - dependency-name: StyleCop.Analyzers
       # Testing infrastructure should be intentionally updated
       - dependency-name: BenchmarkDotNet
