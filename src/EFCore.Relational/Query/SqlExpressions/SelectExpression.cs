@@ -2993,7 +2993,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
-        if (subquery._groupBy.Count > 0)
+        if (subquery._groupBy.Count > 0
+            && !subquery.IsDistinct)
         {
             foreach (var key in subquery._groupBy)
             {

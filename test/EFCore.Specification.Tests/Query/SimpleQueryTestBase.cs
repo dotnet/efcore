@@ -1134,4 +1134,68 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public DateTime? SomeOtherNullableDateTime { get; set; }
         public Parent26744 Parent { get; set; }
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28039>();
+        using var db = contextFactory.CreateContext();
+
+
+        var queryResults = (from i in db.IndexData.Where(a => a.Parcel == "some condition")
+                                        .Select(a => new SearchResult { ParcelNumber = a.Parcel, RowId = a.RowId })
+                            group i by new { i.ParcelNumber, i.RowId } into grp
+                            where grp.Count() == 1
+                            select grp.Key.ParcelNumber).Distinct();
+
+        var jsonLookup = (from dcv in db.TableData.Where(a => a.TableId == 123)
+                          join wos in queryResults
+                          on dcv.ParcelNumber equals wos
+                          orderby dcv.ParcelNumber
+                          select dcv.JSON).Take(123456);
+
+
+        var result = async
+            ? await jsonLookup.ToListAsync()
+            : jsonLookup.ToList();
+    }
+
+    protected class Context28039 : DbContext
+    {
+        public Context28039(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<IndexData> IndexData { get; set; }
+        public DbSet<TableData> TableData { get; set; }
+    }
+
+    public class TableData : EntityBase
+    {
+        public int TableId { get; set; }
+        public string ParcelNumber { get; set; }
+        public short RowId { get; set; }
+        public string JSON { get; set; }
+
+    }
+
+    public abstract class EntityBase
+    {
+        [Key]
+        public int ID { get; set; }
+    }
+    public class IndexData : EntityBase
+    {
+        public string Parcel { get; set; }
+        public int RowId { get; set; }
+    }
+
+    internal class SearchResult
+    {
+        public string ParcelNumber { get; set; }
+        public int RowId { get; set; }
+        public string DistinctValue { get; set; }
+    }
 }
