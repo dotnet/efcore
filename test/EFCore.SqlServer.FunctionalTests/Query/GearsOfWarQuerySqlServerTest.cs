@@ -2534,6 +2534,145 @@ FROM [Missions] AS [m]
 WHERE [m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'");
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_AtTimeZone_datetimeoffset_constant(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = context.Set<Mission>().Where(
+            m => EF.Functions.AtTimeZone(m.Timeline, "UTC") == new DateTimeOffset(2, 3, 1, 13, 0, 0, TimeSpan.Zero));
+
+        var missions = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var mission = Assert.Single(missions);
+        Assert.Equal(2, mission.Id);
+
+        AssertSql(
+            @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE ([m].[Timeline] AT TIME ZONE 'UTC') = '0002-03-01T13:00:00.0000000+00:00'");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_AtTimeZone_datetimeoffset_parameter(bool async)
+    {
+        using var context = CreateContext();
+
+        var dateTime = new DateTimeOffset(2, 3, 1, 13, 0, 0, TimeSpan.Zero);
+        var timeZone = "UTC";
+        var query = context.Set<Mission>().Where(m => m.Timeline == EF.Functions.AtTimeZone(dateTime, timeZone));
+
+        var missions = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var mission = Assert.Single(missions);
+        Assert.Equal(2, mission.Id);
+
+        AssertSql(
+                @"@__dateTime_1='0002-03-01T13:00:00.0000000+00:00'
+@__timeZone_2='UTC' (Size = 8000) (DbType = AnsiString)
+
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE [m].[Timeline] = (@__dateTime_1 AT TIME ZONE @__timeZone_2)");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_AtTimeZone_datetimeoffset_column(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = context.Set<Mission>()
+            .Where(m => EF.Functions.AtTimeZone(m.Timeline, "UTC") == new DateTimeOffset(2, 3, 1, 13, 0, 0, TimeSpan.Zero));
+
+        var missions = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var mission = Assert.Single(missions);
+        Assert.Equal(2, mission.Id);
+
+        AssertSql(
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE ([m].[Timeline] AT TIME ZONE 'UTC') = '0002-03-01T13:00:00.0000000+00:00'");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_AtTimeZone_datetime_constant(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = context.Set<Mission>().Where(m => m.Timeline == EF.Functions.AtTimeZone(new DateTime(10, 5, 3, 12, 0, 0), "UTC"));
+
+        var missions = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var mission = Assert.Single(missions);
+        Assert.Equal(3, mission.Id);
+
+        AssertSql(
+            @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE [m].[Timeline] = (CAST('0010-05-03T12:00:00.0000000' AS datetime2) AT TIME ZONE 'UTC')");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_AtTimeZone_datetime_parameter(bool async)
+    {
+        using var context = CreateContext();
+
+        var dateTime = new DateTime(10, 5, 3, 12, 0, 0);
+        var timeZone = "UTC";
+        var query = context.Set<Mission>().Where(m => m.Timeline == EF.Functions.AtTimeZone(dateTime, timeZone));
+
+        var missions = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var mission = Assert.Single(missions);
+        Assert.Equal(3, mission.Id);
+
+        AssertSql(
+                @"@__dateTime_1='0010-05-03T12:00:00.0000000'
+@__timeZone_2='UTC' (Size = 8000) (DbType = AnsiString)
+
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE [m].[Timeline] = (@__dateTime_1 AT TIME ZONE @__timeZone_2)");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_AtTimeZone_datetime_column(bool async)
+    {
+        using var context = CreateContext();
+
+        var query = context.Set<CogTag>()
+            .Where(ct => EF.Functions.AtTimeZone(ct.IssueDate, "UTC") == new DateTimeOffset(15, 3, 7, 0, 0, 0, TimeSpan.Zero));
+
+        var missions = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var mission = Assert.Single(missions);
+        Assert.Equal(Guid.Parse("A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69"), mission.Id);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
+FROM [Tags] AS [t]
+WHERE ([t].[IssueDate] AT TIME ZONE 'UTC') = '0015-03-07T00:00:00.0000000+00:00'");
+    }
+
     public override async Task Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used(
         bool async)
     {

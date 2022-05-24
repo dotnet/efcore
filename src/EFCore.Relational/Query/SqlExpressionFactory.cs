@@ -54,6 +54,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
         return sqlExpression switch
         {
+            AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
             CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
             CollateExpression e => ApplyTypeMappingOnCollate(e, typeMapping),
             DistinctExpression e => ApplyTypeMappingOnDistinct(e, typeMapping),
@@ -68,6 +69,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             _ => sqlExpression
         };
     }
+
+    private SqlExpression ApplyTypeMappingOnAtTimeZone(AtTimeZoneExpression atTimeZoneExpression, RelationalTypeMapping? typeMapping)
+        => new AtTimeZoneExpression(atTimeZoneExpression.Operand, atTimeZoneExpression.TimeZone, atTimeZoneExpression.Type, typeMapping);
 
     private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression)
     {

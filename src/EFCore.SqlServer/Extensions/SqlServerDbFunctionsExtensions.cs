@@ -1438,4 +1438,50 @@ public static class SqlServerDbFunctionsExtensions
         this DbFunctions _,
         string expression)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsNumeric)));
+
+    /// <summary>
+    ///     Converts <paramref name="dateTime" /> to the corresponding <c>datetimeoffset</c> in the target <paramref name="timeZone" />.
+    ///     Corresponds to the SQL Server's <c>AT TIME ZONE</c> construct.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note that the <see cref="DateTime.Kind" /> of <paramref name="dateTime" /> is not taken into account when performing the
+    ///         conversion; the offset for the provided time zone is simply applied as-is.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="dateTime">The value to convert to <c>datetimeoffset</c>.</param>
+    /// <param name="timeZone">A valid SQL Server time zone ID.</param>
+    /// <returns>The <c>datetimeoffset</c> resulting from the conversion.</returns>
+    /// <seealso href="https://docs.microsoft.com/sql/t-sql/queries/at-time-zone-transact-sql">SQL Server documentation for <c>AT TIME ZONE</c>.</seealso>
+    public static DateTimeOffset AtTimeZone(
+        this DbFunctions _,
+        DateTime dateTime,
+        string timeZone)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
+
+    /// <summary>
+    ///     Converts <paramref name="dateTimeOffset" /> to the time zone specified by <paramref name="timeZone"/>.
+    ///     Corresponds to the SQL Server's <c>AT TIME ZONE</c> construct.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="dateTimeOffset">The value on which to perform the time zone conversion.</param>
+    /// <param name="timeZone">A valid SQL Server time zone ID.</param>
+    /// <returns>The <c>datetimeoffset</c> resulting from the conversion.</returns>
+    /// <seealso href="https://docs.microsoft.com/sql/t-sql/queries/at-time-zone-transact-sql">SQL Server documentation for <c>AT TIME ZONE</c>.</seealso>
+    public static DateTimeOffset AtTimeZone(
+        this DbFunctions _,
+        DateTimeOffset dateTimeOffset,
+        string timeZone)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
 }

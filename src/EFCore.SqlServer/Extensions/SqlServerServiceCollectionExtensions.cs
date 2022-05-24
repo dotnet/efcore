@@ -123,6 +123,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
             .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
             .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
+            .TryAdd<ISqlExpressionFactory, SqlServerSqlExpressionFactory>()
             .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqlServerParameterBasedSqlProcessorFactory>()
             .TryAdd<INavigationExpansionExtensibilityHelper, SqlServerNavigationExpansionExtensibilityHelper>()
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()

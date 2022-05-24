@@ -357,6 +357,8 @@ public class SqlNullabilityProcessor
         var nullValueColumnsCount = _nullValueColumns.Count;
         var result = sqlExpression switch
         {
+            AtTimeZoneExpression sqlAtTimeZoneExpression
+                => VisitAtTimeZone(sqlAtTimeZoneExpression, allowOptimizedExpansion, out nullable),
             CaseExpression caseExpression
                 => VisitCase(caseExpression, allowOptimizedExpansion, out nullable),
             CollateExpression collateExpression
@@ -412,6 +414,25 @@ public class SqlNullabilityProcessor
         out bool nullable)
         => throw new InvalidOperationException(
             RelationalStrings.UnhandledExpressionInVisitor(sqlExpression, sqlExpression.GetType(), nameof(SqlNullabilityProcessor)));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual SqlExpression VisitAtTimeZone(
+        AtTimeZoneExpression atTimeZoneExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        var operand = Visit(atTimeZoneExpression.Operand, out var operandNullable);
+        var timeZone = Visit(atTimeZoneExpression.TimeZone, out var timeZoneNullable);
+
+        nullable = operandNullable || timeZoneNullable;
+
+        return atTimeZoneExpression.Update(operand, timeZone);
+    }
 
     /// <summary>
     ///     Visits a <see cref="CaseExpression" /> and computes its nullability.

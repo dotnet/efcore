@@ -24,6 +24,9 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             case ShapedQueryExpression shapedQueryExpression:
                 return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
 
+            case AtTimeZoneExpression atTimeZoneExpression:
+                return VisitAtTimeZone(atTimeZoneExpression);
+
             case CaseExpression caseExpression:
                 return VisitCase(caseExpression);
 
@@ -114,6 +117,14 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
 
         return base.VisitExtension(extensionExpression);
     }
+
+
+    /// <summary>
+    ///     Visits the children of the sql "at time zone" expression.
+    /// </summary>
+    /// <param name="atTimeZoneExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitAtTimeZone(AtTimeZoneExpression atTimeZoneExpression);
 
     /// <summary>
     ///     Visits the children of the case expression.
@@ -277,7 +288,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
 
     /// <summary>
-    ///     Visits the children of the sql fragent expression.
+    ///     Visits the children of the sql fragment expression.
     /// </summary>
     /// <param name="sqlFragmentExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>

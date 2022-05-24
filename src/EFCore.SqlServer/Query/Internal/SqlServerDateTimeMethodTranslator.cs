@@ -31,6 +31,14 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
         { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) })!, "millisecond" }
     };
 
+    private static readonly MethodInfo AtTimeZoneDateTimeOffsetMethodInfo = typeof(SqlServerDbFunctionsExtensions)
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(string) })!;
+
+    private static readonly MethodInfo AtTimeZoneDateTimeMethodInfo = typeof(SqlServerDbFunctionsExtensions)
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTime), typeof(string) })!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
 
@@ -87,6 +95,48 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
                 argumentsPropagateNullability: new[] { false, true, true },
                 instance.Type,
                 instance.TypeMapping);
+        }
+
+        if (method == AtTimeZoneDateTimeOffsetMethodInfo || method == AtTimeZoneDateTimeMethodInfo)
+        {
+            var (operand, timeZone) = (arguments[1], arguments[2]);
+
+            RelationalTypeMapping? resultTypeMapping = null;
+
+            // The AT TIME ZONE construct bubbles up the precision of its operand, so when invoked over datetime2(2) it returns a
+            // datetimeoffset(2). So if the operand has a type mapping, bubble it up accordingly, otherwise allow the result type mapping
+            // to be inferred.
+            if (operand.TypeMapping is { } operandTypeMapping)
+            {
+                switch (operandTypeMapping.StoreTypeNameBase)
+                {
+                    case "datetimeoffset":
+                        resultTypeMapping = operandTypeMapping;
+                        break;
+                    case "datetime" or "datetime2" or "smalldatetime":
+                        resultTypeMapping = _typeMappingSource.FindMapping(
+                            typeof(DateTimeOffset), "datetimeoffset", precision: operandTypeMapping.Precision);
+                        break;
+                    default:
+                        Check.DebugAssert(
+                            false,
+                            $"Unknown operand type mapping '{operandTypeMapping.StoreTypeNameBase}' when translating EF.Functions.AtTimeZone");
+                        break;
+                }
+            }
+
+            if (operand is SqlConstantExpression)
+            {
+                // Our constant representation for datetime/datetimeoffset is an untyped string literal, which the AT TIME ZONE expression
+                // does not accept. Type it explicitly.
+                operand = _sqlExpressionFactory.Convert(operand, operand.Type);
+            }
+
+            return new AtTimeZoneExpression(
+                operand,
+                _sqlExpressionFactory.ApplyTypeMapping(timeZone, _typeMappingSource.FindMapping("varchar")),
+                typeof(DateTimeOffset),
+                resultTypeMapping);
         }
 
         return null;
