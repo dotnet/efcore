@@ -14,9 +14,4 @@ public class ComplexNavigationsCollectionsSplitSharedTypeQuerySqlServerTest
         Fixture.TestSqlLoggerFactory.Clear();
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    public override Task Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(bool async)
-        // Nested collection with ToList. Issue #23303.
-        => Assert.ThrowsAsync<ArgumentNullException>(
-            () => base.Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(async));
 }
