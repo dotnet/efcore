@@ -236,8 +236,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         ShapedQueryExpression source,
         LambdaExpression? selector,
         Type resultType)
-        => TranslateAggregateWithSelector(
-            source, selector, e => TranslateAverage(e), throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateCast(ShapedQueryExpression source, Type resultType)
@@ -301,7 +300,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
-        => TranslateAggregateWithPredicate(source, predicate, e => TranslateCount(e), typeof(int));
+        => TranslateAggregateWithPredicate(source, predicate, QueryableMethods.CountWithoutPredicate);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression? defaultValue)
@@ -386,16 +385,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         LambdaExpression? resultSelector)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
-        // This has it's own set of condition since it is different scenario from below.
-        // Aggregate operators need pushdown for skip/limit/offset covered by selectExpression.PrepareForAggregate.
-        // Aggregate operators need special processing beyond pushdown when applying over group by for client eval.
-        if (selectExpression.Limit != null
-            || selectExpression.Offset != null
-            || selectExpression.IsDistinct
-            || selectExpression.GroupBy.Count > 0)
-        {
-            selectExpression.PushdownIntoSubquery();
-        }
+        selectExpression.PrepareForAggregate();
 
         var remappedKeySelector = RemapLambdaBody(source, keySelector);
         var translatedKey = TranslateGroupingKey(remappedKeySelector);
@@ -623,15 +613,17 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
-        => TranslateAggregateWithPredicate(source, predicate, e => TranslateLongCount(e), typeof(long));
+        => TranslateAggregateWithPredicate(source, predicate, QueryableMethods.LongCountWithoutPredicate);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, e => TranslateMax(e), throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(
+            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, e => TranslateMin(e), throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(
+            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
@@ -888,7 +880,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, e => TranslateSum(e), throwWhenEmpty: false, resultType);
+        => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetSumWithoutSelector, throwWhenEmpty: false, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
@@ -954,7 +946,12 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         return source;
     }
 
-    private SqlExpression? TranslateExpression(Expression expression)
+    /// <summary>
+    ///     Translates the given expression into equivalent SQL representation.
+    /// </summary>
+    /// <param name="expression">An expression to translate.</param>
+    /// <returns>A <see cref="SqlExpression"/> which is translation of given expression or <see langword="null"/>.</returns>
+    protected virtual SqlExpression? TranslateExpression(Expression expression)
     {
         var translation = _sqlTranslator.Translate(expression);
         if (translation == null && _sqlTranslator.TranslationErrorDetails != null)
@@ -965,7 +962,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         return translation;
     }
 
-    private SqlExpression? TranslateLambdaExpression(
+    /// <summary>
+    ///     Translates the given lambda expression for the <see cref="ShapedQueryExpression"/> source into equivalent SQL representation.
+    /// </summary>
+    /// <param name="shapedQueryExpression">A <see cref="ShapedQueryExpression"/> on which the lambda expression is being applied.</param>
+    /// <param name="lambdaExpression">A <see cref="LambdaExpression"/> to translate into SQL.</param>
+    /// <returns>A <see cref="SqlExpression"/> which is translation of given lambda expression or <see langword="null"/>.</returns>
+    protected virtual SqlExpression? TranslateLambdaExpression(
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
         => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
@@ -1465,45 +1468,11 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
     }
 
-    private SqlExpression? TranslateAverage(SqlExpression sqlExpression)
-        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
-            RelationalDependencies.Model, QueryableMethods.GetAverageWithoutSelector(sqlExpression.Type),
-            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
-
-    private SqlExpression? TranslateCount(SqlExpression sqlExpression)
-        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
-            RelationalDependencies.Model, QueryableMethods.CountWithoutPredicate,
-            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
-
-    private SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
-        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
-            RelationalDependencies.Model, QueryableMethods.LongCountWithoutPredicate,
-            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
-
-    private SqlExpression? TranslateMax(SqlExpression sqlExpression)
-        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
-            RelationalDependencies.Model, QueryableMethods.MaxWithoutSelector,
-            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
-
-    private SqlExpression? TranslateMin(SqlExpression sqlExpression)
-        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
-            RelationalDependencies.Model, QueryableMethods.MinWithoutSelector,
-            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
-
-    private SqlExpression? TranslateSum(SqlExpression sqlExpression)
-        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
-            RelationalDependencies.Model, QueryableMethods.GetSumWithoutSelector(sqlExpression.Type),
-            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
-
     private ShapedQueryExpression? TranslateAggregateWithPredicate(
         ShapedQueryExpression source,
         LambdaExpression? predicate,
-        Func<SqlExpression, SqlExpression?> aggregateTranslator,
-        Type resultType)
+        MethodInfo predicateLessMethodInfo)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.PrepareForAggregate();
-
         if (predicate != null)
         {
             var translatedSource = TranslateWhere(source, predicate);
@@ -1515,9 +1484,19 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             source = translatedSource;
         }
 
-        HandleGroupByForAggregate(selectExpression, eraseProjection: true);
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (!selectExpression.IsDistinct)
+        {
+            selectExpression.ReplaceProjection(new List<Expression>());
+        }
 
-        var translation = aggregateTranslator(_sqlExpressionFactory.Fragment("*"));
+        selectExpression.PrepareForAggregate();
+        var selector = _sqlExpressionFactory.Fragment("*");
+        var methodCall = Expression.Call(
+            predicateLessMethodInfo.MakeGenericMethod(selector.Type),
+            Expression.Call(
+                QueryableMethods.AsQueryable.MakeGenericMethod(selector.Type), new EnumerableExpression(selector)));
+        var translation = TranslateExpression(methodCall);
         if (translation == null)
         {
             return null;
@@ -1527,6 +1506,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         selectExpression.ClearOrdering();
         selectExpression.ReplaceProjection(projectionMapping);
+        var resultType = predicateLessMethodInfo.ReturnType;
 
         return source.UpdateShaperExpression(
             Expression.Convert(
@@ -1536,18 +1516,17 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     private ShapedQueryExpression? TranslateAggregateWithSelector(
         ShapedQueryExpression source,
-        LambdaExpression? selector,
-        Func<SqlExpression, SqlExpression?> aggregateTranslator,
+        LambdaExpression? selectorLambda,
+        Func<Type, MethodInfo> methodGenerator,
         bool throwWhenEmpty,
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         selectExpression.PrepareForAggregate();
-        HandleGroupByForAggregate(selectExpression);
 
-        SqlExpression translatedSelector;
-        if (selector == null
-            || selector.Body == selector.Parameters[0])
+        Expression? selector = null;
+        if (selectorLambda == null
+            || selectorLambda.Body == selectorLambda.Parameters[0])
         {
             var shaperExpression = source.ShaperExpression;
             if (shaperExpression is UnaryExpression unaryExpression
@@ -1558,34 +1537,32 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             if (shaperExpression is ProjectionBindingExpression projectionBindingExpression)
             {
-                translatedSelector = (SqlExpression)selectExpression.GetProjection(projectionBindingExpression);
-            }
-            else
-            {
-                return null;
+                selector = selectExpression.GetProjection(projectionBindingExpression);
             }
         }
         else
         {
-            var newSelector = RemapLambdaBody(source, selector);
-            if (TranslateExpression(newSelector) is SqlExpression sqlExpression)
-            {
-                translatedSelector = sqlExpression;
-            }
-            else
-            {
-                return null;
-            }
+            selector = RemapLambdaBody(source, selectorLambda);
         }
 
-        var projection = aggregateTranslator(translatedSelector);
-        if (projection == null)
+        if (selector == null
+            || TranslateExpression(selector) is not SqlExpression translatedSelector)
+        {
+            return null;
+        }
+
+        var methodCall = Expression.Call(
+            methodGenerator(translatedSelector.Type),
+            Expression.Call(
+                QueryableMethods.AsQueryable.MakeGenericMethod(translatedSelector.Type), new EnumerableExpression(translatedSelector)));
+        var translation = _sqlTranslator.Translate(methodCall);
+        if (translation == null)
         {
             return null;
         }
 
         selectExpression.ReplaceProjection(
-            new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
+            new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } });
 
         selectExpression.ClearOrdering();
         Expression shaper;
@@ -1602,7 +1579,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             var resultVariable = Expression.Variable(nullableResultType, "result");
             var returnValueForNull = resultType.IsNullableType()
                 ? (Expression)Expression.Constant(null, resultType)
-                : projection.Type.IsNullableType()
+                : translation.Type.IsNullableType()
                     ? Expression.Default(resultType)
                     : Expression.Throw(
                         Expression.New(
@@ -1624,7 +1601,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         else
         {
             // Sum case. Projection is always non-null. We read nullable value.
-            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type.MakeNullable());
+            shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), translation.Type.MakeNullable());
 
             if (resultType != shaper.Type)
             {

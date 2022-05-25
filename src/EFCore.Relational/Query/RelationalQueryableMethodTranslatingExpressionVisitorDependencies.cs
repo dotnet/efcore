@@ -47,14 +47,10 @@ public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDepend
     [EntityFrameworkInternal]
     public RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
         IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
-        ISqlExpressionFactory sqlExpressionFactory,
-        IModel model,
-        IAggregateMethodCallTranslatorProvider aggregateMethodCallTranslatorProvider)
+        ISqlExpressionFactory sqlExpressionFactory)
     {
         RelationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
         SqlExpressionFactory = sqlExpressionFactory;
-        Model = model;
-        AggregateMethodCallTranslatorProvider = aggregateMethodCallTranslatorProvider;
     }
 
     /// <summary>
@@ -66,14 +62,4 @@ public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDepend
     ///     The SQL expression factory.
     /// </summary>
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
-
-    /// <summary>
-    ///     The model.
-    /// </summary>
-    public IModel Model { get; init; }
-
-    /// <summary>
-    ///     The aggregate method-call translation provider.
-    /// </summary>
-    public IAggregateMethodCallTranslatorProvider AggregateMethodCallTranslatorProvider { get; }
 }
