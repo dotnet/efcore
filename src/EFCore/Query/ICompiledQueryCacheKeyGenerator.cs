@@ -5,12 +5,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     <para>
-///         Creates keys that uniquely identifies a query. This is used to store and lookup
-///         compiled versions of a query in a cache.
+///         Creates keys that uniquely identifies a query. This is used to store and lookup compiled versions of a query in a cache.
 ///     </para>
 ///     <para>
-///         This type is typically used by database providers (and other extensions). It is generally
-///         not used in application code.
+///         This type is typically used by database providers (and other extensions). It is generally not used in application code.
 ///     </para>
 /// </summary>
 /// <remarks>
