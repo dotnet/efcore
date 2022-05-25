@@ -943,8 +943,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     {
                         var argument = arguments[i];
                         var visitedArgument = Visit(argument);
-                        if (i == 0
-                            && visitedArgument is EnumerableExpression)
+                        if (visitedArgument is EnumerableExpression)
                         {
                             if (enumerableExpression != null)
                             {
