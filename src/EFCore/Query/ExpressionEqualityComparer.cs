@@ -28,11 +28,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
     /// </summary>
     public static ExpressionEqualityComparer Instance { get; } = new();
 
-    /// <summary>
-    ///     Returns the hash code for given expression.
-    /// </summary>
-    /// <param name="obj">The <see cref="Expression" /> obj to compute hash code for.</param>
-    /// <returns>The hash code value for <paramref name="obj" />.</returns>
+    /// <inheritdoc />
     public int GetHashCode(Expression obj)
     {
         if (obj == null)
@@ -276,12 +272,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
         }
     }
 
-    /// <summary>
-    ///     Returns a value indicating whether the given expressions are equal.
-    /// </summary>
-    /// <param name="x">The left expression.</param>
-    /// <param name="y">The right expression.</param>
-    /// <returns><see langword="true" /> if the expressions are equal, <see langword="false" /> otherwise.</returns>
+    /// <inheritdoc />
     public bool Equals(Expression? x, Expression? y)
         => new ExpressionComparer().Compare(x, y);
 

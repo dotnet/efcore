@@ -120,6 +120,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
             .TryAdd<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
             .TryAdd<IMethodCallTranslatorProvider, SqlServerMethodCallTranslatorProvider>()
+            .TryAdd<IAggregateMethodCallTranslatorProvider, SqlServerAggregateMethodCallTranslatorProvider>()
             .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
             .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
             .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()

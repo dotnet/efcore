@@ -6,16 +6,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-/// <summary>
-///     Provides translations for LINQ <see cref="MethodCallExpression" /> expressions by dispatching to multiple specialized
-///     method call translators.
-/// </summary>
-/// <remarks>
-///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-///     <see cref="DbContext" /> instance will use its own instance of this service.
-///     The implementation may depend on other services registered with any lifetime.
-///     The implementation does not need to be thread-safe.
-/// </remarks>
+/// <inheritdoc />
 public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvider
 {
     private readonly List<IMethodCallTranslator> _plugins = new();

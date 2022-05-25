@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -207,88 +206,6 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
-        }
-
-        return visitedExpression;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override SqlExpression? TranslateAverage(SqlExpression sqlExpression)
-    {
-        var visitedExpression = base.TranslateAverage(sqlExpression);
-        var argumentType = GetProviderType(visitedExpression);
-        if (argumentType == typeof(decimal))
-        {
-            throw new NotSupportedException(
-                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Average), argumentType.ShortDisplayName()));
-        }
-
-        return visitedExpression;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override SqlExpression? TranslateMax(SqlExpression sqlExpression)
-    {
-        var visitedExpression = base.TranslateMax(sqlExpression);
-        var argumentType = GetProviderType(visitedExpression);
-        if (argumentType == typeof(DateTimeOffset)
-            || argumentType == typeof(decimal)
-            || argumentType == typeof(TimeSpan)
-            || argumentType == typeof(ulong))
-        {
-            throw new NotSupportedException(
-                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), argumentType.ShortDisplayName()));
-        }
-
-        return visitedExpression;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override SqlExpression? TranslateMin(SqlExpression sqlExpression)
-    {
-        var visitedExpression = base.TranslateMin(sqlExpression);
-        var argumentType = GetProviderType(visitedExpression);
-        if (argumentType == typeof(DateTimeOffset)
-            || argumentType == typeof(decimal)
-            || argumentType == typeof(TimeSpan)
-            || argumentType == typeof(ulong))
-        {
-            throw new NotSupportedException(
-                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), argumentType.ShortDisplayName()));
-        }
-
-        return visitedExpression;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override SqlExpression? TranslateSum(SqlExpression sqlExpression)
-    {
-        var visitedExpression = base.TranslateSum(sqlExpression);
-        var argumentType = GetProviderType(visitedExpression);
-        if (argumentType == typeof(decimal))
-        {
-            throw new NotSupportedException(
-                SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), argumentType.ShortDisplayName()));
         }
 
         return visitedExpression;

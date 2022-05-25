@@ -4,7 +4,14 @@
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
-///     A cache key generator for the compiled query cache.
+///     <para>
+///         Creates keys that uniquely identifies a query. This is used to store and lookup
+///         compiled versions of a query in a cache.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
 /// </summary>
 /// <remarks>
 ///     <para>

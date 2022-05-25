@@ -1,11 +1,11 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     <para>
-///         Service dependencies parameter class for <see cref="RelationalQueryableMethodTranslatingExpressionVisitor" />
+///         Service dependencies parameter class for <see cref="RelationalAggregateMethodCallTranslatorProvider" />
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         The implementation does not need to be thread-safe.
 ///     </para>
 /// </remarks>
-public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDependencies
+public sealed record RelationalAggregateMethodCallTranslatorProviderDependencies
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,35 +45,28 @@ public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDepend
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
-    public RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
-        IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
+    public RelationalAggregateMethodCallTranslatorProviderDependencies(
         ISqlExpressionFactory sqlExpressionFactory,
-        IModel model,
-        IAggregateMethodCallTranslatorProvider aggregateMethodCallTranslatorProvider)
+        IEnumerable<IAggregateMethodCallTranslatorPlugin> plugins,
+        IRelationalTypeMappingSource typeMappingSource)
     {
-        RelationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
         SqlExpressionFactory = sqlExpressionFactory;
-        Model = model;
-        AggregateMethodCallTranslatorProvider = aggregateMethodCallTranslatorProvider;
+        Plugins = plugins;
+        RelationalTypeMappingSource = typeMappingSource;
     }
 
     /// <summary>
-    ///     The SQL-translating expression visitor factory.
-    /// </summary>
-    public IRelationalSqlTranslatingExpressionVisitorFactory RelationalSqlTranslatingExpressionVisitorFactory { get; init; }
-
-    /// <summary>
-    ///     The SQL expression factory.
+    ///     The expression factory..
     /// </summary>
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
     /// <summary>
-    ///     The model.
+    ///     Registered plugins.
     /// </summary>
-    public IModel Model { get; init; }
+    public IEnumerable<IAggregateMethodCallTranslatorPlugin> Plugins { get; init; }
 
     /// <summary>
-    ///     The aggregate method-call translation provider.
+    ///     Relational Type Mapping Source.
     /// </summary>
-    public IAggregateMethodCallTranslatorProvider AggregateMethodCallTranslatorProvider { get; }
+    public IRelationalTypeMappingSource RelationalTypeMappingSource { get; init; }
 }

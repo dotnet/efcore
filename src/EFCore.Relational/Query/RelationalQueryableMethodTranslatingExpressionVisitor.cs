@@ -237,7 +237,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         LambdaExpression? selector,
         Type resultType)
         => TranslateAggregateWithSelector(
-            source, selector, e => _sqlTranslator.TranslateAverage(e), throwWhenEmpty: true, resultType);
+            source, selector, e => TranslateAverage(e), throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateCast(ShapedQueryExpression source, Type resultType)
@@ -301,7 +301,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
-        => TranslateAggregateWithPredicate(source, predicate, e => _sqlTranslator.TranslateCount(e), typeof(int));
+        => TranslateAggregateWithPredicate(source, predicate, e => TranslateCount(e), typeof(int));
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression? defaultValue)
@@ -623,15 +623,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
-        => TranslateAggregateWithPredicate(source, predicate, e => _sqlTranslator.TranslateLongCount(e), typeof(long));
+        => TranslateAggregateWithPredicate(source, predicate, e => TranslateLongCount(e), typeof(long));
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, e => _sqlTranslator.TranslateMax(e), throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(source, selector, e => TranslateMax(e), throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, e => _sqlTranslator.TranslateMin(e), throwWhenEmpty: true, resultType);
+        => TranslateAggregateWithSelector(source, selector, e => TranslateMin(e), throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
@@ -888,7 +888,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(source, selector, e => _sqlTranslator.TranslateSum(e), throwWhenEmpty: false, resultType);
+        => TranslateAggregateWithSelector(source, selector, e => TranslateSum(e), throwWhenEmpty: false, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
@@ -1464,6 +1464,36 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 return shaper1;
         }
     }
+
+    private SqlExpression? TranslateAverage(SqlExpression sqlExpression)
+        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
+            RelationalDependencies.Model, QueryableMethods.GetAverageWithoutSelector(sqlExpression.Type),
+            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
+
+    private SqlExpression? TranslateCount(SqlExpression sqlExpression)
+        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
+            RelationalDependencies.Model, QueryableMethods.CountWithoutPredicate,
+            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
+
+    private SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
+        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
+            RelationalDependencies.Model, QueryableMethods.LongCountWithoutPredicate,
+            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
+
+    private SqlExpression? TranslateMax(SqlExpression sqlExpression)
+        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
+            RelationalDependencies.Model, QueryableMethods.MaxWithoutSelector,
+            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
+
+    private SqlExpression? TranslateMin(SqlExpression sqlExpression)
+        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
+            RelationalDependencies.Model, QueryableMethods.MinWithoutSelector,
+            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
+
+    private SqlExpression? TranslateSum(SqlExpression sqlExpression)
+        => RelationalDependencies.AggregateMethodCallTranslatorProvider.Translate(
+            RelationalDependencies.Model, QueryableMethods.GetSumWithoutSelector(sqlExpression.Type),
+            new EnumerableExpression(sqlExpression), Array.Empty<SqlExpression>(), _queryCompilationContext.Logger);
 
     private ShapedQueryExpression? TranslateAggregateWithPredicate(
         ShapedQueryExpression source,
