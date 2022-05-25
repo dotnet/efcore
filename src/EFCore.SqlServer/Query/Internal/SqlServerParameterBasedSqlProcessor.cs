@@ -46,4 +46,14 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
 
         return new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory).Visit(optimizedQueryExpression);
     }
+
+    /// <inheritdoc />
+    protected override Expression ProcessSqlNullability(
+        Expression selectExpression, IReadOnlyDictionary<string, object?> parametersValues, out bool canCache)
+    {
+        Check.NotNull(selectExpression, nameof(selectExpression));
+        Check.NotNull(parametersValues, nameof(parametersValues));
+
+        return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
+    }
 }
