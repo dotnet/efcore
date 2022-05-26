@@ -90,6 +90,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
                 new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true)
             },
             { typeof(IMethodCallTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
+            { typeof(IAggregateMethodCallTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
             { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) }
         };
 

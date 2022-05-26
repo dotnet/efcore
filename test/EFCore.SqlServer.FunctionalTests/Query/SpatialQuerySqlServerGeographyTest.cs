@@ -27,7 +27,7 @@ public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase
         await base.SimpleSelect(async);
 
         AssertSql(
-            @"SELECT [p].[Id], [p].[Geometry], [p].[Point], [p].[PointM], [p].[PointZ], [p].[PointZM]
+            @"SELECT [p].[Id], [p].[Geometry], [p].[Group], [p].[Point], [p].[PointM], [p].[PointZ], [p].[PointZM]
 FROM [PointEntity] AS [p]",
             //
             @"SELECT [l].[Id], [l].[LineString]
@@ -109,6 +109,17 @@ FROM [PolygonEntity] AS [p]");
     public override Task Centroid(bool async)
         => Task.CompletedTask;
 
+    public override async Task Combine_aggregate(bool async)
+    {
+        await base.Combine_aggregate(async);
+
+        AssertSql(
+            @"SELECT [p].[Group] AS [Id], geography::CollectionAggregate([p].[Point]) AS [Combined]
+FROM [PointEntity] AS [p]
+WHERE [p].[Point] IS NOT NULL
+GROUP BY [p].[Group]");
+    }
+
     public override async Task Contains(bool async)
     {
         await base.Contains(async);
@@ -127,6 +138,17 @@ FROM [PolygonEntity] AS [p]");
         AssertSql(
             @"SELECT [p].[Id], [p].[Polygon].STConvexHull() AS [ConvexHull]
 FROM [PolygonEntity] AS [p]");
+    }
+
+    public override async Task ConvexHull_aggregate(bool async)
+    {
+        await base.ConvexHull_aggregate(async);
+
+        AssertSql(
+            @"SELECT [p].[Group] AS [Id], geography::ConvexHullAggregate([p].[Point]) AS [ConvexHull]
+FROM [PointEntity] AS [p]
+WHERE [p].[Point] IS NOT NULL
+GROUP BY [p].[Group]");
     }
 
     public override async Task IGeometryCollection_Count(bool async)
@@ -637,6 +659,17 @@ SELECT [p].[Id], [p].[Polygon].STUnion(@__polygon_0) AS [Union]
 FROM [PolygonEntity] AS [p]");
     }
 
+    public override async Task Union_aggregate(bool async)
+    {
+        await base.Union_aggregate(async);
+
+        AssertSql(
+            @"SELECT [p].[Group] AS [Id], geography::UnionAggregate([p].[Point]) AS [Union]
+FROM [PointEntity] AS [p]
+WHERE [p].[Point] IS NOT NULL
+GROUP BY [p].[Group]");
+    }
+
     // No SqlServer Translation
     public override Task Union_void(bool async)
         => Task.CompletedTask;
@@ -684,7 +717,7 @@ FROM [PointEntity] AS [p]");
         await base.XY_with_collection_join(async);
 
         AssertSql(
-            @"SELECT [t].[Id], [t].[c], [t].[c0], [p0].[Id], [p0].[Geometry], [p0].[Point], [p0].[PointM], [p0].[PointZ], [p0].[PointZM]
+            @"SELECT [t].[Id], [t].[c], [t].[c0], [p0].[Id], [p0].[Geometry], [p0].[Group], [p0].[Point], [p0].[PointM], [p0].[PointZ], [p0].[PointZM]
 FROM (
     SELECT TOP(1) [p].[Id], [p].[Point].Long AS [c], [p].[Point].Lat AS [c0]
     FROM [PointEntity] AS [p]

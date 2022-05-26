@@ -18,7 +18,7 @@ public class SpatialQuerySqliteTest : SpatialQueryRelationalTestBase<SpatialQuer
         await base.SimpleSelect(async);
 
         AssertSql(
-            @"SELECT ""p"".""Id"", ""p"".""Geometry"", ""p"".""Point"", ""p"".""PointM"", ""p"".""PointZ"", ""p"".""PointZM""
+            @"SELECT ""p"".""Id"", ""p"".""Geometry"", ""p"".""Group"", ""p"".""Point"", ""p"".""PointM"", ""p"".""PointZ"", ""p"".""PointZM""
 FROM ""PointEntity"" AS ""p""",
             //
             @"SELECT ""l"".""Id"", ""l"".""LineString""
@@ -155,6 +155,17 @@ FROM ""PolygonEntity"" AS ""p""");
 FROM ""PolygonEntity"" AS ""p""");
     }
 
+    public override async Task Combine_aggregate(bool async)
+    {
+        await base.Combine_aggregate(async);
+
+        AssertSql(
+            @"SELECT ""p"".""Group"" AS ""Id"", Collect(""p"".""Point"") AS ""Combined""
+FROM ""PointEntity"" AS ""p""
+WHERE ""p"".""Point"" IS NOT NULL
+GROUP BY ""p"".""Group""");
+    }
+
     public override async Task Contains(bool async)
     {
         await base.Contains(async);
@@ -175,6 +186,17 @@ FROM ""PolygonEntity"" AS ""p""");
         AssertSql(
             @"SELECT ""p"".""Id"", ConvexHull(""p"".""Polygon"") AS ""ConvexHull""
 FROM ""PolygonEntity"" AS ""p""");
+    }
+
+    public override async Task ConvexHull_aggregate(bool async)
+    {
+        await base.ConvexHull_aggregate(async);
+
+        AssertSql(
+            @"SELECT ""p"".""Group"" AS ""Id"", ConvexHull(Collect(""p"".""Point"")) AS ""ConvexHull""
+FROM ""PointEntity"" AS ""p""
+WHERE ""p"".""Point"" IS NOT NULL
+GROUP BY ""p"".""Group""");
     }
 
     public override async Task IGeometryCollection_Count(bool async)
@@ -747,6 +769,17 @@ FROM ""PolygonEntity"" AS ""p""");
 
 SELECT ""p"".""Id"", GUnion(""p"".""Polygon"", @__polygon_0) AS ""Union""
 FROM ""PolygonEntity"" AS ""p""");
+    }
+
+    public override async Task Union_aggregate(bool async)
+    {
+        await base.Union_aggregate(async);
+
+        AssertSql(
+            @"SELECT ""p"".""Group"" AS ""Id"", GUnion(""p"".""Point"") AS ""Union""
+FROM ""PointEntity"" AS ""p""
+WHERE ""p"".""Point"" IS NOT NULL
+GROUP BY ""p"".""Group""");
     }
 
     public override async Task Union_void(bool async)

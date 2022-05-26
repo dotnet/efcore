@@ -60,12 +60,27 @@ public class SpatialData : ISetSource
             new PointEntity
             {
                 Id = PointEntity.WellKnownId,
+                Group = "A",
                 Point = factory.CreatePoint(new Coordinate(0, 0)),
                 PointZ = factory.CreatePoint(new CoordinateZ(0, 0, 0)),
                 PointM = factory.CreatePoint(new CoordinateM(0, 0, 0)),
                 PointZM = factory.CreatePoint(new CoordinateZM(0, 0, 0, 0))
             },
-            new PointEntity { Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E551"), Point = null }
+            new PointEntity
+            {
+                Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B2"),
+                Group = "A",
+                Point = factory.CreatePoint(new Coordinate(1, 1)),
+                PointZ = factory.CreatePoint(new CoordinateZ(1, 1, 1)),
+                PointM = factory.CreatePoint(new CoordinateM(1, 1, 1)),
+                PointZM = factory.CreatePoint(new CoordinateZM(1, 1, 1, 1))
+            },
+            new PointEntity
+            {
+                Id = Guid.Parse("67A54C9B-4C3B-4B27-8B4E-C0335E50E551"),
+                Group = "B",
+                Point = null
+            }
         };
 
         foreach (var entity in entities)

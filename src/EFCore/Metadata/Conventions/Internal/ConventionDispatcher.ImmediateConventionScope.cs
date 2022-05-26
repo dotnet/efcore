@@ -59,7 +59,7 @@ public partial class ConventionDispatcher
         }
 
         public override void Run(ConventionDispatcher dispatcher)
-            => Check.DebugAssert(false, "Immediate convention scope cannot be run again.");
+            => Check.DebugFail("Immediate convention scope cannot be run again.");
 
         public IConventionModelBuilder OnModelFinalizing(IConventionModelBuilder modelBuilder)
         {
@@ -716,7 +716,7 @@ public partial class ConventionDispatcher
                     if (navigationBuilder.Metadata.IsInModel
                         && navigationBuilder.Metadata.FindAnnotation(name) != annotation)
                     {
-                        Check.DebugAssert(false, "annotation removed");
+                        Check.DebugFail("annotation removed");
                         return null;
                     }
 

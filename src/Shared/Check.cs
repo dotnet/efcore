@@ -120,4 +120,9 @@ internal static class Check
             throw new Exception($"Check.DebugAssert failed: {message}");
         }
     }
+
+    [Conditional("DEBUG")]
+    [DoesNotReturn]
+    public static void DebugFail(string message)
+        => throw new Exception($"Check.DebugFail failed: {message}");
 }

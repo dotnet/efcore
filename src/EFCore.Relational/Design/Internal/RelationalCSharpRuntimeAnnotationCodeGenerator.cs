@@ -610,7 +610,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .Append("DbFunction(").Append(code.Literal(storeObject.Name)).Append(")");
                 break;
             default:
-                Check.DebugAssert(false, "Unexpected StoreObjectType: " + storeObject.StoreObjectType);
+                Check.DebugFail("Unexpected StoreObjectType: " + storeObject.StoreObjectType);
                 break;
         }
     }
