@@ -39,6 +39,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         query = base.Process(query);
         query = new SelectExpressionProjectionApplyingExpressionVisitor(
             ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query);
+        query = new SelectExpressionPruningExpressionVisitor().Visit(query);
 
 #if DEBUG
         // Verifies that all SelectExpression are marked as immutable after this point.
@@ -47,7 +48,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         // Which points to possible mutation of a SelectExpression being used in multiple places.
         new TableAliasVerifyingExpressionVisitor().Visit(query);
 #endif
-        query = new SelectExpressionPruningExpressionVisitor().Visit(query);
+
         query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
             .Visit(query);
         query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
@@ -74,16 +75,6 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
                 Visit(shapedQueryExpression.QueryExpression);
 
                 return shapedQueryExpression;
-            }
-
-            if (expression is TpcTablesExpression tpcTablesExpression)
-            {
-                foreach (var se in tpcTablesExpression.SelectExpressions)
-                {
-                    Visit(se);
-                }
-
-                return expression;
             }
 
             return base.Visit(expression);
@@ -129,6 +120,14 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
                 _usedAliases.Clear();
                 _visitedTableExpressionBases.Clear();
 
+                if (expression is SelectExpression selectExpression)
+                {
+                    foreach (var alias in selectExpression.RemovedAliases())
+                    {
+                        _usedAliases.Add(alias);
+                    }
+                }
+
                 var result = Visit(expression);
 
                 foreach (var group in _usedAliases.GroupBy(e => e[..1]))
@@ -152,15 +151,6 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
             public override Expression? Visit(Expression? expression)
             {
                 var visitedExpression = base.Visit(expression);
-                if (visitedExpression is TpcTablesExpression tpcTablesExpression)
-                {
-                    // We need to look inside SelectExpressions in TPC for aliases
-                    foreach (var selectExpression in tpcTablesExpression.SelectExpressions)
-                    {
-                        Visit(selectExpression);
-                    }
-                }
-
                 if (visitedExpression is TableExpressionBase tableExpressionBase
                     && !_visitedTableExpressionBases.Contains(tableExpressionBase)
                     && tableExpressionBase.Alias != null)

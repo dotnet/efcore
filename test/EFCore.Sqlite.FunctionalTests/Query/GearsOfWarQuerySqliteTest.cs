@@ -5179,14 +5179,11 @@ FROM ""Weapons"" AS ""w""");
         await base.Concat_with_scalar_projection(async);
 
         AssertSql(
-            @"SELECT ""t"".""Nickname""
-FROM (
-    SELECT ""g"".""Nickname"", ""g"".""SquadId"", ""g"".""AssignedCityName"", ""g"".""CityOfBirthName"", ""g"".""Discriminator"", ""g"".""FullName"", ""g"".""HasSoulPatch"", ""g"".""LeaderNickname"", ""g"".""LeaderSquadId"", ""g"".""Rank""
-    FROM ""Gears"" AS ""g""
-    UNION ALL
-    SELECT ""g0"".""Nickname"", ""g0"".""SquadId"", ""g0"".""AssignedCityName"", ""g0"".""CityOfBirthName"", ""g0"".""Discriminator"", ""g0"".""FullName"", ""g0"".""HasSoulPatch"", ""g0"".""LeaderNickname"", ""g0"".""LeaderSquadId"", ""g0"".""Rank""
-    FROM ""Gears"" AS ""g0""
-) AS ""t""");
+            @"SELECT ""g"".""Nickname""
+FROM ""Gears"" AS ""g""
+UNION ALL
+SELECT ""g0"".""Nickname""
+FROM ""Gears"" AS ""g0""");
     }
 
     public override async Task Comparing_entities_using_Equals_inheritance(bool async)

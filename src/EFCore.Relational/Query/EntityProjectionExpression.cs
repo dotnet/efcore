@@ -123,7 +123,7 @@ public class EntityProjectionExpression : Expression
         var discriminatorExpression = DiscriminatorExpression;
         if (DiscriminatorExpression is CaseExpression caseExpression)
         {
-            var entityTypesToSelect = derivedType.GetConcreteDerivedTypesInclusive().Select(e => e.GetDiscriminatorValue()).ToList();
+            var entityTypesToSelect = derivedType.GetConcreteDerivedTypesInclusive().Select(e => (string)e.GetDiscriminatorValue()!).ToList();
             var whenClauses = caseExpression.WhenClauses
                 .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value!))
                 .ToList();

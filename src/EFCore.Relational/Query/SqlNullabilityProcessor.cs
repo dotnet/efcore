@@ -170,10 +170,6 @@ public class SqlNullabilityProcessor
             case TableExpression tableExpression:
                 return tableExpression;
 
-            case TpcTablesExpression tpcTablesExpression:
-                // Since components are simple select only we can skip them.
-                return tpcTablesExpression;
-
             case UnionExpression unionExpression:
             {
                 var source1 = Visit(unionExpression.Source1);

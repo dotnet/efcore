@@ -32,7 +32,7 @@ public class ScalarSubqueryExpression : SqlExpression
         }
 
 #if DEBUG
-        if (selectExpression.IsMutable() == true)
+        if (selectExpression.IsMutable())
         {
             throw new InvalidOperationException();
         }

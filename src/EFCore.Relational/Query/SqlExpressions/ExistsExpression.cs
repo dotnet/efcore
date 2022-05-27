@@ -28,7 +28,7 @@ public class ExistsExpression : SqlExpression
     {
 
 #if DEBUG
-        if (subquery.IsMutable() == true)
+        if (subquery.IsMutable())
         {
             throw new InvalidOperationException();
         }
