@@ -3197,7 +3197,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.NotNull(typeBuilder.HasNoDiscriminator(fromDataAnnotation: true));
         Assert.Null(typeBuilder.Metadata.FindDiscriminatorProperty());
-        Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
+        Assert.Null(typeBuilder.Metadata[CoreAnnotationNames.DiscriminatorValue]);
         Assert.Empty(typeBuilder.Metadata.GetProperties());
     }
 
@@ -3219,13 +3219,13 @@ public class InternalEntityTypeBuilderTest
         Assert.NotNull(discriminatorBuilder.HasValue(derivedTypeBuilder.Metadata, 3));
 
         discriminatorBuilder = typeBuilder.HasDiscriminator("Splowed", typeof(string));
-        Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
+        Assert.Null(typeBuilder.Metadata[CoreAnnotationNames.DiscriminatorValue]);
         Assert.Null(
             typeBuilder.ModelBuilder.Entity("Splow")
-                .Metadata.GetDiscriminatorValue());
+                .Metadata[CoreAnnotationNames.DiscriminatorValue]);
         Assert.Null(
             typeBuilder.ModelBuilder.Entity("Splod")
-                .Metadata.GetDiscriminatorValue());
+                .Metadata[CoreAnnotationNames.DiscriminatorValue]);
         Assert.NotNull(discriminatorBuilder.HasValue(typeBuilder.Metadata, "4"));
         Assert.NotNull(discriminatorBuilder.HasValue(otherDerivedTypeBuilder.Metadata, "5"));
         Assert.NotNull(discriminatorBuilder.HasValue(derivedTypeBuilder.Metadata, "6"));
@@ -3244,13 +3244,13 @@ public class InternalEntityTypeBuilderTest
         discriminatorBuilder = typeBuilder.HasDiscriminator(typeof(int));
 
         Assert.NotNull(discriminatorBuilder);
-        Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
+        Assert.Null(typeBuilder.Metadata[CoreAnnotationNames.DiscriminatorValue]);
         Assert.Null(
             typeBuilder.ModelBuilder.Entity("Splow")
-                .Metadata.GetDiscriminatorValue());
+                .Metadata[CoreAnnotationNames.DiscriminatorValue]);
         Assert.Null(
             typeBuilder.ModelBuilder.Entity("Splod")
-                .Metadata.GetDiscriminatorValue());
+                .Metadata[CoreAnnotationNames.DiscriminatorValue]);
     }
 
     [ConditionalFact]

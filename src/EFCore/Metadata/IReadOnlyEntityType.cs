@@ -70,7 +70,15 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </summary>
     /// <returns>The discriminator value for this entity type.</returns>
     object? GetDiscriminatorValue()
-        => this[CoreAnnotationNames.DiscriminatorValue];
+    {
+        var annotation = FindAnnotation(CoreAnnotationNames.DiscriminatorValue);
+        return annotation != null
+            ? annotation.Value
+            : !ClrType.IsInstantiable()
+                || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
+            ? null
+            : (object)ShortName();
+    }
 
     /// <summary>
     ///     Gets all types in the model from which a given entity type derives, starting with the root.

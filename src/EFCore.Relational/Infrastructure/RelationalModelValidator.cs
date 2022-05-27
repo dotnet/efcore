@@ -1391,6 +1391,30 @@ public class RelationalModelValidator : ModelValidator
 
                 ValidateNonTphMapping(entityType, forTables: false);
                 ValidateNonTphMapping(entityType, forTables: true);
+
+                var derivedTypes = entityType.GetDerivedTypesInclusive().ToList();
+                var discriminatorValues = new Dictionary<string, IEntityType>();
+                foreach (var derivedType in derivedTypes)
+                {
+                    if (!derivedType.ClrType.IsInstantiable())
+                    {
+                        continue;
+                    }
+                    var discriminatorValue = derivedType.GetDiscriminatorValue();
+                    if (discriminatorValue is not string valueString)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.NonTphDiscriminatorValueNotString(discriminatorValue, derivedType.DisplayName()));
+                    }
+
+                    if (discriminatorValues.TryGetValue(valueString, out var duplicateEntityType))
+                    {
+                        throw new InvalidOperationException(RelationalStrings.EntityShortNameNotUnique(
+                            derivedType.Name, discriminatorValue, duplicateEntityType.Name));
+                    }
+
+                    discriminatorValues[valueString] = derivedType;
+                }
             }
         }
 
@@ -1469,7 +1493,7 @@ public class RelationalModelValidator : ModelValidator
         {
             return;
         }
-        
+
         var internalForeignKey = rootEntityType.FindRowInternalForeignKeys(storeObject.Value).FirstOrDefault();
         if (internalForeignKey != null
             && derivedTypes.Count > 1

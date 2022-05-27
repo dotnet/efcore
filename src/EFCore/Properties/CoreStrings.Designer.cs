@@ -667,12 +667,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to type '{discriminatorType}'.
+        ///     The discriminator value '{value}' for the entity type '{entityType}' because it is not assignable to type '{discriminatorType}'.
         /// </summary>
-        public static string DiscriminatorValueIncompatible(object? value, object? discriminator, object? discriminatorType)
+        public static string DiscriminatorValueIncompatible(object? value, object? entityType, object? discriminatorType)
             => string.Format(
-                GetString("DiscriminatorValueIncompatible", nameof(value), nameof(discriminator), nameof(discriminatorType)),
-                value, discriminator, discriminatorType);
+                GetString("DiscriminatorValueIncompatible", nameof(value), nameof(entityType), nameof(discriminatorType)),
+                value, entityType, discriminatorType);
 
         /// <summary>
         ///     The annotation '{annotation}' cannot be added because an annotation with the same name already exists on the object {annotatable}
@@ -1694,14 +1694,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NoClrNavigation", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
-
-        /// <summary>
-        ///     Cannot set the discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property configured.
-        /// </summary>
-        public static string NoDiscriminatorForValue(object? entityType, object? rootEntityType)
-            => string.Format(
-                GetString("NoDiscriminatorForValue", nameof(entityType), nameof(rootEntityType)),
-                entityType, rootEntityType);
 
         /// <summary>
         ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.

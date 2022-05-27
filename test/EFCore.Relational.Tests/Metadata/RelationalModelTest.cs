@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(specialityColumn.IsNullable);
 
                 Assert.Null(customerType.FindDiscriminatorProperty());
-                Assert.Null(customerType.GetDiscriminatorValue());
+                Assert.Equal("Customer", customerType.GetDiscriminatorValue());
                 Assert.Null(specialCustomerType.FindDiscriminatorProperty());
-                Assert.Null(specialCustomerType.GetDiscriminatorValue());
+                Assert.Equal("SpecialCustomer", specialCustomerType.GetDiscriminatorValue());
             }
             else
             {
@@ -393,9 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(specialityColumn.IsNullable);
 
                 Assert.Null(customerType.FindDiscriminatorProperty());
-                Assert.Null(customerType.GetDiscriminatorValue());
+                Assert.Equal("Customer", customerType.GetDiscriminatorValue());
                 Assert.Null(specialCustomerType.FindDiscriminatorProperty());
-                Assert.Null(specialCustomerType.GetDiscriminatorValue());
+                Assert.Equal("SpecialCustomer", specialCustomerType.GetDiscriminatorValue());
             }
             else
             {
@@ -765,9 +765,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.NotNull(anotherSpecialCustomerDbIndex.MappedIndexes.Single());
 
                 Assert.Null(customerType.FindDiscriminatorProperty());
-                Assert.Null(customerType.GetDiscriminatorValue());
+                Assert.Equal("Customer", customerType.GetDiscriminatorValue());
                 Assert.Null(specialCustomerType.FindDiscriminatorProperty());
-                Assert.Null(specialCustomerType.GetDiscriminatorValue());
+                Assert.Equal("SpecialCustomer", specialCustomerType.GetDiscriminatorValue());
             }
             else
             {

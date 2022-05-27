@@ -340,6 +340,9 @@
   <data name="EitherOfTwoValuesMustBeNull" xml:space="preserve">
     <value>Either {param1} or {param2} must be null.</value>
   </data>
+  <data name="EntityShortNameNotUnique" xml:space="preserve">
+    <value>The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").</value>
+  </data>
   <data name="ErrorMaterializingProperty" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
   </data>
@@ -762,6 +765,9 @@
   </data>
   <data name="NonScalarFunctionParameterCannotPropagatesNullability" xml:space="preserve">
     <value>Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.</value>
+  </data>
+  <data name="NonTphDiscriminatorValueNotString" xml:space="preserve">
+    <value>The specified discriminator value '{value}' for '{entityType}' is not a string. Configure a string discriminator value instead.</value>
   </data>
   <data name="NonTphMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.</value>

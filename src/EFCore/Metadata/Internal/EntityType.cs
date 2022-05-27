@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -3032,7 +3033,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             return Enumerable.Empty<IDictionary<string, object?>>();
         }
-        
+
         List<IPropertyBase>? propertiesList = null;
         Dictionary<string, IPropertyBase>? propertiesMap = null;
         var data = new List<Dictionary<string, object?>>();
@@ -3056,7 +3057,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                     {
                         continue;
                     }
-                    
+
                     ValueConverter? valueConverter = null;
                     if (providerValues
                         && propertyBase is IProperty property
@@ -3347,12 +3348,12 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         if (((property == null && BaseType == null)
                 || (property != null && !property.ClrType.IsInstanceOfType(((IReadOnlyEntityType)this).GetDiscriminatorValue()))))
         {
-            ((IMutableEntityType)this).RemoveDiscriminatorValue();
+            RemoveDiscriminatorValue(this, configurationSource);
             if (BaseType == null)
             {
                 foreach (var derivedType in GetDerivedTypes())
                 {
-                    ((IMutableEntityType)derivedType).RemoveDiscriminatorValue();
+                    RemoveDiscriminatorValue(derivedType, configurationSource);
                 }
             }
         }
@@ -3361,6 +3362,18 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             == property?.Name
                 ? property
                 : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
+
+        static void RemoveDiscriminatorValue(IReadOnlyEntityType entityType, ConfigurationSource configurationSource)
+        {
+            if (configurationSource is ConfigurationSource.Convention or ConfigurationSource.DataAnnotation)
+            {
+                ((IConventionEntityType)entityType).RemoveDiscriminatorValue(configurationSource == ConfigurationSource.DataAnnotation);
+            }
+            else
+            {
+                ((IMutableEntityType)entityType).RemoveDiscriminatorValue();
+            }
+        }
     }
 
     private void CheckDiscriminatorProperty(Property? property)
@@ -3393,35 +3406,6 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         }
 
         return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static object? CheckDiscriminatorValue(IReadOnlyEntityType entityType, object? value)
-    {
-        if (value is null)
-        {
-            return value;
-        }
-
-        var discriminatorProperty = entityType.FindDiscriminatorProperty();
-        if (discriminatorProperty is null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NoDiscriminatorForValue(entityType.DisplayName(), entityType.GetRootType().DisplayName()));
-        }
-
-        if (!discriminatorProperty.ClrType.IsInstanceOfType(value))
-        {
-            throw new InvalidOperationException(
-                CoreStrings.DiscriminatorValueIncompatible(value, discriminatorProperty.Name, discriminatorProperty.ClrType));
-        }
-
-        return value;
     }
 
     /// <summary>

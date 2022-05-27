@@ -364,7 +364,7 @@
     <value>Unable to set property '{property}' as a discriminator for entity type '{entityType}' because it is not a property of '{entityType}'.</value>
   </data>
   <data name="DiscriminatorValueIncompatible" xml:space="preserve">
-    <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to type '{discriminatorType}'.</value>
+    <value>The discriminator value '{value}' for the entity type '{entityType}' because it is not assignable to type '{discriminatorType}'.</value>
   </data>
   <data name="DuplicateAnnotation" xml:space="preserve">
     <value>The annotation '{annotation}' cannot be added because an annotation with the same name already exists on the object {annotatable}</value>
@@ -1048,9 +1048,6 @@
   </data>
   <data name="NoClrNavigation" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added in shadow state.</value>
-  </data>
-  <data name="NoDiscriminatorForValue" xml:space="preserve">
-    <value>Cannot set the discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property configured.</value>
   </data>
   <data name="NoDiscriminatorProperty" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.</value>

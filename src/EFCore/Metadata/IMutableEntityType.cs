@@ -80,7 +80,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <param name="value">The value to set.</param>
     void SetDiscriminatorValue(object? value)
-        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, EntityType.CheckDiscriminatorValue(this, value));
+        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value);
 
     /// <summary>
     ///     Removes the discriminator value for this entity type.
