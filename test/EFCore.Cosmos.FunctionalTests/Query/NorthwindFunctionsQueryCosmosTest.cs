@@ -1204,18 +1204,22 @@ WHERE ((c[""Discriminator""] = ""Order"") AND false)");
 
     public override async Task Regex_IsMatch_MethodCall(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
+        await base.Regex_IsMatch_MethodCall(async);
 
-        AssertSql();
+        AssertSql(
+           @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T""))");
     }
 
     public override async Task Regex_IsMatch_MethodCall_constant_input(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
+        await base.Regex_IsMatch_MethodCall_constant_input(async);
 
-        AssertSql();
+        AssertSql(
+           @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(""ALFKI"", c[""CustomerID""]))");
     }
 
     [ConditionalTheory]
