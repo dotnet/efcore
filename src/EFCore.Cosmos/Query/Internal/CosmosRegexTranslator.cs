@@ -91,7 +91,7 @@ public class CosmosRegexTranslator : IMethodCallTranslator
                      {
                         _sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
                         _sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping),
-                        _sqlExpressionFactory.Constant(modifier, typeMapping)
+                        _sqlExpressionFactory.Constant(modifier)
                      },
                      typeof(bool))
                 : null;
