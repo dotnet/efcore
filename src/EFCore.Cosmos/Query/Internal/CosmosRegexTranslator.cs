@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class RegexMethodTranslator : IMethodCallTranslator
+public class CosmosRegexTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo IsMatch =
         typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string) })!;
@@ -19,14 +19,7 @@ public class RegexMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo IsMatchWithRegexOptions =
         typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string), typeof(RegexOptions) })!;
 
-    private static readonly ISet<RegexOptions> AllowedOptions = new HashSet<RegexOptions>
-    {
-        RegexOptions.None,
-        RegexOptions.IgnoreCase,
-        RegexOptions.Multiline,
-        RegexOptions.Singleline,
-        RegexOptions.IgnorePatternWhitespace
-    };
+    private const RegexOptions SupportedOptions = RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -36,7 +29,7 @@ public class RegexMethodTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public RegexMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -58,37 +51,52 @@ public class RegexMethodTranslator : IMethodCallTranslator
             return null;
         }
 
-        RegexOptions options;
+        var (input, pattern) = (arguments[0], arguments[1]);
+        var typeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
+
         if (method == IsMatch)
         {
-            options = RegexOptions.None;
+            return _sqlExpressionFactory.Function(
+                "RegexMatch",
+                new[] {
+                    _sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
+                    _sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping)
+                },
+                typeof(bool));
         }
-        else if (arguments[2] is SqlConstantExpression { Value: RegexOptions regexOptions }
-            && AllowedOptions.Contains(regexOptions))
+        else if (arguments[2] is SqlConstantExpression { Value: RegexOptions regexOptions })
         {
-            options = regexOptions;
-        }
-        else
-        {
-            return null;
+            string modifier = "";
+            if (regexOptions.HasFlag(RegexOptions.Multiline))
+            {
+                modifier += "m";
+            }
+            if (regexOptions.HasFlag(RegexOptions.Singleline))
+            {
+                modifier += "s";
+            }
+            if (regexOptions.HasFlag(RegexOptions.IgnoreCase))
+            {
+                modifier += "i";
+            }
+            if (regexOptions.HasFlag(RegexOptions.IgnorePatternWhitespace))
+            {
+                modifier += "x";
+            }
+
+            return (regexOptions & ~SupportedOptions) == 0
+                ? _sqlExpressionFactory.Function(
+                    "RegexMatch",
+                     new[]
+                     {
+                        _sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
+                        _sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping),
+                        _sqlExpressionFactory.Constant(modifier, typeMapping)
+                     },
+                     typeof(bool))
+                : null;
         }
 
-        string modifier = options switch
-        {
-            RegexOptions.Multiline => "m",
-            RegexOptions.Singleline => "s",
-            RegexOptions.IgnoreCase => "i",
-            RegexOptions.IgnorePatternWhitespace => "x",
-            _ => ""
-        };
-
-        var (input, pattern) = (arguments[0], arguments[1]);
-        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
-
-        return _sqlExpressionFactory.Function(
-            "RegexMatch",
-            new[] { input, pattern, _sqlExpressionFactory.Constant(modifier) },
-            method.ReturnType,
-            stringTypeMapping);
+        return null;
     }
 }

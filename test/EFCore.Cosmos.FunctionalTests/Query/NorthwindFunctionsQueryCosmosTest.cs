@@ -1210,7 +1210,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND false)");
         AssertSql(
            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", """"))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T""))");
     }
 
     public override async Task Regex_IsMatch_MethodCall_constant_input(bool async)
@@ -1220,7 +1220,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
         AssertSql(
            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(""ALFKI"", c[""CustomerID""], """"))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(""ALFKI"", c[""CustomerID""]))");
     }
 
     [ConditionalTheory]
@@ -1298,10 +1298,30 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""x""))");
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Regex_IsMatch_MethodCall_With_Options_IgnoreCase_And_IgnorePatternWhitespace(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)),
+            entryCount: 6);
+
+        AssertSql(
+          @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""ix""))");
+    }
+
     [Fact]
-    public void Regex_IsMatchOptionsUnsupported()
+    public virtual void Regex_IsMatch_MethodCall_With_Unsupported_Option()
        => Assert.Throws<InvalidOperationException>(() =>
            Fixture.CreateContext().Customers.Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft)).ToList());
+
+    [Fact]
+    public virtual void Regex_IsMatch_MethodCall_With_Any_Unsupported_Option()
+       => Assert.Throws<InvalidOperationException>(() =>
+           Fixture.CreateContext().Customers.Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.RightToLeft)).ToList());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

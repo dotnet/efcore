@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class EqualsTranslator : IMethodCallTranslator
+public class CosmosContainsTranslator : IMethodCallTranslator
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -19,7 +19,7 @@ public class EqualsTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EqualsTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public CosmosContainsTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -36,34 +36,24 @@ public class EqualsTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        SqlExpression? left = null;
-        SqlExpression? right = null;
+        if (method.IsGenericMethod
+            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
+            && ValidateValues(arguments[0]))
+        {
+            return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
+        }
 
-        if (method.Name == nameof(object.Equals)
+        if (arguments.Count == 1
+            && method.IsContainsMethod()
             && instance != null
-            && arguments.Count == 1)
+            && ValidateValues(instance))
         {
-            left = instance;
-            right = arguments[0];
-        }
-        else if (instance == null
-                 && method.Name == nameof(object.Equals)
-                 && arguments.Count == 2)
-        {
-            left = arguments[0];
-            right = arguments[1];
-        }
-
-        if (left != null
-            && right != null)
-        {
-            return left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType()
-                || (right.Type == typeof(object) && (right is SqlParameterExpression || right is SqlConstantExpression))
-                || (left.Type == typeof(object) && (left is SqlParameterExpression || left is SqlConstantExpression))
-                    ? _sqlExpressionFactory.Equal(left, right)
-                    : _sqlExpressionFactory.Constant(false);
+            return _sqlExpressionFactory.In(arguments[0], instance, false);
         }
 
         return null;
     }
+
+    private static bool ValidateValues(SqlExpression values)
+        => values is SqlConstantExpression || values is SqlParameterExpression;
 }
