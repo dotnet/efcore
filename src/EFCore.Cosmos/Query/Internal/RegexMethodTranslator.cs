@@ -13,12 +13,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class RegexMethodTranslator : IMethodCallTranslator
 {
-    private static readonly HashSet<MethodInfo> MethodInfoDataLengthMapping
-        = new()
-        {
-            typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string) })!,
-            typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(ReadOnlySpan<char>), typeof(string) })!
-        };
+    private static readonly MethodInfo IsMatch =
+        typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string) })!;
+
+    private static readonly MethodInfo IsMatchWithRegexOptions =
+        typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string), typeof(RegexOptions) })!;
+
+    private static readonly ISet<RegexOptions> AllowedOptions = new HashSet<RegexOptions>
+    {
+        RegexOptions.None,
+        RegexOptions.IgnoreCase,
+        RegexOptions.Multiline,
+        RegexOptions.Singleline,
+        RegexOptions.IgnorePatternWhitespace
+    };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -45,22 +53,42 @@ public class RegexMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (MethodInfoDataLengthMapping.Contains(method))
+        if (method != IsMatch && method != IsMatchWithRegexOptions)
         {
-            var typeMapping = arguments.Count == 2
-                ? ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1])
-                : ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1], arguments[2]);
-
-            var newArguments = arguments.Select(e => _sqlExpressionFactory.ApplyTypeMapping(e, typeMapping));
-
-            return _sqlExpressionFactory.Function(
-                "RegexMatch",
-                newArguments,
-                method.ReturnType,
-                typeMapping);
+            return null;
         }
 
-        return null;
+        RegexOptions options;
+        if (method == IsMatch)
+        {
+            options = RegexOptions.None;
+        }
+        else if (arguments[2] is SqlConstantExpression { Value: RegexOptions regexOptions }
+            && AllowedOptions.Contains(regexOptions))
+        {
+            options = regexOptions;
+        }
+        else
+        {
+            return null;
+        }
+
+        string modifier = options switch
+        {
+            RegexOptions.Multiline => "m",
+            RegexOptions.Singleline => "s",
+            RegexOptions.IgnoreCase => "i",
+            RegexOptions.IgnorePatternWhitespace => "x",
+            _ => ""
+        };
+
+        var (input, pattern) = (arguments[0], arguments[1]);
+        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
+
+        return _sqlExpressionFactory.Function(
+            "RegexMatch",
+            new[] { input, pattern, _sqlExpressionFactory.Constant(modifier) },
+            method.ReturnType,
+            stringTypeMapping);
     }
 }
-
