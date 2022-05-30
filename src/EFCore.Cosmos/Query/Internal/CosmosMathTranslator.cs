@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class MathTranslator : IMethodCallTranslator
+public class CosmosMathTranslator : IMethodCallTranslator
 {
     private static readonly Dictionary<MethodInfo, string> SupportedMethodTranslations = new()
     {
@@ -77,7 +77,7 @@ public class MathTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public MathTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public CosmosMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }

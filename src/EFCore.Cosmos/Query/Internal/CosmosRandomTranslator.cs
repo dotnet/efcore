@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class RandomTranslator : IMethodCallTranslator
+public class CosmosRandomTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
         nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) });
@@ -24,7 +24,7 @@ public class RandomTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public RandomTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public CosmosRandomTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
