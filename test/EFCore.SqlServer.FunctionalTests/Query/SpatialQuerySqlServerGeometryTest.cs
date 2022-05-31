@@ -172,6 +172,26 @@ SELECT [l].[Id], [l].[LineString].STCrosses(@__lineString_0) AS [Crosses]
 FROM [LineStringEntity] AS [l]");
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task CurveToLine(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon }),
+            elementSorter: x => x.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.CurveToLine, a.CurveToLine, GeometryComparer.Instance);
+            });
+
+        AssertSql(
+            @"SELECT [p].[Id], [p].[Polygon].STCurveToLine() AS [CurveToLine]
+FROM [PolygonEntity] AS [p]");
+    }
+
     public override async Task Difference(bool async)
     {
         await base.Difference(async);

@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
+using NetTopologySuite.Geometries;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeographyFixture>
@@ -155,6 +158,26 @@ FROM [LineStringEntity] AS [l]");
     // No SqlServer Translation
     public override Task Crosses(bool async)
         => Task.CompletedTask;
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task CurveToLine(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon }),
+            elementSorter: x => x.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.CurveToLine, a.CurveToLine, GeometryComparer.Instance);
+            });
+
+        AssertSql(
+            @"SELECT [p].[Id], [p].[Polygon].STCurveToLine() AS [CurveToLine]
+FROM [PolygonEntity] AS [p]");
+    }
 
     public override async Task Difference(bool async)
     {
