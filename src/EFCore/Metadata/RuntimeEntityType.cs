@@ -58,7 +58,6 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
-    private Func<MaterializationContext, object>? _instanceFactory;
     private IProperty[]? _foreignKeyProperties;
     private IProperty[]? _valueGeneratingProperties;
 
@@ -1273,34 +1272,6 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _emptyShadowValuesFactory, this,
             static entityType => new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType));
-
-    /// <inheritdoc />
-    Func<MaterializationContext, object> IRuntimeEntityType.InstanceFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _instanceFactory, this,
-            static entityType =>
-            {
-                var binding = entityType._serviceOnlyConstructorBinding;
-                if (binding == null)
-                {
-                    var _ = ((IEntityType)entityType).ConstructorBinding;
-                    binding = entityType._serviceOnlyConstructorBinding;
-                    if (binding == null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.NoParameterlessConstructor(
-                                ((IReadOnlyEntityType)entityType).DisplayName()));
-                    }
-                }
-
-                var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
-
-                return Expression.Lambda<Func<MaterializationContext, object>>(
-                        binding.CreateConstructorExpression(
-                            new ParameterBindingInfo(entityType, contextParam)),
-                        contextParam)
-                    .Compile();
-            });
 
     /// <inheritdoc />
     [DebuggerStepThrough]

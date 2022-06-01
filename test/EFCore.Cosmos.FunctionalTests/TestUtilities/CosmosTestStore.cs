@@ -401,6 +401,9 @@ public class CosmosTestStore : TestStore
         public InstantiationBinding ConstructorBinding
             => throw new NotImplementedException();
 
+        public InstantiationBinding ServiceOnlyConstructorBinding
+            => throw new NotImplementedException();
+
         IReadOnlyEntityType IReadOnlyEntityType.BaseType
             => throw new NotImplementedException();
 

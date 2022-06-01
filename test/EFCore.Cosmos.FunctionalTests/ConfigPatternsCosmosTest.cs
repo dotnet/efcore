@@ -6,6 +6,29 @@ using Microsoft.Azure.Cosmos;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
+public class BindingInterceptionCosmosTest : BindingInterceptionTestBase,
+    IClassFixture<BindingInterceptionCosmosTest.BindingInterceptionCosmosFixture>
+{
+    public BindingInterceptionCosmosTest(BindingInterceptionCosmosFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class BindingInterceptionCosmosFixture : SingletonInterceptorsFixtureBase
+    {
+        protected override string StoreName
+            => "BindingInterception";
+
+        protected override ITestStoreFactory TestStoreFactory
+            => CosmosTestStoreFactory.Instance;
+
+        protected override IServiceCollection InjectInterceptors(
+            IServiceCollection serviceCollection,
+            IEnumerable<ISingletonInterceptor> injectedInterceptors)
+            => base.InjectInterceptors(serviceCollection.AddEntityFrameworkCosmos(), injectedInterceptors);
+    }
+}
+
 public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {
     private const string DatabaseName = "ConfigPatternsCosmos";
@@ -81,7 +104,7 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
 
                 context.SaveChanges();
             });
-        
+
         Assert.Equal("ApplicationRegion configuration 'FakeRegion' is not a valid Azure region or the current SDK version does not recognize it. If the value represents a valid region, make sure you are using the latest SDK version.", exception.Message);
     }
 

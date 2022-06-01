@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -2128,7 +2129,8 @@ public class ChangeDetectorTest
     private class TestRelationshipListener : NavigationFixer
     {
         public TestRelationshipListener(IEntityGraphAttacher attacher)
-            : base(attacher)
+            : base(attacher, new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
         {
         }
 

@@ -142,7 +142,7 @@
     <value>You cannot add a migration with the name 'Migration'.</value>
   </data>
   <data name="CompiledModelConstructorBinding" xml:space="preserve">
-    <value>The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because dynamic proxy types are not supported. If you are not using proxies configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.</value>
+    <value>The entity type '{entityType}' has a custom constructor binding. Compiled model can't be generated, because custom constructor bindings are not supported. Configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.</value>
   </data>
   <data name="CompiledModelCustomCacheKeyFactory" xml:space="preserve">
     <value>The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.</value>

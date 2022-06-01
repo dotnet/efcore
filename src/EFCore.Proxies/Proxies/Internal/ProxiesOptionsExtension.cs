@@ -184,11 +184,19 @@ public class ProxiesOptionsExtension : IDbContextOptionsExtension
                         : "";
 
         public override int GetServiceProviderHashCode()
-            => Extension.UseProxies.GetHashCode();
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(Extension.UseLazyLoadingProxies);
+            hashCode.Add(Extension.UseChangeTrackingProxies);
+            hashCode.Add(Extension.CheckEquality);
+            return hashCode.ToHashCode();
+        }
 
         public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
             => other is ExtensionInfo otherInfo
-                && Extension.UseProxies == otherInfo.Extension.UseProxies;
+                && Extension.UseLazyLoadingProxies == otherInfo.Extension.UseLazyLoadingProxies
+                && Extension.UseChangeTrackingProxies == otherInfo.Extension.UseChangeTrackingProxies
+                && Extension.CheckEquality == otherInfo.Extension.CheckEquality;
 
         public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {

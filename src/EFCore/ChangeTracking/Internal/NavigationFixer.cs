@@ -22,6 +22,7 @@ public class NavigationFixer : INavigationFixer
         bool SetModified)>? _danglingJoinEntities;
 
     private readonly IEntityGraphAttacher _attacher;
+    private readonly IEntityMaterializerSource _entityMaterializerSource;
     private bool _inFixup;
     private bool _inAttachGraph;
 
@@ -31,9 +32,12 @@ public class NavigationFixer : INavigationFixer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public NavigationFixer(IEntityGraphAttacher attacher)
+    public NavigationFixer(
+        IEntityGraphAttacher attacher,
+        IEntityMaterializerSource entityMaterializerSource)
     {
         _attacher = attacher;
+        _entityMaterializerSource = entityMaterializerSource;
     }
 
     /// <summary>
@@ -1002,8 +1006,8 @@ public class NavigationFixer : INavigationFixer
         else if (!_inAttachGraph)
         {
             var joinEntityType = arguments.SkipNavigation.JoinEntityType;
-            var joinEntity = joinEntityType.GetInstanceFactory()(
-                new MaterializationContext(ValueBuffer.Empty, arguments.Entry.StateManager.Context));
+            var joinEntity = _entityMaterializerSource.GetEmptyMaterializer(joinEntityType)
+                (new MaterializationContext(ValueBuffer.Empty, arguments.Entry.StateManager.Context));
 
             joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
 

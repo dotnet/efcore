@@ -20,7 +20,7 @@ public class EntityMaterializerSourceTest
     public void Throws_for_abstract_types()
     {
         var entityType = CreateConventionalModelBuilder().Model.AddEntityType(typeof(SomeAbstractEntity));
-        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies());
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
 
         Assert.Equal(
             CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
@@ -45,7 +45,8 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -82,7 +83,8 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -123,7 +125,8 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -157,7 +160,8 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -194,7 +198,8 @@ public class EntityMaterializerSourceTest
         var entityType = CreateEntityType();
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -227,7 +232,8 @@ public class EntityMaterializerSourceTest
 
         var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntityWithFields));
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntityWithFields)factory(
@@ -255,7 +261,8 @@ public class EntityMaterializerSourceTest
 
         var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntity));
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var entity = (SomeEntity)factory(
             new MaterializationContext(
@@ -287,7 +294,8 @@ public class EntityMaterializerSourceTest
 
         var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntity));
 
-        var factory = GetMaterializer(new EntityMaterializerSource(new EntityMaterializerSourceDependencies()), entityType);
+        var factory = GetMaterializer(new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -314,6 +322,253 @@ public class EntityMaterializerSourceTest
                 + CoreStrings.ConstructorBindingFailed("value", "EntityWithoutParameterlessConstructor(int value)")
                 + Environment.NewLine),
             Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Create_instance_with_parameterless_constructor()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(Parameterless))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var instance1 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+        var instance2 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+
+        Assert.IsType<Parameterless>(instance1);
+        Assert.IsType<Parameterless>(instance2);
+        Assert.NotSame(instance1, instance2);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Create_instance_with_lazy_loader()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(WithLazyLoader))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var instance1 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+        var instance2 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+
+        Assert.IsType<WithLazyLoader>(instance1);
+        Assert.NotNull(((WithLazyLoader)instance1).LazyLoader);
+        Assert.IsType<WithLazyLoader>(instance2);
+        Assert.NotSame(instance1, instance2);
+        Assert.NotSame(((WithLazyLoader)instance1).LazyLoader, ((WithLazyLoader)instance2).LazyLoader);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Create_instance_with_lazy_loading_delegate()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(WithLazyLoaderDelegate))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var instance1 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+        var instance2 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+
+        Assert.IsType<WithLazyLoaderDelegate>(instance1);
+        Assert.NotNull(((WithLazyLoaderDelegate)instance1).LazyLoader);
+        Assert.IsType<WithLazyLoaderDelegate>(instance2);
+        Assert.NotSame(instance1, instance2);
+        Assert.NotSame(((WithLazyLoaderDelegate)instance1).LazyLoader, ((WithLazyLoaderDelegate)instance2).LazyLoader);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Create_instance_with_entity_type()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(WithEntityType))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var instance1 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+        var instance2 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+
+        Assert.IsType<WithEntityType>(instance1);
+        Assert.NotNull(((WithEntityType)instance1).EntityType);
+        Assert.IsType<WithEntityType>(instance2);
+        Assert.NotSame(instance1, instance2);
+        Assert.Same(((WithEntityType)instance1).EntityType, ((WithEntityType)instance2).EntityType);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Create_instance_with_context()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(WithContext))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var instance1 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+        var instance2 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+
+        Assert.IsType<WithContext>(instance1);
+        Assert.Same(context, ((WithContext)instance1).Context);
+        Assert.IsType<WithContext>(instance2);
+        Assert.NotSame(instance1, instance2);
+        Assert.Same(context, ((WithContext)instance2).Context);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Create_instance_with_service_and_with_properties()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(WithServiceAndWithProperties))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var instance1 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+        var instance2 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+
+        Assert.IsType<WithServiceAndWithProperties>(instance1);
+        Assert.NotNull(((WithServiceAndWithProperties)instance1).LazyLoader);
+        Assert.IsType<WithServiceAndWithProperties>(instance2);
+        Assert.NotSame(instance1, instance2);
+        Assert.NotSame(((WithServiceAndWithProperties)instance1).LazyLoader, ((WithServiceAndWithProperties)instance2).LazyLoader);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Create_instance_with_parameterless_and_with_properties()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(ParameterlessAndWithProperties))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var instance1 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+        var instance2 = source.GetEmptyMaterializer(entityType)(new MaterializationContext(ValueBuffer.Empty, context));
+
+        Assert.IsType<ParameterlessAndWithProperties>(instance1);
+        Assert.IsType<ParameterlessAndWithProperties>(instance2);
+        Assert.NotSame(instance1, instance2);
+    }
+
+    [ConditionalFact]
+    public void GetEmptyMaterializer_Throws_for_constructor_with_properties()
+    {
+        using var context = new FactoryContext();
+
+        var entityType = context.Model.FindEntityType(typeof(WithProperties))!;
+        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+
+        Assert.Equal(
+            CoreStrings.NoParameterlessConstructor(nameof(WithProperties)),
+            Assert.Throws<InvalidOperationException>(
+                () => source.GetEmptyMaterializer(entityType)).Message);
+    }
+
+    private class FactoryContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(nameof(FactoryContext))
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Parameterless>();
+            modelBuilder.Entity<ParameterlessAndWithProperties>();
+            modelBuilder.Entity<WithProperties>();
+            modelBuilder.Entity<WithLazyLoader>();
+            modelBuilder.Entity<WithLazyLoaderDelegate>();
+            modelBuilder.Entity<WithEntityType>();
+            modelBuilder.Entity<WithContext>();
+            modelBuilder.Entity<WithServiceAndWithProperties>();
+        }
+    }
+
+    private class Parameterless
+    {
+        private Parameterless()
+        {
+        }
+
+        public int Id { get; set; }
+    }
+
+    private class WithProperties
+    {
+        public WithProperties(int id)
+        {
+            Id = id;
+        }
+
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+        public int Id { get; set; }
+    }
+
+    private class ParameterlessAndWithProperties
+    {
+        public ParameterlessAndWithProperties()
+        {
+        }
+
+        public ParameterlessAndWithProperties(int id)
+        {
+            Id = id;
+        }
+
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+        public int Id { get; set; }
+    }
+
+    private class WithLazyLoader
+    {
+        public WithLazyLoader(ILazyLoader lazyLoader)
+        {
+            LazyLoader = lazyLoader;
+        }
+
+        public int Id { get; set; }
+        public ILazyLoader LazyLoader { get; }
+    }
+
+    private class WithLazyLoaderDelegate
+    {
+        public WithLazyLoaderDelegate(Action<object, string> lazyLoader)
+        {
+            LazyLoader = lazyLoader;
+        }
+
+        public int Id { get; set; }
+        public Action<object, string> LazyLoader { get; }
+    }
+
+    private class WithEntityType
+    {
+        public WithEntityType(IEntityType entityType)
+        {
+            EntityType = entityType;
+        }
+
+        public int Id { get; set; }
+        public IEntityType EntityType { get; }
+    }
+
+    private class WithContext
+    {
+        public WithContext(DbContext context)
+        {
+            Context = context;
+        }
+
+        public int Id { get; set; }
+        public DbContext Context { get; }
+    }
+
+    private class WithServiceAndWithProperties
+    {
+        public WithServiceAndWithProperties(ILazyLoader lazyLoader)
+        {
+            LazyLoader = lazyLoader;
+        }
+
+        public WithServiceAndWithProperties(ILazyLoader lazyLoader, int id)
+            : this(lazyLoader)
+        {
+            Id = id;
+        }
+
+        public ILazyLoader LazyLoader { get; }
+
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+        public int Id { get; set; }
     }
 
     protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)

@@ -39,6 +39,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     private bool _serviceProviderCachingEnabled = true;
     private DbContextOptionsExtensionInfo? _info;
     private IEnumerable<IInterceptor>? _interceptors;
+    private IEnumerable<ISingletonInterceptor>? _singletonInterceptors;
 
     private static readonly TimeSpan DefaultLoggingCacheTime = TimeSpan.FromSeconds(1);
 
@@ -78,6 +79,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         _loggingCacheTime = copyFrom.LoggingCacheTime;
         _serviceProviderCachingEnabled = copyFrom.ServiceProviderCachingEnabled;
         _interceptors = copyFrom.Interceptors?.ToList();
+        _singletonInterceptors = copyFrom.SingletonInterceptors?.ToList();
 
         if (copyFrom._replacedServices != null)
         {
@@ -348,6 +350,23 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     }
 
     /// <summary>
+    ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+    ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
+    /// <param name="interceptors">The option to change.</param>
+    /// <returns>A new instance with the option changed.</returns>
+    public virtual CoreOptionsExtension WithSingletonInterceptors(IEnumerable<ISingletonInterceptor> interceptors)
+    {
+        var clone = Clone();
+
+        clone._singletonInterceptors = _singletonInterceptors == null
+            ? interceptors
+            : _singletonInterceptors.Concat(interceptors);
+
+        return clone;
+    }
+
+    /// <summary>
     ///     The option set from the <see cref="DbContextOptionsBuilder.EnableSensitiveDataLogging" /> method.
     /// </summary>
     public virtual bool IsSensitiveDataLoggingEnabled
@@ -444,10 +463,18 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         => _loggingCacheTime;
 
     /// <summary>
-    ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method.
+    ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method
+    ///     for scoped interceptors.
     /// </summary>
     public virtual IEnumerable<IInterceptor>? Interceptors
         => _interceptors;
+
+    /// <summary>
+    ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method
+    ///     for singleton interceptors.
+    /// </summary>
+    public virtual IEnumerable<ISingletonInterceptor>? SingletonInterceptors
+        => _singletonInterceptors;
 
     /// <summary>
     ///     Adds the services required to make the selected options work. This is used when there
@@ -462,6 +489,14 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         if (memoryCache != null)
         {
             services.AddSingleton(memoryCache);
+        }
+
+        if (_singletonInterceptors != null)
+        {
+            foreach (var interceptor in _singletonInterceptors)
+            {
+                services.AddSingleton(interceptor);
+            }
         }
     }
 
@@ -506,6 +541,15 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
                         nameof(DbContextOptionsBuilder.UseMemoryCache),
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
                         nameof(IMemoryCache)));
+            }
+
+            if (SingletonInterceptors != null && SingletonInterceptors.Any())
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidUseService(
+                        nameof(DbContextOptionsBuilder.AddInterceptors),
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
+                        nameof(ISingletonInterceptor)));
             }
         }
     }
@@ -614,6 +658,14 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
                     }
                 }
 
+                if (Extension._singletonInterceptors != null)
+                {
+                    foreach (var interceptor in Extension._singletonInterceptors)
+                    {
+                        hashCode.Add(interceptor);
+                    }
+                }
+
                 _serviceProviderHash = hashCode.ToHashCode();
             }
 
@@ -631,6 +683,10 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
                     || (Extension._replacedServices != null
                         && otherInfo.Extension._replacedServices != null
                         && Extension._replacedServices.Count == otherInfo.Extension._replacedServices.Count
-                        && Extension._replacedServices.SequenceEqual(otherInfo.Extension._replacedServices)));
+                        && Extension._replacedServices.SequenceEqual(otherInfo.Extension._replacedServices)))
+                && (Extension._singletonInterceptors == otherInfo.Extension._singletonInterceptors
+                    || (Extension._singletonInterceptors != null
+                        && otherInfo.Extension._singletonInterceptors != null
+                        && Extension._singletonInterceptors.SequenceEqual(otherInfo.Extension._singletonInterceptors)));
     }
 }

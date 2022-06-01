@@ -14,17 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 /// </summary>
 public class ProxyBindingRewriter : IModelFinalizingConvention
 {
-    private static readonly MethodInfo CreateLazyLoadingProxyMethod
-        = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateLazyLoadingProxy))!;
-
     private static readonly PropertyInfo LazyLoaderProperty
         = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader))!;
 
-    private static readonly MethodInfo CreateProxyMethod
-        = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateProxy))!;
-
-    private readonly ConstructorBindingConvention _directBindingConvention;
-    private readonly IProxyFactory _proxyFactory;
     private readonly ProxiesOptionsExtension? _options;
 
     /// <summary>
@@ -34,16 +26,13 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ProxyBindingRewriter(
-        IProxyFactory proxyFactory,
         ProxiesOptionsExtension? options,
         LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
         ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
     {
-        _proxyFactory = proxyFactory;
         _options = options;
         LazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
         ConventionSetBuilderDependencies = conventionSetBuilderDependencies;
-        _directBindingConvention = new ConstructorBindingConvention(conventionSetBuilderDependencies);
     }
 
     /// <summary>
@@ -69,6 +58,10 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
     {
         if (_options?.UseProxies == true)
         {
+            modelBuilder.HasAnnotation(ProxyAnnotationNames.LazyLoading, _options.UseLazyLoadingProxies);
+            modelBuilder.HasAnnotation(ProxyAnnotationNames.ChangeTracking, _options.UseChangeTrackingProxies);
+            modelBuilder.HasAnnotation(ProxyAnnotationNames.CheckEquality, _options.CheckEquality);
+            
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var clrType = entityType.ClrType;
@@ -81,30 +74,6 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                 {
                     throw new InvalidOperationException(ProxiesStrings.ItsASeal(entityType.DisplayName()));
                 }
-
-                var proxyType = _proxyFactory.CreateProxyType(_options, entityType);
-
-                // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                var binding = ((EntityType)entityType).ConstructorBinding;
-                if (binding == null)
-                {
-                    _directBindingConvention.ProcessModelFinalizing(modelBuilder, context);
-                    binding = ((EntityType)entityType).ConstructorBinding!;
-                }
-
-                ((EntityType)entityType).SetConstructorBinding(
-                    UpdateConstructorBindings(entityType, proxyType, binding),
-                    ConfigurationSource.Convention);
-
-                binding = ((EntityType)entityType).ServiceOnlyConstructorBinding;
-                if (binding != null)
-                {
-                    ((EntityType)entityType).SetServiceOnlyConstructorBinding(
-                        UpdateConstructorBindings(entityType, proxyType, binding),
-                        ConfigurationSource.Convention);
-                }
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 foreach (var navigationBase in entityType.GetDeclaredNavigations()
                              .Concat<IConventionNavigationBase>(entityType.GetDeclaredSkipNavigations()))
@@ -136,6 +105,34 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                     }
                 }
 
+                if (_options.UseLazyLoadingProxies)
+                {
+                    foreach (var conflictingProperty in entityType.GetDerivedTypes()
+                                 .SelectMany(e => e.GetDeclaredServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
+                                 .ToList())
+                    {
+                        if (!ConfigurationSource.Convention.Overrides(conflictingProperty.GetConfigurationSource()))
+                        {
+                                break;
+                        }
+                        conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
+                    }
+
+                    var serviceProperty = entityType.GetServiceProperties()
+                        .FirstOrDefault(e => e.ClrType == typeof(ILazyLoader));
+                    if (serviceProperty == null)
+                    {
+                        serviceProperty = entityType.AddServiceProperty(LazyLoaderProperty);
+                        serviceProperty.SetParameterBinding(
+                            (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(
+                                    LazyLoaderParameterBindingFactoryDependencies)
+                                .Bind(
+                                    entityType,
+                                    typeof(ILazyLoader),
+                                    nameof(IProxyLazyLoader.LazyLoader)));
+                    }
+                }
+                
                 if (_options.UseChangeTrackingProxies)
                 {
                     var indexerChecked = false;
@@ -190,59 +187,5 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                 }
             }
         }
-    }
-
-    private InstantiationBinding UpdateConstructorBindings(
-        IConventionEntityType entityType,
-        Type proxyType,
-        InstantiationBinding binding)
-    {
-        if (_options?.UseLazyLoadingProxies == true)
-        {
-            foreach (var conflictingProperty in entityType.GetDerivedTypes()
-                         .SelectMany(e => e.GetDeclaredServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
-                         .ToList())
-            {
-                conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
-            }
-
-            var serviceProperty = entityType.GetServiceProperties()
-                .FirstOrDefault(e => e.ClrType == typeof(ILazyLoader));
-            if (serviceProperty == null)
-            {
-                serviceProperty = entityType.AddServiceProperty(LazyLoaderProperty);
-                serviceProperty.SetParameterBinding(
-                    (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(
-                            LazyLoaderParameterBindingFactoryDependencies)
-                        .Bind(
-                            entityType,
-                            typeof(ILazyLoader),
-                            nameof(IProxyLazyLoader.LazyLoader)));
-            }
-
-            return new FactoryMethodBinding(
-                _proxyFactory,
-                CreateLazyLoadingProxyMethod,
-                new List<ParameterBinding>
-                {
-                    new ContextParameterBinding(typeof(DbContext)),
-                    new EntityTypeParameterBinding(),
-                    new DependencyInjectionParameterBinding(
-                        typeof(ILazyLoader), typeof(ILazyLoader), (IPropertyBase)serviceProperty),
-                    new ObjectArrayParameterBinding(binding.ParameterBindings)
-                },
-                proxyType);
-        }
-
-        return new FactoryMethodBinding(
-            _proxyFactory,
-            CreateProxyMethod,
-            new List<ParameterBinding>
-            {
-                new ContextParameterBinding(typeof(DbContext)),
-                new EntityTypeParameterBinding(),
-                new ObjectArrayParameterBinding(binding.ParameterBindings)
-            },
-            proxyType);
     }
 }

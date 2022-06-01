@@ -69,7 +69,6 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
-    private Func<MaterializationContext, object>? _instanceFactory;
     private IProperty[]? _foreignKeyProperties;
     private IProperty[]? _valueGeneratingProperties;
 
@@ -2735,39 +2734,6 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             {
                 entityType.EnsureReadOnly();
                 return new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType);
-            });
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<MaterializationContext, object> InstanceFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _instanceFactory, this,
-            static entityType =>
-            {
-                entityType.EnsureReadOnly();
-
-                var binding = entityType.ServiceOnlyConstructorBinding;
-                if (binding == null)
-                {
-                    var _ = entityType.ConstructorBinding;
-                    binding = entityType.ServiceOnlyConstructorBinding;
-                    if (binding == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
-                    }
-                }
-
-                var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
-
-                return Expression.Lambda<Func<MaterializationContext, object>>(
-                        binding.CreateConstructorExpression(
-                            new ParameterBindingInfo(entityType, contextParam)),
-                        contextParam)
-                    .Compile();
             });
 
     /// <summary>
