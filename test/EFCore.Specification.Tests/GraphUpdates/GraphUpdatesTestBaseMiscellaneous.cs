@@ -73,10 +73,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
                 else
                 {
-                    Assert.Equal(
-                        CoreStrings.IdentityConflictSensitive(nameof(College), $"{{Id: {college.Id}}}"),
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Entry(college).State = EntityState.Modified).Message);
+                    Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                    Assert.Equal(EntityState.Deleted, context.Entry(college).State);
+                    Assert.Equal(EntityState.Unchanged, context.Entry(city).State);
                 }
 
                 return Task.CompletedTask;
@@ -1569,5 +1568,133 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                         quizTask.Choices.Count(e => e.Id == taskChoice.Id)
                         + hiddenAreaTask.Choices.Count(e => e.Id == taskChoice.Id));
                 }
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_required_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadRequiredGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryRequiredGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_optional_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadOptionalGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryOptionalGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_required_non_PK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadRequiredNonPkGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryRequiredNonPkGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_required_AK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadRequiredAkGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryRequiredAkGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_optional_AK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadOptionalAkGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryOptionalAkGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_required_non_PK_AK_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadRequiredNonPkAkGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryRequiredNonPkAkGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_required_one_to_many_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadOptionalOneToManyGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryOptionalOneToManyGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
+            });
+
+    [ConditionalFact]
+    public void Cab_attach_full_required_composite_graph_of_duplicates()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var trackedRoot = LoadRequiredCompositeGraph(context);
+                var entries = context.ChangeTracker.Entries().ToList();
+
+                context.Attach(QueryRequiredCompositeGraph(context).AsNoTracking().Single(IsTheRoot));
+
+                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertNavigations(trackedRoot);
+
+                Assert.Equal(0, context.SaveChanges());
             });
 }

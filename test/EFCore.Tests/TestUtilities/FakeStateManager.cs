@@ -116,9 +116,6 @@ public class FakeStateManager : IStateManager
         in ValueBuffer valueBuffer)
         => throw new NotImplementedException();
 
-    public void BeginTrackingQuery()
-        => throw new NotImplementedException();
-
     public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues)
         => throw new NotImplementedException();
 
@@ -150,6 +147,19 @@ public class FakeStateManager : IStateManager
 
     public void RecordReferencedUntrackedEntity(
         object referencedEntity,
+        INavigationBase navigation,
+        InternalEntityEntry referencedFromEntry)
+        => throw new NotImplementedException();
+
+    public void UpdateReferencedUntrackedEntity(
+        object referencedEntity,
+        object newReferencedEntity,
+        INavigationBase navigation,
+        InternalEntityEntry referencedFromEntry)
+        => throw new NotImplementedException();
+
+    public bool ResolveToExistingEntry(
+        InternalEntityEntry newEntry,
         INavigationBase navigation,
         InternalEntityEntry referencedFromEntry)
         => throw new NotImplementedException();

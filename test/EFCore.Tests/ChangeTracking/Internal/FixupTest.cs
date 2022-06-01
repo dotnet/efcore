@@ -2226,6 +2226,296 @@ public class FixupTest
         Assert.Equal(5, context.ChangeTracker.Entries<SpecialOffer>().Count());
     }
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_dependent_with_duplicate_principal_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalCategory = new Category(1) { Value = "Original" };
+        var originalProduct = new Product(1, 0) { Value = "Original" };
+        originalCategory.AddProduct(originalProduct);
+        context.Attach(originalCategory);
+
+        var newProduct = new Product(2, 0) { Value = "New" };
+        var newCategory = new Category(1) { Value = "New" };
+        newProduct.SetCategory(newCategory);
+
+        context.Attach(newProduct);
+
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCategory).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(originalProduct).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(newProduct).State);
+
+        Assert.Equal(copy ? "New" : "Original", originalCategory.Value);
+        Assert.Equal("Original", originalProduct.Value);
+        Assert.Equal("New", newProduct.Value);
+
+        Assert.Equal(1, originalProduct.CategoryId);
+        Assert.Equal(1, newProduct.CategoryId);
+        Assert.Same(originalCategory, originalProduct.Category);
+        Assert.Same(originalCategory, newProduct.Category);
+        Assert.Equal(2, originalCategory.Products.Count);
+        Assert.Contains(originalProduct, originalCategory.Products);
+        Assert.Contains(newProduct, originalCategory.Products);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_duplicate_dependent_with_duplicate_principal_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalCategory = new Category(1) { Value = "Original" };
+        var originalProduct = new Product(1, 0) { Value = "Original" };
+        originalCategory.AddProduct(originalProduct);
+        context.Attach(originalCategory);
+
+        var newProduct = new Product(1, 1) { Value = "New" };
+        var newCategory = new Category(1) { Value = "New" };
+        newProduct.SetCategory(newCategory);
+
+        context.Attach(newProduct);
+
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCategory).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalProduct).State);
+
+        Assert.Equal(copy ? "New" : "Original", originalCategory.Value);
+        Assert.Equal(copy ? "New" : "Original", originalProduct.Value);
+
+        Assert.Equal(1, originalProduct.CategoryId);
+        Assert.Same(originalCategory, originalProduct.Category);
+        Assert.Equal(1, originalCategory.Products.Count);
+        Assert.Contains(originalProduct, originalCategory.Products);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_principal_with_duplicate_dependent_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalCategory = new Category(1) { Value = "Original" };
+        var originalProduct = new Product(1, 0) { Value = "Original" };
+        originalCategory.AddProduct(originalProduct);
+        context.Attach(originalCategory);
+
+        var newProduct = new Product(1, 2) { Value = "New" };
+        var newCategory = new Category(2) { Value = "New" };
+        newCategory.AddProduct(newProduct);
+
+        context.Attach(newCategory);
+
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(EntityState.Unchanged, context.Entry(originalCategory).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(newCategory).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalProduct).State);
+
+        Assert.Equal("Original", originalCategory.Value);
+        Assert.Equal("New", newCategory.Value);
+        Assert.Equal(copy ? "New" : "Original", originalProduct.Value);
+
+        if (copy)
+        {
+            Assert.Equal(2, originalProduct.CategoryId);
+            Assert.Same(newCategory, originalProduct.Category);
+            Assert.Equal(0, originalCategory.Products.Count);
+            Assert.Equal(1, newCategory.Products.Count);
+            Assert.Contains(originalProduct, newCategory.Products);
+        }
+        else
+        {
+            Assert.Equal(1, originalProduct.CategoryId);
+            Assert.Same(originalCategory, originalProduct.Category);
+            Assert.Equal(1, originalCategory.Products.Count);
+            Assert.Contains(originalProduct, originalCategory.Products);
+            Assert.Equal(0, newCategory.Products.Count);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_duplicate_principal_with_duplicate_dependent_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalCategory = new Category(1) { Value = "Original" };
+        var originalProduct = new Product(1, 0) { Value = "Original" };
+        originalCategory.AddProduct(originalProduct);
+        context.Attach(originalCategory);
+
+        var newProduct = new Product(1, 1) { Value = "New" };
+        var newCategory = new Category(1) { Value = "New" };
+        newCategory.AddProduct(newProduct);
+
+        context.Attach(newCategory);
+
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCategory).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalProduct).State);
+
+        Assert.Equal(copy ? "New" : "Original", originalCategory.Value);
+        Assert.Equal(copy ? "New" : "Original", originalProduct.Value);
+
+        Assert.Equal(1, originalProduct.CategoryId);
+        Assert.Same(originalCategory, originalProduct.Category);
+        Assert.Equal(1, originalCategory.Products.Count);
+        Assert.Contains(originalProduct, originalCategory.Products);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_one_to_one_dependent_with_duplicate_principal_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalParent = new Parent(1) { Value = "Original" };
+        var originalChild = new Child(1, 0) { Value = "Original" };
+        originalParent.SetChild(originalChild);
+        context.Attach(originalParent);
+
+        var newChild = new Child(2, 0) { Value = "New" };
+        var newParent = new Parent(1) { Value = "New" };
+        newChild.SetParent(newParent);
+
+        context.Attach(newChild);
+
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalParent).State);
+        Assert.Equal(EntityState.Deleted, context.Entry(originalChild).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(newChild).State);
+
+        Assert.Equal(copy ? "New" : "Original", originalParent.Value);
+        Assert.Equal("Original", originalChild.Value);
+        Assert.Equal("New", newChild.Value);
+        Assert.Equal(1, newChild.ParentId);
+        Assert.Same(originalParent, newChild.Parent);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_one_to_one_duplicate_dependent_with_duplicate_principal_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalParent = new Parent(1) { Value = "Original" };
+        var originalChild = new Child(1, 0) { Value = "Original" };
+        originalParent.SetChild(originalChild);
+        context.Attach(originalParent);
+
+        var newChild = new Child(1, 1) { Value = "New" };
+        var newParent = new Parent(1) { Value = "New" };
+        newChild.SetParent(newParent);
+
+        context.Attach(newChild);
+
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalParent).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalChild).State);
+
+        Assert.Equal(copy ? "New" : "Original", originalParent.Value);
+        Assert.Equal(copy ? "New" : "Original", originalChild.Value);
+
+        Assert.Equal(1, originalChild.ParentId);
+        Assert.Same(originalParent, originalChild.Parent);
+        Assert.Same(originalChild, originalParent.Child);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_one_to_one_principal_with_duplicate_dependent_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalParent = new Parent(1) { Value = "Original" };
+        var originalChild = new Child(1, 0) { Value = "Original" };
+        originalParent.SetChild(originalChild);
+        context.Attach(originalParent);
+
+        var newChild = new Child(1, 0) { Value = "New" };
+        var newParent = new Parent(2) { Value = "New" };
+        newParent.SetChild(newChild);
+
+        context.Attach(newParent);
+
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(EntityState.Unchanged, context.Entry(originalParent).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalChild).State);
+
+        Assert.Equal("Original", originalParent.Value);
+        Assert.Equal("New", newParent.Value);
+        Assert.Equal(copy ? "New" : "Original", originalChild.Value);
+
+        Assert.Equal(2, originalChild.ParentId);
+        Assert.Same(newParent, originalChild.Parent);
+        Assert.Same(originalChild, newParent.Child);
+        Assert.Null(originalParent.Child);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Attaching_one_to_one_duplicate_principal_with_duplicate_dependent_resolves(bool copy)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalParent = new Parent(1) { Value = "Original" };
+        var originalChild = new Child(1, 0) { Value = "Original" };
+        originalParent.SetChild(originalChild);
+        context.Attach(originalParent);
+
+        var newChild = new Child(1, 1) { Value = "New" };
+        var newParent = new Parent(1) { Value = "New" };
+        newParent.SetChild(newChild);
+
+        context.Attach(newParent);
+
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalParent).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalChild).State);
+
+        Assert.Equal(copy ? "New" : "Original", originalParent.Value);
+        Assert.Equal(copy ? "New" : "Original", originalChild.Value);
+
+        Assert.Equal(1, originalChild.ParentId);
+        Assert.Same(originalParent, originalChild.Parent);
+        Assert.Same(originalChild, originalParent.Child);
+    }
+
     [ConditionalFact]
     public void Comparable_entities_that_comply_are_tracked_correctly()
     {
@@ -2571,9 +2861,42 @@ public class FixupTest
             Assert.Throws<InvalidOperationException>(() => context.Add(a)).Message);
     }
 
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Detached_entity_can_be_replaced_by_tracked_entity(bool async, bool copy)
+    {
+        using var context = new BadBeeContext(
+            nameof(BadBeeContext), copy
+                ? new CopyingIdentityResolutionInterceptor()
+                : new SkippingIdentityResolutionInterceptor());
+
+        var b1 = new EntityB { EntityBId = 1, Value = "b1" };
+        context.BEntities.Attach(b1);
+
+        var b2 = new EntityB { EntityBId = 1, Value = "b2" };
+
+        var a = new EntityA { EntityAId = 1, EntityB = b2 };
+
+        _ = async ? await context.AddAsync(a) : context.Add(a);
+
+        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(EntityState.Added, context.Entry(a).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(b1).State);
+
+        Assert.Same(a, b1.EntityA);
+        Assert.Same(b1, a.EntityB);
+        Assert.Equal(b1.EntityBId, a.EntityBId);
+
+        Assert.Equal(copy ? "b2" : "b1", b1.Value);
+    }
+
     private class EntityB
     {
         public int EntityBId { get; set; }
+        public string Value { get; set; }
         public EntityA EntityA { get; set; }
     }
 
@@ -2586,15 +2909,19 @@ public class FixupTest
 
     private class BadBeeContext : DbContext
     {
+        private readonly IInterceptor[] _interceptors;
         private readonly string _databaseName;
 
-        public BadBeeContext(string databaseName)
+        public BadBeeContext(string databaseName, params IInterceptor[] interceptors)
         {
+            _interceptors = interceptors;
             _databaseName = databaseName;
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase(_databaseName);
+            => optionsBuilder
+                .AddInterceptors(_interceptors)
+                .UseInMemoryDatabase(_databaseName);
 
         public DbSet<EntityA> AEntities { get; set; }
         public DbSet<EntityB> BEntities { get; set; }
@@ -2648,6 +2975,8 @@ public class FixupTest
         public int Id
             => _id;
 
+        public string Value { get; set; }
+
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public Child Child
             => _child;
@@ -2672,6 +3001,8 @@ public class FixupTest
         // ReSharper disable once ConvertToAutoProperty
         public int Id
             => _id;
+
+        public string Value { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public int ParentId
@@ -2784,6 +3115,8 @@ public class FixupTest
             _id = id;
         }
 
+        public string Value { get; set; }
+
         // ReSharper disable once ConvertToAutoProperty
         public int Id
             => _id;
@@ -2793,7 +3126,7 @@ public class FixupTest
             => _products;
 
         public void AddProduct(Product product)
-            => (_products ?? (_products = new List<Product>())).Add(product);
+            => (_products ??= new List<Product>()).Add(product);
     }
 
     private class Product
@@ -2824,6 +3157,8 @@ public class FixupTest
 
         public void SetCategoryId(int categoryId)
             => _categoryId = categoryId;
+
+        public string Value { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public Category Category
@@ -2883,10 +3218,17 @@ public class FixupTest
 
     private sealed class FixupContext : DbContext
     {
+        private readonly IInterceptor[] _interceptors;
         private readonly string _databaseName;
 
-        public FixupContext(string databaseName = null)
+        public FixupContext(params IInterceptor[] interceptors)
+            : this(null, interceptors)
         {
+        }
+
+        public FixupContext(string databaseName, params IInterceptor[] interceptors)
+        {
+            _interceptors = interceptors;
             _databaseName = databaseName;
             ChangeTracker.AutoDetectChangesEnabled = false;
         }
@@ -2968,6 +3310,7 @@ public class FixupTest
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
+                .AddInterceptors(_interceptors)
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(_databaseName ?? nameof(FixupContext));
     }

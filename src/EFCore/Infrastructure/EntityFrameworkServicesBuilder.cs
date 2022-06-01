@@ -272,6 +272,7 @@ public class EntityFrameworkServicesBuilder
         TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
         TryAdd<IInterceptors, Interceptors>();
         TryAdd<IInterceptorAggregator, SaveChangesInterceptorAggregator>();
+        TryAdd<IInterceptorAggregator, IdentityResolutionInterceptorAggregator>();
         TryAdd<ILoggingOptions, LoggingOptions>();
         TryAdd<ICoreSingletonOptions, CoreSingletonOptions>();
         TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetRequiredService<ILoggingOptions>());

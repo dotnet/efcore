@@ -41,6 +41,52 @@ public class StateManagerTest
                     new SingleKey { Id = 77, AlternateId = 67 })).Message);
     }
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Identity_conflict_can_be_resolved(bool copy)
+    {
+        using var context = new IdentityConflictContext(copy
+            ? new CopyingIdentityResolutionInterceptor()
+            : new SkippingIdentityResolutionInterceptor());
+
+        var entity = new SingleKey { Id = 77, AlternateId = 66, Value = "Existing" };
+        context.Attach(entity);
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66, Value = "New" });
+
+        Assert.Single(context.ChangeTracker.Entries());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
+        Assert.Equal(copy ? "New" : "Existing", entity.Value);
+    }
+
+    [ConditionalFact]
+    public void Resolving_identity_conflict_for_primary_key_cannot_change_alternate_key()
+    {
+        using var context = new IdentityConflictContext(new NaiveCopyingIdentityResolutionInterceptor());
+
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
+
+        Assert.Equal(
+            CoreStrings.KeyReadOnly(nameof(SingleKey.AlternateId), nameof(SingleKey)),
+            Assert.Throws<InvalidOperationException>(
+                () => context.Attach(
+                    new SingleKey { Id = 77, AlternateId = 67 })).Message);
+    }
+
+    [ConditionalFact]
+    public void Resolving_identity_conflict_for_primary_key_throws_if_alternate_key_changes()
+    {
+        using var context = new IdentityConflictContext(new SkippingIdentityResolutionInterceptor());
+
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
+
+        Assert.Equal(
+            CoreStrings.IdentityConflict("SingleKey", "{'Id'}"),
+            Assert.Throws<InvalidOperationException>(
+                () => context.Attach(
+                    new SingleKey { Id = 77, AlternateId = 67 })).Message);
+    }
+
     [ConditionalFact]
     public void Identity_conflict_throws_for_alternate_key()
     {
@@ -48,6 +94,40 @@ public class StateManagerTest
         context.Attach(
             new SingleKey { Id = 77, AlternateId = 66 });
 
+        Assert.Equal(
+            CoreStrings.IdentityConflict("SingleKey", "{'AlternateId'}"),
+            Assert.Throws<InvalidOperationException>(
+                () => context.Attach(
+                    new SingleKey { Id = 78, AlternateId = 66 })).Message);
+    }
+
+    [ConditionalFact]
+    public void Resolving_identity_conflict_for_alternate_key_cannot_change_primary_key()
+    {
+        using var context = new IdentityConflictContext(new NaiveCopyingIdentityResolutionInterceptor());
+
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
+        Assert.Equal(
+            CoreStrings.KeyReadOnly(nameof(SingleKey.Id), nameof(SingleKey)),
+            Assert.Throws<InvalidOperationException>(
+                () => context.Attach(
+                    new SingleKey { Id = 78, AlternateId = 66 })).Message);
+    }
+
+    private class NaiveCopyingIdentityResolutionInterceptor : IIdentityResolutionInterceptor
+    {
+        public void UpdateTrackedInstance(DbContext context, EntityEntry existingEntry, object newInstance)
+        {
+            existingEntry.CurrentValues.SetValues(newInstance);
+        }
+    }
+
+    [ConditionalFact]
+    public void Resolving_identity_conflict_for_alternate_key_throws_if_primary_key_changes()
+    {
+        using var context = new IdentityConflictContext(new SkippingIdentityResolutionInterceptor());
+
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
         Assert.Equal(
             CoreStrings.IdentityConflict("SingleKey", "{'AlternateId'}"),
             Assert.Throws<InvalidOperationException>(
@@ -82,6 +162,40 @@ public class StateManagerTest
                     })).Message);
     }
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Identity_conflict_can_be_resolved_for_owned(bool copy)
+    {
+        using var context = new IdentityConflictContext(copy
+            ? new CopyingIdentityResolutionInterceptor()
+            : new SkippingIdentityResolutionInterceptor());
+
+        var owned = new SingleKeyOwned { Value = "Existing" };
+        context.Attach(
+            new SingleKey
+            {
+                Id = 77,
+                AlternateId = 66,
+                Owned = owned
+            });
+
+        var duplicateOwned = new SingleKeyOwned { Value = "New" };
+        context.Entry(duplicateOwned).Property("SingleKeyId").CurrentValue = 77;
+
+        context.Attach(
+            new SingleKey
+            {
+                Id = 78,
+                AlternateId = 67,
+                Owned = duplicateOwned
+            });
+
+        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(owned).State);
+        Assert.Equal(copy ? "New" : "Existing", owned.Value);
+    }
+
     [ConditionalFact]
     public void Identity_conflict_throws_for_composite_primary_key()
     {
@@ -106,6 +220,39 @@ public class StateManagerTest
                         AlternateId1 = 66,
                         AlternateId2 = 68
                     })).Message);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Identity_conflict_can_be_resolved_for_composite_primary_key(bool copy)
+    {
+        using var context = new IdentityConflictContext(copy
+            ? new CopyingIdentityResolutionInterceptor()
+            : new SkippingIdentityResolutionInterceptor());
+
+        var entity = new CompositeKey
+        {
+            Id1 = 77,
+            Id2 = 78,
+            AlternateId1 = 66,
+            AlternateId2 = 67,
+            Value = "Existing"
+        };
+        context.Attach(entity);
+        context.Attach(
+            new CompositeKey
+            {
+                Id1 = 77,
+                Id2 = 78,
+                AlternateId1 = 66,
+                AlternateId2 = 67,
+                Value = "New"
+            });
+
+        Assert.Single(context.ChangeTracker.Entries());
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
+        Assert.Equal(copy ? "New" : "Existing", entity.Value);
     }
 
     [ConditionalFact]
@@ -372,8 +519,16 @@ public class StateManagerTest
 
     private class IdentityConflictContext : DbContext
     {
+        private readonly IInterceptor[] _interceptors;
+
+        public IdentityConflictContext(params IInterceptor[] interceptors)
+        {
+            _interceptors = interceptors;
+        }
+
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
+                .AddInterceptors(_interceptors)
                 .UseInMemoryDatabase(nameof(IdentityConflictContext))
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
@@ -401,16 +556,20 @@ public class StateManagerTest
 
     private class SingleKeyOwned
     {
+        public string Value { get; set; }
     }
 
     private class CompositeKeyOwned
     {
+        public string Value { get; set; }
     }
 
     private class SingleKey
     {
         public int? Id { get; set; }
         public int? AlternateId { get; set; }
+
+        public string Value { get; set; }
 
         public SingleKeyOwned Owned { get; set; }
     }
@@ -422,6 +581,8 @@ public class StateManagerTest
 
         public int? AlternateId1 { get; set; }
         public int? AlternateId2 { get; set; }
+
+        public string Value { get; set; }
 
         public CompositeKeyOwned Owned { get; set; }
     }

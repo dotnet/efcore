@@ -434,6 +434,17 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public bool ResolveToExistingEntry(
+        INavigationBase? navigation,
+        InternalEntityEntry? referencedFromEntry)
+        => StateManager.ResolveToExistingEntry(this, navigation, referencedFromEntry);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public void MarkUnchangedFromQuery()
     {
         StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);

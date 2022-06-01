@@ -955,14 +955,24 @@ public class NavigationFixer : INavigationFixer
                             FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
                         }
                     }
-                    else if (referencedEntry.Entity == navigationValue)
+                    else
                     {
-                        FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+                        FixupToDependent(
+                            entry, 
+                            referencedEntry, 
+                            navigation.ForeignKey, 
+                            referencedEntry.Entity == navigationValue && setModified, 
+                            fromQuery);
                     }
                 }
-                else if (referencedEntry.Entity == navigationValue)
+                else
                 {
-                    FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+                    FixupToPrincipal(
+                        entry, 
+                        referencedEntry, 
+                        navigation.ForeignKey, 
+                        referencedEntry.Entity == navigationValue && setModified, 
+                        fromQuery);
 
                     FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
                 }

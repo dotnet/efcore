@@ -45,7 +45,7 @@ public interface IPrincipalKeyValueFactory<TKey>
     /// </summary>
     /// <param name="entry">The entry tracking an entity instance.</param>
     /// <returns>The key value.</returns>
-    TKey CreateFromCurrentValues(IUpdateEntry entry);
+    TKey? CreateFromCurrentValues(IUpdateEntry entry);
 
     /// <summary>
     ///     Finds the first null key value in the given entry and returns the associated <see cref="IProperty" />.
@@ -59,7 +59,7 @@ public interface IPrincipalKeyValueFactory<TKey>
     /// </summary>
     /// <param name="entry">The entry tracking an entity instance.</param>
     /// <returns>The key value.</returns>
-    TKey CreateFromOriginalValues(IUpdateEntry entry);
+    TKey? CreateFromOriginalValues(IUpdateEntry entry);
 
     /// <summary>
     ///     Creates a key object from the relationship snapshot key values in the given entry.

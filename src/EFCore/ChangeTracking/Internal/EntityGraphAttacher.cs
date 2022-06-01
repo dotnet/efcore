@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 public class EntityGraphAttacher : IEntityGraphAttacher
 {
     private readonly IEntityEntryGraphIterator _graphIterator;
+    private HashSet<object>? _visited;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,10 +50,12 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                     null),
                 PaintAction);
 
+            _visited = null;
             rootEntry.StateManager.CompleteAttachGraph();
         }
         catch
         {
+            _visited = null;
             rootEntry.StateManager.AbortAttachGraph();
             throw;
         }
@@ -84,22 +87,25 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                 PaintActionAsync,
                 cancellationToken).ConfigureAwait(false);
 
+            _visited = null;
             rootEntry.StateManager.CompleteAttachGraph();
         }
         catch
         {
+            _visited = null;
             rootEntry.StateManager.AbortAttachGraph();
             throw;
         }
     }
 
-    private static bool PaintAction(
+    private bool PaintAction(
         EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)
     {
         SetReferenceLoaded(node);
 
         var internalEntityEntry = node.GetInfrastructure();
-        if (internalEntityEntry.EntityState != EntityState.Detached)
+        if (internalEntityEntry.EntityState != EntityState.Detached
+            || (_visited != null && _visited.Contains(internalEntityEntry.Entity)))
         {
             return false;
         }
@@ -108,24 +114,32 @@ public class EntityGraphAttacher : IEntityGraphAttacher
 
         var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
-        internalEntityEntry.SetEntityState(
-            isSet
-                ? (isGenerated ? storeGenTargetState : targetState)
-                : EntityState.Added, // Key can only be not-set if it is store-generated
-            acceptChanges: true,
-            forceStateWhenUnknownKey: force ? targetState : null);
+        if (internalEntityEntry.ResolveToExistingEntry(node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
+        {
+            (_visited ??= new HashSet<object>()).Add(internalEntityEntry.Entity);
+        }
+        else
+        {
+            internalEntityEntry.SetEntityState(
+                isSet
+                    ? (isGenerated ? storeGenTargetState : targetState)
+                    : EntityState.Added, // Key can only be not-set if it is store-generated
+                acceptChanges: true,
+                forceStateWhenUnknownKey: force ? targetState : null);
+        }
 
         return true;
     }
 
-    private static async Task<bool> PaintActionAsync(
+    private async Task<bool> PaintActionAsync(
         EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node,
         CancellationToken cancellationToken)
     {
         SetReferenceLoaded(node);
 
         var internalEntityEntry = node.GetInfrastructure();
-        if (internalEntityEntry.EntityState != EntityState.Detached)
+        if (internalEntityEntry.EntityState != EntityState.Detached
+            || (_visited != null && _visited.Contains(internalEntityEntry.Entity)))
         {
             return false;
         }
@@ -134,14 +148,21 @@ public class EntityGraphAttacher : IEntityGraphAttacher
 
         var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
-        await internalEntityEntry.SetEntityStateAsync(
-                isSet
-                    ? (isGenerated ? storeGenTargetState : targetState)
-                    : EntityState.Added, // Key can only be not-set if it is store-generated
-                acceptChanges: true,
-                forceStateWhenUnknownKey: force ? targetState : null,
-                cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+        if (internalEntityEntry.ResolveToExistingEntry(node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
+        {
+            (_visited ??= new HashSet<object>()).Add(internalEntityEntry.Entity);
+        }
+        else
+        {
+            await internalEntityEntry.SetEntityStateAsync(
+                    isSet
+                        ? (isGenerated ? storeGenTargetState : targetState)
+                        : EntityState.Added, // Key can only be not-set if it is store-generated
+                    acceptChanges: true,
+                    forceStateWhenUnknownKey: force ? targetState : null,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         return true;
     }
