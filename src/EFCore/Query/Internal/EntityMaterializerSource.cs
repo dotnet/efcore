@@ -50,7 +50,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
         }
 
-        var constructorBinding = ModifyBindings(entityType, entityInstanceName, entityType.ConstructorBinding!);        
+        var constructorBinding = ModifyBindings(entityType, entityInstanceName, entityType.ConstructorBinding!);
 
         var bindingInfo = new ParameterBindingInfo(
             entityType,
