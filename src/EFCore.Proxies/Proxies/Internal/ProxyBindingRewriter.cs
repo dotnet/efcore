@@ -111,6 +111,10 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                  .SelectMany(e => e.GetDeclaredServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
                                  .ToList())
                     {
+                        if (!ConfigurationSource.Convention.Overrides(conflictingProperty.GetConfigurationSource()))
+                        {
+                                break;
+                        }
                         conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
                     }
 
