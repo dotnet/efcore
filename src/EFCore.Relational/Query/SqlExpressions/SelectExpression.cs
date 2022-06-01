@@ -2996,7 +2996,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
             }
 
-            if (subquery._groupBy.Count > 0)
+            if (subquery._groupBy.Count > 0
+                && (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue28039", out var enabled28039)
+                    && enabled28039
+                    || !subquery.IsDistinct))
             {
                 foreach (var key in subquery._groupBy)
                 {

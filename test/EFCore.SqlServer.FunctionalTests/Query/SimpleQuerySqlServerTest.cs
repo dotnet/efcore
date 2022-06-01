@@ -297,5 +297,25 @@ INNER JOIN (
 ) AS [t0] ON [p].[Id] = [t0].[ParentId]
 WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
         }
+
+        public override async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
+        {
+            await base.Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(async);
+
+            AssertSql(
+                @"@__p_0='123456'
+
+SELECT TOP(@__p_0) [t].[JSON]
+FROM [TableData] AS [t]
+INNER JOIN (
+    SELECT DISTINCT [i].[Parcel]
+    FROM [IndexData] AS [i]
+    WHERE [i].[Parcel] = N'some condition'
+    GROUP BY [i].[Parcel], [i].[RowId]
+    HAVING COUNT(*) = 1
+) AS [t0] ON [t].[ParcelNumber] = [t0].[Parcel]
+WHERE [t].[TableId] = 123
+ORDER BY [t].[ParcelNumber]");
+        }
     }
 }
