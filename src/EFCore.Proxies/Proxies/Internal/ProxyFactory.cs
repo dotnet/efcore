@@ -55,7 +55,7 @@ public class ProxyFactory : IProxyFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Type CreateProxyType(
-        IReadOnlyEntityType entityType)
+        IEntityType entityType)
         => _generator.ProxyBuilder.CreateClassProxyType(
             entityType.ClrType,
             GetInterfacesToProxy(entityType),
