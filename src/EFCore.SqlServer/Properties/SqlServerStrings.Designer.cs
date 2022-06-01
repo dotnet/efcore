@@ -372,6 +372,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
 
+        /// <summary>
+        ///     The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.
+        /// </summary>
+        public static string SplitQueryOffsetWithoutOrderBy
+            => GetString("SplitQueryOffsetWithoutOrderBy");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

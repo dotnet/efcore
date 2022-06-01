@@ -124,7 +124,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.AppendLine("RelationalCollectionShaper:");
+        expressionPrinter.AppendLine("RelationalSplitCollectionShaperExpression:");
         using (expressionPrinter.Indent())
         {
             expressionPrinter.Append("ParentIdentifier:");
