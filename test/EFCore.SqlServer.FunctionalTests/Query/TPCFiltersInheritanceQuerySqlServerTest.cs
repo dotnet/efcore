@@ -96,7 +96,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
+WHERE [t].[CountryId] = 1
 ORDER BY [t].[Species]");
     }
 
@@ -113,7 +113,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
+WHERE [t].[CountryId] = 1 AND [t].[CountryId] = 1
 ORDER BY [t].[Species]");
     }
 
@@ -124,13 +124,13 @@ ORDER BY [t].[Species]");
         AssertSql(
             @"SELECT [t].[EagleId]
 FROM (
-    SELECT [e].[CountryId], [e].[EagleId], N'Eagle' AS [Discriminator]
+    SELECT [e].[CountryId], [e].[EagleId]
     FROM [Eagle] AS [e]
     UNION ALL
-    SELECT [k].[CountryId], [k].[EagleId], N'Kiwi' AS [Discriminator]
+    SELECT [k].[CountryId], [k].[EagleId]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')");
+WHERE [t].[CountryId] = 1");
     }
 
     public override async Task Can_use_of_type_bird_first(bool async)
@@ -146,7 +146,7 @@ FROM (
     SELECT [k].[Species], [k].[CountryId], [k].[Name], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[Discriminator] IN (N'Eagle', N'Kiwi')
+WHERE [t].[CountryId] = 1
 ORDER BY [t].[Species]");
     }
 

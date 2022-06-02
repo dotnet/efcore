@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -148,140 +147,76 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                             column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.Ordinal))
                 .All(e => e);
 
-    private static bool IsNonComposedTpc(SelectExpression selectExpression)
-        => selectExpression.Offset == null
-            && selectExpression.Limit == null
-            && !selectExpression.IsDistinct
-            && selectExpression.Predicate == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] is TpcTablesExpression tpcTablesExpression
-            && selectExpression.Projection.Count == tpcTablesExpression.SelectExpressions[0].Projection.Count
-            && selectExpression.Projection.Select(
-                    (pe, index) => pe.Expression is ColumnExpression column
-                        && string.Equals(column.TableAlias, tpcTablesExpression.Alias, StringComparison.Ordinal)
-                        && string.Equals(
-                            column.Name, tpcTablesExpression.SelectExpressions[0].Projection[index].Alias, StringComparison.Ordinal))
-                .All(e => e);
-
-    /// <inheritdoc />
-    protected override Expression VisitExtension(Expression extensionExpression)
-    {
-        if (extensionExpression is TpcTablesExpression tpcTablesExpression)
-        {
-            _relationalCommandBuilder.AppendLine("(");
-            using (_relationalCommandBuilder.Indent())
-            {
-                GenerateList(tpcTablesExpression.SelectExpressions, e => Visit(e), e => e.AppendLine().AppendLine("UNION ALL"));
-            }
-            _relationalCommandBuilder.AppendLine()
-                .Append(")")
-                .Append(AliasSeparator)
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tpcTablesExpression.Alias));
-
-            return tpcTablesExpression;
-        }
-
-        return base.VisitExtension(extensionExpression);
-    }
-
     /// <inheritdoc />
     protected override Expression VisitSelect(SelectExpression selectExpression)
     {
-        if (IsNonComposedSetOperation(selectExpression))
-        {
-            // Naked set operation
-            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
-
-            return selectExpression;
-        }
-
         IDisposable? subQueryIndent = null;
-
-        if (IsNonComposedTpc(selectExpression))
-        {
-            var tpcTablesExpression = (TpcTablesExpression)selectExpression.Tables[0];
-            if (selectExpression.Alias != null)
-            {
-                _relationalCommandBuilder.AppendLine("(");
-                subQueryIndent = _relationalCommandBuilder.Indent();
-            }
-
-            GenerateList(tpcTablesExpression.SelectExpressions, e => Visit(e), e => e.AppendLine().AppendLine("UNION ALL"));
-
-            if (selectExpression.Alias != null)
-            {
-                subQueryIndent!.Dispose();
-
-                _relationalCommandBuilder.AppendLine()
-                    .Append(")")
-                    .Append(AliasSeparator)
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
-            }
-
-            return selectExpression;
-        }
-
         if (selectExpression.Alias != null)
         {
             _relationalCommandBuilder.AppendLine("(");
             subQueryIndent = _relationalCommandBuilder.Indent();
         }
 
-        _relationalCommandBuilder.Append("SELECT ");
-
-        if (selectExpression.IsDistinct)
+        if (IsNonComposedSetOperation(selectExpression))
         {
-            _relationalCommandBuilder.Append("DISTINCT ");
-        }
-
-        GenerateTop(selectExpression);
-
-        if (selectExpression.Projection.Any())
-        {
-            GenerateList(selectExpression.Projection, e => Visit(e));
+            // Naked set operation
+            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
         }
         else
         {
-            _relationalCommandBuilder.Append("1");
+            _relationalCommandBuilder.Append("SELECT ");
+
+            if (selectExpression.IsDistinct)
+            {
+                _relationalCommandBuilder.Append("DISTINCT ");
+            }
+
+            GenerateTop(selectExpression);
+
+            if (selectExpression.Projection.Any())
+            {
+                GenerateList(selectExpression.Projection, e => Visit(e));
+            }
+            else
+            {
+                _relationalCommandBuilder.Append("1");
+            }
+
+            if (selectExpression.Tables.Any())
+            {
+                _relationalCommandBuilder.AppendLine().Append("FROM ");
+
+                GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+            }
+            else
+            {
+                GeneratePseudoFromClause();
+            }
+
+            if (selectExpression.Predicate != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("WHERE ");
+
+                Visit(selectExpression.Predicate);
+            }
+
+            if (selectExpression.GroupBy.Count > 0)
+            {
+                _relationalCommandBuilder.AppendLine().Append("GROUP BY ");
+
+                GenerateList(selectExpression.GroupBy, e => Visit(e));
+            }
+
+            if (selectExpression.Having != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("HAVING ");
+
+                Visit(selectExpression.Having);
+            }
+
+            GenerateOrderings(selectExpression);
+            GenerateLimitOffset(selectExpression);
         }
-
-        if (selectExpression.Tables.Any())
-        {
-            _relationalCommandBuilder.AppendLine().Append("FROM ");
-
-            GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
-        }
-        else
-        {
-            GeneratePseudoFromClause();
-        }
-
-        if (selectExpression.Predicate != null)
-        {
-            _relationalCommandBuilder.AppendLine().Append("WHERE ");
-
-            Visit(selectExpression.Predicate);
-        }
-
-        if (selectExpression.GroupBy.Count > 0)
-        {
-            _relationalCommandBuilder.AppendLine().Append("GROUP BY ");
-
-            GenerateList(selectExpression.GroupBy, e => Visit(e));
-        }
-
-        if (selectExpression.Having != null)
-        {
-            _relationalCommandBuilder.AppendLine().Append("HAVING ");
-
-            Visit(selectExpression.Having);
-        }
-
-        GenerateOrderings(selectExpression);
-        GenerateLimitOffset(selectExpression);
 
         if (selectExpression.Alias != null)
         {

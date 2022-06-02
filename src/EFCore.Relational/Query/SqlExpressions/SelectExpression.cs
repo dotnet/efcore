@@ -56,6 +56,10 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly List<string?> _aliasForClientProjections = new();
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
+#if DEBUG
+    private List<string>? _removedAliases;
+#endif
+
     private SelectExpression(
         string? alias,
         List<ProjectionExpression> projections,
@@ -260,15 +264,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                     }
 
                     var subSelectExpressions = new List<SelectExpression>();
-                    var tableAlias = GenerateUniqueAlias(_usedAliases, "t");
                     var discriminatorValues = new List<string>();
                     for (var i = 0; i < entityTypes.Length; i++)
                     {
                         var et = entityTypes[i];
                         var table = tables[i];
                         var selectExpression = new SelectExpression(alias: null);
+                        // We intentionally do not assign unique aliases here in case some select expression gets pruned later
                         var tableExpression = new TableExpression(table);
-                        tableExpression.Alias = GenerateUniqueAlias(_usedAliases, tableExpression.Alias);
                         var tableReferenceExpression = new TableReferenceExpression(selectExpression, tableExpression.Alias);
                         selectExpression._tables.Add(tableExpression);
                         selectExpression._tableReferences.Add(tableReferenceExpression);
@@ -291,6 +294,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                         selectExpression._mutable = false;
                     }
 
+                    // We only assign unique alias to Tpc
+                    var tableAlias = GenerateUniqueAlias(_usedAliases, "t");
                     var tpcTables = new TpcTablesExpression(tableAlias, entityType, subSelectExpressions);
                     var tpcTableReference = new TableReferenceExpression(this, tableAlias);
                     _tables.Add(tpcTables);
@@ -1331,6 +1336,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             || sqlExpression is InExpression { Subquery: null, IsNegated: false })
             && _groupBy.Count == 0)
         {
+
             // If the intersection is empty then we don't remove predicate so that the filter empty out all results.
             if (sqlExpression is SqlBinaryExpression sqlBinaryExpression)
             {
@@ -1369,7 +1375,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 && _tpcDiscriminatorValues.TryGetValue(itemTpc, out var itemTuple)
                 && itemTuple.Item1.Equals(itemColumn)
                 && inExpression.Values is SqlConstantExpression itemConstant
-                && itemConstant.Value is string[] values)
+                && itemConstant.Value is List<string> values)
             {
                 var newList = itemTuple.Item2.Intersect(values).ToList();
                 if (newList.Count > 0)
@@ -1718,6 +1724,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         select1._identifier.AddRange(_identifier);
         _identifier.Clear();
         select1._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
+        _tptLeftJoinTables.Clear();
         foreach (var kvp in _tpcDiscriminatorValues)
         {
             select1._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
@@ -2423,11 +2430,15 @@ public sealed partial class SelectExpression : TableExpressionBase
             || innerSelectExpression.IsDistinct
             || innerSelectExpression.Predicate != null
             || innerSelectExpression.Tables.Count > 1
-            || innerSelectExpression.GroupBy.Count > 0
-            || innerSelectExpression._tpcDiscriminatorValues.Count > 0)
+            || innerSelectExpression.GroupBy.Count > 0)
         {
             joinPredicate = innerSelectExpression.PushdownIntoSubqueryInternal().Remap(joinPredicate);
             innerPushdownOccurred = true;
+        }
+
+        foreach (var kvp in innerSelectExpression._tpcDiscriminatorValues)
+        {
+            _tpcDiscriminatorValues[kvp.Key] = kvp.Value;
         }
 
         if (_identifier.Count > 0
@@ -2902,12 +2913,12 @@ public sealed partial class SelectExpression : TableExpressionBase
         Offset = null;
         Limit = null;
         subquery._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
+        _tptLeftJoinTables.Clear();
         foreach (var kvp in _tpcDiscriminatorValues)
         {
-            subquery._tpcDiscriminatorValues.Add(kvp.Key, kvp.Value);
+            subquery._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
         }
         _tpcDiscriminatorValues.Clear();
-        _tptLeftJoinTables.Clear();
 
         var subqueryTableReferenceExpression = new TableReferenceExpression(this, subquery.Alias!);
         // Do NOT use AddTable here. The subquery already have unique aliases we don't need to traverse it again to make it unique.
@@ -3177,9 +3188,22 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     [EntityFrameworkInternal]
     public SelectExpression Prune()
-        => Prune(referencedColumns: null);
+    {
+        var selectExpression = (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_usedAliases).Visit(this);
+#if DEBUG
+        selectExpression._removedAliases = new();
+        selectExpression = selectExpression.Prune(referencedColumns: null, selectExpression._removedAliases);
+#else
+        selectExpression = selectExpression.Prune(referencedColumns: null);
+#endif
+        return selectExpression;
+    }
 
-    internal SelectExpression Prune(IReadOnlyCollection<string>? referencedColumns = null)
+#if DEBUG
+    private SelectExpression Prune(IReadOnlyCollection<string>? referencedColumns, List<string> removedAliases)
+#else
+    private SelectExpression Prune(IReadOnlyCollection<string>? referencedColumns)
+#endif
     {
         if (referencedColumns != null
             && !IsDistinct)
@@ -3211,18 +3235,29 @@ public sealed partial class SelectExpression : TableExpressionBase
                 _tableReferences.RemoveAt(i);
                 removedTableCount++;
                 i--;
-
+#if DEBUG
+                removedAliases.Add(tableAlias);
+#endif
                 continue;
-            }
-
-            if (table is TpcTablesExpression tpcTablesExpression)
-            {
-                _tables[i] = tpcTablesExpression.Prune(_tpcDiscriminatorValues[tpcTablesExpression].Item2, columnsMap[tableAlias]);
             }
 
             if (UnwrapJoinExpression(table) is SelectExpression innerSelectExpression)
             {
+#if DEBUG
+                innerSelectExpression.Prune(columnsMap[tableAlias], removedAliases);
+#else
                 innerSelectExpression.Prune(columnsMap[tableAlias]);
+#endif
+            }
+            else if (table is SetOperationBase { IsDistinct: false } setOperation)
+            {
+#if DEBUG
+                setOperation.Source1.Prune(columnsMap[tableAlias], removedAliases);
+                setOperation.Source2.Prune(columnsMap[tableAlias], removedAliases);
+#else
+                setOperation.Source1.Prune(columnsMap[tableAlias]);
+                setOperation.Source2.Prune(columnsMap[tableAlias]);
+#endif
             }
         }
 
@@ -3451,6 +3486,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 .ToList();
             _childIdentifiers.Clear();
             _childIdentifiers.AddRange(childIdentifier);
+            foreach (var kvp in _tpcDiscriminatorValues)
+            {
+                _tpcDiscriminatorValues[kvp.Key] = ((ColumnExpression)visitor.Visit(kvp.Value.Item1), kvp.Value.Item2);
+            }
 
             return this;
         }
@@ -3523,6 +3562,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             var childIdentifier = VisitList(
                 _childIdentifiers.Select(e => e.Column).ToList(), inPlace: false, out var childIdentifierChanged);
             changed |= childIdentifierChanged;
+            var newTpcDiscriminatorValues = new Dictionary<TpcTablesExpression, (ColumnExpression, List<string>)>();
+            foreach (var kvp in _tpcDiscriminatorValues)
+            {
+                var newDiscriminatorColumnForTpc = (ColumnExpression)visitor.Visit(kvp.Value.Item1);
+                changed |= newDiscriminatorColumnForTpc != kvp.Value.Item1;
+                newTpcDiscriminatorValues[kvp.Key] = (newDiscriminatorColumnForTpc, kvp.Value.Item2);
+            }
 
             if (changed)
             {
@@ -3542,11 +3588,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 };
                 newSelectExpression._mutable = false;
                 newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
-                foreach (var kvp in _tpcDiscriminatorValues)
+                foreach (var kvp in newTpcDiscriminatorValues)
                 {
-                    newSelectExpression._tpcDiscriminatorValues.Add(kvp.Key, kvp.Value);
+                    newSelectExpression._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
                 }
-
                 newSelectExpression._identifier.AddRange(identifier.Zip(_identifier).Select(e => (e.First, e.Second.Comparer)));
                 newSelectExpression._childIdentifiers.AddRange(
                     childIdentifier.Zip(_childIdentifiers).Select(e => (e.First, e.Second.Comparer)));
@@ -3827,5 +3872,8 @@ public sealed partial class SelectExpression : TableExpressionBase
 #if DEBUG
     internal bool IsMutable()
         => _mutable;
+
+    internal IReadOnlyList<string> RemovedAliases()
+        => _removedAliases!;
 #endif
 }

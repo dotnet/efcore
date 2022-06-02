@@ -1937,11 +1937,9 @@ FROM (
 FROM (
     SELECT [g].[Nickname]
     FROM [Gears] AS [g]
-    LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
     UNION ALL
     SELECT [g0].[FullName] AS [Nickname]
     FROM [Gears] AS [g0]
-    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
 ) AS [t]");
     }
 
@@ -1971,20 +1969,11 @@ FROM (
         await base.Concat_with_scalar_projection(async);
 
         AssertSql(
-            @"SELECT [t].[Nickname]
-FROM (
-    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
-        WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
-    END AS [Discriminator]
-    FROM [Gears] AS [g]
-    LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-    UNION ALL
-    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
-        WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
-    END AS [Discriminator]
-    FROM [Gears] AS [g0]
-    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
-) AS [t]");
+            @"SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+UNION ALL
+SELECT [g0].[Nickname]
+FROM [Gears] AS [g0]");
     }
 
     public override async Task Select_navigation_with_concat_and_count(bool async)
@@ -7339,7 +7328,6 @@ FROM (
         FROM [Weapons] AS [w]
         WHERE [g].[FullName] = [w].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g]
-    LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
     LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
     UNION ALL
     SELECT [c0].[Name], (
@@ -7347,7 +7335,6 @@ FROM (
         FROM [Weapons] AS [w0]
         WHERE [g0].[FullName] = [w0].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g0]
-    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
     INNER JOIN [Cities] AS [c0] ON [g0].[CityOfBirthName] = [c0].[Name]
 ) AS [t]
 GROUP BY [t].[Name], [t].[Count]");
@@ -7365,7 +7352,6 @@ FROM (
         FROM [Weapons] AS [w]
         WHERE [g].[FullName] = [w].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g]
-    LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
     LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
     UNION ALL
     SELECT [c0].[Name], (
@@ -7373,7 +7359,6 @@ FROM (
         FROM [Weapons] AS [w0]
         WHERE [g0].[FullName] = [w0].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g0]
-    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
     INNER JOIN [Cities] AS [c0] ON [g0].[CityOfBirthName] = [c0].[Name]
 ) AS [t]
 GROUP BY [t].[Name], [t].[Count]");
