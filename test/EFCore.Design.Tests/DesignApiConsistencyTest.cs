@@ -27,7 +27,7 @@ public class DesignApiConsistencyTest : ApiConsistencyTestBase<DesignApiConsiste
                 "Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener, Microsoft.EntityFrameworkCore.Design",
                 throwOnError: true),
             Type.GetType(
-                "Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener+StopTheHostException, Microsoft.EntityFrameworkCore.Design",
+                "Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener+HostAbortedException, Microsoft.EntityFrameworkCore.Design",
                 throwOnError: true)
         };
     }
