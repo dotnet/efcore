@@ -760,7 +760,6 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                    && !type.IsSealed
                    && !type.IsAbstract
                    && !type.DeclaringType.GetNestedTypes(BindingFlags.NonPublic).Any(t => t.BaseType == type)
-                   && !Fixture.NonSealedPrivateNestedTypes.Contains(type)
                select type.FullName)
             .ToList();
 
@@ -1025,8 +1024,6 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
         public Dictionary<Type, Type> MutableMetadataTypes { get; } = new();
         public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new();
-
-        public virtual HashSet<Type> NonSealedPrivateNestedTypes { get; } = new();
 
         public virtual
             List<(Type Type,
