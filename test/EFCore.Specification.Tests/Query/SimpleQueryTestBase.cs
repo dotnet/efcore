@@ -1256,4 +1256,80 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int RowId { get; set; }
         public string DistinctValue { get; set; }
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
+    {
+        return Hierarchy_query_with_abstract_type_sibling_helper(async, null);
+    }
+
+    public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder> onModelCreating)
+    {
+        var contextFactory = await InitializeAsync<Context28196>(onModelCreating: onModelCreating, seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Animals.OfType<Pet>().Where(a => a.Species.StartsWith("F"));
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+    }
+
+    protected class Context28196 : DbContext
+    {
+        public Context28196(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Animal> Animals { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Animal>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Pet>();
+            modelBuilder.Entity<Cat>();
+            modelBuilder.Entity<Dog>();
+            modelBuilder.Entity<FarmAnimal>();
+        }
+
+        public void Seed()
+        {
+            AddRange(
+                new Cat { Id = 1, Name = "Alice", Species = "Felis catus", EdcuationLevel = "MBA" },
+                new Cat { Id = 2, Name = "Mac", Species = "Felis catus", EdcuationLevel = "BA" },
+                new Dog { Id = 3, Name = "Toast", Species = "Canis familiaris", FavoriteToy = "Mr. Squirrel" },
+                new FarmAnimal { Id = 4, Value = 100.0, Species = "Ovis aries" });
+
+            SaveChanges();
+        }
+    }
+
+    protected abstract class Animal
+    {
+        public int Id { get; set; }
+        public string Species { get; set; }
+    }
+
+    protected class FarmAnimal : Animal
+    {
+        public double Value { get; set; }
+    }
+
+    protected abstract class Pet : Animal
+    {
+        public string Name { get; set; }
+    }
+
+    protected class Cat : Pet
+    {
+        public string EdcuationLevel { get; set; }
+    }
+
+    protected class Dog : Pet
+    {
+        public string FavoriteToy { get; set; }
+    }
+
 }

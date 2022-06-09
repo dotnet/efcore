@@ -429,4 +429,46 @@ INNER JOIN (
 WHERE [t].[TableId] = 123
 ORDER BY [t].[ParcelNumber]");
     }
+
+    public override async Task Hierarchy_query_with_abstract_type_sibling(bool async)
+    {
+        await base.Hierarchy_query_with_abstract_type_sibling(async);
+
+        AssertSql(
+            @"SELECT [a].[Id], [a].[Discriminator], [a].[Species], [a].[Name], [a].[EdcuationLevel], [a].[FavoriteToy]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND [a].[Species] IS NOT NULL AND ([a].[Species] LIKE N'F%')");
+    }
+
+    public override async Task Hierarchy_query_with_abstract_type_sibling_TPT(bool async)
+    {
+        await base.Hierarchy_query_with_abstract_type_sibling_TPT(async);
+
+        AssertSql(
+            @"SELECT [a].[Id], [a].[Species], [p].[Name], [c].[EdcuationLevel], [d].[FavoriteToy], CASE
+    WHEN [d].[Id] IS NOT NULL THEN N'Dog'
+    WHEN [c].[Id] IS NOT NULL THEN N'Cat'
+END AS [Discriminator]
+FROM [Animals] AS [a]
+LEFT JOIN [Pets] AS [p] ON [a].[Id] = [p].[Id]
+LEFT JOIN [Cats] AS [c] ON [a].[Id] = [c].[Id]
+LEFT JOIN [Dogs] AS [d] ON [a].[Id] = [d].[Id]
+WHERE ([d].[Id] IS NOT NULL OR [c].[Id] IS NOT NULL) AND [a].[Species] IS NOT NULL AND ([a].[Species] LIKE N'F%')");
+    }
+
+    public override async Task Hierarchy_query_with_abstract_type_sibling_TPC(bool async)
+    {
+        await base.Hierarchy_query_with_abstract_type_sibling_TPC(async);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[Species], [t].[Name], [t].[EdcuationLevel], [t].[FavoriteToy], [t].[Discriminator]
+FROM (
+    SELECT [c].[Id], [c].[Species], [c].[Name], [c].[EdcuationLevel], NULL AS [FavoriteToy], N'Cat' AS [Discriminator]
+    FROM [Cats] AS [c]
+    UNION ALL
+    SELECT [d].[Id], [d].[Species], [d].[Name], NULL AS [EdcuationLevel], [d].[FavoriteToy], N'Dog' AS [Discriminator]
+    FROM [Dogs] AS [d]
+) AS [t]
+WHERE [t].[Species] IS NOT NULL AND ([t].[Species] LIKE N'F%')");
+    }
 }
