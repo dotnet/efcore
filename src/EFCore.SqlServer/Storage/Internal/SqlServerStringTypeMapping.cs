@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private const int UnicodeMax = 4000;
         private const int AnsiMax = 8000;
 
+        private readonly bool _isUtf16;
         private readonly SqlDbType? _sqlDbType;
         private readonly int _maxSpecificSize;
         private readonly int _maxSize;
@@ -144,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     parameter.Size = _maxSpecificSize;
                 }
                 else if (length != null
-                    && length <= _maxSize)
+                         && length <= _maxSize)
                 {
                     parameter.Size = _maxSize;
                 }
@@ -165,7 +166,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             var stringValue = (string)value;
             var builder = new StringBuilder();
-
             var start = 0;
             int i;
             int length;
@@ -174,6 +174,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var concatCount = 1;
             var concatStartList = new List<int>();
             var castApplied = false;
+            var insideConcat = false;
             for (i = 0; i < stringValue.Length; i++)
             {
                 var lineFeed = stringValue[i] == '\n';
@@ -187,8 +188,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         if (!openApostrophe)
                         {
                             AddConcatOperatorIfNeeded();
-
-                            if (IsUnicode)
+                            if (_isUtf16)
                             {
                                 builder.Append('N');
                             }
@@ -209,8 +209,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         }
 
                         AddConcatOperatorIfNeeded();
-
-                        if (IsUnicode)
+                        if (_isUtf16)
                         {
                             builder.Append('n');
                         }
@@ -225,8 +224,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         if (!openApostrophe)
                         {
                             AddConcatOperatorIfNeeded();
-
-                            if (IsUnicode)
+                            if (_isUtf16)
                             {
                                 builder.Append('N');
                             }
@@ -248,8 +246,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 if (!openApostrophe)
                 {
                     AddConcatOperatorIfNeeded();
-
-                    if (IsUnicode)
+                    if (_isUtf16)
                     {
                         builder.Append('N');
                     }
@@ -274,12 +271,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 }
 
                 builder.Insert(concatStartList[j], "CONCAT(");
+                builder.Insert(concatStartList[j], "CONCAT(CAST(");
                 builder.Append(')');
             }
 
             if (builder.Length == 0)
             {
-                if (IsUnicode)
+                if (_isUtf16)
                 {
                     builder.Append('N');
                 }
@@ -294,20 +292,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 if (builder.Length != 0)
                 {
                     if (!castApplied)
-                    {
-                        builder.Append(" AS ");
-                        if (IsUnicode)
+                        if (!insideConcat)
                         {
-                            builder.Append("n");
-                        }
+                            builder.Append(" AS ");
+                            if (_isUtf16)
+                            {
+                                builder.Append('n');
+                            }
 
-                        builder.Append("varchar(max))");
-                        castApplied = true;
-                    }
+                            builder.Append("varchar(max))");
+                            castApplied = true;
+                            insideConcat = true;
+                        }
 
                     builder.Append(", ");
                     concatCount++;
-
                     if (concatCount == 2)
                     {
                         concatStartList.Add(lastConcatStartPoint);
@@ -317,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     {
                         lastConcatStartPoint = builder.Length;
                         concatCount = 1;
+                        insideConcat = false;
                     }
                 }
             }

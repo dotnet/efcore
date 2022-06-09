@@ -706,6 +706,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         }
                     }
                 });
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void DefaultValue_with_line_breaks_2(bool isUnicode)
+        {
+            var defaultValue = Enumerable.Range(0, 300).Select(e => e.ToString())
+                .Select(e => e + "\r\n");
+
+            Generate(
+                new CreateTableOperation
+                {
+                    Name = "TestLineBreaks",
+                    Schema = "dbo",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "TestDefaultValue",
+                            Table = "TestLineBreaks",
+                            Schema = "dbo",
+                            ClrType = typeof(string),
+                            DefaultValue = defaultValue,
+                            IsUnicode = isUnicode
+                        }
+                    }
+                });
+        }
 
         private static void CreateGotModel(ModelBuilder b)
         {
