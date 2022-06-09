@@ -224,18 +224,17 @@ public sealed partial class SelectExpression : TableExpressionBase
                     var tables = entityTypes.Select(e => GetTableBase(e)).ToArray();
                     var properties = GetAllPropertiesInHierarchy(entityType).ToArray();
                     var propertyNamesMap = new Dictionary<IProperty, string>();
-                    foreach (var property in entityTypes[0].GetProperties())
+                    for (var i = 0; i < entityTypes.Length; i++)
                     {
-                        propertyNamesMap[property] = tables[0].FindColumn(property)!.Name;
-                    }
-                    for (var i = 1; i < entityTypes.Length; i++)
-                    {
-                        foreach (var property in entityTypes[i].GetDeclaredProperties())
+                        foreach (var property in entityTypes[i].GetProperties())
                         {
-                            Check.DebugAssert(!propertyNamesMap.ContainsKey(property), "Duplicate property found.");
-                            propertyNamesMap[property] = tables[i].FindColumn(property)!.Name;
+                            if (!propertyNamesMap.ContainsKey(property))
+                            {
+                                propertyNamesMap[property] = tables[i].FindColumn(property)!.Name;
+                            }
                         }
                     }
+
                     var propertyNames = new string[properties.Length];
                     for (var i = 0; i < properties.Length; i++)
                     {
