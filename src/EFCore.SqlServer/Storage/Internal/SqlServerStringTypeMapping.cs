@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private const int UnicodeMax = 4000;
         private const int AnsiMax = 8000;
 
-        private readonly bool _isUtf16;
         private readonly SqlDbType? _sqlDbType;
         private readonly int _maxSpecificSize;
         private readonly int _maxSize;
@@ -188,10 +187,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         if (!openApostrophe)
                         {
                             AddConcatOperatorIfNeeded();
-                            if (_isUtf16)
-                            {
-                                builder.Append('N');
-                            }
 
                             builder.Append('\'');
                             openApostrophe = true;
@@ -209,10 +204,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         }
 
                         AddConcatOperatorIfNeeded();
-                        if (_isUtf16)
-                        {
-                            builder.Append('n');
-                        }
 
                         builder
                             .Append("char(")
@@ -224,10 +215,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         if (!openApostrophe)
                         {
                             AddConcatOperatorIfNeeded();
-                            if (_isUtf16)
-                            {
-                                builder.Append('N');
-                            }
 
                             builder.Append('\'');
                             openApostrophe = true;
@@ -246,10 +233,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 if (!openApostrophe)
                 {
                     AddConcatOperatorIfNeeded();
-                    if (_isUtf16)
-                    {
-                        builder.Append('N');
-                    }
 
                     builder.Append('\'');
                     openApostrophe = true;
@@ -277,11 +260,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             if (builder.Length == 0)
             {
-                if (_isUtf16)
-                {
-                    builder.Append('N');
-                }
-
                 builder.Append("''");
             }
 
@@ -295,10 +273,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         if (!insideConcat)
                         {
                             builder.Append(" AS ");
-                            if (_isUtf16)
-                            {
-                                builder.Append('n');
-                            }
 
                             builder.Append("varchar(max))");
                             castApplied = true;
