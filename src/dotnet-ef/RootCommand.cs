@@ -157,7 +157,7 @@ internal class RootCommand : CommandBase
                 args.Add(startupProject.RuntimeFrameworkVersion);
             }
 
-            args.Add(Path.Combine(toolsPath, "netcoreapp2.0", "any", "ef.dll"));
+            args.Add(Path.Combine(toolsPath, "net6.0", "any", "ef.dll"));
         }
         else if (targetFramework.Identifier == ".NETStandard")
         {

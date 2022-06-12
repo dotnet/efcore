@@ -85,9 +85,9 @@ dotnet ef database update
 
       <NuspecProperty Include="SettingsFile=$(_ToolsSettingsFilePath)" />
       <NuspecProperty Include="Output=$(PublishDir)**\*" />
-      <NuspecProperty Include="OutputBinary=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.dll" />
-      <NuspecProperty Include="OutputRuntimeConfig=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.runtimeconfig.json" />
-      <NuspecProperty Include="OutputSymbol=..\..\artifacts\bin\ef\$(Configuration)\netcoreapp2.0\ef.pdb" />
+      <NuspecProperty Include="OutputBinary=..\..\artifacts\bin\ef\$(Configuration)\net6.0\ef.dll" />
+      <NuspecProperty Include="OutputRuntimeConfig=..\..\artifacts\bin\ef\$(Configuration)\net6.0\ef.runtimeconfig.json" />
+      <NuspecProperty Include="OutputSymbol=..\..\artifacts\bin\ef\$(Configuration)\net6.0\ef.pdb" />
       <NuspecProperty Include="OutputExe=..\..\artifacts\bin\ef\$(Configuration)\net461\ef.exe" />
       <NuspecProperty Include="OutputExeSymbol=..\..\artifacts\bin\ef\$(Configuration)\net461\ef.pdb" />
       <NuspecProperty Include="OutputX86Exe=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.exe" />

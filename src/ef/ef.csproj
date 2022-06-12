@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0;net461</TargetFrameworks>
     <Description>Entity Framework Core Command-line Tools</Description>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>

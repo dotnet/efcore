@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             string context;
             using (var executor = CreateExecutor(args))
             {
-                context = (string)executor.GetContextInfo(Context!.Value())["Type"];
+                context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
             }
 
             Reporter.WriteInformation(Resources.BuildBundleStarted);
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 var searchPath = WorkingDir!.Value();
                 do
                 {
-                    foreach (var file in Directory.EnumerateFiles(searchPath))
+                    foreach (var file in Directory.EnumerateFiles(searchPath!))
                     {
                         var fileName = Path.GetFileName(file);
                         if (fileName.Equals("NuGet.Config", StringComparison.OrdinalIgnoreCase))
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
                 var runtime = _runtime!.HasValue()
                     ? _runtime!.Value()!
-                    : (string)AppContext.GetData("RUNTIME_IDENTIFIER");
+                    : (string)AppContext.GetData("RUNTIME_IDENTIFIER")!;
                 publishArgs.Add("--runtime");
                 publishArgs.Add(runtime);
 
