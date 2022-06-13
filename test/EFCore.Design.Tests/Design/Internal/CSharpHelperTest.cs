@@ -122,6 +122,24 @@ public class CSharpHelperTest
             "new byte[] { 1, 2 }");
 
     [ConditionalFact]
+    public void Literal_works_when_empty_list()
+        => Literal_works(
+            new List<string>(),
+            @"new List<string> { }");
+
+    [ConditionalFact]
+    public void Literal_works_when_list_without_ctor_arguments()
+        => Literal_works(
+            new List<string> { "one", "two" },
+            @"new List<string> { ""one"", ""two"" }");
+
+    [ConditionalFact]
+    public void Literal_works_when_list_with_ctor_arguments()
+        => Literal_works(
+            new List<string>(new [] { "one" }) { "two", "three" },
+            @"new List<string> { ""one"", ""two"", ""three"" }");
+
+    [ConditionalFact]
     public void Literal_works_when_multiline_string()
         => Literal_works(
             "multi-line\r\nstring\nwith\r\"",
@@ -604,6 +622,33 @@ public class CSharpHelperTest
 
         Assert.Equal(
             "10 + 10",
+            new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+    }
+
+    [ConditionalFact]
+    public void Literal_with_list_init_without_ctor_arguments()
+    {
+        var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+            v => Expression.ListInit(
+                Expression.New(typeof(List<>).MakeGenericType(typeof(string))),
+                Expression.Constant("one"), Expression.Constant("two")));
+
+        Assert.Equal(
+            @"new List<string> { ""one"", ""two"" }",
+            new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+    }
+
+    [ConditionalFact]
+    public void Literal_with_list_init_with_ctor_arguments()
+    {
+        var constructor = typeof(List<>).MakeGenericType((typeof(string))).GetConstructor(new[] { typeof(IEnumerable<string>) })!;
+        var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+            v => Expression.ListInit(
+                Expression.New(constructor, Expression.NewArrayInit(typeof(string), Expression.Constant("one"))),
+                Expression.Constant("one"), Expression.Constant("two")));
+
+        Assert.Equal(
+            @"new List<string>(new string[] { ""one"" }) { ""one"", ""two"" }",
             new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
     }
 

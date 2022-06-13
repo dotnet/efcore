@@ -743,6 +743,71 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual string Literal<T>(IList<T> values, bool vertical = false)
+        => List(typeof(T), values, vertical);
+
+    private string List(Type type, IEnumerable values, bool vertical = false)
+    {
+        var builder = new IndentedStringBuilder();
+
+        builder.Append("new List<")
+            .Append(Reference(type))
+            .Append("> {");
+
+        var first = true;
+        foreach (var value in values)
+        {
+            if (first)
+            {
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.IncrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+                first = false;
+            }
+            else
+            {
+                builder.Append(",");
+
+                if (vertical)
+                {
+                    builder.AppendLine();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+            }
+
+            builder.Append(UnknownLiteral(value));
+        }
+
+        if (vertical)
+        {
+            builder.AppendLine();
+            builder.DecrementIndent();
+        }
+        else
+        {
+            builder.Append(" ");
+        }
+
+        builder.Append("}");
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual string Literal(Enum value)
     {
         var type = value.GetType();
@@ -844,6 +909,11 @@ public class CSharpHelper : ICSharpHelper
             return Array(literalType.GetElementType()!, array);
         }
 
+        if (value is IList list && value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+        {
+            return List(value.GetType().GetGenericArguments()[0], list);
+        }
+
         var mapping = _typeMappingSource.FindMapping(literalType);
         if (mapping != null)
         {
@@ -877,6 +947,35 @@ public class CSharpHelper : ICSharpHelper
                     .Append("[] { ");
 
                 HandleList(((NewArrayExpression)expression).Expressions, builder, simple: true);
+
+                builder
+                    .Append(" }");
+
+                return true;
+            case ExpressionType.ListInit:
+                var listExpr = (ListInitExpression)expression;
+                if (listExpr.Initializers.Any(i => i.Arguments.Count != 1))
+                {
+                    // If there is an initializer with more than one argument we can't make a literal cleanly
+                    return false;
+                }
+                
+                builder
+                    .Append("new ")
+                    .Append(Reference(expression.Type));
+
+                if (listExpr.NewExpression.Arguments.Count > 0 && !HandleArguments(listExpr.NewExpression.Arguments, builder))
+                {
+                    return false;
+                }
+
+                builder
+                    .Append(" { ");
+
+                if (!HandleList(listExpr.Initializers.Select(i => i.Arguments.First()), builder, simple: true))
+                {
+                    return false;
+                }
 
                 builder
                     .Append(" }");
