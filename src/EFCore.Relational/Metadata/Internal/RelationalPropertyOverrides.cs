@@ -118,20 +118,20 @@ public class RelationalPropertyOverrides :
 
     private bool RemoveColumnNameOverride(ConfigurationSource configurationSource)
     {
-        if (ColumnNameOverridden)
+        if (!ColumnNameOverridden)
         {
-            if (!_columnNameConfigurationSource.Overrides(configurationSource))
-            {
-                return false;
-            }
-
-            EnsureMutable();
-
-            _columnName = null;
-            _columnNameConfigurationSource = null;
-
             return true;
         }
+
+        if (!_columnNameConfigurationSource.Overrides(configurationSource))
+        {
+            return false;
+        }
+
+        EnsureMutable();
+
+        _columnName = null;
+        _columnNameConfigurationSource = null;
 
         return true;
     }

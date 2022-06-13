@@ -19,22 +19,30 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
+    public TableBuilder(in StoreObjectIdentifier? storeObject, EntityTypeBuilder entityTypeBuilder)
     {
-        Name = name;
-        Schema = schema;
+        StoreObject = storeObject;
         EntityTypeBuilder = entityTypeBuilder;
     }
 
     /// <summary>
     ///     The specified table name.
     /// </summary>
-    public virtual string? Name { get; }
+    public virtual string? Name => StoreObject?.Name;
 
     /// <summary>
     ///     The specified table schema.
     /// </summary>
-    public virtual string? Schema { get; }
+    public virtual string? Schema => StoreObject?.Schema;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual StoreObjectIdentifier? StoreObject { get; }
 
     /// <summary>
     ///     The entity type being configured.
@@ -81,7 +89,7 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ColumnBuilder Property(string propertyName)
-        => new(StoreObjectIdentifier.Table(GetName(), Schema), EntityTypeBuilder.Property(propertyName));
+        => new(GetStoreObjectIdentifier(), EntityTypeBuilder.Property(propertyName));
 
     /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used
@@ -91,7 +99,7 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ColumnBuilder<TProperty> Property<TProperty>(string propertyName)
-        => new(StoreObjectIdentifier.Table(GetName(), Schema), EntityTypeBuilder.Property<TProperty>(propertyName));
+        => new(GetStoreObjectIdentifier(), EntityTypeBuilder.Property<TProperty>(propertyName));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,8 +108,8 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual string GetName()
-        => Name ?? throw new InvalidOperationException(RelationalStrings.MappingFragmentMissingName);
+    protected virtual StoreObjectIdentifier GetStoreObjectIdentifier()
+        => StoreObject ?? throw new InvalidOperationException(RelationalStrings.MappingFragmentMissingName);
 
     EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
 

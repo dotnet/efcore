@@ -23,10 +23,9 @@ public class OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
     /// </summary>
     [EntityFrameworkInternal]
     public OwnedNavigationTableBuilder(
-        string? name,
-        string? schema,
+        in StoreObjectIdentifier? storeObject,
         OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder)
-        : base(name, schema, ownedNavigationBuilder)
+        : base(storeObject, ownedNavigationBuilder)
     {
     }
 
@@ -54,7 +53,7 @@ public class OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-        => new(StoreObjectIdentifier.Table(GetName(), Schema), OwnedNavigationBuilder.Property(propertyExpression));
+        => new(GetStoreObjectIdentifier(), OwnedNavigationBuilder.Property(propertyExpression));
 
     OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>.Instance
         => OwnedNavigationBuilder;

@@ -1610,7 +1610,8 @@ public static class RelationalPropertyExtensions
         this IReadOnlyProperty property,
         StoreObjectType storeObjectType)
     {
-        var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObjectType);
+        var declaringType = property.DeclaringEntityType;
+        var declaringStoreObject = StoreObjectIdentifier.Create(declaringType, storeObjectType);
         if (declaringStoreObject != null
             && property.GetColumnName(declaringStoreObject.Value) != null)
         {
@@ -1623,7 +1624,7 @@ public static class RelationalPropertyExtensions
             yield break;
         }
 
-        foreach (var fragment in property.DeclaringEntityType.GetMappingFragments())
+        foreach (var fragment in declaringType.GetMappingFragments())
         {
             if (fragment.StoreObject.StoreObjectType == storeObjectType
                 && property.GetColumnName(fragment.StoreObject) != null)
@@ -1632,7 +1633,7 @@ public static class RelationalPropertyExtensions
             }
         }
         
-        foreach (var derivedType in property.DeclaringEntityType.GetDerivedTypes())
+        foreach (var derivedType in declaringType.GetDerivedTypes())
         {
             var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
             if (derivedStoreObject != null

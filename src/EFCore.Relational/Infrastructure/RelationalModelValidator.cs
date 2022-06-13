@@ -1340,7 +1340,7 @@ public class RelationalModelValidator : ModelValidator
             if (entityType.BaseType != null)
             {
                 if (mappingStrategy != null
-                    && mappingStrategy != entityType.BaseType.GetMappingStrategy())
+                    && mappingStrategy != (string?)entityType.BaseType[RelationalAnnotationNames.MappingStrategy])
                 {
                     throw new InvalidOperationException(
                        RelationalStrings.DerivedStrategy(entityType.DisplayName(), mappingStrategy));
@@ -1734,10 +1734,7 @@ public class RelationalModelValidator : ModelValidator
     private static IEnumerable<StoreObjectIdentifier> GetAllMappedStoreObjects(
         IReadOnlyProperty property, StoreObjectType storeObjectType)
     {
-        var mappingStrategy = property.DeclaringEntityType.GetMappingStrategy()
-            ?? (property.DeclaringEntityType.GetDiscriminatorPropertyName() != null
-                ? RelationalAnnotationNames.TphMappingStrategy
-                : RelationalAnnotationNames.TptMappingStrategy);
+        var mappingStrategy = property.DeclaringEntityType.GetMappingStrategy();
         if (property.IsPrimaryKey())
         {
             var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObjectType);

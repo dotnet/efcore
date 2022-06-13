@@ -885,6 +885,38 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IMutableEntityTypeMappingFragment? FindMappingFragment(
+        this IMutableEntityType entityType, in StoreObjectIdentifier storeObject)
+        => (IMutableEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IConventionEntityTypeMappingFragment? FindMappingFragment(
+        this IConventionEntityType entityType, in StoreObjectIdentifier storeObject)
+        => (IConventionEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IEntityTypeMappingFragment? FindMappingFragment(
         this IEntityType entityType, in StoreObjectIdentifier storeObject)
         => (IEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
@@ -1204,8 +1236,7 @@ public static class RelationalEntityTypeExtensions
     public static ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource(
         this IConventionEntityType entityType,
         in StoreObjectIdentifier storeObject)
-        => entityType.FindAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations)
-            ?.GetConfigurationSource();
+        => entityType.FindMappingFragment(storeObject)?.GetIsTableExcludedFromMigrationsConfigurationSource();
 
     /// <summary>
     ///     Gets the mapping strategy for the derived types.
@@ -1213,20 +1244,14 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The mapping strategy for the derived types.</returns>
     public static string? GetMappingStrategy(this IReadOnlyEntityType entityType)
-    {
-        var mappingStrategy = (string?)entityType[RelationalAnnotationNames.MappingStrategy];
-        if (mappingStrategy != null)
-        {
-            return mappingStrategy;
-        }
-
-        if (entityType.BaseType != null)
-        {
-            return entityType.GetRootType().GetMappingStrategy();
-        }
-
-        return null;
-    }
+        => (string?)entityType[RelationalAnnotationNames.MappingStrategy]
+            ?? (entityType.BaseType != null
+                ? entityType.GetRootType().GetMappingStrategy()
+                : entityType.GetDiscriminatorPropertyName() != null
+                    ? RelationalAnnotationNames.TphMappingStrategy
+                    : entityType.FindPrimaryKey() == null || !entityType.GetDirectlyDerivedTypes().Any()
+                        ? null
+                        : RelationalAnnotationNames.TptMappingStrategy);
 
     #endregion IsTableExcludedFromMigrations
 

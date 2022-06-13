@@ -48,7 +48,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new (null, null, entityTypeBuilder));
+        buildAction(new (null, entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -73,7 +73,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(null);
-        buildAction(new (name, null, entityTypeBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, null), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -117,7 +117,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             entityTypeConventionBuilder.ToTable(entityTypeBuilder.Metadata.GetDefaultTableName());
         }
         
-        buildAction(new (null, null, entityTypeBuilder));
+        buildAction(new (null, entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -144,7 +144,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(null);
-        buildAction(new (name, null, entityTypeBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, null), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -195,7 +195,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
-        buildAction(new (name, schema, entityTypeBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, schema), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -243,7 +243,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
-        buildAction(new (name, schema, entityTypeBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, schema), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -284,7 +284,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new (null, null, ownedNavigationBuilder));
+        buildAction(new (null, ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }
@@ -308,7 +308,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new (null, null, ownedNavigationBuilder));
+        buildAction(new (null, ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }
@@ -351,7 +351,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(null);
-        buildAction(new (name, null, ownedNavigationBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, null), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }
@@ -380,7 +380,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(null);
-        buildAction(new (name, null, ownedNavigationBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, null), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }
@@ -432,7 +432,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(schema);
-        buildAction(new (name, schema, ownedNavigationBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, schema), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }
@@ -485,7 +485,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         ownedNavigationBuilder.OwnedEntityType.SetTableName(name);
         ownedNavigationBuilder.OwnedEntityType.SetSchema(schema);
-        buildAction(new (name, schema, ownedNavigationBuilder));
+        buildAction(new (StoreObjectIdentifier.Table(name, schema), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }

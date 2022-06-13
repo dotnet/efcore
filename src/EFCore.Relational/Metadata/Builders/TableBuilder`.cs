@@ -18,8 +18,8 @@ public class TableBuilder<TEntity> : TableBuilder, IInfrastructure<EntityTypeBui
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(string? name, string? schema, EntityTypeBuilder<TEntity> entityTypeBuilder)
-        : base(name, schema, entityTypeBuilder)
+    public TableBuilder(in StoreObjectIdentifier? storeObject, EntityTypeBuilder<TEntity> entityTypeBuilder)
+        : base(storeObject, entityTypeBuilder)
     {
     }
 
@@ -46,8 +46,7 @@ public class TableBuilder<TEntity> : TableBuilder, IInfrastructure<EntityTypeBui
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
-        => new(StoreObjectIdentifier.Table(GetName(), Schema),
-            EntityTypeBuilder.Property(propertyExpression));
+        => new(GetStoreObjectIdentifier(), EntityTypeBuilder.Property(propertyExpression));
     
     EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
 }
