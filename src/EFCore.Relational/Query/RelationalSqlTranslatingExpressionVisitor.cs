@@ -598,7 +598,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             case EntityProjectionExpression:
             case EntityReferenceExpression:
             case SqlExpression:
+            case EnumerableExpression:
                 return extensionExpression;
+
+            case RelationalGroupByShaperExpression relationalGroupByShaperExpression:
+                return new EnumerableExpression(relationalGroupByShaperExpression.ElementSelector);
 
             case EntityShaperExpression entityShaperExpression:
                 return new EntityReferenceExpression(entityShaperExpression);
@@ -788,11 +792,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 var genericMethod = method.IsGenericMethod
                     ? method.GetGenericMethodDefinition()
                     : method;
-                if (genericMethod == QueryableMethods.AsQueryable
-                    && arguments[0] is RelationalGroupByShaperExpression groupByShaperExpression)
-                {
-                    return new EnumerableExpression(groupByShaperExpression.ElementSelector);
-                }
 
                 var enumerableSource = Visit(arguments[0]);
                 if (enumerableSource is EnumerableExpression)
@@ -800,6 +799,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     enumerableExpression = (EnumerableExpression)enumerableSource;
                     switch (method.Name)
                     {
+                        case nameof(Queryable.AsQueryable)
+                        when genericMethod == QueryableMethods.AsQueryable:
+                            return enumerableExpression;
+
                         case nameof(Queryable.Average)
                         when QueryableMethods.IsAverageWithoutSelector(genericMethod):
                         case nameof(Queryable.Max)

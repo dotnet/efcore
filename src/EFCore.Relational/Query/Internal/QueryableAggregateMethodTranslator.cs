@@ -79,27 +79,24 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                     || methodInfo == QueryableMethods.CountWithPredicate:
                     var countSqlExpression = (source.Selector as SqlExpression) ?? _sqlExpressionFactory.Fragment("*");
                     countSqlExpression = CombineTerms(source, countSqlExpression);
-                    return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                        _sqlExpressionFactory.Function(
-                            "COUNT",
-                            new[] { countSqlExpression },
-                            nullable: false,
-                            argumentsPropagateNullability: new[] { false },
-                            typeof(int)));
+                    return _sqlExpressionFactory.Function(
+                        "COUNT",
+                        new[] { countSqlExpression },
+                        nullable: false,
+                        argumentsPropagateNullability: new[] { false },
+                        typeof(int));
 
                 case nameof(Queryable.LongCount)
                 when methodInfo == QueryableMethods.LongCountWithoutPredicate
                     || methodInfo == QueryableMethods.LongCountWithPredicate:
                     var longCountSqlExpression = (source.Selector as SqlExpression) ?? _sqlExpressionFactory.Fragment("*");
                     longCountSqlExpression = CombineTerms(source, longCountSqlExpression);
-
-                    return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                        _sqlExpressionFactory.Function(
-                            "COUNT",
-                            new[] { longCountSqlExpression },
-                            nullable: false,
-                            argumentsPropagateNullability: new[] { false },
-                            typeof(long)));
+                    return _sqlExpressionFactory.Function(
+                        "COUNT",
+                        new[] { longCountSqlExpression },
+                        nullable: false,
+                        argumentsPropagateNullability: new[] { false },
+                        typeof(long));
 
                 case nameof(Queryable.Max)
                 when (methodInfo == QueryableMethods.MaxWithoutSelector
@@ -107,12 +104,12 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                     && source.Selector is SqlExpression maxSqlExpression:
                     maxSqlExpression = CombineTerms(source, maxSqlExpression);
                     return _sqlExpressionFactory.Function(
-                            "MAX",
-                            new[] { maxSqlExpression },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { false },
-                            maxSqlExpression.Type,
-                            maxSqlExpression.TypeMapping);
+                        "MAX",
+                        new[] { maxSqlExpression },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        maxSqlExpression.Type,
+                        maxSqlExpression.TypeMapping);
 
                 case nameof(Queryable.Min)
                 when (methodInfo == QueryableMethods.MinWithoutSelector
@@ -120,12 +117,12 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                     && source.Selector is SqlExpression minSqlExpression:
                     minSqlExpression = CombineTerms(source, minSqlExpression);
                     return _sqlExpressionFactory.Function(
-                            "MIN",
-                            new[] { minSqlExpression },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { false },
-                            minSqlExpression.Type,
-                            minSqlExpression.TypeMapping);
+                        "MIN",
+                        new[] { minSqlExpression },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        minSqlExpression.Type,
+                        minSqlExpression.TypeMapping);
 
                 case nameof(Queryable.Sum)
                 when (QueryableMethods.IsSumWithoutSelector(methodInfo)
