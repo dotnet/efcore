@@ -55,70 +55,68 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         var nonGenericMethods = new List<(Type Type, MethodInfo Method)>();
         foreach (var type in GetAllTypes(Fixture.FluentApiTypes))
         {
-            if (!type.IsVisible
-                || !type.IsGenericType
-                || type.BaseType == typeof(object)
-                || type.BaseType.IsGenericType)
-            {
-                continue;
-            }
-
-            foreach (var method in type.GetMethods(PublicInstance))
-            {
-                if (method.ReturnType == type.BaseType
-                    && !Fixture.UnmatchedMetadataMethods.Contains(method))
-                {
-                    var hidingMethod = type.GetMethod(
-                        method.Name,
-                        method.GetGenericArguments().Length,
-                        PublicInstance | BindingFlags.DeclaredOnly,
-                        null,
-                        method.GetParameters().Select(p => p.ParameterType).ToArray(),
-                        null);
-                    if (hidingMethod == null || hidingMethod == method || hidingMethod.ReturnType != type)
-                    {
-                        nonGenericMethods.Add((type, method));
-                    }
-                }
-            }
-        }
-
-        foreach (var type in GetAllTypes(Fixture.FluentApiTypes))
-        {
             if (!type.IsVisible)
             {
                 continue;
             }
-
-            // Look for extension methods
-            foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+            
+            if (type.IsGenericType
+                && type.BaseType != typeof(object)
+                && !type.BaseType.IsGenericType)
             {
-                if (method.ReturnType != (method.GetParameters().FirstOrDefault()?.ParameterType)
-                    || !Fixture.GenericFluentApiTypes.TryGetValue(method.ReturnType, out var genericType)
-                    || Fixture.UnmatchedMetadataMethods.Contains(method))
+                foreach (var method in type.BaseType.GetMethods(PublicInstance))
                 {
-                    continue;
+                    if (method.ReturnType == type.BaseType
+                        && !Fixture.UnmatchedMetadataMethods.Contains(method))
+                    {
+                        var parameters = method.GetParameters().Select(p => GetEquivalentGenericType(p.ParameterType, type.GetGenericArguments())).ToArray();
+                        var hidingMethod = type.GetMethod(
+                            method.Name,
+                            method.GetGenericArguments().Length,
+                            PublicInstance | BindingFlags.DeclaredOnly,
+                            null,
+                            parameters,
+                            null);
+                        if (hidingMethod == null || hidingMethod.ReturnType != type)
+                        {
+                            nonGenericMethods.Add((type.BaseType, method));
+                        }
+                    }
                 }
-
-                var methodFound = false;
-                foreach (var hidingMethod in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+            }
+            
+            if (!type.IsGenericType
+                && type.BaseType == typeof(object))
+            {
+                // Look for extension methods
+                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
                 {
-                    if (method.Name != hidingMethod.Name
-                        || hidingMethod.GetGenericArguments().Length != genericType.GetGenericArguments().Length
-                        || hidingMethod.ReturnType.GetGenericTypeDefinition() != genericType
-                        || !hidingMethod.GetParameters().Skip(1).Select(p => p.ParameterType).SequenceEqual(
-                            method.GetParameters().Skip(1).Select(p => p.ParameterType)))
+                    if (method.ReturnType != (method.GetParameters().FirstOrDefault()?.ParameterType)
+                        || !Fixture.GenericFluentApiTypes.TryGetValue(method.ReturnType, out var genericType)
+                        || Fixture.UnmatchedMetadataMethods.Contains(method))
                     {
                         continue;
                     }
 
-                    methodFound = true;
-                    break;
-                }
+                    var methodFound = false;
+                    foreach (var hidingMethod in type.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+                    {
+                        if (method.Name != hidingMethod.Name
+                            || hidingMethod.GetGenericArguments().Length != genericType.GetGenericArguments().Length
+                            || hidingMethod.ReturnType.GetGenericTypeDefinition() != genericType
+                            || !hidingMethod.GetParameters().Skip(1).Select(p => p.ParameterType)
+                                .SequenceEqual(method.GetParameters().Skip(1).Select(p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
+                        {
+                            continue;
+                        }
+                        methodFound = true;
+                        break;
+                    }
 
-                if (!methodFound)
-                {
-                    nonGenericMethods.Add((type, method));
+                    if (!methodFound)
+                    {
+                        nonGenericMethods.Add((type, method));
+                    }
                 }
             }
         }
@@ -128,8 +126,76 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             "\r\n-- Non-generic fluent returns that aren't hidden --\r\n"
             + string.Join(
                 Environment.NewLine, nonGenericMethods.Select(
-                    m =>
-                        $"{m.Method.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}({Format(m.Method.GetParameters())})")));
+                    m => $"{m.Method.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}({Format(m.Method.GetParameters())})")));
+    }
+
+    protected Type GetEquivalentGenericType(Type parameterType, Type[] genericArguments)
+    {
+        if (parameterType.IsGenericType
+            && parameterType.GetGenericTypeDefinition() == typeof(Action<>)
+            && Fixture.GenericFluentApiTypes.TryGetValue(parameterType.GetGenericArguments()[0], out var genericBuilder)
+            && genericBuilder.GetGenericArguments().Length == genericArguments.Length)
+        {
+            return typeof(Action<>).MakeGenericType(genericBuilder.MakeGenericType(genericArguments));
+        }
+
+        return parameterType;
+    }
+
+
+    [ConditionalFact]
+    public void Builders_have_matching_methods()
+    {
+        foreach (var tuple in Fixture.MirrorTypes)
+        {
+            var unmatchedMethods = new List<(Type Type, MethodInfo Method)>();
+            var wrongReturnMethods = new List<(Type Type, MethodInfo Method)>();
+
+            foreach (var method in tuple.Key.GetMethods(PublicInstance | BindingFlags.DeclaredOnly))
+            {
+                if (!Fixture.UnmatchedMetadataMethods.Contains(method))
+                {
+                    MethodInfo hidingMethod = null;
+                    foreach (var targetMethod in tuple.Value.GetMethods(PublicInstance | BindingFlags.DeclaredOnly))
+                    {
+                        if (targetMethod.Name == method.Name
+                            && targetMethod.GetGenericArguments().Length == method.GetGenericArguments().Length
+                            && method.GetParameters().Select(p => p.ParameterType)
+                                .SequenceEqual(targetMethod.GetParameters().Select(p => p.ParameterType),
+                                    new ParameterTypeEqualityComparer(method, targetMethod, this)))
+                        {
+                            Check.DebugAssert(hidingMethod == null,
+                                "There should only be one method with the expected signature. Found: " + Environment.NewLine
+                                + Format(hidingMethod ?? targetMethod, tuple.Value) + Environment.NewLine
+                                + Format(targetMethod, tuple.Value));
+
+                            hidingMethod = targetMethod;
+                            continue;
+                        }
+                    }
+
+                    if (hidingMethod == null)
+                    {
+                        unmatchedMethods.Add((tuple.Key, method));
+                    }
+                    else if (method.ReturnType == tuple.Key
+                        && hidingMethod.ReturnType != tuple.Value)
+                    {
+                        wrongReturnMethods.Add((tuple.Value, method));
+                    }
+                }
+            }
+
+            Assert.False(
+                unmatchedMethods.Count > 0,
+                $"\r\n-- Missing equivalent methods on {tuple.Value.DisplayName()} --\r\n"
+                + string.Join(Environment.NewLine, unmatchedMethods.Select(m => Format(m.Method, m.Type))));
+
+            Assert.False(
+                wrongReturnMethods.Count > 0,
+                $"\r\n-- Expected these methods to return {tuple.Value.DisplayName()} --\r\n"
+                + string.Join(Environment.NewLine, unmatchedMethods.Select(m => Format(m.Method, m.Type))));
+        }
     }
 
     [ConditionalFact]
@@ -884,8 +950,74 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         }
     }
 
-    private static string Format(ParameterInfo[] parameters)
+    protected static string Format(ParameterInfo[] parameters)
         => string.Join(", ", parameters.Select(p => p.ParameterType.Name));
+
+    protected static string Format(MethodInfo method, Type type)
+        => $"{method.ReturnType.ShortDisplayName()} {type.Name}.{method.Name}({Format(method.GetParameters())})";
+
+    protected class ParameterTypeEqualityComparer : IEqualityComparer<Type>
+    {
+        private readonly MethodInfo _sourceMethod;
+        private readonly MethodInfo _targetMethod;
+        private readonly ApiConsistencyTestBase<TFixture> _tests;
+
+        public ParameterTypeEqualityComparer(
+            MethodInfo sourceMethod,
+            MethodInfo targetMethod,
+            ApiConsistencyTestBase<TFixture> tests)
+        {
+            _sourceMethod = sourceMethod;
+            _targetMethod = targetMethod;
+            _tests = tests;
+        }
+
+        public bool Equals(Type sourceParameterType, Type targetParameterType)
+        {
+            if (sourceParameterType == targetParameterType)
+            {
+                return true;
+            }
+
+            var sourceType = _sourceMethod.DeclaringType;
+            var targetType = _targetMethod.DeclaringType;
+            if (_targetMethod.DeclaringType.IsGenericType
+                && sourceParameterType == _tests.GetEquivalentGenericType(
+                    sourceParameterType, _targetMethod.DeclaringType.GetGenericArguments()))
+            {
+                return true;
+            }
+
+            if (sourceType.IsGenericType
+                && targetType.IsGenericType
+                && sourceParameterType.IsGenericType
+                && sourceParameterType.GetGenericTypeDefinition() == typeof(Expression<>)
+                && targetParameterType.IsGenericType
+                && targetParameterType.GetGenericTypeDefinition() == typeof(Expression<>))
+            {
+                var sourceExpressionType = sourceParameterType.GetGenericArguments()[0];
+                var targetExpressionType = targetParameterType.GetGenericArguments()[0];
+                if (sourceExpressionType.IsGenericType
+                    && sourceExpressionType.GetGenericTypeDefinition() == typeof(Func<,>)
+                    && targetExpressionType.IsGenericType
+                    && targetExpressionType.GetGenericTypeDefinition() == typeof(Func<,>))
+                {
+                    var sourceFuncParameterType = sourceExpressionType.GetGenericArguments()[0];
+                    var targetFuncParameterType = targetExpressionType.GetGenericArguments()[0];
+                    if (sourceFuncParameterType == sourceType.GetGenericArguments()[^1]
+                        && targetFuncParameterType == targetType.GetGenericArguments()[^1])
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public int GetHashCode(Type obj)
+            => obj.GetHashCode();
+    }
 
     public abstract class ApiConsistencyFixtureBase
     {
@@ -915,6 +1047,8 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             { typeof(ReferenceReferenceBuilder), typeof(ReferenceReferenceBuilder<,>) },
             { typeof(DbContextOptionsBuilder), typeof(DbContextOptionsBuilder<>) }
         };
+
+        public virtual Dictionary<Type, Type> MirrorTypes { get; } = new();
 
         public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new();
         public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new();

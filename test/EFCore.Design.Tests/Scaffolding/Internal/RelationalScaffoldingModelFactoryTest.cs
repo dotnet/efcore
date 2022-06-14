@@ -228,7 +228,7 @@ public class RelationalScaffoldingModelFactoryTest
             },
             col1 =>
             {
-                Assert.Equal("created", col1.GetColumnBaseName());
+                Assert.Equal("created", col1.GetColumnName());
                 Assert.Equal(ValueGenerated.OnAdd, col1.ValueGenerated);
             },
             col2 =>
@@ -239,12 +239,12 @@ public class RelationalScaffoldingModelFactoryTest
             },
             col3 =>
             {
-                Assert.Equal("modified", col3.GetColumnBaseName());
+                Assert.Equal("modified", col3.GetColumnName());
                 Assert.Equal(ValueGenerated.OnAddOrUpdate, col3.ValueGenerated);
             },
             col4 =>
             {
-                Assert.Equal("occupation", col4.GetColumnBaseName());
+                Assert.Equal("occupation", col4.GetColumnName());
                 Assert.Equal(typeof(string), col4.ClrType);
                 Assert.False(col4.IsColumnNullable());
                 Assert.Null(col4.GetMaxLength());
@@ -516,7 +516,7 @@ public class RelationalScaffoldingModelFactoryTest
         var model = (EntityType)_factory.Create(info, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
 
         Assert.Equal("MyPk", model.FindPrimaryKey().GetName());
-        Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnBaseName()).ToArray());
+        Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.GetColumnName()).ToArray());
     }
 
     [ConditionalFact]
@@ -1542,12 +1542,12 @@ public class RelationalScaffoldingModelFactoryTest
                     s1 =>
                     {
                         Assert.Equal("SanItized", s1.Name);
-                        Assert.Equal("San itized", s1.GetColumnBaseName());
+                        Assert.Equal("San itized", s1.GetColumnName());
                     },
                     s2 =>
                     {
                         Assert.Equal("SanItized1", s2.Name);
-                        Assert.Equal("San+itized", s2.GetColumnBaseName());
+                        Assert.Equal("San+itized", s2.GetColumnName());
                     });
             },
             ef2 =>
@@ -1556,7 +1556,7 @@ public class RelationalScaffoldingModelFactoryTest
                 Assert.Equal("EF1", ef2.Name);
                 var id = Assert.Single(ef2.GetProperties());
                 Assert.Equal("Id", id.Name);
-                Assert.Equal("Id", id.GetColumnBaseName());
+                Assert.Equal("Id", id.GetColumnName());
             });
     }
 
@@ -2202,7 +2202,7 @@ public class RelationalScaffoldingModelFactoryTest
             new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize });
 
         var user = Assert.Single(model.GetEntityTypes().Where(e => e.GetTableName() == userTableName));
-        var id = Assert.Single(user.GetProperties().Where(p => p.GetColumnBaseName() == "id"));
+        var id = Assert.Single(user.GetProperties().Where(p => p.GetColumnName() == "id"));
         var foreignKey = Assert.Single(user.GetReferencingForeignKeys());
         if (useDatabaseNames && noPluralize)
         {

@@ -245,6 +245,11 @@ public static class RelationalAnnotationNames
     public const string UniqueConstraintMappings = Prefix + "UniqueConstraintMappings";
 
     /// <summary>
+    ///     The name for the annotation that contains entity type mapping fragments.
+    /// </summary>
+    public const string MappingFragments = Prefix + "MappingFragments";
+    
+    /// <summary>
     ///     The name for the annotation that contains table-specific facet overrides.
     /// </summary>
     public const string RelationalOverrides = Prefix + "RelationalOverrides";

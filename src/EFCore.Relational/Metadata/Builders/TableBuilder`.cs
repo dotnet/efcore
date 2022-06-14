@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
 /// <typeparam name="TEntity">The entity type being configured.</typeparam>
-public class TableBuilder<TEntity> : TableBuilder
+public class TableBuilder<TEntity> : TableBuilder, IInfrastructure<EntityTypeBuilder<TEntity>>
     where TEntity : class
 {
     /// <summary>
@@ -18,10 +18,13 @@ public class TableBuilder<TEntity> : TableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
-        : base(name, schema, entityTypeBuilder)
+    public TableBuilder(in StoreObjectIdentifier? storeObject, EntityTypeBuilder<TEntity> entityTypeBuilder)
+        : base(storeObject, entityTypeBuilder)
     {
     }
+
+    private EntityTypeBuilder<TEntity> EntityTypeBuilder
+        => (EntityTypeBuilder<TEntity>)((IInfrastructure<EntityTypeBuilder>)this).Instance;
 
     /// <summary>
     ///     Configures the table to be ignored by migrations.
@@ -33,4 +36,17 @@ public class TableBuilder<TEntity> : TableBuilder
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public new virtual TableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
         => (TableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
+
+    /// <summary>
+    ///     Maps the property to a column on the current table and returns an object that can be used
+    ///     to provide table-specific configuration if the property is mapped to more than one table.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (<c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
+        => new(GetStoreObjectIdentifier(), EntityTypeBuilder.Property(propertyExpression));
+    
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
 }

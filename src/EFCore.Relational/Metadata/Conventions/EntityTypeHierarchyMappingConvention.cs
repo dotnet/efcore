@@ -49,7 +49,12 @@ public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var mappingStrategy = entityType.GetMappingStrategy();
+            var mappingStrategy = (string?)entityType[RelationalAnnotationNames.MappingStrategy];
+            if (mappingStrategy == null)
+            {
+                mappingStrategy = (string?)entityType.GetRootType()[RelationalAnnotationNames.MappingStrategy];
+            }
+            
             if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
             {
                 nonTphRoots.Add(entityType.GetRootType());

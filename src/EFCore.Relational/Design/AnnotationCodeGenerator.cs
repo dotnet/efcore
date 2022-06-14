@@ -31,6 +31,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.Triggers,
         RelationalAnnotationNames.Sequences,
         RelationalAnnotationNames.DbFunctions,
+        RelationalAnnotationNames.MappingFragments,
         RelationalAnnotationNames.RelationalOverrides
     };
 
@@ -161,7 +162,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         IProperty property,
         IDictionary<string, IAnnotation> annotations)
     {
-        var columnName = property.GetColumnBaseName();
+        var columnName = property.GetColumnName();
         if (columnName == property.Name)
         {
             annotations.Remove(RelationalAnnotationNames.ColumnName);

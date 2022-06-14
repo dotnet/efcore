@@ -31,8 +31,17 @@ public static class RelationalPropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The base name of the column to which the property would be mapped.</returns>
+    [Obsolete("Use GetColumnName")]
     public static string GetColumnBaseName(this IReadOnlyProperty property)
-        => (string?)property.FindAnnotation(RelationalAnnotationNames.ColumnName)?.Value ?? property.GetDefaultColumnBaseName();
+        => property.GetColumnName();
+
+    /// <summary>
+    ///     Returns the name of the column to which the property would be mapped.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The base name of the column to which the property would be mapped.</returns>
+    public static string GetColumnName(this IReadOnlyProperty property)
+        => (string?)property.FindAnnotation(RelationalAnnotationNames.ColumnName)?.Value ?? property.GetDefaultColumnName();
 
     /// <summary>
     ///     Returns the name of the column to which the property is mapped for a particular table.
@@ -54,15 +63,21 @@ public static class RelationalPropertyExtensions
             if (property.IsPrimaryKey())
             {
                 var tableFound = false;
-                foreach (var containingType in property.DeclaringEntityType.GetDerivedTypesInclusive())
+                if (property.DeclaringEntityType.FindMappingFragment(storeObject) != null)
                 {
-                    if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                    tableFound = true;
+                }
+                else
+                {
+                    foreach (var containingType in property.DeclaringEntityType.GetDerivedTypesInclusive())
                     {
-                        tableFound = true;
-                        break;
+                        if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
                     }
                 }
-
                 if (!tableFound)
                 {
                     return null;
@@ -100,6 +115,17 @@ public static class RelationalPropertyExtensions
                         return null;
                     }
                 }
+                else if (property.DeclaringEntityType.GetMappingFragments().Any())
+                {
+                    if (overrides == null
+                        && (declaringStoreObject != storeObject
+                            || property.DeclaringEntityType.GetMappingFragments()
+                                .Any(f => property.FindOverrides(f.StoreObject) != null)))
+                    {
+
+                        return null;
+                    }
+                }
                 else if (declaringStoreObject != storeObject)
                 {
                     return null;
@@ -121,7 +147,16 @@ public static class RelationalPropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The default base column name to which the property would be mapped.</returns>
+    [Obsolete("Use GetDefaultColumnName")]
     public static string GetDefaultColumnBaseName(this IReadOnlyProperty property)
+        => property.GetDefaultColumnName();
+
+    /// <summary>
+    ///     Returns the default base name of the column to which the property would be mapped
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The default base column name to which the property would be mapped.</returns>
+    public static string GetDefaultColumnName(this IReadOnlyProperty property)
         => Uniquifier.Truncate(property.Name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
 
     /// <summary>
@@ -198,7 +233,7 @@ public static class RelationalPropertyExtensions
             entityType = ownerType;
         }
 
-        var baseName = property.GetDefaultColumnBaseName();
+        var baseName = property.GetDefaultColumnName();
         if (builder == null)
         {
             return baseName;
@@ -250,8 +285,7 @@ public static class RelationalPropertyExtensions
         this IMutableProperty property,
         string? name,
         in StoreObjectIdentifier storeObject)
-        => RelationalPropertyOverrides.GetOrCreate(property, storeObject)
-            .SetColumnName(name, ConfigurationSource.Explicit);
+        => property.GetOrCreateOverrides(storeObject).ColumnName = name;
 
     /// <summary>
     ///     Sets the column to which the property is mapped for a particular table-like store object.
@@ -266,8 +300,7 @@ public static class RelationalPropertyExtensions
         string? name,
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
-        => RelationalPropertyOverrides.GetOrCreate(property, storeObject)
-            .SetColumnName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => property.GetOrCreateOverrides(storeObject, fromDataAnnotation).SetColumnName(name, fromDataAnnotation);
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column name.
@@ -286,7 +319,8 @@ public static class RelationalPropertyExtensions
     public static ConfigurationSource? GetColumnNameConfigurationSource(
         this IConventionProperty property,
         in StoreObjectIdentifier storeObject)
-        => ((RelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject))?.GetColumnNameConfigurationSource();
+        => ((IConventionRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject))
+            ?.GetColumnNameConfigurationSource();
 
     /// <summary>
     ///     Returns the order of the column this property is mapped to.
@@ -1419,6 +1453,35 @@ public static class RelationalPropertyExtensions
 
     /// <summary>
     ///     <para>
+    ///         Returns all the property facet overrides.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The property facet overrides.</returns>
+    public static IEnumerable<IReadOnlyRelationalPropertyOverrides> GetOverrides(this IReadOnlyProperty property)
+        => RelationalPropertyOverrides.Get(property) ?? Enumerable.Empty<IReadOnlyRelationalPropertyOverrides>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all the property facet overrides.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The property facet overrides.</returns>
+    public static IEnumerable<IRelationalPropertyOverrides> GetOverrides(this IProperty property)
+        => RelationalPropertyOverrides.Get(property)?.Cast<IRelationalPropertyOverrides>()
+        ?? Enumerable.Empty<IRelationalPropertyOverrides>();
+
+    /// <summary>
+    ///     <para>
     ///         Returns the property facet overrides for a particular table-like store object.
     ///     </para>
     ///     <para>
@@ -1429,7 +1492,9 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
     /// <returns>An object that stores property facet overrides.</returns>
-    public static IReadOnlyAnnotatable? FindOverrides(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    public static IReadOnlyRelationalPropertyOverrides? FindOverrides(
+        this IReadOnlyProperty property,
+        in StoreObjectIdentifier storeObject)
         => RelationalPropertyOverrides.Find(property, storeObject);
 
     /// <summary>
@@ -1444,8 +1509,10 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
     /// <returns>An object that stores property facet overrides.</returns>
-    public static IMutableAnnotatable? FindOverrides(this IMutableProperty property, in StoreObjectIdentifier storeObject)
-        => (IMutableAnnotatable?)RelationalPropertyOverrides.Find(property, storeObject);
+    public static IRelationalPropertyOverrides? FindOverrides(
+        this IProperty property,
+        in StoreObjectIdentifier storeObject)
+        => (IRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject);
 
     /// <summary>
     ///     <para>
@@ -1459,40 +1526,10 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
     /// <returns>An object that stores property facet overrides.</returns>
-    public static IConventionAnnotatable? FindOverrides(this IConventionProperty property, in StoreObjectIdentifier storeObject)
-        => (IConventionAnnotatable?)RelationalPropertyOverrides.Find(property, storeObject);
-
-    /// <summary>
-    ///     <para>
-    ///         Returns the property facet overrides for a particular table-like store object.
-    ///     </para>
-    ///     <para>
-    ///         This method is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
-    /// <returns>An object that stores property facet overrides.</returns>
-    public static IAnnotatable? FindOverrides(this IProperty property, in StoreObjectIdentifier storeObject)
-        => RelationalPropertyOverrides.Find(property, storeObject);
-
-    /// <summary>
-    ///     <para>
-    ///         Returns the property facet overrides for a particular table-like store object.
-    ///     </para>
-    ///     <para>
-    ///         This method is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
-    /// <returns>An object that stores property facet overrides.</returns>
-    public static IMutableAnnotatable GetOrCreateOverrides(
+    public static IMutableRelationalPropertyOverrides GetOrCreateOverrides(
         this IMutableProperty property,
         in StoreObjectIdentifier storeObject)
-        => RelationalPropertyOverrides.GetOrCreate(property, storeObject);
+        => RelationalPropertyOverrides.GetOrCreate(property, storeObject, ConfigurationSource.Explicit);
 
     /// <summary>
     ///     <para>
@@ -1505,11 +1542,107 @@ public static class RelationalPropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>An object that stores property facet overrides.</returns>
-    public static IConventionAnnotatable GetOrCreateOverrides(
+    public static IConventionRelationalPropertyOverrides GetOrCreateOverrides(
         this IConventionProperty property,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => RelationalPropertyOverrides.GetOrCreate((IMutableProperty)property, storeObject,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     <para>
+    ///         Removes the property facet overrides for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>
+    ///     The removed <see cref="IMutableRelationalPropertyOverrides" /> or <see langword="null" />
+    ///     if no overrides for the given store object were found.
+    /// </returns>
+    public static IMutableRelationalPropertyOverrides? RemoveOverrides(
+        this IMutableProperty property,
         in StoreObjectIdentifier storeObject)
-        => RelationalPropertyOverrides.GetOrCreate(property, storeObject);
+        => RelationalPropertyOverrides.Remove(property, storeObject, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     <para>
+    ///         Removes the property facet overrides for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The removed <see cref="IConventionRelationalPropertyOverrides" /> or <see langword="null" />
+    ///     if no overrides for the given store object were found or the existing overrides were configured from a higher source.
+    /// </returns>
+    public static IConventionRelationalPropertyOverrides? RemoveOverrides(
+        this IConventionProperty property,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => RelationalPropertyOverrides.Remove((IMutableProperty)property, storeObject,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the table-like store objects to which this property is mapped.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObjectType">The type of the store object.</param>
+    /// <returns>The table-like store objects to which this property is mapped.</returns>
+    public static IEnumerable<StoreObjectIdentifier> GetMappedStoreObjects(
+        this IReadOnlyProperty property,
+        StoreObjectType storeObjectType)
+    {
+        var declaringType = property.DeclaringEntityType;
+        var declaringStoreObject = StoreObjectIdentifier.Create(declaringType, storeObjectType);
+        if (declaringStoreObject != null
+            && property.GetColumnName(declaringStoreObject.Value) != null)
+        {
+            yield return declaringStoreObject.Value;
+        }
+        
+        if (storeObjectType == StoreObjectType.Function
+            || storeObjectType == StoreObjectType.SqlQuery)
+        {
+            yield break;
+        }
+
+        foreach (var fragment in declaringType.GetMappingFragments())
+        {
+            if (fragment.StoreObject.StoreObjectType == storeObjectType
+                && property.GetColumnName(fragment.StoreObject) != null)
+            {
+                yield return fragment.StoreObject;
+            }
+        }
+        
+        foreach (var derivedType in declaringType.GetDerivedTypes())
+        {
+            var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
+            if (derivedStoreObject != null
+                && property.GetColumnName(derivedStoreObject.Value) != null)
+            {
+                yield return derivedStoreObject.Value;
+            }
+        }
+    }
 
     /// <summary>
     ///     Reads a value for this property from the given <paramref name="relationalReader" />.

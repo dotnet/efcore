@@ -626,6 +626,104 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_entity_splitting_on_base_type()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().ToView("Animal").SplitToView("AnimalDetails", s => s.Property(a => a.Name));
+        modelBuilder.Entity<Cat>().ToView("Cat");
+
+        VerifyError(
+            RelationalStrings.EntitySplittingHierarchy(nameof(Animal), "AnimalDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_entity_splitting_on_derived_type()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().ToTable("Animal");
+        modelBuilder.Entity<Cat>().ToTable("Cat").SplitToTable("CatDetails", s => s.Property(a => a.Name));
+
+        VerifyError(
+            RelationalStrings.EntitySplittingHierarchy(nameof(Cat), "CatDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_entity_splitting_with_unmapped_main()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().SplitToView("AnimalDetails", s => s.Property(a => a.Name));
+
+        VerifyError(
+            RelationalStrings.EntitySplittingUnmappedMainFragment(nameof(Animal), "AnimalDetails", "View"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_entity_splitting_to_with_conflicting_main()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().ToTable("Animal").SplitToTable("Animal", s => s.Property(a => a.Name));
+
+        VerifyError(
+            RelationalStrings.EntitySplittingConflictingMainFragment(nameof(Animal), "Animal"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_entity_splitting_with_unmapped_PK()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().SplitToTable("AnimalDetails", s => s.Property(a => a.Id).HasColumnName(null));
+
+        VerifyError(
+            RelationalStrings.EntitySplittingMissingPrimaryKey(nameof(Animal), "AnimalDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_entity_splitting_without_properties()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().SplitToTable("AnimalDetails", s => { });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingMissingProperties(nameof(Animal), "AnimalDetails"),
+            modelBuilder);
+    }
+    
+    [ConditionalFact]
+    public virtual void Detects_entity_splitting_to_table_with_all_properties()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().SplitToTable("AnimalDetails", s =>
+        {
+            s.Property(a => a.Name);
+            s.Property("FavoritePersonId");
+        });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingMissingPropertiesMainFragment(nameof(Animal), "Animal"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_entity_splitting_to_view_with_all_properties()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>().ToView("Animal").SplitToView("AnimalDetails", s =>
+        {
+            s.Property(a => a.Name);
+            s.Property("FavoritePersonId");
+        });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingMissingPropertiesMainFragment(nameof(Animal), "Animal"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_duplicate_column_names()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -2043,7 +2141,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Passes_for_valid_table_overrides()
     {
         var modelBuilder = CreateConventionalModelBuilder();
-        var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+        modelBuilder.Entity<Animal>();
+        var property = modelBuilder.Entity<Dog>().Property(a => a.Identity).GetInfrastructure();
         modelBuilder.Entity<Dog>().ToTable("Dog");
         property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog"));
 
@@ -2054,11 +2153,27 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_invalid_table_overrides()
     {
         var modelBuilder = CreateConventionalModelBuilder();
-        var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+        modelBuilder.Entity<Animal>();
+        var property = modelBuilder.Entity<Dog>().Property(a => a.Identity).GetInfrastructure();
         property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog"));
 
         VerifyError(
-            RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
+            RelationalStrings.TableOverrideMismatch("Dog.Identity", "Dog"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_column_override_on_an_inherited_property_with_TPT()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+
+        modelBuilder.Entity<Animal>()
+            .Ignore(a => a.FavoritePerson);
+
+        modelBuilder.Entity<Cat>().ToTable("Cat", b => b.Property(c => c.Name).HasColumnName("Name"));
+
+        VerifyError(
+            RelationalStrings.TableOverrideMismatch("Animal.Name", "Cat"),
             modelBuilder);
     }
 
@@ -2066,7 +2181,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Passes_for_valid_view_overrides()
     {
         var modelBuilder = CreateConventionalModelBuilder();
-        var property = modelBuilder.Entity<Animal>().ToView("Animal").Property(a => a.Name).GetInfrastructure();
+        modelBuilder.Entity<Animal>();
+        var property = modelBuilder.Entity<Dog>().Property(a => a.Identity).GetInfrastructure();
         modelBuilder.Entity<Dog>().ToView("Dog");
         property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog"));
 
@@ -2077,11 +2193,12 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_invalid_view_overrides()
     {
         var modelBuilder = CreateConventionalModelBuilder();
-        var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
+        modelBuilder.Entity<Animal>();
+        var property = modelBuilder.Entity<Dog>().Property(a => a.Identity).GetInfrastructure();
         property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog"));
 
         VerifyError(
-            RelationalStrings.ViewOverrideMismatch("Animal.Name", "Dog"),
+            RelationalStrings.ViewOverrideMismatch("Dog.Identity", "Dog"),
             modelBuilder);
     }
 

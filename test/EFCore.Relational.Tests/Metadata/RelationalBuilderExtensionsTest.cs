@@ -44,7 +44,7 @@ public class RelationalBuilderExtensionsTest
         var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
         Assert.Equal("Name", property.Name);
-        Assert.Equal("Eman", property.GetColumnBaseName());
+        Assert.Equal("Eman", property.GetColumnName());
     }
 
     [ConditionalFact]
@@ -1420,7 +1420,7 @@ public class RelationalBuilderExtensionsTest
         Assert.NotNull(propertyBuilder.IsFixedLength(true));
         Assert.True(propertyBuilder.Metadata.IsFixedLength());
         Assert.NotNull(propertyBuilder.HasColumnName("Splew"));
-        Assert.Equal("Splew", propertyBuilder.Metadata.GetColumnBaseName());
+        Assert.Equal("Splew", propertyBuilder.Metadata.GetColumnName());
         Assert.NotNull(propertyBuilder.HasColumnType("int"));
         Assert.Equal("int", propertyBuilder.Metadata.GetColumnType());
         Assert.NotNull(propertyBuilder.HasDefaultValue(1));
@@ -1437,7 +1437,7 @@ public class RelationalBuilderExtensionsTest
         Assert.False(propertyBuilder.Metadata.IsFixedLength());
         Assert.NotNull(propertyBuilder.HasColumnName("Splow", fromDataAnnotation: true));
         Assert.Null(propertyBuilder.HasColumnName("Splod"));
-        Assert.Equal("Splow", propertyBuilder.Metadata.GetColumnBaseName());
+        Assert.Equal("Splow", propertyBuilder.Metadata.GetColumnName());
         Assert.NotNull(propertyBuilder.HasColumnType("varchar", fromDataAnnotation: true));
         Assert.Null(propertyBuilder.HasColumnType("int"));
         Assert.Equal("varchar", propertyBuilder.Metadata.GetColumnType());

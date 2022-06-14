@@ -20,8 +20,11 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
+    protected override TestHelpers TestHelpers
+        => SqlServerTestHelpers.Instance;
+
     [ConditionalFact]
-    public virtual ModelBuilder Default_for_key_string_column_throws()
+    public virtual void Default_for_key_string_column_throws()
     {
         var modelBuilder = CreateModelBuilder();
 
@@ -35,8 +38,6 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
                     .GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
                 "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
-
-        return modelBuilder;
     }
 
     public override IModel Non_public_annotations_are_enabled()
@@ -44,7 +45,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         var model = base.Non_public_annotations_are_enabled();
 
         var property = GetProperty<PrivateMemberAnnotationClass>(model, "PersonFirstName");
-        Assert.Equal("dsdsd", property.GetColumnBaseName());
+        Assert.Equal("dsdsd", property.GetColumnName());
         Assert.Equal("nvarchar(128)", property.GetColumnType());
 
         return model;
@@ -55,7 +56,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         var model = base.Field_annotations_are_enabled();
 
         var property = GetProperty<FieldAnnotationClass>(model, "_personFirstName");
-        Assert.Equal("dsdsd", property.GetColumnBaseName());
+        Assert.Equal("dsdsd", property.GetColumnName());
         Assert.Equal("nvarchar(128)", property.GetColumnType());
 
         return model;
@@ -66,7 +67,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         var model = base.Key_and_column_work_together();
 
         var relational = GetProperty<ColumnKeyAnnotationClass1>(model, "PersonFirstName");
-        Assert.Equal("dsdsd", relational.GetColumnBaseName());
+        Assert.Equal("dsdsd", relational.GetColumnName());
         Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
         return model;
@@ -123,16 +124,18 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         var modelBuilder = CreateModelBuilder();
         modelBuilder.Entity<One>().HasKey(o => o.UniqueNo);
 
+        var model = modelBuilder.FinalizeModel();
+
         Assert.Equal(
             "Unique_No",
-            modelBuilder.Model.FindEntityType(typeof(One)).FindProperty(nameof(One.UniqueNo)).GetColumnBaseName());
+            model.FindEntityType(typeof(One)).FindProperty(nameof(One.UniqueNo)).GetColumnName());
     }
 
-    public override ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
+    public override IModel DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
     {
-        var modelBuilder = base.DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties();
+        var model = base.DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties();
 
-        var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
+        var entity = model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
         var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
         Assert.Equal(SqlServerValueGenerationStrategy.None, stringProperty.GetValueGenerationStrategy());
@@ -143,7 +146,7 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
         Assert.Equal(SqlServerValueGenerationStrategy.None, guidProperty.GetValueGenerationStrategy());
 
-        return modelBuilder;
+        return model;
     }
 
     public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()

@@ -10,6 +10,8 @@ public class DataAnnotationInMemoryTest : DataAnnotationTestBase<DataAnnotationI
     {
     }
 
+    protected override TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+
     public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
     {
         using var context = CreateContext();

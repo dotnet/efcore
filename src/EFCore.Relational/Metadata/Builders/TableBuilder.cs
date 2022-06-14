@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
-public class TableBuilder
+public class TableBuilder : IInfrastructure<EntityTypeBuilder>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,32 +19,37 @@ public class TableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
+    public TableBuilder(in StoreObjectIdentifier? storeObject, EntityTypeBuilder entityTypeBuilder)
     {
-        Name = name;
-        Schema = schema;
+        StoreObject = storeObject;
         EntityTypeBuilder = entityTypeBuilder;
     }
 
     /// <summary>
     ///     The specified table name.
     /// </summary>
-    public virtual string? Name { get; }
+    public virtual string? Name => StoreObject?.Name;
 
     /// <summary>
     ///     The specified table schema.
     /// </summary>
-    public virtual string? Schema { get; }
+    public virtual string? Schema => StoreObject?.Schema;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual StoreObjectIdentifier? StoreObject { get; }
 
     /// <summary>
     ///     The entity type being configured.
     /// </summary>
     public virtual IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
 
-    /// <summary>
-    ///     The entity type builder.
-    /// </summary>
-    public virtual EntityTypeBuilder EntityTypeBuilder { get; }
+    private EntityTypeBuilder EntityTypeBuilder { get; }
 
     /// <summary>
     ///     Configures the table to be ignored by migrations.
@@ -76,6 +81,37 @@ public class TableBuilder
             Name,
             Schema,
             ConfigurationSource.Explicit)!);
+
+    /// <summary>
+    ///     Maps the property to a column on the current table and returns an object that can be used
+    ///     to provide table-specific configuration if the property is mapped to more than one table.
+    /// </summary>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ColumnBuilder Property(string propertyName)
+        => new(GetStoreObjectIdentifier(), EntityTypeBuilder.Property(propertyName));
+
+    /// <summary>
+    ///     Maps the property to a column on the current table and returns an object that can be used
+    ///     to provide table-specific configuration if the property is mapped to more than one table.
+    /// </summary>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ColumnBuilder<TProperty> Property<TProperty>(string propertyName)
+        => new(GetStoreObjectIdentifier(), EntityTypeBuilder.Property<TProperty>(propertyName));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual StoreObjectIdentifier GetStoreObjectIdentifier()
+        => StoreObject ?? throw new InvalidOperationException(RelationalStrings.MappingFragmentMissingName);
+
+    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
 
     #region Hidden System.Object members
 

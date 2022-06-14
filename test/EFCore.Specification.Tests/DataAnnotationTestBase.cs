@@ -33,21 +33,13 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     {
     }
 
+    protected abstract TestHelpers TestHelpers { get; }
+
     public virtual ModelBuilder CreateModelBuilder()
-    {
-        var context = CreateContext();
-        return new ModelBuilder(
-            context.GetService<IConventionSetBuilder>().CreateConventionSet(),
-            context.GetService<ModelDependencies>());
-    }
+        => TestHelpers.CreateConventionBuilder(CreateContext().GetInfrastructure());
 
     protected virtual IModel Validate(ModelBuilder modelBuilder)
-    {
-        var context = CreateContext();
-        var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
-        var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
-        return modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: true, logger);
-    }
+        => ((TestHelpers.TestModelBuilder)modelBuilder).FinalizeModel(designTime: true);
 
     protected class Person
     {
@@ -868,7 +860,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
+    public virtual IModel DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
     {
         var modelBuilder = CreateModelBuilder();
 
@@ -894,9 +886,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(ValueGenerated.OnAdd, guidProperty.ValueGenerated);
         Assert.True(guidProperty.RequiresValueGenerator());
 
-        Validate(modelBuilder);
-
-        return modelBuilder;
+        return Validate(modelBuilder);
     }
 
     public class GeneratedEntityNonInteger
@@ -2846,7 +2836,8 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                     .Log(CoreEventId.ConflictingKeylessAndKeyAttributesWarning));
 
         protected override bool ShouldLogCategory(string logCategory)
-            => logCategory == DbLoggerCategory.Model.Name;
+            => logCategory == DbLoggerCategory.Model.Name
+                || logCategory == DbLoggerCategory.Model.Validation.Name;
 
         protected override void Seed(PoolableDbContext context)
         {

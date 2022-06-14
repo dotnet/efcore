@@ -343,6 +343,24 @@
   <data name="EntityShortNameNotUnique" xml:space="preserve">
     <value>The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").</value>
   </data>
+  <data name="EntitySplittingConflictingMainFragment" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but is it also mapped to the same object. Split mappings should not duplicate the main mapping.</value>
+  </data>
+  <data name="EntitySplittingHierarchy" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but it also participates in an entity type hierarchy. Split mappings are not supported for hierarchies.</value>
+  </data>
+  <data name="EntitySplittingMissingPrimaryKey" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but the primary key properties aren't fully mapped. Map all primary key properties to columns on '{storeObject}'.</value>
+  </data>
+  <data name="EntitySplittingMissingProperties" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't map any non-primary key property to it. Map at least one non-primary key property to a column on '{storeObject}'.</value>
+  </data>
+  <data name="EntitySplittingMissingPropertiesMainFragment" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping, but it doesn't map any non-primary key property to the main store object. Keep at least one non-primary key property mapped to a column on '{storeObject}'.</value>
+  </data>
+  <data name="EntitySplittingUnmappedMainFragment" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.</value>
+  </data>
   <data name="ErrorMaterializingProperty" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
   </data>
@@ -708,6 +726,9 @@
   </data>
   <data name="MappedFunctionNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.</value>
+  </data>
+  <data name="MappingFragmentMissingName" xml:space="preserve">
+    <value>Table name must be specified to configure a mapping fragment.</value>
   </data>
   <data name="MethodOnNonTphRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>

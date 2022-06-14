@@ -17,11 +17,11 @@ public abstract partial class ModelBuilderTest
         public void Can_set_model_annotation()
         {
             var modelBuilder = CreateModelBuilder();
-            var model = modelBuilder.Model;
-
             modelBuilder = modelBuilder.HasAnnotation("Fus", "Ro");
 
             Assert.NotNull(modelBuilder);
+
+            var model = modelBuilder.FinalizeModel();
             Assert.Equal("Ro", model.FindAnnotation("Fus").Value);
         }
 
@@ -69,9 +69,9 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<Customer>();
             modelBuilder.Ignore<Product>();
 
-            var entity = modelBuilder.Model.FindEntityType(typeof(Order));
+            var model = modelBuilder.FinalizeModel();
 
-            modelBuilder.FinalizeModel();
+            var entity = model.FindEntityType(typeof(Order));
             Assert.Equal("Id", entity.FindPrimaryKey().Properties.Single().Name);
         }
 

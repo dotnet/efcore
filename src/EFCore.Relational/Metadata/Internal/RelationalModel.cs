@@ -283,7 +283,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             foreach (var property in entityType.GetProperties())
             {
                 var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringEntityType == mappedType
-                    ? property.GetColumnBaseName()
+                    ? property.GetColumnName()
                     : null;
                 if (columnName == null)
                 {

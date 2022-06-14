@@ -203,6 +203,7 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ForeignKeyMappings,
             RelationalAnnotationNames.TableIndexMappings,
             RelationalAnnotationNames.UniqueConstraintMappings,
+            RelationalAnnotationNames.MappingFragments,
             RelationalAnnotationNames.Name,
             RelationalAnnotationNames.Sequences,
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -906,9 +907,11 @@ namespace MyNamespace
     [Flags]
     public enum Enum1
     {
+#pragma warning disable SA1602 // Enumeration items should be documented
         Default = 0,
         One = 1,
         Two = 2
+#pragma warning restore SA1602 // Enumeration items should be documented
     }
 
     private ModelSnapshot CompileModelSnapshot(string modelSnapshotCode, string modelSnapshotTypeName)

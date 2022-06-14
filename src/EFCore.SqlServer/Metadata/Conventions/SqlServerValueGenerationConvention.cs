@@ -96,16 +96,13 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        var tableName = property.DeclaringEntityType.GetTableName();
-        if (tableName == null)
+        var declaringTable = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
+        if (declaringTable.Name == null)
         {
             return null;
         }
 
-        return GetValueGenerated(
-            property,
-            StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()),
-            Dependencies.TypeMappingSource);
+        return GetValueGenerated(property, declaringTable, Dependencies.TypeMappingSource);
     }
 
     /// <summary>

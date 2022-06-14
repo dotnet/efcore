@@ -606,6 +606,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 param1, param2);
 
         /// <summary>
+        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").
+        /// </summary>
+        public static string EntityShortNameNotUnique(object? entityType1, object? discriminatorValue, object? entityType2)
+            => string.Format(
+                GetString("EntityShortNameNotUnique", nameof(entityType1), nameof(discriminatorValue), nameof(entityType2)),
+                entityType1, discriminatorValue, entityType2);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but is it also mapped to the same object. Split mappings should not duplicate the main mapping.
+        /// </summary>
+        public static string EntitySplittingConflictingMainFragment(object? entityType, object? storeObject)
+            => string.Format(
+                GetString("EntitySplittingConflictingMainFragment", nameof(entityType), nameof(storeObject)),
+                entityType, storeObject);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but it also participates in an entity type hierarchy. Split mappings are not supported for hierarchies.
+        /// </summary>
+        public static string EntitySplittingHierarchy(object? entityType, object? storeObject)
+            => string.Format(
+                GetString("EntitySplittingHierarchy", nameof(entityType), nameof(storeObject)),
+                entityType, storeObject);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but the primary key properties aren't fully mapped. Map all primary key properties to columns on '{storeObject}'.
+        /// </summary>
+        public static string EntitySplittingMissingPrimaryKey(object? entityType, object? storeObject)
+            => string.Format(
+                GetString("EntitySplittingMissingPrimaryKey", nameof(entityType), nameof(storeObject)),
+                entityType, storeObject);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't map any non-primary key property to it. Map at least one non-primary key property to a column on '{storeObject}'.
+        /// </summary>
+        public static string EntitySplittingMissingProperties(object? entityType, object? storeObject)
+            => string.Format(
+                GetString("EntitySplittingMissingProperties", nameof(entityType), nameof(storeObject)),
+                entityType, storeObject);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has a split mapping, but it doesn't map any non-primary key property to the main store object. Keep at least one non-primary key property mapped to a column on '{storeObject}'.
+        /// </summary>
+        public static string EntitySplittingMissingPropertiesMainFragment(object? entityType, object? storeObject)
+            => string.Format(
+                GetString("EntitySplittingMissingPropertiesMainFragment", nameof(entityType), nameof(storeObject)),
+                entityType, storeObject);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.
+        /// </summary>
+        public static string EntitySplittingUnmappedMainFragment(object? entityType, object? storeObject, object? storeObjectType)
+            => string.Format(
+                GetString("EntitySplittingUnmappedMainFragment", nameof(entityType), nameof(storeObject), nameof(storeObjectType)),
+                entityType, storeObject, storeObjectType);
+
+        /// <summary>
         ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
         /// </summary>
         public static string ErrorMaterializingProperty(object? entityType, object? property)
@@ -872,6 +928,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, functionName);
 
         /// <summary>
+        ///     Table name must be specified to configure a mapping fragment.
+        /// </summary>
+        public static string MappingFragmentMissingName
+            => GetString("MappingFragmentMissingName");
+
+        /// <summary>
         ///     Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
         /// </summary>
         public static string MethodOnNonTphRootNotSupported(object? methodName, object? entityType)
@@ -1004,6 +1066,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NonScalarFunctionParameterCannotPropagatesNullability", nameof(parameterName), nameof(functionName)),
                 parameterName, functionName);
+
+        /// <summary>
+        ///     The specified discriminator value '{value}' for '{entityType}' is not a string. Configure a string discriminator value instead.
+        /// </summary>
+        public static string NonTphDiscriminatorValueNotString(object? value, object? entityType)
+            => string.Format(
+                GetString("NonTphDiscriminatorValueNotString", nameof(value), nameof(entityType)),
+                value, entityType);
 
         /// <summary>
         ///     The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.
@@ -1404,22 +1474,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string VisitChildrenMustBeOverridden
             => GetString("VisitChildrenMustBeOverridden");
-
-        /// <summary>
-        ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call entityTypeBuilder.Metadata.SetDiscriminatorValue("NewShortName").
-        /// </summary>
-        public static string EntityShortNameNotUnique(object? entityType1, object? discriminatorValue, object? entityType2)
-            => string.Format(
-                GetString("EntityShortNameNotUnique", nameof(entityType1), nameof(discriminatorValue), nameof(entityType2)),
-                entityType1, discriminatorValue, entityType2);
-
-        /// <summary>
-        ///     The specified discriminator value '{value}' for '{entityType}' is not a string. Configure a string discriminator value instead.
-        /// </summary>
-        public static string NonTphDiscriminatorValueNotString(object? value, object? entityType)
-            => string.Format(
-                GetString("NonTphDiscriminatorValueNotString", nameof(value), nameof(entityType)),
-                value, entityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

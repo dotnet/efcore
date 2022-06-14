@@ -94,16 +94,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     internal SelectExpression(IEntityType entityType, ISqlExpressionFactory sqlExpressionFactory)
         : base(null)
     {
-        var mappingStrategy = entityType.GetMappingStrategy();
-        if (mappingStrategy == null
-            && (entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any()))
-        {
-            // Contains hierarchy so there will be an implicit mapping strategy
-            mappingStrategy = entityType.FindDiscriminatorProperty() != null
-                ? RelationalAnnotationNames.TphMappingStrategy : RelationalAnnotationNames.TptMappingStrategy;
-        }
-
-        switch (mappingStrategy)
+        switch (entityType.GetMappingStrategy())
         {
             case RelationalAnnotationNames.TptMappingStrategy:
             {

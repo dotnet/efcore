@@ -58,16 +58,16 @@ public class RelationalMetadataExtensionsTest
             .Property(e => e.Name)
             .Metadata;
 
-        Assert.Equal("Name", property.GetColumnBaseName());
+        Assert.Equal("Name", property.GetColumnName());
 
         property.SetColumnName("Eman");
 
         Assert.Equal("Name", property.Name);
-        Assert.Equal("Eman", property.GetColumnBaseName());
+        Assert.Equal("Eman", property.GetColumnName());
 
         property.SetColumnName(null);
 
-        Assert.Equal("Name", property.GetColumnBaseName());
+        Assert.Equal("Name", property.GetColumnName());
     }
 
     [ConditionalFact]

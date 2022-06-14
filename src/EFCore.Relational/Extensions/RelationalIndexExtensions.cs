@@ -56,7 +56,7 @@ public static class RelationalIndexExtensions
             .Append("IX_")
             .Append(tableName)
             .Append('_')
-            .AppendJoin(index.Properties.Select(p => p.GetColumnBaseName()), "_")
+            .AppendJoin(index.Properties.Select(p => p.GetColumnName()), "_")
             .ToString();
 
         return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());

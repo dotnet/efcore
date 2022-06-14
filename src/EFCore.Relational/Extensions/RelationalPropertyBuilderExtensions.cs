@@ -138,7 +138,8 @@ public static class RelationalPropertyBuilderExtensions
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
     {
-        var overrides = (RelationalPropertyOverrides?)RelationalPropertyOverrides.Find(propertyBuilder.Metadata, storeObject);
+        var overrides = (IConventionRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(
+            propertyBuilder.Metadata, storeObject);
         return overrides == null
             || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
             .Overrides(overrides.GetColumnNameConfigurationSource())

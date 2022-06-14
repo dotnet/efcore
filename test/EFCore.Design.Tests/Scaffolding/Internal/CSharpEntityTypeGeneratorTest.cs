@@ -1029,9 +1029,9 @@ namespace TestNamespace
             model =>
             {
                 var entitType = model.FindEntityType("TestNamespace.Entity");
-                Assert.Equal("propertyA", entitType.GetProperty("A").GetColumnBaseName());
+                Assert.Equal("propertyA", entitType.GetProperty("A").GetColumnName());
                 Assert.Equal("nchar(10)", entitType.GetProperty("B").GetColumnType());
-                Assert.Equal("random", entitType.GetProperty("C").GetColumnBaseName());
+                Assert.Equal("random", entitType.GetProperty("C").GetColumnName());
                 Assert.Equal("varchar(200)", entitType.GetProperty("C").GetColumnType());
             });
 

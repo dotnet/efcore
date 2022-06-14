@@ -33,9 +33,9 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerDbFunctionsExtensions),
             typeof(OwnedNavigationTemporalPeriodPropertyBuilder),
-            typeof(TemporalPeriodPropertyBuilder),
             typeof(OwnedNavigationTemporalTableBuilder),
-            typeof(OwnedNavigationTemporalTableBuilder<>),
+            typeof(OwnedNavigationTemporalTableBuilder<,>),
+            typeof(TemporalPeriodPropertyBuilder),
             typeof(TemporalTableBuilder),
             typeof(TemporalTableBuilder<>)
         };
@@ -90,5 +90,17 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
                     null
                 )
             };
+
+        protected override void Initialize()
+        {
+            GenericFluentApiTypes.Add(typeof(TemporalTableBuilder), typeof(TemporalTableBuilder<>));
+            GenericFluentApiTypes.Add(typeof(OwnedNavigationTemporalTableBuilder), typeof(OwnedNavigationTemporalTableBuilder<,>));
+
+            MirrorTypes.Add(typeof(TemporalTableBuilder), typeof(OwnedNavigationTemporalTableBuilder));
+            MirrorTypes.Add(typeof(TemporalTableBuilder<>), typeof(OwnedNavigationTemporalTableBuilder<,>));
+            MirrorTypes.Add(typeof(TemporalPeriodPropertyBuilder), typeof(OwnedNavigationTemporalPeriodPropertyBuilder));
+
+            base.Initialize();
+        }
     }
 }

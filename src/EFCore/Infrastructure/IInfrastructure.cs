@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     for more information and examples.
 /// </remarks>
 /// <typeparam name="T">The type of the property being hidden.</typeparam>
-public interface IInfrastructure<out T>
+public interface IInfrastructure<T>
 {
     /// <summary>
     ///     Gets the value of the property being hidden.

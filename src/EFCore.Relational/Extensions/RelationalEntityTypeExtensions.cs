@@ -829,6 +829,179 @@ public static class RelationalEntityTypeExtensions
     #endregion Comment
 
     /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IReadOnlyEntityTypeMappingFragment> GetMappingFragments(this IReadOnlyEntityType entityType)
+        => EntityTypeMappingFragment.Get(entityType) ?? Enumerable.Empty<IReadOnlyEntityTypeMappingFragment>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(this IEntityType entityType)
+        => EntityTypeMappingFragment.Get(entityType)?.Cast<IEntityTypeMappingFragment>()
+         ?? Enumerable.Empty<IEntityTypeMappingFragment>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IReadOnlyEntityTypeMappingFragment? FindMappingFragment(
+        this IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject)
+        => EntityTypeMappingFragment.Find(entityType, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IMutableEntityTypeMappingFragment? FindMappingFragment(
+        this IMutableEntityType entityType, in StoreObjectIdentifier storeObject)
+        => (IMutableEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IConventionEntityTypeMappingFragment? FindMappingFragment(
+        this IConventionEntityType entityType, in StoreObjectIdentifier storeObject)
+        => (IConventionEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IEntityTypeMappingFragment? FindMappingFragment(
+        this IEntityType entityType, in StoreObjectIdentifier storeObject)
+        => (IEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IMutableEntityTypeMappingFragment GetOrCreateMappingFragment(
+        this IMutableEntityType entityType,
+        in StoreObjectIdentifier storeObject)
+        => EntityTypeMappingFragment.GetOrCreate(entityType, storeObject, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>An object that represents an entity type mapping fragment.</returns>
+    public static IConventionEntityTypeMappingFragment GetOrCreateMappingFragment(
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => EntityTypeMappingFragment.GetOrCreate((IMutableEntityType)entityType, storeObject,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     <para>
+    ///         Removes the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <returns>
+    ///     The removed <see cref="IMutableEntityTypeMappingFragment" /> or <see langword="null" />
+    ///     if no overrides for the given store object were found.
+    /// </returns>
+    public static IMutableEntityTypeMappingFragment? RemoveMappingFragment(
+        this IMutableEntityType entityType,
+        in StoreObjectIdentifier storeObject)
+        => EntityTypeMappingFragment.Remove(entityType, storeObject, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     <para>
+    ///         Removes the entity type mapping for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of a table-like store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The removed <see cref="IConventionEntityTypeMappingFragment" /> or <see langword="null" />
+    ///     if no overrides for the given store object were found or the existing overrides were configured from a higher source.
+    /// </returns>
+    public static IConventionEntityTypeMappingFragment? RemoveMappingFragment(
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => EntityTypeMappingFragment.Remove((IMutableEntityType)entityType, storeObject,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
     ///     Gets the foreign keys for the given entity type that point to other entity types
     ///     sharing the same table-like store object.
     /// </summary>
@@ -960,6 +1133,36 @@ public static class RelationalEntityTypeExtensions
     }
 
     /// <summary>
+    ///     Gets a value indicating whether the specified table is ignored by Migrations.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <returns>A value indicating whether the associated table is ignored by Migrations.</returns>
+    public static bool IsTableExcludedFromMigrations(
+        this IReadOnlyEntityType entityType,
+        in StoreObjectIdentifier storeObject)
+    {
+        if (entityType is RuntimeEntityType)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var overrides = entityType.FindMappingFragment(storeObject);
+        if (overrides != null)
+        {
+            return overrides.IsTableExcludedFromMigrations ?? entityType.IsTableExcludedFromMigrations();
+        }
+
+        if (StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject)
+        {
+            return entityType.IsTableExcludedFromMigrations();
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), storeObject.DisplayName()));
+    }
+
+    /// <summary>
     ///     Sets a value indicating whether the associated table is ignored by Migrations.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
@@ -983,14 +1186,57 @@ public static class RelationalEntityTypeExtensions
             ?.Value;
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations" />.
+    ///     Sets a value indicating whether the associated table is ignored by Migrations.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="excluded">A value indicating whether the associated table is ignored by Migrations.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    public static void SetIsTableExcludedFromMigrations(
+        this IMutableEntityType entityType,
+        bool? excluded,
+        in StoreObjectIdentifier storeObject)
+        => entityType.GetOrCreateMappingFragment(storeObject).IsTableExcludedFromMigrations = excluded;
+
+    /// <summary>
+    ///     Sets a value indicating whether the associated table is ignored by Migrations.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="excluded">A value indicating whether the associated table is ignored by Migrations.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetIsTableExcludedFromMigrations(
+        this IConventionEntityType entityType,
+        bool? excluded,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => entityType.GetOrCreateMappingFragment(storeObject, fromDataAnnotation).SetIsTableExcludedFromMigrations(
+                excluded, fromDataAnnotation);
+        
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType)" />.
     /// </summary>
     /// <param name="entityType">The entity type to find configuration source for.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations" />.</returns>
+    /// <returns>
+    ///     The <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType)" />.
+    /// </returns>
     public static ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource(
         this IConventionEntityType entityType)
         => entityType.FindAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations)
             ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType, in StoreObjectIdentifier)" />.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <returns>
+    ///     The <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType, in StoreObjectIdentifier)" />.
+    /// </returns>
+    public static ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource(
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject)
+        => entityType.FindMappingFragment(storeObject)?.GetIsTableExcludedFromMigrationsConfigurationSource();
 
     /// <summary>
     ///     Gets the mapping strategy for the derived types.
@@ -998,20 +1244,14 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The mapping strategy for the derived types.</returns>
     public static string? GetMappingStrategy(this IReadOnlyEntityType entityType)
-    {
-        var mappingStrategy = (string?)entityType[RelationalAnnotationNames.MappingStrategy];
-        if (mappingStrategy != null)
-        {
-            return mappingStrategy;
-        }
-
-        if (entityType.BaseType != null)
-        {
-            return entityType.GetRootType().GetMappingStrategy();
-        }
-
-        return null;
-    }
+        => (string?)entityType[RelationalAnnotationNames.MappingStrategy]
+            ?? (entityType.BaseType != null
+                ? entityType.GetRootType().GetMappingStrategy()
+                : entityType.GetDiscriminatorPropertyName() != null
+                    ? RelationalAnnotationNames.TphMappingStrategy
+                    : entityType.FindPrimaryKey() == null || !entityType.GetDirectlyDerivedTypes().Any()
+                        ? null
+                        : RelationalAnnotationNames.TptMappingStrategy);
 
     #endregion IsTableExcludedFromMigrations
 
@@ -1181,7 +1421,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entityType to find the trigger in.</param>
     /// <param name="name">The trigger name.</param>
     /// <returns>
-    ///     The removed <see cref="IMutableTrigger" /> or <see langword="null" /> if no trigger with the given name was found.
+    ///     The removed <see cref="IMutableTrigger" /> or <see langword="null" /> if no trigger with the given name was found
+    ///     or the existing trigger was configured from a higher source.
     /// </returns>
     public static IConventionTrigger? RemoveTrigger(this IConventionEntityType entityType, string name)
         => Trigger.RemoveTrigger((IMutableEntityType)entityType, name);

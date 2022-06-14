@@ -154,7 +154,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             => new NonGenericTestModelBuilder(testHelpers, configure);
     }
 
-    private class NonGenericTestModelBuilder : TestModelBuilder
+    public class NonGenericTestModelBuilder : TestModelBuilder
     {
         public NonGenericTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
             : base(testHelpers, configure)

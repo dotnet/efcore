@@ -324,7 +324,7 @@ public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
 
     private void GenerateColumnAttribute(IProperty property)
     {
-        var columnName = property.GetColumnBaseName();
+        var columnName = property.GetColumnName();
         var columnType = property.GetConfiguredColumnType();
 
         var delimitedColumnName = columnName != null && columnName != property.Name ? _code.Literal(columnName) : null;
