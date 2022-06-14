@@ -58,7 +58,7 @@
 
   <ItemGroup>
     <None Update="Properties\CosmosStrings.Designer.tt">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Cosmos.Internal</CustomToolNamespace>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CosmosStrings.Designer.cs</LastGenOutput>
     </None>
@@ -66,12 +66,6 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\CosmosStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Cosmos.Internal</CustomToolNamespace>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

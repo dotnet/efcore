@@ -72,6 +72,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CannotGenerateTypeQualifiedMethodCall");
 
         /// <summary>
+        ///     You cannot add a migration with the name 'Migration'.
+        /// </summary>
+        public static string CircularBaseClassDependency
+            => GetString("CircularBaseClassDependency");
+
+        /// <summary>
         ///     The entity type '{entityType}' has a custom constructor binding. Compiled model can't be generated, because custom constructor bindings are not supported. Configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.
         /// </summary>
         public static string CompiledModelConstructorBinding(object? entityType, object? customize, object? className)
@@ -783,12 +789,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("WritingSnapshot", nameof(file)),
                 file);
 
-        /// <summary>
-        ///     You cannot add a migration with the name 'Migration'.
-        /// </summary>
-        public static string CircularBaseClassDependency
-            => GetString("CircularBaseClassDependency");
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;
@@ -801,3 +801,4 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
+

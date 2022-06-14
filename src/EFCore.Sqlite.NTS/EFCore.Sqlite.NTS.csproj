@@ -66,6 +66,7 @@
     <None Update="Properties\SqliteNTSStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SqliteNTSStrings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Sqlite.Internal</CustomToolNamespace>
     </None>
   </ItemGroup>
 
@@ -79,12 +80,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteNTSStrings.Designer.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\SqliteNTSStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Sqlite.Internal</CustomToolNamespace>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

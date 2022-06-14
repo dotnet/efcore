@@ -232,6 +232,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType, propertyType);
 
         /// <summary>
+        ///     The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.
+        /// </summary>
+        public static string SplitQueryOffsetWithoutOrderBy
+            => GetString("SplitQueryOffsetWithoutOrderBy");
+
+        /// <summary>
+        ///     Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.
+        /// </summary>
+        public static string TemporalAllEntitiesMappedToSameTableMustBeTemporal(object? entityType)
+            => string.Format(
+                GetString("TemporalAllEntitiesMappedToSameTableMustBeTemporal", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.
         /// </summary>
         public static string TemporalExpectedPeriodPropertyNotFound(object? entityType, object? propertyName)
@@ -264,35 +278,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 operationName);
 
         /// <summary>
-        ///     When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. There is an issue with the entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.
+        ///     When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. Issue happens for entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.
         /// </summary>
-        public static string TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
-            object? periodType,
-            object? entityType,
-            object? periodProperty,
-            object? periodColumn,
-            object? expectedColumnName)
+        public static string TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(object? periodType, object? entityType, object? periodProperty, object? periodColumn, object? expectedColumnName)
             => string.Format(
-                GetString(
-                    "TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping",
-                    nameof(periodType),
-                    nameof(entityType),
-                    nameof(periodProperty),
-                    nameof(periodColumn),
-                    nameof(expectedColumnName)),
-                periodType,
-                entityType,
-                periodProperty,
-                periodColumn,
-                expectedColumnName);
-
-        /// <summary>
-        ///     Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.
-        /// </summary>
-        public static string TemporalAllEntitiesMappedToSameTableMustBeTemporal(object? entityType)
-            => string.Format(
-                GetString("TemporalAllEntitiesMappedToSameTableMustBeTemporal", nameof(entityType)),
-                entityType);
+                GetString("TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping", nameof(periodType), nameof(entityType), nameof(periodProperty), nameof(periodColumn), nameof(expectedColumnName)),
+                periodType, entityType, periodProperty, periodColumn, expectedColumnName);
 
         /// <summary>
         ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
@@ -371,12 +362,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// </summary>
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
-
-        /// <summary>
-        ///     The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.
-        /// </summary>
-        public static string SplitQueryOffsetWithoutOrderBy
-            => GetString("SplitQueryOffsetWithoutOrderBy");
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -824,6 +809,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
+        ///     The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.
+        /// </summary>
+        public static EventDefinition LogMissingViewDefinitionRights(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        SqlServerEventId.MissingViewDefinitionRightsWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.MissingViewDefinitionRightsWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            SqlServerEventId.MissingViewDefinitionRightsWarning,
+                            _resourceManager.GetString("LogMissingViewDefinitionRights")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound(IDiagnosticsLogger logger)
@@ -943,31 +953,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                             level,
                             SqlServerEventId.SavepointsDisabledBecauseOfMARS,
                             _resourceManager.GetString("LogSavepointsDisabledBecauseOfMARS")!)));
-            }
-
-            return (EventDefinition)definition;
-        }
-
-        /// <summary>
-        ///     The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.
-        /// </summary>
-        public static EventDefinition LogMissingViewDefinitionRights(IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights,
-                    logger,
-                    static logger => new EventDefinition(
-                        logger.Options,
-                        SqlServerEventId.MissingViewDefinitionRightsWarning,
-                        LogLevel.Warning,
-                        "SqlServerEventId.MissingViewDefinitionRightsWarning",
-                        level => LoggerMessage.Define(
-                            level,
-                            SqlServerEventId.MissingViewDefinitionRightsWarning,
-                            _resourceManager.GetString("LogMissingViewDefinitionRights")!)));
             }
 
             return (EventDefinition)definition;

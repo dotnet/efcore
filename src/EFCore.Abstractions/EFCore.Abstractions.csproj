@@ -27,6 +27,7 @@
     <None Update="Properties\AbstractionsStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AbstractionsStrings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Diagnostics</CustomToolNamespace>
     </None>
   </ItemGroup>
 
@@ -40,12 +41,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>AbstractionsStrings.Designer.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\AbstractionsStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Diagnostics</CustomToolNamespace>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

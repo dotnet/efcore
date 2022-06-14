@@ -64,6 +64,7 @@ Microsoft.EntityFrameworkCore.DbSet
     <None Update="Properties\CoreStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CoreStrings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Diagnostics</CustomToolNamespace>
     </None>
     <None Update="EF.CompileQuery.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -123,12 +124,6 @@ Microsoft.EntityFrameworkCore.DbSet
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\CoreStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Diagnostics</CustomToolNamespace>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

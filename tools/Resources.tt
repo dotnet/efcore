@@ -10,6 +10,7 @@
 <#@ import namespace="System.Resources" #>
 <#@ import namespace="System.Text.RegularExpressions" #>
 <#@ import namespace="EnvDTE" #>
+<#@ parameter name="NamespaceHint" type="System.String" #>
 <#
     var model = LoadResources();
 #>
@@ -32,10 +33,10 @@ using Microsoft.Extensions.Logging;
 
 #nullable enable
 
-namespace <#= model.Namespace #>
+namespace <#= NamespaceHint #>
 {
 <#
-    if (model.Namespace.EndsWith("Internal", StringComparison.Ordinal)
+    if (NamespaceHint.EndsWith("Internal", StringComparison.Ordinal)
         || model.AccessModifier == "internal")
     {
 #>
@@ -128,7 +129,7 @@ namespace <#= model.Namespace #>
     if (!model.NoDiagnostics)
     {
 #>
-namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? model.Namespace : (model.Namespace + ".Internal") #>
+namespace <#= NamespaceHint.EndsWith(".Internal", StringComparison.Ordinal) ? NamespaceHint : (NamespaceHint + ".Internal") #>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -237,9 +238,6 @@ namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? 
             result.LoggingDefinitionsClass = (string)Session["LoggingDefinitionsClass"];
         };
 
-        var services = (IServiceProvider)Host;
-        var dte = (DTE)services.GetService(typeof(DTE));
-
         if (!Session.TryGetValue("NoDiagnostics", out var noDiagnostics))
         {
             noDiagnostics = false;
@@ -253,20 +251,7 @@ namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? 
             resourceFile = Host.ResolvePath(resourceFile);
         }
 
-        var resourceProjectItem = dte.Solution.FindProjectItem(resourceFile);
-        var templateProjectItem = dte.Solution.FindProjectItem(Host.TemplateFile);
-        var project = templateProjectItem.ContainingProject;
-        var rootNamespace = (string)project.Properties.Item("RootNamespace").Value;
-        var resourceDir = Path.GetDirectoryName(resourceFile);
-        var projectDir = (string)project.Properties.Item("FullPath").Value;
-        var resourceNamespace = rootNamespace + "." + resourceDir.Substring(projectDir.Length)
-            .Replace(Path.DirectorySeparatorChar, '.');
-
-        result.Namespace = (string)resourceProjectItem.Properties.Item("CustomToolNamespace")?.Value;
-        if (string.IsNullOrEmpty(result.Namespace))
-        {
-            result.Namespace = resourceNamespace;
-        }
+        var resourceNamespace = (string)Session["ResourceNamespace"];
 
         result.Class = Path.GetFileNameWithoutExtension(resourceFile);
 
@@ -312,7 +297,6 @@ namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? 
 
     class ResourceFile
     {
-        public string Namespace { get; set; }
         public string AccessModifier { get; set; } = "public";
         public string Class { get; set; }
         public string DiagnosticsClass { get; set; }

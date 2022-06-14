@@ -54,6 +54,7 @@
     <None Update="Properties\RelationalStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>RelationalStrings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Diagnostics</CustomToolNamespace>
     </None>
   </ItemGroup>
 
@@ -67,12 +68,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>RelationalStrings.Designer.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\RelationalStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Diagnostics</CustomToolNamespace>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
