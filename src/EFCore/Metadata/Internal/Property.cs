@@ -1170,7 +1170,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override string ToString()
-        => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        => ((IReadOnlyProperty)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1180,8 +1180,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual DebugView DebugView
         => new(
-            () => this.ToDebugString(),
-            () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
+            () => ((IReadOnlyProperty)this).ToDebugString(),
+            () => ((IReadOnlyProperty)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

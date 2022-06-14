@@ -345,5 +345,5 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
         => typeMappingSource.FindMapping(property);
 
     protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-        => RelationalTestHelpers.Instance.CreateConventionBuilder(configure: configure);
+        => RelationalTestHelpers.Instance.CreateConventionBuilder(configureModel: configure);
 }

@@ -115,11 +115,11 @@ public static class RelationalPropertyExtensions
                         return null;
                     }
                 }
-                else if (property.DeclaringEntityType.GetMappingFragments().Any())
+                else if (property.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).Any())
                 {
                     if (overrides == null
                         && (declaringStoreObject != storeObject
-                            || property.DeclaringEntityType.GetMappingFragments()
+                            || property.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType)
                                 .Any(f => property.FindOverrides(f.StoreObject) != null)))
                     {
 
@@ -181,6 +181,7 @@ public static class RelationalPropertyExtensions
 
         var entityType = property.DeclaringEntityType;
         StringBuilder? builder = null;
+        var currentStoreObject = storeObject;
         while (true)
         {
             var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
@@ -189,39 +190,10 @@ public static class RelationalPropertyExtensions
                 break;
             }
 
-            var name = storeObject.Name;
-            var schema = storeObject.Schema;
             var ownerType = ownership.PrincipalEntityType;
-            switch (storeObject.StoreObjectType)
-            {
-                case StoreObjectType.Table:
-                    if (name != ownerType.GetTableName()
-                        || schema != ownerType.GetSchema())
-                    {
-                        entityType = null;
-                    }
-
-                    break;
-                case StoreObjectType.View:
-                    if (name != ownerType.GetViewName()
-                        || schema != ownerType.GetViewSchema())
-                    {
-                        entityType = null;
-                    }
-
-                    break;
-                case StoreObjectType.Function:
-                    if (name != ownerType.GetFunctionName())
-                    {
-                        entityType = null;
-                    }
-
-                    break;
-                default:
-                    throw new NotSupportedException(storeObject.StoreObjectType.ToString());
-            }
-
-            if (entityType == null)
+            if (StoreObjectIdentifier.Create(ownerType, currentStoreObject.StoreObjectType) != currentStoreObject
+                && ownerType.GetMappingFragments(storeObject.StoreObjectType)
+                    .All(f => f.StoreObject != currentStoreObject))
             {
                 break;
             }
@@ -1624,13 +1596,17 @@ public static class RelationalPropertyExtensions
             yield break;
         }
 
-        foreach (var fragment in declaringType.GetMappingFragments())
+        foreach (var fragment in declaringType.GetMappingFragments(storeObjectType))
         {
-            if (fragment.StoreObject.StoreObjectType == storeObjectType
-                && property.GetColumnName(fragment.StoreObject) != null)
+            if (property.GetColumnName(fragment.StoreObject) != null)
             {
                 yield return fragment.StoreObject;
             }
+        }
+
+        if (declaringType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+        {
+            yield break;
         }
         
         foreach (var derivedType in declaringType.GetDerivedTypes())

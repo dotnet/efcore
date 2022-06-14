@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -32,22 +33,7 @@ public static class RelationalKeyExtensions
     /// <param name="storeObject">The identifier of the containing store object.</param>
     /// <returns>The key constraint name for this key.</returns>
     public static string? GetName(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
-    {
-        if (storeObject.StoreObjectType != StoreObjectType.Table)
-        {
-            return null;
-        }
-
-        foreach (var containingType in key.DeclaringEntityType.GetDerivedTypesInclusive())
-        {
-            if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
-            {
-                return (string?)key[RelationalAnnotationNames.Name] ?? key.GetDefaultName(storeObject);
-            }
-        }
-
-        return null;
-    }
+        => key.GetName(storeObject, null);
 
     /// <summary>
     ///     Returns the default key constraint name that would be used for this key.
@@ -81,89 +67,7 @@ public static class RelationalKeyExtensions
     /// <param name="storeObject">The identifier of the containing store object.</param>
     /// <returns>The default key constraint name that would be used for this key.</returns>
     public static string? GetDefaultName(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
-    {
-        if (storeObject.StoreObjectType != StoreObjectType.Table)
-        {
-            return null;
-        }
-
-        string? name;
-        if (key.IsPrimaryKey())
-        {
-            var rootKey = key;
-            // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
-            // Using a hashset is detrimental to the perf when there are no cycles
-            for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
-            {
-                var linkingFk = rootKey!.DeclaringEntityType.FindRowInternalForeignKeys(storeObject)
-                    .FirstOrDefault();
-                if (linkingFk == null)
-                {
-                    break;
-                }
-
-                rootKey = linkingFk.PrincipalEntityType.FindPrimaryKey();
-            }
-
-            if (rootKey != null
-                && rootKey != key)
-            {
-                return rootKey.GetName(storeObject);
-            }
-
-            name = "PK_" + storeObject.Name;
-        }
-        else
-        {
-            var columnNames = key.Properties.GetColumnNames(storeObject);
-            if (columnNames == null)
-            {
-                return null;
-            }
-
-            var rootKey = key;
-
-            // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
-            // Using a hashset is detrimental to the perf when there are no cycles
-            for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
-            {
-                IReadOnlyKey? linkedKey = null;
-                foreach (var otherKey in rootKey.DeclaringEntityType
-                             .FindRowInternalForeignKeys(storeObject)
-                             .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
-                {
-                    var otherColumnNames = otherKey.Properties.GetColumnNames(storeObject);
-                    if ((otherColumnNames != null)
-                        && otherColumnNames.SequenceEqual(columnNames))
-                    {
-                        linkedKey = otherKey;
-                        break;
-                    }
-                }
-
-                if (linkedKey == null)
-                {
-                    break;
-                }
-
-                rootKey = linkedKey;
-            }
-
-            if (rootKey != key)
-            {
-                return rootKey.GetName(storeObject);
-            }
-
-            name = new StringBuilder()
-                .Append("AK_")
-                .Append(storeObject.Name)
-                .Append('_')
-                .AppendJoin(columnNames, "_")
-                .ToString();
-        }
-
-        return Uniquifier.Truncate(name, key.DeclaringEntityType.Model.GetMaxIdentifierLength());
-    }
+        => key.GetDefaultName(storeObject, null);
 
     /// <summary>
     ///     Sets the key constraint name for this key.

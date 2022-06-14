@@ -20,7 +20,7 @@ public class RelationalTestHelpers : TestHelpers
     public override IServiceCollection AddProviderServices(IServiceCollection services)
         => FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(services);
 
-    public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+    public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseFakeRelational();
 
     public override LoggingDefinitions LoggingDefinitions { get; } = new TestRelationalLoggingDefinitions();

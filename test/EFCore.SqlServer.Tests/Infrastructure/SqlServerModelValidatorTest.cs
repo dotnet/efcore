@@ -13,7 +13,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
     public override void Detects_duplicate_column_names()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
         modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name");
@@ -27,7 +27,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     public override void Detects_duplicate_columns_in_derived_types_with_different_types()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
 
         modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").IsRequired();
@@ -41,7 +41,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
     public override void Passes_for_ForeignKey_on_inherited_generated_composite_key_property()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Abstract>().Property<int>("SomeId").ValueGeneratedOnAdd();
         modelBuilder.Entity<Abstract>().Property<int>("SomeOtherId").ValueGeneratedOnAdd()
             .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
@@ -55,7 +55,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Passes_for_duplicate_column_names_within_hierarchy_with_identity()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().Property(a => a.Id).ValueGeneratedNever();
         modelBuilder.Entity<Cat>(
             cb =>
@@ -74,7 +74,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_identity_seed()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(
             cb =>
@@ -96,7 +96,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_identity_increment()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(
             cb =>
@@ -118,7 +118,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Passes_for_identity_seed_and_increment_on_owner()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().Property(a => a.Id).UseIdentityColumn(2, 3);
         modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson);
         modelBuilder.Entity<Dog>().Ignore(d => d.FavoritePerson);
@@ -129,7 +129,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Passes_for_duplicate_column_names_with_HiLoSequence()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Cat>(
             cb =>
             {
@@ -150,7 +150,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_column_names_with_different_HiLoSequence_name()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Cat>(
             cb =>
             {
@@ -174,7 +174,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_column_name_with_different_HiLoSequence_schema()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Cat>(
             cb =>
             {
@@ -198,7 +198,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(
             cb =>
@@ -221,7 +221,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_sparseness()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(
             cb =>
@@ -245,7 +245,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
             .OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Animal_Person_Name").Metadata;
@@ -261,7 +261,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Passes_for_compatible_duplicate_convention_indexes_for_foreign_keys()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
             .HasConstraintName("FK_Animal_Person_Name");
@@ -277,7 +277,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_differently_clustered()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
         modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsClustered().HasDatabaseName("IX_Animal_Name");
@@ -293,7 +293,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_different_fill_factor()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
         modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").HasFillFactor(30);
@@ -309,7 +309,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_differently_online()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
         modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsCreatedOnline().HasDatabaseName("IX_Animal_Name");
@@ -325,7 +325,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_different_include()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
         modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").IncludeProperties(nameof(Dog.Identity));
@@ -342,7 +342,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_missing_include_properties()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(c => c.Type);
         modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), "Tag");
 
@@ -352,7 +352,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_duplicate_include_properties()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(c => c.Type);
         modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), nameof(Dog.Type));
 
@@ -362,7 +362,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_indexed_include_properties()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(c => c.Type);
         modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Name));
 
@@ -372,7 +372,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_incompatible_memory_optimized_shared_table()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
 
@@ -388,7 +388,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_incompatible_non_clustered_shared_key()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
 
@@ -405,7 +405,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_decimal_keys()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>()
             .Property<decimal>("Price").HasPrecision(18, 2);
         modelBuilder.Entity<Animal>().HasKey("Price");
@@ -418,7 +418,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_default_decimal_mapping()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().Property<decimal>("Price");
 
         VerifyWarning(
@@ -429,7 +429,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_default_nullable_decimal_mapping()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().Property<decimal?>("Price");
 
         VerifyWarning(
@@ -440,7 +440,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Does_not_warn_if_decimal_column_has_precision_and_scale()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>()
             .Property<decimal>("Price").HasPrecision(18, 2);
 
@@ -452,7 +452,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Does_not_warn_if_default_decimal_mapping_has_non_decimal_to_decimal_value_converter()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>()
             .Property<decimal>("Price")
             .HasConversion(new TestDecimalToLongConverter());
@@ -465,7 +465,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Warn_if_default_decimal_mapping_has_decimal_to_decimal_value_converter()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>()
             .Property<decimal>("Price")
             .HasConversion(new TestDecimalToDecimalConverter());
@@ -478,7 +478,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_byte_identity_column()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
         modelBuilder.Entity<Dog>().Property<byte>("Bite").UseIdentityColumn();
 
@@ -490,7 +490,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_nullable_byte_identity_column()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
         modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseIdentityColumn();
 
@@ -502,7 +502,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_multiple_identity_properties()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
 
         modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
@@ -514,7 +514,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Passes_for_non_key_identity()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
         modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
 
@@ -524,7 +524,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Passes_for_non_key_identity_on_model()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.UseIdentityColumns();
 
@@ -537,7 +537,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_non_key_SequenceHiLo()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(c => c.Type).UseHiLo();
 
         VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder);
@@ -546,7 +546,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Passes_for_non_key_SequenceHiLo_on_model()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.UseHiLo();
 
@@ -561,7 +561,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [InlineData("DefaultValueSql", "ComputedColumnSql")]
     public void Metadata_throws_when_setting_conflicting_serverGenerated_values(string firstConfiguration, string secondConfiguration)
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         var propertyBuilder = modelBuilder.Entity<Dog>().Property<int?>("NullableInt");
 
@@ -582,7 +582,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
         string conflictingValueGenerationStrategy)
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         var propertyBuilder = modelBuilder.Entity<Dog>().Property<int>("Id");
 
@@ -601,7 +601,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void SqlServerValueGenerationStrategy_warns_when_setting_conflicting_DefaultValue(
         SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy)
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         var propertyBuilder = modelBuilder.Entity<Dog>().Property<int>("Id");
 
@@ -643,7 +643,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_can_only_be_specified_on_root_entities()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal());
 
@@ -653,7 +653,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_enitty_must_have_period_start()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal());
         modelBuilder.Entity<Dog>().Metadata.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
 
@@ -663,7 +663,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_enitty_must_have_period_end()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal());
         modelBuilder.Entity<Dog>().Metadata.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
 
@@ -673,7 +673,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_enitty_without_expected_period_start_property()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
         modelBuilder.Entity<Dog>().Metadata.RemoveProperty("Start");
 
@@ -683,7 +683,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_period_property_must_be_in_shadow_state()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Human>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("DateOfBirth")));
 
         VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState(nameof(Human), "DateOfBirth"), modelBuilder);
@@ -692,7 +692,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_period_property_must_be_non_nullable_datetime()
     {
-        var modelBuilder1 = CreateConventionalModelBuilder();
+        var modelBuilder1 = CreateConventionModelBuilder();
         modelBuilder1.Entity<Dog>().Property(typeof(DateTime?), "Start");
 
         modelBuilder1.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
@@ -700,7 +700,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(
             SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder1);
 
-        var modelBuilder2 = CreateConventionalModelBuilder();
+        var modelBuilder2 = CreateConventionModelBuilder();
         modelBuilder2.Entity<Dog>().Property(typeof(int), "Start");
 
         modelBuilder2.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
@@ -712,7 +712,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_period_property_must_be_mapped_to_datetime2()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start").HasColumnType("datetime");
         modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
 
@@ -722,7 +722,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_all_properties_mapped_to_period_column_must_have_value_generated_OnAddOrUpdate()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start2").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate();
         modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn");
         modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start").HasColumnName("StartColumn")));
@@ -735,7 +735,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_all_properties_mapped_to_period_column_cant_have_default_values()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start2").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate();
         modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate()
             .HasDefaultValue(DateTime.MinValue);
@@ -749,7 +749,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_period_property_cant_have_default_value()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start").HasDefaultValue(new DateTime(2000, 1, 1));
         modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
 
@@ -759,7 +759,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_doesnt_work_on_TPH()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().ToTable(tb => tb.IsTemporal());
         modelBuilder.Entity<Dog>().ToTable("Dogs");
         modelBuilder.Entity<Cat>().ToTable("Cats");
@@ -770,7 +770,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_doesnt_work_on_table_splitting_with_inconsistent_period_mappings()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Splitting1>().ToTable("Splitting", tb => tb.IsTemporal());
         modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
         modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);
@@ -781,7 +781,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Temporal_doesnt_work_on_table_splitting_when_some_types_are_temporal_and_some_are_not()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Splitting1>().ToTable("Splitting");
         modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
         modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);

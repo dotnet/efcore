@@ -10,7 +10,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_valid_model()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
 
         Validate(modelBuilder);
@@ -19,7 +19,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_valid_keyless_entity_type()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().HasPartitionKey(c => c.PartitionId).HasNoKey();
 
         var model = Validate(modelBuilder);
@@ -87,7 +87,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_valid_partition_keys()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId)
             .HasAnalyticalStoreTimeToLive(-1)
             .HasDefaultTimeToLive(100)
@@ -101,7 +101,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_PK_partition_key()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Order>(
             b =>
             {
@@ -137,7 +137,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_partition_key_property()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>().HasPartitionKey("PartitionKey");
 
@@ -147,7 +147,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_partition_key_on_first_type()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders");
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
@@ -157,7 +157,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_partition_keys_one_last_type()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
@@ -167,7 +167,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_partition_keys_mapped_to_different_properties()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId)
             .Property(c => c.PartitionId).ToJsonProperty("pk");
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
@@ -181,7 +181,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_partition_key_of_different_type()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
             .Property(c => c.PartitionId).HasConversion<int>();
@@ -194,7 +194,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_conflicting_analytical_ttl()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders")
             .HasAnalyticalStoreTimeToLive(-1);
         modelBuilder.Entity<Order>().ToContainer("Orders")
@@ -206,7 +206,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_conflicting_default_ttl()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders")
             .HasDefaultTimeToLive(100);
         modelBuilder.Entity<Order>().ToContainer("Orders")
@@ -218,7 +218,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_conflicting_throughput()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders")
             .HasAutoscaleThroughput(200);
         modelBuilder.Entity<Order>().ToContainer("Orders")
@@ -230,7 +230,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_conflicting_throughput_type()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders")
             .HasManualThroughput(200);
         modelBuilder.Entity<Order>().ToContainer("Orders")
@@ -242,7 +242,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_properties_mapped_to_same_property()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>(
             ob =>
@@ -259,7 +259,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_property_and_embedded_type_mapped_to_same_property()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>(
             ob =>
@@ -276,7 +276,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_discriminator()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasNoDiscriminator();
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
@@ -286,7 +286,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_discriminator_value()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue(null);
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
@@ -296,7 +296,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_duplicate_discriminator_values()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue("type");
         modelBuilder.Entity<Order>().ToContainer("Orders").HasDiscriminator().HasValue("type");
 
@@ -307,7 +307,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_valid_concurrency_token()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>()
             .ToContainer("Orders")
             .Property<string>("_etag")
@@ -319,7 +319,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_invalid_concurrency_token()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>()
             .ToContainer("Orders")
             .Property<string>("_not_etag")
@@ -331,7 +331,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_nonString_concurrency_token()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>()
             .ToContainer("Orders")
             .Property<int>("_etag")

@@ -8,7 +8,7 @@ public class InMemoryModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_ToQuery_on_derived_keyless_types()
     {
-        var modelBuilder = base.CreateConventionalModelBuilder();
+        var modelBuilder = base.CreateConventionModelBuilder();
         var context = new DbContext(new DbContextOptions<DbContext>());
         modelBuilder.Entity<Abstract>().HasNoKey().ToInMemoryQuery(() => context.Set<Abstract>());
 

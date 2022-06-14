@@ -17,7 +17,7 @@ public class SqliteTestHelpers : TestHelpers
     public override IServiceCollection AddProviderServices(IServiceCollection services)
         => services.AddEntityFrameworkSqlite();
 
-    public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+    public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite(new SqliteConnection("Data Source=:memory:"));
 
     public override LoggingDefinitions LoggingDefinitions { get; } = new SqliteLoggingDefinitions();

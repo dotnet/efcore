@@ -916,6 +916,7 @@ namespace TestNamespace
             DependentBasebyteEntityType.CreateForeignKey1(dependentBasebyte, principalBase);
             DependentBasebyteEntityType.CreateForeignKey2(dependentBasebyte, principalDerivedDependentBasebyte);
             OwnedTypeEntityType.CreateForeignKey1(ownedType, principalBase);
+            OwnedTypeEntityType.CreateForeignKey2(ownedType, ownedType);
             OwnedType0EntityType.CreateForeignKey1(ownedType0, principalDerivedDependentBasebyte);
             PrincipalBasePrincipalDerivedDependentBasebyteEntityType.CreateForeignKey1(principalBasePrincipalDerivedDependentBasebyte, principalDerivedDependentBasebyte);
             PrincipalBasePrincipalDerivedDependentBasebyteEntityType.CreateForeignKey2(principalBasePrincipalDerivedDependentBasebyte, principalBase);
@@ -1273,6 +1274,19 @@ namespace TestNamespace
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField(""_ownedField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 eagerLoaded: true);
+
+            return runtimeForeignKey;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey2(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""PrincipalBaseId"")!, declaringEntityType.FindProperty(""PrincipalBaseAlternateId"")! },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""PrincipalBaseId"")!, principalEntityType.FindProperty(""PrincipalBaseAlternateId"")! })!,
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.ClientCascade,
+                unique: true,
+                required: true,
+                requiredDependent: true);
 
             return runtimeForeignKey;
         }
@@ -3165,8 +3179,8 @@ namespace TestNamespace
                     Assert.Null(dataEntity.FindPrimaryKey());
                     var dataEntityFunctionMapping = dataEntity.GetFunctionMappings().Single(m => m.IsDefaultFunctionMapping);
                     Assert.True(dataEntityFunctionMapping.IncludesDerivedTypes);
-                    Assert.True(dataEntityFunctionMapping.IsSharedTablePrincipal);
-                    Assert.True(dataEntityFunctionMapping.IsSplitEntityTypePrincipal);
+                    Assert.Null(dataEntityFunctionMapping.IsSharedTablePrincipal);
+                    Assert.Null(dataEntityFunctionMapping.IsSplitEntityTypePrincipal);
                     Assert.Same(getDataParameterless, dataEntityFunctionMapping.DbFunction);
 
                     var getDataStoreFunction = dataEntityFunctionMapping.StoreFunction;
@@ -3175,8 +3189,8 @@ namespace TestNamespace
 
                     var dataEntityOtherFunctionMapping = dataEntity.GetFunctionMappings().Single(m => !m.IsDefaultFunctionMapping);
                     Assert.True(dataEntityOtherFunctionMapping.IncludesDerivedTypes);
-                    Assert.True(dataEntityOtherFunctionMapping.IsSharedTablePrincipal);
-                    Assert.True(dataEntityOtherFunctionMapping.IsSplitEntityTypePrincipal);
+                    Assert.Null(dataEntityOtherFunctionMapping.IsSharedTablePrincipal);
+                    Assert.Null(dataEntityOtherFunctionMapping.IsSplitEntityTypePrincipal);
                     Assert.Same(getData, dataEntityOtherFunctionMapping.DbFunction);
 
                     var getDataOtherStoreFunction = dataEntityOtherFunctionMapping.StoreFunction;
@@ -3204,8 +3218,8 @@ namespace TestNamespace
                     Assert.Null(objectEntity.FindPrimaryKey());
                     var objectEntityFunctionMapping = objectEntity.GetFunctionMappings().Single(m => m.IsDefaultFunctionMapping);
                     Assert.True(objectEntityFunctionMapping.IncludesDerivedTypes);
-                    Assert.True(objectEntityFunctionMapping.IsSharedTablePrincipal);
-                    Assert.True(objectEntityFunctionMapping.IsSplitEntityTypePrincipal);
+                    Assert.Null(objectEntityFunctionMapping.IsSharedTablePrincipal);
+                    Assert.Null(objectEntityFunctionMapping.IsSplitEntityTypePrincipal);
                     Assert.Same(getBlobs, objectEntityFunctionMapping.DbFunction);
                 });
 

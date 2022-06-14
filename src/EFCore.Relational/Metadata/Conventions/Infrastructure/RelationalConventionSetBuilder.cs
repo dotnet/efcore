@@ -112,6 +112,7 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
         conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
         conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);
+        conventionSet.ModelFinalizingConventions.Add(new EntitySplittingConvention(Dependencies, RelationalDependencies));
         conventionSet.ModelFinalizingConventions.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
         conventionSet.ModelFinalizingConventions.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
         conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));

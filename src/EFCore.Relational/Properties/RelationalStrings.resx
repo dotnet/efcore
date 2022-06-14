@@ -361,6 +361,9 @@
   <data name="EntitySplittingUnmappedMainFragment" xml:space="preserve">
     <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.</value>
   </data>
+  <data name="EntitySplittingUnmatchedMainTableSplitting" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}' that shares the table with '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to a table that '{principalEntityType}' is also mapped to.</value>
+  </data>
   <data name="ErrorMaterializingProperty" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
   </data>
@@ -615,6 +618,10 @@
   <data name="LogKeyHasDefaultValue" xml:space="preserve">
     <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key, but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unique values.</value>
     <comment>Warning RelationalEventId.ModelValidationKeyDefaultValueWarning string string</comment>
+  </data>
+  <data name="LogKeyUnmappedProperties" xml:space="preserve">
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Either all or some of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.</value>
+    <comment>Error RelationalEventId.KeyUnmappedProperties string string string</comment>
   </data>
   <data name="LogMigrating" xml:space="preserve">
     <value>Migrating using database '{database}' on server '{dataSource}'.</value>

@@ -2396,7 +2396,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         => (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
 
     private static IEntityType GetMainType(ITable table)
-        => table.EntityTypeMappings.First(t => t.IsSharedTablePrincipal).EntityType;
+        => table.EntityTypeMappings.First(t => t.IsSharedTablePrincipal ?? true).EntityType;
 
     private static object?[,] ToMultidimensionalArray(IReadOnlyList<object?> values)
     {

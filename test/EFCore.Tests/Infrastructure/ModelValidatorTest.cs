@@ -14,7 +14,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_key_property_which_cannot_be_compared()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<WithNonComparableKey>(
             eb =>
@@ -36,7 +36,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_unique_index_property_which_cannot_be_compared()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<WithNonComparableUniqueIndex>(
             eb =>
@@ -59,7 +59,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Ignores_normal_property_which_cannot_be_compared()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<WithNonComparableNormalProperty>(
             eb =>
@@ -85,7 +85,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_custom_converter_for_collection_type_without_comparer()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         IMutableProperty convertedProperty = null;
         modelBuilder.Entity<WithCollectionConversion>(
@@ -108,7 +108,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Ignores_custom_converter_for_collection_type_with_comparer()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         IMutableProperty convertedProperty = null;
         modelBuilder.Entity<WithCollectionConversion>(
@@ -170,7 +170,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_filter_on_derived_type()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         var entityTypeA = modelBuilder.Entity<A>().Metadata;
         var entityTypeD = modelBuilder.Entity<D>().Metadata;
 
@@ -184,7 +184,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_filter_on_owned_type()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         var queryFilter = (Expression<Func<ReferencedEntity, bool>>)(_ => true);
         modelBuilder.Entity<SampleEntity>()
             .OwnsOne(
@@ -430,7 +430,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_relationship_cycle()
     {
-        var modelBuilder = base.CreateConventionalModelBuilder();
+        var modelBuilder = base.CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>();
         modelBuilder.Entity<B>();
@@ -447,7 +447,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_multiple_relationship_paths()
     {
-        var modelBuilder = base.CreateConventionalModelBuilder();
+        var modelBuilder = base.CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>();
         modelBuilder.Entity<B>();
@@ -462,7 +462,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_redundant_foreign_key()
     {
-        var modelBuilder = base.CreateConventionalModelBuilder();
+        var modelBuilder = base.CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<A>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
 
@@ -630,7 +630,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_correct_inheritance()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<A>();
         modelBuilder.Entity<D>();
 
@@ -691,7 +691,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_valid_many_to_many_navigations()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         var model = modelBuilder.Model;
         var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
@@ -721,7 +721,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_foreign_key_for_skip_navigations()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         var model = modelBuilder.Model;
         var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
@@ -745,7 +745,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_inverse_skip_navigations()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         var model = modelBuilder.Model;
         var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
@@ -770,7 +770,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_nonCollection_skip_navigations()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         var model = modelBuilder.Model;
         var customerEntity = model.AddEntityType(typeof(Customer));
@@ -966,7 +966,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_ForeignKey_on_inherited_generated_key_property()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Abstract>().Property<int>("SomeId").ValueGeneratedOnAdd();
         modelBuilder.Entity<Abstract>().HasAlternateKey("SomeId");
         modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>("SomeId");
@@ -983,7 +983,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_for_ForeignKey_on_inherited_generated_key_property_abstract_base()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Abstract>().Property(e => e.Id).ValueGeneratedOnAdd();
         modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>(e => e.Id);
 
@@ -993,7 +993,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_for_ForeignKey_on_inherited_generated_composite_key_property()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Abstract>().Property<int>("SomeId").ValueGeneratedOnAdd();
         modelBuilder.Entity<Abstract>().Property<int>("SomeOtherId").ValueGeneratedOnAdd();
         modelBuilder.Entity<Abstract>().HasAlternateKey("SomeId", "SomeOtherId");
@@ -1097,7 +1097,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_for_valid_seeds()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<A>().HasData(
             new A { Id = 1 });
         modelBuilder.Entity<D>().HasData(
@@ -1109,7 +1109,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_for_ignored_invalid_seeded_properties()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithInvalidProperties>(
             eb =>
             {
@@ -1140,7 +1140,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_derived_seeds()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         Assert.Equal(
             CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
@@ -1152,7 +1152,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_derived_seeds_for_owned_types()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         Assert.Equal(
             CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
@@ -1167,7 +1167,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_required_values_in_seeds()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<A>(
             e =>
             {
@@ -1184,7 +1184,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Passes_on_missing_required_store_generated_values_in_seeds()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<A>(
             e =>
             {
@@ -1200,7 +1200,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_missing_key_values_in_seeds()
     {
         var entity = new NonSignedIntegerKeyEntity();
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<NonSignedIntegerKeyEntity>(e => e.HasData(entity));
 
         Assert.Equal(
@@ -1215,7 +1215,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_signed_integer_key_values_in_seeds()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<A>(e => e.HasData(new A()));
 
         VerifyError(
@@ -1228,7 +1228,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [InlineData(false)]
     public virtual void Detects_duplicate_seeds(bool sensitiveDataLoggingEnabled)
     {
-        var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
+        var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
         modelBuilder.Entity<A>().HasData(
             new A { Id = 1 });
         modelBuilder.Entity<D>().HasData(
@@ -1247,7 +1247,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [InlineData(false)]
     public virtual void Detects_incompatible_values(bool sensitiveDataLoggingEnabled)
     {
-        var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
+        var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
         modelBuilder.Entity<A>(
             e =>
             {
@@ -1268,7 +1268,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [InlineData(false)]
     public virtual void Detects_reference_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
     {
-        var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
+        var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
         modelBuilder.Entity<SampleEntity>(
             e =>
             {
@@ -1298,7 +1298,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [InlineData(false)]
     public virtual void Detects_reference_navigations_in_seeds2(bool sensitiveDataLoggingEnabled)
     {
-        var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
+        var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
         modelBuilder.Entity<Order>(
             e =>
             {
@@ -1330,7 +1330,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [InlineData(false)]
     public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
     {
-        var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
+        var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
         modelBuilder.Entity<SampleEntity>(
             e =>
             {
@@ -1417,7 +1417,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_missing_non_string_discriminator_values()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<C>();
         modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
             .HasValue<A>(0)
@@ -1429,7 +1429,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Detects_duplicate_discriminator_values()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
             .HasValue<A>(1)
             .HasValue<C>(1)
@@ -1441,7 +1441,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Required_navigation_with_query_filter_on_one_side_issues_a_warning()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired();
         modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
         modelBuilder.Ignore<OrderDetails>();
@@ -1455,7 +1455,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Optional_navigation_with_query_filter_on_one_side_doesnt_issue_a_warning()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired(false);
         modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
 
@@ -1468,7 +1468,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Required_navigation_with_query_filter_on_both_sides_doesnt_issue_a_warning()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().HasMany(x => x.Orders).WithOne(x => x.Customer).IsRequired();
         modelBuilder.Entity<Customer>().HasQueryFilter(x => x.Id > 5);
         modelBuilder.Entity<Order>().HasQueryFilter(x => x.Customer.Id > 5);
@@ -1482,7 +1482,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Shared_type_inheritance_throws()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.SharedTypeEntity<A>("Shared1");
         modelBuilder.SharedTypeEntity<C>("Shared2").HasBaseType("Shared1");
 
@@ -1492,7 +1492,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [ConditionalFact]
     public virtual void Seeding_keyless_entity_throws()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<KeylessSeed>(
             e =>
             {

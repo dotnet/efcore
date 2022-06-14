@@ -60,8 +60,7 @@ public class SqlServerModelValidator : RelationalModelValidator
     {
         foreach (IConventionProperty property in model.GetEntityTypes()
                      .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(
-                         p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                              && !p.IsForeignKey()))
         {
             var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -314,8 +313,7 @@ public class SqlServerModelValidator : RelationalModelValidator
     /// </summary>
     protected override void ValidateSharedTableCompatibility(
         IReadOnlyList<IEntityType> mappedTypes,
-        string tableName,
-        string? schema,
+        in StoreObjectIdentifier storeObject,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var firstMappedType = mappedTypes[0];
@@ -326,7 +324,7 @@ public class SqlServerModelValidator : RelationalModelValidator
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch(
-                        tableName, firstMappedType.DisplayName(), otherMappedType.DisplayName(),
+                        storeObject.DisplayName(), firstMappedType.DisplayName(), otherMappedType.DisplayName(),
                         isMemoryOptimized ? firstMappedType.DisplayName() : otherMappedType.DisplayName(),
                         !isMemoryOptimized ? firstMappedType.DisplayName() : otherMappedType.DisplayName()));
             }
@@ -354,10 +352,9 @@ public class SqlServerModelValidator : RelationalModelValidator
 
                 var periodStartProperty = mappedType.GetProperty(periodStartPropertyName!);
                 var periodEndProperty = mappedType.GetProperty(periodEndPropertyName!);
-
-                var storeObjectIdentifier = StoreObjectIdentifier.Table(tableName, mappedType.GetSchema());
-                var periodStartColumnName = periodStartProperty.GetColumnName(storeObjectIdentifier);
-                var periodEndColumnName = periodEndProperty.GetColumnName(storeObjectIdentifier);
+                
+                var periodStartColumnName = periodStartProperty.GetColumnName(storeObject);
+                var periodEndColumnName = periodEndProperty.GetColumnName(storeObject);
 
                 if (expectedPeriodStartColumnName == null)
                 {
@@ -391,7 +388,7 @@ public class SqlServerModelValidator : RelationalModelValidator
             }
         }
 
-        base.ValidateSharedTableCompatibility(mappedTypes, tableName, schema, logger);
+        base.ValidateSharedTableCompatibility(mappedTypes, storeObject, logger);
     }
 
     /// <summary>
