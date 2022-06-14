@@ -1517,6 +1517,21 @@ INNER JOIN (
 INNER JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]");
         }
 
+        public override async Task Join_GroupBy_Aggregate_distinct_single_join(bool async)
+        {
+            await base.Join_GroupBy_Aggregate_distinct_single_join(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[LastOrderID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT DISTINCT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID], DATEPART(year, [o].[OrderDate])
+    HAVING COUNT(*) > 5
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+        }
+
         public override async Task Join_GroupBy_Aggregate_with_left_join(bool async)
         {
             await base.Join_GroupBy_Aggregate_with_left_join(async);
