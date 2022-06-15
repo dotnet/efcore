@@ -403,12 +403,9 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => from o in ss.Set<Order>()
-                  group o.OrderID by o.EmployeeID into tg
-                  select new
-                  {
-                      tg.Key,
-                      Max = ss.Set<Order>().Where(e => e.EmployeeID == tg.Max() * 6).Max(t => (int?)t.OrderID)
-                  },
+                  group o.OrderID by o.EmployeeID
+                  into tg
+                  select new { tg.Key, Max = ss.Set<Order>().Where(e => e.EmployeeID == tg.Max() * 6).Max(t => (int?)t.OrderID) },
             elementSorter: e => e.Key);
 
     #endregion
@@ -1221,14 +1218,19 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         return AssertQuery(
             async,
             ss => ss.Set<Order>()
-                    .GroupBy(
-                        x => new
-                        {
-                            OrderMonth = groupByMonth ? (int?)x.OrderDate.Value.Month : null,
-                            Customer = groupByCustomer ? x.CustomerID : null
-                        },
-                        x => x,
-                        (key, items) => new { key.OrderMonth, key.Customer, Count = items.Count() }),
+                .GroupBy(
+                    x => new
+                    {
+                        OrderMonth = groupByMonth ? (int?)x.OrderDate.Value.Month : null,
+                        Customer = groupByCustomer ? x.CustomerID : null
+                    },
+                    x => x,
+                    (key, items) => new
+                    {
+                        key.OrderMonth,
+                        key.Customer,
+                        Count = items.Count()
+                    }),
             elementSorter: e => (e.OrderMonth, e.Customer),
             elementAsserter: (e, a) =>
             {
@@ -1575,11 +1577,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             ss => from s in (from o in ss.Set<Order>()
                              group o by o.OrderDate.Value.Month
                              into g
-                             select new
-                             {
-                                 Month = g.Key,
-                                 Total = g.Sum(e => e.OrderID)
-                             })
+                             select new { Month = g.Key, Total = g.Sum(e => e.OrderID) })
                   select new
                   {
                       s.Month,
@@ -1600,18 +1598,15 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                .Select(c => new
-                {
-                    c.CustomerID,
-                    c.City,
-                    Orders = c.Orders.Select(e => e.OrderID)
-                })
+                .Select(
+                    c => new
+                    {
+                        c.CustomerID,
+                        c.City,
+                        Orders = c.Orders.Select(e => e.OrderID)
+                    })
                 .GroupBy(e => e.City)
-                .Select(g => new
-                {
-                    g.Key,
-                    Count = g.Count()
-                }),
+                .Select(g => new { g.Key, Count = g.Count() }),
             elementSorter: e => (e.Key, e.Count),
             elementAsserter: (e, a) =>
             {
@@ -1861,13 +1856,30 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss =>
                 from c in ss.Set<Customer>()
-                join a in ss.Set<Order>().GroupBy(o => new { o.CustomerID, o.OrderDate.Value.Year } )
+                join a in ss.Set<Order>().GroupBy(o => new { o.CustomerID, o.OrderDate.Value.Year })
                         .Where(g => g.Count() > 5)
                         .Select(g => new { CustomerID = g.Key.CustomerID, LastOrderID = g.Max(o => o.OrderID) })
                         .Distinct()
                     on c.CustomerID equals a.CustomerID
                 select new { c, a.LastOrderID },
             entryCount: 31);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_GroupBy_Aggregate_distinct_single_join(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss =>
+                from c in ss.Set<Customer>()
+                join a in ss.Set<Order>().GroupBy(o => new { o.CustomerID, o.OrderDate.Value.Year })
+                        .Where(g => g.Count() > 5)
+                        .Select(g => new { CustomerID = g.Key.CustomerID, LastOrderID = g.Max(o => o.OrderID) })
+                        .Distinct()
+                    on c.CustomerID equals a.CustomerID
+                select new { c, a.LastOrderID },
+            entryCount: 31);
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2360,14 +2372,12 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             ss => from c1 in ss.Set<Customer>()
                   from c2 in (from c in ss.Set<Customer>()
                               from oc1 in ss.Set<Order>()
-                                    .GroupBy(o => o.CustomerID, (o, g) => new { CustomerID = o, Count = (int?)g.Count() })
-                                    .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
-                              group new { c.CustomerID, oc1.Count } by c.CustomerID into g
-                              select new
-                              {
-                                  CustomerID = g.Key,
-                                  Count = g.Sum(x => x.Count)
-                              }).Where(x => x.CustomerID == c1.CustomerID).DefaultIfEmpty()
+                                  .GroupBy(o => o.CustomerID, (o, g) => new { CustomerID = o, Count = (int?)g.Count() })
+                                  .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
+                              group new { c.CustomerID, oc1.Count } by c.CustomerID
+                              into g
+                              select new { CustomerID = g.Key, Count = g.Sum(x => x.Count) }).Where(x => x.CustomerID == c1.CustomerID)
+                      .DefaultIfEmpty()
                   select new
                   {
                       c1.CustomerID,
@@ -2377,14 +2387,12 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             ss => from c1 in ss.Set<Customer>()
                   from c2 in (from c in ss.Set<Customer>()
                               from oc1 in ss.Set<Order>()
-                                    .GroupBy(o => o.CustomerID, (o, g) => new { CustomerID = o, Count = (int?)g.Count() })
-                                    .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
-                              group new { c.CustomerID, Count = oc1.MaybeScalar(e => e.Count) } by c.CustomerID into g
-                              select new
-                              {
-                                  CustomerID = g.Key,
-                                  Count = g.Sum(x => x.Count)
-                              }).Where(x => x.CustomerID == c1.CustomerID).DefaultIfEmpty()
+                                  .GroupBy(o => o.CustomerID, (o, g) => new { CustomerID = o, Count = (int?)g.Count() })
+                                  .Where(x => x.CustomerID == c.CustomerID).DefaultIfEmpty()
+                              group new { c.CustomerID, Count = oc1.MaybeScalar(e => e.Count) } by c.CustomerID
+                              into g
+                              select new { CustomerID = g.Key, Count = g.Sum(x => x.Count) }).Where(x => x.CustomerID == c1.CustomerID)
+                      .DefaultIfEmpty()
                   select new
                   {
                       c1.CustomerID,
@@ -2569,8 +2577,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2585,8 +2592,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -3013,8 +3019,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertCount(
             async,
             ss => ss.Set<Order>()
-                    .GroupBy(o => o.CustomerID)
-                    .Select(e => new Result(e.Key)));
+                .GroupBy(o => o.CustomerID)
+                .Select(e => new Result(e.Key)));
 
     private class Result
     {
@@ -3203,13 +3209,14 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
-                    .Select(g => new
+                .Select(
+                    g => new
                     {
                         g.Key,
                         A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
-                                .Select(g2 => new { g2.Key, C = g2.Count() + g.Count() })
-                                .OrderBy(e => 1)
-                                .FirstOrDefault()
+                            .Select(g2 => new { g2.Key, C = g2.Count() + g.Count() })
+                            .OrderBy(e => 1)
+                            .FirstOrDefault()
                     }),
             elementSorter: e => e.Key);
 
@@ -3219,13 +3226,14 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
-                    .Select(g => new
+                .Select(
+                    g => new
                     {
                         g.Key,
                         A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
-                                .Select(g2 => g2.Count() + g.Min(e => e.OrderID))
-                                .OrderBy(e => 1)
-                                .FirstOrDefault()
+                            .Select(g2 => g2.Count() + g.Min(e => e.OrderID))
+                            .OrderBy(e => 1)
+                            .FirstOrDefault()
                     }),
             elementSorter: e => e.Key);
 
@@ -3235,13 +3243,14 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
-                    .Select(g => new
+                .Select(
+                    g => new
                     {
                         g.Key,
                         A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
-                                .Select(g2 => g2.Count() + g.Count())
-                                .OrderBy(e => e)
-                                .FirstOrDefault()
+                            .Select(g2 => g2.Count() + g.Count())
+                            .OrderBy(e => e)
+                            .FirstOrDefault()
                     }),
             elementSorter: e => e.Key);
 
