@@ -10,10 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///		    String resources used in EF exceptions, etc.
+    ///         String resources used in EF exceptions, etc.
     ///     </para>
     ///     <para>
-    ///		    These strings are exposed publicly for use by database providers and extensions.
+    ///         These strings are exposed publicly for use by database providers and extensions.
     ///         It is unusual for application code to need these strings.
     ///     </para>
     /// </summary>
