@@ -1146,7 +1146,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
 
         var query = from p in entitySet
                     join c in context.Set<Child27343>()
-                    on p.Id equals c.Id into grouping
+                        on p.Id equals c.Id into grouping
                     from c in grouping.DefaultIfEmpty()
                     select c;
 
@@ -1195,70 +1195,6 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
-    {
-        var contextFactory = await InitializeAsync<Context28039>();
-        using var db = contextFactory.CreateContext();
-
-
-        var queryResults = (from i in db.IndexData.Where(a => a.Parcel == "some condition")
-                                        .Select(a => new SearchResult { ParcelNumber = a.Parcel, RowId = a.RowId })
-                            group i by new { i.ParcelNumber, i.RowId } into grp
-                            where grp.Count() == 1
-                            select grp.Key.ParcelNumber).Distinct();
-
-        var jsonLookup = (from dcv in db.TableData.Where(a => a.TableId == 123)
-                          join wos in queryResults
-                          on dcv.ParcelNumber equals wos
-                          orderby dcv.ParcelNumber
-                          select dcv.JSON).Take(123456);
-
-
-        var result = async
-            ? await jsonLookup.ToListAsync()
-            : jsonLookup.ToList();
-    }
-
-    protected class Context28039 : DbContext
-    {
-        public Context28039(DbContextOptions options)
-            : base(options)
-        {
-        }
-
-        public DbSet<IndexData> IndexData { get; set; }
-        public DbSet<TableData> TableData { get; set; }
-    }
-
-    protected class TableData : EntityBase
-    {
-        public int TableId { get; set; }
-        public string ParcelNumber { get; set; }
-        public short RowId { get; set; }
-        public string JSON { get; set; }
-
-    }
-
-    protected abstract class EntityBase
-    {
-        [Key]
-        public int ID { get; set; }
-    }
-    protected class IndexData : EntityBase
-    {
-        public string Parcel { get; set; }
-        public int RowId { get; set; }
-    }
-
-    protected class SearchResult
-    {
-        public string ParcelNumber { get; set; }
-        public int RowId { get; set; }
-        public string DistinctValue { get; set; }
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
     {
         return Hierarchy_query_with_abstract_type_sibling_helper(async, null);
@@ -1297,78 +1233,104 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public void Seed()
         {
             AddRange(
-                new Cat { Id = 1, Name = "Alice", Species = "Felis catus", EdcuationLevel = "MBA" },
-                new Cat { Id = 2, Name = "Mac", Species = "Felis catus", EdcuationLevel = "BA" },
-                new Dog { Id = 3, Name = "Toast", Species = "Canis familiaris", FavoriteToy = "Mr. Squirrel" },
-                new FarmAnimal { Id = 4, Value = 100.0, Species = "Ovis aries" });
+                new Cat
+                {
+                    Id = 1,
+                    Name = "Alice",
+                    Species = "Felis catus",
+                    EdcuationLevel = "MBA"
+                },
+                new Cat
+                {
+                    Id = 2,
+                    Name = "Mac",
+                    Species = "Felis catus",
+                    EdcuationLevel = "BA"
+                },
+                new Dog
+                {
+                    Id = 3,
+                    Name = "Toast",
+                    Species = "Canis familiaris",
+                    FavoriteToy = "Mr. Squirrel"
+                },
+                new FarmAnimal
+                {
+                    Id = 4,
+                    Value = 100.0,
+                    Species = "Ovis aries"
+                });
 
             SaveChanges();
         }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
-        {
-            var contextFactory = await InitializeAsync<Context28039>();
-            using var db = contextFactory.CreateContext();
-
-
-            var queryResults = (from i in db.IndexData.Where(a => a.Parcel == "some condition")
-                                            .Select(a => new SearchResult { ParcelNumber = a.Parcel, RowId = a.RowId })
-                                group i by new { i.ParcelNumber, i.RowId } into grp
-                                where grp.Count() == 1
-                                select grp.Key.ParcelNumber).Distinct();
-
-            var jsonLookup = (from dcv in db.TableData.Where(a => a.TableId == 123)
-                              join wos in queryResults
-                              on dcv.ParcelNumber equals wos
-                              orderby dcv.ParcelNumber
-                              select dcv.JSON).Take(123456);
-
-
-            var result = async
-                ? await jsonLookup.ToListAsync()
-                : jsonLookup.ToList();
-        }
-
-        protected class Context28039 : DbContext
-        {
-            public Context28039(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public DbSet<IndexData> IndexData { get; set; }
-            public DbSet<TableData> TableData { get; set; }
-        }
-
-        public class TableData : EntityBase
-        {
-            public int TableId { get; set; }
-            public string ParcelNumber { get; set; }
-            public short RowId { get; set; }
-            public string JSON { get; set; }
-
-        }
-
-        public abstract class EntityBase
-        {
-            [Key]
-            public int ID { get; set; }
-        }
-        public class IndexData : EntityBase
-        {
-            public string Parcel { get; set; }
-            public int RowId { get; set; }
-        }
-
-        internal class SearchResult
-        {
-            public string ParcelNumber { get; set; }
-            public int RowId { get; set; }
-            public string DistinctValue { get; set; }
-        }
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28039>();
+        using var db = contextFactory.CreateContext();
+
+
+        var queryResults = (from i in db.IndexData.Where(a => a.Parcel == "some condition")
+                                .Select(a => new SearchResult { ParcelNumber = a.Parcel, RowId = a.RowId })
+                            group i by new { i.ParcelNumber, i.RowId }
+                            into grp
+                            where grp.Count() == 1
+                            select grp.Key.ParcelNumber).Distinct();
+
+        var jsonLookup = (from dcv in db.TableData.Where(a => a.TableId == 123)
+                          join wos in queryResults
+                              on dcv.ParcelNumber equals wos
+                          orderby dcv.ParcelNumber
+                          select dcv.JSON).Take(123456);
+
+
+        var result = async
+            ? await jsonLookup.ToListAsync()
+            : jsonLookup.ToList();
+    }
+
+    protected class Context28039 : DbContext
+    {
+        public Context28039(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<IndexData> IndexData { get; set; }
+        public DbSet<TableData> TableData { get; set; }
+    }
+
+    public class TableData : EntityBase
+    {
+        public int TableId { get; set; }
+        public string ParcelNumber { get; set; }
+        public short RowId { get; set; }
+        public string JSON { get; set; }
+
+    }
+
+    public abstract class EntityBase
+    {
+        [Key]
+        public int ID { get; set; }
+    }
+
+    public class IndexData : EntityBase
+    {
+        public string Parcel { get; set; }
+        public int RowId { get; set; }
+    }
+
+    internal class SearchResult
+    {
+        public string ParcelNumber { get; set; }
+        public int RowId { get; set; }
+        public string DistinctValue { get; set; }
+    }
+
 
     protected abstract class Animal
     {
@@ -1395,5 +1357,4 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
     {
         public string FavoriteToy { get; set; }
     }
-
 }
