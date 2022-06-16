@@ -5,8 +5,6 @@
     <TargetFramework>net7.0</TargetFramework>
     <PublishTrimmed>true</PublishTrimmed>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <!-- TODO: Enable when dotnet/linker#2718 is fixed -->
-    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>
