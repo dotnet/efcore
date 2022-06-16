@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
+#nullable enable
+
 public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFactoryTest.SqlServerDatabaseModelFixture>
 {
     protected SqlServerDatabaseModelFixture Fixture { get; }
@@ -633,7 +635,7 @@ CREATE TABLE [Blogs] (
                 var table = Assert.Single(dbModel.Tables.Where(t => t.Name == "Blogs"));
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.True((bool)table[SqlServerAnnotationNames.MemoryOptimized]);
+                Assert.True((bool)table[SqlServerAnnotationNames.MemoryOptimized]!);
             },
             "DROP TABLE [Blogs]");
 
@@ -720,7 +722,7 @@ CREATE TABLE PrimaryKeyTable (
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
-                Assert.Equal("dbo", pk.Table.Schema);
+                Assert.Equal("dbo", pk!.Table!.Schema);
                 Assert.Equal("PrimaryKeyTable", pk.Table.Name);
                 Assert.StartsWith("PK__PrimaryK", pk.Name);
                 Assert.Null(pk[SqlServerAnnotationNames.Clustered]);
@@ -778,7 +780,7 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                 Assert.All(
                     table.Indexes, c =>
                     {
-                        Assert.Equal("dbo", c.Table.Schema);
+                        Assert.Equal("dbo", c.Table!.Schema);
                         Assert.Equal("IndexTable", c.Table.Name);
                     });
 
@@ -808,7 +810,7 @@ CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
                 Assert.All(
                     table.Indexes, c =>
                     {
-                        Assert.Equal("dbo", c.Table.Schema);
+                        Assert.Equal("dbo", c.Table!.Schema);
                         Assert.Equal("IndexTable", c.Table.Name);
                     });
 
@@ -879,6 +881,45 @@ CREATE TABLE SecondDependent (
 DROP TABLE SecondDependent;
 DROP TABLE FirstDependent;
 DROP TABLE PrincipalTable;");
+
+    [ConditionalFact]
+    public void Triggers()
+        => Test(
+            new[] {
+                @"
+CREATE TABLE SomeTable (
+    Id int IDENTITY PRIMARY KEY,
+    Foo int,
+    Bar int,
+    Baz int
+);",
+                @"
+CREATE TRIGGER Trigger1
+    ON SomeTable
+    AFTER INSERT AS
+BEGIN
+    UPDATE SomeTable SET Bar=Foo WHERE Id IN (SELECT INSERTED.Id FROM INSERTED);
+END;",
+                @"
+CREATE TRIGGER Trigger2
+    ON SomeTable
+    AFTER INSERT AS
+BEGIN
+    UPDATE SomeTable SET Baz=Foo WHERE Id IN (SELECT INSERTED.Id FROM INSERTED);
+END;" },
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var table = dbModel.Tables.Single();
+                var triggers = (HashSet<string>)table[RelationalAnnotationNames.Triggers]!;
+
+                Assert.Collection(triggers.OrderBy(t => t),
+                    t => Assert.Equal("Trigger1", t),
+                    t => Assert.Equal("Trigger2", t));
+
+            },
+            "DROP TABLE SomeTable;");
 
     #endregion
 
@@ -1480,7 +1521,7 @@ CREATE TABLE RowVersionTable (
             {
                 var columns = dbModel.Tables.Single().Columns;
 
-                Assert.True((bool)columns.Single(c => c.Name == "rowversionColumn")[ScaffoldingAnnotationNames.ConcurrencyToken]);
+                Assert.True((bool)columns.Single(c => c.Name == "rowversionColumn")[ScaffoldingAnnotationNames.ConcurrencyToken]!);
             },
             "DROP TABLE RowVersionTable;");
 
@@ -1539,7 +1580,7 @@ CREATE TABLE ColumnsWithSparseness (
             {
                 var columns = dbModel.Tables.Single().Columns;
 
-                Assert.True((bool)columns.Single(c => c.Name == "Sparse")[SqlServerAnnotationNames.Sparse]);
+                Assert.True((bool)columns.Single(c => c.Name == "Sparse")[SqlServerAnnotationNames.Sparse]!);
                 Assert.Null(columns.Single(c => c.Name == "NonSparse")[SqlServerAnnotationNames.Sparse]);
             },
             "DROP TABLE ColumnsWithSparseness;");
@@ -1633,7 +1674,7 @@ CREATE TABLE CompositePrimaryKeyTable (
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
-                Assert.Equal("dbo", pk.Table.Schema);
+                Assert.Equal("dbo", pk!.Table!.Schema);
                 Assert.Equal("CompositePrimaryKeyTable", pk.Table.Name);
                 Assert.StartsWith("PK__Composit", pk.Name);
                 Assert.Equal(
@@ -1655,10 +1696,10 @@ CREATE TABLE NonClusteredPrimaryKeyTable (
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
-                Assert.Equal("dbo", pk.Table.Schema);
+                Assert.Equal("dbo", pk!.Table!.Schema);
                 Assert.Equal("NonClusteredPrimaryKeyTable", pk.Table.Name);
                 Assert.StartsWith("PK__NonClust", pk.Name);
-                Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]);
+                Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
             },
@@ -1680,10 +1721,10 @@ CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClustere
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
-                Assert.Equal("dbo", pk.Table.Schema);
+                Assert.Equal("dbo", pk!.Table!.Schema);
                 Assert.Equal("NonClusteredPrimaryKeyTableWithClusteredIndex", pk.Table.Name);
                 Assert.StartsWith("PK__NonClust", pk.Name);
-                Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]);
+                Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
             },
@@ -1704,10 +1745,10 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
-                Assert.Equal("dbo", pk.Table.Schema);
+                Assert.Equal("dbo", pk!.Table!.Schema);
                 Assert.Equal("NonClusteredPrimaryKeyTableWithClusteredConstraint", pk.Table.Name);
                 Assert.StartsWith("PK__NonClust", pk.Name);
-                Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]);
+                Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
             },
@@ -1728,7 +1769,7 @@ CREATE TABLE PrimaryKeyName (
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
-                Assert.Equal("dbo", pk.Table.Schema);
+                Assert.Equal("dbo", pk!.Table!.Schema);
                 Assert.Equal("PrimaryKeyName", pk.Table.Name);
                 Assert.StartsWith("MyPK", pk.Name);
                 Assert.Null(pk[SqlServerAnnotationNames.Clustered]);
@@ -1783,7 +1824,7 @@ CREATE TABLE ClusteredUniqueConstraintTable (
                 Assert.Equal("dbo", uniqueConstraint.Table.Schema);
                 Assert.Equal("ClusteredUniqueConstraintTable", uniqueConstraint.Table.Name);
                 Assert.StartsWith("UQ__Clustere", uniqueConstraint.Name);
-                Assert.True((bool)uniqueConstraint[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)uniqueConstraint[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id2" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
             },
@@ -1834,7 +1875,7 @@ CREATE INDEX IX_COMPOSITE ON CompositeIndexTable ( Id2, Id1 );",
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.Equal("dbo", index.Table.Schema);
+                Assert.Equal("dbo", index.Table!.Schema);
                 Assert.Equal("CompositeIndexTable", index.Table.Name);
                 Assert.Equal("IX_COMPOSITE", index.Name);
                 Assert.Equal(
@@ -1859,10 +1900,10 @@ CREATE CLUSTERED INDEX IX_CLUSTERED ON ClusteredIndexTable ( Id2 );",
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.Equal("dbo", index.Table.Schema);
+                Assert.Equal("dbo", index.Table!.Schema);
                 Assert.Equal("ClusteredIndexTable", index.Table.Name);
                 Assert.Equal("IX_CLUSTERED", index.Name);
-                Assert.True((bool)index[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)index[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
             },
@@ -1885,7 +1926,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON UniqueIndexTable ( Id2 );",
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.Equal("dbo", index.Table.Schema);
+                Assert.Equal("dbo", index.Table!.Schema);
                 Assert.Equal("UniqueIndexTable", index.Table.Name);
                 Assert.Equal("IX_UNIQUE", index.Name);
                 Assert.True(index.IsUnique);
@@ -1912,7 +1953,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
                 // ReSharper disable once PossibleNullReferenceException
-                Assert.Equal("dbo", index.Table.Schema);
+                Assert.Equal("dbo", index.Table!.Schema);
                 Assert.Equal("FilteredIndexTable", index.Table.Name);
                 Assert.Equal("IX_UNIQUE", index.Name);
                 Assert.Equal("([Id2]>(10))", index.Filter);
@@ -2368,13 +2409,26 @@ DROP TABLE TestViewDefinition;");
         #endregion
 
     private void Test(
-        string createSql,
+        string? createSql,
         IEnumerable<string> tables,
         IEnumerable<string> schemas,
         Action<DatabaseModel> asserter,
-        string cleanupSql)
+        string? cleanupSql)
+        => Test(
+            string.IsNullOrEmpty(createSql) ? Array.Empty<string>() : new[] { createSql },
+            tables,
+            schemas,
+            asserter,
+            cleanupSql);
+
+    private void Test(
+        string[] createSqls,
+        IEnumerable<string> tables,
+        IEnumerable<string> schemas,
+        Action<DatabaseModel> asserter,
+        string? cleanupSql)
     {
-        if (!string.IsNullOrEmpty(createSql))
+        foreach (var createSql in createSqls)
         {
             Fixture.TestStore.ExecuteNonQuery(createSql);
         }
