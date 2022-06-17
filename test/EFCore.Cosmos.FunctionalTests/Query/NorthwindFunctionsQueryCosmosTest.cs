@@ -1235,7 +1235,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(""ALFKI"", c[""Custo
         AssertSql(
            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", """"))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T""))");
     }
 
     [ConditionalTheory]
@@ -1313,15 +1313,19 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""ix""))");
     }
 
-    [Fact]
-    public virtual void Regex_IsMatch_MethodCall_With_Unsupported_Option()
-       => Assert.Throws<InvalidOperationException>(() =>
-           Fixture.CreateContext().Customers.Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft)).ToList());
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Regex_IsMatch_MethodCall_With_Unsupported_Option(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
 
-    [Fact]
-    public virtual void Regex_IsMatch_MethodCall_With_Any_Unsupported_Option()
-       => Assert.Throws<InvalidOperationException>(() =>
-           Fixture.CreateContext().Customers.Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.RightToLeft)).ToList());
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Regex_IsMatch_MethodCall_With_Any_Unsupported_Option(bool async)
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.RightToLeft))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
