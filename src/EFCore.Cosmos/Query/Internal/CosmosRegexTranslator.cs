@@ -19,8 +19,6 @@ public class CosmosRegexTranslator : IMethodCallTranslator
     private static readonly MethodInfo IsMatchWithRegexOptions =
         typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string), typeof(RegexOptions) })!;
 
-    private const RegexOptions SupportedOptions = RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace;
-
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -53,48 +51,49 @@ public class CosmosRegexTranslator : IMethodCallTranslator
 
         var (input, pattern) = (arguments[0], arguments[1]);
         var typeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
+        (input, pattern) = (
+            _sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
+            _sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping));
 
-        if (method == IsMatch)
+        if (method == IsMatch || arguments[2] is SqlConstantExpression { Value: RegexOptions.None })
         {
-            return _sqlExpressionFactory.Function(
-                "RegexMatch",
-                new[] {
-                    _sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
-                    _sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping)
-                },
-                typeof(bool));
+            return _sqlExpressionFactory.Function("RegexMatch", new[] { input, pattern }, typeof(bool));
         }
-        else if (arguments[2] is SqlConstantExpression { Value: RegexOptions regexOptions })
+
+        if (arguments[2] is SqlConstantExpression { Value: RegexOptions regexOptions })
         {
-            string modifier = "";
+            var modifier = "";
+
             if (regexOptions.HasFlag(RegexOptions.Multiline))
             {
+                regexOptions &= ~RegexOptions.Multiline;
                 modifier += "m";
             }
+
             if (regexOptions.HasFlag(RegexOptions.Singleline))
             {
+                regexOptions &= ~RegexOptions.Singleline;
                 modifier += "s";
             }
+
             if (regexOptions.HasFlag(RegexOptions.IgnoreCase))
             {
+                regexOptions &= ~RegexOptions.IgnoreCase;
                 modifier += "i";
             }
+
             if (regexOptions.HasFlag(RegexOptions.IgnorePatternWhitespace))
             {
+                regexOptions &= ~RegexOptions.IgnorePatternWhitespace;
                 modifier += "x";
             }
 
-            return (regexOptions & ~SupportedOptions) == 0
+            return regexOptions == 0
                 ? _sqlExpressionFactory.Function(
                     "RegexMatch",
-                     new[]
-                     {
-                        _sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
-                        _sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping),
-                        _sqlExpressionFactory.Constant(modifier)
-                     },
+                     new[] { input, pattern, _sqlExpressionFactory.Constant(modifier) },
                      typeof(bool))
-                : null;
+                : null; // TODO: Report unsupported RegexOption, #26410
         }
 
         return null;
