@@ -151,7 +151,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             {
                 typeof(MaterializationContext),
                 typeof(IEntityType),
-                typeof(IDictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
+                typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
             })!;
 
     private static readonly MethodInfo CreatingInstanceMethod

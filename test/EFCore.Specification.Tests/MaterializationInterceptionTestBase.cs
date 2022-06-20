@@ -86,14 +86,11 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                     Assert.Same(context, data.Context);
                     Assert.Same(data.Context.Model.FindEntityType(typeof(Book)), data.EntityType);
 
-                    var valuesDictionary = data.CreateValuesDictionary();
-
                     var idProperty = data.EntityType.FindProperty(nameof(Book.Id))!;
                     var id = data.GetPropertyValue<Guid>(nameof(Book.Id))!;
                     Assert.Equal(id, data.GetPropertyValue(nameof(Book.Id)));
                     Assert.Equal(id, data.GetPropertyValue<Guid>(idProperty));
                     Assert.Equal(id, data.GetPropertyValue(idProperty));
-                    Assert.Equal(id, valuesDictionary[idProperty]);
                     ids.Add(id);
 
                     var titleProperty = data.EntityType.FindProperty(nameof(Book.Title))!;
@@ -101,7 +98,6 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                     Assert.Equal(title, data.GetPropertyValue(nameof(Book.Title)));
                     Assert.Equal(title, data.GetPropertyValue<string?>(titleProperty));
                     Assert.Equal(title, data.GetPropertyValue(titleProperty));
-                    Assert.Equal(title, valuesDictionary[titleProperty]);
                     titles.Add(title);
 
                     var authorProperty = data.EntityType.FindProperty("Author")!;
@@ -109,7 +105,6 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                     Assert.Equal(author, data.GetPropertyValue("Author"));
                     Assert.Equal(author, data.GetPropertyValue<string?>(authorProperty));
                     Assert.Equal(author, data.GetPropertyValue(authorProperty));
-                    Assert.Equal(author, valuesDictionary[authorProperty]);
                     authors.Add(author);
 
                     switch (method)
@@ -197,14 +192,11 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                     Assert.Same(context, data.Context);
                     Assert.Same(data.Context.Model.FindEntityType(typeof(Pamphlet)), data.EntityType);
 
-                    var valuesDictionary = data.CreateValuesDictionary();
-
                     var idProperty = data.EntityType.FindProperty(nameof(Pamphlet.Id))!;
                     var id = data.GetPropertyValue<Guid>(nameof(Pamphlet.Id))!;
                     Assert.Equal(id, data.GetPropertyValue(nameof(Pamphlet.Id)));
                     Assert.Equal(id, data.GetPropertyValue<Guid>(idProperty));
                     Assert.Equal(id, data.GetPropertyValue(idProperty));
-                    Assert.Equal(id, valuesDictionary[idProperty]);
                     ids.Add(id);
 
                     var titleProperty = data.EntityType.FindProperty(nameof(Pamphlet.Title))!;
@@ -212,7 +204,6 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                     Assert.Equal(title, data.GetPropertyValue(nameof(Pamphlet.Title)));
                     Assert.Equal(title, data.GetPropertyValue<string?>(titleProperty));
                     Assert.Equal(title, data.GetPropertyValue(titleProperty));
-                    Assert.Equal(title, valuesDictionary[titleProperty]);
                     titles.Add(title);
 
                     var authorProperty = data.EntityType.FindProperty("Author")!;
@@ -220,7 +211,6 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                     Assert.Equal(author, data.GetPropertyValue("Author"));
                     Assert.Equal(author, data.GetPropertyValue<string?>(authorProperty));
                     Assert.Equal(author, data.GetPropertyValue(authorProperty));
-                    Assert.Equal(author, valuesDictionary[authorProperty]);
                     authors.Add(author);
 
                     switch (method)

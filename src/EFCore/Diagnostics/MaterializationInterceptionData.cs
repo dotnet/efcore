@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public readonly struct MaterializationInterceptionData
 {
     private readonly MaterializationContext _materializationContext;
-    private readonly IDictionary<IPropertyBase, (object TypedAccessor, Func<MaterializationContext, object?> Accessor)> _valueAccessor;
+    private readonly Dictionary<IPropertyBase, (object TypedAccessor, Func<MaterializationContext, object?> Accessor)> _valueAccessor;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +28,7 @@ public readonly struct MaterializationInterceptionData
     public MaterializationInterceptionData(
         MaterializationContext materializationContext,
         IEntityType entityType,
-        IDictionary<IPropertyBase, (object TypedAccessor, Func<MaterializationContext, object?> Accessor)> valueAccessor)
+        Dictionary<IPropertyBase, (object TypedAccessor, Func<MaterializationContext, object?> Accessor)> valueAccessor)
     {
         _materializationContext = materializationContext;
         _valueAccessor = valueAccessor;
@@ -106,25 +106,4 @@ public readonly struct MaterializationInterceptionData
     /// <returns>The property value.</returns>
     public object? GetPropertyValue(IPropertyBase property)
         => _valueAccessor[property].Accessor(_materializationContext);
-
-    /// <summary>
-    ///     Creates a dictionary containing a snapshot of all property values for the instance being materialized.
-    /// </summary>
-    /// <remarks>
-    ///     Note that this method causes a new dictionary to be created, and copies all values into that dictionary. This can
-    ///     be less efficient than getting values individually, especially if the non-boxing generic overloads
-    ///     <see cref="GetPropertyValue{T}(string)" /> or <see cref="GetPropertyValue{T}(IPropertyBase)" />can be used.
-    /// </remarks>
-    /// <returns>The values of properties for the entity instance.</returns>
-    public IReadOnlyDictionary<IPropertyBase, object?> CreateValuesDictionary()
-    {
-        var dictionary = new Dictionary<IPropertyBase, object?>();
-
-        foreach (var property in EntityType.GetServiceProperties().Cast<IPropertyBase>().Concat(EntityType.GetProperties()))
-        {
-            dictionary[property] = GetPropertyValue(property);
-        }
-
-        return dictionary;
-    }
 }
