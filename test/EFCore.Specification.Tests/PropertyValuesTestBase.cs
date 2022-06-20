@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -61,6 +62,10 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal(12, values["Shadow1"]);
             Assert.Equal("Pine Walk", values["Shadow2"]);
         }
+
+        Assert.True(building.CreatedCalled);
+        Assert.True(building.InitializingCalled);
+        Assert.True(building.InitializedCalled);
     }
 
     [ConditionalFact]
@@ -108,6 +113,10 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal(12, values[entry.Property("Shadow1").Metadata]);
             Assert.Equal("Pine Walk", values[entry.Property("Shadow2").Metadata]);
         }
+
+        Assert.True(building.CreatedCalled);
+        Assert.True(building.InitializingCalled);
+        Assert.True(building.InitializedCalled);
     }
 
     [ConditionalFact]
@@ -157,6 +166,10 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal("Dev", values["Shadow2"]);
             Assert.Equal(2222, values["Shadow3"]);
         }
+
+        Assert.True(employee.CreatedCalled);
+        Assert.True(employee.InitializingCalled);
+        Assert.True(employee.InitializedCalled);
     }
 
     [ConditionalFact]
@@ -456,6 +469,10 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal("Building One Prime", buildingClone.Name);
             Assert.Equal(1500001m, buildingClone.Value);
         }
+
+        Assert.True(buildingClone.CreatedCalled);
+        Assert.True(buildingClone.InitializingCalled);
+        Assert.True(buildingClone.InitializedCalled);
     }
 
     [ConditionalFact]
@@ -501,6 +518,58 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal("Milner", clone.LastName);
             Assert.Equal(55m, clone.LeaveBalance);
         }
+
+        Assert.True(clone.CreatedCalled);
+        Assert.True(clone.InitializingCalled);
+        Assert.True(clone.InitializedCalled);
+    }
+
+    [ConditionalFact]
+    public virtual Task Current_values_for_join_entity_can_be_copied_into_an_object()
+        => TestPropertyValuesJoinEntityClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+
+    [ConditionalFact]
+    public virtual Task Original_values_for_join_entity_can_be_copied_into_an_object()
+        => TestPropertyValuesJoinEntityClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+
+    [ConditionalFact]
+    public virtual Task Store_values_for_join_entity_can_be_copied_into_an_object()
+        => TestPropertyValuesJoinEntityClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+
+    [ConditionalFact]
+    public virtual Task Store_values_for_join_entity_can_be_copied_into_an_object_asynchronously()
+        => TestPropertyValuesJoinEntityClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+
+    private async Task TestPropertyValuesJoinEntityClone(
+        Func<EntityEntry<Dictionary<string, object>>, Task<PropertyValues>> getPropertyValues,
+        bool expectOriginalValues)
+    {
+        using var context = CreateContext();
+
+        var employee = context.Set<Employee>()
+            .OfType<CurrentEmployee>()
+            .Include(e => e.VirtualTeams)
+            .Single(b => b.FirstName == "Rowan");
+
+        foreach (var joinEntry in context.ChangeTracker.Entries<Dictionary<string, object>>())
+        {
+            joinEntry.Property("Payload").CurrentValue = "Payload++";
+
+            var clone = (Dictionary<string, object>)(await getPropertyValues(joinEntry)).ToObject();
+
+            Assert.True((bool)clone["CreatedCalled"]);
+            Assert.True((bool)clone["InitializingCalled"]);
+            Assert.True((bool)clone["InitializedCalled"]);
+
+            if (expectOriginalValues)
+            {
+                Assert.Equal("Payload", clone["Payload"]);
+            }
+            else
+            {
+                Assert.Equal("Payload++", clone["Payload"]);
+            }
+        }
     }
 
     [ConditionalFact]
@@ -543,6 +612,10 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal("Building One Prime", buildingClone.Name);
             Assert.Equal(1500001m, buildingClone.Value);
         }
+
+        Assert.True(buildingClone.CreatedCalled);
+        Assert.True(buildingClone.InitializingCalled);
+        Assert.True(buildingClone.InitializedCalled);
     }
 
     [ConditionalFact]
@@ -1820,6 +1893,10 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         context.Set<Building>().Attach(building);
 
         Assert.Null(await getPropertyValues(context.Entry((object)building)));
+
+        Assert.True(building.CreatedCalled);
+        Assert.True(building.InitializingCalled);
+        Assert.True(building.InitializedCalled);
     }
 
     [ConditionalFact]
@@ -1976,8 +2053,28 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         var currentValues = (Building)context.Entry(building).CurrentValues.ToObject();
         Assert.Equal("Building One", currentValues.Name);
 
+        Assert.True(currentValues.CreatedCalled);
+        Assert.True(currentValues.InitializingCalled);
+        Assert.True(currentValues.InitializedCalled);
+
         var originalValues = (Building)context.Entry(building).OriginalValues.ToObject();
         Assert.Equal("Building One", originalValues.Name);
+
+        Assert.True(originalValues.CreatedCalled);
+        Assert.True(originalValues.InitializingCalled);
+        Assert.True(originalValues.InitializedCalled);
+    }
+
+    protected abstract class PropertyValuesBase
+    {
+        [NotMapped]
+        public bool CreatedCalled { get; set; }
+
+        [NotMapped]
+        public bool InitializingCalled { get; set; }
+
+        [NotMapped]
+        public bool InitializedCalled { get; set; }
     }
 
     protected abstract class Employee : UnMappedPersonBase
@@ -1985,7 +2082,14 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public int EmployeeId { get; set; }
     }
 
-    protected class Building
+    protected class VirtualTeam : PropertyValuesBase
+    {
+        public int Id { get; set; }
+        public string TeamName { get; set; }
+        public ICollection<CurrentEmployee> Employees { get; set; }
+    }
+
+    protected class Building : PropertyValuesBase
     {
         private Building()
         {
@@ -2057,7 +2161,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public string Shadow2 { get; set; }
     }
 
-    protected class MailRoom
+    protected class MailRoom : PropertyValuesBase
     {
 #pragma warning disable IDE1006 // Naming Styles
         public int id { get; set; }
@@ -2073,20 +2177,20 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public IList<Whiteboard> WhiteBoards { get; } = new List<Whiteboard>();
     }
 
-    protected abstract class UnMappedOfficeBase
+    protected abstract class UnMappedOfficeBase : PropertyValuesBase
     {
         public string Number { get; set; }
         public string Description { get; set; }
     }
 
-    protected class BuildingDetail
+    protected class BuildingDetail : PropertyValuesBase
     {
         public Guid BuildingId { get; set; }
         public Building Building { get; set; }
         public string Details { get; set; }
     }
 
-    protected class WorkOrder
+    protected class WorkOrder : PropertyValuesBase
     {
         public int WorkOrderId { get; set; }
         public int EmployeeId { get; set; }
@@ -2094,7 +2198,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public string Details { get; set; }
     }
 
-    protected class Whiteboard
+    protected class Whiteboard : PropertyValuesBase
     {
 #pragma warning disable IDE1006 // Naming Styles
         public byte[] iD { get; set; }
@@ -2103,7 +2207,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public Office Office { get; set; }
     }
 
-    protected class UnMappedPersonBase
+    protected class UnMappedPersonBase : PropertyValuesBase
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -2118,6 +2222,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public CurrentEmployee Manager { get; set; }
         public decimal LeaveBalance { get; set; }
         public Office Office { get; set; }
+        public ICollection<VirtualTeam> VirtualTeams { get; set; }
     }
 
     protected class PastEmployee : Employee
@@ -2134,7 +2239,11 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "PropertyValues";
+        protected override string StoreName
+            => "PropertyValues";
+
+        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+            => base.AddServices(serviceCollection.AddSingleton<ISingletonInterceptor, PropertyValuesMaterializationInterceptor>());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -2146,7 +2255,22 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                     b.Property<string>("Shadow2");
                 });
 
-            modelBuilder.Entity<CurrentEmployee>(b => b.Property<int>("Shadow3"));
+            modelBuilder.Entity<CurrentEmployee>(b =>
+            {
+                b.Property<int>("Shadow3");
+
+                b.HasMany(p => p.VirtualTeams)
+                    .WithMany(p => p.Employees)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "VirtualTeamEmployee",
+                        j => j
+                            .HasOne<VirtualTeam>()
+                            .WithMany(),
+                        j => j
+                            .HasOne<CurrentEmployee>()
+                            .WithMany(),
+                        j => j.IndexerProperty<string>("Payload"));
+            });
 
             modelBuilder.Entity<PastEmployee>(b => b.Property<string>("Shadow4"));
 
@@ -2213,6 +2337,13 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 context.Add(office);
             }
 
+            var teams = new List<VirtualTeam>
+            {
+                new() { TeamName = "Build" },
+                new() { TeamName = "Test" },
+                new() { TeamName = "DevOps" }
+            };
+
             var employees = new List<Employee>
             {
                 new CurrentEmployee
@@ -2221,7 +2352,8 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                     FirstName = "Rowan",
                     LastName = "Miller",
                     LeaveBalance = 45,
-                    Office = offices[0]
+                    Office = offices[0],
+                    VirtualTeams = new List<VirtualTeam>{ teams[0], teams[1] }
                 },
                 new CurrentEmployee
                 {
@@ -2229,7 +2361,8 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                     FirstName = "Arthur",
                     LastName = "Vickers",
                     LeaveBalance = 62,
-                    Office = offices[1]
+                    Office = offices[1],
+                    VirtualTeams = new List<VirtualTeam>{ teams[1], teams[2] }
                 },
                 new PastEmployee
                 {
@@ -2284,7 +2417,68 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 context.Add(whiteboard);
             }
 
+            foreach (var joinEntry in context.ChangeTracker.Entries<Dictionary<string, object>>())
+            {
+                joinEntry.Property("Payload").CurrentValue = "Payload";
+
+                Assert.True((bool)joinEntry.Entity["CreatedCalled"]);
+                Assert.True((bool)joinEntry.Entity["InitializingCalled"]);
+                Assert.True((bool)joinEntry.Entity["InitializedCalled"]);
+            }
+
             context.SaveChanges();
+        }
+    }
+
+    public class PropertyValuesMaterializationInterceptor : IMaterializationInterceptor
+    {
+        public InterceptionResult<object> CreatingInstance(
+            MaterializationInterceptionData materializationData, InterceptionResult<object> result)
+            => result;
+
+        public object CreatedInstance(MaterializationInterceptionData materializationData, object instance)
+        {
+            if (instance is IDictionary<string, object> joinEntity)
+            {
+                joinEntity["CreatedCalled"] = true;
+            }
+            else
+            {
+                ((PropertyValuesBase)instance).CreatedCalled = true;
+            }
+
+            return instance;
+        }
+
+        public InterceptionResult InitializingInstance(
+            MaterializationInterceptionData materializationData,
+            object instance,
+            InterceptionResult result)
+        {
+            if (instance is IDictionary<string, object> joinEntity)
+            {
+                joinEntity["InitializingCalled"] = true;
+            }
+            else
+            {
+                ((PropertyValuesBase)instance).InitializingCalled = true;
+            }
+
+            return result;
+        }
+
+        public object InitializedInstance(MaterializationInterceptionData materializationData, object instance)
+        {
+            if (instance is IDictionary<string, object> joinEntity)
+            {
+                joinEntity["InitializedCalled"] = true;
+            }
+            else
+            {
+                ((PropertyValuesBase)instance).InitializedCalled = true;
+            }
+
+            return instance;
         }
     }
 }

@@ -185,8 +185,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     ///     This value is typically used as the return value for the implementation of this method.
     /// </param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -217,8 +217,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -257,8 +257,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     ///     This value is typically used as the return value for the implementation of this method.
     /// </param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -289,8 +289,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -329,8 +329,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     ///     This value is typically used as the return value for the implementation of this method.
     /// </param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -360,8 +360,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -400,8 +400,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     ///     This value is typically used as the return value for the implementation of this method.
     /// </param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -434,8 +434,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -474,8 +474,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     ///     This value is typically used as the return value for the implementation of this method.
     /// </param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
@@ -505,8 +505,8 @@ public interface IDbTransactionInterceptor : IInterceptor
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
-    ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will continue as normal.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will suppress the operation
     ///     it was about to perform.
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.

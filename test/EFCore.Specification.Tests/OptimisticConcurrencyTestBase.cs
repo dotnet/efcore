@@ -42,6 +42,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             {
                 using var transaction = BeginTransaction(context.Database);
                 var sponsor = context.Sponsors.Single(s => s.Id == 1);
+                Assert.IsType<Sponsor.SponsorDoubleProxy>(sponsor);
                 Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
                 originalName = sponsor.Name;
                 sponsor.Name = "New name";
@@ -51,8 +52,9 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 using var innerContext = CreateF1Context();
                 UseTransaction(innerContext.Database, transaction);
                 sponsor = innerContext.Sponsors.Single(s => s.Id == 1);
+                Assert.IsType<Sponsor.SponsorDoubleProxy>(sponsor);
                 Assert.Equal(1, innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
-                Assert.Equal(newName, sponsor.Name);
+                Assert.Equal("Intercepted: " + newName, sponsor.Name);
                 sponsor.Name = originalName;
                 innerContext.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).OriginalValue = null;
                 Assert.Throws<DbUpdateConcurrencyException>(() => innerContext.SaveChanges());

@@ -31,9 +31,7 @@ public abstract class SerializationTestBase<TFixture> : IClassFixture<TFixture>
     {
         using var context = Fixture.CreateContext();
 
-        var teams = context.Teams.Include(e => e.Drivers)
-            .Include(e => e.Engine).ThenInclude(e => e.EngineSupplier)
-            .ToList();
+        var teams = context.Teams.ToList();
 
         Assert.Equal(12, teams.Count);
         Assert.Equal(42, teams.SelectMany(e => e.Drivers).Count());

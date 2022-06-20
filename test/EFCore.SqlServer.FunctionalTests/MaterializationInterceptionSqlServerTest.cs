@@ -7,18 +7,18 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class BindingInterceptionSqlServerTest : BindingInterceptionTestBase,
-    IClassFixture<BindingInterceptionSqlServerTest.BindingInterceptionSqlServerFixture>
+public class MaterializationInterceptionSqlServerTest : MaterializationInterceptionTestBase,
+    IClassFixture<MaterializationInterceptionSqlServerTest.MaterializationInterceptionSqlServerFixture>
 {
-    public BindingInterceptionSqlServerTest(BindingInterceptionSqlServerFixture fixture)
+    public MaterializationInterceptionSqlServerTest(MaterializationInterceptionSqlServerFixture fixture)
         : base(fixture)
     {
     }
 
-    public class BindingInterceptionSqlServerFixture : SingletonInterceptorsFixtureBase
+    public class MaterializationInterceptionSqlServerFixture : SingletonInterceptorsFixtureBase
     {
         protected override string StoreName
-            => "BindingInterception";
+            => "MaterializationInterception";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

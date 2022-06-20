@@ -5,6 +5,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 public class Chassis
 {
+    public class ChassisProxy : Chassis, IF1Proxy
+    {
+        public ChassisProxy(
+            ILazyLoader loader,
+            int teamId,
+            string name)
+            : base(loader, teamId, name)
+        {
+        }
+
+        public bool CreatedCalled { get; set; }
+        public bool InitializingCalled { get; set; }
+        public bool InitializedCalled { get; set; }
+    }
+
     private readonly ILazyLoader _loader;
     private Team _team;
 
@@ -20,6 +35,8 @@ public class Chassis
         _loader = loader;
         TeamId = teamId;
         Name = name;
+
+        Assert.IsType<ChassisProxy>(this);
     }
 
     public int TeamId { get; set; }

@@ -5,6 +5,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 public class SponsorDetails
 {
+    public class SponsorDetailsProxy : SponsorDetails, IF1Proxy
+    {
+        public SponsorDetailsProxy(
+            int days,
+            decimal space)
+            : base(days, space)
+        {
+        }
+
+        public bool CreatedCalled { get; set; }
+        public bool InitializingCalled { get; set; }
+        public bool InitializedCalled { get; set; }
+    }
+
     public SponsorDetails()
     {
     }
@@ -13,6 +27,8 @@ public class SponsorDetails
     {
         Days = days;
         Space = space;
+
+        Assert.IsType<SponsorDetailsProxy>(this);
     }
 
     public int Days { get; set; }

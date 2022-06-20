@@ -37,6 +37,14 @@ public abstract class DatabindingTestBase<TFixture> : IClassFixture<TFixture>
         var drivers = context.Drivers;
         drivers.Load();
 
+        foreach (var driver in drivers.Local)
+        {
+            var proxy = (IF1Proxy)driver;
+            Assert.True(proxy.CreatedCalled);
+            Assert.True(proxy.InitializingCalled);
+            Assert.True(proxy.InitializedCalled);
+        }
+
         foreach (var driver in drivers.Local.Where(d => d.TeamId == DeletedTeam).ToList())
         {
             drivers.Remove(driver);
