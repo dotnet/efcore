@@ -332,7 +332,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
     }
 
     private TKey CreateKey(IUpdateEntry entry)
-        => _keyValueFactory.CreateFromCurrentValues(entry);
+        => _keyValueFactory.CreateFromCurrentValues(entry)!;
 
     private static object? SnapshotValue(IProperty property, ValueComparer? comparer, IUpdateEntry entry)
     {

@@ -63,7 +63,8 @@ public sealed record StateManagerDependencies
         ILoggingOptions loggingOptions,
         IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
         IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger,
-        INavigationFixer navigationFixer)
+        INavigationFixer navigationFixer,
+        IInterceptors interceptors)
     {
         InternalEntityEntrySubscriber = internalEntityEntrySubscriber;
         InternalEntityEntryNotifier = internalEntityEntryNotifier;
@@ -81,6 +82,7 @@ public sealed record StateManagerDependencies
         UpdateLogger = updateLogger;
         ChangeTrackingLogger = changeTrackingLogger;
         NavigationFixer = navigationFixer;
+        Interceptors = interceptors;
     }
 
     /// <summary>
@@ -212,4 +214,12 @@ public sealed record StateManagerDependencies
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public INavigationFixer NavigationFixer { get; init; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public IInterceptors Interceptors { get; }
 }

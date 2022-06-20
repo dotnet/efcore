@@ -89,6 +89,20 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalEntityEntry? TryGetEntry(InternalEntityEntry entry)
+    {
+        var key = PrincipalKeyValueFactory.CreateFromCurrentValues(entry);
+        return key != null && _identityMap.TryGetValue(key, out var existingEntry)
+            ? existingEntry
+            : null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalEntityEntry? TryGetEntry(object?[] keyValues)
     {
         var key = PrincipalKeyValueFactory.CreateFromKeyValues(keyValues);
@@ -194,7 +208,7 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void AddOrUpdate(InternalEntityEntry entry)
-        => Add(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry, updateDuplicate: true);
+        => Add(PrincipalKeyValueFactory.CreateFromCurrentValues(entry)!, entry, updateDuplicate: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -203,7 +217,7 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Add(InternalEntityEntry entry)
-        => Add(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
+        => Add(PrincipalKeyValueFactory.CreateFromCurrentValues(entry)!, entry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -371,7 +385,7 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Remove(InternalEntityEntry entry)
-        => Remove(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
+        => Remove(PrincipalKeyValueFactory.CreateFromCurrentValues(entry)!, entry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

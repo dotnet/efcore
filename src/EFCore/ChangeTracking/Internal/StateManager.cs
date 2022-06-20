@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -29,6 +30,7 @@ public class StateManager : IStateManager
     private readonly IModel _model;
     private readonly IDatabase _database;
     private readonly IConcurrencyDetector? _concurrencyDetector;
+    private readonly IIdentityResolutionInterceptor? _resolutionInterceptor;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,6 +62,8 @@ public class StateManager : IStateManager
 
         UpdateLogger = dependencies.UpdateLogger;
         _changeTrackingLogger = dependencies.ChangeTrackingLogger;
+
+        _resolutionInterceptor = dependencies.Interceptors.Aggregate<IIdentityResolutionInterceptor>();
     }
 
     /// <summary>
@@ -729,6 +733,89 @@ public class StateManager : IStateManager
         }
 
         danglers.Add(Tuple.Create(navigation, referencedFromEntry));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void UpdateReferencedUntrackedEntity(
+        object referencedEntity,
+        object newReferencedEntity,
+        INavigationBase navigation,
+        InternalEntityEntry referencedFromEntry)
+    {
+        if (_referencedUntrackedEntities != null
+            && _referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
+        {
+            _referencedUntrackedEntities.Remove(referencedEntity);
+
+            if (!_referencedUntrackedEntities.TryGetValue(newReferencedEntity, out var newDanglers))
+            {
+                newDanglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
+                _referencedUntrackedEntities.Add(newReferencedEntity, newDanglers);
+            }
+
+            foreach (var dangler in danglers)
+            {
+                newDanglers.Add(dangler);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool ResolveToExistingEntry(
+        InternalEntityEntry newEntry,
+        INavigationBase? navigation,
+        InternalEntityEntry? referencedFromEntry)
+    {
+        if (_resolutionInterceptor != null)
+        {
+            var needsTracking = false;
+            foreach (var key in newEntry.EntityType.GetKeys())
+            {
+                var existingEntry = FindIdentityMap(key)?.TryGetEntry(newEntry);
+                if (existingEntry != null)
+                {
+                    _resolutionInterceptor.UpdateTrackedInstance(
+                        Context,
+                        new EntityEntry(existingEntry),
+                        newEntry.Entity);
+
+                    if (navigation != null)
+                    {
+                        UpdateReferencedUntrackedEntity(
+                            newEntry.Entity,
+                            existingEntry.Entity,
+                            navigation,
+                            referencedFromEntry!);
+                        
+                        var navigationValue = referencedFromEntry![navigation];
+                        if (navigationValue != null && navigation.IsCollection)
+                        {
+                            navigation.GetCollectionAccessor()!.Remove(referencedFromEntry.Entity, newEntry.Entity);
+                        }
+                    }
+
+                    InternalEntityEntryNotifier.FixupResolved(existingEntry, newEntry);
+                }
+                else
+                {
+                    needsTracking = true;
+                }
+            }
+
+            return !needsTracking;
+        }
+
+        return false;
     }
 
     /// <summary>

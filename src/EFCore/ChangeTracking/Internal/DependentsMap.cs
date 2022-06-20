@@ -126,7 +126,7 @@ public class DependentsMap<TKey> : IDependentsMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<IUpdateEntry> GetDependents(IUpdateEntry principalEntry)
-        => _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry), out var dependents)
+        => _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry)!, out var dependents)
             ? dependents
             : Enumerable.Empty<IUpdateEntry>();
 

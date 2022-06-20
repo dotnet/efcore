@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         Command interceptors can be used to view, change, or suppress execution of the SaveChanges call and
+///         SaveChanges interceptors can be used to view, change, or suppress execution of the SaveChanges call and
 ///         modify the result before it is returned to EF.
 ///     </para>
 ///     <para>

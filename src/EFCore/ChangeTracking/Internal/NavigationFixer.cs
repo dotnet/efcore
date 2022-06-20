@@ -587,7 +587,7 @@ public class NavigationFixer : INavigationFixer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void TrackedFromQuery(InternalEntityEntry entry)
-        => InitialFixup(entry, fromQuery: true);
+        => InitialFixup(entry, null, fromQuery: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -605,7 +605,7 @@ public class NavigationFixer : INavigationFixer
         {
             if (oldState == EntityState.Detached)
             {
-                InitialFixup(entry, fromQuery);
+                InitialFixup(entry, null, fromQuery);
             }
             else if ((oldState == EntityState.Deleted
                          || oldState == EntityState.Added)
@@ -613,6 +613,30 @@ public class NavigationFixer : INavigationFixer
             {
                 DeleteFixup(entry);
             }
+        }
+        finally
+        {
+            if (delayingFixup)
+            {
+                CompleteDelayedFixup();
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void FixupResolved(
+        InternalEntityEntry entry,
+        InternalEntityEntry duplicateEntry)
+    {
+        var delayingFixup = BeginDelayedFixup();
+        try
+        {
+            InitialFixup(entry, duplicateEntry, fromQuery: false);
         }
         finally
         {
@@ -722,6 +746,7 @@ public class NavigationFixer : INavigationFixer
 
     private void InitialFixup(
         InternalEntityEntry entry,
+        InternalEntityEntry? duplicateEntry,
         bool fromQuery)
     {
         var entityType = entry.EntityType;
@@ -843,6 +868,35 @@ public class NavigationFixer : INavigationFixer
                                 }
                             }
                         }
+                        navigationValue = duplicateEntry?[principalToDependent];
+                        if (navigationValue != null)
+                        {
+                            if (principalToDependent.IsCollection)
+                            {
+                                foreach (var dependentEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
+                                {
+                                    var dependentEntry = stateManager.TryGetEntry(dependentEntity, foreignKey.DeclaringEntityType);
+                                    if (dependentEntry == null
+                                        || dependentEntry.EntityState == EntityState.Detached)
+                                    {
+                                        // If dependents in collection are not yet tracked, then save them away so that
+                                        // when we start tracking them we can come back and fixup this principal to them
+                                        stateManager.RecordReferencedUntrackedEntity(dependentEntity, principalToDependent, entry);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var dependentEntry = stateManager.TryGetEntry(navigationValue, principalToDependent.TargetEntityType);
+                                if (dependentEntry == null
+                                    || dependentEntry.EntityState == EntityState.Detached)
+                                {
+                                    // If dependent is not yet tracked, then save it away so that
+                                    // when we start tracking it we can come back and fixup this principal to it
+                                    stateManager.RecordReferencedUntrackedEntity(navigationValue, principalToDependent, entry);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -903,6 +957,22 @@ public class NavigationFixer : INavigationFixer
                         entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
                     }
                 }
+                
+                navigationValue = duplicateEntry?[skipNavigation];
+                if (navigationValue != null)
+                {
+                    foreach (var otherEntity in ((IEnumerable)navigationValue).Cast<object>().ToList())
+                    {
+                        var otherEntry = stateManager.TryGetEntry(otherEntity, skipNavigation.Inverse.DeclaringEntityType);
+                        if (otherEntry == null
+                            || otherEntry.EntityState == EntityState.Detached)
+                        {
+                            // If dependents in collection are not yet tracked, then save them away so that
+                            // when we start tracking them we can come back and fixup this principal to them
+                            stateManager.RecordReferencedUntrackedEntity(otherEntity, skipNavigation, entry);
+                        }
+                    }
+                }
             }
 
             // If the entity was previously referenced while it was still untracked, go back and do the fixup
@@ -955,14 +1025,24 @@ public class NavigationFixer : INavigationFixer
                             FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
                         }
                     }
-                    else if (referencedEntry.Entity == navigationValue)
+                    else
                     {
-                        FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+                        FixupToDependent(
+                            entry, 
+                            referencedEntry, 
+                            navigation.ForeignKey, 
+                            referencedEntry.Entity == navigationValue && setModified, 
+                            fromQuery);
                     }
                 }
-                else if (referencedEntry.Entity == navigationValue)
+                else
                 {
-                    FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
+                    FixupToPrincipal(
+                        entry, 
+                        referencedEntry, 
+                        navigation.ForeignKey, 
+                        referencedEntry.Entity == navigationValue && setModified, 
+                        fromQuery);
 
                     FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
                 }

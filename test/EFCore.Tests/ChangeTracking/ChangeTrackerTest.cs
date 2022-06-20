@@ -1929,7 +1929,7 @@ public class ChangeTrackerTest
     [InlineData(true, true)]
     public void Dependent_FKs_are_not_nulled_when_principal_is_detached(bool delayCascade, bool trackNewDependents)
     {
-        using var context = new EarlyLearningCenter();
+        using var context = new EarlyLearningCenter(new UpdatingIdentityResolutionInterceptor());
 
         var category = new OptionalCategory
         {
@@ -1973,47 +1973,38 @@ public class ChangeTrackerTest
         {
             newCategory.Products = new List<OptionalProduct>
             {
-                new() { Id = 1 },
-                new() { Id = 2 },
-                new() { Id = 3 }
+                new() { Id = 1, CategoryId = category.Id },
+                new() { Id = 2, CategoryId = category.Id },
+                new() { Id = 3, CategoryId = category.Id }
             };
         }
 
-        if (trackNewDependents)
-        {
-            Assert.Equal(
-                CoreStrings.IdentityConflict(nameof(OptionalProduct), "{'Id'}"),
-                Assert.Throws<InvalidOperationException>(() => context.Attach(newCategory)).Message);
-        }
-        else
-        {
-            context.Update(newCategory);
+        context.Update(newCategory);
 
-            Assert.Equal(4, context.ChangeTracker.Entries().Count());
+        Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
-            categoryEntry = context.Entry(newCategory);
-            product0Entry = context.Entry(newCategory.Products[0]);
-            product1Entry = context.Entry(newCategory.Products[1]);
-            product2Entry = context.Entry(newCategory.Products[2]);
+        categoryEntry = context.Entry(newCategory);
+        product0Entry = context.Entry(newCategory.Products[0]);
+        product1Entry = context.Entry(newCategory.Products[1]);
+        product2Entry = context.Entry(newCategory.Products[2]);
 
-            Assert.Equal(EntityState.Modified, categoryEntry.State);
+        Assert.Equal(EntityState.Modified, categoryEntry.State);
 
-            Assert.Equal(EntityState.Unchanged, product0Entry.State);
-            Assert.Equal(EntityState.Unchanged, product1Entry.State);
-            Assert.Equal(EntityState.Unchanged, product2Entry.State);
+        Assert.Equal(EntityState.Unchanged, product0Entry.State);
+        Assert.Equal(EntityState.Unchanged, product1Entry.State);
+        Assert.Equal(EntityState.Unchanged, product2Entry.State);
 
-            Assert.Same(newCategory.Products[0], category.Products[0]);
-            Assert.Same(newCategory.Products[1], category.Products[1]);
-            Assert.Same(newCategory.Products[2], category.Products[2]);
+        Assert.Same(newCategory.Products[0], category.Products[0]);
+        Assert.Same(newCategory.Products[1], category.Products[1]);
+        Assert.Same(newCategory.Products[2], category.Products[2]);
 
-            Assert.Same(newCategory, newCategory.Products[0].Category);
-            Assert.Same(newCategory, newCategory.Products[1].Category);
-            Assert.Same(newCategory, newCategory.Products[2].Category);
+        Assert.Same(newCategory, newCategory.Products[0].Category);
+        Assert.Same(newCategory, newCategory.Products[1].Category);
+        Assert.Same(newCategory, newCategory.Products[2].Category);
 
-            Assert.Equal(newCategory.Id, product0Entry.Property("CategoryId").CurrentValue);
-            Assert.Equal(newCategory.Id, product1Entry.Property("CategoryId").CurrentValue);
-            Assert.Equal(newCategory.Id, product2Entry.Property("CategoryId").CurrentValue);
-        }
+        Assert.Equal(newCategory.Id, product0Entry.Property("CategoryId").CurrentValue);
+        Assert.Equal(newCategory.Id, product1Entry.Property("CategoryId").CurrentValue);
+        Assert.Equal(newCategory.Id, product2Entry.Property("CategoryId").CurrentValue);
     }
 
     [ConditionalTheory] // Issues #16546 #25360; Change reverted in #27174.
@@ -3179,10 +3170,12 @@ public class ChangeTrackerTest
 
     private class EarlyLearningCenter : DbContext
     {
+        private readonly IInterceptor[] _interceptors;
         private readonly IServiceProvider _serviceProvider;
 
-        public EarlyLearningCenter()
+        public EarlyLearningCenter(params IInterceptor[] interceptors)
         {
+            _interceptors = interceptors;
             _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
         }
 
@@ -3287,6 +3280,7 @@ public class ChangeTrackerTest
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
+                .AddInterceptors(_interceptors)
                 .UseInternalServiceProvider(_serviceProvider)
                 .UseInMemoryDatabase(nameof(EarlyLearningCenter));
     }

@@ -386,6 +386,9 @@ namespace Microsoft.EntityFrameworkCore
             public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
                 => throw new NotImplementedException();
 
+            public void FixupResolved(InternalEntityEntry entry, InternalEntityEntry duplicateEntry)
+                => throw new NotImplementedException();
+
             public bool BeginDelayedFixup()
                 => false;
 
