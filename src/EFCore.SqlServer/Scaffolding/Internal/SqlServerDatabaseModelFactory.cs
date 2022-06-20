@@ -648,6 +648,7 @@ WHERE "
         GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseCollation);
         GetIndexes(connection, tables, filter);
         GetForeignKeys(connection, tables, filter);
+        GetTriggers(connection, tables, filter);
 
         foreach (var table in tables)
         {
@@ -1291,6 +1292,48 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         table.ForeignKeys.Add(foreignKey);
                     }
                 }
+            }
+        }
+    }
+
+    private void GetTriggers(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+SELECT
+    SCHEMA_NAME([t].[schema_id]) AS [table_schema],
+    [t].[name] AS [table_name],
+    [tr].[name] AS [trigger_name]
+FROM [sys].[triggers] AS [tr]
+JOIN [sys].[tables] AS [t] ON [tr].[parent_id] = [t].[object_id]
+WHERE "
+            + tableFilter
+            + @"
+ORDER BY [table_schema], [table_name], [tr].[name]";
+
+        using var reader = command.ExecuteReader();
+        var tableGroups = reader.Cast<DbDataRecord>()
+            .GroupBy(
+                ddr => (tableSchema: ddr.GetValueOrDefault<string>("table_schema"),
+                    tableName: ddr.GetFieldValue<string>("table_name")));
+
+        foreach (var tableGroup in tableGroups)
+        {
+            var tableSchema = tableGroup.Key.tableSchema;
+            var tableName = tableGroup.Key.tableName;
+
+            var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
+
+            var triggers = new HashSet<string>();
+            table[RelationalAnnotationNames.Triggers] = triggers;
+
+            foreach (var triggerRecord in tableGroup)
+            {
+                var triggerName = triggerRecord.GetFieldValue<string>("trigger_name");
+
+                // We don't actually scaffold anything beyond the fact that there's a trigger with a given name.
+                // This is to modify the SaveChanges logic to not use OUTPUT without INTO, which is incompatible with triggers.
+                triggers.Add(triggerName);
             }
         }
     }

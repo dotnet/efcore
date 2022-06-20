@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
+#nullable enable
+
 public class SqlServerAnnotationCodeGeneratorTest
 {
     [ConditionalFact]
@@ -21,7 +23,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.Property<int>("Id");
                 x.HasKey("Id").IsClustered();
             });
-        var key = (IKey)modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
+        var key = (IKey)modelBuilder.Model.FindEntityType("Post")!.GetKeys().Single();
 
         var result = generator.GenerateFluentApiCalls(key, key.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
@@ -43,7 +45,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.Property<int>("Id");
                 x.HasKey("Id").IsClustered(false);
             });
-        var key = (IKey)modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
+        var key = (IKey)modelBuilder.Model.FindEntityType("Post")!.GetKeys().Single();
 
         var result = generator.GenerateFluentApiCalls(key, key.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
@@ -67,7 +69,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.Property<string>("Name");
                 x.HasIndex("Name").IsClustered();
             });
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
 
         var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
@@ -90,7 +92,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.Property<string>("Name");
                 x.HasIndex("Name").IsClustered(false);
             });
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
 
         var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
@@ -115,7 +117,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.HasIndex("Name").HasFillFactor(90);
             });
 
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
         var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
 
@@ -139,7 +141,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.HasIndex("LastName").IncludeProperties("FirstName");
             });
 
-        var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+        var index = (IIndex)modelBuilder.Model.FindEntityType("Post")!.GetIndexes().Single();
         var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();
 
@@ -175,7 +177,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         var generator = CreateGenerator();
         var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
         modelBuilder.Entity("Post", x => x.Property<int>("Id").UseIdentityColumn(5, 10));
-        var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
+        var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
 
         var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
@@ -195,7 +197,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         var generator = CreateGenerator();
         var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
         modelBuilder.Entity("Post", x => x.Property<int>("Id").UseIdentityColumn());
-        var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
+        var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
 
         var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
@@ -234,7 +236,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         var generator = CreateGenerator();
         var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
         modelBuilder.Entity("Post", x => x.Property<int>("Id").UseHiLo("HiLoIndexName", "HiLoIndexSchema"));
-        var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
+        var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
 
         var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
@@ -263,17 +265,17 @@ public class SqlServerAnnotationCodeGeneratorTest
 
         Assert.Null(GenerateFluentApiCall("SomeEntity", "Default"));
 
-        var sparseCall = GenerateFluentApiCall("SomeEntity", "Sparse");
+        var sparseCall = GenerateFluentApiCall("SomeEntity", "Sparse")!;
         Assert.Equal("IsSparse", sparseCall.Method);
         Assert.Empty(sparseCall.Arguments);
 
-        var nonSparseCall = GenerateFluentApiCall("SomeEntity", "NonSparse");
+        var nonSparseCall = GenerateFluentApiCall("SomeEntity", "NonSparse")!;
         Assert.Equal("IsSparse", nonSparseCall.Method);
-        Assert.Collection(nonSparseCall.Arguments, o => Assert.False((bool)o));
+        Assert.Collection(nonSparseCall.Arguments, o => Assert.False((bool)o!));
 
-        MethodCallCodeFragment GenerateFluentApiCall(string entityTypeName, string propertyName)
+        MethodCallCodeFragment? GenerateFluentApiCall(string entityTypeName, string propertyName)
         {
-            var property = modelBuilder.Model.FindEntityType(entityTypeName).FindProperty(propertyName);
+            var property = modelBuilder.Model.FindEntityType(entityTypeName)!.FindProperty(propertyName)!;
             var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
             return generator.GenerateFluentApiCalls((IProperty)property, annotations).SingleOrDefault();
         }
@@ -334,7 +336,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                 x.Property<int>("Id");
                 x.IsMemoryOptimized();
             });
-        var entityType = (IEntityType)modelBuilder.Model.FindEntityType("Post");
+        var entityType = (IEntityType)modelBuilder.Model.FindEntityType("Post")!;
 
         var result = generator.GenerateFluentApiCalls(entityType, entityType.GetAnnotations().ToDictionary(a => a.Name, a => a))
             .Single();

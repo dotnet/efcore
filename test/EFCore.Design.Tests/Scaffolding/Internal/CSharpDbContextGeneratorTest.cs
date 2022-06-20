@@ -1195,6 +1195,88 @@ namespace TestNamespace
                                 // TODO
                             })).Message);
 
+        [ConditionalFact]
+        public void Trigger_works()
+            => Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Employee",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.ToTable(
+                                tb =>
+                                {
+                                    tb.HasTrigger("Trigger1");
+                                    tb.HasTrigger("Trigger2");
+                                });
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Employee> Employee { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.Property(e => e.Id).UseIdentityColumn();
+
+                entity.ToTable(tb => {
+                    tb.HasTrigger(""Trigger1"");
+                    tb.HasTrigger(""Trigger2"");
+                });
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Employee")!;
+                    var triggers = entityType.GetTriggers();
+
+                    Assert.Collection(triggers.OrderBy(t => t.Name),
+                        t => Assert.Equal("Trigger1", t.Name),
+                        t => Assert.Equal("Trigger2", t.Name));
+                });
+
         protected override void AddModelServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 

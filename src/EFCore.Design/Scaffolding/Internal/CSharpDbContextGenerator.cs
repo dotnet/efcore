@@ -424,6 +424,43 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
                 GenerateManyToMany(skipNavigation);
             }
         }
+
+        var triggers = entityType.GetTriggers().ToArray();
+
+        if (triggers.Length > 0)
+        {
+            using (_builder.Indent())
+            {
+                _builder.AppendLine();
+
+                _builder.Append($"{EntityLambdaIdentifier}.{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}(tb => ");
+
+                // Note: no trigger annotation support as of yet
+
+                if (triggers.Length == 1)
+                {
+                    var trigger = triggers[0];
+                    if (trigger.Name is not null)
+                    {
+                        _builder.AppendLine($"tb.HasTrigger({_code.Literal(trigger.Name)}));");
+                    }
+                }
+                else
+                {
+                    _builder.AppendLine("{");
+
+                    using (_builder.Indent())
+                    {
+                        foreach (var trigger in entityType.GetTriggers().Where(t => t.Name is not null))
+                        {
+                            _builder.AppendLine($"tb.HasTrigger({_code.Literal(trigger.Name!)});");
+                        }
+                    }
+
+                    _builder.AppendLine("});");
+                }
+            }
+        }
     }
 
     private void AppendMultiLineFluentApi(IEntityType entityType, IList<string> lines)
