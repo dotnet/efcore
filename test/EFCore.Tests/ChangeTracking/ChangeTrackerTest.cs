@@ -1929,7 +1929,7 @@ public class ChangeTrackerTest
     [InlineData(true, true)]
     public void Dependent_FKs_are_not_nulled_when_principal_is_detached(bool delayCascade, bool trackNewDependents)
     {
-        using var context = new EarlyLearningCenter(new CopyingIdentityResolutionInterceptor());
+        using var context = new EarlyLearningCenter(new UpdatingIdentityResolutionInterceptor());
 
         var category = new OptionalCategory
         {

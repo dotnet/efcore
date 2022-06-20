@@ -542,6 +542,10 @@ public class InternalEntryEntrySubscriberTest
         {
         }
 
+        public void FixupResolved(InternalEntityEntry entry, InternalEntityEntry duplicateEntry)
+        {
+        }
+
         public void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,

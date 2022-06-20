@@ -2,12 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
-namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class FixupTest
 {
@@ -2227,34 +2227,54 @@ public class FixupTest
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_dependent_with_duplicate_principal_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_dependent_with_duplicate_principal_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalCategory = new Category(1) { Value = "Original" };
-        var originalProduct = new Product(1, 0) { Value = "Original" };
+        var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original"};
+        var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original"};
         originalCategory.AddProduct(originalProduct);
         context.Attach(originalCategory);
 
-        var newProduct = new Product(2, 0) { Value = "New" };
-        var newCategory = new Category(1) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalProduct).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalCategory).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newProduct = new Product(2, 0) { Value1 = "New", Value2 = "New"};
+        var newCategory = new Category(1) { Value1 = "New", Value2 = "New"};
         newProduct.SetCategory(newCategory);
 
         context.Attach(newProduct);
 
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCategory).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(originalProduct).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalProduct).State);
         Assert.Equal(EntityState.Unchanged, context.Entry(newProduct).State);
 
-        Assert.Equal(copy ? "New" : "Original", originalCategory.Value);
-        Assert.Equal("Original", originalProduct.Value);
-        Assert.Equal("New", newProduct.Value);
+        Assert.Equal(copy ? "New" : "Original", originalCategory.Value1);
+        Assert.Equal("Original", originalProduct.Value1);
+        Assert.Equal("New", newProduct.Value1);
+
+        if (copy)
+        {
+            Assert.Equal(preserveModified ? "Changed" : "New", originalCategory.Value2);
+            Assert.Equal("Changed", originalProduct.Value2);
+            Assert.Equal("New", newProduct.Value2);
+
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalCategory).Property(e => e.Value2).OriginalValue);
+            Assert.Equal("Original", context.Entry(originalProduct).Property(e => e.Value2).OriginalValue);
+            Assert.Equal("New", context.Entry(newProduct).Property(e => e.Value2).OriginalValue);
+        }
 
         Assert.Equal(1, originalProduct.CategoryId);
         Assert.Equal(1, newProduct.CategoryId);
@@ -2266,22 +2286,31 @@ public class FixupTest
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_duplicate_dependent_with_duplicate_principal_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_duplicate_dependent_with_duplicate_principal_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalCategory = new Category(1) { Value = "Original" };
-        var originalProduct = new Product(1, 0) { Value = "Original" };
+        var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
+        var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalCategory.AddProduct(originalProduct);
         context.Attach(originalCategory);
 
-        var newProduct = new Product(1, 1) { Value = "New" };
-        var newCategory = new Category(1) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalProduct).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalCategory).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newProduct = new Product(1, 1) { Value1 = "New", Value2 = "New" };
+        var newCategory = new Category(1) { Value1 = "New", Value2 = "New" };
         newProduct.SetCategory(newCategory);
 
         context.Attach(newProduct);
@@ -2290,8 +2319,17 @@ public class FixupTest
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCategory).State);
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalProduct).State);
 
-        Assert.Equal(copy ? "New" : "Original", originalCategory.Value);
-        Assert.Equal(copy ? "New" : "Original", originalProduct.Value);
+        Assert.Equal(copy ? "New" : "Original", originalCategory.Value1);
+        Assert.Equal(copy ? "New" : "Original", originalProduct.Value1);
+
+        if (copy)
+        {
+            Assert.Equal(preserveModified ? "Changed" : "New", originalCategory.Value2);
+            Assert.Equal(preserveModified ? "Changed" : "New", originalProduct.Value2);
+
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalCategory).Property(e => e.Value2).OriginalValue);
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalProduct).Property(e => e.Value2).OriginalValue);
+        }
 
         Assert.Equal(1, originalProduct.CategoryId);
         Assert.Same(originalCategory, originalProduct.Category);
@@ -2300,37 +2338,54 @@ public class FixupTest
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_principal_with_duplicate_dependent_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_principal_with_duplicate_dependent_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalCategory = new Category(1) { Value = "Original" };
-        var originalProduct = new Product(1, 0) { Value = "Original" };
+        var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
+        var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalCategory.AddProduct(originalProduct);
         context.Attach(originalCategory);
 
-        var newProduct = new Product(1, 2) { Value = "New" };
-        var newCategory = new Category(2) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalProduct).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalCategory).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newProduct = new Product(1, 2) { Value1 = "New", Value2 = "New" };
+        var newCategory = new Category(2) { Value1 = "New", Value2 = "New" };
         newCategory.AddProduct(newProduct);
 
         context.Attach(newCategory);
 
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
-        Assert.Equal(EntityState.Unchanged, context.Entry(originalCategory).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCategory).State);
         Assert.Equal(EntityState.Unchanged, context.Entry(newCategory).State);
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalProduct).State);
 
-        Assert.Equal("Original", originalCategory.Value);
-        Assert.Equal("New", newCategory.Value);
-        Assert.Equal(copy ? "New" : "Original", originalProduct.Value);
+        Assert.Equal("Original", originalCategory.Value1);
+        Assert.Equal("New", newCategory.Value1);
+        Assert.Equal(copy ? "New" : "Original", originalProduct.Value1);
 
         if (copy)
         {
+            Assert.Equal("Changed", originalCategory.Value2);
+            Assert.Equal(preserveModified ? "Changed" : "New", originalProduct.Value2);
+            Assert.Equal("New", newCategory.Value2);
+
+            Assert.Equal("Original", context.Entry(originalCategory).Property(e => e.Value2).OriginalValue);
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalProduct).Property(e => e.Value2).OriginalValue);
+            Assert.Equal("New", context.Entry(newCategory).Property(e => e.Value2).OriginalValue);
+
             Assert.Equal(2, originalProduct.CategoryId);
             Assert.Same(newCategory, originalProduct.Category);
             Assert.Equal(0, originalCategory.Products.Count);
@@ -2348,22 +2403,31 @@ public class FixupTest
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_duplicate_principal_with_duplicate_dependent_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_duplicate_principal_with_duplicate_dependent_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalCategory = new Category(1) { Value = "Original" };
-        var originalProduct = new Product(1, 0) { Value = "Original" };
+        var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
+        var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalCategory.AddProduct(originalProduct);
         context.Attach(originalCategory);
 
-        var newProduct = new Product(1, 1) { Value = "New" };
-        var newCategory = new Category(1) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalProduct).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalCategory).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newProduct = new Product(1, 1) { Value1 = "New", Value2 = "New" };
+        var newCategory = new Category(1) { Value1 = "New", Value2 = "New" };
         newCategory.AddProduct(newProduct);
 
         context.Attach(newCategory);
@@ -2372,8 +2436,17 @@ public class FixupTest
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCategory).State);
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalProduct).State);
 
-        Assert.Equal(copy ? "New" : "Original", originalCategory.Value);
-        Assert.Equal(copy ? "New" : "Original", originalProduct.Value);
+        Assert.Equal(copy ? "New" : "Original", originalCategory.Value1);
+        Assert.Equal(copy ? "New" : "Original", originalProduct.Value1);
+
+        if (copy)
+        {
+            Assert.Equal(preserveModified ? "Changed" : "New", originalCategory.Value2);
+            Assert.Equal(preserveModified ? "Changed" : "New", originalProduct.Value2);
+
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalCategory).Property(e => e.Value2).OriginalValue);
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalProduct).Property(e => e.Value2).OriginalValue);
+        }
 
         Assert.Equal(1, originalProduct.CategoryId);
         Assert.Same(originalCategory, originalProduct.Category);
@@ -2382,22 +2455,31 @@ public class FixupTest
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_one_to_one_dependent_with_duplicate_principal_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_one_to_one_dependent_with_duplicate_principal_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalParent = new Parent(1) { Value = "Original" };
-        var originalChild = new Child(1, 0) { Value = "Original" };
+        var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
+        var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalParent.SetChild(originalChild);
         context.Attach(originalParent);
 
-        var newChild = new Child(2, 0) { Value = "New" };
-        var newParent = new Parent(1) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalParent).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalChild).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newChild = new Child(2, 0) { Value1 = "New", Value2 = "New" };
+        var newParent = new Parent(1) { Value1 = "New", Value2 = "New" };
         newChild.SetParent(newParent);
 
         context.Attach(newChild);
@@ -2407,30 +2489,51 @@ public class FixupTest
         Assert.Equal(EntityState.Deleted, context.Entry(originalChild).State);
         Assert.Equal(EntityState.Unchanged, context.Entry(newChild).State);
 
-        Assert.Equal(copy ? "New" : "Original", originalParent.Value);
-        Assert.Equal("Original", originalChild.Value);
-        Assert.Equal("New", newChild.Value);
+        Assert.Equal(copy ? "New" : "Original", originalParent.Value1);
+        Assert.Equal("Original", originalChild.Value1);
+        Assert.Equal("New", newChild.Value1);
+
+        if (copy)
+        {
+            Assert.Equal(preserveModified ? "Changed" : "New", originalParent.Value2);
+            Assert.Equal("Changed", originalChild.Value2);
+            Assert.Equal("New", newChild.Value2);
+
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalParent).Property(e => e.Value2).OriginalValue);
+            Assert.Equal("Original", context.Entry(originalChild).Property(e => e.Value2).OriginalValue);
+            Assert.Equal("New", context.Entry(newChild).Property(e => e.Value2).OriginalValue);
+        }
+
         Assert.Equal(1, newChild.ParentId);
         Assert.Same(originalParent, newChild.Parent);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_one_to_one_duplicate_dependent_with_duplicate_principal_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_one_to_one_duplicate_dependent_with_duplicate_principal_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalParent = new Parent(1) { Value = "Original" };
-        var originalChild = new Child(1, 0) { Value = "Original" };
+        var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
+        var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalParent.SetChild(originalChild);
         context.Attach(originalParent);
 
-        var newChild = new Child(1, 1) { Value = "New" };
-        var newParent = new Parent(1) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalParent).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalChild).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newChild = new Child(1, 1) { Value1 = "New", Value2 = "New" };
+        var newParent = new Parent(1) { Value1 = "New", Value2 = "New" };
         newChild.SetParent(newParent);
 
         context.Attach(newChild);
@@ -2439,8 +2542,17 @@ public class FixupTest
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalParent).State);
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalChild).State);
 
-        Assert.Equal(copy ? "New" : "Original", originalParent.Value);
-        Assert.Equal(copy ? "New" : "Original", originalChild.Value);
+        Assert.Equal(copy ? "New" : "Original", originalParent.Value1);
+        Assert.Equal(copy ? "New" : "Original", originalChild.Value1);
+
+        if (copy)
+        {
+            Assert.Equal(preserveModified ? "Changed" : "New", originalParent.Value2);
+            Assert.Equal(preserveModified ? "Changed" : "New", originalChild.Value2);
+
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalParent).Property(e => e.Value2).OriginalValue);
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalChild).Property(e => e.Value2).OriginalValue);
+        }
 
         Assert.Equal(1, originalChild.ParentId);
         Assert.Same(originalParent, originalChild.Parent);
@@ -2448,34 +2560,54 @@ public class FixupTest
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_one_to_one_principal_with_duplicate_dependent_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_one_to_one_principal_with_duplicate_dependent_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalParent = new Parent(1) { Value = "Original" };
-        var originalChild = new Child(1, 0) { Value = "Original" };
+        var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
+        var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalParent.SetChild(originalChild);
         context.Attach(originalParent);
 
-        var newChild = new Child(1, 0) { Value = "New" };
-        var newParent = new Parent(2) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalParent).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalChild).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newChild = new Child(1, 0) { Value1 = "New", Value2 = "New" };
+        var newParent = new Parent(2) { Value1 = "New", Value2 = "New" };
         newParent.SetChild(newChild);
 
         context.Attach(newParent);
 
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
-        Assert.Equal(EntityState.Unchanged, context.Entry(originalParent).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalParent).State);
         Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalChild).State);
 
-        Assert.Equal("Original", originalParent.Value);
-        Assert.Equal("New", newParent.Value);
-        Assert.Equal(copy ? "New" : "Original", originalChild.Value);
+        Assert.Equal("Original", originalParent.Value1);
+        Assert.Equal("New", newParent.Value1);
+        Assert.Equal(copy ? "New" : "Original", originalChild.Value1);
+
+        if (copy)
+        {
+            Assert.Equal("Changed", originalParent.Value2);
+            Assert.Equal(preserveModified ? "Changed" : "New", originalChild.Value2);
+            Assert.Equal("New", newParent.Value2);
+
+            Assert.Equal("Original", context.Entry(originalParent).Property(e => e.Value2).OriginalValue);
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalChild).Property(e => e.Value2).OriginalValue);
+            Assert.Equal("New", context.Entry(newParent).Property(e => e.Value2).OriginalValue);
+        }
 
         Assert.Equal(2, originalChild.ParentId);
         Assert.Same(newParent, originalChild.Parent);
@@ -2484,22 +2616,31 @@ public class FixupTest
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Attaching_one_to_one_duplicate_principal_with_duplicate_dependent_resolves(bool copy)
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(true, false, true)]
+    [InlineData(true, true, false)]
+    [InlineData(true, true, true)]
+    public void Attaching_one_to_one_duplicate_principal_with_duplicate_dependent_resolves(bool copy, bool preserveModified, bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
                 : new SkippingIdentityResolutionInterceptor());
 
-        var originalParent = new Parent(1) { Value = "Original" };
-        var originalChild = new Child(1, 0) { Value = "Original" };
+        var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
+        var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalParent.SetChild(originalChild);
         context.Attach(originalParent);
 
-        var newChild = new Child(1, 1) { Value = "New" };
-        var newParent = new Parent(1) { Value = "New" };
+        if (copy)
+        {
+            context.Entry(originalParent).Property(e => e.Value2).CurrentValue = "Changed";
+            context.Entry(originalChild).Property(e => e.Value2).CurrentValue = "Changed";
+        }
+
+        var newChild = new Child(1, 1) { Value1 = "New", Value2 = "New" };
+        var newParent = new Parent(1) { Value1 = "New", Value2 = "New" };
         newParent.SetChild(newChild);
 
         context.Attach(newParent);
@@ -2508,12 +2649,252 @@ public class FixupTest
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalParent).State);
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalChild).State);
 
-        Assert.Equal(copy ? "New" : "Original", originalParent.Value);
-        Assert.Equal(copy ? "New" : "Original", originalChild.Value);
+        Assert.Equal(copy ? "New" : "Original", originalParent.Value1);
+        Assert.Equal(copy ? "New" : "Original", originalChild.Value1);
+
+        if (copy)
+        {
+            Assert.Equal(preserveModified ? "Changed" : "New", originalParent.Value2);
+            Assert.Equal(preserveModified ? "Changed" : "New", originalChild.Value2);
+
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalParent).Property(e => e.Value2).OriginalValue);
+            Assert.Equal(updateOriginal ? "New" : "Original", context.Entry(originalChild).Property(e => e.Value2).OriginalValue);
+        }
 
         Assert.Equal(1, originalChild.ParentId);
         Assert.Same(originalParent, originalChild.Parent);
         Assert.Same(originalChild, originalParent.Child);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false, false, false, false)]
+    [InlineData(true, false, false, false)]
+    [InlineData(true, false, true, false)]
+    [InlineData(true, true, false, false)]
+    [InlineData(true, true, true, false)]
+    [InlineData(false, false, false, true)]
+    [InlineData(true, false, false, true)]
+    [InlineData(true, false, true, true)]
+    [InlineData(true, true, false, true)]
+    [InlineData(true, true, true, true)]
+    public void Attaching_entity_with_duplicate_many_to_many_resolves(
+        bool copy, bool preserveModified, bool updateOriginal, bool attachCatless)
+    {
+        using var context = new FixupContext(
+            copy
+                ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
+                : new SkippingIdentityResolutionInterceptor());
+
+        var originalHumans = new Human[]
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Arthur",
+                Age = 33
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Wendy",
+                Age = 37
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Katie",
+                Age = 25
+            }
+        };
+
+        var originalCats = new Cat[]
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Baxter",
+                Age = 7,
+                Humans = { originalHumans[0], originalHumans[1] }
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Alice",
+                Age = 7,
+                Humans = { originalHumans[0] }
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Mac",
+                Age = 3,
+                Humans = { originalHumans[0], originalHumans[1] }
+            }
+        };
+
+        context.AttachRange(originalCats);
+
+        if (attachCatless)
+        {
+            context.Attach(originalHumans[2]);
+        }
+
+        Assert.Equal(attachCatless ? 11 : 10, context.ChangeTracker.Entries().Count());
+
+        if (copy)
+        {
+            foreach (var human in originalHumans)
+            {
+                context.Entry(human).Property(e => e.Age).CurrentValue--;
+            }
+            foreach (var cat in originalCats)
+            {
+                context.Entry(cat).Property(e => e.Age).CurrentValue--;
+            }
+        }
+
+        var newHumans = new Human[]
+        {
+            new()
+            {
+                Id = 1,
+                Name = "AV",
+                Age = 34
+            },
+            new()
+            {
+                Id = 2,
+                Name = "WV",
+                Age = 38
+            },
+            new()
+            {
+                Id = 3,
+                Name = "KC",
+                Age = 26
+            }
+        };
+
+        var newCats = new Cat[]
+        {
+            new()
+            {
+                Id = 1,
+                Name = "Daxter",
+                Age = 8,
+                Humans = { newHumans[2] }
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Princess",
+                Age = 8,
+                Humans = { newHumans[0], newHumans[1] }
+            },
+            new()
+            {
+                Id = 3,
+                Name = "Macavity",
+                Age = 4,
+                Humans = { newHumans[0], newHumans[1] }
+            }
+        };
+
+        context.AttachRange(newCats);
+
+        Assert.Equal(13, context.ChangeTracker.Entries().Count());
+
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalHumans[0]).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalHumans[1]).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCats[0]).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCats[1]).State);
+        Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalCats[2]).State);
+
+        if (attachCatless)
+        {
+            Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(originalHumans[2]).State);
+        }
+        else
+        {
+            Assert.Equal(EntityState.Unchanged, context.Entry(newHumans[2]).State);
+        }
+
+        Assert.Equal(copy ? "AV" : "Arthur", originalHumans[0].Name);
+        Assert.Equal(copy ? "WV" : "Wendy", originalHumans[1].Name);
+        Assert.Equal(copy ? "Daxter" : "Baxter", originalCats[0].Name);
+        Assert.Equal(copy ? "Princess" : "Alice", originalCats[1].Name);
+        Assert.Equal(copy ? "Macavity" : "Mac", originalCats[2].Name);
+
+        if (attachCatless)
+        {
+            Assert.Equal(copy ? "KC" : "Katie", originalHumans[2].Name);
+        }
+        else
+        {
+            Assert.Equal("KC", newHumans[2].Name);
+        }
+
+        if (copy)
+        {
+            Assert.Equal(preserveModified ? 32 : 34, originalHumans[0].Age);
+            Assert.Equal(preserveModified ? 36 : 38, originalHumans[1].Age);
+            Assert.Equal(preserveModified ? 6 : 8, originalCats[0].Age);
+            Assert.Equal(preserveModified ? 6 : 8, originalCats[1].Age);
+            Assert.Equal(preserveModified ? 2 : 4, originalCats[2].Age);
+
+            Assert.Equal(updateOriginal ? 34 : 33, context.Entry(originalHumans[0]).Property(e => e.Age).OriginalValue);
+            Assert.Equal(updateOriginal ? 38 : 37, context.Entry(originalHumans[1]).Property(e => e.Age).OriginalValue);
+            Assert.Equal(updateOriginal ? 8 : 7, context.Entry(originalCats[0]).Property(e => e.Age).OriginalValue);
+            Assert.Equal(updateOriginal ? 8 : 7, context.Entry(originalCats[1]).Property(e => e.Age).OriginalValue);
+            Assert.Equal(updateOriginal ? 4 : 3, context.Entry(originalCats[2]).Property(e => e.Age).OriginalValue);
+
+            if (attachCatless)
+            {
+                Assert.Equal(preserveModified ? 24 : 26, originalHumans[2].Age);
+                Assert.Equal(updateOriginal ? 26 : 25, context.Entry(originalHumans[2]).Property(e => e.Age).OriginalValue);
+            }
+            else
+            {
+                Assert.Equal(26, newHumans[2].Age);
+                Assert.Equal(26, context.Entry(newHumans[2]).Property(e => e.Age).OriginalValue);
+            }
+        }
+
+        Assert.Equal(3, originalHumans[0].Cats.Count);
+        Assert.Equal(3, originalHumans[1].Cats.Count);
+
+        Assert.Equal(3, originalCats[0].Humans.Count);
+        Assert.Equal(2, originalCats[1].Humans.Count);
+        Assert.Equal(2, originalCats[2].Humans.Count);
+
+        Assert.Contains(originalCats[0], originalHumans[0].Cats);
+        Assert.Contains(originalCats[1], originalHumans[0].Cats);
+        Assert.Contains(originalCats[2], originalHumans[0].Cats);
+        Assert.Contains(originalCats[0], originalHumans[1].Cats);
+        Assert.Contains(originalCats[1], originalHumans[1].Cats);
+        Assert.Contains(originalCats[2], originalHumans[1].Cats);
+
+        Assert.Contains(originalHumans[0], originalCats[0].Humans);
+        Assert.Contains(originalHumans[1], originalCats[0].Humans);
+
+        Assert.Contains(originalHumans[0], originalCats[1].Humans);
+        Assert.Contains(originalHumans[1], originalCats[1].Humans);
+
+        Assert.Contains(originalHumans[0], originalCats[2].Humans);
+        Assert.Contains(originalHumans[1], originalCats[2].Humans);
+
+        if (attachCatless)
+        {
+            Assert.Equal(1, originalHumans[2].Cats.Count);
+            Assert.Contains(originalCats[0], originalHumans[2].Cats);
+            Assert.Contains(originalHumans[2], originalCats[0].Humans);
+        }
+        else
+        {
+            Assert.Equal(1, newHumans[2].Cats.Count);
+            Assert.Contains(originalCats[0], newHumans[2].Cats);
+            Assert.Contains(newHumans[2], originalCats[0].Humans);
+        }
     }
 
     [ConditionalFact]
@@ -2870,7 +3251,7 @@ public class FixupTest
     {
         using var context = new BadBeeContext(
             nameof(BadBeeContext), copy
-                ? new CopyingIdentityResolutionInterceptor()
+                ? new UpdatingIdentityResolutionInterceptor()
                 : new SkippingIdentityResolutionInterceptor());
 
         var b1 = new EntityB { EntityBId = 1, Value = "b1" };
@@ -2960,6 +3341,22 @@ public class FixupTest
         }
     }
 
+    private class Cat
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public ICollection<Human> Humans { get; } = new List<Human>();
+    }
+
+    private class Human
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public ICollection<Cat> Cats { get; } = new List<Cat>();
+    }
+
     private class Parent
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
@@ -2975,7 +3372,8 @@ public class FixupTest
         public int Id
             => _id;
 
-        public string Value { get; set; }
+        public string Value1 { get; set; }
+        public string Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public Child Child
@@ -3002,7 +3400,8 @@ public class FixupTest
         public int Id
             => _id;
 
-        public string Value { get; set; }
+        public string Value1 { get; set; }
+        public string Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public int ParentId
@@ -3115,7 +3514,8 @@ public class FixupTest
             _id = id;
         }
 
-        public string Value { get; set; }
+        public string Value1 { get; set; }
+        public string Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id
@@ -3158,7 +3558,8 @@ public class FixupTest
         public void SetCategoryId(int categoryId)
             => _categoryId = categoryId;
 
-        public string Value { get; set; }
+        public string Value1 { get; set; }
+        public string Value2 { get; set; }
 
         // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
         public Category Category
@@ -3306,6 +3707,8 @@ public class FixupTest
                 .HasForeignKey<ChildNN>(e => e.ParentId);
 
             modelBuilder.Entity<FixupBlog>();
+
+            modelBuilder.Entity<Cat>();
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

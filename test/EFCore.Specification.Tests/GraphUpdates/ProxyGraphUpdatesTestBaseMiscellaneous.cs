@@ -340,7 +340,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_required_graph_of_duplicates()
+    public void Can_attach_full_required_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {
@@ -355,7 +355,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_optional_graph_of_duplicates()
+    public void Can_attach_full_optional_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {
@@ -370,7 +370,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_required_non_PK_graph_of_duplicates()
+    public void Can_attach_full_required_non_PK_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {
@@ -385,7 +385,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_required_AK_graph_of_duplicates()
+    public void Can_attach_full_required_AK_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {
@@ -400,7 +400,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_optional_AK_graph_of_duplicates()
+    public void Can_attach_full_optional_AK_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {
@@ -415,7 +415,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_required_non_PK_AK_graph_of_duplicates()
+    public void Can_attach_full_required_non_PK_AK_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {
@@ -430,7 +430,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_required_one_to_many_graph_of_duplicates()
+    public void Can_attach_full_required_one_to_many_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {
@@ -445,7 +445,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
-    public void Cab_attach_full_required_composite_graph_of_duplicates()
+    public void Can_attach_full_required_composite_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(
             context =>
             {

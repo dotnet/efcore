@@ -32,7 +32,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             => false;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).AddInterceptors(new CopyingIdentityResolutionInterceptor());
+            => base.AddOptions(builder).AddInterceptors(new UpdatingIdentityResolutionInterceptor());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -26,7 +26,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             => false;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).AddInterceptors(new CopyingIdentityResolutionInterceptor());
+            => base.AddOptions(builder).AddInterceptors(new UpdatingIdentityResolutionInterceptor());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

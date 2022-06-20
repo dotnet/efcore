@@ -804,7 +804,7 @@ public class StateManager : IStateManager
                         }
                     }
 
-                    InternalEntityEntryNotifier.StateChanged(existingEntry, EntityState.Detached, fromQuery: false);
+                    InternalEntityEntryNotifier.FixupResolved(existingEntry, newEntry);
                 }
                 else
                 {

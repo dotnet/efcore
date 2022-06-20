@@ -47,7 +47,7 @@ public class StateManagerTest
     public void Identity_conflict_can_be_resolved(bool copy)
     {
         using var context = new IdentityConflictContext(copy
-            ? new CopyingIdentityResolutionInterceptor()
+            ? new UpdatingIdentityResolutionInterceptor()
             : new SkippingIdentityResolutionInterceptor());
 
         var entity = new SingleKey { Id = 77, AlternateId = 66, Value = "Existing" };
@@ -168,7 +168,7 @@ public class StateManagerTest
     public void Identity_conflict_can_be_resolved_for_owned(bool copy)
     {
         using var context = new IdentityConflictContext(copy
-            ? new CopyingIdentityResolutionInterceptor()
+            ? new UpdatingIdentityResolutionInterceptor()
             : new SkippingIdentityResolutionInterceptor());
 
         var owned = new SingleKeyOwned { Value = "Existing" };
@@ -228,7 +228,7 @@ public class StateManagerTest
     public void Identity_conflict_can_be_resolved_for_composite_primary_key(bool copy)
     {
         using var context = new IdentityConflictContext(copy
-            ? new CopyingIdentityResolutionInterceptor()
+            ? new UpdatingIdentityResolutionInterceptor()
             : new SkippingIdentityResolutionInterceptor());
 
         var entity = new CompositeKey
@@ -841,6 +841,10 @@ public class StateManagerTest
             ChangedState = oldState;
 
             Assert.False(fromQuery);
+        }
+
+        public void FixupResolved(InternalEntityEntry entry, InternalEntityEntry duplicateEntry)
+        {
         }
     }
 
