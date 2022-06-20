@@ -7,6 +7,33 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 public class Team
 {
+    public class TeamProxy : Team, IF1Proxy
+    {
+        public TeamProxy(
+            ILazyLoader loader,
+            int id,
+            string name,
+            string constructor,
+            string tire,
+            string principal,
+            int constructorsChampionships,
+            int driversChampionships,
+            int races,
+            int victories,
+            int poles,
+            int fastestLaps,
+            int? gearboxId)
+            : base(
+                loader, id, name, constructor, tire, principal, constructorsChampionships, driversChampionships, races, victories, poles,
+                fastestLaps, gearboxId)
+        {
+        }
+
+        public bool CreatedCalled { get; set; }
+        public bool InitializingCalled { get; set; }
+        public bool InitializedCalled { get; set; }
+    }
+
     private readonly ILazyLoader _loader;
     private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
     private readonly ObservableCollection<Sponsor> _sponsors = new();
@@ -46,6 +73,8 @@ public class Team
         Poles = poles;
         FastestLaps = fastestLaps;
         GearboxId = gearboxId;
+
+        Assert.IsType<TeamProxy>(this);
     }
 
     public int Id { get; set; }

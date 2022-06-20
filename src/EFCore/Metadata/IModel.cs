@@ -65,14 +65,22 @@ public interface IModel : IReadOnlyModel, IAnnotatable
     /// </remarks>
     /// <param name="type">The type to find the corresponding entity type for.</param>
     /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
-    IEntityType? FindRuntimeEntityType(Type type)
+    IEntityType? FindRuntimeEntityType(Type? type)
     {
         Check.NotNull(type, nameof(type));
 
-        return FindEntityType(type)
-            ?? (type.BaseType == null
-                ? null
-                : FindEntityType(type.BaseType));
+        while (type != null)
+        {
+            var entityType = FindEntityType(type);
+            if (entityType != null)
+            {
+                return  entityType;
+            }
+
+            type = type.BaseType;
+        }
+
+        return null;
     }
 
     /// <summary>

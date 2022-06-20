@@ -18,13 +18,32 @@ public abstract class SingletonInterceptorsTestBase
 
     protected class Book
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
-
+        public Guid Id { get; set; }
         public string? Title { get; set; }
 
         [NotMapped]
         public string? MaterializedBy { get; set; }
+
+        [NotMapped]
+        public string? CreatedBy { get; set; }
+
+        [NotMapped]
+        public string? InitializingBy { get; set; }
+
+        [NotMapped]
+        public string? InitializedBy { get; set; }
+    }
+
+    protected class Pamphlet
+    {
+        public Pamphlet(Guid id, string? title)
+        {
+            Id = id;
+            Title = title;
+        }
+
+        public Guid Id { get; set; }
+        public string? Title { get; set; }
     }
 
     public class LibraryContext : PoolableDbContext
@@ -36,7 +55,17 @@ public abstract class SingletonInterceptorsTestBase
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>();
+            modelBuilder.Entity<Book>(
+                b =>
+                {
+                    b.Property<string?>("Author");
+                });
+
+            modelBuilder.Entity<Pamphlet>(
+                b =>
+                {
+                    b.Property<string?>("Author");
+                });
         }
     }
 

@@ -5,6 +5,29 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 public class TestDriver : Driver
 {
+    public class TestDriverProxy : TestDriver, IF1Proxy
+    {
+        public TestDriverProxy(
+            ILazyLoader loader,
+            int id,
+            string name,
+            int? carNumber,
+            int championships,
+            int races,
+            int wins,
+            int podiums,
+            int poles,
+            int fastestLaps,
+            int teamId)
+            : base(loader, id, name, carNumber, championships, races, wins, podiums, poles, fastestLaps, teamId)
+        {
+        }
+
+        public bool CreatedCalled { get; set; }
+        public bool InitializingCalled { get; set; }
+        public bool InitializedCalled { get; set; }
+    }
+
     public TestDriver()
     {
     }
@@ -23,5 +46,6 @@ public class TestDriver : Driver
         int teamId)
         : base(loader, id, name, carNumber, championships, races, wins, podiums, poles, fastestLaps, teamId)
     {
+        Assert.IsType<TestDriverProxy>(this);
     }
 }

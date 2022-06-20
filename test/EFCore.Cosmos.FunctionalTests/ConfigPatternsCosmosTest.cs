@@ -6,29 +6,6 @@ using Microsoft.Azure.Cosmos;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
-public class BindingInterceptionCosmosTest : BindingInterceptionTestBase,
-    IClassFixture<BindingInterceptionCosmosTest.BindingInterceptionCosmosFixture>
-{
-    public BindingInterceptionCosmosTest(BindingInterceptionCosmosFixture fixture)
-        : base(fixture)
-    {
-    }
-
-    public class BindingInterceptionCosmosFixture : SingletonInterceptorsFixtureBase
-    {
-        protected override string StoreName
-            => "BindingInterception";
-
-        protected override ITestStoreFactory TestStoreFactory
-            => CosmosTestStoreFactory.Instance;
-
-        protected override IServiceCollection InjectInterceptors(
-            IServiceCollection serviceCollection,
-            IEnumerable<ISingletonInterceptor> injectedInterceptors)
-            => base.InjectInterceptors(serviceCollection.AddEntityFrameworkCosmos(), injectedInterceptors);
-    }
-}
-
 public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {
     private const string DatabaseName = "ConfigPatternsCosmos";
