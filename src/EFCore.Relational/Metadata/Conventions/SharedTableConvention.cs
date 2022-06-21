@@ -239,7 +239,7 @@ public class SharedTableConvention : IModelFinalizingConvention
                     && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
                 || property.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
             {
-                var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
+                var newColumnName = TryUniquify(property, columnName, properties, storeObject, usePrefix, maxLength);
                 if (newColumnName != null)
                 {
                     properties[newColumnName] = property;
@@ -252,7 +252,7 @@ public class SharedTableConvention : IModelFinalizingConvention
                     && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
                 || otherProperty.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
             {
-                var newOtherColumnName = TryUniquify(otherProperty, columnName, properties, usePrefix, maxLength);
+                var newOtherColumnName = TryUniquify(otherProperty, columnName, properties, storeObject, usePrefix, maxLength);
                 if (newOtherColumnName != null)
                 {
                     properties[columnName] = property;
@@ -266,10 +266,12 @@ public class SharedTableConvention : IModelFinalizingConvention
         IConventionProperty property,
         string columnName,
         Dictionary<string, IConventionProperty> properties,
+        in StoreObjectIdentifier storeObject,
         bool usePrefix,
         int maxLength)
     {
-        if (property.Builder.CanSetColumnName(null))
+        if (property.Builder.CanSetColumnName(null)
+            && property.Builder.CanSetColumnName(null, storeObject))
         {
             if (usePrefix)
             {
@@ -281,7 +283,7 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
 
             columnName = Uniquifier.Uniquify(columnName, properties, maxLength);
-            if (property.Builder.HasColumnName(columnName) == null)
+            if (property.Builder.HasColumnName(columnName, storeObject) == null)
             {
                 return null;
             }

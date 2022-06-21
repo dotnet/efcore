@@ -2,12 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class FixupTest
 {

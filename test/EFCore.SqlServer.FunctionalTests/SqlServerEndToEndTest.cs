@@ -980,9 +980,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
     public enum Grade
     {
-#pragma warning disable SA1602 // Enumeration items should be documented
         A, B, C, D, F
-#pragma warning restore SA1602 // Enumeration items should be documented
     }
 
     public class Enrollment

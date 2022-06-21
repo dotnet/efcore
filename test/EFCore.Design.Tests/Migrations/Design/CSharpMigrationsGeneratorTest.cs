@@ -907,11 +907,9 @@ namespace MyNamespace
     [Flags]
     public enum Enum1
     {
-#pragma warning disable SA1602 // Enumeration items should be documented
         Default = 0,
         One = 1,
         Two = 2
-#pragma warning restore SA1602 // Enumeration items should be documented
     }
 
     private ModelSnapshot CompileModelSnapshot(string modelSnapshotCode, string modelSnapshotTypeName)

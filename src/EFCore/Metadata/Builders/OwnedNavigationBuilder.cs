@@ -900,6 +900,10 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         {
             relatedEntityType = model.FindEntityType(relatedTypeName, navigationName, DependentEntityType);
         }
+        else if (DependentEntityType.Name == relatedTypeName)
+        {
+            return DependentEntityType;
+        }
 
         if (relatedEntityType == null
             && ((IReadOnlyModel)model).GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)

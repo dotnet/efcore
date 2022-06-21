@@ -538,7 +538,10 @@ public class ModelSnapshotSqlServerTest
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
 
-                    b.ToTable(""DerivedEntity"", ""foo"", t => t.ExcludeFromMigrations());
+                    b.ToTable(""DerivedEntity"", ""foo"", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -575,7 +578,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToView(""EntityWithOneProperty"");
+                    b.ToView(""EntityWithOneProperty"", (string)null);
                 });"),
             o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
 
@@ -654,6 +657,368 @@ public class ModelSnapshotSqlServerTest
                 var derived = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
                 Assert.Equal("DerivedEntity", derived.GetTableName());
                 Assert.Equal("DerivedView", derived.GetViewName());
+            });
+
+    [ConditionalFact]
+    public virtual void Entity_splitting_is_stored_in_snapshot_with_tables()
+        => Test(
+            builder =>
+            {
+                builder.Entity<Order>(
+                    b =>
+                    {
+                        b.Ignore(e => e.OrderInfo);
+
+                        b.Property<int>("Shadow").HasColumnName("Shadow");
+                        b.ToTable("Order", tb =>
+                        {
+                            tb.Property("Shadow");
+                        });
+                        b.SplitToTable("SplitOrder", sb =>
+                        {
+                            sb.Property("Shadow");
+                        });
+
+                        b.OwnsOne(p => p.OrderBillingDetails, od =>
+                        {
+                            od.OwnsOne(c => c.StreetAddress);
+
+                            od.Property<int>("BillingShadow");
+                            od.ToTable("SplitOrder", tb =>
+                            {
+                                tb.Property("BillingShadow").HasColumnName("Shadow");
+                            });
+                            od.SplitToTable("BillingDetails", sb =>
+                            {
+                                sb.Property("BillingShadow").HasColumnName("Shadow");
+                            });
+                        });
+
+                        b.OwnsOne(p => p.OrderShippingDetails, od =>
+                        {
+                            od.OwnsOne(c => c.StreetAddress).ToTable("ShippingDetails");
+
+                            od.Property<int>("ShippingShadow");
+                            od.ToTable("Order", tb =>
+                            {
+                                tb.Property("ShippingShadow").HasColumnName("Shadow");
+                            });
+                            od.SplitToTable("ShippingDetails", sb =>
+                            {
+                                sb.Property("ShippingShadow");
+                            });
+                        });
+                    });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<int>(""Shadow"")
+                        .HasColumnType(""int"")
+                        .HasColumnName(""Shadow"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Order"", null, t =>
+                        {
+                            t.Property(""Shadow"");
+                        });
+
+                    b.SplitToTable(""SplitOrder"", null, t =>
+                        {
+                            t.Property(""Shadow"");
+                        });
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
+                {
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", null)
+                        .WithOne()
+                        .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", ""Id"")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderBillingDetails"", b1 =>
+                        {
+                            b1.Property<int>(""OrderId"")
+                                .HasColumnType(""int"");
+
+                            b1.Property<int>(""BillingShadow"")
+                                .HasColumnType(""int"");
+
+                            b1.HasKey(""OrderId"");
+
+                            b1.ToTable(""SplitOrder"", null, t =>
+                                {
+                                    t.Property(""BillingShadow"")
+                                        .HasColumnName(""Shadow"");
+                                });
+
+                            b1.SplitToTable(""BillingDetails"", null, t =>
+                                {
+                                    t.Property(""BillingShadow"")
+                                        .HasColumnName(""Shadow"");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey(""OrderId"");
+
+                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderBillingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", null)
+                                .WithOne()
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderBillingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
+                                .OnDelete(DeleteBehavior.ClientCascade)
+                                .IsRequired();
+
+                            b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                                {
+                                    b2.Property<int>(""OrderDetailsOrderId"")
+                                        .HasColumnType(""int"");
+
+                                    b2.Property<string>(""City"")
+                                        .HasColumnType(""nvarchar(max)"");
+
+                                    b2.HasKey(""OrderDetailsOrderId"");
+
+                                    b2.ToTable(""SplitOrder"");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey(""OrderDetailsOrderId"");
+                                });
+
+                            b1.Navigation(""StreetAddress"");
+                        });
+
+                    b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderShippingDetails"", b1 =>
+                        {
+                            b1.Property<int>(""OrderId"")
+                                .HasColumnType(""int"");
+
+                            b1.Property<int>(""ShippingShadow"")
+                                .HasColumnType(""int"");
+
+                            b1.HasKey(""OrderId"");
+
+                            b1.ToTable(""Order"", null, t =>
+                                {
+                                    t.Property(""ShippingShadow"")
+                                        .HasColumnName(""Shadow"");
+                                });
+
+                            b1.SplitToTable(""ShippingDetails"", null, t =>
+                                {
+                                    t.Property(""ShippingShadow"");
+                                });
+
+                            b1.WithOwner()
+                                .HasForeignKey(""OrderId"");
+
+                            b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderShippingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", null)
+                                .WithOne()
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderShippingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
+                                .OnDelete(DeleteBehavior.ClientCascade)
+                                .IsRequired();
+
+                            b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
+                                {
+                                    b2.Property<int>(""OrderDetailsOrderId"")
+                                        .HasColumnType(""int"");
+
+                                    b2.Property<string>(""City"")
+                                        .HasColumnType(""nvarchar(max)"");
+
+                                    b2.HasKey(""OrderDetailsOrderId"");
+
+                                    b2.ToTable(""ShippingDetails"", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey(""OrderDetailsOrderId"");
+                                });
+
+                            b1.Navigation(""StreetAddress"");
+                        });
+
+                    b.Navigation(""OrderBillingDetails"");
+
+                    b.Navigation(""OrderShippingDetails"");
+                });"),
+            model =>
+            {
+                Assert.Equal(5, model.GetEntityTypes().Count());
+
+                var orderEntityType = model.FindEntityType(typeof(Order));
+                Assert.Equal(nameof(Order), orderEntityType.GetTableName());
+
+                var billingOwnership = orderEntityType.FindNavigation(nameof(Order.OrderBillingDetails))
+                    .ForeignKey;
+                var billingEntityType = billingOwnership.DeclaringEntityType;
+                Assert.Equal("SplitOrder", billingEntityType.GetTableName());
+
+                var billingAddressOwnership = billingEntityType.FindNavigation(nameof(OrderDetails.StreetAddress))
+                    .ForeignKey;
+                var billingAddress = billingAddressOwnership.DeclaringEntityType;
+                Assert.Equal("SplitOrder", billingAddress.GetTableName());
+
+                var shippingOwnership = orderEntityType.FindNavigation(nameof(Order.OrderShippingDetails))
+                    .ForeignKey;
+                var shippingEntityType = shippingOwnership.DeclaringEntityType;
+                Assert.Equal(nameof(Order), shippingEntityType.GetTableName());
+
+                var shippingAddressOwnership = shippingEntityType.FindNavigation(nameof(OrderDetails.StreetAddress))
+                    .ForeignKey;
+                var shippingAddress = shippingAddressOwnership.DeclaringEntityType;
+                Assert.Equal("ShippingDetails", shippingAddress.GetTableName());
+
+                var relationalModel = model.GetRelationalModel();
+
+                Assert.Equal(4, relationalModel.Tables.Count());
+
+                var orderTable = relationalModel.FindTable(orderEntityType.GetTableName()!, orderEntityType.GetSchema());
+                Assert.Equal(new []{ orderEntityType, shippingEntityType },
+                    orderTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+
+                var fragment = orderEntityType.GetMappingFragments().Single();
+                var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema);
+                Assert.Equal(new[] { billingEntityType, orderEntityType },
+                    splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+
+                var billingFragment = billingEntityType.GetMappingFragments().Single();
+                var billingTable = relationalModel.FindTable(billingFragment.StoreObject.Name, billingFragment.StoreObject.Schema);
+                Assert.Equal(new[] { billingEntityType },
+                    billingTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+
+                var shippingFragment = shippingEntityType.GetMappingFragments().Single();
+                var shippingTable = relationalModel.FindTable(shippingFragment.StoreObject.Name, shippingFragment.StoreObject.Schema);
+                Assert.Equal(new[] { shippingEntityType },
+                    shippingTable.FindColumn("ShippingShadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+
+                Assert.Equal(new[] { "Id", "Shadow" }, orderTable.Columns.Select(c => c.Name));
+                Assert.Equal(new[] { "Id", "OrderBillingDetails_StreetAddress_City", "Shadow" }, splitTable.Columns.Select(c => c.Name));
+                Assert.Equal(new[] { "OrderId", "Shadow" }, billingTable.Columns.Select(c => c.Name));
+                Assert.Equal(new[] { "OrderId", "ShippingShadow", "StreetAddress_City" }, shippingTable.Columns.Select(c => c.Name));
+            });
+
+    [ConditionalFact]
+    public virtual void Entity_splitting_is_stored_in_snapshot_with_views()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(
+                    b =>
+                    {
+                        b.Property<int>("Shadow");
+                        b.ToView("EntityWithOneProperty", tb =>
+                        {
+                            tb.Property("Shadow");
+                        });
+                        b.SplitToView("SplitView", sb =>
+                        {
+                            sb.Property("Shadow");
+                        });
+
+                        b.OwnsOne(
+                            eo => eo.EntityWithTwoProperties, eb =>
+                            {
+                                eb.Ignore(e => e.EntityWithStringKey);
+
+                                eb.ToView("EntityWithOneProperty", tb =>
+                                {
+                                    tb.Property(e => e.AlternateId).HasColumnName("SomeId");
+                                });
+                                eb.SplitToView("SplitView", sb =>
+                                {
+                                    sb.Property(e => e.AlternateId).HasColumnName("SomeOtherId");
+                                });
+                            });
+                    });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<int>(""Shadow"")
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToView(""EntityWithOneProperty"", null, v =>
+                        {
+                            v.Property(""Shadow"");
+                        });
+
+                    b.SplitToView(""SplitView"", null, v =>
+                        {
+                            v.Property(""Shadow"");
+                        });
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
+                        {
+                            b1.Property<int>(""Id"")
+                                .HasColumnType(""int"");
+
+                            b1.Property<int>(""AlternateId"")
+                                .HasColumnType(""int"");
+
+                            b1.HasKey(""Id"");
+
+                            b1.ToView(""EntityWithOneProperty"", null, v =>
+                                {
+                                    v.Property(""AlternateId"")
+                                        .HasColumnName(""SomeId"");
+                                });
+
+                            b1.SplitToView(""SplitView"", null, v =>
+                                {
+                                    v.Property(""AlternateId"")
+                                        .HasColumnName(""SomeOtherId"");
+                                });
+
+                            b1.WithOwner(""EntityWithOneProperty"")
+                                .HasForeignKey(""Id"");
+
+                            b1.Navigation(""EntityWithOneProperty"");
+                        });
+
+                    b.Navigation(""EntityWithTwoProperties"");
+                });"),
+            model =>
+            {
+                var entityWithOneProperty = model.FindEntityType(typeof(EntityWithOneProperty));
+                Assert.Equal(nameof(EntityWithOneProperty), entityWithOneProperty.GetViewName());
+
+                var ownership = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                    .ForeignKey;
+                var ownedType = ownership.DeclaringEntityType;
+                Assert.Equal(nameof(EntityWithOneProperty), ownedType.GetViewName());
+
+                var relationalModel = model.GetRelationalModel();
+
+                Assert.Empty(relationalModel.Tables);
+                Assert.Equal(2, relationalModel.Views.Count());
+
+                var mainView = relationalModel.FindView(entityWithOneProperty.GetViewName(), entityWithOneProperty.GetSchema());
+
+                var fragment = entityWithOneProperty.GetMappingFragments().Single();
+                var splitView = relationalModel.FindView(fragment.StoreObject.Name, fragment.StoreObject.Schema);
+
+                Assert.Equal(new[] { "Id", "Shadow", "SomeId" }, mainView.Columns.Select(c => c.Name));
+                Assert.Equal(new[] { "Id", "Shadow", "SomeOtherId" }, splitView.Columns.Select(c => c.Name));
             });
 
     [ConditionalFact]
@@ -798,7 +1163,11 @@ public class ModelSnapshotSqlServerTest
             builder =>
             {
                 builder.Entity<EntityWithTwoProperties>()
-                        .HasCheckConstraint("AlternateId", "AlternateId > Id", ck => ck.HasName("CK_Customer_AlternateId"));
+                        .HasCheckConstraint("AlternateId", "AlternateId > Id", ck =>
+                        {
+                            ck.HasName("CK_Customer_AlternateId");
+                            ck.HasAnnotation("foo", "bar");
+                        });
                 builder.Ignore<EntityWithOneProperty>();
             },
             AddBoilerPlate(
@@ -819,12 +1188,18 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToTable(""EntityWithTwoProperties"");
 
-                    b.HasCheckConstraint(""AlternateId"", ""AlternateId > Id"", c => c.HasName(""CK_Customer_AlternateId""));
+                    b.HasCheckConstraint(""AlternateId"", ""AlternateId > Id"", c =>
+                        {
+                            c.HasName(""CK_Customer_AlternateId"");
+
+                            c.HasAnnotation(""foo"", ""bar"");
+                        });
                 });"),
             o =>
             {
                 var constraint = o.GetEntityTypes().Single().GetCheckConstraints().Single();
                 Assert.Equal("CK_Customer_AlternateId", constraint.Name);
+                Assert.Equal("bar", constraint["foo"]);
             });
 
     [ConditionalFact]
@@ -881,7 +1256,7 @@ public class ModelSnapshotSqlServerTest
             builder =>
             {
                 builder.Entity<EntityWithOneProperty>()
-                    .ToTable(tb => tb.HasTrigger("SomeTrigger").Metadata["foo"] = "bar");
+                    .ToTable(tb => tb.HasTrigger("SomeTrigger").HasAnnotation("foo", "bar"));
                 builder.Ignore<EntityWithTwoProperties>();
             },
             AddBoilerPlate(
@@ -898,10 +1273,10 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithOneProperty"", t =>
-                    {
-                        t.HasTrigger(""SomeTrigger"")
-                            .HasAnnotation(""foo"", ""bar"");
-                    });
+                        {
+                            t.HasTrigger(""SomeTrigger"")
+                                .HasAnnotation(""foo"", ""bar"");
+                        });
                 });"),
             o =>
             {
@@ -937,12 +1312,12 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithOneProperty"", t =>
-                    {
-                        t.ExcludeFromMigrations();
+                        {
+                            t.ExcludeFromMigrations();
 
-                        t.HasTrigger(""SomeTrigger1"");
-                        t.HasTrigger(""SomeTrigger2"");
-                    });
+                            t.HasTrigger(""SomeTrigger1"");
+                            t.HasTrigger(""SomeTrigger2"");
+                        });
                 });"),
             o =>
             {
@@ -2396,7 +2771,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"")
                                 .WithOne()
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
 
                             b1.Navigation(""EntityWithOneProperty"");
 
@@ -2445,7 +2820,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
                                 .WithOne()
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithOnePropertyId"");
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey.Properties#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithOnePropertyId"");
 
                             b1.WithOwner()
                                 .HasForeignKey(""EntityWithStringKeyId"");
@@ -2573,7 +2948,10 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey(""Id"")
                         .HasName(""PK_Custom"");
 
-                    b.ToTable(""EntityWithOneProperty"", null, t => t.ExcludeFromMigrations());
+                    b.ToTable(""EntityWithOneProperty"", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
 
                     b.HasData(
                         new
@@ -2589,7 +2967,10 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithStringKey"", null, t => t.ExcludeFromMigrations());
+                    b.ToTable(""EntityWithStringKey"", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
@@ -2622,7 +3003,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"")
                                 .WithOne()
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithStringKeyId"");
 
                             b1.Navigation(""EntityWithOneProperty"");
 
@@ -2667,11 +3048,14 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasIndex(""EntityWithStringKeyId"");
 
-                            b1.ToTable(""EntityWithStringProperty"", null, t => t.ExcludeFromMigrations());
+                            b1.ToTable(""EntityWithStringProperty"", null, t =>
+                                {
+                                    t.ExcludeFromMigrations();
+                                });
 
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
                                 .WithOne()
-                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithOnePropertyId"");
+                                .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey.Properties#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithOnePropertyId"");
 
                             b1.WithOwner()
                                 .HasForeignKey(""EntityWithStringKeyId"");
@@ -2952,7 +3336,7 @@ namespace RootNamespace
 
                             b1.HasKey(""TestOwnerId"", ""Id"");
 
-                            b1.ToView(""OwnedView"");
+                            b1.ToView(""OwnedView"", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey(""TestOwnerId"");

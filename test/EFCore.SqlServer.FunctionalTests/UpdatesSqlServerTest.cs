@@ -173,10 +173,10 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
             entityType2.GetKeys().Single().GetName());
         Assert.Equal(
             "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCo~",
-            entityType2.GetProperties().ElementAt(1).GetColumnName());
+            entityType2.GetProperties().ElementAt(1).GetColumnName(StoreObjectIdentifier.Table(entityType2.GetTableName())));
         Assert.Equal(
             "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingC~1",
-            entityType2.GetProperties().ElementAt(2).GetColumnName());
+            entityType2.GetProperties().ElementAt(2).GetColumnName(StoreObjectIdentifier.Table(entityType2.GetTableName())));
         Assert.Equal(
             "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWor~1",
             entityType2.GetIndexes().Single().GetDatabaseName());

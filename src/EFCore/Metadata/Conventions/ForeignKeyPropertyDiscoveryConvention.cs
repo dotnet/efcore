@@ -95,7 +95,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
 
         if (shouldBeRequired)
         {
-            relationshipBuilder.IsRequired(true);
+            relationshipBuilder = relationshipBuilder.IsRequired(true) ?? relationshipBuilder;
         }
 
         var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context)!;
@@ -222,6 +222,16 @@ public class ForeignKeyPropertyDiscoveryConvention :
                             foreignKey.PrincipalEntityType,
                             foreignKey.PrincipalKey.Properties);
                     }
+                    // Try to use PK properties on owner if configured explicitly or on CLR properties
+                    else if (foreignKey.IsOwnership
+                             && (!ConfigurationSource.Convention.Overrides(foreignKey.DeclaringEntityType.GetPrimaryKeyConfigurationSource())
+                                 || (foreignKey.DeclaringEntityType.FindPrimaryKey()?.Properties.All(p => !p.IsShadowProperty()) ?? false)))
+                    {
+                        foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
+                            foreignKey.DeclaringEntityType,
+                            foreignKey.PrincipalEntityType,
+                            foreignKey.PrincipalKey.Properties);
+                    }
                     else if (invertible)
                     {
                         foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
@@ -289,15 +299,15 @@ public class ForeignKeyPropertyDiscoveryConvention :
             .Concat(
                 foreignKey.DeclaringEntityType.GetDerivedTypes()
                     .SelectMany(et => et.FindDeclaredForeignKeys(foreignKeyProperties)))
-            .Count();
+            .Count() - 1;
         if (foreignKey.Properties.SequenceEqual(foreignKeyProperties))
         {
-            return conflictingFKCount > 1
+            return conflictingFKCount > 0 && !foreignKey.IsOwnership
                 ? ((ForeignKey)foreignKey).Builder.ReuniquifyImplicitProperties(true)
                 : relationshipBuilder;
         }
 
-        if (conflictingFKCount > 0)
+        if (conflictingFKCount == 0)
         {
             return ((ForeignKey)foreignKey).Builder.ReuniquifyImplicitProperties(false);
         }
@@ -761,16 +771,25 @@ public class ForeignKeyPropertyDiscoveryConvention :
             .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
         foreach (var foreignKey in foreignKeys)
         {
-            if (foreignKey.IsUnique)
+            if (!foreignKey.IsUnique
+                || !foreignKey.IsInModel)
             {
-                DiscoverProperties(foreignKey.Builder, context);
+                continue;
             }
+
+            DiscoverProperties(foreignKey.Builder, context);
         }
 
         var referencingForeignKeys = entityTypeBuilder.Metadata.GetDerivedTypesInclusive()
             .SelectMany(t => t.GetDeclaredReferencingForeignKeys()).ToList();
         foreach (var referencingForeignKey in referencingForeignKeys)
         {
+            if (referencingForeignKey.IsSelfReferencing()
+                || !referencingForeignKey.IsInModel)
+            {
+                continue;
+            }
+
             DiscoverProperties(referencingForeignKey.Builder, context);
         }
     }

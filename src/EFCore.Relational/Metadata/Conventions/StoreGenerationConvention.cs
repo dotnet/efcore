@@ -106,7 +106,7 @@ public class StoreGenerationConvention : IPropertyAnnotationChangedConvention, I
             foreach (var declaredProperty in entityType.GetDeclaredProperties())
             {
                 var declaringTable = declaredProperty.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
-                if (declaringTable.Name == null)
+                if (declaringTable.Name == null!)
                 {
                     continue;
                 }

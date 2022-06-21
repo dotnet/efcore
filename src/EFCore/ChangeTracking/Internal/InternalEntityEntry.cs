@@ -1300,7 +1300,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     if (valueType == CurrentValueType.StoreGenerated)
                     {
                         var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                        if (!AreEqual(currentValue, defaultValue, asProperty!))
+                        if (!AreEqual(currentValue, defaultValue, asProperty))
                         {
                             WritePropertyValue(asProperty, defaultValue, isMaterialization);
                         }
@@ -1311,13 +1311,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     else
                     {
                         var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                        if (!AreEqual(currentValue, defaultValue, asProperty!))
+                        if (!AreEqual(currentValue, defaultValue, asProperty))
                         {
                             WritePropertyValue(asProperty, defaultValue, isMaterialization);
                         }
 
                         if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                            && !AreEqual(generatedValue, defaultValue, asProperty!))
+                            && !AreEqual(generatedValue, defaultValue, asProperty))
                         {
                             _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
                         }

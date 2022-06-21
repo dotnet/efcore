@@ -310,7 +310,7 @@ public class StateManager : IStateManager
         var entityType = entry.EntityType;
         if (entityType.HasSharedClrType)
         {
-            var mapKey = entry.Entity ?? entry;
+            var mapKey = entry.Entity;
             foreach (var otherType in _model.FindEntityTypes(entityType.ClrType)
                          .Where(et => et != entityType && TryGetEntry(mapKey, et) != null))
             {
@@ -546,7 +546,7 @@ public class StateManager : IStateManager
         }
 
 #if DEBUG
-        var existingEntry = TryGetEntry(entry.Entity ?? entry, entityType);
+        var existingEntry = TryGetEntry(entry.Entity, entityType);
 
         Check.DebugAssert(existingEntry == null || existingEntry == entry, "Duplicate InternalEntityEntry");
 #endif

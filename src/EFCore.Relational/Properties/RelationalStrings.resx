@@ -735,7 +735,7 @@
     <value>The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.</value>
   </data>
   <data name="MappingFragmentMissingName" xml:space="preserve">
-    <value>Table name must be specified to configure a mapping fragment.</value>
+    <value>Table name must be specified to configure a table-specific property mapping.</value>
   </data>
   <data name="MethodOnNonTphRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
