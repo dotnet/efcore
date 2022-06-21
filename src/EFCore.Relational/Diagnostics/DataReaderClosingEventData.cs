@@ -1,18 +1,18 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
-///     <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderDisposing" />.
+///     <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderClosing" />.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
 /// </remarks>
-public class DataReaderDisposingEventData : DataReaderEventData
+public class DataReaderClosingEventData : DataReaderEventData
 {
     /// <summary>
-    ///     Constructs a <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderDisposing" />.
+    ///     Constructs a <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.DataReaderClosing" />.
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
@@ -21,14 +21,11 @@ public class DataReaderDisposingEventData : DataReaderEventData
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="commandId">A correlation ID that identifies the <see cref="DbCommand" /> instance being used.</param>
     /// <param name="connectionId">A correlation ID that identifies the <see cref="DbConnection" /> instance being used.</param>
+    /// <param name="async">Indicates whether or not the command was executed asynchronously.</param>
     /// <param name="recordsAffected">Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.</param>
     /// <param name="readCount">Gets the number of read operations performed by this reader.</param>
     /// <param name="startTime">The time when the data reader was created.</param>
-    /// <param name="duration">
-    ///     The duration from the time the data reader is created until it is disposed. This corresponds to the time reading
-    ///     for reading results of a query.
-    /// </param>
-    public DataReaderDisposingEventData(
+    public DataReaderClosingEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbCommand command,
@@ -36,19 +33,18 @@ public class DataReaderDisposingEventData : DataReaderEventData
         DbContext? context,
         Guid commandId,
         Guid connectionId,
+        bool async,
         int recordsAffected,
         int readCount,
-        DateTimeOffset startTime,
-        TimeSpan duration)
+        DateTimeOffset startTime)
         : base(
             eventDefinition, messageGenerator, command, dataReader, context, commandId, connectionId, recordsAffected, readCount, startTime)
     {
-        Duration = duration;
+        IsAsync = async;
     }
 
     /// <summary>
-    ///     The duration from the time the data reader is created until it is disposed. This corresponds to the time reading
-    ///     for reading results of a query.
+    ///     Indicates whether or not the operation is being executed asynchronously.
     /// </summary>
-    public virtual TimeSpan Duration { get; }
+    public virtual bool IsAsync { get; }
 }

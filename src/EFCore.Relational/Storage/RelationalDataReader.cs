@@ -103,7 +103,28 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
             var interceptionResult = default(InterceptionResult);
             try
             {
-                _reader.Close(); // can throw
+                var closeInterceptionResult = default(InterceptionResult);
+                try
+                {
+                    if (_logger?.ShouldLogDataReaderClose(DateTimeOffset.UtcNow) == true)
+                    {
+                        closeInterceptionResult = _logger.DataReaderClosing(
+                            _relationalConnection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime); // can throw
+                    }
+                }
+                finally
+                {
+                    if (!closeInterceptionResult.IsSuppressed)
+                    {
+                        _reader.Close(); // can throw
+                    }
+                }
 
                 if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
                 {
@@ -143,7 +164,28 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
             var interceptionResult = default(InterceptionResult);
             try
             {
-                await _reader.CloseAsync().ConfigureAwait(false); // can throw
+                var closeInterceptionResult = default(InterceptionResult);
+                try
+                {
+                    if (_logger?.ShouldLogDataReaderClose(DateTimeOffset.UtcNow) == true)
+                    {
+                        closeInterceptionResult = await _logger.DataReaderClosingAsync(
+                            _relationalConnection,
+                            _command,
+                            _reader,
+                            _commandId,
+                            _reader.RecordsAffected,
+                            _readCount,
+                            _startTime).ConfigureAwait(false); // can throw
+                    }
+                }
+                finally
+                {
+                    if (!closeInterceptionResult.IsSuppressed)
+                    {
+                        await _reader.CloseAsync().ConfigureAwait(false); // can throw
+                    }
+                }
 
                 if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
                 {

@@ -20,6 +20,7 @@ public class RelationalCommandDiagnosticsLogger
 {
     private DateTimeOffset _suppressCommandCreateExpiration;
     private DateTimeOffset _suppressCommandExecuteExpiration;
+    private DateTimeOffset _suppressDataReaderClosingExpiration;
     private DateTimeOffset _suppressDataReaderDisposingExpiration;
 
     private readonly TimeSpan _loggingCacheTime;
@@ -1510,7 +1511,127 @@ public class RelationalCommandDiagnosticsLogger
 
     #endregion CommandCanceled
 
-    #region DataReaderDisposing
+    #region DataReader
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InterceptionResult DataReaderClosing(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbDataReader dataReader,
+        Guid commandId,
+        int recordsAffected,
+        int readCount,
+        DateTimeOffset startTime)
+    {
+        _suppressDataReaderClosingExpiration = startTime + _loggingCacheTime;
+
+        var definition = RelationalResources.LogClosingDataReader(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressDataReaderClosingExpiration = default;
+
+            definition.Log(this, connection.DbConnection.Database, connection.DbConnection.DataSource);
+        }
+
+        if (NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressDataReaderClosingExpiration = default;
+
+            var eventData = new DataReaderClosingEventData(
+                definition,
+                CreateDataReaderClosingString,
+                command,
+                dataReader,
+                connection.Context,
+                commandId,
+                connection.ConnectionId,
+                async: false,
+                recordsAffected,
+                readCount,
+                startTime);
+
+            DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.DataReaderClosing(command, eventData, default);
+            }
+        }
+
+        return default;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ValueTask<InterceptionResult> DataReaderClosingAsync(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbDataReader dataReader,
+        Guid commandId,
+        int recordsAffected,
+        int readCount,
+        DateTimeOffset startTime)
+    {
+        _suppressDataReaderClosingExpiration = startTime + _loggingCacheTime;
+
+        var definition = RelationalResources.LogClosingDataReader(this);
+
+        if (ShouldLog(definition))
+        {
+            _suppressDataReaderClosingExpiration = default;
+
+            definition.Log(this, connection.DbConnection.Database, connection.DbConnection.DataSource);
+        }
+
+        if (NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            _suppressDataReaderClosingExpiration = default;
+
+            var eventData = new DataReaderClosingEventData(
+                definition,
+                CreateDataReaderClosingString,
+                command,
+                dataReader,
+                connection.Context,
+                commandId,
+                connection.ConnectionId,
+                async: true,
+                recordsAffected,
+                readCount,
+                startTime);
+
+            DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.DataReaderClosingAsync(command, eventData, default);
+            }
+        }
+
+        return default;
+    }
+    
+    
+    private static string CreateDataReaderClosingString(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (DataReaderClosingEventData)payload;
+        return d.GenerateMessage(
+            p.Command.Connection?.Database ?? "<Unknown>",
+            p.Command.Connection?.DataSource ?? "<Unknown>");
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1536,7 +1657,7 @@ public class RelationalCommandDiagnosticsLogger
         {
             _suppressDataReaderDisposingExpiration = default;
 
-            definition.Log(this);
+            definition.Log(this, connection.DbConnection.Database, connection.DbConnection.DataSource, (int)duration.TotalMilliseconds);
         }
 
         if (NeedsEventData<IDbCommandInterceptor>(
@@ -1546,7 +1667,7 @@ public class RelationalCommandDiagnosticsLogger
 
             var eventData = new DataReaderDisposingEventData(
                 definition,
-                (d, _) => ((EventDefinition)d).GenerateMessage(),
+                CreateDataReaderDisposingString,
                 command,
                 dataReader,
                 connection.Context,
@@ -1568,7 +1689,17 @@ public class RelationalCommandDiagnosticsLogger
         return default;
     }
 
-    #endregion DataReaderDisposing
+    private static string CreateDataReaderDisposingString(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, int>)definition;
+        var p = (DataReaderDisposingEventData)payload;
+        return d.GenerateMessage(
+            p.Command.Connection?.Database ?? "<Unknown>",
+            p.Command.Connection?.DataSource ?? "<Unknown>",
+            (int)p.Duration.TotalMilliseconds);
+    }
+
+    #endregion DataReader
 
     #region ShouldLog checks
 
@@ -1589,6 +1720,15 @@ public class RelationalCommandDiagnosticsLogger
     /// </summary>
     public virtual bool ShouldLogCommandExecute(DateTimeOffset now)
         => now > _suppressCommandExecuteExpiration;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool ShouldLogDataReaderClose(DateTimeOffset now)
+        => now > _suppressDataReaderClosingExpiration;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

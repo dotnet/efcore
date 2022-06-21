@@ -1802,6 +1802,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Closing data reader to '{database}' on server '{server}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogClosingDataReader(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosingDataReader;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosingDataReader,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.DataReaderClosing,
+                        LogLevel.Debug,
+                        "RelationalEventId.DataReaderClosing",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.DataReaderClosing,
+                            _resourceManager.GetString("LogClosingDataReader")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     The order of column '{table}.{column}' was ignored. Column orders are only used when the table is first created.
         /// </summary>
         public static EventDefinition<string, string> LogColumnOrderIgnoredWarning(IDiagnosticsLogger logger)
@@ -2202,9 +2227,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     A data reader was disposed.
+        ///     A data reader for '{database}' on server '{server}' is being disposed after spending {elapsed}ms reading results.
         /// </summary>
-        public static EventDefinition LogDisposingDataReader(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, int> LogDisposingDataReader(IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingDataReader;
             if (definition == null)
@@ -2212,18 +2237,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingDataReader,
                     logger,
-                    static logger => new EventDefinition(
+                    static logger => new EventDefinition<string, string, int>(
                         logger.Options,
                         RelationalEventId.DataReaderDisposing,
                         LogLevel.Debug,
                         "RelationalEventId.DataReaderDisposing",
-                        level => LoggerMessage.Define(
+                        level => LoggerMessage.Define<string, string, int>(
                             level,
                             RelationalEventId.DataReaderDisposing,
                             _resourceManager.GetString("LogDisposingDataReader")!)));
             }
 
-            return (EventDefinition)definition;
+            return (EventDefinition<string, string, int>)definition;
         }
 
         /// <summary>
