@@ -330,7 +330,7 @@ public class ModelValidator : IModelValidator
                                 ignoredMember, entityType.DisplayName(), property.DeclaringEntityType.DisplayName()));
                     }
 
-                    Check.DebugAssert(false, "Should never get here...");
+                    Check.DebugFail("Should never get here...");
                 }
 
                 var navigation = entityType.FindNavigation(ignoredMember);
@@ -343,7 +343,7 @@ public class ModelValidator : IModelValidator
                                 ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
                     }
 
-                    Check.DebugAssert(false, "Should never get here...");
+                    Check.DebugFail("Should never get here...");
                 }
 
                 var skipNavigation = entityType.FindSkipNavigation(ignoredMember);
@@ -356,7 +356,7 @@ public class ModelValidator : IModelValidator
                                 ignoredMember, entityType.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()));
                     }
 
-                    Check.DebugAssert(false, "Should never get here...");
+                    Check.DebugFail("Should never get here...");
                 }
 
                 var serviceProperty = entityType.FindServiceProperty(ignoredMember);
@@ -369,7 +369,7 @@ public class ModelValidator : IModelValidator
                                 ignoredMember, entityType.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()));
                     }
 
-                    Check.DebugAssert(false, "Should never get here...");
+                    Check.DebugFail("Should never get here...");
                 }
             }
         }

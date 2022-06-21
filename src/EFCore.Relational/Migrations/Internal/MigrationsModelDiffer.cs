@@ -237,7 +237,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             else
             {
                 leftovers.Add(operation);
-                Check.DebugAssert(false, "Unexpected operation type: " + operation.GetType());
+                Check.DebugFail("Unexpected operation type: " + operation.GetType());
             }
         }
 
@@ -275,7 +275,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
                     else
                     {
-                        Check.DebugAssert(false, "Operation removed twice: " + cyclicAddForeignKeyOperation);
+                        Check.DebugFail("Operation removed twice: " + cyclicAddForeignKeyOperation);
                     }
                 }
 
@@ -2189,7 +2189,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
                         if (forSource)
                         {
-                            Check.DebugAssert(false, "Insert using the source model");
+                            Check.DebugFail("Insert using the source model");
                             break;
                         }
 
@@ -2212,7 +2212,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
                         if (forSource)
                         {
-                            Check.DebugAssert(false, "Update using the source model");
+                            Check.DebugFail("Update using the source model");
                             break;
                         }
 

@@ -3,6 +3,9 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Utilities;
+using NetTopologySuite.Operation.Polygonize;
+using NetTopologySuite.Operation.Union;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -181,6 +184,32 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Combine_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PointEntity>()
+                .Where(e => e.Point != null)
+                .GroupBy(e => e.Group)
+                .Select(g => new
+                {
+                    Id = g.Key,
+                    Combined = GeometryCombiner.Combine(g.Select(e => e.Point))
+                }),
+            elementSorter: x => x.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+
+                // Note that NTS returns a MultiPoint (which is a subclass of GeometryCollection), whereas SQL Server returns a
+                // GeometryCollection.
+                var eCollection = (GeometryCollection)e.Combined;
+                var aCollection = (GeometryCollection)a.Combined;
+
+                Assert.Equal(eCollection.Geometries, aCollection.Geometries);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.25, 0.25));
@@ -200,6 +229,22 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon.ConvexHull() }),
             ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon == null ? null : e.Polygon.ConvexHull() }),
+            elementSorter: x => x.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.ConvexHull, a.ConvexHull, GeometryComparer.Instance);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ConvexHull_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PointEntity>()
+                .Where(e => e.Point != null)
+                .GroupBy(e => e.Group)
+                .Select(g => new { Id = g.Key, ConvexHull = NetTopologySuite.Algorithm.ConvexHull.Create(g.Select(e => e.Point)) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1065,6 +1110,26 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.Union, a.Union, GeometryComparer.Instance);
             });
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PointEntity>()
+                .Where(e => e.Point != null)
+                .GroupBy(e => e.Group)
+                .Select(g => new
+                {
+                    Id = g.Key,
+                    Union = UnaryUnionOp.Union(g.Select(e => e.Point))
+                }),
+            elementSorter: x => x.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Union, a.Union, GeometryComparer.Instance);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

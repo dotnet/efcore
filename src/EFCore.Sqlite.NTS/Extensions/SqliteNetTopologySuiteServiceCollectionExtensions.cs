@@ -30,6 +30,7 @@ public static class SqliteNetTopologySuiteServiceCollectionExtensions
         new EntityFrameworkRelationalServicesBuilder(serviceCollection)
             .TryAdd<IRelationalTypeMappingSourcePlugin, SqliteNetTopologySuiteTypeMappingSourcePlugin>()
             .TryAdd<IMethodCallTranslatorPlugin, SqliteNetTopologySuiteMethodCallTranslatorPlugin>()
+            .TryAdd<IAggregateMethodCallTranslatorPlugin, SqliteNetTopologySuiteAggregateMethodCallTranslatorPlugin>()
             .TryAdd<IMemberTranslatorPlugin, SqliteNetTopologySuiteMemberTranslatorPlugin>();
 
         return serviceCollection;

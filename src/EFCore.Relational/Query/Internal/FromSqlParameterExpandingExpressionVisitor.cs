@@ -160,7 +160,7 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
                 return _visitedFromSqlExpressions[fromSql] = fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
 
             default:
-                Check.DebugAssert(false, "FromSql.Arguments must be Constant/ParameterExpression");
+                Check.DebugFail("FromSql.Arguments must be Constant/ParameterExpression");
                 return null;
         }
     }

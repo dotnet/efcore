@@ -85,7 +85,12 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                 arguments.Where(e => typeof(Geometry).IsAssignableFrom(e.Type)));
             var typeMapping = ExpressionExtensions.InferTypeMapping(geometryExpressions.ToArray());
 
-            Check.DebugAssert(typeMapping != null, "At least one argument must have typeMapping.");
+            if (typeMapping is null)
+            {
+                Check.DebugFail("At least one argument must have typeMapping.");
+                return null;
+            }
+
             var storeType = typeMapping.StoreType;
             var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
