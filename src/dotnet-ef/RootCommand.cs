@@ -108,9 +108,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 executable = Path.Combine(
                     toolsPath,
                     "net461",
-                    startupProject.PlatformTarget == "x86"
-                        ? "win-x86"
-                        : "any",
+                    startupProject.PlatformTarget switch
+                    {
+                        "x86" => "win-x86",
+                        "ARM64" => "win-arm64",
+                        _ => "any"
+                    },
                     "ef.exe");
             }
             else if (targetFramework.Identifier == ".NETCoreApp")

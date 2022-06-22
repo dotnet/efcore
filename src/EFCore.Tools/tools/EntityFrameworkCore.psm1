@@ -847,6 +847,10 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         {
             $exePath = Join-Path $PSScriptRoot 'net461\win-x86\ef.exe'
         }
+        elseif ($platformTarget -eq 'ARM64')
+        {
+            $exePath = Join-Path $PSScriptRoot 'net461\win-arm64\ef.exe'
+        }
         elseif ($platformTarget -in 'AnyCPU', 'x64')
         {
             $exePath = Join-Path $PSScriptRoot 'net461\any\ef.exe'
