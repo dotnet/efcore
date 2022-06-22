@@ -1761,7 +1761,8 @@ public class RelationalModelValidator : ModelValidator
 
             if (declaringStoreObject != null)
             {
-                if (property.DeclaringEntityType.GetMappingFragments(storeObjectType).Any())
+                var fragments = property.DeclaringEntityType.GetMappingFragments(storeObjectType).ToList();
+                if (fragments.Count > 0)
                 {
                     var overrides = RelationalPropertyOverrides.Find(property, declaringStoreObject.Value);
                     if (overrides != null)
@@ -1769,7 +1770,7 @@ public class RelationalModelValidator : ModelValidator
                         yield return declaringStoreObject.Value;
                     }
                     
-                    foreach (var fragment in property.DeclaringEntityType.GetMappingFragments(storeObjectType))
+                    foreach (var fragment in fragments)
                     {
                         overrides = RelationalPropertyOverrides.Find(property, fragment.StoreObject);
                         if (overrides != null)

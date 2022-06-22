@@ -115,20 +115,23 @@ public static class RelationalPropertyExtensions
                         return null;
                     }
                 }
-                else if (property.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).Any())
+                else
                 {
-                    if (overrides == null
-                        && (declaringStoreObject != storeObject
-                            || property.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType)
-                                .Any(f => property.FindOverrides(f.StoreObject) != null)))
+                    var fragments = property.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).ToList();
+                    if (fragments.Count > 0)
                     {
+                        if (overrides == null
+                            && (declaringStoreObject != storeObject
+                                || fragments.Any(f => property.FindOverrides(f.StoreObject) != null)))
+                        {
 
+                            return null;
+                        }
+                    }
+                    else if (declaringStoreObject != storeObject)
+                    {
                         return null;
                     }
-                }
-                else if (declaringStoreObject != storeObject)
-                {
-                    return null;
                 }
             }
         }
