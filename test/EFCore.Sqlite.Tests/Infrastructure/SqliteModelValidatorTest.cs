@@ -11,7 +11,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
 {
     public override void Detects_duplicate_column_names()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
         modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name");
@@ -25,7 +25,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
 
     public override void Detects_duplicate_columns_in_derived_types_with_different_types()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
 
         modelBuilder.Entity<Cat>().Property(c => c.Type).IsRequired().HasColumnName("Type");
@@ -39,7 +39,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_srid()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
 
         modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasSrid(30);
@@ -53,7 +53,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_schemas()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().ToTable("Animals", "pet").Ignore(a => a.FavoritePerson);
 
         VerifyWarning(
@@ -64,7 +64,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     [ConditionalFact]
     public void Detects_sequences()
     {
-        var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.HasSequence("Fibonacci");
 
         VerifyWarning(

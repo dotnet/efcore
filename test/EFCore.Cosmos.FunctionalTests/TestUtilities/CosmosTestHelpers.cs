@@ -16,7 +16,7 @@ public class CosmosTestHelpers : TestHelpers
     public override IServiceCollection AddProviderServices(IServiceCollection services)
         => services.AddEntityFrameworkCosmos();
 
-    public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+    public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseCosmos(
             TestEnvironment.DefaultConnection,
             TestEnvironment.AuthToken,

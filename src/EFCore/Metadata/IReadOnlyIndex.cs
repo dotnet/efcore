@@ -82,7 +82,10 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
                         ? p.DeclaringEntityType.DisplayName(omitSharedType: true) + "." + p.Name
                         : p.Name));
 
-        builder.Append(" " + (Name ?? "<unnamed>"));
+        if (Name != null)
+        {
+            builder.Append(" " + Name);
+        }
 
         if (IsUnique)
         {

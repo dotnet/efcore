@@ -16,7 +16,7 @@ public class InMemoryTestHelpers : TestHelpers
     public override IServiceCollection AddProviderServices(IServiceCollection services)
         => services.AddEntityFrameworkInMemoryDatabase();
 
-    public override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+    public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseInMemoryDatabase(nameof(InMemoryTestHelpers));
 
     public override LoggingDefinitions LoggingDefinitions { get; } = new InMemoryLoggingDefinitions();

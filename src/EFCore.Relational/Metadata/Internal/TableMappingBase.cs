@@ -80,10 +80,10 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
     public virtual bool IncludesDerivedTypes { get; }
 
     /// <inheritdoc />
-    public virtual bool IsSharedTablePrincipal { get; set; }
+    public virtual bool? IsSharedTablePrincipal { get; set; }
 
     /// <inheritdoc />
-    public virtual bool IsSplitEntityTypePrincipal { get; set; }
+    public virtual bool? IsSplitEntityTypePrincipal { get; set; }
 
     IEnumerable<IColumnMappingBase> ITableMappingBase.ColumnMappings
     {

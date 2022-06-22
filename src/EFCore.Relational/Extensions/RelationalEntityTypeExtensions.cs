@@ -853,9 +853,108 @@ public static class RelationalEntityTypeExtensions
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(this IMutableEntityType entityType)
+        => EntityTypeMappingFragment.Get(entityType)?.Cast<IMutableEntityTypeMappingFragment>()
+         ?? Enumerable.Empty<IMutableEntityTypeMappingFragment>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(this IConventionEntityType entityType)
+        => EntityTypeMappingFragment.Get(entityType)?.Cast<IConventionEntityTypeMappingFragment>()
+         ?? Enumerable.Empty<IConventionEntityTypeMappingFragment>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(this IEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IEntityTypeMappingFragment>()
          ?? Enumerable.Empty<IEntityTypeMappingFragment>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments of the given type.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IReadOnlyEntityTypeMappingFragment> GetMappingFragments(
+        this IReadOnlyEntityType entityType, StoreObjectType storeObjectType)
+    {
+        var fragments = EntityTypeMappingFragment.Get(entityType);
+        return fragments == null
+            ? Enumerable.Empty<IReadOnlyEntityTypeMappingFragment>()
+            : fragments.Where(f => f.StoreObject.StoreObjectType == storeObjectType);
+    }
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments of the given type.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(
+        this IMutableEntityType entityType, StoreObjectType storeObjectType)
+        => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IMutableEntityTypeMappingFragment>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments of the given type.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(
+        this IConventionEntityType entityType, StoreObjectType storeObjectType)
+        => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IConventionEntityTypeMappingFragment>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all configured entity type mapping fragments of the given type.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
+    /// <returns>The configured entity type mapping fragments.</returns>
+    public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(
+        this IEntityType entityType, StoreObjectType storeObjectType)
+        => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1019,46 +1118,22 @@ public static class RelationalEntityTypeExtensions
 
         foreach (var foreignKey in entityType.GetForeignKeys())
         {
-            var principalEntityType = foreignKey.PrincipalEntityType;
             if (!foreignKey.PrincipalKey.IsPrimaryKey()
-                || principalEntityType == foreignKey.DeclaringEntityType
-                || !foreignKey.IsUnique
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                || !PropertyListComparer.Instance.Equals(foreignKey.Properties, primaryKey.Properties))
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
+                || !foreignKey.Properties.SequenceEqual(primaryKey.Properties)
+                || !IsMapped(foreignKey, storeObject))
             {
                 continue;
             }
 
-            switch (storeObject.StoreObjectType)
-            {
-                case StoreObjectType.Table:
-                    if (storeObject.Name == principalEntityType.GetTableName()
-                        && storeObject.Schema == principalEntityType.GetSchema())
-                    {
-                        yield return foreignKey;
-                    }
-
-                    break;
-                case StoreObjectType.View:
-                    if (storeObject.Name == principalEntityType.GetViewName()
-                        && storeObject.Schema == principalEntityType.GetViewSchema())
-                    {
-                        yield return foreignKey;
-                    }
-
-                    break;
-                case StoreObjectType.Function:
-                    if (storeObject.Name == principalEntityType.GetFunctionName())
-                    {
-                        yield return foreignKey;
-                    }
-
-                    break;
-                default:
-                    throw new NotSupportedException(storeObject.StoreObjectType.ToString());
-            }
+            yield return foreignKey;
         }
+
+        static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
+            => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject
+                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject))
+                && (StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObject.StoreObjectType) == storeObject
+                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject));
     }
 
     /// <summary>

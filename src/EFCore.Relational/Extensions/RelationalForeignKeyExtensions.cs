@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -44,18 +45,7 @@ public static class RelationalForeignKeyExtensions
         this IReadOnlyForeignKey foreignKey,
         in StoreObjectIdentifier storeObject,
         in StoreObjectIdentifier principalStoreObject)
-    {
-        if (storeObject.StoreObjectType != StoreObjectType.Table
-            || principalStoreObject.StoreObjectType != StoreObjectType.Table)
-        {
-            return null;
-        }
-
-        var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
-        return annotation != null
-            ? (string?)annotation.Value
-            : foreignKey.GetDefaultName(storeObject, principalStoreObject);
-    }
+        => foreignKey.GetConstraintName(storeObject, principalStoreObject, null);
 
     /// <summary>
     ///     Returns the default constraint name that would be used for this foreign key.
@@ -101,78 +91,7 @@ public static class RelationalForeignKeyExtensions
         this IReadOnlyForeignKey foreignKey,
         in StoreObjectIdentifier storeObject,
         in StoreObjectIdentifier principalStoreObject)
-    {
-        if (storeObject.StoreObjectType != StoreObjectType.Table
-            || principalStoreObject.StoreObjectType != StoreObjectType.Table)
-        {
-            return null;
-        }
-
-        var propertyNames = foreignKey.Properties.GetColumnNames(storeObject);
-        var principalPropertyNames = foreignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
-        if (propertyNames == null
-            || principalPropertyNames == null)
-        {
-            return null;
-        }
-
-        var rootForeignKey = foreignKey;
-
-        // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
-        // Using a hashset is detrimental to the perf when there are no cycles
-        for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
-        {
-            IReadOnlyForeignKey? linkedForeignKey = null;
-            foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
-                         .FindRowInternalForeignKeys(storeObject)
-                         .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
-            {
-                if (principalStoreObject.Name == otherForeignKey.PrincipalEntityType.GetTableName()
-                    && principalStoreObject.Schema == otherForeignKey.PrincipalEntityType.GetSchema())
-                {
-                    var otherColumnNames = otherForeignKey.Properties.GetColumnNames(storeObject);
-                    var otherPrincipalColumnNames = otherForeignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
-                    if (otherColumnNames != null
-                        && otherPrincipalColumnNames != null
-                        && propertyNames.SequenceEqual(otherColumnNames)
-                        && principalPropertyNames.SequenceEqual(otherPrincipalColumnNames))
-                    {
-                        linkedForeignKey = otherForeignKey;
-                        break;
-                    }
-                }
-            }
-
-            if (linkedForeignKey == null)
-            {
-                break;
-            }
-
-            rootForeignKey = linkedForeignKey;
-        }
-
-        if (rootForeignKey != foreignKey)
-        {
-            return rootForeignKey.GetConstraintName(storeObject, principalStoreObject);
-        }
-
-        if (foreignKey.PrincipalEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
-            && foreignKey.PrincipalEntityType.GetDerivedTypes().Any(et => StoreObjectIdentifier.Create(et, StoreObjectType.Table) != null))
-        {
-            return null;
-        }
-
-        var baseName = new StringBuilder()
-            .Append("FK_")
-            .Append(storeObject.Name)
-            .Append('_')
-            .Append(principalStoreObject.Name)
-            .Append('_')
-            .AppendJoin(propertyNames, "_")
-            .ToString();
-
-        return Uniquifier.Truncate(baseName, foreignKey.DeclaringEntityType.Model.GetMaxIdentifierLength());
-    }
+        => foreignKey.GetDefaultName(storeObject, principalStoreObject, null);
 
     /// <summary>
     ///     Sets the foreign key constraint name.

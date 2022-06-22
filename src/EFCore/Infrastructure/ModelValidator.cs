@@ -684,6 +684,8 @@ public class ModelValidator : IModelValidator
 
                 foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(
                              fk => !fk.IsOwnership
+                                 && (fk.PrincipalEntityType != fk.DeclaringEntityType
+                                     || !fk.Properties.SequenceEqual(entityType.FindPrimaryKey()!.Properties))
                                  && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                 {
                     throw new InvalidOperationException(
@@ -738,8 +740,7 @@ public class ModelValidator : IModelValidator
         {
             foreach (var declaredForeignKey in entityType.GetDeclaredForeignKeys())
             {
-                if (declaredForeignKey.PrincipalEntityType == declaredForeignKey.DeclaringEntityType
-                    && declaredForeignKey.PrincipalKey.Properties.SequenceEqual(declaredForeignKey.Properties))
+                if (IsRedundant(declaredForeignKey))
                 {
                     logger.RedundantForeignKeyWarning(declaredForeignKey);
                 }
@@ -782,6 +783,15 @@ public class ModelValidator : IModelValidator
                         d => d.GetForeignKeys()
                             .Any(fk => fk.Properties.Contains(property)));
     }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given foreign key is redundant.
+    /// </summary>
+    /// <param name="foreignKey">A foreign key.</param>
+    /// <returns>A value indicating whether the given foreign key is redundant.</returns>
+    protected virtual bool IsRedundant(IForeignKey foreignKey)
+        => foreignKey.PrincipalEntityType == foreignKey.DeclaringEntityType
+            && foreignKey.PrincipalKey.Properties.SequenceEqual(foreignKey.Properties);
 
     /// <summary>
     ///     Validates the mapping/configuration of properties mapped to fields in the model.

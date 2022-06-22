@@ -230,9 +230,6 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(RelationalIndexBuilderExtensions).GetMethod(
                 nameof(RelationalIndexBuilderExtensions.HasName),
                 new[] { typeof(IndexBuilder), typeof(string) }),
-            typeof(RelationalEntityTypeExtensions).GetMethod(
-                nameof(RelationalEntityTypeExtensions.GetMappingFragments),
-                new[] { typeof(IReadOnlyEntityType) }),
             typeof(RelationalPropertyExtensions).GetMethod(
                 nameof(RelationalPropertyExtensions.FindOverrides),
                 new[] { typeof(IReadOnlyProperty), typeof(StoreObjectIdentifier).MakeByRefType() }),

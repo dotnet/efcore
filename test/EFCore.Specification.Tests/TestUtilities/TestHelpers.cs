@@ -127,7 +127,7 @@ public abstract class TestHelpers
         return optionsBuilder;
     }
 
-    public abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
+    public abstract DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
 
     public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
         => new(CreateOptions(model, serviceProvider));
@@ -187,7 +187,8 @@ public abstract class TestHelpers
     public TestModelBuilder CreateConventionBuilder(
         IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger = null,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null,
-        Action<TestModelConfigurationBuilder> configure = null,
+        Action<TestModelConfigurationBuilder> configureModel = null,
+        Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureContext = null,
         IServiceCollection customServices = null)
     {
         customServices ??= new ServiceCollection();
@@ -196,11 +197,18 @@ public abstract class TestHelpers
             customServices.AddScoped(_ => modelLogger);
         }
 
-        validationLogger ??= new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions);
+        if (validationLogger != null)
+        {
+            customServices.AddScoped(_ => validationLogger);
+        }
 
-        customServices.AddScoped(_ => validationLogger);
+        var services = configureContext == null
+            ? CreateContextServices(customServices)
+            : CreateContextServices(
+                customServices,
+                configureContext(UseProviderOptions(new DbContextOptionsBuilder())).Options);
 
-        return CreateConventionBuilder(CreateContextServices(customServices), configure, validationLogger);
+        return CreateConventionBuilder(services, configureModel, validationLogger);
     }
 
     public TestModelBuilder CreateConventionBuilder(

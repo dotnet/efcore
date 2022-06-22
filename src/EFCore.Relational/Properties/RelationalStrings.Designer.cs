@@ -662,6 +662,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject, storeObjectType);
 
         /// <summary>
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}' that shares the table with '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to a table that '{principalEntityType}' is also mapped to.
+        /// </summary>
+        public static string EntitySplittingUnmatchedMainTableSplitting(object? entityType, object? storeObject, object? principalEntityType)
+            => string.Format(
+                GetString("EntitySplittingUnmatchedMainTableSplitting", nameof(entityType), nameof(storeObject), nameof(principalEntityType)),
+                entityType, storeObject, principalEntityType);
+
+        /// <summary>
         ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
         /// </summary>
         public static string ErrorMaterializingProperty(object? entityType, object? property)
@@ -2468,6 +2476,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Either all or some of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogKeyUnmappedProperties(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogKeyUnmappedProperties;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogKeyUnmappedProperties,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.KeyUnmappedProperties,
+                        LogLevel.Error,
+                        "RelationalEventId.KeyUnmappedProperties",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.KeyUnmappedProperties,
+                            _resourceManager.GetString("LogKeyUnmappedProperties")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
         }
 
         /// <summary>
