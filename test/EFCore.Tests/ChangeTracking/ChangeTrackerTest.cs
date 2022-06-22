@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 
@@ -24,22 +26,22 @@ public class ChangeTrackerTest
         var added1 = context.Add(new DependentGG { Id = dependentKeyValue, PrincipalGG = new PrincipalGG { Id = principalKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added1).State);
-        Assert.Equal(EntityState.Added, context.Entry(added1.PrincipalGG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added1.PrincipalGG!).State);
 
         var added2 = context.Add(new DependentNG { Id = dependentKeyValue, PrincipalNG = new PrincipalNG { Id = principalKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added2).State);
-        Assert.Equal(EntityState.Added, context.Entry(added2.PrincipalNG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added2.PrincipalNG!).State);
 
         var added3 = context.Add(new DependentNN { Id = dependentKeyValue, PrincipalNN = new PrincipalNN { Id = principalKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added3).State);
-        Assert.Equal(EntityState.Added, context.Entry(added3.PrincipalNN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added3.PrincipalNN!).State);
 
         var added4 = context.Add(new DependentGN { Id = dependentKeyValue, PrincipalGN = new PrincipalGN { Id = principalKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added4).State);
-        Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -56,22 +58,22 @@ public class ChangeTrackerTest
         var added1 = context.Add(new PrincipalGG { Id = principalKeyValue, DependentGG = new DependentGG { Id = dependentKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added1).State);
-        Assert.Equal(EntityState.Added, context.Entry(added1.DependentGG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added1.DependentGG!).State);
 
         var added2 = context.Add(new PrincipalNG { Id = principalKeyValue, DependentNG = new DependentNG { Id = dependentKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added2).State);
-        Assert.Equal(EntityState.Added, context.Entry(added2.DependentNG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added2.DependentNG!).State);
 
         var added3 = context.Add(new PrincipalNN { Id = principalKeyValue, DependentNN = new DependentNN { Id = dependentKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added3).State);
-        Assert.Equal(EntityState.Added, context.Entry(added3.DependentNN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added3.DependentNN!).State);
 
         var added4 = context.Add(new PrincipalGN { Id = principalKeyValue, DependentGN = new DependentGN { Id = dependentKeyValue } })
             .Entity;
         Assert.Equal(EntityState.Added, context.Entry(added4).State);
-        Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -83,19 +85,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new DependentGG { PrincipalGG = new PrincipalGG() }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added1).State);
-        Assert.Equal(EntityState.Added, context.Entry(added1.PrincipalGG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added1.PrincipalGG!).State);
 
         var added2 = context.Attach(new DependentNG { PrincipalNG = new PrincipalNG() }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added2).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG!).State);
 
         var added3 = context.Attach(new DependentNN { PrincipalNN = new PrincipalNN() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN!).State);
 
         var added4 = context.Attach(new DependentGN { PrincipalGN = new PrincipalGN() }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added4).State);
-        Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -107,19 +109,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new DependentGG { PrincipalGG = new PrincipalGG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added1).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added1.PrincipalGG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added1.PrincipalGG!).State);
 
         var added2 = context.Attach(new DependentNG { PrincipalNG = new PrincipalNG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added2).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG!).State);
 
         var added3 = context.Attach(new DependentNN { PrincipalNN = new PrincipalNN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN!).State);
 
         var added4 = context.Attach(new DependentGN { PrincipalGN = new PrincipalGN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added4).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added4.PrincipalGN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added4.PrincipalGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -131,19 +133,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new DependentGG { Id = 1, PrincipalGG = new PrincipalGG() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added1).State);
-        Assert.Equal(EntityState.Added, context.Entry(added1.PrincipalGG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added1.PrincipalGG!).State);
 
         var added2 = context.Attach(new DependentNG { Id = 1, PrincipalNG = new PrincipalNG() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added2).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG!).State);
 
         var added3 = context.Attach(new DependentNN { Id = 1, PrincipalNN = new PrincipalNN() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN!).State);
 
         var added4 = context.Attach(new DependentGN { Id = 1, PrincipalGN = new PrincipalGN() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
-        Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -155,19 +157,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new DependentGG { Id = 1, PrincipalGG = new PrincipalGG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added1).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added1.PrincipalGG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added1.PrincipalGG!).State);
 
         var added2 = context.Attach(new DependentNG { Id = 1, PrincipalNG = new PrincipalNG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added2).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added2.PrincipalNG!).State);
 
         var added3 = context.Attach(new DependentNN { Id = 1, PrincipalNN = new PrincipalNN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.PrincipalNN!).State);
 
         var added4 = context.Attach(new DependentGN { Id = 1, PrincipalGN = new PrincipalGN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added4.PrincipalGN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added4.PrincipalGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -179,19 +181,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new PrincipalGG { DependentGG = new DependentGG() }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added1).State);
-        Assert.Equal(EntityState.Added, context.Entry(added1.DependentGG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added1.DependentGG!).State);
 
         var added2 = context.Attach(new PrincipalNG { DependentNG = new DependentNG() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added2).State);
-        Assert.Equal(EntityState.Added, context.Entry(added2.DependentNG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added2.DependentNG!).State);
 
         var added3 = context.Attach(new PrincipalNN { DependentNN = new DependentNN() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN!).State);
 
         var added4 = context.Attach(new PrincipalGN { DependentGN = new DependentGN() }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added4).State);
-        Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -203,19 +205,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new PrincipalGG { Id = 1, DependentGG = new DependentGG() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added1).State);
-        Assert.Equal(EntityState.Added, context.Entry(added1.DependentGG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added1.DependentGG!).State);
 
         var added2 = context.Attach(new PrincipalNG { Id = 1, DependentNG = new DependentNG() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added2).State);
-        Assert.Equal(EntityState.Added, context.Entry(added2.DependentNG).State);
+        Assert.Equal(EntityState.Added, context.Entry(added2.DependentNG!).State);
 
         var added3 = context.Attach(new PrincipalNN { Id = 1, DependentNN = new DependentNN() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN!).State);
 
         var added4 = context.Attach(new PrincipalGN { Id = 1, DependentGN = new DependentGN() }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
-        Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN).State);
+        Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -227,19 +229,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new PrincipalGG { DependentGG = new DependentGG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added1).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added1.DependentGG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added1.DependentGG!).State);
 
         var added2 = context.Attach(new PrincipalNG { DependentNG = new DependentNG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added2).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added2.DependentNG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added2.DependentNG!).State);
 
         var added3 = context.Attach(new PrincipalNN { DependentNN = new DependentNN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN!).State);
 
         var added4 = context.Attach(new PrincipalGN { DependentGN = new DependentGN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Added, context.Entry(added4).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added4.DependentGN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added4.DependentGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -251,19 +253,19 @@ public class ChangeTrackerTest
 
         var added1 = context.Attach(new PrincipalGG { Id = 1, DependentGG = new DependentGG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added1).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added1.DependentGG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added1.DependentGG!).State);
 
         var added2 = context.Attach(new PrincipalNG { Id = 1, DependentNG = new DependentNG { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added2).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added2.DependentNG).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added2.DependentNG!).State);
 
         var added3 = context.Attach(new PrincipalNN { Id = 1, DependentNN = new DependentNN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added3).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added3.DependentNN!).State);
 
         var added4 = context.Attach(new PrincipalGN { Id = 1, DependentGN = new DependentGN { Id = 1 } }).Entity;
         Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
-        Assert.Equal(EntityState.Unchanged, context.Entry(added4.DependentGN).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(added4.DependentGN!).State);
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
     }
@@ -379,7 +381,7 @@ public class ChangeTrackerTest
     public class Hero
     {
         public Guid Id { get; set; }
-        public ICollection<Weak> Weaks { get; set; }
+        public ICollection<Weak> Weaks { get; } = new List<Weak>();
     }
 
     public class Weak
@@ -387,14 +389,14 @@ public class ChangeTrackerTest
         public Guid Id { get; set; }
         public Guid HeroId { get; set; }
 
-        public Hero Hero { get; set; }
+        public Hero? Hero { get; set; }
     }
 
     public class Mike
     {
         public Guid Id { get; set; }
-        public ICollection<TheStreets> TheStreets { get; set; }
-        public Skinner TheHero { get; set; }
+        public ICollection<TheStreets> TheStreets { get; } = new List<TheStreets>();
+        public Skinner? TheHero { get; set; }
     }
 
     public class Skinner
@@ -461,7 +463,7 @@ public class ChangeTrackerTest
         Seed(sensitive);
 
         using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
-        var cat = context.Cats.Find(1);
+        var cat = context.Cats.Find(1)!;
 
         _loggerFactory.Log.Clear();
 
@@ -508,7 +510,7 @@ public class ChangeTrackerTest
         Seed(sensitive);
 
         using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
-        var cat = context.Cats.Find(1);
+        var cat = context.Cats.Find(1)!;
 
         _loggerFactory.Log.Clear();
 
@@ -813,7 +815,7 @@ public class ChangeTrackerTest
         Seed(sensitive);
 
         using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
-        var cat = context.Cats.Find(1);
+        var cat = context.Cats.Find(1)!;
 
         _loggerFactory.Log.Clear();
 
@@ -844,7 +846,7 @@ public class ChangeTrackerTest
         using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
         ResetValueGenerator(
             context,
-            context.Model.FindEntityType(typeof(Hat)).FindProperty(nameof(Hat.Id)),
+            context.Model.FindEntityType(typeof(Hat))!.FindProperty(nameof(Hat.Id))!,
             temporary);
 
         _loggerFactory.Log.Clear();
@@ -967,8 +969,8 @@ public class ChangeTrackerTest
         var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
 
         LogLevel? cascadeDeleteLevel = null;
-        string cascadeDeleteMessage = null;
-        string deleteOrphansMessage = null;
+        string? cascadeDeleteMessage = null;
+        string? deleteOrphansMessage = null;
 
         void CaptureMessages()
         {
@@ -1086,8 +1088,8 @@ public class ChangeTrackerTest
         var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
 
         LogLevel? deleteOrphansLevel = null;
-        string cascadeDeleteMessage = null;
-        string deleteOrphansMessage = null;
+        string? cascadeDeleteMessage = null;
+        string? deleteOrphansMessage = null;
 
         void CaptureMessages()
         {
@@ -1161,7 +1163,7 @@ public class ChangeTrackerTest
         Seed();
 
         using var context = new LikeAZooContext();
-        var cat = context.Cats.Find(1);
+        var cat = context.Cats.Find(1)!;
 
         context.Entry(cat).State = EntityState.Deleted;
 
@@ -1209,29 +1211,33 @@ public class ChangeTrackerTest
     [ConditionalFact]
     public void State_change_events_fire_from_query()
     {
+        var tracking = new List<EntityTrackingEventArgs>();
         var tracked = new List<EntityTrackedEventArgs>();
+        var changing = new List<EntityStateChangingEventArgs>();
         var changed = new List<EntityStateChangedEventArgs>();
 
         Seed(usePool: true);
 
         using (var scope = _poolProvider.CreateScope())
         {
-            var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+            var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-            RegisterEvents(context, tracked, changed);
+            RegisterEvents(context, tracking, tracked, changing, changed);
 
             Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
 
+            Assert.Equal(2, tracking.Count);
             Assert.Equal(2, tracked.Count);
+            Assert.Empty(changing);
             Assert.Empty(changed);
 
-            AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: true);
-            AssertTrackedEvent(context, 2, EntityState.Unchanged, tracked[1], fromQuery: true);
+            AssertTrackedEvent(context, 1, EntityState.Unchanged, tracking[0], tracked[0], fromQuery: true);
+            AssertTrackedEvent(context, 2, EntityState.Unchanged, tracking[1], tracked[1], fromQuery: true);
         }
 
         using (var scope = _poolProvider.CreateScope())
         {
-            var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+            var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
             Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
 
@@ -1243,13 +1249,15 @@ public class ChangeTrackerTest
     [ConditionalFact]
     public void State_change_events_fire_from_Attach()
     {
+        var tracking = new List<EntityTrackingEventArgs>();
         var tracked = new List<EntityTrackedEventArgs>();
+        var changing = new List<EntityStateChangingEventArgs>();
         var changed = new List<EntityStateChangedEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
-        var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, tracked, changed);
+        RegisterEvents(context, tracking, tracked, changing, changed);
 
         context.Attach(new Cat(1));
 
@@ -1258,7 +1266,7 @@ public class ChangeTrackerTest
         Assert.Single(tracked);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: false);
+        AssertTrackedEvent(context, 1, EntityState.Unchanged, tracking[0], tracked[0], fromQuery: false);
 
         context.Entry(new Cat(2)).State = EntityState.Unchanged;
 
@@ -1267,19 +1275,21 @@ public class ChangeTrackerTest
         Assert.Equal(2, tracked.Count);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 2, EntityState.Unchanged, tracked[1], fromQuery: false);
+        AssertTrackedEvent(context, 2, EntityState.Unchanged, tracking[1], tracked[1], fromQuery: false);
     }
 
     [ConditionalFact]
     public void State_change_events_fire_from_Add()
     {
+        var tracking = new List<EntityTrackingEventArgs>();
         var tracked = new List<EntityTrackedEventArgs>();
+        var changing = new List<EntityStateChangingEventArgs>();
         var changed = new List<EntityStateChangedEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
-        var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, tracked, changed);
+        RegisterEvents(context, tracking, tracked, changing, changed);
 
         context.Add(new Cat(1));
 
@@ -1288,7 +1298,7 @@ public class ChangeTrackerTest
         Assert.Single(tracked);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 1, EntityState.Added, tracked[0], fromQuery: false);
+        AssertTrackedEvent(context, 1, EntityState.Added, tracking[0], tracked[0], fromQuery: false);
 
         context.Entry(new Cat(2)).State = EntityState.Added;
 
@@ -1297,19 +1307,21 @@ public class ChangeTrackerTest
         Assert.Equal(2, tracked.Count);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 2, EntityState.Added, tracked[1], fromQuery: false);
+        AssertTrackedEvent(context, 2, EntityState.Added, tracking[1], tracked[1], fromQuery: false);
     }
 
     [ConditionalFact]
     public void State_change_events_fire_from_Update()
     {
+        var tracking = new List<EntityTrackingEventArgs>();
         var tracked = new List<EntityTrackedEventArgs>();
+        var changing = new List<EntityStateChangingEventArgs>();
         var changed = new List<EntityStateChangedEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
-        var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, tracked, changed);
+        RegisterEvents(context, tracking, tracked, changing, changed);
 
         context.Update(new Cat(1));
 
@@ -1318,7 +1330,7 @@ public class ChangeTrackerTest
         Assert.Single(tracked);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 1, EntityState.Modified, tracked[0], fromQuery: false);
+        AssertTrackedEvent(context, 1, EntityState.Modified, tracking[0], tracked[0], fromQuery: false);
 
         context.Entry(new Cat(2)).State = EntityState.Modified;
 
@@ -1327,20 +1339,22 @@ public class ChangeTrackerTest
         Assert.Equal(2, tracked.Count);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 2, EntityState.Modified, tracked[1], fromQuery: false);
+        AssertTrackedEvent(context, 2, EntityState.Modified, tracking[1], tracked[1], fromQuery: false);
     }
 
     [ConditionalFact]
     public void State_change_events_fire_for_tracked_state_changes()
     {
+        var tracking = new List<EntityTrackingEventArgs>();
         var tracked = new List<EntityTrackedEventArgs>();
+        var changing = new List<EntityStateChangingEventArgs>();
         var changed = new List<EntityStateChangedEventArgs>();
 
         using (var scope = _poolProvider.CreateScope())
         {
-            var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+            var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-            RegisterEvents(context, tracked, changed);
+            RegisterEvents(context, tracking, tracked, changing, changed);
 
             context.AddRange(new Cat(1), new Cat(2));
 
@@ -1349,55 +1363,55 @@ public class ChangeTrackerTest
             Assert.Equal(2, tracked.Count);
             Assert.Empty(changed);
 
-            AssertTrackedEvent(context, 1, EntityState.Added, tracked[0], fromQuery: false);
-            AssertTrackedEvent(context, 2, EntityState.Added, tracked[1], fromQuery: false);
+            AssertTrackedEvent(context, 1, EntityState.Added, tracking[0], tracked[0], fromQuery: false);
+            AssertTrackedEvent(context, 2, EntityState.Added, tracking[1], tracked[1], fromQuery: false);
 
-            context.Entry(context.Cats.Find(1)).State = EntityState.Unchanged;
-            context.Entry(context.Cats.Find(2)).State = EntityState.Modified;
+            context.Entry(context.Cats.Find(1)!).State = EntityState.Unchanged;
+            context.Entry(context.Cats.Find(2)!).State = EntityState.Modified;
 
             Assert.Equal(2, tracked.Count);
             Assert.Equal(2, changed.Count);
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            AssertChangedEvent(context, 1, EntityState.Added, EntityState.Unchanged, changed[0]);
-            AssertChangedEvent(context, 2, EntityState.Added, EntityState.Modified, changed[1]);
+            AssertChangedEvent(context, 1, EntityState.Added, EntityState.Unchanged, changing[0], changed[0]);
+            AssertChangedEvent(context, 2, EntityState.Added, EntityState.Modified, changing[1], changed[1]);
 
-            context.Entry(context.Cats.Find(1)).State = EntityState.Added;
-            context.Entry(context.Cats.Find(2)).State = EntityState.Deleted;
+            context.Entry(context.Cats.Find(1)!).State = EntityState.Added;
+            context.Entry(context.Cats.Find(2)!).State = EntityState.Deleted;
 
             Assert.Equal(2, tracked.Count);
             Assert.Equal(4, changed.Count);
 
-            AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Added, changed[2]);
-            AssertChangedEvent(context, 2, EntityState.Modified, EntityState.Deleted, changed[3]);
+            AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Added, changing[2], changed[2]);
+            AssertChangedEvent(context, 2, EntityState.Modified, EntityState.Deleted, changing[3], changed[3]);
 
-            context.Remove(context.Cats.Find(1));
-            context.Entry(context.Cats.Find(2)).State = EntityState.Detached;
+            context.Remove(context.Cats.Find(1)!);
+            context.Entry(context.Cats.Find(2)!).State = EntityState.Detached;
 
             Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Equal(2, tracked.Count);
             Assert.Equal(6, changed.Count);
 
-            AssertChangedEvent(context, null, EntityState.Added, EntityState.Detached, changed[4]);
-            AssertChangedEvent(context, null, EntityState.Deleted, EntityState.Detached, changed[5]);
+            AssertChangedEvent(context, null, EntityState.Added, EntityState.Detached, changing[4], changed[4]);
+            AssertChangedEvent(context, null, EntityState.Deleted, EntityState.Detached, changing[5], changed[5]);
         }
 
         using (var scope = _poolProvider.CreateScope())
         {
-            var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+            var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
             context.AddRange(new Cat(1), new Cat(2));
 
-            context.Entry(context.Cats.Find(1)).State = EntityState.Unchanged;
-            context.Entry(context.Cats.Find(2)).State = EntityState.Modified;
+            context.Entry(context.Cats.Find(1)!).State = EntityState.Unchanged;
+            context.Entry(context.Cats.Find(2)!).State = EntityState.Modified;
 
-            context.Entry(context.Cats.Find(1)).State = EntityState.Added;
-            context.Entry(context.Cats.Find(2)).State = EntityState.Deleted;
+            context.Entry(context.Cats.Find(1)!).State = EntityState.Added;
+            context.Entry(context.Cats.Find(2)!).State = EntityState.Deleted;
 
-            context.Remove(context.Cats.Find(1));
-            context.Entry(context.Cats.Find(2)).State = EntityState.Detached;
+            context.Remove(context.Cats.Find(1)!);
+            context.Entry(context.Cats.Find(2)!).State = EntityState.Detached;
 
             Assert.Equal(2, tracked.Count);
             Assert.Equal(6, changed.Count);
@@ -1409,22 +1423,24 @@ public class ChangeTrackerTest
     [InlineData(true)]
     public void State_change_events_fire_when_saving_changes(bool callDetectChangesTwice)
     {
+        var tracking = new List<EntityTrackingEventArgs>();
         var tracked = new List<EntityTrackedEventArgs>();
+        var changing = new List<EntityStateChangingEventArgs>();
         var changed = new List<EntityStateChangedEventArgs>();
 
         Seed(usePool: true);
 
         using var scope = _poolProvider.CreateScope();
-        var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, tracked, changed);
+        RegisterEvents(context, tracking, tracked, changing, changed);
 
-        var cat1 = context.Cats.Find(1);
+        var cat1 = context.Cats.Find(1)!;
 
         Assert.Single(tracked);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: true);
+        AssertTrackedEvent(context, 1, EntityState.Unchanged, tracking[0], tracked[0], fromQuery: true);
 
         context.Add(new Cat(3));
         cat1.Name = "Clippy";
@@ -1439,8 +1455,8 @@ public class ChangeTrackerTest
         Assert.Equal(2, tracked.Count);
         Assert.Single(changed);
 
-        AssertTrackedEvent(context, 3, EntityState.Added, tracked[1], fromQuery: false);
-        AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Modified, changed[0]);
+        AssertTrackedEvent(context, 3, EntityState.Added, tracking[1], tracked[1], fromQuery: false);
+        AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Modified, changing[0], changed[0]);
 
         Assert.True(context.ChangeTracker.HasChanges());
 
@@ -1451,8 +1467,8 @@ public class ChangeTrackerTest
         Assert.Equal(2, tracked.Count);
         Assert.Equal(3, changed.Count);
 
-        AssertChangedEvent(context, 1, EntityState.Modified, EntityState.Unchanged, changed[2]);
-        AssertChangedEvent(context, 3, EntityState.Added, EntityState.Unchanged, changed[1]);
+        AssertChangedEvent(context, 1, EntityState.Modified, EntityState.Unchanged, changing[2], changed[2]);
+        AssertChangedEvent(context, 3, EntityState.Added, EntityState.Unchanged, changing[1], changed[1]);
 
         context.Database.EnsureDeleted();
     }
@@ -1460,13 +1476,15 @@ public class ChangeTrackerTest
     [ConditionalFact]
     public void State_change_events_fire_when_property_modified_flags_cause_state_change()
     {
+        var tracking = new List<EntityTrackingEventArgs>();
         var tracked = new List<EntityTrackedEventArgs>();
+        var changing = new List<EntityStateChangingEventArgs>();
         var changed = new List<EntityStateChangedEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
-        var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, tracked, changed);
+        RegisterEvents(context, tracking, tracked, changing, changed);
 
         var cat = context.Attach(
             new Cat(3) { Name = "Achilles" }).Entity;
@@ -1476,7 +1494,7 @@ public class ChangeTrackerTest
         Assert.Single(tracked);
         Assert.Empty(changed);
 
-        AssertTrackedEvent(context, 3, EntityState.Unchanged, tracked[0], fromQuery: false);
+        AssertTrackedEvent(context, 3, EntityState.Unchanged, tracking[0], tracked[0], fromQuery: false);
 
         context.Entry(cat).Property(e => e.Name).IsModified = true;
 
@@ -1485,7 +1503,7 @@ public class ChangeTrackerTest
         Assert.Single(tracked);
         Assert.Single(changed);
 
-        AssertChangedEvent(context, 3, EntityState.Unchanged, EntityState.Modified, changed[0]);
+        AssertChangedEvent(context, 3, EntityState.Unchanged, EntityState.Modified, changing[0], changed[0]);
 
         context.Entry(cat).Property(e => e.Name).IsModified = false;
 
@@ -1494,36 +1512,40 @@ public class ChangeTrackerTest
         Assert.Single(tracked);
         Assert.Equal(2, changed.Count);
 
-        AssertChangedEvent(context, 3, EntityState.Modified, EntityState.Unchanged, changed[1]);
+        AssertChangedEvent(context, 3, EntityState.Modified, EntityState.Unchanged, changing[1], changed[1]);
     }
 
     [ConditionalFact]
     public void State_change_events_are_limited_to_the_current_context()
     {
+        var tracking1 = new List<EntityTrackingEventArgs>();
         var tracked1 = new List<EntityTrackedEventArgs>();
+        var changing1 = new List<EntityStateChangingEventArgs>();
         var changed1 = new List<EntityStateChangedEventArgs>();
+        var tracking2 = new List<EntityTrackingEventArgs>();
         var tracked2 = new List<EntityTrackedEventArgs>();
+        var changing2 = new List<EntityStateChangingEventArgs>();
         var changed2 = new List<EntityStateChangedEventArgs>();
 
         Seed(usePool: true);
 
         using var scope = _poolProvider.CreateScope();
-        var context = scope.ServiceProvider.GetService<LikeAZooContextPooled>();
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, tracked1, changed1);
+        RegisterEvents(context, tracking1, tracked1, changing1, changed1);
 
         using (var scope2 = _poolProvider.CreateScope())
         {
-            var context2 = scope2.ServiceProvider.GetService<LikeAZooContextPooled>();
+            var context2 = scope2.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-            RegisterEvents(context2, tracked2, changed2);
+            RegisterEvents(context2, tracking2, tracked2, changing2, changed2);
 
             Assert.Equal(2, context2.Cats.OrderBy(e => e.Id).ToList().Count);
 
             Assert.Equal(2, tracked2.Count);
             Assert.Empty(changed2);
 
-            context2.Entry(context2.Cats.Find(1)).State = EntityState.Modified;
+            context2.Entry(context2.Cats.Find(1)!).State = EntityState.Modified;
 
             Assert.Equal(2, tracked2.Count);
             Assert.Single(changed2);
@@ -1537,7 +1559,7 @@ public class ChangeTrackerTest
         Assert.Equal(2, tracked1.Count);
         Assert.Empty(changed1);
 
-        context.Entry(context.Cats.Find(1)).State = EntityState.Modified;
+        context.Entry(context.Cats.Find(1)!).State = EntityState.Modified;
 
         Assert.Equal(2, tracked1.Count);
         Assert.Single(changed1);
@@ -1548,14 +1570,339 @@ public class ChangeTrackerTest
         context.Database.EnsureDeleted();
     }
 
+    [ConditionalFact]
+    public void DetectChanges_events_fire_for_no_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
+
+        RegisterEvents(context, detecting, detected);
+
+        context.AttachRange(new Cat(1), new Cat(2));
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        Assert.False(context.ChangeTracker.HasChanges());
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertDetectChangesEvent(context, changesFound: false, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void DetectChanges_events_fire_for_property_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
+
+        RegisterEvents(context, detecting, detected);
+
+        var cat = new Cat(1);
+        context.AttachRange(cat, new Cat(2));
+        cat.Name = "Alice";
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        Assert.True(context.ChangeTracker.HasChanges());
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void DetectChanges_events_fire_for_fk_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        using var context = new EarlyLearningCenter();
+
+        RegisterEvents(context, detecting, detected);
+
+        var product = new Product { Category = new Category()};
+        context.Attach(product);
+        product.CategoryId = 2;
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        Assert.True(context.ChangeTracker.HasChanges());
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void DetectChanges_events_fire_for_reference_navigation_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        using var context = new EarlyLearningCenter();
+
+        RegisterEvents(context, detecting, detected);
+
+        var product = new Product { Category = new Category()};
+        context.Attach(product);
+        product.Category = null;
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        Assert.True(context.ChangeTracker.HasChanges());
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void DetectChanges_events_fire_for_collection_navigation_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        using var context = new EarlyLearningCenter();
+
+        RegisterEvents(context, detecting, detected);
+
+        var product = new Product { Category = new Category()};
+        context.Attach(product);
+        product.Category.Products.Clear();
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        Assert.True(context.ChangeTracker.HasChanges());
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void DetectChanges_events_fire_for_skip_navigation_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
+
+        RegisterEvents(context, detecting, detected);
+
+        var cat = new Cat(1) { Hats = { new Hat(2) }};
+        context.Attach(cat);
+        cat.Hats.Clear();
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        Assert.True(context.ChangeTracker.HasChanges());
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void Local_DetectChanges_events_fire_for_no_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
+
+        RegisterEvents(context, detecting, detected);
+
+        var cat = new Cat(1);
+        context.AttachRange(cat, new Cat(2));
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        _ = context.Entry(cat);
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertLocalDetectChangesEvent(context, changesFound: false, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void Local_DetectChanges_events_fire_for_property_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
+
+        RegisterEvents(context, detecting, detected);
+
+        var cat = new Cat(1);
+        context.AttachRange(cat, new Cat(2));
+        cat.Name = "Alice";
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        _ = context.Entry(cat);
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void Local_DetectChanges_events_fire_for_fk_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        using var context = new EarlyLearningCenter();
+
+        RegisterEvents(context, detecting, detected);
+
+        var product = new Product { Category = new Category()};
+        context.Attach(product);
+        product.CategoryId = 2;
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        _ = context.Entry(product);
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void Local_DetectChanges_events_fire_for_reference_navigation_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        using var context = new EarlyLearningCenter();
+
+        RegisterEvents(context, detecting, detected);
+
+        var product = new Product { Category = new Category()};
+        context.Attach(product);
+        product.Category = null;
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        _ = context.Entry(product);
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void Local_DetectChanges_events_fire_for_collection_navigation_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        using var context = new EarlyLearningCenter();
+
+        RegisterEvents(context, detecting, detected);
+
+        var product = new Product { Category = new Category()};
+        context.Attach(product);
+        product.Category.Products.Clear();
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        _ = context.Entry(product.Category);
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
+    [ConditionalFact]
+    public void Local_DetectChanges_events_fire_for_skip_navigation_change()
+    {
+        var detecting = new List<DetectChangesEventArgs>();
+        var detected = new List<DetectedChangesEventArgs>();
+
+        using var scope = _poolProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
+
+        RegisterEvents(context, detecting, detected);
+
+        var cat = new Cat(1) { Hats = { new Hat(2) }};
+        context.Attach(cat);
+        cat.Hats.Clear();
+
+        Assert.Empty(detecting);
+        Assert.Empty(detected);
+
+        _ = context.Entry(cat);
+
+        Assert.Single(detecting);
+        Assert.Single(detected);
+
+        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+    }
+
     private static void AssertTrackedEvent(
         LikeAZooContext context,
         int id,
         EntityState newState,
+        EntityTrackingEventArgs tracking,
         EntityTrackedEventArgs tracked,
         bool fromQuery)
     {
+        Assert.Same(tracking.Entry.Entity, tracked.Entry.Entity);
+        Assert.Equal(newState, tracking.State);
         Assert.Equal(newState, tracked.Entry.State);
+        Assert.Equal(fromQuery, tracking.FromQuery);
         Assert.Equal(fromQuery, tracked.FromQuery);
         Assert.Same(context.Cats.Find(id), tracked.Entry.Entity);
     }
@@ -1565,8 +1912,12 @@ public class ChangeTrackerTest
         int? id,
         EntityState oldState,
         EntityState newState,
+        EntityStateChangingEventArgs changing,
         EntityStateChangedEventArgs changed)
     {
+        Assert.Same(changing.Entry.Entity, changed.Entry.Entity);
+        Assert.Equal(oldState, changing.OldState);
+        Assert.Equal(newState, changing.NewState);
         Assert.Equal(oldState, changed.OldState);
         Assert.Equal(newState, changed.NewState);
         Assert.Equal(newState, changed.Entry.State);
@@ -1577,15 +1928,52 @@ public class ChangeTrackerTest
         }
     }
 
+    private static void AssertDetectChangesEvent(
+        DbContext context,
+        bool changesFound,
+        DetectChangesEventArgs detecting,
+        DetectedChangesEventArgs detected)
+    {
+        Assert.Null(detecting.Entry);
+        Assert.Null(detected.Entry);
+        Assert.Equal(changesFound, detected.ChangesFound);
+    }
+
+    private static void AssertLocalDetectChangesEvent(
+        DbContext context,
+        bool changesFound,
+        DetectChangesEventArgs detecting,
+        DetectedChangesEventArgs detected)
+    {
+        Assert.NotNull(detecting.Entry);
+        Assert.Same(detecting.Entry!.Entity, detected.Entry!.Entity);
+        Assert.Equal(changesFound, detected.ChangesFound);
+    }
+
     private static void RegisterEvents(
-        LikeAZooContext context,
+        DbContext context,
+        IList<EntityTrackingEventArgs> tracking,
         IList<EntityTrackedEventArgs> tracked,
+        IList<EntityStateChangingEventArgs> changing,
         IList<EntityStateChangedEventArgs> changed)
     {
+        context.ChangeTracker.Tracking += (s, e) =>
+        {
+            Assert.Same(context.ChangeTracker, s);
+            tracking.Add(e);
+        };
+
         context.ChangeTracker.Tracked += (s, e) =>
         {
             Assert.Same(context.ChangeTracker, s);
             tracked.Add(e);
+        };
+
+        context.ChangeTracker.StateChanging += (s, e) =>
+        {
+            Assert.Same(context.ChangeTracker, s);
+            Assert.Equal(e.OldState, e.Entry.State);
+            changing.Add(e);
         };
 
         context.ChangeTracker.StateChanged += (s, e) =>
@@ -1593,6 +1981,24 @@ public class ChangeTrackerTest
             Assert.Same(context.ChangeTracker, s);
             Assert.Equal(e.NewState, e.Entry.State);
             changed.Add(e);
+        };
+    }
+
+    private static void RegisterEvents(
+        DbContext context,
+        IList<DetectChangesEventArgs> detecting,
+        IList<DetectedChangesEventArgs> detected)
+    {
+        context.ChangeTracker.DetectingChanges += (s, e) =>
+        {
+            Assert.Same(context.ChangeTracker, s);
+            detecting.Add(e);
+        };
+
+        context.ChangeTracker.DetectedChanges += (s, e) =>
+        {
+            Assert.Same(context.ChangeTracker, s);
+            detected.Add(e);
         };
     }
 
@@ -1606,7 +2012,7 @@ public class ChangeTrackerTest
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; private set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public ICollection<Hat> Hats { get; } = new List<Hat>();
 
@@ -1623,10 +2029,10 @@ public class ChangeTrackerTest
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; private set; }
 
-        public string Color { get; set; }
+        public string? Color { get; set; }
 
         public int CatId { get; set; }
-        public Cat Cat { get; set; }
+        public Cat? Cat { get; set; }
     }
 
     private class Mat
@@ -1686,7 +2092,8 @@ public class ChangeTrackerTest
         {
         }
 
-        public DbSet<Cat> Cats { get; set; }
+        public DbSet<Cat> Cats
+            => Set<Cat>();
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1751,7 +2158,7 @@ public class ChangeTrackerTest
         if (usePool)
         {
             using var scope = _poolProvider.CreateScope();
-            Seed(scope.ServiceProvider.GetService<LikeAZooContextPooled>());
+            Seed(scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>());
         }
         else
         {
@@ -1934,7 +2341,7 @@ public class ChangeTrackerTest
         var category = new OptionalCategory
         {
             Id = 1,
-            Products = new List<OptionalProduct>
+            Products =
             {
                 new() { Id = 1 },
                 new() { Id = 2 },
@@ -1971,12 +2378,13 @@ public class ChangeTrackerTest
 
         if (trackNewDependents)
         {
-            newCategory.Products = new List<OptionalProduct>
-            {
-                new() { Id = 1, CategoryId = category.Id },
-                new() { Id = 2, CategoryId = category.Id },
-                new() { Id = 3, CategoryId = category.Id }
-            };
+            newCategory.Products.AddRange(
+                new OptionalProduct[]
+                {
+                    new() { Id = 1, CategoryId = category.Id },
+                    new() { Id = 2, CategoryId = category.Id },
+                    new() { Id = 3, CategoryId = category.Id }
+                });
         }
 
         context.Update(newCategory);
@@ -2108,7 +2516,7 @@ public class ChangeTrackerTest
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
 
             if (orphanTiming != null)
             {
@@ -2148,7 +2556,7 @@ public class ChangeTrackerTest
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
             Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
 
             if (forceCascade)
@@ -2158,14 +2566,14 @@ public class ChangeTrackerTest
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
             Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
 
             context.SaveChanges();
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
         }
     }
@@ -2271,7 +2679,7 @@ public class ChangeTrackerTest
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
 
             if (orphanTiming != null)
             {
@@ -2314,7 +2722,7 @@ public class ChangeTrackerTest
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
 
             if (orphanTiming == null
                 || orphanTiming == CascadeTiming.Immediate)
@@ -2333,7 +2741,7 @@ public class ChangeTrackerTest
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
 
             if (orphanTiming == null
                 || orphanTiming == CascadeTiming.Immediate
@@ -2356,7 +2764,7 @@ public class ChangeTrackerTest
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
                 Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
             }
             else
@@ -2364,7 +2772,7 @@ public class ChangeTrackerTest
                 context.SaveChanges();
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
                 Assert.Equal(EntityState.Detached, context.Entry(attachedRoom).State);
             }
         }
@@ -2373,7 +2781,7 @@ public class ChangeTrackerTest
     private class Kontainer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public List<KontainerRoom> Rooms { get; } = new();
     }
 
@@ -2382,15 +2790,15 @@ public class ChangeTrackerTest
         public int Id { get; set; }
         public int Number { get; set; }
         public int KontainerId { get; set; }
-        public Kontainer Kontainer { get; set; }
+        public Kontainer? Kontainer { get; set; }
         public int? TroductId { get; set; }
-        public Troduct Troduct { get; set; }
+        public Troduct? Troduct { get; set; }
     }
 
     private class Troduct
     {
         public int Id { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public List<KontainerRoom> Rooms { get; } = new();
     }
 
@@ -2671,7 +3079,7 @@ public class ChangeTrackerTest
             context.ChangeTracker.DetectChanges();
         }
 
-        AssertProductAndDetailsFixedUp(context, product1.Details.Tag.TagDetails, product2.Details.Tag.TagDetails);
+        AssertProductAndDetailsFixedUp(context, product1.Details!.Tag.TagDetails, product2.Details!.Tag.TagDetails);
     }
 
     private static void AssertProductAndDetailsFixedUp(
@@ -2682,13 +3090,13 @@ public class ChangeTrackerTest
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
 
         Assert.Equal(EntityState.Added, context.Entry(tagDetails1).State);
-        Assert.Equal(EntityState.Added, context.Entry(tagDetails1.Tag).State);
-        Assert.Equal(EntityState.Added, context.Entry(tagDetails1.Tag.Details).State);
+        Assert.Equal(EntityState.Added, context.Entry(tagDetails1.Tag!).State);
+        Assert.Equal(EntityState.Added, context.Entry(tagDetails1.Tag!.Details).State);
         Assert.Equal(EntityState.Added, context.Entry(tagDetails1.Tag.Details.Product).State);
 
         Assert.Equal(EntityState.Added, context.Entry(tagDetails2).State);
-        Assert.Equal(EntityState.Added, context.Entry(tagDetails2.Tag).State);
-        Assert.Equal(EntityState.Added, context.Entry(tagDetails2.Tag.Details).State);
+        Assert.Equal(EntityState.Added, context.Entry(tagDetails2.Tag!).State);
+        Assert.Equal(EntityState.Added, context.Entry(tagDetails2.Tag!.Details).State);
         Assert.Equal(EntityState.Added, context.Entry(tagDetails2.Tag.Details.Product).State);
 
         Assert.Equal(tagDetails1.Id, tagDetails1.Tag.Id);
@@ -2710,12 +3118,12 @@ public class ChangeTrackerTest
         Assert.Same(tagDetails2.Tag.Details, tagDetails2.Tag.Details.Product.Details);
 
         var product1 = tagDetails1.Tag.Details.Product;
-        Assert.Same(product1, product1.Details.Product);
+        Assert.Same(product1, product1.Details!.Product);
         Assert.Same(product1.Details, product1.Details.Tag.Details);
         Assert.Same(product1.Details.Tag, product1.Details.Tag.TagDetails.Tag);
 
         var product2 = tagDetails2.Tag.Details.Product;
-        Assert.Same(product2, product2.Details.Product);
+        Assert.Same(product2, product2.Details!.Product);
         Assert.Same(product2.Details, product2.Details.Tag.Details);
         Assert.Same(product2.Details.Tag, product2.Details.Tag.TagDetails.Tag);
     }
@@ -2971,7 +3379,7 @@ public class ChangeTrackerTest
             entry.Property<int>("Id").CurrentValue = id;
             entry.State = EntityState.Modified;
             entry.Property<int>("SomeInt").CurrentValue = 0;
-            entry.Property<string>("SomeString").CurrentValue = null;
+            entry.Property<string?>("SomeString").CurrentValue = null;
 
             context.SaveChanges();
         }
@@ -2979,7 +3387,7 @@ public class ChangeTrackerTest
         AssertValuesSaved(id, 0, null);
     }
 
-    private static void AssertValuesSaved(int id, int someInt, string someString)
+    private static void AssertValuesSaved(int id, int someInt, string? someString)
     {
         using var context = new TheShadows();
         var entry = context.Entry(context.Set<Dark>().Single(e => EF.Property<int>(e, "Id") == id));
@@ -3014,7 +3422,7 @@ public class ChangeTrackerTest
     {
         public int Id { get; set; }
 
-        public List<Product> Products { get; set; }
+        public List<Product> Products { get; } = new();
     }
 
     private class Product
@@ -3022,20 +3430,20 @@ public class ChangeTrackerTest
         public int Id { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category? Category { get; set; }
 
-        public ProductDetails Details { get; set; }
+        public ProductDetails? Details { get; set; }
 
         // ReSharper disable once CollectionNeverUpdated.Local
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public List<OrderDetails> OrderDetails { get; set; }
+        public List<OrderDetails> OrderDetails { get; } = new();
     }
 
     private class OptionalCategory
     {
         public int Id { get; set; }
 
-        public List<OptionalProduct> Products { get; set; }
+        public List<OptionalProduct> Products { get; } = new();
     }
 
     private class OptionalProduct
@@ -3043,7 +3451,7 @@ public class ChangeTrackerTest
         public int Id { get; set; }
 
         public int? CategoryId { get; set; }
-        public OptionalCategory Category { get; set; }
+        public OptionalCategory? Category { get; set; }
     }
 
     private class SpecialProduct : Product
@@ -3054,25 +3462,25 @@ public class ChangeTrackerTest
     {
         public int Id { get; set; }
 
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
 
-        public ProductDetailsTag Tag { get; set; }
+        public ProductDetailsTag Tag { get; set; } = null!;
     }
 
     private class ProductDetailsTag
     {
         public int Id { get; set; }
 
-        public ProductDetails Details { get; set; }
+        public ProductDetails Details { get; set; } = null!;
 
-        public ProductDetailsTagDetails TagDetails { get; set; }
+        public ProductDetailsTagDetails TagDetails { get; set; } = null!;
     }
 
     private class ProductDetailsTagDetails
     {
         public int Id { get; set; }
 
-        public ProductDetailsTag Tag { get; set; }
+        public ProductDetailsTag? Tag { get; set; }
     }
 
     private class Order
@@ -3081,7 +3489,7 @@ public class ChangeTrackerTest
 
         // ReSharper disable once CollectionNeverUpdated.Local
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public List<OrderDetails> OrderDetails { get; set; }
+        public List<OrderDetails> OrderDetails { get; } = new();
     }
 
     private class OrderDetails
@@ -3089,22 +3497,22 @@ public class ChangeTrackerTest
         public int OrderId { get; set; }
         public int ProductId { get; set; }
 
-        public Order Order { get; set; }
-        public Product Product { get; set; }
+        public Order Order { get; set; } = null!;
+        public Product Product { get; set; } = null!;
     }
 
     private class Sweet
     {
         public int? Id { get; set; }
-        public Dreams Dreams { get; set; }
+        public Dreams? Dreams { get; set; }
     }
 
     private class Dreams
     {
-        public Sweet Sweet { get; set; }
-        public AreMade Are { get; set; }
-        public AreMade Made { get; set; }
-        public OfThis OfThis { get; set; }
+        public Sweet? Sweet { get; set; }
+        public AreMade? Are { get; set; }
+        public AreMade? Made { get; set; }
+        public OfThis? OfThis { get; set; }
     }
 
     private class AreMade
@@ -3117,55 +3525,55 @@ public class ChangeTrackerTest
 
     private class WhoAmI
     {
-        public string ToDisagree { get; set; }
+        public string? ToDisagree { get; set; }
     }
 
     private class PrincipalGG
     {
         public int Id { get; set; }
-        public DependentGG DependentGG { get; set; }
+        public DependentGG? DependentGG { get; set; }
     }
 
     private class DependentGG
     {
         public int Id { get; set; }
-        public PrincipalGG PrincipalGG { get; set; }
+        public PrincipalGG? PrincipalGG { get; set; }
     }
 
     private class PrincipalNN
     {
         public int Id { get; set; }
-        public DependentNN DependentNN { get; set; }
+        public DependentNN? DependentNN { get; set; }
     }
 
     private class DependentNN
     {
         public int Id { get; set; }
-        public PrincipalNN PrincipalNN { get; set; }
+        public PrincipalNN? PrincipalNN { get; set; }
     }
 
     private class PrincipalNG
     {
         public int Id { get; set; }
-        public DependentNG DependentNG { get; set; }
+        public DependentNG? DependentNG { get; set; }
     }
 
     private class DependentNG
     {
         public int Id { get; set; }
-        public PrincipalNG PrincipalNG { get; set; }
+        public PrincipalNG? PrincipalNG { get; set; }
     }
 
     private class PrincipalGN
     {
         public int Id { get; set; }
-        public DependentGN DependentGN { get; set; }
+        public DependentGN? DependentGN { get; set; }
     }
 
     private class DependentGN
     {
         public int Id { get; set; }
-        public PrincipalGN PrincipalGN { get; set; }
+        public PrincipalGN? PrincipalGN { get; set; }
     }
 
     private class EarlyLearningCenter : DbContext

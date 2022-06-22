@@ -497,6 +497,26 @@ public class InternalEntryEntrySubscriberTest
         public void Resume()
         {
         }
+
+        public event EventHandler<DetectChangesEventArgs> DetectingChanges;
+
+        public void OnDetectingChanges(InternalEntityEntry internalEntityEntry)
+            => DetectingChanges?.Invoke(null, null);
+
+        public void OnDetectingChanges(IStateManager stateManager)
+            => DetectingChanges?.Invoke(null, null);
+
+        public event EventHandler<DetectedChangesEventArgs> DetectedChanges;
+
+        public void OnDetectedChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
+            => DetectedChanges?.Invoke(null, null);
+
+        public void OnDetectedChanges(IStateManager stateManager, bool changesFound)
+            => DetectedChanges?.Invoke(null, null);
+
+        public void ResetState()
+        {
+        }
     }
 
     private class TestNavigationListener : INavigationFixer

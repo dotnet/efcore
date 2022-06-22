@@ -131,7 +131,7 @@ public class FakeStateManager : IStateManager
     public IInternalEntityEntryNotifier InternalEntityEntryNotifier
         => throw new NotImplementedException();
 
-    public void StateChanging(InternalEntityEntry entry, EntityState newState)
+    public void ChangingState(InternalEntityEntry entry, EntityState newState)
         => throw new NotImplementedException();
 
     public IValueGenerationManager ValueGenerationManager
@@ -195,10 +195,20 @@ public class FakeStateManager : IStateManager
     public IModel Model
         => throw new NotImplementedException();
 
+    public event EventHandler<EntityTrackingEventArgs> Tracking;
+
+    public void OnTracking(InternalEntityEntry internalEntityEntry, EntityState state, bool fromQuery)
+        => Tracking?.Invoke(null, null);
+
     public event EventHandler<EntityTrackedEventArgs> Tracked;
 
     public void OnTracked(InternalEntityEntry internalEntityEntry, bool fromQuery)
         => Tracked?.Invoke(null, null);
+
+    public event EventHandler<EntityStateChangingEventArgs> StateChanging;
+
+    public void OnStateChanging(InternalEntityEntry internalEntityEntry, EntityState newState)
+        => StateChanging?.Invoke(null, null);
 
     public event EventHandler<EntityStateChangedEventArgs> StateChanged;
 

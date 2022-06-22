@@ -128,7 +128,7 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
+    public virtual void ChangingState(InternalEntityEntry entry, EntityState newState)
     {
         InternalEntityEntryNotifier.StateChanging(entry, newState);
 
@@ -643,8 +643,11 @@ public class StateManager : IStateManager
     {
         Clear();
         Dependencies.NavigationFixer.AbortDelayedFixup();
+        _changeDetector?.ResetState();
 
+        Tracking = null;
         Tracked = null;
+        StateChanging = null;
         StateChanged = null;
     }
 
@@ -1357,6 +1360,27 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public event EventHandler<EntityTrackingEventArgs>? Tracking;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnTracking(InternalEntityEntry internalEntityEntry, EntityState state, bool fromQuery)
+    {
+        var @event = Tracking;
+
+        @event?.Invoke(Context.ChangeTracker, new EntityTrackingEventArgs(internalEntityEntry, state, fromQuery));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public event EventHandler<EntityTrackedEventArgs>? Tracked;
 
     /// <summary>
@@ -1379,6 +1403,28 @@ public class StateManager : IStateManager
         }
 
         @event?.Invoke(Context.ChangeTracker, new EntityTrackedEventArgs(internalEntityEntry, fromQuery));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public event EventHandler<EntityStateChangingEventArgs>? StateChanging;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnStateChanging(InternalEntityEntry internalEntityEntry, EntityState newState)
+    {
+        var @event = StateChanging;
+        var oldState = internalEntityEntry.EntityState;
+
+        @event?.Invoke(Context.ChangeTracker, new EntityStateChangingEventArgs(internalEntityEntry, oldState, newState));
     }
 
     /// <summary>
