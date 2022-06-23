@@ -391,9 +391,14 @@ public class RelationalCommandTest
             diagnosticEvents.Clear();
         }
 
-        var diagnostic = diagnosticEvents.Single();
-        Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnostic.Item1);
-        var dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnostic.Item2;
+        Assert.Equal(2, diagnosticEvents.Count);
+
+        Assert.Equal(RelationalEventId.DataReaderClosing.Name, diagnosticEvents[0].Item1);
+        var dataReaderClosingEventData = (DataReaderClosingEventData)diagnosticEvents[0].Item2;
+        Assert.Equal(3, dataReaderClosingEventData.ReadCount);
+
+        Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnosticEvents[1].Item1);
+        var dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnosticEvents[1].Item2;
         Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
 
         diagnosticEvents.Clear();
@@ -417,9 +422,14 @@ public class RelationalCommandTest
             diagnosticEvents.Clear();
         }
 
-        diagnostic = diagnosticEvents.Single();
-        Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnostic.Item1);
-        dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnostic.Item2;
+        Assert.Equal(2, diagnosticEvents.Count);
+
+        Assert.Equal(RelationalEventId.DataReaderClosing.Name, diagnosticEvents[0].Item1);
+        dataReaderClosingEventData = (DataReaderClosingEventData)diagnosticEvents[0].Item2;
+        Assert.Equal(3, dataReaderClosingEventData.ReadCount);
+
+        Assert.Equal(RelationalEventId.DataReaderDisposing.Name, diagnosticEvents[1].Item1);
+        dataReaderDisposingEventData = (DataReaderDisposingEventData)diagnosticEvents[1].Item2;
         Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
     }
 

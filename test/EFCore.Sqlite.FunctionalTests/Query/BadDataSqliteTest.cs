@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 // ReSharper disable InconsistentNaming
@@ -337,7 +338,7 @@ public class BadDataSqliteTest : IClassFixture<BadDataSqliteTest.BadDataSqliteFi
         public SemaphoreSlim Semaphore { get; }
 
         public string ConnectionString { get; set; }
-        public DbConnection DbConnection { get; set; }
+        public DbConnection DbConnection { get; set; } = new SqliteConnection();
 
         public DbContext Context
             => null;

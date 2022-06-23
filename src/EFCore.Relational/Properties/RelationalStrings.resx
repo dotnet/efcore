@@ -511,6 +511,10 @@
     <value>Closing connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionClosing string string</comment>
   </data>
+  <data name="LogClosingDataReader" xml:space="preserve">
+    <value>Closing data reader to '{database}' on server '{server}'.</value>
+    <comment>Debug RelationalEventId.DataReaderClosing string string</comment>
+  </data>
   <data name="LogColumnOrderIgnoredWarning" xml:space="preserve">
     <value>The order of column '{table}.{column}' was ignored. Column orders are only used when the table is first created.</value>
     <comment>Warning RelationalEventId.ColumnOrderIgnoredWarning string string</comment>
@@ -576,8 +580,8 @@
     <comment>Debug RelationalEventId.CreatingTransactionSavepoint</comment>
   </data>
   <data name="LogDisposingDataReader" xml:space="preserve">
-    <value>A data reader was disposed.</value>
-    <comment>Debug RelationalEventId.DataReaderDisposing</comment>
+    <value>A data reader for '{database}' on server '{server}' is being disposed after spending {elapsed}ms reading results.</value>
+    <comment>Debug RelationalEventId.DataReaderDisposing string string int</comment>
   </data>
   <data name="LogDisposingTransaction" xml:space="preserve">
     <value>Disposing transaction.</value>

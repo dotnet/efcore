@@ -303,7 +303,7 @@ public class RelationalEventIdTest : EventIdTestBase
         public override CommandType CommandType { get; set; }
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
-        protected override DbConnection DbConnection { get; set; }
+        protected override DbConnection DbConnection { get; set; } = new FakeDbConnection();
 
         protected override DbParameterCollection DbParameterCollection
             => new FakeDbParameterCollection();

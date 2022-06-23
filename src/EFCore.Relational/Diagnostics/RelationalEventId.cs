@@ -65,6 +65,7 @@ public static class RelationalEventId
 
         // DataReader events
         DataReaderDisposing = CoreEventId.RelationalBaseId + 300,
+        DataReaderClosing,
 
         // Migrations events
         MigrateUsingConnection = CoreEventId.RelationalBaseId + 400,
@@ -577,6 +578,19 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId DataReaderDisposing = MakeCommandId(Id.DataReaderDisposing);
+
+    /// <summary>
+    ///     A database data reader is about to be closed.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="DataReaderClosingEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId DataReaderClosing = MakeCommandId(Id.DataReaderClosing);
 
     private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
 

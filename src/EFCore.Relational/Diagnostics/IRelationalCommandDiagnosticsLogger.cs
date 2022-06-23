@@ -497,6 +497,46 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
         TimeSpan duration);
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.DataReaderClosing" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="command">The database command object.</param>
+    /// <param name="dataReader">The data reader.</param>
+    /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
+    /// <param name="recordsAffected">The number of records in the database that were affected.</param>
+    /// <param name="readCount">The number of records that were read.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
+    InterceptionResult DataReaderClosing(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbDataReader dataReader,
+        Guid commandId,
+        int recordsAffected,
+        int readCount,
+        DateTimeOffset startTime);
+    
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.DataReaderClosing" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="command">The database command object.</param>
+    /// <param name="dataReader">The data reader.</param>
+    /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
+    /// <param name="recordsAffected">The number of records in the database that were affected.</param>
+    /// <param name="readCount">The number of records that were read.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
+    ValueTask<InterceptionResult> DataReaderClosingAsync(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbDataReader dataReader,
+        Guid commandId,
+        int recordsAffected,
+        int readCount,
+        DateTimeOffset startTime);
+
+    /// <summary>
     ///     Whether <see cref="RelationalEventId.CommandCreating" /> or <see cref="RelationalEventId.CommandCreated" /> need
     ///     to be logged.
     /// </summary>
@@ -509,10 +549,12 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
     bool ShouldLogCommandExecute(DateTimeOffset now);
 
     /// <summary>
+    ///     Whether <see cref="RelationalEventId.DataReaderClosing" /> needs to be logged.
+    /// </summary>
+    bool ShouldLogDataReaderClose(DateTimeOffset now);
+
+    /// <summary>
     ///     Whether <see cref="RelationalEventId.DataReaderDisposing" /> needs to be logged.
     /// </summary>
     bool ShouldLogDataReaderDispose(DateTimeOffset now);
-
-    private bool ShouldLogParameterValues(DbCommand command)
-        => command.Parameters.Count > 0 && ShouldLogSensitiveData();
 }

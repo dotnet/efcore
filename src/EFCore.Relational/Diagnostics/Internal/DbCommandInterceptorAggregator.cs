@@ -273,6 +273,30 @@ public class DbCommandInterceptorAggregator : InterceptorAggregator<IDbCommandIn
             }
         }
 
+        public InterceptionResult DataReaderClosing(DbCommand command, DataReaderClosingEventData eventData, InterceptionResult result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = _interceptors[i].DataReaderClosing(command, eventData, result);
+            }
+
+            return result;
+        }
+
+        public async ValueTask<InterceptionResult> DataReaderClosingAsync(
+            DbCommand command,
+            DataReaderClosingEventData eventData,
+            InterceptionResult result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = await _interceptors[i].DataReaderClosingAsync(command, eventData, result)
+                    .ConfigureAwait(false);
+            }
+
+            return result;
+        }
+
         public InterceptionResult DataReaderDisposing(
             DbCommand command,
             DataReaderDisposingEventData eventData,

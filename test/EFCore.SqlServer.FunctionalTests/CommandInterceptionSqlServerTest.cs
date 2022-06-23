@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -37,6 +38,114 @@ public abstract class CommandInterceptionSqlServerTestBase : CommandInterception
             await base.Intercept_query_to_replace_execution(async, inject));
 
         return null;
+    }
+
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual async Task<string> Intercept_query_to_get_statistics(bool async, bool inject) // Issue #23535
+    {
+        var (context, interceptor) = CreateContext<StatisticsCommandInterceptor>(inject);
+        using (context)
+        {
+            using (async
+                       ? await context.Database.BeginTransactionAsync()
+                       : context.Database.BeginTransaction())
+            {
+                var connection = (SqlConnection)context.Database.GetDbConnection();
+                var message = "";
+
+                connection.InfoMessage += ConnectionOnInfoMessage;
+
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+
+                var results = async
+                    ? await context.Set<Singularity>().ToListAsync()
+                    : context.Set<Singularity>().ToList();
+
+                AssertNormalOutcome(context, interceptor, async, CommandSource.LinqQuery);
+                Assert.True(interceptor.DataReaderClosingCalled);
+                Assert.True(interceptor.DataReaderDisposingCalled);
+
+                Assert.Contains("Scan count", message);
+
+                results[0].Type = "Big Hole Bang";
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+
+                AssertNormalOutcome(context, interceptor, async, CommandSource.SaveChanges);
+                Assert.True(interceptor.DataReaderClosingCalled);
+                Assert.True(interceptor.DataReaderDisposingCalled);
+
+                Assert.Contains("Scan count", message);
+
+                AssertExecutedEvents(listener);
+
+                connection.InfoMessage -= ConnectionOnInfoMessage;
+
+                void ConnectionOnInfoMessage(object sender, SqlInfoMessageEventArgs args)
+                {
+                    Assert.Same(connection, sender);
+                    message = args.Message;
+                }
+            }
+        }
+
+        return interceptor.CommandText;
+    }
+
+
+    protected class StatisticsCommandInterceptor : CommandInterceptorBase
+    {
+        public StatisticsCommandInterceptor()
+            : base(DbCommandMethod.ExecuteReader)
+        {
+        }
+
+        public override InterceptionResult<DbDataReader> ReaderExecuting(
+            DbCommand command,
+            CommandEventData eventData,
+            InterceptionResult<DbDataReader> result)
+        {
+            command.CommandText = "SET STATISTICS IO ON;" + command.CommandText;
+
+            return base.ReaderExecuting(command, eventData, result);
+        }
+
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            DbCommand command,
+            CommandEventData eventData,
+            InterceptionResult<DbDataReader> result,
+            CancellationToken cancellationToken = default)
+        {
+            command.CommandText = "SET STATISTICS IO ON;" + command.CommandText;
+
+            return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
+        }
+
+        public override InterceptionResult DataReaderClosing(
+            DbCommand command,
+            DataReaderClosingEventData eventData,
+            InterceptionResult result)
+        {
+            eventData.DataReader.NextResult();
+
+            return base.DataReaderClosing(command, eventData, result);
+        }
+
+        public override async ValueTask<InterceptionResult> DataReaderClosingAsync(
+            DbCommand command,
+            DataReaderClosingEventData eventData,
+            InterceptionResult result)
+        {
+            await eventData.DataReader.NextResultAsync();
+
+            return await base.DataReaderClosingAsync(command, eventData, result);
+        }
     }
 
     public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
