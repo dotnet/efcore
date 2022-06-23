@@ -615,7 +615,7 @@ public class DbContext :
         {
             EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
 
-            DbContextDependencies.UpdateLogger.OptimisticConcurrencyException(this, exception);
+            DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
 
             SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
 
@@ -762,8 +762,7 @@ public class DbContext :
         {
             EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
 
-            await DbContextDependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(this, exception, cancellationToken)
-                .ConfigureAwait(false);
+            await DbContextDependencies.UpdateLogger.SaveChangesFailedAsync(this, exception, cancellationToken).ConfigureAwait(false);
 
             SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
 

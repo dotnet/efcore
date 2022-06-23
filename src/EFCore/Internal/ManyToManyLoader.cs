@@ -42,7 +42,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            Query(entry.StateManager.Context, keyValues).Load();
+            Query(entry.Context, keyValues).Load();
         }
 
         entry.SetIsLoaded(_skipNavigation);
@@ -61,7 +61,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            await Query(entry.StateManager.Context, keyValues).LoadAsync(cancellationToken).ConfigureAwait(false);
+            await Query(entry.Context, keyValues).LoadAsync(cancellationToken).ConfigureAwait(false);
         }
 
         entry.SetIsLoaded(_skipNavigation);
@@ -76,7 +76,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     public virtual IQueryable<TEntity> Query(InternalEntityEntry entry)
     {
         var keyValues = PrepareForLoad(entry);
-        var context = entry.StateManager.Context;
+        var context = entry.Context;
 
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues == null)

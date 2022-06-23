@@ -165,6 +165,9 @@ public class ExceptionTest
 
     private class FakeUpdateEntry : IUpdateEntry
     {
+        public DbContext Context
+            => throw new NotImplementedException();
+
         public void SetOriginalValue(IProperty property, object value)
             => throw new NotImplementedException();
 

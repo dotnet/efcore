@@ -176,19 +176,19 @@ public class InMemoryStore : IInMemoryStore
                         continue;
                     }
 
-                    table.Delete(entry);
+                    table.Delete(entry, updateLogger);
                 }
 
                 switch (entry.EntityState)
                 {
                     case EntityState.Added:
-                        table.Create(entry);
+                        table.Create(entry, updateLogger);
                         break;
                     case EntityState.Deleted:
-                        table.Delete(entry);
+                        table.Delete(entry, updateLogger);
                         break;
                     case EntityState.Modified:
-                        table.Update(entry);
+                        table.Update(entry, updateLogger);
                         break;
                 }
 

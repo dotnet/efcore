@@ -65,7 +65,7 @@ public class ReferenceEntry : NavigationEntry
             var target = GetTargetEntry();
             if (target != null)
             {
-                var context = InternalEntry.StateManager.Context;
+                var context = InternalEntry.Context;
                 if (context.ChangeTracker.AutoDetectChangesEnabled
                     && !((IRuntimeModel)context.Model).SkipDetectChanges)
                 {

@@ -59,6 +59,12 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
+    ///     Gets the underlying relational connection being used.
+    /// </summary>
+    public virtual IRelationalConnection RelationalConnection
+        => _relationalConnection;
+
+    /// <summary>
     ///     Gets the underlying reader for the result set.
     /// </summary>
     public virtual DbDataReader DbDataReader
@@ -69,6 +75,12 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     /// </summary>
     public virtual DbCommand DbCommand
         => _command;
+
+    /// <summary>
+    ///     A correlation ID that identifies the <see cref="DbCommand" /> instance being used.
+    /// </summary>
+    public virtual Guid CommandId
+        => _commandId;
 
     /// <summary>
     ///     Calls <see cref="System.Data.Common.DbDataReader.Read" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.

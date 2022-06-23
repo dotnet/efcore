@@ -50,19 +50,26 @@ public sealed record ModificationCommandBatchFactoryDependencies
         ISqlGenerationHelper sqlGenerationHelper,
         IUpdateSqlGenerator updateSqlGenerator,
         ICurrentDbContext currentContext,
-        IRelationalCommandDiagnosticsLogger logger)
+        IRelationalCommandDiagnosticsLogger logger,
+        IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
         CommandBuilderFactory = commandBuilderFactory;
         SqlGenerationHelper = sqlGenerationHelper;
         UpdateSqlGenerator = updateSqlGenerator;
         CurrentContext = currentContext;
         Logger = logger;
+        UpdateLogger = updateLogger;
     }
 
     /// <summary>
-    ///     A logger.
+    ///     A logger relational-command events.
     /// </summary>
     public IRelationalCommandDiagnosticsLogger Logger { get; init; }
+
+    /// <summary>
+    ///     A logger for general update events.
+    /// </summary>
+    public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
     /// <summary>
     ///     The command builder factory.

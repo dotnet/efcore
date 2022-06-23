@@ -186,36 +186,6 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
-    ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
-    /// </summary>
-    /// <param name="diagnostics">The diagnostics logger to use.</param>
-    /// <param name="context">The context in use.</param>
-    /// <param name="exception">The exception that caused this event.</param>
-    public static void OptimisticConcurrencyException(
-        this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-        DbContext context,
-        Exception exception)
-    {
-        var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
-
-        if (diagnostics.ShouldLog(definition))
-        {
-            definition.Log(diagnostics, exception);
-        }
-
-        if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-        {
-            var eventData = CreateDbContextErrorEventData(context, exception, definition);
-
-            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-
-            interceptor?.SaveChangesFailed(eventData);
-        }
-    }
-
-    /// <summary>
     ///     Logs for the <see cref="CoreEventId.OldModelVersionWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
@@ -265,13 +235,52 @@ public static class CoreLoggerExtensions
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="context">The context in use.</param>
+    /// <param name="entries">The entries that were involved in the concurrency violation.</param>
+    /// <param name="exception">The exception that caused this event.</param>
+    public static InterceptionResult OptimisticConcurrencyException(
+        this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+        DbContext context,
+        IReadOnlyList<IUpdateEntry> entries,
+        Exception exception)
+    {
+        var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, exception);
+        }
+
+        if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = CreateConcurrencyExceptionEventData(context, exception, entries, definition);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.ThrowingConcurrencyException(eventData, default);
+            }
+        }
+
+        return default;
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="context">The context in use.</param>
+    /// <param name="entries">The entries that were involved in the concurrency violation.</param>
     /// <param name="exception">The exception that caused this event.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Task" /> for the async result.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public static Task OptimisticConcurrencyExceptionAsync(
+    public static ValueTask<InterceptionResult> OptimisticConcurrencyExceptionAsync(
         this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
         DbContext context,
+        IReadOnlyList<IUpdateEntry> entries,
         Exception exception,
         CancellationToken cancellationToken = default)
     {
@@ -286,33 +295,35 @@ public static class CoreLoggerExtensions
                 definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = CreateDbContextErrorEventData(context, exception, definition);
+            var eventData = CreateConcurrencyExceptionEventData(context, exception, entries, definition);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             if (interceptor != null)
             {
-                return interceptor.SaveChangesFailedAsync(eventData, cancellationToken);
+                return interceptor.ThrowingConcurrencyExceptionAsync(eventData, default, cancellationToken);
             }
         }
 
-        return Task.CompletedTask;
+        return default;
     }
 
-    private static DbContextErrorEventData CreateDbContextErrorEventData(
+    private static ConcurrencyExceptionEventData CreateConcurrencyExceptionEventData(
         DbContext context,
         Exception exception,
+        IReadOnlyList<IUpdateEntry> entries,
         EventDefinition<Exception> definition)
         => new(
             definition,
             OptimisticConcurrencyException,
             context,
+            entries,
             exception);
 
     private static string OptimisticConcurrencyException(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<Exception>)definition;
-        var p = (DbContextErrorEventData)payload;
+        var p = (ConcurrencyExceptionEventData)payload;
         return d.GenerateMessage(p.Exception);
     }
 
@@ -2562,7 +2573,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 internalEntityEntry.EntityType.ShortName());
         }
 
@@ -2601,7 +2612,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 internalEntityEntry.EntityType.ShortName(),
                 internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey()!.Properties));
         }
@@ -2647,7 +2658,7 @@ public static class CoreLoggerExtensions
             definition.Log(
                 diagnostics,
                 internalEntityEntry.EntityType.ShortName(),
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 oldState,
                 newState);
         }
@@ -2697,7 +2708,7 @@ public static class CoreLoggerExtensions
                 diagnostics,
                 internalEntityEntry.EntityType.ShortName(),
                 internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey()!.Properties),
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 oldState,
                 newState);
         }
@@ -2750,7 +2761,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 property.Name,
                 internalEntityEntry.EntityType.ShortName());
         }
@@ -2801,7 +2812,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 value,
                 property.Name,
                 internalEntityEntry.EntityType.ShortName());

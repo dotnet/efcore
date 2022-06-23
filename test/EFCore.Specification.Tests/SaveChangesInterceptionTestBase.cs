@@ -312,8 +312,8 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             exceptionFromEvent = args.Exception;
         };
 
-        context.Entry(new Singularity { Id = 35, Type = "Red Dwarf" }).State
-            = concurrencyError ? EntityState.Modified : EntityState.Added;
+        var entry = context.Entry(new Singularity { Id = 35, Type = "Red Dwarf" });
+        entry.State = concurrencyError ? EntityState.Modified : EntityState.Added;
 
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
@@ -347,6 +347,10 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
 
         if (concurrencyError)
         {
+            Assert.True(interceptor.ConcurrencyExceptionCalled);
+            Assert.Equal(1, interceptor.Entries.Count);
+            Assert.Same(entry.Entity, interceptor.Entries[0].Entity);
+
             listener.AssertEventsInOrder(
                 CoreEventId.SaveChangesStarting.Name,
                 CoreEventId.OptimisticConcurrencyException.Name);
@@ -356,6 +360,113 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             listener.AssertEventsInOrder(
                 CoreEventId.SaveChangesStarting.Name,
                 CoreEventId.SaveChangesFailed.Name);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public virtual async Task Intercept_to_suppress_concurrency_exception(bool async, bool inject, bool noAcceptChanges)
+    {
+        if (!SupportsOptimisticConcurrency)
+        {
+            return;
+        }
+
+        var (context, interceptor) = CreateContext<ConcurrencySuppressingSaveChangesInterceptor>(inject);
+
+        using var _ = context;
+
+        using var transaction = context.Database.BeginTransaction();
+
+        var savingEventCalled = false;
+        var resultFromEvent = -1;
+        Exception exceptionFromEvent = null;
+
+        context.SavingChanges += (sender, args) =>
+        {
+            Assert.Same(context, sender);
+            savingEventCalled = true;
+        };
+
+        context.SavedChanges += (sender, args) =>
+        {
+            Assert.Same(context, sender);
+            resultFromEvent = args.EntitiesSavedCount;
+        };
+
+        context.SaveChangesFailed += (sender, args) =>
+        {
+            Assert.Same(context, sender);
+            exceptionFromEvent = args.Exception;
+        };
+
+        var entry = context.Entry(new Singularity { Id = 35, Type = "Red Dwarf" });
+        entry.State = EntityState.Modified;
+
+        using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+
+        Exception thrown = null;
+
+        try
+        {
+            var __ = noAcceptChanges
+                ? async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges()
+                : async
+                    ? await context.SaveChangesAsync(acceptAllChangesOnSuccess: false)
+                    : context.SaveChanges(acceptAllChangesOnSuccess: false);
+        }
+        catch (Exception e)
+        {
+            thrown = e;
+        }
+
+        Assert.Equal(async, interceptor.AsyncCalled);
+        Assert.NotEqual(async, interceptor.SyncCalled);
+        Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
+        Assert.False(interceptor.FailedCalled);
+        Assert.Same(context, interceptor.Context);
+        Assert.Null(thrown);
+
+        Assert.True(savingEventCalled);
+        Assert.Equal(1, resultFromEvent);
+        Assert.Null(exceptionFromEvent);
+
+        Assert.True(interceptor.ConcurrencyExceptionCalled);
+        Assert.Equal(1, interceptor.Entries.Count);
+        Assert.Same(entry.Entity, interceptor.Entries[0].Entity);
+
+        listener.AssertEventsInOrder(
+            CoreEventId.SaveChangesStarting.Name,
+            CoreEventId.OptimisticConcurrencyException.Name,
+            CoreEventId.SaveChangesCompleted.Name);
+    }
+
+    protected class ConcurrencySuppressingSaveChangesInterceptor : SaveChangesInterceptorBase
+    {
+        public override InterceptionResult ThrowingConcurrencyException(ConcurrencyExceptionEventData eventData, InterceptionResult result)
+        {
+            base.ThrowingConcurrencyException(eventData, result);
+
+            return InterceptionResult.Suppress();
+        }
+
+        public override async ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+            ConcurrencyExceptionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+        {
+            await base.ThrowingConcurrencyExceptionAsync(eventData, result, cancellationToken);
+
+            return InterceptionResult.Suppress();
         }
     }
 
@@ -411,9 +522,11 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
     {
         public DbContext Context { get; set; }
         public Exception Exception { get; set; }
+        public IReadOnlyList<EntityEntry> Entries { get; set; }
         public bool AsyncCalled { get; set; }
         public bool SyncCalled { get; set; }
         public bool FailedCalled { get; set; }
+        public bool ConcurrencyExceptionCalled { get; set; }
         public bool CanceledCalled { get; set; }
         public bool SavedChangesCalled { get; set; }
         public bool SavingChangesCalled { get; set; }
@@ -514,6 +627,37 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
 
             return Task.CompletedTask;
+        }
+
+        public virtual InterceptionResult ThrowingConcurrencyException(ConcurrencyExceptionEventData eventData, InterceptionResult result)
+        {
+            Assert.NotNull(eventData.Context);
+            Assert.NotNull(eventData.Exception);
+
+            Context = eventData.Context;
+            Exception = eventData.Exception;
+            Entries = eventData.Entries;
+            ConcurrencyExceptionCalled = true;
+            SyncCalled = true;
+
+            return result;
+        }
+
+        public virtual ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+            ConcurrencyExceptionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+        {
+            Assert.NotNull(eventData.Context);
+            Assert.NotNull(eventData.Exception);
+
+            Context = eventData.Context;
+            Exception = eventData.Exception;
+            Entries = eventData.Entries;
+            ConcurrencyExceptionCalled = true;
+            AsyncCalled = true;
+
+            return new(result);
         }
     }
 

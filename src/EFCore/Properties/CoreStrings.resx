@@ -827,7 +827,7 @@
   </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>
-    <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>
+    <comment>Debug CoreEventId.OptimisticConcurrencyException Exception?</comment>
   </data>
   <data name="LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction" xml:space="preserve">
     <value>Entity '{principalEntityType}' has a global query filter defined and is the required end of a relationship with the entity '{declaringEntityType}'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.</value>

@@ -94,7 +94,14 @@ public class CosmosDatabaseWrapper : Database
             }
             catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
-                throw WrapUpdateException(ex, entry);
+                var errorEntries = new[] { entry };
+                var exception = WrapUpdateException(ex, errorEntries);
+
+                if (exception is not DbUpdateConcurrencyException
+                    || !Dependencies.Logger.OptimisticConcurrencyException(entry.Context, errorEntries, exception).IsSuppressed)
+                {
+                    throw exception;
+                }
             }
         }
 
@@ -158,7 +165,15 @@ public class CosmosDatabaseWrapper : Database
             }
             catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
-                throw WrapUpdateException(ex, entry);
+                var errorEntries = new[] { entry };
+                var exception = WrapUpdateException(ex, errorEntries);
+
+                if (exception is not DbUpdateConcurrencyException
+                    || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                        entry.Context, errorEntries, exception, cancellationToken).ConfigureAwait(false)).IsSuppressed)
+                {
+                    throw exception;
+                }
             }
         }
 
@@ -359,18 +374,19 @@ public class CosmosDatabaseWrapper : Database
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-    private Exception WrapUpdateException(Exception exception, IUpdateEntry entry)
+    private Exception WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
     {
+        var entry = entries[0];
         var documentSource = GetDocumentSource(entry.EntityType);
         var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
 
         return exception switch
         {
             CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
-                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
             CosmosException { StatusCode: HttpStatusCode.Conflict }
-                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, new[] { entry })
+                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
+            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
         };
     }
 }
