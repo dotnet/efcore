@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppressor
 {
     private static readonly SuppressionDescriptor SuppressUninitializedDbSetRule = new(
-        id: "SPR1001",
+        id: "EFSPR1001",
         suppressedDiagnosticId: "CS8618",
         justification: AnalyzerStrings.UninitializedDbSetWarningSuppressionJustification);
 
@@ -70,7 +70,7 @@ public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppresso
             if (propertySymbol.Type.OriginalDefinition.Equals(dbSetTypeSymbol, SymbolEqualityComparer.Default)
                 && InheritsFrom(propertySymbol.ContainingType, dbContextTypeSymbol))
             {
-                context.ReportSuppression(Suppression.Create(SupportedSuppressions[0], diagnostic));
+                context.ReportSuppression(Suppression.Create(SuppressUninitializedDbSetRule, diagnostic));
             }
 
             static bool InheritsFrom(ITypeSymbol typeSymbol, ITypeSymbol baseTypeSymbol)
