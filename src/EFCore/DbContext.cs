@@ -854,16 +854,42 @@ public class DbContext :
 
         Check.DebugAssert(_configurationSnapshot != null, "configurationSnapshot is null");
 
-        var changeTracker = ChangeTracker;
-        changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled;
-        changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior;
-        changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled;
-        changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming;
-        changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming;
+        if (_changeTracker != null
+            || _configurationSnapshot.HasChangeTrackerConfiguration)
+        {
+            var changeTracker = ChangeTracker;
+            changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled;
+            changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior;
+            changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled;
+            changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming;
+            changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming;
+        }
 
-        var database = Database;
-        database.AutoTransactionsEnabled = _configurationSnapshot.AutoTransactionsEnabled;
-        database.AutoSavepointsEnabled = _configurationSnapshot.AutoSavepointsEnabled;
+        if (_database != null
+            || _configurationSnapshot.HasDatabaseConfiguration)
+        {
+            var database = Database;
+            database.AutoTransactionsEnabled = _configurationSnapshot.AutoTransactionsEnabled;
+            database.AutoSavepointsEnabled = _configurationSnapshot.AutoSavepointsEnabled;
+        }
+
+        if (_dbContextDependencies != null
+            || _configurationSnapshot.HasStateManagerConfiguration)
+        {
+            DbContextDependencies.StateManager.SetEvents(
+                _configurationSnapshot.Tracking,
+                _configurationSnapshot.Tracked,
+                _configurationSnapshot.StateChanging,
+                _configurationSnapshot.StateChanged);
+        }
+
+        if (_dbContextDependencies != null
+            || _configurationSnapshot.HasChangeDetectorConfiguration)
+        {
+            DbContextDependencies.ChangeDetector.SetEvents(
+                _configurationSnapshot.DetectingChanges,
+                _configurationSnapshot.DetectedChanges);
+        }
 
         SavingChanges = _configurationSnapshot.SavingChanges;
         SavedChanges = _configurationSnapshot.SavedChanges;
@@ -879,19 +905,30 @@ public class DbContext :
     [EntityFrameworkInternal]
     void IDbContextPoolable.SnapshotConfiguration()
     {
-        var changeTracker = ChangeTracker;
-        var database = Database;
+        var stateManagerEvents = _dbContextDependencies?.StateManager.CaptureEvents();
+        var changeDetectorEvents = _dbContextDependencies?.ChangeDetector.CaptureEvents();
+        
         _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
-            changeTracker.AutoDetectChangesEnabled,
-            changeTracker.QueryTrackingBehavior,
-            database.AutoTransactionsEnabled,
-            database.AutoSavepointsEnabled,
-            changeTracker.LazyLoadingEnabled,
-            changeTracker.CascadeDeleteTiming,
-            changeTracker.DeleteOrphansTiming,
+            _database != null,
+            stateManagerEvents != null,
+            _changeTracker != null,
+            changeDetectorEvents != null,
+            _changeTracker?.AutoDetectChangesEnabled ?? true,
+            _changeTracker?.QueryTrackingBehavior ?? QueryTrackingBehavior.TrackAll,
+            _database?.AutoTransactionsEnabled ?? true,
+            _database?.AutoSavepointsEnabled ?? true,
+            _changeTracker?.LazyLoadingEnabled ?? true,
+            _changeTracker?.CascadeDeleteTiming ?? CascadeTiming.Immediate,
+            _changeTracker?.DeleteOrphansTiming ?? CascadeTiming.Immediate,
             SavingChanges,
             SavedChanges,
-            SaveChangesFailed);
+            SaveChangesFailed,
+            stateManagerEvents?.Tracking,
+            stateManagerEvents?.Tracked,
+            stateManagerEvents?.StateChanging,
+            stateManagerEvents?.StateChanged,
+            changeDetectorEvents?.DetectingChanges,
+            changeDetectorEvents?.DetectedChanges);
     }
 
     /// <summary>

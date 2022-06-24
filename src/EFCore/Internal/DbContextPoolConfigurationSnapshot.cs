@@ -18,6 +18,10 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public DbContextPoolConfigurationSnapshot(
+        bool hasDatabaseConfiguration,
+        bool hasStateManagerConfiguration,
+        bool hasChangeTrackerConfiguration,
+        bool hasChangeDetectorConfiguration,
         bool autoDetectChangesEnabled,
         QueryTrackingBehavior queryTrackingBehavior,
         bool autoTransactionsEnabled,
@@ -27,8 +31,18 @@ public sealed class DbContextPoolConfigurationSnapshot
         CascadeTiming deleteOrphansTiming,
         EventHandler<SavingChangesEventArgs>? savingChanges,
         EventHandler<SavedChangesEventArgs>? savedChanges,
-        EventHandler<SaveChangesFailedEventArgs>? saveChangesFailed)
+        EventHandler<SaveChangesFailedEventArgs>? saveChangesFailed,
+        EventHandler<EntityTrackingEventArgs>? tracking,
+        EventHandler<EntityTrackedEventArgs>? tracked,
+        EventHandler<EntityStateChangingEventArgs>? stateChanging,
+        EventHandler<EntityStateChangedEventArgs>? stateChanged,
+        EventHandler<DetectChangesEventArgs>? detectingChanges,
+        EventHandler<DetectedChangesEventArgs>? detectedChanges)
     {
+        HasDatabaseConfiguration = hasDatabaseConfiguration;
+        HasStateManagerConfiguration = hasStateManagerConfiguration;
+        HasChangeTrackerConfiguration = hasChangeTrackerConfiguration;
+        HasChangeDetectorConfiguration = hasChangeDetectorConfiguration;
         AutoDetectChangesEnabled = autoDetectChangesEnabled;
         QueryTrackingBehavior = queryTrackingBehavior;
         AutoTransactionsEnabled = autoTransactionsEnabled;
@@ -39,7 +53,45 @@ public sealed class DbContextPoolConfigurationSnapshot
         SavingChanges = savingChanges;
         SavedChanges = savedChanges;
         SaveChangesFailed = saveChangesFailed;
+        Tracking = tracking;
+        Tracked = tracked;
+        StateChanging = stateChanging;
+        StateChanged = stateChanged;
+        DetectingChanges = detectingChanges;
+        DetectedChanges = detectedChanges;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool HasDatabaseConfiguration { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool HasStateManagerConfiguration { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool HasChangeTrackerConfiguration { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool HasChangeDetectorConfiguration { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -120,4 +172,52 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<EntityTrackingEventArgs>? Tracking { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<EntityTrackedEventArgs>? Tracked { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<EntityStateChangingEventArgs>? StateChanging { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<EntityStateChangedEventArgs>? StateChanged { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<DetectChangesEventArgs>? DetectingChanges { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<DetectedChangesEventArgs>? DetectedChanges { get; }
 }

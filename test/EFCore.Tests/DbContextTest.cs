@@ -186,6 +186,14 @@ public partial class DbContextTest
         {
         }
 
+        public (EventHandler<DetectChangesEventArgs> DetectingChanges, EventHandler<DetectedChangesEventArgs> DetectedChanges)
+            CaptureEvents()
+            => (null, null);
+
+        public void SetEvents(EventHandler<DetectChangesEventArgs> detectingChanges, EventHandler<DetectedChangesEventArgs> detectedChanges)
+        {
+        }
+
         public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModifed)
         {
         }

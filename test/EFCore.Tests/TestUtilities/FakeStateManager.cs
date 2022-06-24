@@ -23,6 +23,18 @@ public class FakeStateManager : IStateManager
     {
     }
 
+    public (EventHandler<EntityTrackingEventArgs> Tracking, EventHandler<EntityTrackedEventArgs> Tracked,
+        EventHandler<EntityStateChangingEventArgs> StateChanging, EventHandler<EntityStateChangedEventArgs> StateChanged) CaptureEvents()
+        => (null, null, null, null);
+
+    public void SetEvents(
+        EventHandler<EntityTrackingEventArgs> tracking,
+        EventHandler<EntityTrackedEventArgs> tracked,
+        EventHandler<EntityStateChangingEventArgs> stateChanging,
+        EventHandler<EntityStateChangedEventArgs> stateChanged)
+    {
+    }
+
     public int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         SaveChangesCalled = true;

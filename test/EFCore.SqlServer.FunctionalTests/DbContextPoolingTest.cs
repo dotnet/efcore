@@ -111,6 +111,15 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             Database.AutoSavepointsEnabled = false;
             ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
             ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
+            SavingChanges += (sender, args) => { };
+            SavedChanges += (sender, args) => { };
+            SaveChangesFailed += (sender, args) => { };
+            ChangeTracker.Tracking += (sender, args) => { };
+            ChangeTracker.Tracked += (sender, args) => { };
+            ChangeTracker.StateChanging += (sender, args) => { };
+            ChangeTracker.StateChanged += (sender, args) => { };
+            ChangeTracker.DetectingChanges += (sender, args) => { };
+            ChangeTracker.DetectedChanges += (sender, args) => { };
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -718,9 +727,15 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.Database.AutoTransactionsEnabled = true;
         context1.Database.AutoSavepointsEnabled = true;
         context1.Database.SetCommandTimeout(1);
-        context1.SavingChanges += (sender, args) => { };
-        context1.SavedChanges += (sender, args) => { };
-        context1.SaveChangesFailed += (sender, args) => { };
+        context1.ChangeTracker.Tracking += ChangeTracker_OnTracking;
+        context1.ChangeTracker.Tracked += ChangeTracker_OnTracked;
+        context1.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
+        context1.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+        context1.ChangeTracker.DetectingChanges += ChangeTracker_OnDetectingChanges;
+        context1.ChangeTracker.DetectedChanges += ChangeTracker_OnDetectedChanges;
+        context1.SavingChanges += Context_OnSavingChanges;
+        context1.SavedChanges += Context_OnSavedChanges;
+        context1.SaveChangesFailed += Context_OnSaveChangesFailed;
 
         await Dispose(serviceScope, async);
 
@@ -733,10 +748,6 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Same(context1, context2);
 
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavingChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavedChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SaveChangesFailed)));
-
         Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
         Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
         Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
@@ -745,6 +756,23 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(context2.Database.AutoTransactionsEnabled);
         Assert.False(context2.Database.AutoSavepointsEnabled);
         Assert.Null(context1.Database.GetCommandTimeout());
+
+        var customer = new Customer { CustomerId = "C" };
+        context2.Customers.Attach(customer).State = EntityState.Modified;
+        context2.Customers.Attach(customer).State = EntityState.Unchanged;
+
+        Assert.False(_changeTracker_OnTracking);
+        Assert.False(_changeTracker_OnTracked);
+        Assert.False(_changeTracker_OnStateChanging);
+        Assert.False(_changeTracker_OnStateChanged);
+
+        context2.SaveChanges();
+
+        Assert.False(_changeTracker_OnDetectingChanges);
+        Assert.False(_changeTracker_OnDetectedChanges);
+        Assert.False(_context_OnSavedChanges);
+        Assert.False(_context_OnSavingChanges);
+        Assert.False(_context_OnSaveChangesFailed);
     }
 
     [ConditionalTheory]
@@ -792,9 +820,15 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
         context1.Database.AutoTransactionsEnabled = true;
         context1.Database.AutoSavepointsEnabled = true;
-        context1.SavingChanges += (sender, args) => { };
-        context1.SavedChanges += (sender, args) => { };
-        context1.SaveChangesFailed += (sender, args) => { };
+        context1.ChangeTracker.Tracking += ChangeTracker_OnTracking;
+        context1.ChangeTracker.Tracked += ChangeTracker_OnTracked;
+        context1.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
+        context1.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+        context1.ChangeTracker.DetectingChanges += ChangeTracker_OnDetectingChanges;
+        context1.ChangeTracker.DetectedChanges += ChangeTracker_OnDetectedChanges;
+        context1.SavingChanges += Context_OnSavingChanges;
+        context1.SavedChanges += Context_OnSavedChanges;
+        context1.SaveChangesFailed += Context_OnSaveChangesFailed;
 
         await Dispose(context1, async);
 
@@ -802,18 +836,22 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Same(context1, context2);
 
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavingChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavedChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SaveChangesFailed)));
+        var customer = new Customer { CustomerId = "C" };
+        context2.Customers.Attach(customer).State = EntityState.Modified;
+        context2.Customers.Attach(customer).State = EntityState.Unchanged;
 
-        Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
-        Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
-        Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
-        Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.False(context2.Database.AutoTransactionsEnabled);
-        Assert.False(context2.Database.AutoSavepointsEnabled);
-        Assert.Null(context1.Database.GetCommandTimeout());
+        Assert.False(_changeTracker_OnTracking);
+        Assert.False(_changeTracker_OnTracked);
+        Assert.False(_changeTracker_OnStateChanging);
+        Assert.False(_changeTracker_OnStateChanged);
+
+        context2.SaveChanges();
+
+        Assert.False(_changeTracker_OnDetectingChanges);
+        Assert.False(_changeTracker_OnDetectedChanges);
+        Assert.False(_context_OnSavedChanges);
+        Assert.False(_context_OnSavingChanges);
+        Assert.False(_context_OnSaveChangesFailed);
     }
 
     [ConditionalFact]
@@ -822,10 +860,6 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         var context = new PooledContext(
             new DbContextOptionsBuilder().UseSqlServer(
                 SqlServerNorthwindTestStoreFactory.NorthwindConnectionString).Options);
-
-        Assert.Null(GetContextEventField(context, nameof(DbContext.SavingChanges)));
-        Assert.Null(GetContextEventField(context, nameof(DbContext.SavedChanges)));
-        Assert.Null(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
 
         context.ChangeTracker.AutoDetectChangesEnabled = true;
         context.ChangeTracker.LazyLoadingEnabled = true;
@@ -840,9 +874,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
         context.ChangeTracker.DetectingChanges += ChangeTracker_OnDetectingChanges;
         context.ChangeTracker.DetectedChanges += ChangeTracker_OnDetectedChanges;
-        context.SavingChanges += (sender, args) => { };
-        context.SavedChanges += (sender, args) => { };
-        context.SaveChangesFailed += (sender, args) => { };
+        context.SavingChanges += Context_OnSavingChanges;
+        context.SavedChanges += Context_OnSavedChanges;
+        context.SaveChangesFailed += Context_OnSaveChangesFailed;
 
         context.ChangeTracker.Clear();
 
@@ -861,8 +895,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(_changeTracker_OnDetectingChanges);
         Assert.False(_changeTracker_OnDetectedChanges);
 
-        context.Customers.Attach(
-            new Customer { CustomerId = "C" }).State = EntityState.Modified;
+        var customer = new Customer { CustomerId = "C" };
+        context.Customers.Attach(customer).State = EntityState.Modified;
+        context.Customers.Attach(customer).State = EntityState.Unchanged;
 
         Assert.True(_changeTracker_OnTracking);
         Assert.True(_changeTracker_OnTracked);
@@ -871,20 +906,29 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(_changeTracker_OnDetectingChanges);
         Assert.False(_changeTracker_OnDetectedChanges);
 
-        context.ChangeTracker.DetectChanges();
+        context.SaveChanges();
 
         Assert.True(_changeTracker_OnDetectingChanges);
         Assert.True(_changeTracker_OnDetectedChanges);
-
-        Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavingChanges)));
-        Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavedChanges)));
-        Assert.NotNull(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
+        Assert.True(_context_OnSavedChanges);
+        Assert.True(_context_OnSavingChanges);
+        Assert.False(_context_OnSaveChangesFailed);
     }
 
-    private object GetContextEventField(DbContext context, string eventName)
-        => typeof(DbContext)
-            .GetField(eventName, BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance)!
-            .GetValue(context);
+    private void Context_OnSavingChanges(object sender, SavingChangesEventArgs e)
+        => _context_OnSavingChanges = true;
+
+    private bool _context_OnSavingChanges;
+
+    private void Context_OnSavedChanges(object sender, SavedChangesEventArgs e)
+        => _context_OnSavedChanges = true;
+
+    private bool _context_OnSavedChanges;
+
+    private void Context_OnSaveChangesFailed(object sender, SaveChangesFailedEventArgs e)
+        => _context_OnSaveChangesFailed = true;
+
+    private bool _context_OnSaveChangesFailed;
 
     private bool _changeTracker_OnTracking;
 
