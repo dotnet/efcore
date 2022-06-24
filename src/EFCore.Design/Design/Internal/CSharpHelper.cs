@@ -743,7 +743,7 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Literal<T>(IList<T> values, bool vertical = false)
+    public virtual string Literal<T>(List<T> values, bool vertical = false)
         => List(typeof(T), values, vertical);
 
     private string List(Type type, IEnumerable values, bool vertical = false)
@@ -752,13 +752,14 @@ public class CSharpHelper : ICSharpHelper
 
         builder.Append("new List<")
             .Append(Reference(type))
-            .Append("> {");
+            .Append(">");
 
         var first = true;
         foreach (var value in values)
         {
             if (first)
             {
+                builder.Append(" {");
                 if (vertical)
                 {
                     builder.AppendLine();
@@ -787,17 +788,24 @@ public class CSharpHelper : ICSharpHelper
             builder.Append(UnknownLiteral(value));
         }
 
-        if (vertical)
+        if (first)
         {
-            builder.AppendLine();
-            builder.DecrementIndent();
+            builder.Append("()");
         }
         else
         {
-            builder.Append(" ");
-        }
+            if (vertical)
+            {
+                builder.AppendLine();
+                builder.DecrementIndent();
+            }
+            else
+            {
+                builder.Append(" ");
+            }
 
-        builder.Append("}");
+            builder.Append("}");
+        }
 
         return builder.ToString();
     }
@@ -947,35 +955,6 @@ public class CSharpHelper : ICSharpHelper
                     .Append("[] { ");
 
                 HandleList(((NewArrayExpression)expression).Expressions, builder, simple: true);
-
-                builder
-                    .Append(" }");
-
-                return true;
-            case ExpressionType.ListInit:
-                var listExpr = (ListInitExpression)expression;
-                if (listExpr.Initializers.Any(i => i.Arguments.Count != 1))
-                {
-                    // If there is an initializer with more than one argument we can't make a literal cleanly
-                    return false;
-                }
-                
-                builder
-                    .Append("new ")
-                    .Append(Reference(expression.Type));
-
-                if (listExpr.NewExpression.Arguments.Count > 0 && !HandleArguments(listExpr.NewExpression.Arguments, builder))
-                {
-                    return false;
-                }
-
-                builder
-                    .Append(" { ");
-
-                if (!HandleList(listExpr.Initializers.Select(i => i.Arguments.First()), builder, simple: true))
-                {
-                    return false;
-                }
 
                 builder
                     .Append(" }");
