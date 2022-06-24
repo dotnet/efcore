@@ -89,6 +89,36 @@ public interface IAnnotationCodeGenerator
     }
 
     /// <summary>
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
+    /// </summary>
+    /// <param name="checkConstraint">The check constraint to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
+    void RemoveAnnotationsHandledByConventions(ICheckConstraint checkConstraint, IDictionary<string, IAnnotation> annotations)
+    {
+    }
+
+    /// <summary>
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
+    /// </summary>
+    /// <param name="trigger">The trigger to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
+    void RemoveAnnotationsHandledByConventions(ITrigger trigger, IDictionary<string, IAnnotation> annotations)
+    {
+    }
+
+    /// <summary>
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
+    /// </summary>
+    /// <param name="overrides">The property overrides to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
+    void RemoveAnnotationsHandledByConventions(IRelationalPropertyOverrides overrides, IDictionary<string, IAnnotation> annotations)
+    {
+    }
+
+    /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
     ///     and removes the annotations.
     /// </summary>
@@ -126,8 +156,20 @@ public interface IAnnotationCodeGenerator
                 RemoveAnnotationsHandledByConventions(skipNavigation, annotations);
                 return;
 
+            case ICheckConstraint checkConstraint:
+                RemoveAnnotationsHandledByConventions(checkConstraint, annotations);
+                return;
+
             case IIndex index:
                 RemoveAnnotationsHandledByConventions(index, annotations);
+                return;
+
+            case ITrigger trigger:
+                RemoveAnnotationsHandledByConventions(trigger, annotations);
+                return;
+
+            case IRelationalPropertyOverrides overrides:
+                RemoveAnnotationsHandledByConventions(overrides, annotations);
                 return;
 
             default:
@@ -227,10 +269,32 @@ public interface IAnnotationCodeGenerator
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
     ///     and removes the annotations.
     /// </summary>
+    /// <param name="checkConstraint">The check constraint to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        ICheckConstraint checkConstraint,
+        IDictionary<string, IAnnotation> annotations)
+        => Array.Empty<MethodCallCodeFragment>();
+
+    /// <summary>
+    ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
+    ///     and removes the annotations.
+    /// </summary>
     /// <param name="trigger">The trigger to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         ITrigger trigger,
+        IDictionary<string, IAnnotation> annotations)
+        => Array.Empty<MethodCallCodeFragment>();
+
+    /// <summary>
+    ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
+    ///     and removes the annotations.
+    /// </summary>
+    /// <param name="overrides">The property overrides to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IRelationalPropertyOverrides overrides,
         IDictionary<string, IAnnotation> annotations)
         => Array.Empty<MethodCallCodeFragment>();
 
@@ -251,7 +315,9 @@ public interface IAnnotationCodeGenerator
             INavigation navigation => GenerateFluentApiCalls(navigation, annotations),
             ISkipNavigation skipNavigation => GenerateFluentApiCalls(skipNavigation, annotations),
             IIndex index => GenerateFluentApiCalls(index, annotations),
+            ICheckConstraint checkConstraint => GenerateFluentApiCalls(checkConstraint, annotations),
             ITrigger trigger => GenerateFluentApiCalls(trigger, annotations),
+            IRelationalPropertyOverrides overrides => GenerateFluentApiCalls(overrides, annotations),
 
             _ => throw new ArgumentException(RelationalStrings.UnhandledAnnotatableType(annotatable.GetType()))
         };

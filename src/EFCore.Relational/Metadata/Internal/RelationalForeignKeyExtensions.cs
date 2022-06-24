@@ -61,10 +61,10 @@ public static class RelationalForeignKeyExtensions
         if (principalTable is null
             || duplicatePrincipalTable is null
             || principalTable != duplicatePrincipalTable
-            || !(foreignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
-                is IReadOnlyList<string> principalColumns)
-            || !(duplicateForeignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
-                is IReadOnlyList<string> duplicatePrincipalColumns))
+            || foreignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
+                is not { } principalColumns
+            || duplicateForeignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
+                is not { } duplicatePrincipalColumns)
         {
             if (shouldThrow)
             {

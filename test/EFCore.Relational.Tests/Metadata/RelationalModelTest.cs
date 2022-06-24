@@ -1880,11 +1880,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public enum Mapping
         {
-#pragma warning disable SA1602 // Enumeration items should be documented
             TPH,
             TPT,
             TPC
-#pragma warning restore SA1602 // Enumeration items should be documented
         }
 
         private enum MyEnum : ulong

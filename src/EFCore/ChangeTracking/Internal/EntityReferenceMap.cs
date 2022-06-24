@@ -60,7 +60,7 @@ public class EntityReferenceMap
         }
         else
         {
-            var mapKey = entry.Entity ?? entry;
+            var mapKey = entry.Entity;
 
             if (oldState.HasValue)
             {

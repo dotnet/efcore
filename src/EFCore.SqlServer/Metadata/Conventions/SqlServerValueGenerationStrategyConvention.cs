@@ -61,7 +61,7 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
             {
                 SqlServerValueGenerationStrategy? strategy = null;
                 var declaringTable = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
-                if (declaringTable.Name != null)
+                if (declaringTable.Name != null!)
                 {
                     strategy = property.GetValueGenerationStrategy(declaringTable, Dependencies.TypeMappingSource);
                     if (strategy == SqlServerValueGenerationStrategy.None
@@ -73,7 +73,7 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 else
                 {
                     var declaringView = property.GetMappedStoreObjects(StoreObjectType.View).FirstOrDefault();
-                    if (declaringView.Name != null)
+                    if (declaringView.Name != null!)
                     {
                         strategy = property.GetValueGenerationStrategy(declaringView, Dependencies.TypeMappingSource);
                         if (strategy == SqlServerValueGenerationStrategy.None

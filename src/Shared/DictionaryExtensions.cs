@@ -35,17 +35,17 @@ internal static class DictionaryExtensions
     public static bool TryGetAndRemove<TKey, TValue, TReturn>(
         this IDictionary<TKey, TValue> source,
         TKey key,
-        [NotNullWhen(true)] out TReturn annotationValue)
+        [NotNullWhen(true)] out TReturn value)
     {
-        if (source.TryGetValue(key, out var value)
-            && value != null)
+        if (source.TryGetValue(key, out var item)
+            && item != null)
         {
             source.Remove(key);
-            annotationValue = (TReturn)(object)value;
+            value = (TReturn)(object)item;
             return true;
         }
 
-        annotationValue = default!;
+        value = default!;
         return false;
     }
 

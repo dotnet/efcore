@@ -190,7 +190,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("ParentId", property1.GetColumnName());
             var property2 = model.FindEntityType(typeof(DisjointChildSubclass2))!.FindProperty("ParentId")!;
             Assert.True(property2.IsForeignKey());
-            Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnName());
+            Assert.Equal("ParentId", property2.GetColumnName());
+            Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnName(StoreObjectIdentifier.Table(nameof(Child))));
         }
 
         [ConditionalFact]

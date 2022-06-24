@@ -109,7 +109,8 @@ public interface ITable : ITableBase
 
         builder.Append(Name);
         
-        if (EntityTypeMappings.First().EntityType is not RuntimeEntityType
+        if (EntityTypeMappings.Any()
+            && EntityTypeMappings.First().EntityType is not RuntimeEntityType
             && IsExcludedFromMigrations)
         {
             builder.Append(" ExcludedFromMigrations");

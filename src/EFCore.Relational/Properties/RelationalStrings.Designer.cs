@@ -936,7 +936,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, functionName);
 
         /// <summary>
-        ///     Table name must be specified to configure a mapping fragment.
+        ///     Table name must be specified to configure a table-specific property mapping.
         /// </summary>
         public static string MappingFragmentMissingName
             => GetString("MappingFragmentMissingName");

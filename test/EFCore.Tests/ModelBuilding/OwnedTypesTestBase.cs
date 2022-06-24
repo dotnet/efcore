@@ -528,12 +528,10 @@ public abstract partial class ModelBuilderTest
         [Flags]
         public enum HasDataOverload
         {
-#pragma warning disable SA1602 // Enumeration items should be documented
             Array = 0,
             Enumerable = 1,
             Generic = 2,
             Params = 4
-#pragma warning restore SA1602 // Enumeration items should be documented
         }
 
         [ConditionalTheory]
