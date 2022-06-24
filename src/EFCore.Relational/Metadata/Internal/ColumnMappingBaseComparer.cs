@@ -52,19 +52,19 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
             return result;
         }
 
+        result = TableMappingBaseComparer.Instance.Compare(x.TableMapping, y.TableMapping);
+        if (result != 0)
+        {
+            return result;
+        }
+
         result = StringComparer.Ordinal.Compare(x.Property.Name, y.Property.Name);
         if (result != 0)
         {
             return result;
         }
 
-        result = StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        return TableMappingBaseComparer.Instance.Compare(x.TableMapping, y.TableMapping);
+        return StringComparer.Ordinal.Compare(x.Column.Name, y.Column.Name);
     }
 
     /// <summary>

@@ -574,8 +574,6 @@ public class ModelSnapshotSqlServerTest
                     b.Property<int>(""Id"")
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
-
                     b.HasKey(""Id"");
 
                     b.ToView(""EntityWithOneProperty"", (string)null);
@@ -595,8 +593,6 @@ public class ModelSnapshotSqlServerTest
                 {
                     b.Property<int>(""Id"")
                         .HasColumnType(""int"");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
 
                     b.HasKey(""Id"");
 
@@ -947,8 +943,6 @@ public class ModelSnapshotSqlServerTest
                     b.Property<int>(""Id"")
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
-
                     b.Property<int>(""Shadow"")
                         .HasColumnType(""int"");
 
@@ -1040,7 +1034,6 @@ public class ModelSnapshotSqlServerTest
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
                     b.HasKey(""Id"");
@@ -1122,7 +1115,6 @@ public class ModelSnapshotSqlServerTest
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
                     b.HasKey(""Id"");
@@ -3328,8 +3320,6 @@ namespace RootNamespace
 
                             b1.Property<int>(""Id"")
                                 .HasColumnType(""int"");
-
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>(""Id""), 1L, 1);
 
                             b1.Property<int>(""TestEnum"")
                                 .HasColumnType(""int"");
