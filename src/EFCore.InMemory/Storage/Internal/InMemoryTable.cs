@@ -224,7 +224,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         {
             var entries = new[] { entry };
             var exception = new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, entries);
-            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception).IsSuppressed)
+            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
             {
                 throw exception;
             }
@@ -315,7 +315,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         {
             var entries = new[] { entry };
             var exception = new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, entries);
-            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception).IsSuppressed)
+            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
             {
                 throw exception;
             }
@@ -437,7 +437,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
                     entries);
 
 
-        if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception).IsSuppressed)
+        if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
         {
             throw exception;
         }

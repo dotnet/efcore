@@ -237,11 +237,14 @@ public static class CoreLoggerExtensions
     /// <param name="context">The context in use.</param>
     /// <param name="entries">The entries that were involved in the concurrency violation.</param>
     /// <param name="exception">The exception that caused this event.</param>
+    /// <param name="createEventData">Optional delegate to override event data creation.</param>
     public static InterceptionResult OptimisticConcurrencyException(
         this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
         DbContext context,
         IReadOnlyList<IUpdateEntry> entries,
-        Exception exception)
+        DbUpdateConcurrencyException exception,
+        Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>,
+            ConcurrencyExceptionEventData>? createEventData)
     {
         var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
 
@@ -254,7 +257,8 @@ public static class CoreLoggerExtensions
                 definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = CreateConcurrencyExceptionEventData(context, exception, entries, definition);
+            var eventData = createEventData?.Invoke(context, exception, entries, definition) 
+                ?? CreateConcurrencyExceptionEventData(context, exception, entries, definition);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
@@ -274,6 +278,7 @@ public static class CoreLoggerExtensions
     /// <param name="context">The context in use.</param>
     /// <param name="entries">The entries that were involved in the concurrency violation.</param>
     /// <param name="exception">The exception that caused this event.</param>
+    /// <param name="createEventData">Optional delegate to override event data creation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Task" /> for the async result.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
@@ -281,7 +286,9 @@ public static class CoreLoggerExtensions
         this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
         DbContext context,
         IReadOnlyList<IUpdateEntry> entries,
-        Exception exception,
+        DbUpdateConcurrencyException exception,
+        Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>,
+            ConcurrencyExceptionEventData>? createEventData,
         CancellationToken cancellationToken = default)
     {
         var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
@@ -295,7 +302,8 @@ public static class CoreLoggerExtensions
                 definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = CreateConcurrencyExceptionEventData(context, exception, entries, definition);
+            var eventData = createEventData?.Invoke(context, exception, entries, definition) 
+                ?? CreateConcurrencyExceptionEventData(context, exception, entries, definition);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
@@ -310,7 +318,7 @@ public static class CoreLoggerExtensions
 
     private static ConcurrencyExceptionEventData CreateConcurrencyExceptionEventData(
         DbContext context,
-        Exception exception,
+        DbUpdateConcurrencyException exception,
         IReadOnlyList<IUpdateEntry> entries,
         EventDefinition<Exception> definition)
         => new(

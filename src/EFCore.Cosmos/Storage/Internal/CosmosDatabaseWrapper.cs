@@ -98,7 +98,8 @@ public class CosmosDatabaseWrapper : Database
                 var exception = WrapUpdateException(ex, errorEntries);
 
                 if (exception is not DbUpdateConcurrencyException
-                    || !Dependencies.Logger.OptimisticConcurrencyException(entry.Context, errorEntries, exception).IsSuppressed)
+                    || !Dependencies.Logger.OptimisticConcurrencyException(
+                        entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null).IsSuppressed)
                 {
                     throw exception;
                 }
@@ -170,7 +171,8 @@ public class CosmosDatabaseWrapper : Database
 
                 if (exception is not DbUpdateConcurrencyException
                     || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                        entry.Context, errorEntries, exception, cancellationToken).ConfigureAwait(false)).IsSuppressed)
+                        entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                        .ConfigureAwait(false)).IsSuppressed)
                 {
                     throw exception;
                 }

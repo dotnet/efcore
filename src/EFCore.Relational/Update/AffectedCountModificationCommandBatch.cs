@@ -347,7 +347,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     /// <param name="expectedRowsAffected">The expected number of rows affected.</param>
     /// <param name="rowsAffected">The actual number of rows affected.</param>
     protected virtual void ThrowAggregateUpdateConcurrencyException(
-        RelationalDataReader reader, 
+        RelationalDataReader reader,
         int commandIndex,
         int expectedRowsAffected,
         int rowsAffected)
@@ -359,9 +359,9 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
         if (!Dependencies.UpdateLogger.OptimisticConcurrencyException(
                 Dependencies.CurrentContext.Context,
-                reader,
-                entries, 
-                exception).IsSuppressed)
+                entries,
+                exception,
+                (c, ex, e, d) => CreateConcurrencyExceptionEventData(c, reader, ex, e, d)).IsSuppressed)
         {
             throw exception;
         }
@@ -378,7 +378,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     /// <returns> A task that represents the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     protected virtual async Task ThrowAggregateUpdateConcurrencyExceptionAsync(
-        RelationalDataReader reader, 
+        RelationalDataReader reader,
         int commandIndex,
         int expectedRowsAffected,
         int rowsAffected,
@@ -390,10 +390,33 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             entries);
 
         if (!(await Dependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(
-                    Dependencies.CurrentContext.Context, reader, entries, exception, cancellationToken: cancellationToken)
+                    Dependencies.CurrentContext.Context,
+                    entries,
+                    exception,
+                    (c, ex, e, d) => CreateConcurrencyExceptionEventData(c, reader, ex, e, d),
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false)).IsSuppressed)
         {
             throw exception;
         }
     }
+
+    private static RelationalConcurrencyExceptionEventData CreateConcurrencyExceptionEventData(
+        DbContext context,
+        RelationalDataReader reader,
+        DbUpdateConcurrencyException exception,
+        IReadOnlyList<IUpdateEntry> entries,
+        EventDefinition<Exception> definition)
+        => new(
+            definition,
+            (definition1, payload)
+                => ((EventDefinition<Exception>)definition1).GenerateMessage(((ConcurrencyExceptionEventData)payload).Exception),
+            context,
+            reader.RelationalConnection.DbConnection,
+            reader.DbCommand,
+            reader.DbDataReader,
+            reader.CommandId,
+            reader.RelationalConnection.ConnectionId,
+            entries,
+            exception);
 }

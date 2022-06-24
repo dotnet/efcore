@@ -29,11 +29,17 @@ public class ConcurrencyExceptionEventData : DbContextErrorEventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbContext context,
         IReadOnlyList<IUpdateEntry> entries,
-        Exception exception)
+        DbUpdateConcurrencyException exception)
         : base(eventDefinition, messageGenerator, context, exception)
     {
         _internalEntries = entries;
     }
+
+    /// <summary>
+    ///     The exception that will be thrown, unless throwing is suppressed.
+    /// </summary>
+    public new virtual DbUpdateConcurrencyException Exception
+        => (DbUpdateConcurrencyException)base.Exception;
 
     /// <summary>
     ///     The entries that were involved in the concurrency violation.
