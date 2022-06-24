@@ -1,11 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -165,9 +162,7 @@ public class Blog
         var diagnostic = Assert.Single(await GetDiagnosticsFullSourceAsync(source));
 
         Assert.Equal("CS8618", diagnostic.Id);
-
-        // Suppression does work, but not in tests because of #27895
-        Assert.False(diagnostic.IsSuppressed);
+        Assert.True(diagnostic.IsSuppressed);
     }
 
     [ConditionalFact]
@@ -195,9 +190,7 @@ public class Blog
             diagnostic =>
             {
                 Assert.Equal("CS8618", diagnostic.Id);
-
-                // Suppression does work, but not in tests because of #27895
-                Assert.False(diagnostic.IsSuppressed);
+                Assert.True(diagnostic.IsSuppressed);
             });
     }
 

@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.DependencyModel;
+using CompilationOptions = Microsoft.CodeAnalysis.CompilationOptions;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -59,11 +60,13 @@ public abstract class DiagnosticAnalyzerTestBase
         var analyzer = CreateDiagnosticAnalyzer();
         var compilationWithAnalyzers
             = compilation
-                .WithOptions(
-                    compilation.Options.WithSpecificDiagnosticOptions(
-                        compilation.Options.SpecificDiagnosticOptions
-                            .AddRange(analyzer.SupportedDiagnostics.ToDictionary(d => d.Id, d => ReportDiagnostic.Default))))
-                .WithAnalyzers(ImmutableArray.Create(analyzer));
+                .WithAnalyzers(ImmutableArray.Create(analyzer),
+                    new CompilationWithAnalyzersOptions(
+                        new AnalyzerOptions(new()),
+                        onAnalyzerException: null,
+                        concurrentAnalysis: false,
+                        logAnalyzerExecutionTime: false,
+                        reportSuppressedDiagnostics: true));
 
         var diagnostics = analyzerDiagnosticsOnly
             ? await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync()
