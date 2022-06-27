@@ -5,6 +5,7 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <ImplicitUsings>true</ImplicitUsings>
+    <SkipTests Condition="$([MSBuild]::IsOSPlatform('OSX'))">True</SkipTests>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
