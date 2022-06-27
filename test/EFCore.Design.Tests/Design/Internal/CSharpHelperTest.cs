@@ -122,6 +122,30 @@ public class CSharpHelperTest
             "new byte[] { 1, 2 }");
 
     [ConditionalFact]
+    public void Literal_works_when_empty_list()
+        => Literal_works(
+            new List<string>(),
+            @"new List<string>()");
+
+    [ConditionalFact]
+    public void Literal_works_when_list_with_single_element()
+        => Literal_works(
+            new List<string> { "one" },
+            @"new List<string> { ""one"" }");
+
+    [ConditionalFact]
+    public void Literal_works_when_list_of_mixed_objects()
+        => Literal_works(
+            new List<object> { 1, "two" },
+            @"new List<object> { 1, ""two"" }");
+
+    [ConditionalFact]
+    public void Literal_works_when_list_with_ctor_arguments()
+        => Literal_works(
+            new List<string>(new [] { "one" }) { "two", "three" },
+            @"new List<string> { ""one"", ""two"", ""three"" }");
+
+    [ConditionalFact]
     public void Literal_works_when_multiline_string()
         => Literal_works(
             "multi-line\r\nstring\nwith\r\"",

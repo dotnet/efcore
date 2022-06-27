@@ -743,6 +743,79 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual string Literal<T>(List<T> values, bool vertical = false)
+        => List(typeof(T), values, vertical);
+
+    private string List(Type type, IEnumerable values, bool vertical = false)
+    {
+        var builder = new IndentedStringBuilder();
+
+        builder.Append("new List<")
+            .Append(Reference(type))
+            .Append(">");
+
+        var first = true;
+        foreach (var value in values)
+        {
+            if (first)
+            {
+                builder.Append(" {");
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.IncrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+                first = false;
+            }
+            else
+            {
+                builder.Append(",");
+
+                if (vertical)
+                {
+                    builder.AppendLine();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+            }
+
+            builder.Append(UnknownLiteral(value));
+        }
+
+        if (first)
+        {
+            builder.Append("()");
+        }
+        else
+        {
+            if (vertical)
+            {
+                builder.AppendLine();
+                builder.DecrementIndent();
+            }
+            else
+            {
+                builder.Append(" ");
+            }
+
+            builder.Append("}");
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual string Literal(Enum value)
     {
         var type = value.GetType();
@@ -842,6 +915,11 @@ public class CSharpHelper : ICSharpHelper
         if (value is Array array)
         {
             return Array(literalType.GetElementType()!, array);
+        }
+
+        if (value is IList list && value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+        {
+            return List(value.GetType().GetGenericArguments()[0], list);
         }
 
         var mapping = _typeMappingSource.FindMapping(literalType);
