@@ -1481,6 +1481,72 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Byte_Parse(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                .Where(o => byte.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            entryCount: 6);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Decimal_Parse(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                .Where(o => decimal.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            entryCount: 6);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Double_Parse(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                .Where(o => double.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            entryCount: 6);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Short_Parse(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                .Where(o => short.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            entryCount: 6);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Int_Parse(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                .Where(o => int.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            entryCount: 6);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Long_Parse(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
+                .Where(o => long.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            entryCount: 6);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Indexof_with_emptystring(bool async)
         => AssertQuery(
             async,

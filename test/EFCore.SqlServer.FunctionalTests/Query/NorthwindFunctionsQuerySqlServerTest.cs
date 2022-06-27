@@ -1618,6 +1618,66 @@ FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND ((CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1997%') OR (CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1998%'))");
     }
 
+    public override async Task Byte_Parse(bool async)
+    {
+        await base.Byte_Parse(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS tinyint)");
+    }
+
+    public override async Task Decimal_Parse(bool async)
+    {
+        await base.Decimal_Parse(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0");
+    }
+
+    public override async Task Double_Parse(bool async)
+    {
+        await base.Double_Parse(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0E0");
+    }
+
+    public override async Task Short_Parse(bool async)
+    {
+        await base.Short_Parse(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint)");
+    }
+
+    public override async Task Int_Parse(bool async)
+    {
+        await base.Int_Parse(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0");
+    }
+
+    public override async Task Long_Parse(bool async)
+    {
+        await base.Long_Parse(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint)");
+    }
+
     public override async Task Indexof_with_emptystring(bool async)
     {
         await base.Indexof_with_emptystring(async);
