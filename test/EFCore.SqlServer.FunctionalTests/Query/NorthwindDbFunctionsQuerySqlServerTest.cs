@@ -483,7 +483,7 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'""Ins*""'
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(year, [o].[OrderDate], SYSDATETIME()) = 0");
     }
 
     [ConditionalTheory]
@@ -501,7 +501,7 @@ WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(month, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(month, [o].[OrderDate], SYSDATETIME()) = 0");
     }
 
     [ConditionalTheory]
@@ -518,7 +518,7 @@ WHERE DATEDIFF(month, [o].[OrderDate], GETDATE()) = 0");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(day, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(day, [o].[OrderDate], SYSDATETIME()) = 0");
     }
 
     [ConditionalTheory]
@@ -535,7 +535,7 @@ WHERE DATEDIFF(day, [o].[OrderDate], GETDATE()) = 0");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(hour, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(hour, [o].[OrderDate], SYSDATETIME()) = 0");
     }
 
     [ConditionalTheory]
@@ -552,7 +552,7 @@ WHERE DATEDIFF(hour, [o].[OrderDate], GETDATE()) = 0");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(minute, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(minute, [o].[OrderDate], SYSDATETIME()) = 0");
     }
 
     [ConditionalTheory]
@@ -569,7 +569,7 @@ WHERE DATEDIFF(minute, [o].[OrderDate], GETDATE()) = 0");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(second, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(second, [o].[OrderDate], SYSDATETIME()) = 0");
     }
 
     [ConditionalTheory]
@@ -586,7 +586,7 @@ WHERE DATEDIFF(second, [o].[OrderDate], GETDATE()) = 0");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(millisecond, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(millisecond, SYSDATETIME(), DATEADD(day, CAST(1.0E0 AS int), SYSDATETIME())) = 0");
     }
 
     [ConditionalTheory]
@@ -603,7 +603,7 @@ WHERE DATEDIFF(millisecond, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE(
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(microsecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(microsecond, SYSDATETIME(), DATEADD(second, CAST(1.0E0 AS int), SYSDATETIME())) = 0");
     }
 
     [ConditionalTheory]
@@ -620,7 +620,7 @@ WHERE DATEDIFF(microsecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDA
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(nanosecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(nanosecond, SYSDATETIME(), DATEADD(second, CAST(1.0E0 AS int), SYSDATETIME())) = 0");
     }
 
     [ConditionalFact]
@@ -820,7 +820,7 @@ WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5)
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999)");
+WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 23, 59, 59, 999)");
     }
 
     [ConditionalTheory]
@@ -837,7 +837,7 @@ WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23,
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999)");
+WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 23, 59, 59, 999)");
     }
 
     [ConditionalTheory]
@@ -869,7 +869,7 @@ WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 1
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__dateTime_Millisecond_7)");
+WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, SYSDATETIME()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__dateTime_Millisecond_7)");
     }
 
     [ConditionalTheory]
@@ -886,7 +886,7 @@ WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_M
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
+WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31)");
     }
 
     [ConditionalTheory]
@@ -903,7 +903,7 @@ WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
+WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31)");
     }
 
     [ConditionalTheory]
@@ -925,7 +925,7 @@ WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__date_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__date_Month_2, @__date_Day_3)");
+WHERE @__date_0 > DATEFROMPARTS(DATEPART(year, SYSDATETIME()), @__date_Month_2, @__date_Day_3)");
     }
 
     [ConditionalFact]
@@ -941,7 +941,7 @@ WHERE @__date_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__date_Month_2, @__d
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999, 3)");
+WHERE [o].[OrderDate] > DATETIME2FROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 23, 59, 59, 999, 3)");
         }
     }
 
@@ -960,7 +960,7 @@ WHERE [o].[OrderDate] > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 9999999, 7)");
+WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 23, 59, 59, 9999999, 7)");
         }
     }
 
@@ -991,7 +991,7 @@ WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE(
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__fractions_7, 7)");
+WHERE @__dateTime_0 > DATETIME2FROMPARTS(DATEPART(year, SYSDATETIME()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__fractions_7, 7)");
         }
     }
 
@@ -1008,7 +1008,7 @@ WHERE @__dateTime_0 > DATETIME2FROMPARTS(DATEPART(year, GETDATE()), @__dateTime_
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE CAST([o].[OrderDate] AS datetimeoffset) > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 5, 12, 30, 1)");
+WHERE CAST([o].[OrderDate] AS datetimeoffset) > DATETIMEOFFSETFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 23, 59, 59, 5, 12, 30, 1)");
         }
     }
 
@@ -1027,7 +1027,7 @@ WHERE CAST([o].[OrderDate] AS datetimeoffset) > DATETIMEOFFSETFROMPARTS(DATEPART
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 50, 1, 0, 7)");
+WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 23, 59, 59, 50, 1, 0, 7)");
         }
     }
 
@@ -1062,7 +1062,7 @@ WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(yea
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTimeOffset_0 > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @__dateTimeOffset_Month_2, @__dateTimeOffset_Day_3, @__dateTimeOffset_Hour_4, @__dateTimeOffset_Minute_5, @__dateTimeOffset_Second_6, @__fractions_7, @__hourOffset_8, @__minuteOffset_9, 7)");
+WHERE @__dateTimeOffset_0 > DATETIMEOFFSETFROMPARTS(DATEPART(year, SYSDATETIME()), @__dateTimeOffset_Month_2, @__dateTimeOffset_Day_3, @__dateTimeOffset_Hour_4, @__dateTimeOffset_Minute_5, @__dateTimeOffset_Second_6, @__fractions_7, @__hourOffset_8, @__minuteOffset_9, 7)");
         }
     }
 
@@ -1080,7 +1080,7 @@ WHERE @__dateTimeOffset_0 > DATETIMEOFFSETFROMPARTS(DATEPART(year, GETDATE()), @
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 12, 59)");
+WHERE [o].[OrderDate] > SMALLDATETIMEFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 12, 59)");
     }
 
     [ConditionalTheory]
@@ -1097,7 +1097,7 @@ WHERE [o].[OrderDate] > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 12, 59)");
+WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, SYSDATETIME()), 12, 31, 12, 59)");
     }
 
     [ConditionalTheory]
@@ -1122,7 +1122,7 @@ WHERE '2018-12-29T23:20:00' > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), 
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5)");
+WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, SYSDATETIME()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5)");
     }
 
     [ConditionalTheory]

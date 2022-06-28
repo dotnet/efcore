@@ -706,7 +706,7 @@ WHERE SUBSTRING([c].[City], 1 + 1, 2) = N'ea'");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE GETDATE() <> @__myDatetime_0");
+WHERE SYSDATETIME() <> @__myDatetime_0");
     }
 
     public override async Task Where_datetime_utcnow(bool async)
@@ -718,7 +718,7 @@ WHERE GETDATE() <> @__myDatetime_0");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE GETUTCDATE() <> @__myDatetime_0");
+WHERE SYSUTCDATETIME() <> @__myDatetime_0");
     }
 
     public override async Task Where_datetimeoffset_utcnow(bool async)
@@ -740,7 +740,7 @@ WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) <> @__myDatetimeOffset_0");
         AssertSql(
             @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
+WHERE CONVERT(date, SYSDATETIME()) = CONVERT(date, SYSDATETIME())");
     }
 
     public override async Task Where_datetime_date_component(bool async)

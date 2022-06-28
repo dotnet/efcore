@@ -58,7 +58,7 @@ public class QueryBugsTest : NonSharedModelTestBase
         AssertSql(
             @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[DateTime] = GETDATE() OR [d].[SmallDateTime] = GETDATE()");
+WHERE [d].[DateTime2_2] = SYSDATETIME() OR [d].[DateTime2_7] = SYSDATETIME() OR [d].[DateTime] = SYSDATETIME() OR [d].[SmallDateTime] = SYSDATETIME()");
     }
 
     [ConditionalTheory]
@@ -84,7 +84,7 @@ WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[Dat
         AssertSql(
             @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE [d].[DateTime2_2] <> GETDATE() AND [d].[DateTime2_7] <> GETDATE() AND [d].[DateTime] <> GETDATE() AND [d].[SmallDateTime] <> GETDATE()");
+WHERE [d].[DateTime2_2] <> SYSDATETIME() AND [d].[DateTime2_7] <> SYSDATETIME() AND [d].[DateTime] <> SYSDATETIME() AND [d].[SmallDateTime] <> SYSDATETIME()");
     }
 
     [ConditionalTheory]
