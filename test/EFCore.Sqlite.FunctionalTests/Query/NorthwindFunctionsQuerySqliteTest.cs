@@ -39,6 +39,24 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
     public override Task Convert_ToString(bool async)
         => AssertTranslationFailed(() => base.Convert_ToString(async));
 
+    public override Task Byte_Parse(bool async)
+    => AssertTranslationFailed(() => base.Byte_Parse(async));
+
+    public override Task Decimal_Parse(bool async)
+        => AssertTranslationFailed(() => base.Decimal_Parse(async));
+
+    public override Task Double_Parse(bool async)
+        => AssertTranslationFailed(() => base.Double_Parse(async));
+
+    public override Task Short_Parse(bool async)
+        => AssertTranslationFailed(() => base.Short_Parse(async));
+
+    public override Task Int_Parse(bool async)
+        => AssertTranslationFailed(() => base.Int_Parse(async));
+
+    public override Task Long_Parse(bool async)
+        => AssertTranslationFailed(() => base.Long_Parse(async));
+
     public override Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
         => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async));
 
