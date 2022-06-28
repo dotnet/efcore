@@ -758,12 +758,57 @@ public class CSharpHelper : ICSharpHelper
             .Append(Reference(type))
             .Append(">");
 
+        return HandleEnumerable(builder, vertical, values, value =>
+            {
+                builder.Append(UnknownLiteral(value));
+            });
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Literal<TKey, TValue>(Dictionary<TKey, TValue> dict, bool vertical = false)
+        where TKey : notnull
+        => Dictionary(typeof(TKey), typeof(TValue), dict, vertical);
+
+    private string Dictionary(Type keyType, Type valueType, IDictionary dict, bool vertical = false)
+    {
+        var builder = new IndentedStringBuilder();
+
+        builder.Append("new Dictionary<")
+            .Append(Reference(keyType))
+            .Append(", ")
+            .Append(Reference(valueType))
+            .Append(">");
+
+        return HandleEnumerable(builder, vertical, dict.Keys, key =>
+            {
+                builder.Append("[")
+                    .Append(UnknownLiteral(key))
+                    .Append("] = ")
+                    .Append(UnknownLiteral(dict[key]));
+            });
+    }
+
+    private static string HandleEnumerable(IndentedStringBuilder builder, bool vertical, IEnumerable values, Action<object> handleValue)
+    {
         var first = true;
         foreach (var value in values)
         {
             if (first)
             {
-                builder.Append(" {");
+                if (vertical)
+                {
+                    builder.AppendLine();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+                builder.Append("{");
                 if (vertical)
                 {
                     builder.AppendLine();
@@ -789,7 +834,7 @@ public class CSharpHelper : ICSharpHelper
                 }
             }
 
-            builder.Append(UnknownLiteral(value));
+            handleValue(value);
         }
 
         if (first)
@@ -921,9 +966,17 @@ public class CSharpHelper : ICSharpHelper
             return Array(literalType.GetElementType()!, array);
         }
 
-        if (value is IList list && value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+        var valueType = value.GetType();
+        if (valueType.IsGenericType && !valueType.IsGenericTypeDefinition)
         {
-            return List(value.GetType().GetGenericArguments()[0], list);
+            var genericArguments = valueType.GetGenericArguments();
+            switch (value)
+            {
+                case IList list when genericArguments.Length == 1 && valueType.GetGenericTypeDefinition() == typeof(List<>):
+                    return List(genericArguments[0], list);
+                case IDictionary dict when genericArguments.Length == 2 && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>):
+                    return Dictionary(genericArguments[0], genericArguments[1], dict);
+            }
         }
 
         var mapping = _typeMappingSource.FindMapping(literalType);
