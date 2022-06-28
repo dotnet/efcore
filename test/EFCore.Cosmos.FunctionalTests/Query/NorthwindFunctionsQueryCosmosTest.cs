@@ -100,6 +100,54 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @arg))
 """);
             });
 
+    public override async Task Byte_Parse(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Byte_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Decimal_Parse(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Decimal_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Double_Parse(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Double_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Short_Parse(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Short_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Int_Parse(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Int_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Long_Parse(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Long_Parse(async));
+
+        AssertSql();
+    }
+
     public override Task Static_equals_int_compared_to_long(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
