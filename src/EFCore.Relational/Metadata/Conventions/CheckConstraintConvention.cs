@@ -144,7 +144,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
                 foreach (var checkConstraintToBeDetached in checkConstraintsToBeDetached)
                 {
                     var baseCheckConstraint = baseCheckConstraints[checkConstraintToBeDetached.ModelName];
-                    CheckConstraint.Attach(checkConstraintToBeDetached, baseCheckConstraint);
+                    CheckConstraint.MergeInto(checkConstraintToBeDetached, baseCheckConstraint);
 
                     checkConstraintToBeDetached.EntityType.RemoveCheckConstraint(checkConstraintToBeDetached.ModelName);
                 }

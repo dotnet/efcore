@@ -49,14 +49,14 @@ public class TriggerConvention : IEntityTypeBaseTypeChangedConvention, IEntityTy
         }
 
         List<IConventionTrigger>? triggersToReattach = null;
-        foreach (var trigger in entityType.GetTriggers())
+        foreach (var trigger in entityType.GetDeclaredTriggers())
         {
             if (trigger.EntityType == entityType)
             {
                 continue;
             }
 
-            triggersToReattach ??= new List<IConventionTrigger>();
+            triggersToReattach ??= new();
 
             triggersToReattach.Add(trigger);
         }
@@ -71,7 +71,7 @@ public class TriggerConvention : IEntityTypeBaseTypeChangedConvention, IEntityTy
             var removedTrigger = entityType.RemoveTrigger(trigger.ModelName);
             if (removedTrigger != null)
             {
-                Trigger.MergeInto(entityType, removedTrigger);
+                Trigger.Attach(entityType, removedTrigger);
             }
         }
     }

@@ -51,7 +51,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The name of the column to which the property is mapped.</returns>
     public static string? GetColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        var overrides = RelationalPropertyOverrides.Find(property, storeObject);
+        var overrides = property.FindOverrides(storeObject);
         if (overrides?.ColumnNameOverridden == true)
         {
             return overrides.ColumnName;
@@ -294,8 +294,7 @@ public static class RelationalPropertyExtensions
     public static ConfigurationSource? GetColumnNameConfigurationSource(
         this IConventionProperty property,
         in StoreObjectIdentifier storeObject)
-        => ((IConventionRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject))
-            ?.GetColumnNameConfigurationSource();
+        => property.FindOverrides(storeObject)?.GetColumnNameConfigurationSource();
 
     /// <summary>
     ///     Returns the order of the column this property is mapped to.
@@ -1451,8 +1450,38 @@ public static class RelationalPropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The property facet overrides.</returns>
+    public static IEnumerable<IMutableRelationalPropertyOverrides> GetOverrides(this IMutableProperty property)
+        => ((IEnumerable<IMutableRelationalPropertyOverrides>?)RelationalPropertyOverrides.Get(property))
+        ?? Enumerable.Empty<IMutableRelationalPropertyOverrides>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all the property facet overrides.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The property facet overrides.</returns>
+    public static IEnumerable<IConventionRelationalPropertyOverrides> GetOverrides(this IConventionProperty property)
+        => ((IEnumerable<IConventionRelationalPropertyOverrides>?)RelationalPropertyOverrides.Get(property))
+        ?? Enumerable.Empty<IConventionRelationalPropertyOverrides>();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns all the property facet overrides.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IRelationalPropertyOverrides> GetOverrides(this IProperty property)
-        => RelationalPropertyOverrides.Get(property)?.Cast<IRelationalPropertyOverrides>()
+        => ((IEnumerable<IRelationalPropertyOverrides>?)RelationalPropertyOverrides.Get(property))
         ?? Enumerable.Empty<IRelationalPropertyOverrides>();
 
     /// <summary>
@@ -1471,6 +1500,40 @@ public static class RelationalPropertyExtensions
         this IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject)
         => RelationalPropertyOverrides.Find(property, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the property facet overrides for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
+    /// <returns>An object that stores property facet overrides.</returns>
+    public static IMutableRelationalPropertyOverrides? FindOverrides(
+        this IMutableProperty property,
+        in StoreObjectIdentifier storeObject)
+        => (IMutableRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject);
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the property facet overrides for a particular table-like store object.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
+    /// <returns>An object that stores property facet overrides.</returns>
+    public static IConventionRelationalPropertyOverrides? FindOverrides(
+        this IConventionProperty property,
+        in StoreObjectIdentifier storeObject)
+        => (IConventionRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject);
 
     /// <summary>
     ///     <para>
@@ -1544,7 +1607,7 @@ public static class RelationalPropertyExtensions
     public static IMutableRelationalPropertyOverrides? RemoveOverrides(
         this IMutableProperty property,
         in StoreObjectIdentifier storeObject)
-        => RelationalPropertyOverrides.Remove(property, storeObject, ConfigurationSource.Explicit);
+        => RelationalPropertyOverrides.Remove(property, storeObject);
 
     /// <summary>
     ///     <para>
@@ -1557,17 +1620,14 @@ public static class RelationalPropertyExtensions
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The identifier of a table-like store object.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The removed <see cref="IConventionRelationalPropertyOverrides" /> or <see langword="null" />
     ///     if no overrides for the given store object were found or the existing overrides were configured from a higher source.
     /// </returns>
     public static IConventionRelationalPropertyOverrides? RemoveOverrides(
         this IConventionProperty property,
-        in StoreObjectIdentifier storeObject,
-        bool fromDataAnnotation = false)
-        => RelationalPropertyOverrides.Remove((IMutableProperty)property, storeObject,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        in StoreObjectIdentifier storeObject)
+        => RelationalPropertyOverrides.Remove((IMutableProperty)property, storeObject);
 
     /// <summary>
     ///     <para>

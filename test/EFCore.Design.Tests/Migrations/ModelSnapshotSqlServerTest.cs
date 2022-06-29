@@ -668,11 +668,14 @@ public class ModelSnapshotSqlServerTest
                         b.Property<int>("Shadow").HasColumnName("Shadow");
                         b.ToTable("Order", tb =>
                         {
+                            tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
                             tb.Property("Shadow");
                         });
                         b.SplitToTable("SplitOrder", sb =>
                         {
                             sb.Property("Shadow");
+                            sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
+                            sb.HasAnnotation("foo", "bar");
                         });
 
                         b.OwnsOne(p => p.OrderBillingDetails, od =>
@@ -725,12 +728,23 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToTable(""Order"", null, t =>
                         {
+                            t.Property(""Id"")
+                                .HasAnnotation(""fii"", ""arr"")
+                                .HasAnnotation(""SqlServer:IdentityIncrement"", 3)
+                                .HasAnnotation(""SqlServer:IdentitySeed"", 2L)
+                                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
                             t.Property(""Shadow"");
                         });
 
                     b.SplitToTable(""SplitOrder"", null, t =>
                         {
+                            t.HasTrigger(""splitTrigger"")
+                                .HasAnnotation(""oof"", ""rab"");
+
                             t.Property(""Shadow"");
+
+                            t.HasAnnotation(""foo"", ""bar"");
                         });
                 });
 
@@ -852,6 +866,17 @@ public class ModelSnapshotSqlServerTest
                 var orderEntityType = model.FindEntityType(typeof(Order));
                 Assert.Equal(nameof(Order), orderEntityType.GetTableName());
 
+                var id = orderEntityType.FindProperty("Id");
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, id.GetValueGenerationStrategy());
+                Assert.Equal(1, id.GetIdentitySeed());
+                Assert.Equal(1, id.GetIdentityIncrement());
+
+                var overrides = id.FindOverrides(StoreObjectIdentifier.Create(orderEntityType, StoreObjectType.Table).Value)!;
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, overrides.GetValueGenerationStrategy());
+                Assert.Equal(2, overrides.GetIdentitySeed());
+                Assert.Equal(3, overrides.GetIdentityIncrement());
+                Assert.Equal("arr", overrides["fii"]);
+
                 var billingOwnership = orderEntityType.FindNavigation(nameof(Order.OrderBillingDetails))
                     .ForeignKey;
                 var billingEntityType = billingOwnership.DeclaringEntityType;
@@ -884,6 +909,12 @@ public class ModelSnapshotSqlServerTest
                 var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema);
                 Assert.Equal(new[] { billingEntityType, orderEntityType },
                     splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+                Assert.Equal("bar", fragment["foo"]);
+
+                var trigger = orderEntityType.GetTriggers().Single();
+                Assert.Equal(splitTable.Name, trigger.TableName);
+                Assert.Equal(splitTable.Schema, trigger.TableSchema);
+                Assert.Equal("rab", trigger["oof"]);
 
                 var billingFragment = billingEntityType.GetMappingFragments().Single();
                 var billingTable = relationalModel.FindTable(billingFragment.StoreObject.Name, billingFragment.StoreObject.Schema);
@@ -1133,7 +1164,8 @@ public class ModelSnapshotSqlServerTest
                     .HasMin(1)
                     .HasMax(3)
                     .IncrementsBy(2)
-                    .IsCyclic();
+                    .IsCyclic()
+                    .HasAnnotation("foo", "bar");
             },
             AddBoilerPlate(
                 GetHeading()
@@ -1143,10 +1175,19 @@ public class ModelSnapshotSqlServerTest
                 .IncrementsBy(2)
                 .HasMin(1L)
                 .HasMax(3L)
-                .IsCyclic();"),
-            o =>
+                .IsCyclic()
+                .HasAnnotation(""foo"", ""bar"");"),
+            model =>
             {
-                Assert.Equal(5, o.GetAnnotations().Count());
+                Assert.Equal(5, model.GetAnnotations().Count());
+                
+                var sequence = model.GetSequences().Single();
+                Assert.Equal(2, sequence.StartValue);
+                Assert.Equal(1, sequence.MinValue);
+                Assert.Equal(3, sequence.MaxValue);
+                Assert.Equal(2, sequence.IncrementBy);
+                Assert.True(sequence.IsCyclic);
+                Assert.Equal("bar", sequence["foo"]);
             });
 
     [ConditionalFact]
@@ -1308,6 +1349,7 @@ public class ModelSnapshotSqlServerTest
                             t.ExcludeFromMigrations();
 
                             t.HasTrigger(""SomeTrigger1"");
+
                             t.HasTrigger(""SomeTrigger2"");
                         });
                 });"),

@@ -169,7 +169,7 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
             detachedCheckConstraint.Sql,
             detachedCheckConstraint.GetConfigurationSource());
 
-        Attach(detachedCheckConstraint, newCheckConstraint);
+        MergeInto(detachedCheckConstraint, newCheckConstraint);
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static void Attach(IConventionCheckConstraint detachedCheckConstraint, IConventionCheckConstraint existingCheckConstraint)
+    public static void MergeInto(IConventionCheckConstraint detachedCheckConstraint, IConventionCheckConstraint existingCheckConstraint)
     {
         var nameConfigurationSource = detachedCheckConstraint.GetNameConfigurationSource();
         if (nameConfigurationSource != null)
@@ -415,6 +415,18 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
     /// </summary>
     public override string ToString()
         => ((ICheckConstraint)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DebugView DebugView
+        => new(
+            () => ((ICheckConstraint)this).ToDebugString(),
+            () => ((ICheckConstraint)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

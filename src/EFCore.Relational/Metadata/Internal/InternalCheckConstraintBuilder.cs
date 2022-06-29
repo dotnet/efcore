@@ -123,7 +123,7 @@ public class InternalCheckConstraintBuilder :
             {
                 foreach (var detachedCheckConstraint in detachedCheckConstraints)
                 {
-                    CheckConstraint.Attach(detachedCheckConstraint, constraint);
+                    CheckConstraint.MergeInto(detachedCheckConstraint, constraint);
                 }
             }
         }

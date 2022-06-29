@@ -34,6 +34,17 @@ public class ColumnBuilder<TProperty> : ColumnBuilder, IInfrastructure<PropertyB
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public new virtual ColumnBuilder<TProperty> HasColumnName(string? name)
         => (ColumnBuilder<TProperty>)base.HasColumnName(name);
+    
+    /// <summary>
+    ///     Adds or updates an annotation on the property for a specific table.
+    ///     If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual ColumnBuilder<TProperty> HasAnnotation(string annotation, object? value)
+        => (ColumnBuilder<TProperty>)base.HasAnnotation(annotation, value);
 
     PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance => PropertyBuilder;
 }

@@ -159,6 +159,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(
+        IEntityTypeMappingFragment fragment,
+        IDictionary<string, IAnnotation> annotations)
+        => RemoveConventionalAnnotationsHelper(fragment, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(
         IProperty property,
         IDictionary<string, IAnnotation> annotations)
     {
@@ -184,6 +190,25 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(IIndex index, IDictionary<string, IAnnotation> annotations)
         => RemoveConventionalAnnotationsHelper(index, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(
+        ICheckConstraint checkConstraint, IDictionary<string, IAnnotation> annotations)
+        => RemoveConventionalAnnotationsHelper(checkConstraint, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(ITrigger trigger, IDictionary<string, IAnnotation> annotations)
+        => RemoveConventionalAnnotationsHelper(trigger, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(
+        IRelationalPropertyOverrides overrides, IDictionary<string, IAnnotation> annotations)
+        => RemoveConventionalAnnotationsHelper(overrides, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(
+        ISequence sequence, IDictionary<string, IAnnotation> annotations)
+        => RemoveConventionalAnnotationsHelper(sequence, annotations, IsHandledByConvention);
 
     /// <inheritdoc />
     public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
@@ -240,6 +265,18 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         }
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));
+
+        return methodCallCodeFragments;
+    }
+
+    /// <inheritdoc />
+    public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IEntityTypeMappingFragment fragment,
+        IDictionary<string, IAnnotation> annotations)
+    {
+        var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(fragment, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;
     }
@@ -372,6 +409,54 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     }
 
     /// <inheritdoc />
+    public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        ICheckConstraint checkConstraint,
+        IDictionary<string, IAnnotation> annotations)
+    {
+        var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(checkConstraint, annotations, GenerateFluentApi));
+
+        return methodCallCodeFragments;
+    }
+
+    /// <inheritdoc />
+    public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        ITrigger trigger,
+        IDictionary<string, IAnnotation> annotations)
+    {
+        var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(trigger, annotations, GenerateFluentApi));
+
+        return methodCallCodeFragments;
+    }
+
+    /// <inheritdoc />
+    public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IRelationalPropertyOverrides overrides,
+        IDictionary<string, IAnnotation> annotations)
+    {
+        var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(overrides, annotations, GenerateFluentApi));
+
+        return methodCallCodeFragments;
+    }
+
+    /// <inheritdoc />
+    public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        ISequence sequence,
+        IDictionary<string, IAnnotation> annotations)
+    {
+        var methodCallCodeFragments = new List<MethodCallCodeFragment>();
+
+        methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(sequence, annotations, GenerateFluentApi));
+
+        return methodCallCodeFragments;
+    }
+
+    /// <inheritdoc />
     public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IEntityType entityType,
         IDictionary<string, IAnnotation> annotations)
@@ -436,6 +521,19 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <summary>
     ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+    ///     applied to the given <paramref name="fragment" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="false" />.
+    /// </remarks>
+    /// <param name="fragment">The <see cref="IEntityTypeMappingFragment" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="false" />.</returns>
+    protected virtual bool IsHandledByConvention(IEntityTypeMappingFragment fragment, IAnnotation annotation)
+        => false;
+
+    /// <summary>
+    ///     Checks if the given <paramref name="annotation" /> is handled by convention when
     ///     applied to the given <paramref name="key" />.
     /// </summary>
     /// <remarks>
@@ -487,6 +585,58 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         => false;
 
     /// <summary>
+    ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+    ///     applied to the given <paramref name="checkConstraint" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="false" />.
+    /// </remarks>
+    /// <param name="checkConstraint">The <see cref="ICheckConstraint" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="false" />.</returns>
+    protected virtual bool IsHandledByConvention(ICheckConstraint checkConstraint, IAnnotation annotation)
+        => false;
+
+    /// <summary>
+    ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+    ///     applied to the given <paramref name="trigger" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="false" />.
+    /// </remarks>
+    /// <param name="trigger">The <see cref="ITrigger" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="false" />.</returns>
+    protected virtual bool IsHandledByConvention(ITrigger trigger, IAnnotation annotation)
+        => false;
+
+    /// <summary>
+    ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+    ///     applied to the given <paramref name="overrides" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="false" />.
+    /// </remarks>
+    /// <param name="overrides">The <see cref="IRelationalPropertyOverrides" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="false" />.</returns>
+    protected virtual bool IsHandledByConvention(IRelationalPropertyOverrides overrides, IAnnotation annotation)
+        => false;
+
+    /// <summary>
+    ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+    ///     applied to the given <paramref name="sequence" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="false" />.
+    /// </remarks>
+    /// <param name="sequence">The <see cref="ISequence" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="false" />.</returns>
+    protected virtual bool IsHandledByConvention(ISequence sequence, IAnnotation annotation)
+        => false;
+
+    /// <summary>
     ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
     ///     if no fluent API call exists for it.
     /// </summary>
@@ -510,6 +660,19 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     /// <param name="annotation">The <see cref="IAnnotation" />.</param>
     /// <returns><see langword="null" />.</returns>
     protected virtual MethodCallCodeFragment? GenerateFluentApi(IEntityType entityType, IAnnotation annotation)
+        => null;
+
+    /// <summary>
+    ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+    ///     if no fluent API call exists for it.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="null" />.
+    /// </remarks>
+    /// <param name="fragment">The <see cref="IEntityTypeMappingFragment" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="null" />.</returns>
+    protected virtual MethodCallCodeFragment? GenerateFluentApi(IEntityTypeMappingFragment fragment, IAnnotation annotation)
         => null;
 
     /// <summary>
@@ -588,6 +751,58 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     /// <param name="annotation">The <see cref="IAnnotation" />.</param>
     /// <returns><see langword="null" />.</returns>
     protected virtual MethodCallCodeFragment? GenerateFluentApi(IIndex index, IAnnotation annotation)
+        => null;
+
+    /// <summary>
+    ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+    ///     if no fluent API call exists for it.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="null" />.
+    /// </remarks>
+    /// <param name="checkConstraint">The <see cref="ICheckConstraint" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="null" />.</returns>
+    protected virtual MethodCallCodeFragment? GenerateFluentApi(ICheckConstraint checkConstraint, IAnnotation annotation)
+        => null;
+
+    /// <summary>
+    ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+    ///     if no fluent API call exists for it.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="null" />.
+    /// </remarks>
+    /// <param name="trigger">The <see cref="ITrigger" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="null" />.</returns>
+    protected virtual MethodCallCodeFragment? GenerateFluentApi(ITrigger trigger, IAnnotation annotation)
+        => null;
+
+    /// <summary>
+    ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+    ///     if no fluent API call exists for it.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="null" />.
+    /// </remarks>
+    /// <param name="overrides">The <see cref="IRelationalPropertyOverrides" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="null" />.</returns>
+    protected virtual MethodCallCodeFragment? GenerateFluentApi(IRelationalPropertyOverrides overrides, IAnnotation annotation)
+        => null;
+
+    /// <summary>
+    ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+    ///     if no fluent API call exists for it.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="null" />.
+    /// </remarks>
+    /// <param name="sequence">The <see cref="ISequence" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="null" />.</returns>
+    protected virtual MethodCallCodeFragment? GenerateFluentApi(ISequence sequence, IAnnotation annotation)
         => null;
 
     /// <summary>

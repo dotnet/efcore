@@ -1252,10 +1252,12 @@ namespace TestNamespace
             {
                 entity.Property(e => e.Id).UseIdentityColumn();
 
-                entity.ToTable(tb => {
-                    tb.HasTrigger(""Trigger1"");
-                    tb.HasTrigger(""Trigger2"");
-                });
+                entity.ToTable(tb =>
+                    {
+                        tb.HasTrigger(""Trigger1"");
+
+                        tb.HasTrigger(""Trigger2"");
+                    });
             });
 
             OnModelCreatingPartial(modelBuilder);

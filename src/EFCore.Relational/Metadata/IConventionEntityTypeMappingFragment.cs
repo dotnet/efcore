@@ -17,6 +17,12 @@ public interface IConventionEntityTypeMappingFragment : IReadOnlyEntityTypeMappi
     new IConventionEntityType EntityType { get; }
 
     /// <summary>
+    ///     Gets the builder that can be used to configure this fragment.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If the fragment has been removed from the model.</exception>
+    new IConventionEntityTypeMappingFragmentBuilder Builder { get; }
+
+    /// <summary>
     ///     Returns the configuration source for this fragment.
     /// </summary>
     /// <returns>The configuration source.</returns>

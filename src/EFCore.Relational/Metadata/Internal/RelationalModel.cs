@@ -970,7 +970,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
             }
 
-            foreach (var trigger in entityType.GetTriggers())
+            // Triggers cannot be inherited
+            foreach (var trigger in entityType.GetDeclaredTriggers())
             {
                 var name = trigger.GetName(storeObject);
                 if (name == null)
@@ -979,7 +980,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
 
                 Check.DebugAssert(trigger.TableName == table.Name, "Mismatch in trigger table name");
-                Check.DebugAssert(trigger.TableSchema is null || trigger.TableSchema == table.Schema, "Mismatch in trigger table schema");
+                Check.DebugAssert(trigger.TableSchema == table.Schema, "Mismatch in trigger table schema");
 
                 if (!table.Triggers.ContainsKey(name))
                 {

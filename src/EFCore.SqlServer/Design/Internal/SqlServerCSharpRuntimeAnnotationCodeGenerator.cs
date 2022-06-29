@@ -106,4 +106,17 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
 
         base.Generate(entityType, parameters);
     }
+
+    /// <inheritdoc />
+    public override void Generate(IRelationalPropertyOverrides overrides, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.IdentityIncrement);
+            annotations.Remove(SqlServerAnnotationNames.IdentitySeed);
+        }
+        
+        base.Generate(overrides, parameters);
+    }
 }

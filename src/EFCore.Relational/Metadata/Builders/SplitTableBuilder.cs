@@ -24,7 +24,7 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
         Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.Table,
             "StoreObjectType should be Table, not " + storeObject.StoreObjectType);
 
-        MappingFragment = EntityTypeMappingFragment.GetOrCreate(
+        InternalMappingFragment = EntityTypeMappingFragment.GetOrCreate(
             entityTypeBuilder.Metadata, storeObject, ConfigurationSource.Explicit);
         EntityTypeBuilder = entityTypeBuilder;
     }
@@ -38,11 +38,20 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     ///     The specified table schema.
     /// </summary>
     public virtual string? Schema => MappingFragment.StoreObject.Schema;
-    
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual EntityTypeMappingFragment InternalMappingFragment { get; }
+
     /// <summary>
     ///     The mapping fragment being configured.
     /// </summary>
-    public virtual IMutableEntityTypeMappingFragment MappingFragment { get; }
+    public virtual IMutableEntityTypeMappingFragment MappingFragment => InternalMappingFragment;
 
     private EntityTypeBuilder EntityTypeBuilder { get; }
 
@@ -95,6 +104,22 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ColumnBuilder<TProperty> Property<TProperty>(string propertyName)
         => new(MappingFragment.StoreObject, EntityTypeBuilder.Property<TProperty>(propertyName));
+
+    /// <summary>
+    ///     Adds or updates an annotation on the table. If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual SplitTableBuilder HasAnnotation(string annotation, object? value)
+    {
+        Check.NotEmpty(annotation, nameof(annotation));
+
+        InternalMappingFragment.Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+
+        return this;
+    }
 
     EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
 

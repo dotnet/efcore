@@ -231,6 +231,12 @@ public static class SqlServerPropertyExtensions
             throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
         }
 
+        var @override = property.FindOverrides(storeObject)?.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
+        if (@override != null)
+        {
+            return (long?)@override.Value;
+        }
+
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
         if (annotation is not null)
         {
@@ -245,6 +251,16 @@ public static class SqlServerPropertyExtensions
             ? property.DeclaringEntityType.Model.GetIdentitySeed()
             : sharedProperty.GetIdentitySeed(storeObject);
     }
+
+    /// <summary>
+    ///     Returns the identity seed.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The identity seed.</returns>
+    public static long? GetIdentitySeed(this IReadOnlyRelationalPropertyOverrides overrides)
+        => overrides is RuntimeRelationalPropertyOverrides
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (long?)overrides.FindAnnotation(SqlServerAnnotationNames.IdentitySeed)?.Value;
 
     /// <summary>
     ///     Sets the identity seed.
@@ -277,12 +293,82 @@ public static class SqlServerPropertyExtensions
     }
 
     /// <summary>
+    ///     Sets the identity seed for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="seed">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    public static void SetIdentitySeed(
+        this IMutableProperty property,
+        long? seed,
+        in StoreObjectIdentifier storeObject)
+        => property.GetOrCreateOverrides(storeObject)
+            .SetIdentitySeed(seed);
+
+    /// <summary>
+    ///     Sets the identity seed for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="seed">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static long? SetIdentitySeed(
+        this IConventionProperty property,
+        long? seed,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => property.GetOrCreateOverrides(storeObject, fromDataAnnotation)
+            .SetIdentitySeed(seed, fromDataAnnotation);
+
+    /// <summary>
+    ///     Sets the identity seed for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="seed">The value to set.</param>
+    public static void SetIdentitySeed(this IMutableRelationalPropertyOverrides overrides, long? seed)
+        => overrides.SetOrRemoveAnnotation(SqlServerAnnotationNames.IdentitySeed, seed);
+
+    /// <summary>
+    ///     Sets the identity seed for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="seed">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static long? SetIdentitySeed(
+        this IConventionRelationalPropertyOverrides overrides,
+        long? seed,
+        bool fromDataAnnotation = false)
+        => (long?)overrides.SetOrRemoveAnnotation(SqlServerAnnotationNames.IdentitySeed, seed, fromDataAnnotation)?.Value;
+
+    /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the identity seed.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the identity seed.</returns>
     public static ConfigurationSource? GetIdentitySeedConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the identity seed for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the identity seed.</returns>
+    public static ConfigurationSource? GetIdentitySeedConfigurationSource(
+        this IConventionProperty property,
+        in StoreObjectIdentifier storeObject)
+        => property.FindOverrides(storeObject)?.GetIdentitySeedConfigurationSource();
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the identity seed for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the identity seed.</returns>
+    public static ConfigurationSource? GetIdentitySeedConfigurationSource(
+        this IConventionRelationalPropertyOverrides overrides)
+        => overrides.FindAnnotation(SqlServerAnnotationNames.IdentitySeed)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the identity increment.
@@ -308,6 +394,12 @@ public static class SqlServerPropertyExtensions
             throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
         }
 
+        var @override = property.FindOverrides(storeObject)?.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement);
+        if (@override != null)
+        {
+            return (int?)@override.Value;
+        }
+
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement);
         if (annotation != null)
         {
@@ -319,6 +411,16 @@ public static class SqlServerPropertyExtensions
             ? property.DeclaringEntityType.Model.GetIdentityIncrement()
             : sharedProperty.GetIdentityIncrement(storeObject);
     }
+
+    /// <summary>
+    ///     Returns the identity increment.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The identity increment.</returns>
+    public static int? GetIdentityIncrement(this IReadOnlyRelationalPropertyOverrides overrides)
+        => overrides is RuntimeRelationalPropertyOverrides
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (int?)overrides.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.Value;
 
     /// <summary>
     ///     Sets the identity increment.
@@ -341,14 +443,61 @@ public static class SqlServerPropertyExtensions
         this IConventionProperty property,
         int? increment,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (int?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.IdentityIncrement,
             increment,
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
-        return increment;
-    }
+    /// <summary>
+    ///     Sets the identity increment for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="increment">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    public static void SetIdentityIncrement(
+        this IMutableProperty property,
+        int? increment,
+        in StoreObjectIdentifier storeObject)
+        => property.GetOrCreateOverrides(storeObject)
+            .SetIdentityIncrement(increment);
+
+    /// <summary>
+    ///     Sets the identity increment for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="increment">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static int? SetIdentityIncrement(
+        this IConventionProperty property,
+        int? increment,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => property.GetOrCreateOverrides(storeObject, fromDataAnnotation)
+            .SetIdentityIncrement(increment, fromDataAnnotation);
+
+    /// <summary>
+    ///     Sets the identity increment for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="increment">The value to set.</param>
+    public static void SetIdentityIncrement(this IMutableRelationalPropertyOverrides overrides, int? increment)
+        => overrides.SetOrRemoveAnnotation(SqlServerAnnotationNames.IdentityIncrement, increment);
+
+    /// <summary>
+    ///     Sets the identity increment for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="increment">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static int? SetIdentityIncrement(
+        this IConventionRelationalPropertyOverrides overrides,
+        int? increment,
+        bool fromDataAnnotation = false)
+        => (int?)overrides.SetOrRemoveAnnotation(SqlServerAnnotationNames.IdentityIncrement, increment, fromDataAnnotation)
+            ?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the identity increment.
@@ -357,6 +506,26 @@ public static class SqlServerPropertyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the identity increment.</returns>
     public static ConfigurationSource? GetIdentityIncrementConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the identity increment for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the identity increment.</returns>
+    public static ConfigurationSource? GetIdentityIncrementConfigurationSource(
+        this IConventionProperty property,
+        in StoreObjectIdentifier storeObject)
+        => property.FindOverrides(storeObject)?.GetIdentityIncrementConfigurationSource();
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the identity increment for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the identity increment.</returns>
+    public static ConfigurationSource? GetIdentityIncrementConfigurationSource(
+        this IConventionRelationalPropertyOverrides overrides)
+        => overrides.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
@@ -405,6 +574,12 @@ public static class SqlServerPropertyExtensions
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource? typeMappingSource)
     {
+        var @override = property.FindOverrides(storeObject)?.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+        if (@override != null)
+        {
+            return (SqlServerValueGenerationStrategy?)@override.Value ?? SqlServerValueGenerationStrategy.None;
+        }
+        
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
         if (annotation?.Value != null
             && StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) == storeObject)
@@ -454,6 +629,19 @@ public static class SqlServerPropertyExtensions
 
         return defaultStategy;
     }
+
+    /// <summary>
+    ///     Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
+    /// </summary>
+    /// <remarks>
+    ///     If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
+    /// </remarks>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set.</returns>
+    public static SqlServerValueGenerationStrategy? GetValueGenerationStrategy(
+        this IReadOnlyRelationalPropertyOverrides overrides)
+        => (SqlServerValueGenerationStrategy?)overrides.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)
+            ?.Value;
 
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
@@ -517,9 +705,71 @@ public static class SqlServerPropertyExtensions
     {
         CheckValueGenerationStrategy(property, value);
 
-        property.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation);
+        return (SqlServerValueGenerationStrategy?)property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)
+            ?.Value;
+    }
 
-        return value;
+    /// <summary>
+    ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    public static void SetValueGenerationStrategy(
+        this IMutableProperty property,
+        SqlServerValueGenerationStrategy? value,
+        in StoreObjectIdentifier storeObject)
+        => property.GetOrCreateOverrides(storeObject)
+            .SetValueGenerationStrategy(value);
+
+    /// <summary>
+    ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static SqlServerValueGenerationStrategy? SetValueGenerationStrategy(
+        this IConventionProperty property,
+        SqlServerValueGenerationStrategy? value,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => property.GetOrCreateOverrides(storeObject, fromDataAnnotation)
+            .SetValueGenerationStrategy(value, fromDataAnnotation);
+
+    /// <summary>
+    ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="value">The strategy to use.</param>
+    public static void SetValueGenerationStrategy(
+        this IMutableRelationalPropertyOverrides overrides,
+        SqlServerValueGenerationStrategy? value)
+    {
+        CheckValueGenerationStrategy(overrides.Property, value);
+
+        overrides.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
+    }
+
+    /// <summary>
+    ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static SqlServerValueGenerationStrategy? SetValueGenerationStrategy(
+        this IConventionRelationalPropertyOverrides overrides,
+        SqlServerValueGenerationStrategy? value,
+        bool fromDataAnnotation = false)
+    {
+        CheckValueGenerationStrategy(overrides.Property, value);
+
+        return (SqlServerValueGenerationStrategy?)overrides.SetOrRemoveAnnotation(
+                SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)
+            ?.Value;
     }
 
     private static void CheckValueGenerationStrategy(IReadOnlyProperty property, SqlServerValueGenerationStrategy? value)
@@ -556,6 +806,26 @@ public static class SqlServerPropertyExtensions
         => property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
 
     /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the <see cref="SqlServerValueGenerationStrategy" /> for a particular table.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the table containing the column.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the <see cref="SqlServerValueGenerationStrategy" />.</returns>
+    public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(
+        this IConventionProperty property,
+        in StoreObjectIdentifier storeObject)
+        => property.FindOverrides(storeObject)?.GetValueGenerationStrategyConfigurationSource();
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the <see cref="SqlServerValueGenerationStrategy" /> for a particular table.
+    /// </summary>
+    /// <param name="overrides">The property overrides.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the <see cref="SqlServerValueGenerationStrategy" />.</returns>
+    public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(
+        this IConventionRelationalPropertyOverrides overrides)
+        => overrides.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
+
+    /// <summary>
     ///     Returns a value indicating whether the property is compatible with any <see cref="SqlServerValueGenerationStrategy" />.
     /// </summary>
     /// <param name="property">The property.</param>
@@ -566,10 +836,9 @@ public static class SqlServerPropertyExtensions
             ?? property.FindTypeMapping()?.Converter;
 
         var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-
-        return (type.IsInteger()
+        return type.IsInteger()
             || type.IsEnum
-            || type == typeof(decimal));
+            || type == typeof(decimal);
     }
 
     private static bool IsCompatibleWithValueGeneration(

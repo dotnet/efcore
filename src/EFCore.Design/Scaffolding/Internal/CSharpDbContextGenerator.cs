@@ -433,57 +433,63 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
             {
                 _builder.AppendLine();
 
-                _builder.Append($"{EntityLambdaIdentifier}.{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}(tb => ");
+                _builder.AppendLine($"{EntityLambdaIdentifier}.{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}(tb =>");
 
-                // Note: no trigger annotation support as of yet
-
-                if (triggers.Length == 1)
+                using (_builder.Indent())
                 {
-                    var trigger = triggers[0];
-                    if (trigger.Name is not null)
+                    _builder.Append("{");
+                    foreach (var trigger in entityType.GetTriggers().Where(t => t.Name is not null))
                     {
-                        _builder.AppendLine($"tb.HasTrigger({_code.Literal(trigger.Name)}));");
+                        GenerateTrigger("tb", trigger);
                     }
-                }
-                else
-                {
-                    _builder.AppendLine("{");
-
-                    using (_builder.Indent())
-                    {
-                        foreach (var trigger in entityType.GetTriggers().Where(t => t.Name is not null))
-                        {
-                            _builder.AppendLine($"tb.HasTrigger({_code.Literal(trigger.Name!)});");
-                        }
-                    }
-
                     _builder.AppendLine("});");
                 }
+
             }
         }
     }
 
-    private void AppendMultiLineFluentApi(IEntityType entityType, IList<string> lines)
+    private void GenerateTrigger(string tableBuilderName, ITrigger trigger)
+    {
+        var lines = new List<string> { $".HasTrigger({_code.Literal(trigger.Name!)})" };
+        
+        var annotations = _annotationCodeGenerator
+            .FilterIgnoredAnnotations(trigger.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+
+        _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(trigger, annotations);
+
+        GenerateAnnotations(trigger, annotations, lines);
+        
+        AppendMultiLineFluentApi(null, lines, tableBuilderName);
+    }
+
+    private void AppendMultiLineFluentApi(IEntityType? entityType, IList<string> lines, string? builderName = null)
     {
         if (lines.Count <= 0)
         {
             return;
         }
 
-        InitializeEntityTypeBuilder(entityType);
+        if (entityType != null)
+        {
+            InitializeEntityTypeBuilder(entityType);
+        }
 
         using (_builder.Indent())
         {
-            _builder.AppendLine();
-
-            _builder.Append(EntityLambdaIdentifier + lines[0]);
+            _builder
+                .AppendLine()
+                .Append(builderName ?? EntityLambdaIdentifier)
+                .Append(lines[0]);
 
             using (_builder.Indent())
             {
                 foreach (var line in lines.Skip(1))
                 {
-                    _builder.AppendLine();
-                    _builder.Append(line);
+                    _builder
+                        .AppendLine()
+                        .Append(line);
                 }
             }
 

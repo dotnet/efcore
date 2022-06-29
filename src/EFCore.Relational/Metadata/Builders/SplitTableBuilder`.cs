@@ -47,5 +47,15 @@ public class SplitTableBuilder<TEntity> : SplitTableBuilder, IInfrastructure<Ent
     public virtual ColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(MappingFragment.StoreObject, EntityTypeBuilder.Property(propertyExpression));
 
+    /// <summary>
+    ///     Adds or updates an annotation on the table. If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual SplitTableBuilder<TEntity> HasAnnotation(string annotation, object? value)
+        => (SplitTableBuilder<TEntity>)base.HasAnnotation(annotation, value);
+
     EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
 }

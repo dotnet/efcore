@@ -66,7 +66,8 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
         var trigger = entityType.FindTrigger(name);
         if (trigger != null)
         {
-            if (trigger.TableName == tableName && trigger.TableSchema == tableSchema)
+            if ((tableName == null && tableSchema == null)
+                || (trigger.TableName == tableName && trigger.TableSchema == tableSchema))
             {
                 ((Trigger)trigger).UpdateConfigurationSource(configurationSource);
                 return trigger;
@@ -83,14 +84,14 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
         {
             foreach (var derivedType in entityType.GetDerivedTypes())
             {
-                var derivedTrigger =
-                    (IConventionTrigger?)Trigger.FindDeclaredTrigger(derivedType, name);
+                var derivedTrigger = (IConventionTrigger?)Trigger.FindDeclaredTrigger(derivedType, name);
                 if (derivedTrigger == null)
                 {
                     continue;
                 }
 
-                if ((derivedTrigger.TableName != tableName || derivedTrigger.TableSchema != tableSchema)
+                if ((tableName != null || tableSchema != null)
+                    && (derivedTrigger.TableName != tableName || derivedTrigger.TableSchema != tableSchema)
                     && !configurationSource.Overrides(derivedTrigger.GetConfigurationSource()))
                 {
                     return null;
@@ -139,6 +140,12 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
         string? tableSchema,
         ConfigurationSource configurationSource)
     {
+        if (tableName == null
+            && tableSchema == null)
+        {
+            return true;
+        }
+
         if (entityType.FindTrigger(name) is IConventionTrigger trigger)
         {
             return (trigger.TableName == tableName

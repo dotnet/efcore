@@ -64,13 +64,15 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
         conventionSet.PropertyAddedConventions.Add(relationalCommentAttributeConvention);
 
+        var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
+        var entitySplittingConvention = new EntitySplittingConvention(Dependencies, RelationalDependencies);
         var checkConstraintConvention = new CheckConstraintConvention(Dependencies, RelationalDependencies);
         var triggerConvention = new TriggerConvention(Dependencies, RelationalDependencies);
-        var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
         conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
         conventionSet.EntityTypeAddedConventions.Add(
             new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
         conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
+        conventionSet.EntityTypeAddedConventions.Add(entitySplittingConvention);
         conventionSet.EntityTypeAddedConventions.Add(checkConstraintConvention);
         conventionSet.EntityTypeAddedConventions.Add(triggerConvention);
 
@@ -93,6 +95,8 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
 
         ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
+        conventionSet.PropertyAddedConventions.Add(new PropertyOverridesConvention(Dependencies, RelationalDependencies));
+
         conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
         conventionSet.PropertyFieldChangedConventions.Add(relationalCommentAttributeConvention);
 
@@ -112,7 +116,7 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
         conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
         conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);
-        conventionSet.ModelFinalizingConventions.Add(new EntitySplittingConvention(Dependencies, RelationalDependencies));
+        conventionSet.ModelFinalizingConventions.Add(entitySplittingConvention);
         conventionSet.ModelFinalizingConventions.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
         conventionSet.ModelFinalizingConventions.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
         conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));

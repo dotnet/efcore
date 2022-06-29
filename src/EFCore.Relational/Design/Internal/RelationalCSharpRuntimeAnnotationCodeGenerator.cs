@@ -385,7 +385,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         CreateAnnotations(
             fragment,
-            GenerateOverrides,
+            Generate,
             parameters with { TargetName = overrideVariable });
 
         mainBuilder.Append(fragmentsVariable).Append(".Add(");
@@ -395,6 +395,14 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append(", ")
             .Append(overrideVariable).AppendLine(");");
     }
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
+    /// <param name="fragment">The fragment to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    public virtual void Generate(IEntityTypeMappingFragment fragment, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => GenerateSimpleAnnotations(parameters);
 
     private void Create(ITrigger trigger, string triggersVariable, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
@@ -500,7 +508,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         CreateAnnotations(
             overrides,
-            GenerateOverrides,
+            Generate,
             parameters with { TargetName = overrideVariable });
 
         mainBuilder.Append(overridesVariable).Append(".Add(");
@@ -516,7 +524,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     /// </summary>
     /// <param name="overrides">The property overrides to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
-    public virtual void GenerateOverrides(IAnnotatable overrides, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    public virtual void Generate(IRelationalPropertyOverrides overrides, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         => GenerateSimpleAnnotations(parameters);
 
     /// <inheritdoc />

@@ -56,6 +56,7 @@ public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatabl
     /// <param name="name">The key of the annotation to be added.</param>
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <param name="configurationSource">The configuration source of the annotation to be set.</param>
+    /// <returns>The new annotation.</returns>
     public virtual ConventionAnnotation? SetAnnotation(
         string name,
         object? value,
@@ -77,11 +78,14 @@ public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatabl
     }
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Sets the annotation with given key and value on this object using given configuration source.
+    ///     Removes the existing annotation if an annotation with the specified name already exists and
+    ///     <paramref name="value"/> is <see langword="null"/>.
     /// </summary>
+    /// <param name="name">The key of the annotation to be added.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <param name="configurationSource">The configuration source of the annotation to be set.</param>
+    /// <returns>The new annotation.</returns>
     public virtual ConventionAnnotation? SetOrRemoveAnnotation(
         string name,
         object? value,

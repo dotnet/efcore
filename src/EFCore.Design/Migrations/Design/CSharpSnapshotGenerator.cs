@@ -316,80 +316,103 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         ISequence sequence,
         IndentedStringBuilder stringBuilder)
     {
-        stringBuilder
-            .AppendLine()
+        var sequenceBuilderNameBuilder = new StringBuilder();
+        sequenceBuilderNameBuilder
             .Append(modelBuilderName)
             .Append(".HasSequence");
 
         if (sequence.Type != Sequence.DefaultClrType)
         {
-            stringBuilder
+            sequenceBuilderNameBuilder
                 .Append("<")
                 .Append(Code.Reference(sequence.Type))
                 .Append(">");
         }
 
-        stringBuilder
+        sequenceBuilderNameBuilder
             .Append("(")
             .Append(Code.Literal(sequence.Name));
 
         if (!string.IsNullOrEmpty(sequence.Schema)
             && sequence.Model.GetDefaultSchema() != sequence.Schema)
         {
-            stringBuilder
+            sequenceBuilderNameBuilder
                 .Append(", ")
                 .Append(Code.Literal(sequence.Schema));
         }
 
-        stringBuilder.Append(")");
+        sequenceBuilderNameBuilder.Append(")");
+        var sequenceBuilderName = sequenceBuilderNameBuilder.ToString();
 
-        using (stringBuilder.Indent())
+        stringBuilder
+            .AppendLine()
+            .Append(sequenceBuilderName);
+
+        // Note that GenerateAnnotations below does the corresponding decrement
+        stringBuilder.IncrementIndent();
+
+        if (sequence.StartValue != Sequence.DefaultStartValue)
         {
-            if (sequence.StartValue != Sequence.DefaultStartValue)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".StartsAt(")
-                    .Append(Code.Literal(sequence.StartValue))
-                    .Append(")");
-            }
-
-            if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".IncrementsBy(")
-                    .Append(Code.Literal(sequence.IncrementBy))
-                    .Append(")");
-            }
-
-            if (sequence.MinValue != Sequence.DefaultMinValue)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".HasMin(")
-                    .Append(Code.Literal(sequence.MinValue))
-                    .Append(")");
-            }
-
-            if (sequence.MaxValue != Sequence.DefaultMaxValue)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".HasMax(")
-                    .Append(Code.Literal(sequence.MaxValue))
-                    .Append(")");
-            }
-
-            if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".IsCyclic()");
-            }
+            stringBuilder
+                .AppendLine()
+                .Append(".StartsAt(")
+                .Append(Code.Literal(sequence.StartValue))
+                .Append(")");
         }
 
-        stringBuilder.AppendLine(";");
+        if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".IncrementsBy(")
+                .Append(Code.Literal(sequence.IncrementBy))
+                .Append(")");
+        }
+
+        if (sequence.MinValue != Sequence.DefaultMinValue)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".HasMin(")
+                .Append(Code.Literal(sequence.MinValue))
+                .Append(")");
+        }
+
+        if (sequence.MaxValue != Sequence.DefaultMaxValue)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".HasMax(")
+                .Append(Code.Literal(sequence.MaxValue))
+                .Append(")");
+        }
+
+        if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".IsCyclic()");
+        }
+
+        GenerateSequenceAnnotations(sequenceBuilderName, sequence, stringBuilder);
+    }
+
+    /// <summary>
+    ///     Generates code for sequence annotations.
+    /// </summary>
+    /// <param name="sequenceBuilderName">The name of the sequence builder variable.</param>
+    /// <param name="sequence">The sequence.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateSequenceAnnotations(
+        string sequenceBuilderName,
+        ISequence sequence,
+        IndentedStringBuilder stringBuilder)
+    {
+        var annotations = Dependencies.AnnotationCodeGenerator
+            .FilterIgnoredAnnotations(sequence.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+        
+        GenerateAnnotations(sequenceBuilderName, sequence, stringBuilder, annotations, inChainedCall: true);
     }
 
     /// <summary>
@@ -849,7 +872,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             annotations.Remove(isExcludedAnnotation.Name);
         }
 
-        var hasTriggers = entityType.GetTriggers().Any();
+        var hasTriggers = entityType.GetTriggers().Any(t => t.TableName == tableName! && t.TableSchema == schema);
         var hasOverrides = table != null
             && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
         var requiresTableBuilder = isExcludedFromMigrations
@@ -889,8 +912,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                     if (hasTriggers)
                     {
-                        stringBuilder.AppendLine();
-                        GenerateTriggers("t", entityType, stringBuilder);
+                        GenerateTriggers("t", entityType, tableName!, schema, stringBuilder);
                     }
 
                     if (hasOverrides)
@@ -914,13 +936,14 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     {
         foreach (var fragment in entityType.GetMappingFragments(StoreObjectType.Table))
         {
+            var table = fragment.StoreObject;
             stringBuilder
                 .AppendLine()
                 .Append(entityTypeBuilderName)
                 .Append(".SplitToTable(")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Name))
+                .Append(Code.UnknownLiteral(table.Name))
                 .Append(", ")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Schema))
+                .Append(Code.UnknownLiteral(table.Schema))
                 .AppendLine(", t =>");
 
             using (stringBuilder.Indent())
@@ -929,7 +952,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateOverrides("t", entityType, fragment.StoreObject, stringBuilder);
+                    GenerateTriggers("t", entityType, table.Name, table.Schema, stringBuilder);
+                    GenerateOverrides("t", entityType, table, stringBuilder);
+                    GenerateEntityTypeMappingFragmentAnnotations("t", fragment, stringBuilder);
                 }
 
                 stringBuilder
@@ -1025,12 +1050,33 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 using (stringBuilder.Indent())
                 {
                     GenerateOverrides("v", entityType, fragment.StoreObject, stringBuilder);
+                    GenerateEntityTypeMappingFragmentAnnotations("v", fragment, stringBuilder);
                 }
 
                 stringBuilder
                     .Append("}")
                     .AppendLine(");");
             }
+        }
+    }
+
+    /// <summary>
+    ///     Generates code for mapping fragment annotations.
+    /// </summary>
+    /// <param name="tableBuilderName">The name of the table builder variable.</param>
+    /// <param name="fragment">The mapping fragment.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateEntityTypeMappingFragmentAnnotations(
+        string tableBuilderName,
+        IEntityTypeMappingFragment fragment,
+        IndentedStringBuilder stringBuilder)
+    {
+        var annotations = Dependencies.AnnotationCodeGenerator
+            .FilterIgnoredAnnotations(fragment.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+        if (annotations.Count > 0)
+        {
+            GenerateAnnotations(tableBuilderName, fragment, stringBuilder, annotations, inChainedCall: false);
         }
     }
 
@@ -1137,14 +1183,23 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// </summary>
     /// <param name="tableBuilderName">The name of the table builder variable.</param>
     /// <param name="entityType">The entity type.</param>
+    /// <param name="table">The table name.</param>
+    /// <param name="schema">The table schema.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
     protected virtual void GenerateTriggers(
         string tableBuilderName,
         IEntityType entityType,
+        string table,
+        string? schema,
         IndentedStringBuilder stringBuilder)
     {
         foreach (var trigger in entityType.GetTriggers())
         {
+            if (trigger.TableName != table || trigger.TableSchema != schema)
+            {
+                continue;
+            }
+
             GenerateTrigger(tableBuilderName, trigger, stringBuilder);
         }
     }
@@ -1161,13 +1216,14 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IndentedStringBuilder stringBuilder)
     {
         var triggerBuilderName = $"{tableBuilderName}.HasTrigger({Code.Literal(trigger.ModelName)})";
-        stringBuilder.Append(triggerBuilderName);
+        stringBuilder
+            .AppendLine()
+            .Append(triggerBuilderName);
 
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (trigger.Name != null
-            && trigger.Name != (trigger.GetDefaultName() ?? trigger.ModelName))
+        if (trigger.Name != trigger.GetDefaultName()!)
         {
             stringBuilder
                 .AppendLine()

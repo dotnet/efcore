@@ -52,6 +52,16 @@ public interface IAnnotationCodeGenerator
     ///     Removes annotation whose configuration is already applied by convention, and do not need to be
     ///     specified explicitly.
     /// </summary>
+    /// <param name="fragment">The entity mapping fragment to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
+    void RemoveAnnotationsHandledByConventions(IEntityTypeMappingFragment fragment, IDictionary<string, IAnnotation> annotations)
+    {
+    }
+
+    /// <summary>
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
+    /// </summary>
     /// <param name="property">The property to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
     void RemoveAnnotationsHandledByConventions(IProperty property, IDictionary<string, IAnnotation> annotations)
@@ -119,6 +129,16 @@ public interface IAnnotationCodeGenerator
     }
 
     /// <summary>
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
+    /// </summary>
+    /// <param name="sequence">The sequence to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
+    void RemoveAnnotationsHandledByConventions(ISequence sequence, IDictionary<string, IAnnotation> annotations)
+    {
+    }
+
+    /// <summary>
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
     ///     and removes the annotations.
     /// </summary>
@@ -136,6 +156,10 @@ public interface IAnnotationCodeGenerator
                 RemoveAnnotationsHandledByConventions(entityType, annotations);
                 return;
 
+            case IEntityTypeMappingFragment fragment:
+                RemoveAnnotationsHandledByConventions(fragment, annotations);
+                return;
+            
             case IProperty property:
                 RemoveAnnotationsHandledByConventions(property, annotations);
                 return;
@@ -172,6 +196,10 @@ public interface IAnnotationCodeGenerator
                 RemoveAnnotationsHandledByConventions(overrides, annotations);
                 return;
 
+            case ISequence sequence:
+                RemoveAnnotationsHandledByConventions(sequence, annotations);
+                return;
+
             default:
                 throw new ArgumentException(RelationalStrings.UnhandledAnnotatableType(annotatable.GetType()));
         }
@@ -196,6 +224,17 @@ public interface IAnnotationCodeGenerator
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IEntityType entityType,
+        IDictionary<string, IAnnotation> annotations)
+        => Array.Empty<MethodCallCodeFragment>();
+
+    /// <summary>
+    ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
+    ///     and removes the annotations.
+    /// </summary>
+    /// <param name="fragment">The entity mapping fragment to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IEntityTypeMappingFragment fragment,
         IDictionary<string, IAnnotation> annotations)
         => Array.Empty<MethodCallCodeFragment>();
 
@@ -302,6 +341,17 @@ public interface IAnnotationCodeGenerator
     ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
     ///     and removes the annotations.
     /// </summary>
+    /// <param name="sequence">The sequence to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        ISequence sequence,
+        IDictionary<string, IAnnotation> annotations)
+        => Array.Empty<MethodCallCodeFragment>();
+
+    /// <summary>
+    ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
+    ///     and removes the annotations.
+    /// </summary>
     /// <param name="annotatable">The annotatable to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
@@ -309,7 +359,9 @@ public interface IAnnotationCodeGenerator
         {
             IModel model => GenerateFluentApiCalls(model, annotations),
             IEntityType entityType => GenerateFluentApiCalls(entityType, annotations),
+            IEntityTypeMappingFragment fragment => GenerateFluentApiCalls(fragment, annotations),
             IProperty property => GenerateFluentApiCalls(property, annotations),
+            IRelationalPropertyOverrides overrides => GenerateFluentApiCalls(overrides, annotations),
             IKey key => GenerateFluentApiCalls(key, annotations),
             IForeignKey foreignKey => GenerateFluentApiCalls(foreignKey, annotations),
             INavigation navigation => GenerateFluentApiCalls(navigation, annotations),
@@ -317,7 +369,7 @@ public interface IAnnotationCodeGenerator
             IIndex index => GenerateFluentApiCalls(index, annotations),
             ICheckConstraint checkConstraint => GenerateFluentApiCalls(checkConstraint, annotations),
             ITrigger trigger => GenerateFluentApiCalls(trigger, annotations),
-            IRelationalPropertyOverrides overrides => GenerateFluentApiCalls(overrides, annotations),
+            ISequence sequence => GenerateFluentApiCalls(sequence, annotations),
 
             _ => throw new ArgumentException(RelationalStrings.UnhandledAnnotatableType(annotatable.GetType()))
         };
