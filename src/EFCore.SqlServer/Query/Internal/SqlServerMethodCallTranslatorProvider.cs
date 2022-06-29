@@ -27,7 +27,6 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
             {
                 new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
                 new SqlServerConvertTranslator(sqlExpressionFactory),
-                new SqlServerParseTranslator(sqlExpressionFactory),
                 new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
                 new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
                 new SqlServerDateTimeMethodTranslator(sqlExpressionFactory, typeMappingSource),
@@ -38,6 +37,7 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
                 new SqlServerMathTranslator(sqlExpressionFactory),
                 new SqlServerNewGuidTranslator(sqlExpressionFactory),
                 new SqlServerObjectToStringTranslator(sqlExpressionFactory),
+                new SqlServerParseTranslator(sqlExpressionFactory),
                 new SqlServerStringMethodTranslator(sqlExpressionFactory)
             });
     }
