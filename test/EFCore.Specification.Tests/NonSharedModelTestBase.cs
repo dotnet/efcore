@@ -16,14 +16,14 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
     protected IServiceProvider ServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
+                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private TestStore _testStore;
 
     protected TestStore TestStore
         => _testStore
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
+                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private ListLoggerFactory _listLoggerFactory;
 

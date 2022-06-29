@@ -1377,6 +1377,91 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             downOps => Assert.Equal(0, downOps.Count));
 
     [ConditionalFact]
+    public void Can_add_tables_with_entity_splitting_with_seed_data()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Animal",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("MouseId");
+                        x.Property<string>("BoneId");
+                        x.HasData(
+                            new
+                            {
+                                Id = 42,
+                                MouseId = "1",
+                                BoneId = "2"
+                            });
+                        x.SplitToTable("AnimalDetails", t =>
+                        {
+                            t.Property<string>("BoneId");
+                        });
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Animal", m.Name);
+                    Assert.Equal("Id", m.PrimaryKey.Columns.Single());
+                    Assert.Equal(new[] { "Id", "MouseId" }, m.Columns.Select(c => c.Name));
+                    Assert.Empty(m.ForeignKeys);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("AnimalDetails", m.Name);
+                    Assert.Equal("Id", m.PrimaryKey.Columns.Single());
+                    Assert.Equal(new[] { "Id", "BoneId" }, m.Columns.Select(c => c.Name));
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Animal", fk.PrincipalTable);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("Animal", m.Table);
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(42, v),
+                        v => Assert.Equal("1", v));
+                    Assert.Collection(
+                        m.Columns,
+                        v => Assert.Equal("Id", v),
+                        v => Assert.Equal("MouseId", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<InsertDataOperation>(o);
+                    Assert.Equal("AnimalDetails", m.Table);
+                    AssertMultidimensionalArray(
+                        m.Values,
+                        v => Assert.Equal(42, v),
+                        v => Assert.Equal("2", v));
+                    Assert.Collection(
+                        m.Columns,
+                        v => Assert.Equal("Id", v),
+                        v => Assert.Equal("BoneId", v));
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("AnimalDetails", m.Name);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Animal", m.Name);
+                }));
+
+    [ConditionalFact]
     public void Add_owned_type_with_seed_data()
         => Execute(
             modelBuilder =>

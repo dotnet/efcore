@@ -102,6 +102,8 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
             return null;
         }
 
+        // If the first mapping can be value generated then we'll consider all mappings to be value generated
+        // as this is a client-side configuration and can't be specified per-table.
         return GetValueGenerated(property, declaringTable, Dependencies.TypeMappingSource);
     }
 

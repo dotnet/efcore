@@ -76,7 +76,23 @@ public class RelationalValueGenerationConvention :
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == RelationalAnnotationNames.TableName)
+        if (name == RelationalAnnotationNames.ViewName
+            || name == RelationalAnnotationNames.FunctionName
+            || name == RelationalAnnotationNames.SqlQuery)
+        {
+            if (annotation?.Value != null
+                && oldAnnotation?.Value == null
+                && entityTypeBuilder.Metadata.GetTableName() == null)
+            {
+                ProcessTableChanged(
+                    entityTypeBuilder,
+                    entityTypeBuilder.Metadata.GetDefaultTableName(),
+                    entityTypeBuilder.Metadata.GetDefaultSchema(),
+                    null,
+                    null);
+            }
+        }
+        else if (name == RelationalAnnotationNames.TableName)
         {
             var schema = entityTypeBuilder.Metadata.GetSchema();
             ProcessTableChanged(
@@ -105,29 +121,43 @@ public class RelationalValueGenerationConvention :
         string? newTable,
         string? newSchema)
     {
+        if (newTable == null)
+        {
+            foreach (var property in entityTypeBuilder.Metadata.GetProperties())
+            {
+                property.Builder.ValueGenerated(null);
+            }
+
+            return;
+        }
+        else if (oldTable == null)
+        {
+            foreach (var property in entityTypeBuilder.Metadata.GetProperties())
+            {
+                property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable, newSchema)));
+            }
+
+            return;
+        }
+
         var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
         if (primaryKey == null)
         {
             return;
         }
 
-        var oldLink = oldTable != null
-            ? entityTypeBuilder.Metadata.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(oldTable, oldSchema))
-            : null;
-        var newLink = newTable != null
-            ? entityTypeBuilder.Metadata.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(newTable, newSchema))
-            : null;
+        var oldLink = entityTypeBuilder.Metadata.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(oldTable, oldSchema));
+        var newLink = entityTypeBuilder.Metadata.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(newTable, newSchema));
 
-        if ((oldLink?.Any() != true
-                && newLink?.Any() != true)
-            || newLink == null)
+        if (!oldLink.Any()
+            && !newLink.Any())
         {
             return;
         }
 
         foreach (var property in primaryKey.Properties)
         {
-            property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable!, newSchema)));
+            property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable, newSchema)));
         }
     }
 

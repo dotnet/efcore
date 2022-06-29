@@ -406,31 +406,53 @@ public static class SqlServerPropertyExtensions
         ITypeMappingSource? typeMappingSource)
     {
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
-        if (annotation != null)
+        if (annotation?.Value != null
+            && StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) == storeObject)
         {
-            return (SqlServerValueGenerationStrategy?)annotation.Value ?? SqlServerValueGenerationStrategy.None;
+            return (SqlServerValueGenerationStrategy)annotation.Value;
         }
 
+        var table = storeObject;
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         if (sharedTableRootProperty != null)
         {
-            return sharedTableRootProperty.GetValueGenerationStrategy(storeObject)
+            return sharedTableRootProperty.GetValueGenerationStrategy(storeObject, typeMappingSource)
                 == SqlServerValueGenerationStrategy.IdentityColumn
-                && property.GetContainingForeignKeys().All(fk => fk.IsBaseLinking())
+                && table.StoreObjectType == StoreObjectType.Table
+                && !property.GetContainingForeignKeys().Any(fk =>
+                    !fk.IsBaseLinking()
+                    || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
+                            is StoreObjectIdentifier principal
+                            && fk.GetConstraintName(table, principal) != null))
                     ? SqlServerValueGenerationStrategy.IdentityColumn
                     : SqlServerValueGenerationStrategy.None;
         }
 
         if (property.ValueGenerated != ValueGenerated.OnAdd
-            || property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
+            || table.StoreObjectType != StoreObjectType.Table
             || property.TryGetDefaultValue(storeObject, out _)
             || property.GetDefaultValueSql(storeObject) != null
-            || property.GetComputedColumnSql(storeObject) != null)
+            || property.GetComputedColumnSql(storeObject) != null
+            || property.GetContainingForeignKeys()
+                .Any(fk =>
+                    !fk.IsBaseLinking()
+                    || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
+                        is StoreObjectIdentifier principal
+                        && fk.GetConstraintName(table, principal) != null)))
         {
             return SqlServerValueGenerationStrategy.None;
         }
 
-        return GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
+        var defaultStategy = GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
+        if (defaultStategy != SqlServerValueGenerationStrategy.None)
+        {
+            if (annotation != null)
+            {
+                return (SqlServerValueGenerationStrategy?)annotation.Value ?? SqlServerValueGenerationStrategy.None;
+            }
+        }
+
+        return defaultStategy;
     }
 
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
@@ -455,7 +477,6 @@ public static class SqlServerPropertyExtensions
         ITypeMappingSource? typeMappingSource)
     {
         var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
-
         if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
         {
