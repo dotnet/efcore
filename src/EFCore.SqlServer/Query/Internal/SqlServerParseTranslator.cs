@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerParseTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<Type, string> TypeMapping = new()
+    private static readonly Dictionary<Type, string> ClrTypeToStoreTypeMap = new()
     {
         [typeof(bool)] = "bit",
         [typeof(byte)] = "tinyint",
@@ -26,7 +26,7 @@ public class SqlServerParseTranslator : IMethodCallTranslator
     };
 
     private static readonly IEnumerable<MethodInfo> SupportedMethods
-        = TypeMapping.Keys
+        = ClrTypeToStoreTypeMap.Keys
             .SelectMany(
                 t => t.GetTypeInfo().GetDeclaredMethods("Parse")
                     .Where(
@@ -60,7 +60,7 @@ public class SqlServerParseTranslator : IMethodCallTranslator
         => SupportedMethods.Contains(method)
             ? _sqlExpressionFactory.Function(
                 "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(TypeMapping[method.DeclaringType!]), arguments[0] },
+                new[] { _sqlExpressionFactory.Fragment(ClrTypeToStoreTypeMap[method.DeclaringType!]), arguments[0] },
                 nullable: true,
                 argumentsPropagateNullability: new[] { false, true },
                 method.ReturnType)
