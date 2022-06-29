@@ -59,7 +59,7 @@ public class CollectionEntry : NavigationEntry
         if (collection != null)
         {
             var targetType = Metadata.TargetEntityType;
-            var context = InternalEntry.StateManager.Context;
+            var context = InternalEntry.Context;
 
             var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
                 && !((IRuntimeModel)context.Model).SkipDetectChanges

@@ -37,7 +37,8 @@ public class SqlServerModificationCommandBatchFactoryTest
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
                 new CurrentDbContext(new FakeDbContext()),
-                logger),
+                logger,
+                new FakeDiagnosticsLogger<DbLoggerCategory.Update>()),
             optionsBuilder.Options);
 
         var batch = factory.Create();
@@ -72,7 +73,8 @@ public class SqlServerModificationCommandBatchFactoryTest
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
                 new CurrentDbContext(new FakeDbContext()),
-                logger),
+                logger,
+                new FakeDiagnosticsLogger<DbLoggerCategory.Update>()),
             optionsBuilder.Options);
 
         var batch = factory.Create();

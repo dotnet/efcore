@@ -19,6 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public interface IUpdateEntry
 {
     /// <summary>
+    ///     The current <see cref="DbContext"/> being used.
+    /// </summary>
+    DbContext Context { get; }
+
+    /// <summary>
     ///     Sets the original value of the given property.
     /// </summary>
     /// <param name="property">The property to set.</param>

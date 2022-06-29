@@ -154,4 +154,47 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     Task SaveChangesCanceledAsync(DbContextEventData eventData, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+    
+    /// <summary>
+    ///     Called immediately before EF is going to throw a <see cref="DbUpdateConcurrencyException"/>.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the concurrency conflict.</param>
+    /// <param name="result">
+    ///     Represents the current result if one exists.
+    ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
+    ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
+    ///     This value is typically used as the return value for the implementation of this method.
+    /// </param>
+    /// <returns>
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will throw the exception.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will not throw the exception.
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
+    ///     setting property values must return the <paramref name="result" /> value passed in.
+    /// </returns>
+    InterceptionResult ThrowingConcurrencyException(ConcurrencyExceptionEventData eventData, InterceptionResult result)
+        => result;
+    
+    /// <summary>
+    ///     Called immediately before EF is going to throw a <see cref="DbUpdateConcurrencyException"/>.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the concurrency conflict.</param>
+    /// <param name="result">
+    ///     Represents the current result if one exists.
+    ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
+    ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
+    ///     This value is typically used as the return value for the implementation of this method.
+    /// </param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="false" />, then EF will throw the exception.
+    ///     If <see cref="InterceptionResult.IsSuppressed" /> is <see langword="true" />, then EF will not throw the exception.
+    ///     An implementation of this method for any interceptor that is not attempting to suppress
+    ///     setting property values must return the <paramref name="result" /> value passed in.
+    /// </returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+        ConcurrencyExceptionEventData eventData, 
+        InterceptionResult result, 
+        CancellationToken cancellationToken = default)
+        => new(result);
 }

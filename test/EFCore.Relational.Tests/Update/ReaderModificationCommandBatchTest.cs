@@ -704,7 +704,8 @@ RETURNING 1;
                     new RelationalSqlGenerationHelperDependencies()),
                 sqlGenerator,
                 new CurrentDbContext(new FakeDbContext()),
-                logger);
+                logger,
+                new FakeDiagnosticsLogger<DbLoggerCategory.Update>());
         }
 
 

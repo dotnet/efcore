@@ -79,7 +79,8 @@ public class SqlServerModificationCommandBatchTest
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
                 new CurrentDbContext(new FakeDbContext()),
-                new FakeRelationalCommandDiagnosticsLogger()),
+                new FakeRelationalCommandDiagnosticsLogger(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Update>()),
             maxBatchSize);
     }
 

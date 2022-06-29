@@ -350,6 +350,9 @@ public class CosmosTestStore : TestStore
         public bool IsStoreGenerated(IProperty property)
             => throw new NotImplementedException();
 
+        public DbContext Context
+            => throw new NotImplementedException();
+
         public void SetOriginalValue(IProperty property, object value)
             => throw new NotImplementedException();
 

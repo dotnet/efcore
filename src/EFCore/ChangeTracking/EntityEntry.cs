@@ -121,7 +121,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     Gets the context that is tracking the entity.
     /// </summary>
     public virtual DbContext Context
-        => InternalEntry.StateManager.Context;
+        => InternalEntry.Context;
 
     /// <summary>
     ///     Gets the metadata about the shape of the entity, its relationships to other entities, and how it maps to the database.

@@ -175,17 +175,19 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                     expectedRowsAffected++;
                 }
 
-                ThrowAggregateUpdateConcurrencyException(resultSetIndex, expectedRowsAffected, rowsAffected);
+                ThrowAggregateUpdateConcurrencyException(reader, resultSetIndex, expectedRowsAffected, rowsAffected);
             }
+            else
+            {
+                var tableModification = ModificationCommands[
+                    ResultsPositionalMappingEnabled?.Length > resultSetIndex && ResultsPositionalMappingEnabled[resultSetIndex]
+                        ? startResultSetIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
+                        : resultSetIndex];
 
-            var tableModification = ModificationCommands[
-                ResultsPositionalMappingEnabled?.Length > resultSetIndex && ResultsPositionalMappingEnabled[resultSetIndex]
-                    ? startResultSetIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
-                    : resultSetIndex];
+                Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
 
-            Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
-
-            tableModification.PropagateResults(reader);
+                tableModification.PropagateResults(reader);
+            }
 
             rowsAffected++;
         }
@@ -225,17 +227,20 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                     expectedRowsAffected++;
                 }
 
-                ThrowAggregateUpdateConcurrencyException(resultSetIndex, expectedRowsAffected, rowsAffected);
+                await ThrowAggregateUpdateConcurrencyExceptionAsync(
+                    reader, resultSetIndex, expectedRowsAffected, rowsAffected, cancellationToken).ConfigureAwait(false);
             }
+            else
+            {
+                var tableModification = ModificationCommands[
+                    ResultsPositionalMappingEnabled?.Length > resultSetIndex && ResultsPositionalMappingEnabled[resultSetIndex]
+                        ? startResultSetIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
+                        : resultSetIndex];
 
-            var tableModification = ModificationCommands[
-                ResultsPositionalMappingEnabled?.Length > resultSetIndex && ResultsPositionalMappingEnabled[resultSetIndex]
-                    ? startResultSetIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
-                    : resultSetIndex];
+                Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
 
-            Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
-
-            tableModification.PropagateResults(reader);
+                tableModification.PropagateResults(reader);
+            }
 
             rowsAffected++;
         }
@@ -268,12 +273,12 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             var rowsAffected = reader.DbDataReader.GetInt32(0);
             if (rowsAffected != expectedRowsAffected)
             {
-                ThrowAggregateUpdateConcurrencyException(commandIndex, expectedRowsAffected, rowsAffected);
+                ThrowAggregateUpdateConcurrencyException(reader, commandIndex, expectedRowsAffected, rowsAffected);
             }
         }
         else
         {
-            ThrowAggregateUpdateConcurrencyException(commandIndex, 1, 0);
+            ThrowAggregateUpdateConcurrencyException(reader, commandIndex, 1, 0);
         }
 
         return commandIndex;
@@ -310,12 +315,14 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             var rowsAffected = reader.DbDataReader.GetInt32(0);
             if (rowsAffected != expectedRowsAffected)
             {
-                ThrowAggregateUpdateConcurrencyException(commandIndex, expectedRowsAffected, rowsAffected);
+                await ThrowAggregateUpdateConcurrencyExceptionAsync(
+                    reader, commandIndex, expectedRowsAffected, rowsAffected, cancellationToken).ConfigureAwait(false);
             }
         }
         else
         {
-            ThrowAggregateUpdateConcurrencyException(commandIndex, 1, 0);
+            await ThrowAggregateUpdateConcurrencyExceptionAsync(
+                reader, commandIndex, 1, 0, cancellationToken).ConfigureAwait(false);
         }
 
         return commandIndex;
@@ -335,14 +342,81 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     /// <summary>
     ///     Throws an exception indicating the command affected an unexpected number of rows.
     /// </summary>
+    /// <param name="reader">The data reader.</param>
     /// <param name="commandIndex">The ordinal of the command.</param>
     /// <param name="expectedRowsAffected">The expected number of rows affected.</param>
     /// <param name="rowsAffected">The actual number of rows affected.</param>
     protected virtual void ThrowAggregateUpdateConcurrencyException(
+        RelationalDataReader reader,
         int commandIndex,
         int expectedRowsAffected,
         int rowsAffected)
-        => throw new DbUpdateConcurrencyException(
+    {
+        var entries = AggregateEntries(commandIndex, expectedRowsAffected);
+        var exception = new DbUpdateConcurrencyException(
             RelationalStrings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
-            AggregateEntries(commandIndex, expectedRowsAffected));
+            entries);
+
+        if (!Dependencies.UpdateLogger.OptimisticConcurrencyException(
+                Dependencies.CurrentContext.Context,
+                entries,
+                exception,
+                (c, ex, e, d) => CreateConcurrencyExceptionEventData(c, reader, ex, e, d)).IsSuppressed)
+        {
+            throw exception;
+        }
+    }
+
+    /// <summary>
+    ///     Throws an exception indicating the command affected an unexpected number of rows.
+    /// </summary>
+    /// <param name="reader">The data reader.</param>
+    /// <param name="commandIndex">The ordinal of the command.</param>
+    /// <param name="expectedRowsAffected">The expected number of rows affected.</param>
+    /// <param name="rowsAffected">The actual number of rows affected.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns> A task that represents the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    protected virtual async Task ThrowAggregateUpdateConcurrencyExceptionAsync(
+        RelationalDataReader reader,
+        int commandIndex,
+        int expectedRowsAffected,
+        int rowsAffected,
+        CancellationToken cancellationToken)
+    {
+        var entries = AggregateEntries(commandIndex, expectedRowsAffected);
+        var exception = new DbUpdateConcurrencyException(
+            RelationalStrings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
+            entries);
+
+        if (!(await Dependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(
+                    Dependencies.CurrentContext.Context,
+                    entries,
+                    exception,
+                    (c, ex, e, d) => CreateConcurrencyExceptionEventData(c, reader, ex, e, d),
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false)).IsSuppressed)
+        {
+            throw exception;
+        }
+    }
+
+    private static RelationalConcurrencyExceptionEventData CreateConcurrencyExceptionEventData(
+        DbContext context,
+        RelationalDataReader reader,
+        DbUpdateConcurrencyException exception,
+        IReadOnlyList<IUpdateEntry> entries,
+        EventDefinition<Exception> definition)
+        => new(
+            definition,
+            (definition1, payload)
+                => ((EventDefinition<Exception>)definition1).GenerateMessage(((ConcurrencyExceptionEventData)payload).Exception),
+            context,
+            reader.RelationalConnection.DbConnection,
+            reader.DbCommand,
+            reader.DbDataReader,
+            reader.CommandId,
+            reader.RelationalConnection.ConnectionId,
+            entries,
+            exception);
 }

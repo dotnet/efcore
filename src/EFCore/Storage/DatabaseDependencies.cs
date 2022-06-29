@@ -47,10 +47,12 @@ public sealed record DatabaseDependencies
     [EntityFrameworkInternal]
     public DatabaseDependencies(
         IQueryCompilationContextFactory queryCompilationContextFactory,
-        IUpdateAdapterFactory updateAdapterFactory)
+        IUpdateAdapterFactory updateAdapterFactory,
+        IDiagnosticsLogger<DbLoggerCategory.Update> logger)
     {
         QueryCompilationContextFactory = queryCompilationContextFactory;
         UpdateAdapterFactory = updateAdapterFactory;
+        Logger = logger;
     }
 
     /// <summary>
@@ -62,4 +64,9 @@ public sealed record DatabaseDependencies
     ///     Factory for creating update adapters.
     /// </summary>
     public IUpdateAdapterFactory UpdateAdapterFactory { get; init; }
+
+    /// <summary>
+    ///     A logger for general update events.
+    /// </summary>
+    public IDiagnosticsLogger<DbLoggerCategory.Update> Logger { get; }
 }
