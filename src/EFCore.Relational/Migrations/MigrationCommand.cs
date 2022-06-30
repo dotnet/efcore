@@ -18,7 +18,7 @@ public class MigrationCommand
     ///     Creates a new instance of the command.
     /// </summary>
     /// <param name="relationalCommand">The underlying <see cref="IRelationalCommand" /> that will be used to execute the command.</param>
-    /// <param name="context">The current <see cref="DbContext" /> or null if not known.</param>
+    /// <param name="context">The current <see cref="DbContext" /> or <see langword="null" /> if not known.</param>
     /// <param name="logger">The command logger.</param>
     /// <param name="transactionSuppressed">Indicates whether or not transactions should be suppressed while executing the command.</param>
     public MigrationCommand(

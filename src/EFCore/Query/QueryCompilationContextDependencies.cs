@@ -56,7 +56,8 @@ public sealed record QueryCompilationContextDependencies
         IExecutionStrategy executionStrategy,
         ICurrentDbContext currentContext,
         IDbContextOptions contextOptions,
-        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+        IInterceptors interceptors)
     {
         _currentContext = currentContext;
         Model = model;
@@ -67,7 +68,14 @@ public sealed record QueryCompilationContextDependencies
         IsRetryingExecutionStrategy = executionStrategy.RetriesOnFailure;
         ContextOptions = contextOptions;
         Logger = logger;
+        Interceptors = interceptors;
     }
+
+    /// <summary>
+    ///     The current context.
+    /// </summary>
+    public DbContext Context
+        => _currentContext.Context;
 
     /// <summary>
     ///     The CLR type of DbContext.
@@ -120,4 +128,9 @@ public sealed record QueryCompilationContextDependencies
     ///     The logger.
     /// </summary>
     public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; init; }
+
+    /// <summary>
+    ///     Registered interceptors.
+    /// </summary>
+    public IInterceptors Interceptors { get; }
 }

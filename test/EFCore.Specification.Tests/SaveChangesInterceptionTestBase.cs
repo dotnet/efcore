@@ -479,7 +479,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
     [InlineData(true, false, true)]
     [InlineData(false, true, true)]
     [InlineData(true, true, true)]
-    public virtual async Task Intercept_connection_with_multiple_interceptors(bool async, bool inject, bool noAcceptChanges)
+    public virtual async Task Intercept_SaveChanges_with_multiple_interceptors(bool async, bool inject, bool noAcceptChanges)
     {
         var interceptor1 = new PassiveSaveChangesInterceptor();
         var interceptor2 = new ResultMutatingSaveChangesInterceptor();
