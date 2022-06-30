@@ -186,6 +186,14 @@ public partial class DbContextTest
         {
         }
 
+        public (EventHandler<DetectChangesEventArgs> DetectingChanges, EventHandler<DetectedChangesEventArgs> DetectedChanges)
+            CaptureEvents()
+            => (null, null);
+
+        public void SetEvents(EventHandler<DetectChangesEventArgs> detectingChanges, EventHandler<DetectedChangesEventArgs> detectedChanges)
+        {
+        }
+
         public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModifed)
         {
         }
@@ -199,6 +207,26 @@ public partial class DbContextTest
         }
 
         public virtual void Resume()
+        {
+        }
+
+        public event EventHandler<DetectChangesEventArgs> DetectingChanges;
+
+        public void OnDetectingChanges(InternalEntityEntry internalEntityEntry)
+            => DetectingChanges?.Invoke(null, null);
+
+        public void OnDetectingChanges(IStateManager stateManager)
+            => DetectingChanges?.Invoke(null, null);
+
+        public event EventHandler<DetectedChangesEventArgs> DetectedChanges;
+
+        public void OnDetectedChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
+            => DetectedChanges?.Invoke(null, null);
+
+        public void OnDetectedChanges(IStateManager stateManager, bool changesFound)
+            => DetectedChanges?.Invoke(null, null);
+
+        public void ResetState()
         {
         }
     }

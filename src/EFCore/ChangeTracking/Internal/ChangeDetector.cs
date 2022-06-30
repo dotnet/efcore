@@ -112,8 +112,11 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public virtual void DetectChanges(IStateManager stateManager)
     {
-        _logger.DetectChangesStarting(stateManager.Context);
+        OnDetectingChanges(stateManager);
+        var changesFound = false;
 
+        _logger.DetectChangesStarting(stateManager.Context);
+        
         foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
         {
             switch (entry.EntityState)
@@ -125,16 +128,19 @@ public class ChangeDetector : IChangeDetector
                     {
                         continue;
                     }
-
-                    LocalDetectChanges(entry);
-                    break;
+                    goto default;
                 default:
-                    LocalDetectChanges(entry);
+                    if (LocalDetectChanges(entry))
+                    {
+                        changesFound = true;
+                    }
                     break;
             }
         }
 
         _logger.DetectChangesCompleted(stateManager.Context);
+        
+        OnDetectedChanges(stateManager, changesFound);
     }
 
     /// <summary>
@@ -144,10 +150,15 @@ public class ChangeDetector : IChangeDetector
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void DetectChanges(InternalEntityEntry entry)
-        => DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
-
-    private void DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
     {
+        OnDetectingChanges(entry);
+        OnDetectedChanges(entry, DetectChanges(entry, new HashSet<InternalEntityEntry> { entry }));
+    }
+
+    private bool DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
+    {
+        var changesFound = false;
+
         if (entry.EntityState != EntityState.Detached)
         {
             foreach (var foreignKey in entry.EntityType.GetForeignKeys())
@@ -158,21 +169,31 @@ public class ChangeDetector : IChangeDetector
                     && !visited.Contains(principalEntry))
                 {
                     visited.Add(principalEntry);
-                    DetectChanges(principalEntry, visited);
+
+                    if (DetectChanges(principalEntry, visited))
+                    {
+                        changesFound = true;
+                    }
                 }
             }
 
-            LocalDetectChanges(entry);
+            if (LocalDetectChanges(entry))
+            {
+                changesFound = true;
+            }
         }
+
+        return changesFound;
     }
 
-    private void LocalDetectChanges(InternalEntityEntry entry)
+    private bool LocalDetectChanges(InternalEntityEntry entry)
     {
-        var entityType = entry.EntityType;
+        var changesFound = false;
 
-        if (entry.EntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+        var entityType = entry.EntityType;
+        if (entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
         {
-            return;
+            return false;
         }
 
         foreach (var property in entityType.GetProperties())
@@ -181,24 +202,38 @@ public class ChangeDetector : IChangeDetector
                 && !entry.IsModified(property)
                 && !entry.IsConceptualNull(property))
             {
-                DetectValueChange(entry, property);
+                if (DetectValueChange(entry, property))
+                {
+                    changesFound = true;
+                }
             }
 
-            DetectKeyChange(entry, property);
+            if (DetectKeyChange(entry, property))
+            {
+                changesFound = true;
+            }
         }
 
         if (entry.HasRelationshipSnapshot)
         {
             foreach (var navigation in entityType.GetNavigations())
             {
-                DetectNavigationChange(entry, navigation);
+                if (DetectNavigationChange(entry, navigation))
+                {
+                    changesFound = true;
+                }
             }
 
             foreach (var navigation in entityType.GetSkipNavigations())
             {
-                DetectNavigationChange(entry, navigation);
+                if (DetectNavigationChange(entry, navigation))
+                {
+                    changesFound = true;
+                }
             }
         }
+
+        return changesFound;
     }
 
     /// <summary>
@@ -207,7 +242,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void DetectValueChange(InternalEntityEntry entry, IProperty property)
+    public bool DetectValueChange(InternalEntityEntry entry, IProperty property)
     {
         var current = entry[property];
         var original = entry.GetOriginalValue(property);
@@ -222,8 +257,11 @@ public class ChangeDetector : IChangeDetector
             {
                 LogChangeDetected(entry, property, original, current);
                 entry.SetPropertyModified(property);
+                return true;
             }
         }
+
+        return false;
     }
 
     private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object? original, object? current)
@@ -238,11 +276,11 @@ public class ChangeDetector : IChangeDetector
         }
     }
 
-    private void DetectKeyChange(InternalEntityEntry entry, IProperty property)
+    private bool DetectKeyChange(InternalEntityEntry entry, IProperty property)
     {
         if (property.GetRelationshipIndex() < 0)
         {
-            return;
+            return false;
         }
 
         var snapshotValue = entry.GetRelationshipSnapshotValue(property);
@@ -269,7 +307,11 @@ public class ChangeDetector : IChangeDetector
 
             entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(
                 entry, property, keys, foreignKeys, snapshotValue, currentValue);
+
+            return true;
         }
+
+        return false;
     }
 
     /// <summary>
@@ -278,7 +320,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void DetectNavigationChange(InternalEntityEntry entry, INavigationBase navigationBase)
+    public bool DetectNavigationChange(InternalEntityEntry entry, INavigationBase navigationBase)
     {
         var snapshotValue = entry.GetRelationshipSnapshotValue(navigationBase);
         var currentValue = entry[navigationBase];
@@ -337,9 +379,14 @@ public class ChangeDetector : IChangeDetector
                 }
 
                 stateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(entry, navigationBase, added, removed);
+
+                return true;
             }
+
+            return false;
         }
-        else if (!ReferenceEquals(currentValue, snapshotValue))
+
+        if (!ReferenceEquals(currentValue, snapshotValue))
         {
             Check.DebugAssert(navigationBase is INavigation, "Issue #21673. Non-collection skip navigations not supported.");
 
@@ -354,6 +401,122 @@ public class ChangeDetector : IChangeDetector
             }
 
             stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+
+            return true;
         }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual (EventHandler<DetectChangesEventArgs>? DetectingChanges,
+        EventHandler<DetectedChangesEventArgs>? DetectedChanges) CaptureEvents()
+        => (DetectingChanges, DetectedChanges);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SetEvents(
+        EventHandler<DetectChangesEventArgs>? detectingChanges,
+        EventHandler<DetectedChangesEventArgs>? detectedChanges)
+    {
+        DetectingChanges = detectingChanges;
+        DetectedChanges = detectedChanges;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public event EventHandler<DetectChangesEventArgs>? DetectingChanges;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnDetectingChanges(InternalEntityEntry internalEntityEntry)
+    {
+        var @event = DetectingChanges;
+
+        @event?.Invoke(
+            internalEntityEntry.StateManager.Context.ChangeTracker, 
+            new DetectChangesEventArgs(internalEntityEntry));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnDetectingChanges(IStateManager stateManager)
+    {
+        var @event = DetectingChanges;
+
+        @event?.Invoke(
+            stateManager.Context.ChangeTracker, 
+            new DetectChangesEventArgs(null));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public event EventHandler<DetectedChangesEventArgs>? DetectedChanges;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnDetectedChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
+    {
+        var @event = DetectedChanges;
+
+        @event?.Invoke(
+            internalEntityEntry.StateManager.Context.ChangeTracker, 
+            new DetectedChangesEventArgs(internalEntityEntry, changesFound));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnDetectedChanges(IStateManager stateManager, bool changesFound)
+    {
+        var @event = DetectedChanges;
+
+        @event?.Invoke(
+            stateManager.Context.ChangeTracker, 
+            new DetectedChangesEventArgs(null, changesFound));
+    }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ResetState()
+    {
+        DetectingChanges = null;
+        DetectedChanges = null;
     }
 }
