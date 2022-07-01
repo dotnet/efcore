@@ -186,14 +186,6 @@ public partial class DbContextTest
         {
         }
 
-        public (EventHandler<DetectChangesEventArgs> DetectingChanges, EventHandler<DetectedChangesEventArgs> DetectedChanges)
-            CaptureEvents()
-            => (null, null);
-
-        public void SetEvents(EventHandler<DetectChangesEventArgs> detectingChanges, EventHandler<DetectedChangesEventArgs> detectedChanges)
-        {
-        }
-
         public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModifed)
         {
         }
@@ -210,21 +202,40 @@ public partial class DbContextTest
         {
         }
 
-        public event EventHandler<DetectChangesEventArgs> DetectingChanges;
+        public (EventHandler<DetectChangesEventArgs> DetectingAllChanges,
+            EventHandler<DetectedChangesEventArgs> DetectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>
+            DetectedEntityChanges) CaptureEvents()
+            => (null, null, null, null);
 
-        public void OnDetectingChanges(InternalEntityEntry internalEntityEntry)
-            => DetectingChanges?.Invoke(null, null);
+        public void SetEvents(
+            EventHandler<DetectChangesEventArgs> detectingAllChanges,
+            EventHandler<DetectedChangesEventArgs> detectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs> detectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs> detectedEntityChanges)
+        {
+        }
 
-        public void OnDetectingChanges(IStateManager stateManager)
-            => DetectingChanges?.Invoke(null, null);
+        public event EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges;
 
-        public event EventHandler<DetectedChangesEventArgs> DetectedChanges;
+        public void OnDetectingEntityChanges(InternalEntityEntry internalEntityEntry)
+            => DetectingEntityChanges?.Invoke(null, null);
 
-        public void OnDetectedChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
-            => DetectedChanges?.Invoke(null, null);
+        public event EventHandler<DetectChangesEventArgs> DetectingAllChanges;
 
-        public void OnDetectedChanges(IStateManager stateManager, bool changesFound)
-            => DetectedChanges?.Invoke(null, null);
+        public void OnDetectingAllChanges(IStateManager stateManager)
+            => DetectingAllChanges?.Invoke(null, null);
+
+        public event EventHandler<DetectedEntityChangesEventArgs> DetectedEntityChanges;
+
+        public void OnDetectedEntityChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
+            => DetectedEntityChanges?.Invoke(null, null);
+
+        public event EventHandler<DetectedChangesEventArgs> DetectedAllChanges;
+
+        public void OnDetectedAllChanges(IStateManager stateManager, bool changesFound)
+            => DetectedAllChanges?.Invoke(null, null);
 
         public void ResetState()
         {

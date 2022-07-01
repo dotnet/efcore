@@ -36,8 +36,10 @@ public sealed class DbContextPoolConfigurationSnapshot
         EventHandler<EntityTrackedEventArgs>? tracked,
         EventHandler<EntityStateChangingEventArgs>? stateChanging,
         EventHandler<EntityStateChangedEventArgs>? stateChanged,
-        EventHandler<DetectChangesEventArgs>? detectingChanges,
-        EventHandler<DetectedChangesEventArgs>? detectedChanges)
+        EventHandler<DetectChangesEventArgs>? detectingAllChanges,
+        EventHandler<DetectedChangesEventArgs>? detectedAllChanges,
+        EventHandler<DetectEntityChangesEventArgs>? detectingEntityChanges,
+        EventHandler<DetectedEntityChangesEventArgs>? detectedEntityChanges)
     {
         HasDatabaseConfiguration = hasDatabaseConfiguration;
         HasStateManagerConfiguration = hasStateManagerConfiguration;
@@ -57,8 +59,10 @@ public sealed class DbContextPoolConfigurationSnapshot
         Tracked = tracked;
         StateChanging = stateChanging;
         StateChanged = stateChanged;
-        DetectingChanges = detectingChanges;
-        DetectedChanges = detectedChanges;
+        DetectingAllChanges = detectingAllChanges;
+        DetectedAllChanges = detectedAllChanges;
+        DetectingEntityChanges = detectingEntityChanges;
+        DetectedEntityChanges = detectedEntityChanges;
     }
 
     /// <summary>
@@ -211,7 +215,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventHandler<DetectChangesEventArgs>? DetectingChanges { get; }
+    public EventHandler<DetectChangesEventArgs>? DetectingAllChanges { get; }
     
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -219,5 +223,21 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EventHandler<DetectedChangesEventArgs>? DetectedChanges { get; }
+    public EventHandler<DetectedChangesEventArgs>? DetectedAllChanges { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public EventHandler<DetectedEntityChangesEventArgs>? DetectedEntityChanges { get; }
 }
