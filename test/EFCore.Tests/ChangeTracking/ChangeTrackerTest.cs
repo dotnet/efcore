@@ -1573,322 +1573,438 @@ public class ChangeTrackerTest
     [ConditionalFact]
     public void DetectChanges_events_fire_for_no_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         context.AttachRange(new Cat(1), new Cat(2));
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
 
         Assert.False(context.ChangeTracker.HasChanges());
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Single(detectingAll);
+        Assert.Single(detectedAll);
+        Assert.Equal(2, detectingEntity.Count);
+        Assert.Equal(2, detectedEntity.Count);
 
-        AssertDetectChangesEvent(context, changesFound: false, detecting[0], detected[0]);
+        Assert.False(detectedAll[0].ChangesFound);
+        Assert.False(detectedEntity[0].ChangesFound);
+        Assert.False(detectedEntity[1].ChangesFound);
     }
 
     [ConditionalFact]
     public void DetectChanges_events_fire_for_property_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var cat = new Cat(1);
         context.AttachRange(cat, new Cat(2));
         cat.Name = "Alice";
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
 
         Assert.True(context.ChangeTracker.HasChanges());
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Single(detectingAll);
+        Assert.Single(detectedAll);
+        Assert.Equal(2, detectingEntity.Count);
+        Assert.Equal(2, detectedEntity.Count);
 
-        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        Assert.True(detectedAll[0].ChangesFound);
+        Assert.True(detectedEntity[0].ChangesFound);
+        Assert.False(detectedEntity[1].ChangesFound);
     }
 
     [ConditionalFact]
     public void DetectChanges_events_fire_for_fk_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         using var context = new EarlyLearningCenter();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var product = new Product { Category = new Category()};
         context.Attach(product);
         product.CategoryId = 2;
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
 
         Assert.True(context.ChangeTracker.HasChanges());
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Single(detectingAll);
+        Assert.Single(detectedAll);
+        Assert.Equal(2, detectingEntity.Count);
+        Assert.Equal(2, detectedEntity.Count);
 
-        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        Assert.True(detectedAll[0].ChangesFound);
+        Assert.True(detectedEntity[0].ChangesFound);
+        Assert.False(detectedEntity[1].ChangesFound);
     }
 
     [ConditionalFact]
     public void DetectChanges_events_fire_for_reference_navigation_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         using var context = new EarlyLearningCenter();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var product = new Product { Category = new Category()};
         context.Attach(product);
         product.Category = null;
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
 
         Assert.True(context.ChangeTracker.HasChanges());
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Single(detectingAll);
+        Assert.Single(detectedAll);
+        Assert.Equal(2, detectingEntity.Count);
+        Assert.Equal(2, detectedEntity.Count);
 
-        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        Assert.True(detectedAll[0].ChangesFound);
+        Assert.True(detectedEntity[0].ChangesFound);
+        Assert.False(detectedEntity[1].ChangesFound);
     }
 
     [ConditionalFact]
     public void DetectChanges_events_fire_for_collection_navigation_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         using var context = new EarlyLearningCenter();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var product = new Product { Category = new Category()};
         context.Attach(product);
         product.Category.Products.Clear();
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
 
         Assert.True(context.ChangeTracker.HasChanges());
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Single(detectingAll);
+        Assert.Single(detectedAll);
+        Assert.Equal(2, detectingEntity.Count);
+        Assert.Equal(2, detectedEntity.Count);
 
-        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        Assert.True(detectedAll[0].ChangesFound);
+        Assert.False(detectedEntity[0].ChangesFound);
+        Assert.True(detectedEntity[1].ChangesFound);
     }
 
     [ConditionalFact]
     public void DetectChanges_events_fire_for_skip_navigation_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var cat = new Cat(1) { Hats = { new Hat(2) }};
         context.Attach(cat);
         cat.Hats.Clear();
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
 
         Assert.True(context.ChangeTracker.HasChanges());
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Single(detectingAll);
+        Assert.Single(detectedAll);
+        Assert.Equal(2, detectingEntity.Count);
+        Assert.Equal(2, detectedEntity.Count);
 
-        AssertDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        Assert.True(detectedAll[0].ChangesFound);
+        Assert.True(detectedEntity[0].ChangesFound);
+        Assert.False(detectedEntity[1].ChangesFound);
     }
 
     [ConditionalFact]
     public void Local_DetectChanges_events_fire_for_no_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var cat = new Cat(1);
         context.AttachRange(cat, new Cat(2));
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingEntity);
+        Assert.Empty(detectedEntity);
 
         _ = context.Entry(cat);
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
+        Assert.Single(detectingEntity);
+        Assert.Single(detectedEntity);
 
-        AssertLocalDetectChangesEvent(context, changesFound: false, detecting[0], detected[0]);
+        AssertLocalDetectChangesEvent(changesFound: false, detectingEntity[0], detectedEntity[0]);
     }
 
     [ConditionalFact]
     public void Local_DetectChanges_events_fire_for_property_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var cat = new Cat(1);
         context.AttachRange(cat, new Cat(2));
         cat.Name = "Alice";
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingEntity);
+        Assert.Empty(detectedEntity);
 
         _ = context.Entry(cat);
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
+        Assert.Single(detectingEntity);
+        Assert.Single(detectedEntity);
 
-        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
     }
 
     [ConditionalFact]
     public void Local_DetectChanges_events_fire_for_fk_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         using var context = new EarlyLearningCenter();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var product = new Product { Category = new Category()};
         context.Attach(product);
         product.CategoryId = 2;
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingEntity);
+        Assert.Empty(detectedEntity);
 
         _ = context.Entry(product);
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
+        Assert.Single(detectingEntity);
+        Assert.Single(detectedEntity);
 
-        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
     }
 
     [ConditionalFact]
     public void Local_DetectChanges_events_fire_for_reference_navigation_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         using var context = new EarlyLearningCenter();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var product = new Product { Category = new Category()};
         context.Attach(product);
         product.Category = null;
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingEntity);
+        Assert.Empty(detectedEntity);
 
         _ = context.Entry(product);
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
+        Assert.Equal(2, detectingEntity.Count);
+        Assert.Equal(2, detectedEntity.Count);
 
-        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        AssertLocalDetectChangesEvent(changesFound: false, detectingEntity[0], detectedEntity[0]);
+        AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[1], detectedEntity[1]);
     }
 
     [ConditionalFact]
     public void Local_DetectChanges_events_fire_for_collection_navigation_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         using var context = new EarlyLearningCenter();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var product = new Product { Category = new Category()};
         context.Attach(product);
         product.Category.Products.Clear();
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingEntity);
+        Assert.Empty(detectedEntity);
 
         _ = context.Entry(product.Category);
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
+        Assert.Single(detectingEntity);
+        Assert.Single(detectedEntity);
 
-        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
     }
 
     [ConditionalFact]
     public void Local_DetectChanges_events_fire_for_skip_navigation_change()
     {
-        var detecting = new List<DetectChangesEventArgs>();
-        var detected = new List<DetectedChangesEventArgs>();
+        var detectingAll = new List<DetectChangesEventArgs>();
+        var detectedAll = new List<DetectedChangesEventArgs>();
+        var detectingEntity = new List<DetectEntityChangesEventArgs>();
+        var detectedEntity = new List<DetectedEntityChangesEventArgs>();
 
         using var scope = _poolProvider.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
-        RegisterEvents(context, detecting, detected);
+        RegisterDetectAllEvents(context, detectingAll, detectedAll);
+        RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
         var cat = new Cat(1) { Hats = { new Hat(2) }};
         context.Attach(cat);
         cat.Hats.Clear();
 
-        Assert.Empty(detecting);
-        Assert.Empty(detected);
+        Assert.Empty(detectingEntity);
+        Assert.Empty(detectedEntity);
 
         _ = context.Entry(cat);
 
-        Assert.Single(detecting);
-        Assert.Single(detected);
+        Assert.Empty(detectingAll);
+        Assert.Empty(detectedAll);
+        Assert.Single(detectingEntity);
+        Assert.Single(detectedEntity);
 
-        AssertLocalDetectChangesEvent(context, changesFound: true, detecting[0], detected[0]);
+        AssertLocalDetectChangesEvent(changesFound: true, detectingEntity[0], detectedEntity[0]);
+    }
+
+    [ConditionalFact] // Issue #26506
+    public void DetectChanges_event_can_be_used_to_know_when_all_properties_have_changed()
+    {
+        using var scope = _poolProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
+
+        var hat = new Hat(2) { Color = "Orange" };
+        var cat1 = new Cat(1) { Hats = { hat }};
+        var cat2 = new Cat(2);
+        context.AttachRange(cat1, cat2);
+
+        var stateChangedCalled = false;
+        context.ChangeTracker.StateChanged += (s, a) =>
+        {
+            stateChangedCalled = true;
+            Assert.Equal("Black", a.Entry.Property(nameof(Hat.Color)).CurrentValue);
+            Assert.Equal(1, a.Entry.Property(nameof(Hat.CatId)).CurrentValue);
+        };
+
+        var detectedChangesCalled = false;
+        context.ChangeTracker.DetectedEntityChanges += (s, a) =>
+        {
+            if (a.ChangesFound)
+            {
+                detectedChangesCalled = true;
+
+                Assert.Equal("Black", a.Entry.Property(nameof(Hat.Color)).CurrentValue);
+                Assert.Equal(2, a.Entry.Property(nameof(Hat.CatId)).CurrentValue);
+            }
+        };
+
+        hat.Cat = cat2;
+        hat.Color = "Black";
+
+        context.ChangeTracker.DetectChanges();
+
+        Assert.True(stateChangedCalled);
+        Assert.True(detectedChangesCalled);
+
+        Assert.Equal(2, hat.CatId);
     }
 
     private static void AssertTrackedEvent(
@@ -1928,26 +2044,13 @@ public class ChangeTrackerTest
         }
     }
 
-    private static void AssertDetectChangesEvent(
-        DbContext context,
-        bool changesFound,
-        DetectChangesEventArgs detecting,
-        DetectedChangesEventArgs detected)
-    {
-        Assert.Null(detecting.Entry);
-        Assert.Null(detected.Entry);
-        Assert.Equal(changesFound, detected.ChangesFound);
-    }
-
     private static void AssertLocalDetectChangesEvent(
-        DbContext context,
         bool changesFound,
-        DetectChangesEventArgs detecting,
-        DetectedChangesEventArgs detected)
+        DetectEntityChangesEventArgs detectingEntity,
+        DetectedEntityChangesEventArgs detectedEntity)
     {
-        Assert.NotNull(detecting.Entry);
-        Assert.Same(detecting.Entry!.Entity, detected.Entry!.Entity);
-        Assert.Equal(changesFound, detected.ChangesFound);
+        Assert.Same(detectingEntity.Entry.Entity, detectedEntity.Entry.Entity);
+        Assert.Equal(changesFound, detectedEntity.ChangesFound);
     }
 
     private static void RegisterEvents(
@@ -1984,21 +2087,45 @@ public class ChangeTrackerTest
         };
     }
 
-    private static void RegisterEvents(
+    private static void RegisterDetectAllEvents(
         DbContext context,
-        IList<DetectChangesEventArgs> detecting,
-        IList<DetectedChangesEventArgs> detected)
+        IList<DetectChangesEventArgs> detectingAll,
+        IList<DetectedChangesEventArgs> detectedAll)
     {
-        context.ChangeTracker.DetectingChanges += (s, e) =>
+        context.ChangeTracker.DetectingAllChanges += (s, e) =>
         {
+            _ = context.ChangeTracker.Entries().ToList(); // Should not recursively call DetectChanges
             Assert.Same(context.ChangeTracker, s);
-            detecting.Add(e);
+            detectingAll.Add(e);
         };
 
-        context.ChangeTracker.DetectedChanges += (s, e) =>
+        context.ChangeTracker.DetectedAllChanges += (s, e) =>
         {
+            _ = context.ChangeTracker.Entries().ToList(); // Should not recursively call DetectChanges
             Assert.Same(context.ChangeTracker, s);
-            detected.Add(e);
+            detectedAll.Add(e);
+        };
+    }
+
+    private static void RegisterDetectEntityEvents(
+        DbContext context,
+        IList<DetectEntityChangesEventArgs> detectingEntity,
+        IList<DetectedEntityChangesEventArgs> detectedEntity)
+    {
+        context.ChangeTracker.DetectingEntityChanges += (s, e) =>
+        {
+            _ = context.ChangeTracker.Entries().ToList(); // Should not recursively call DetectChanges
+            Assert.Same(context.ChangeTracker, s);
+            Assert.NotNull(e.Entry);
+            detectingEntity.Add(e);
+        };
+
+        context.ChangeTracker.DetectedEntityChanges += (s, e) =>
+        {
+            _ = context.ChangeTracker.Entries().ToList(); // Should not recursively call DetectChanges
+            Assert.Same(context.ChangeTracker, s);
+            Assert.NotNull(e.Entry);
+            detectedEntity.Add(e);
         };
     }
 

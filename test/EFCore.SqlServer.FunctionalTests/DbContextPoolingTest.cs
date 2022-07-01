@@ -118,8 +118,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             ChangeTracker.Tracked += (sender, args) => { };
             ChangeTracker.StateChanging += (sender, args) => { };
             ChangeTracker.StateChanged += (sender, args) => { };
-            ChangeTracker.DetectingChanges += (sender, args) => { };
-            ChangeTracker.DetectedChanges += (sender, args) => { };
+            ChangeTracker.DetectingAllChanges += (sender, args) => { };
+            ChangeTracker.DetectedAllChanges += (sender, args) => { };
+            ChangeTracker.DetectingEntityChanges += (sender, args) => { };
+            ChangeTracker.DetectedEntityChanges += (sender, args) => { };
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -731,8 +733,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.ChangeTracker.Tracked += ChangeTracker_OnTracked;
         context1.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
         context1.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
-        context1.ChangeTracker.DetectingChanges += ChangeTracker_OnDetectingChanges;
-        context1.ChangeTracker.DetectedChanges += ChangeTracker_OnDetectedChanges;
+        context1.ChangeTracker.DetectingAllChanges += ChangeTracker_OnDetectingAllChanges;
+        context1.ChangeTracker.DetectedAllChanges += ChangeTracker_OnDetectedAllChanges;
+        context1.ChangeTracker.DetectingEntityChanges += ChangeTracker_OnDetectingEntityChanges;
+        context1.ChangeTracker.DetectedEntityChanges += ChangeTracker_OnDetectedEntityChanges;
         context1.SavingChanges += Context_OnSavingChanges;
         context1.SavedChanges += Context_OnSavedChanges;
         context1.SaveChangesFailed += Context_OnSaveChangesFailed;
@@ -768,8 +772,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         context2.SaveChanges();
 
-        Assert.False(_changeTracker_OnDetectingChanges);
-        Assert.False(_changeTracker_OnDetectedChanges);
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
         Assert.False(_context_OnSavedChanges);
         Assert.False(_context_OnSavingChanges);
         Assert.False(_context_OnSaveChangesFailed);
@@ -824,8 +830,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.ChangeTracker.Tracked += ChangeTracker_OnTracked;
         context1.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
         context1.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
-        context1.ChangeTracker.DetectingChanges += ChangeTracker_OnDetectingChanges;
-        context1.ChangeTracker.DetectedChanges += ChangeTracker_OnDetectedChanges;
+        context1.ChangeTracker.DetectingAllChanges += ChangeTracker_OnDetectingAllChanges;
+        context1.ChangeTracker.DetectedAllChanges += ChangeTracker_OnDetectedAllChanges;
+        context1.ChangeTracker.DetectingEntityChanges += ChangeTracker_OnDetectingEntityChanges;
+        context1.ChangeTracker.DetectedEntityChanges += ChangeTracker_OnDetectedEntityChanges;
         context1.SavingChanges += Context_OnSavingChanges;
         context1.SavedChanges += Context_OnSavedChanges;
         context1.SaveChangesFailed += Context_OnSaveChangesFailed;
@@ -847,8 +855,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         context2.SaveChanges();
 
-        Assert.False(_changeTracker_OnDetectingChanges);
-        Assert.False(_changeTracker_OnDetectedChanges);
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
         Assert.False(_context_OnSavedChanges);
         Assert.False(_context_OnSavingChanges);
         Assert.False(_context_OnSaveChangesFailed);
@@ -872,8 +882,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context.ChangeTracker.Tracked += ChangeTracker_OnTracked;
         context.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
         context.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
-        context.ChangeTracker.DetectingChanges += ChangeTracker_OnDetectingChanges;
-        context.ChangeTracker.DetectedChanges += ChangeTracker_OnDetectedChanges;
+        context.ChangeTracker.DetectingAllChanges += ChangeTracker_OnDetectingAllChanges;
+        context.ChangeTracker.DetectedAllChanges += ChangeTracker_OnDetectedAllChanges;
+        context.ChangeTracker.DetectingEntityChanges += ChangeTracker_OnDetectingEntityChanges;
+        context.ChangeTracker.DetectedEntityChanges += ChangeTracker_OnDetectedEntityChanges;
         context.SavingChanges += Context_OnSavingChanges;
         context.SavedChanges += Context_OnSavedChanges;
         context.SaveChangesFailed += Context_OnSaveChangesFailed;
@@ -892,8 +904,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(_changeTracker_OnTracked);
         Assert.False(_changeTracker_OnStateChanging);
         Assert.False(_changeTracker_OnStateChanged);
-        Assert.False(_changeTracker_OnDetectingChanges);
-        Assert.False(_changeTracker_OnDetectedChanges);
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
 
         var customer = new Customer { CustomerId = "C" };
         context.Customers.Attach(customer).State = EntityState.Modified;
@@ -903,13 +917,17 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.True(_changeTracker_OnTracked);
         Assert.True(_changeTracker_OnStateChanging);
         Assert.True(_changeTracker_OnStateChanged);
-        Assert.False(_changeTracker_OnDetectingChanges);
-        Assert.False(_changeTracker_OnDetectedChanges);
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
 
         context.SaveChanges();
 
-        Assert.True(_changeTracker_OnDetectingChanges);
-        Assert.True(_changeTracker_OnDetectedChanges);
+        Assert.True(_changeTracker_OnDetectingAllChanges);
+        Assert.True(_changeTracker_OnDetectedAllChanges);
+        Assert.True(_changeTracker_OnDetectingEntityChanges);
+        Assert.True(_changeTracker_OnDetectedEntityChanges);
         Assert.True(_context_OnSavedChanges);
         Assert.True(_context_OnSavingChanges);
         Assert.False(_context_OnSaveChangesFailed);
@@ -950,15 +968,25 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
         => _changeTracker_OnStateChanged = true;
 
-    private bool _changeTracker_OnDetectingChanges;
+    private bool _changeTracker_OnDetectingAllChanges;
 
-    private void ChangeTracker_OnDetectingChanges(object sender, DetectChangesEventArgs e)
-        => _changeTracker_OnDetectingChanges = true;
+    private void ChangeTracker_OnDetectingAllChanges(object sender, DetectChangesEventArgs e)
+        => _changeTracker_OnDetectingAllChanges = true;
 
-    private bool _changeTracker_OnDetectedChanges;
+    private bool _changeTracker_OnDetectedAllChanges;
 
-    private void ChangeTracker_OnDetectedChanges(object sender, DetectedChangesEventArgs e)
-        => _changeTracker_OnDetectedChanges = true;
+    private void ChangeTracker_OnDetectedAllChanges(object sender, DetectedChangesEventArgs e)
+        => _changeTracker_OnDetectedAllChanges = true;
+
+    private bool _changeTracker_OnDetectingEntityChanges;
+
+    private void ChangeTracker_OnDetectingEntityChanges(object sender, DetectEntityChangesEventArgs e)
+        => _changeTracker_OnDetectingEntityChanges = true;
+
+    private bool _changeTracker_OnDetectedEntityChanges;
+
+    private void ChangeTracker_OnDetectedEntityChanges(object sender, DetectedEntityChangesEventArgs e)
+        => _changeTracker_OnDetectedEntityChanges = true;
 
     [ConditionalTheory]
     [InlineData(false)]

@@ -381,25 +381,63 @@ public class ChangeTracker : IResettableService
     }
 
     /// <summary>
-    ///     An event fired when detecting changes to the entity graph or a single entity is about to happen, either through an
+    ///     An event fired when detecting changes to a single entity is about to happen, either through an
     ///     explicit call to <see cref="DetectChanges" /> or <see cref="EntityEntry.DetectChanges" />, or automatically, such as part of
     ///     executing <see cref="DbContext.SaveChanges()" /> or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" />.
     /// </summary>
-    public event EventHandler<DetectChangesEventArgs> DetectingChanges
+    /// <remarks>
+    ///     <see cref="AutoDetectChangesEnabled" /> is set to <see langword="false" /> for the duration of the event to prevent an infinite
+    ///     loop of recursive automatic calls.
+    /// </remarks>
+    public event EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges
     {
-        add => ChangeDetector.DetectingChanges += value;
-        remove => ChangeDetector.DetectingChanges -= value;
+        add => ChangeDetector.DetectingEntityChanges += value;
+        remove => ChangeDetector.DetectingEntityChanges -= value;
     }
 
     /// <summary>
-    ///     An event fired when any changes have been detected to the entity graph or a single entity, either through an
+    ///     An event fired when any changes have been detected to a single entity, either through an
     ///     explicit call to <see cref="DetectChanges" /> or <see cref="EntityEntry.DetectChanges" />, or automatically, such as part of
     ///     executing <see cref="DbContext.SaveChanges()" /> or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" />.
     /// </summary>
-    public event EventHandler<DetectedChangesEventArgs> DetectedChanges
+    /// <remarks>
+    ///     <see cref="AutoDetectChangesEnabled" /> is set to <see langword="false" /> for the duration of the event to prevent an infinite
+    ///     loop of recursive automatic calls.
+    /// </remarks>
+    public event EventHandler<DetectedEntityChangesEventArgs> DetectedEntityChanges
     {
-        add => ChangeDetector.DetectedChanges += value;
-        remove => ChangeDetector.DetectedChanges -= value;
+        add => ChangeDetector.DetectedEntityChanges += value;
+        remove => ChangeDetector.DetectedEntityChanges -= value;
+    }
+
+    /// <summary>
+    ///     An event fired when detecting changes to the entity graph about to happen, either through an
+    ///     explicit call to <see cref="DetectChanges" />, or automatically, such as part of
+    ///     executing <see cref="DbContext.SaveChanges()" /> or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" />.
+    /// </summary>
+    /// <remarks>
+    ///     <see cref="AutoDetectChangesEnabled" /> is set to <see langword="false" /> for the duration of the event to prevent an infinite
+    ///     loop of recursive automatic calls.
+    /// </remarks>
+    public event EventHandler<DetectChangesEventArgs> DetectingAllChanges
+    {
+        add => ChangeDetector.DetectingAllChanges += value;
+        remove => ChangeDetector.DetectingAllChanges -= value;
+    }
+
+    /// <summary>
+    ///     An event fired when any changes have been detected to the entity graph, either through an
+    ///     explicit call to <see cref="DetectChanges" />, or automatically, such as part of
+    ///     executing <see cref="DbContext.SaveChanges()" /> or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" />.
+    /// </summary>
+    /// <remarks>
+    ///     <see cref="AutoDetectChangesEnabled" /> is set to <see langword="false" /> for the duration of the event to prevent an infinite
+    ///     loop of recursive automatic calls.
+    /// </remarks>
+    public event EventHandler<DetectedChangesEventArgs> DetectedAllChanges
+    {
+        add => ChangeDetector.DetectedAllChanges += value;
+        remove => ChangeDetector.DetectedAllChanges -= value;
     }
 
     /// <summary>

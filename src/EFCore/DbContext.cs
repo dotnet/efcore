@@ -887,8 +887,10 @@ public class DbContext :
             || _configurationSnapshot.HasChangeDetectorConfiguration)
         {
             DbContextDependencies.ChangeDetector.SetEvents(
-                _configurationSnapshot.DetectingChanges,
-                _configurationSnapshot.DetectedChanges);
+                _configurationSnapshot.DetectingAllChanges,
+                _configurationSnapshot.DetectedAllChanges,
+                _configurationSnapshot.DetectingEntityChanges,
+                _configurationSnapshot.DetectedEntityChanges);
         }
 
         SavingChanges = _configurationSnapshot.SavingChanges;
@@ -927,8 +929,10 @@ public class DbContext :
             stateManagerEvents?.Tracked,
             stateManagerEvents?.StateChanging,
             stateManagerEvents?.StateChanged,
-            changeDetectorEvents?.DetectingChanges,
-            changeDetectorEvents?.DetectedChanges);
+            changeDetectorEvents?.DetectingAllChanges,
+            changeDetectorEvents?.DetectedAllChanges,
+            changeDetectorEvents?.DetectingEntityChanges,
+            changeDetectorEvents?.DetectedEntityChanges);
     }
 
     /// <summary>

@@ -112,7 +112,7 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public virtual void DetectChanges(IStateManager stateManager)
     {
-        OnDetectingChanges(stateManager);
+        OnDetectingAllChanges(stateManager);
         var changesFound = false;
 
         _logger.DetectChangesStarting(stateManager.Context);
@@ -140,7 +140,7 @@ public class ChangeDetector : IChangeDetector
 
         _logger.DetectChangesCompleted(stateManager.Context);
         
-        OnDetectedChanges(stateManager, changesFound);
+        OnDetectedAllChanges(stateManager, changesFound);
     }
 
     /// <summary>
@@ -150,10 +150,7 @@ public class ChangeDetector : IChangeDetector
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void DetectChanges(InternalEntityEntry entry)
-    {
-        OnDetectingChanges(entry);
-        OnDetectedChanges(entry, DetectChanges(entry, new HashSet<InternalEntityEntry> { entry }));
-    }
+        => DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
 
     private bool DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
     {
@@ -182,7 +179,7 @@ public class ChangeDetector : IChangeDetector
                 changesFound = true;
             }
         }
-
+        
         return changesFound;
     }
 
@@ -195,6 +192,8 @@ public class ChangeDetector : IChangeDetector
         {
             return false;
         }
+
+        OnDetectingEntityChanges(entry);
 
         foreach (var property in entityType.GetProperties())
         {
@@ -232,6 +231,8 @@ public class ChangeDetector : IChangeDetector
                 }
             }
         }
+
+        OnDetectedEntityChanges(entry, changesFound);
 
         return changesFound;
     }
@@ -414,9 +415,11 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual (EventHandler<DetectChangesEventArgs>? DetectingChanges,
-        EventHandler<DetectedChangesEventArgs>? DetectedChanges) CaptureEvents()
-        => (DetectingChanges, DetectedChanges);
+    public virtual (EventHandler<DetectChangesEventArgs>? DetectingAllChanges,
+        EventHandler<DetectedChangesEventArgs>? DetectedAllChanges,
+        EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges,
+        EventHandler<DetectedEntityChangesEventArgs>? DetectedEntityChanges) CaptureEvents()
+        => (DetectingAllChanges, DetectedAllChanges, DetectingEntityChanges, DetectedEntityChanges);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -425,11 +428,15 @@ public class ChangeDetector : IChangeDetector
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void SetEvents(
-        EventHandler<DetectChangesEventArgs>? detectingChanges,
-        EventHandler<DetectedChangesEventArgs>? detectedChanges)
+        EventHandler<DetectChangesEventArgs>? detectingAllChanges,
+        EventHandler<DetectedChangesEventArgs>? detectedAllChanges,
+        EventHandler<DetectEntityChangesEventArgs>? detectingEntityChanges,
+        EventHandler<DetectedEntityChangesEventArgs>? detectedEntityChanges)
     {
-        DetectingChanges = detectingChanges;
-        DetectedChanges = detectedChanges;
+        DetectingAllChanges = detectingAllChanges;
+        DetectedAllChanges = detectedAllChanges;
+        DetectingEntityChanges = detectingEntityChanges;
+        DetectedEntityChanges = detectedEntityChanges;
     }
 
     /// <summary>
@@ -438,7 +445,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public event EventHandler<DetectChangesEventArgs>? DetectingChanges;
+    public event EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -446,13 +453,25 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void OnDetectingChanges(InternalEntityEntry internalEntityEntry)
+    public virtual void OnDetectingEntityChanges(InternalEntityEntry internalEntityEntry)
     {
-        var @event = DetectingChanges;
+        var @event = DetectingEntityChanges;
 
-        @event?.Invoke(
-            internalEntityEntry.StateManager.Context.ChangeTracker, 
-            new DetectChangesEventArgs(internalEntityEntry));
+        if (@event != null)
+        {
+            var changeTracker = internalEntityEntry.StateManager.Context.ChangeTracker;
+            var detectChangesEnabled = changeTracker.AutoDetectChangesEnabled;
+            try
+            {
+                changeTracker.AutoDetectChangesEnabled = false;
+                @event(changeTracker, new DetectEntityChangesEventArgs(internalEntityEntry));
+            }
+            finally
+            {
+                changeTracker.AutoDetectChangesEnabled = detectChangesEnabled;
+            }
+        }
+
     }
 
     /// <summary>
@@ -461,13 +480,32 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void OnDetectingChanges(IStateManager stateManager)
-    {
-        var @event = DetectingChanges;
+    public event EventHandler<DetectChangesEventArgs>? DetectingAllChanges;
 
-        @event?.Invoke(
-            stateManager.Context.ChangeTracker, 
-            new DetectChangesEventArgs(null));
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnDetectingAllChanges(IStateManager stateManager)
+    {
+        var @event = DetectingAllChanges;
+
+        if (@event != null)
+        {
+            var changeTracker = stateManager.Context.ChangeTracker;
+            var detectChangesEnabled = changeTracker.AutoDetectChangesEnabled;
+            try
+            {
+                changeTracker.AutoDetectChangesEnabled = false;
+                @event(changeTracker, new DetectChangesEventArgs());
+            }
+            finally
+            {
+                changeTracker.AutoDetectChangesEnabled = detectChangesEnabled;
+            }
+        }
     }
 
     /// <summary>
@@ -476,7 +514,7 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public event EventHandler<DetectedChangesEventArgs>? DetectedChanges;
+    public event EventHandler<DetectedEntityChangesEventArgs>? DetectedEntityChanges;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -484,13 +522,24 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void OnDetectedChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
+    public virtual void OnDetectedEntityChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
     {
-        var @event = DetectedChanges;
+        var @event = DetectedEntityChanges;
 
-        @event?.Invoke(
-            internalEntityEntry.StateManager.Context.ChangeTracker, 
-            new DetectedChangesEventArgs(internalEntityEntry, changesFound));
+        if (@event != null)
+        {
+            var changeTracker = internalEntityEntry.StateManager.Context.ChangeTracker;
+            var detectChangesEnabled = changeTracker.AutoDetectChangesEnabled;
+            try
+            {
+                changeTracker.AutoDetectChangesEnabled = false;
+                @event(changeTracker, new DetectedEntityChangesEventArgs(internalEntityEntry, changesFound));
+            }
+            finally
+            {
+                changeTracker.AutoDetectChangesEnabled = detectChangesEnabled;
+            }
+        }
     }
 
     /// <summary>
@@ -499,13 +548,32 @@ public class ChangeDetector : IChangeDetector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void OnDetectedChanges(IStateManager stateManager, bool changesFound)
-    {
-        var @event = DetectedChanges;
+    public event EventHandler<DetectedChangesEventArgs>? DetectedAllChanges;
 
-        @event?.Invoke(
-            stateManager.Context.ChangeTracker, 
-            new DetectedChangesEventArgs(null, changesFound));
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void OnDetectedAllChanges(IStateManager stateManager, bool changesFound)
+    {
+        var @event = DetectedAllChanges;
+
+        if (@event != null)
+        {
+            var changeTracker = stateManager.Context.ChangeTracker;
+            var detectChangesEnabled = changeTracker.AutoDetectChangesEnabled;
+            try
+            {
+                changeTracker.AutoDetectChangesEnabled = false;
+                @event(changeTracker, new DetectedChangesEventArgs(changesFound));
+            }
+            finally
+            {
+                changeTracker.AutoDetectChangesEnabled = detectChangesEnabled;
+            }
+        }
     }
     
     /// <summary>
@@ -516,7 +584,9 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public virtual void ResetState()
     {
-        DetectingChanges = null;
-        DetectedChanges = null;
+        DetectingEntityChanges = null;
+        DetectedEntityChanges = null;
+        DetectingAllChanges = null;
+        DetectedAllChanges = null;
     }
 }
