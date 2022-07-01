@@ -846,5 +846,5 @@ public class SqlServerUpdateSqlGenerator : SelectingUpdateSqlGenerator, ISqlServ
         // Data seeding doesn't provide any entries, so we we don't know if the table has triggers; assume it does to generate SQL
         // that works everywhere.
         => command.Entries.Count == 0
-            || command.Entries[0].EntityType.Model.GetRelationalModel().FindTable(command.TableName, command.Schema)!.Triggers.Any();
+            || command.Table!.Triggers.Any();
 }

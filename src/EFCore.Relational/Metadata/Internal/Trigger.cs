@@ -159,7 +159,7 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static void MergeInto(IConventionEntityType entityType, IConventionTrigger detachedTrigger)
+    public static void Attach(IConventionEntityType entityType, IConventionTrigger detachedTrigger)
     {
         var newTrigger = new Trigger(
             (IMutableEntityType)entityType,
@@ -257,22 +257,11 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string? GetName(in StoreObjectIdentifier storeObject)
-    {
-        if (storeObject.StoreObjectType != StoreObjectType.Table)
-        {
-            return null;
-        }
-
-        foreach (var containingType in EntityType.GetDerivedTypesInclusive())
-        {
-            if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
-            {
-                return _name ?? ((IReadOnlyTrigger)this).GetDefaultName(storeObject);
-            }
-        }
-
-        return null;
-    }
+        => storeObject.StoreObjectType == StoreObjectType.Table
+                && TableName == storeObject.Name
+                && TableSchema == storeObject.Schema
+            ? _name ?? ((IReadOnlyTrigger)this).GetDefaultName(storeObject)
+            : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -346,7 +335,7 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     /// </summary>
     public virtual string? TableSchema
     {
-        get => _tableSchema;
+        get => _tableSchema ?? EntityType.GetSchema();
         set => SetTableSchema(value, ConfigurationSource.Explicit);
     }
 
@@ -412,6 +401,18 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DebugView DebugView
+        => new(
+            () => ((ITrigger)this).ToDebugString(),
+            () => ((ITrigger)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     IConventionEntityType IConventionTrigger.EntityType
     {
         [DebuggerStepThrough]
@@ -440,6 +441,18 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     {
         [DebuggerStepThrough]
         get => (IEntityType)EntityType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    string ITrigger.Name
+    {
+        [DebuggerStepThrough]
+        get => Name!;
     }
 
     /// <summary>

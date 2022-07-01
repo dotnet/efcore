@@ -1,16 +1,18 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that creates linking relationships for entity splitting.
+///     A convention that creates linking relationships for entity splitting and manages the mapping fragments.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
 ///     <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
 /// </remarks>
-public class EntitySplittingConvention : IModelFinalizingConvention
+public class EntitySplittingConvention : IModelFinalizingConvention, IEntityTypeAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="EntitySplittingConvention" />.
@@ -34,6 +36,45 @@ public class EntitySplittingConvention : IModelFinalizingConvention
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
+
+    /// <inheritdoc />
+    public virtual void ProcessEntityTypeAdded(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionContext<IConventionEntityTypeBuilder> context)
+    {
+        var entityType = entityTypeBuilder.Metadata;
+        if (!entityType.HasSharedClrType)
+        {
+            return;
+        }
+
+        List<IConventionEntityTypeMappingFragment>? fragmentsToReattach = null;
+        foreach (var fragment in entityType.GetMappingFragments())
+        {
+            if (fragment.EntityType == entityType)
+            {
+                continue;
+            }
+
+            fragmentsToReattach ??= new();
+
+            fragmentsToReattach.Add(fragment);
+        }
+
+        if (fragmentsToReattach == null)
+        {
+            return;
+        }
+
+        foreach (var fragment in fragmentsToReattach)
+        {
+            var removedFragment = entityType.RemoveMappingFragment(fragment.StoreObject);
+            if (removedFragment != null)
+            {
+                EntityTypeMappingFragment.Attach(entityType, removedFragment);
+            }
+        }
+    }
 
     /// <inheritdoc />
     public virtual void ProcessModelFinalizing(

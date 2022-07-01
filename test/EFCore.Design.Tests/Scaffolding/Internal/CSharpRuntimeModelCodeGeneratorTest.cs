@@ -1208,8 +1208,18 @@ namespace TestNamespace
                 ""PrincipalBaseId"",
                 typeof(long),
                 propertyAccessMode: PropertyAccessMode.Field,
+                valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            principalBaseId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+            var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
+            var principalBaseIdPrincipalBase = new RuntimeRelationalPropertyOverrides(
+                principalBaseId,
+                StoreObjectIdentifier.Table(""PrincipalBase"", ""mySchema""),
+                false,
+                null);
+            principalBaseIdPrincipalBase.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+            overrides.Add(StoreObjectIdentifier.Table(""PrincipalBase"", ""mySchema""), principalBaseIdPrincipalBase);
+            principalBaseId.AddAnnotation(""Relational:RelationalOverrides"", overrides);
+            principalBaseId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var principalBaseAlternateId = runtimeEntityType.AddProperty(
                 ""PrincipalBaseAlternateId"",
@@ -1226,14 +1236,14 @@ namespace TestNamespace
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField(""<Details>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
-            var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
+            var overrides0 = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
             var detailsDetails = new RuntimeRelationalPropertyOverrides(
                 details,
                 StoreObjectIdentifier.Table(""Details"", null),
                 false,
                 null);
-            overrides.Add(StoreObjectIdentifier.Table(""Details"", null), detailsDetails);
-            details.AddAnnotation(""Relational:RelationalOverrides"", overrides);
+            overrides0.Add(StoreObjectIdentifier.Table(""Details"", null), detailsDetails);
+            details.AddAnnotation(""Relational:RelationalOverrides"", overrides0);
             details.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
             var number = runtimeEntityType.AddProperty(
@@ -1883,11 +1893,25 @@ namespace TestNamespace
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => referenceOwnedType.GetNavigationAccessMode()).Message);
 
+                    var principalTable = StoreObjectIdentifier.Create(referenceOwnedType, StoreObjectType.Table).Value;
+
+                    var ownedId = referenceOwnedType.FindProperty("PrincipalBaseId");
+                    Assert.True(ownedId.IsPrimaryKey());
+                    Assert.Equal(
+                        SqlServerValueGenerationStrategy.IdentityColumn,
+                        principalId.GetValueGenerationStrategy(principalTable));
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => principalId.GetIdentityIncrement(principalTable)).Message);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => principalId.GetIdentitySeed(principalTable)).Message);
+
                     var ownedFragment = referenceOwnedType.GetMappingFragments().Single();
                     Assert.Equal(nameof(OwnedType.Details),
                         referenceOwnedType.FindProperty(nameof(OwnedType.Details)).GetColumnName(ownedFragment.StoreObject));
                     Assert.Null(referenceOwnedType.FindProperty(nameof(OwnedType.Details))
-                        .GetColumnName(StoreObjectIdentifier.Create(referenceOwnedType, StoreObjectType.Table).Value));
+                        .GetColumnName(principalTable));
 
                     var referenceOwnership = referenceOwnedNavigation.ForeignKey;
                     Assert.Empty(referenceOwnership.GetAnnotations());
@@ -2194,6 +2218,9 @@ namespace TestNamespace
                             {
                                 ob.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
                                 ob.UsePropertyAccessMode(PropertyAccessMode.Field);
+
+                                ob.ToTable("PrincipalBase", "mySchema",
+                                    t => t.Property("PrincipalBaseId").UseIdentityColumn(2, 3));
 
                                 ob.SplitToTable("Details", s => s.Property(e => e.Details));
                             });

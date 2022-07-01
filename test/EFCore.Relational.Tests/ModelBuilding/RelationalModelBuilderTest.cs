@@ -166,6 +166,132 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOwnedTypesTestBase : OwnedTypesTestBase
     {
+        [ConditionalFact]
+        public virtual void Can_use_table_splitting_with_owned_reference()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Ignore<BookDetails>();
+
+            modelBuilder.Entity<Book>().OwnsOne(
+                b => b.Label, lb =>
+                {
+                    lb.Ignore(l => l.Book);
+                    lb.Property<string>("ShadowProp");
+                    
+                    lb.SplitToTable("BookLabelDetails", s =>
+                    {
+                        var propertyBuilder = s.Property(o => o.Id);
+                        var columnBuilder = propertyBuilder.HasColumnName("bid");
+                        if (columnBuilder is IInfrastructure<ColumnBuilder<int>> genericBuilder)
+                        {
+                            Assert.IsType<PropertyBuilder<int>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int>>());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                        }
+                        else
+                        {
+                            var nonGenericBuilder = (IInfrastructure<ColumnBuilder>)columnBuilder;
+                            Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                        }
+                    });
+                });
+            modelBuilder.Entity<Book>()
+                .OwnsOne(b => b.AlternateLabel);
+
+            var model = modelBuilder.Model;
+
+            Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
+            Assert.Equal(3, model.GetEntityTypes().Count());
+
+            var book = model.FindEntityType(typeof(Book))!;
+            var bookOwnership1 = book.FindNavigation(nameof(Book.Label))!.ForeignKey;
+            var bookOwnership2 = book.FindNavigation(nameof(Book.AlternateLabel))!.ForeignKey;
+            Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
+
+            var splitTable = StoreObjectIdentifier.Table("BookLabelDetails");
+            var fragment = bookOwnership1.DeclaringEntityType.GetMappingFragments().Single();
+            Assert.Same(fragment, bookOwnership1.DeclaringEntityType.FindMappingFragment(splitTable));
+            Assert.Same(fragment, bookOwnership1.DeclaringEntityType.GetMappingFragments(StoreObjectType.Table).Single());
+
+            Assert.True(((IConventionEntityTypeMappingFragment)fragment).IsInModel);
+            Assert.Same(bookOwnership1.DeclaringEntityType, fragment.EntityType);
+
+            var bookId = bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))!;
+            Assert.Equal("Id", bookId.GetColumnName());
+            Assert.Null(bookId.GetColumnName(StoreObjectIdentifier.Table("Book")));
+            Assert.Equal("bid", bookId.GetColumnName(splitTable));
+
+            var overrides = bookId.GetOverrides().Single();
+            Assert.Same(overrides, bookId.FindOverrides(splitTable));
+            Assert.True(((IConventionRelationalPropertyOverrides)overrides).IsInModel);
+            Assert.Same(bookId, overrides.Property);
+
+            var readOnlyModel = modelBuilder.FinalizeModel();
+
+            Assert.Equal(2, readOnlyModel.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
+            Assert.Equal(3, readOnlyModel.GetEntityTypes().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_view_splitting_with_owned_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<Customer>().OwnsMany(
+                c => c.Orders,
+                r =>
+                {
+                    r.Ignore(o => o.OrderCombination);
+                    r.Ignore(o => o.Details);
+                    r.Property<string>("ShadowProp");
+
+                    r.ToView("Order");
+                    r.SplitToView("OrderDetails", s =>
+                    {
+                        var propertyBuilder = s.Property(o => o.AnotherCustomerId);
+                        var columnBuilder = propertyBuilder.HasColumnName("cid");
+                        if (columnBuilder is IInfrastructure<ViewColumnBuilder<Guid>> genericBuilder)
+                        {
+                            Assert.IsType<PropertyBuilder<Guid>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<Guid>>());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                        }
+                        else
+                        {
+                            var nonGenericBuilder = (IInfrastructure<ViewColumnBuilder>)columnBuilder;
+                            Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                        }
+                    });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var ownership = model.FindEntityType(typeof(Customer))!.FindNavigation(nameof(Customer.Orders))!.ForeignKey;
+            var owned = ownership.DeclaringEntityType;
+            Assert.True(ownership.IsOwnership);
+
+            var splitView = StoreObjectIdentifier.View("OrderDetails");
+            var fragment = owned.GetMappingFragments().Single();
+            Assert.Same(fragment, owned.FindMappingFragment(splitView));
+            Assert.Same(fragment, owned.GetMappingFragments(StoreObjectType.View).Single());
+
+            Assert.True(((IConventionEntityTypeMappingFragment)fragment).IsInModel);
+            Assert.Same(owned, fragment.EntityType);
+
+            var anotherCustomerId = owned.FindProperty(nameof(Order.AnotherCustomerId))!;
+            Assert.Equal("AnotherCustomerId", anotherCustomerId.GetColumnName());
+            Assert.Null(anotherCustomerId.GetColumnName(StoreObjectIdentifier.View("Order")));
+            Assert.Equal("cid", anotherCustomerId.GetColumnName(splitView));
+
+            var overrides = anotherCustomerId.GetOverrides().Single();
+            Assert.Same(overrides, anotherCustomerId.FindOverrides(splitView));
+            Assert.True(((IConventionRelationalPropertyOverrides)overrides).IsInModel);
+            Assert.Same(anotherCustomerId, overrides.Property);
+        }
     }
 
     public abstract class TestTableBuilder<TEntity>

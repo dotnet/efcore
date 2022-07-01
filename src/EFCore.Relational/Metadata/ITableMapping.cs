@@ -48,13 +48,36 @@ public interface ITableMapping : ITableMappingBase
             builder.Append("TableMapping: ");
         }
 
-        builder.Append(EntityType.Name).Append(" - ");
+        builder
+            .Append(EntityType.Name)
+            .Append(" - ")
+            .Append(Table.Name);
 
-        builder.Append(Table.Name);
-
-        if (IncludesDerivedTypes)
+        builder.Append(" ");
+        if (!IncludesDerivedTypes)
         {
-            builder.Append(" IncludesDerivedTypes");
+            builder.Append("!");
+        }
+        builder.Append("IncludesDerivedTypes");
+
+        if (IsSharedTablePrincipal != null)
+        {
+            builder.Append(" ");
+            if (!IsSharedTablePrincipal.Value)
+            {
+                builder.Append("!");
+            }
+            builder.Append("IsSharedTablePrincipal");
+        }
+
+        if (IsSplitEntityTypePrincipal != null)
+        {
+            builder.Append(" ");
+            if (!IsSplitEntityTypePrincipal.Value)
+            {
+                builder.Append("!");
+            }
+            builder.Append("IsSplitEntityTypePrincipal");
         }
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

@@ -409,7 +409,9 @@ public class ForeignKeyPropertyDiscoveryConvention :
             var referencedProperty = propertiesToReference[i];
             var property = TryGetProperty(
                 dependentEntityType,
-                baseName, referencedProperty.Name);
+                baseName,
+                referencedProperty.Name,
+                matchImplicitProperties: propertiesToReference.Count != 1);
 
             if (property == null)
             {
@@ -420,13 +422,21 @@ public class ForeignKeyPropertyDiscoveryConvention :
             foreignKeyProperties[i] = property;
         }
 
+        if (matchFound
+            && foreignKeyProperties.Length != 1
+            && foreignKeyProperties.All(p => p.IsImplicitlyCreated()
+                && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())))
+        {
+            return false;
+        }
+        
         if (!matchFound
             && propertiesToReference.Count == 1
             && baseName.Length > 0)
         {
             var property = TryGetProperty(
                 dependentEntityType,
-                baseName, "Id");
+                baseName, "Id", matchImplicitProperties: false);
 
             if (property != null)
             {
@@ -504,11 +514,13 @@ public class ForeignKeyPropertyDiscoveryConvention :
         return true;
     }
 
-    private static IConventionProperty? TryGetProperty(IConventionEntityType entityType, string prefix, string suffix)
+    private static IConventionProperty? TryGetProperty(
+        IConventionEntityType entityType, string prefix, string suffix, bool matchImplicitProperties)
     {
         foreach (var property in entityType.GetProperties())
         {
             if ((!property.IsImplicitlyCreated()
+                    || matchImplicitProperties
                     || !ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
                 && property.Name.Length == prefix.Length + suffix.Length
                 && property.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)

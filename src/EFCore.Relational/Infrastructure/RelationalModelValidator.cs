@@ -1864,8 +1864,10 @@ public class RelationalModelValidator : ModelValidator
                         RelationalStrings.TriggerOnUnmappedEntityType(trigger.ModelName, entityType.DisplayName()));
                 }
 
-                if ((trigger.TableName != tableName)
-                    || (trigger.TableSchema is not null && trigger.TableSchema != tableSchema))
+                if ((trigger.TableName != tableName
+                    || trigger.TableSchema != tableSchema)
+                    && entityType.GetMappingFragments(StoreObjectType.Table)
+                        .All(f => trigger.TableName != f.StoreObject.Name || trigger.TableSchema != f.StoreObject.Schema))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.TriggerWithMismatchedTable(

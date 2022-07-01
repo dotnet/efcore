@@ -1075,7 +1075,7 @@ public static class RelationalEntityTypeExtensions
     public static IMutableEntityTypeMappingFragment? RemoveMappingFragment(
         this IMutableEntityType entityType,
         in StoreObjectIdentifier storeObject)
-        => EntityTypeMappingFragment.Remove(entityType, storeObject, ConfigurationSource.Explicit);
+        => EntityTypeMappingFragment.Remove(entityType, storeObject);
 
     /// <summary>
     ///     <para>
@@ -1088,17 +1088,14 @@ public static class RelationalEntityTypeExtensions
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="storeObject">The identifier of a table-like store object.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The removed <see cref="IConventionEntityTypeMappingFragment" /> or <see langword="null" />
     ///     if no overrides for the given store object were found or the existing overrides were configured from a higher source.
     /// </returns>
     public static IConventionEntityTypeMappingFragment? RemoveMappingFragment(
         this IConventionEntityType entityType,
-        in StoreObjectIdentifier storeObject,
-        bool fromDataAnnotation = false)
-        => EntityTypeMappingFragment.Remove((IMutableEntityType)entityType, storeObject,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        in StoreObjectIdentifier storeObject)
+        => EntityTypeMappingFragment.Remove((IMutableEntityType)entityType, storeObject);
 
     /// <summary>
     ///     Gets the foreign keys for the given entity type that point to other entity types
