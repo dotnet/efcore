@@ -214,12 +214,12 @@ public readonly record struct TypeMappingInfo
     public int? Size { get; init; }
 
     /// <summary>
-    ///     Indicates whether or not the mapping supports Unicode, or null if not defined.
+    ///     Indicates whether or not the mapping supports Unicode, or <see langword="null" /> if not defined.
     /// </summary>
     public bool? IsUnicode { get; init; }
 
     /// <summary>
-    ///     Indicates whether or not the mapping will be used for a row version, or null if not defined.
+    ///     Indicates whether or not the mapping will be used for a row version, or <see langword="null" /> if not defined.
     /// </summary>
     public bool? IsRowVersion { get; init; }
 

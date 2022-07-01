@@ -448,10 +448,13 @@ public static class CoreLoggerExtensions
     ///     Logs for the <see cref="CoreEventId.QueryCompilationStarting" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="context">The current <see cref="DbContext" />, or <see langword="null" /> if not known.</param>
     /// <param name="expressionPrinter">Used to create a human-readable representation of the expression tree.</param>
     /// <param name="queryExpression">The query expression tree.</param>
-    public static void QueryCompilationStarting(
+    /// <returns>The query expression and event data.</returns>
+    public static (Expression Query, QueryExpressionEventData? EventData) QueryCompilationStarting(
         this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        DbContext? context,
         ExpressionPrinter expressionPrinter,
         Expression queryExpression)
     {
@@ -462,16 +465,25 @@ public static class CoreLoggerExtensions
             definition.Log(diagnostics, Environment.NewLine, expressionPrinter.Print(queryExpression));
         }
 
-        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        if (diagnostics.NeedsEventData<IQueryExpressionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
             var eventData = new QueryExpressionEventData(
                 definition,
                 QueryCompilationStarting,
+                context,
                 queryExpression,
                 expressionPrinter);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return (interceptor.ProcessingQuery(queryExpression, eventData), eventData);
+            }
         }
+
+        return (queryExpression, null);
     }
 
     private static string QueryCompilationStarting(EventDefinitionBase definition, EventData payload)
@@ -643,10 +655,12 @@ public static class CoreLoggerExtensions
     ///     Logs for the <see cref="CoreEventId.QueryExecutionPlanned" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="context">The current <see cref="DbContext" />, or <see langword="null" /> if not known.</param>
     /// <param name="expressionPrinter">Used to create a human-readable representation of the expression tree.</param>
     /// <param name="queryExecutorExpression">The query expression tree.</param>
     public static void QueryExecutionPlanned(
         this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        DbContext? context,
         ExpressionPrinter expressionPrinter,
         Expression queryExecutorExpression)
     {
@@ -662,6 +676,7 @@ public static class CoreLoggerExtensions
             var eventData = new QueryExpressionEventData(
                 definition,
                 QueryExecutionPlanned,
+                context,
                 queryExecutorExpression,
                 expressionPrinter);
 

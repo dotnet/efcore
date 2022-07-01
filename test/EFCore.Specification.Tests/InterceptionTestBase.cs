@@ -64,14 +64,18 @@ public abstract class InterceptionTestBase
     }
 
     public UniverseContext CreateContext(IInterceptor appInterceptor, params IInterceptor[] injectedInterceptors)
-        => new(
-            Fixture.CreateOptions(
-                new[] { appInterceptor }, injectedInterceptors));
+        => Seed(
+            new(
+                Fixture.CreateOptions(
+                    new[] { appInterceptor }, injectedInterceptors)));
 
     public UniverseContext CreateContext(
         IEnumerable<IInterceptor> appInterceptors,
         IEnumerable<IInterceptor> injectedInterceptors = null)
-        => new(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>()));
+        => Seed(new(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>())));
+
+    public virtual UniverseContext Seed(UniverseContext context)
+        => context;
 
     public interface ITestDiagnosticListener : IDisposable
     {

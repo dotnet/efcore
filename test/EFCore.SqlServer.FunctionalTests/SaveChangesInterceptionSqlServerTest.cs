@@ -159,6 +159,13 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
             IServiceCollection serviceCollection,
             IEnumerable<IInterceptor> injectedInterceptors)
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlServer(), injectedInterceptors);
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        {
+            new SqlServerDbContextOptionsBuilder(base.AddOptions(builder))
+                .ExecutionStrategy(d => new SqlServerExecutionStrategy(d));
+            return builder;
+        }
     }
 
     public class SaveChangesInterceptionSqlServerTest
@@ -176,13 +183,6 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
 
             protected override bool ShouldSubscribeToDiagnosticListener
                 => false;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            {
-                new SqlServerDbContextOptionsBuilder(base.AddOptions(builder))
-                    .ExecutionStrategy(d => new SqlServerExecutionStrategy(d));
-                return builder;
-            }
         }
     }
 
@@ -202,13 +202,6 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
 
             protected override bool ShouldSubscribeToDiagnosticListener
                 => true;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            {
-                new SqlServerDbContextOptionsBuilder(base.AddOptions(builder))
-                    .ExecutionStrategy(d => new SqlServerExecutionStrategy(d));
-                return builder;
-            }
         }
     }
 }

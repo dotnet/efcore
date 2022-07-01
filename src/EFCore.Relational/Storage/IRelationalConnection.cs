@@ -48,7 +48,7 @@ public interface IRelationalConnection : IRelationalTransactionManager, IDisposa
     DbConnection DbConnection { get; set; }
 
     /// <summary>
-    ///     The <see cref="DbContext" /> currently in use, or null if not known.
+    ///     The <see cref="DbContext" /> currently in use, or <see langword="null" /> if not known.
     /// </summary>
     DbContext Context { get; }
 
