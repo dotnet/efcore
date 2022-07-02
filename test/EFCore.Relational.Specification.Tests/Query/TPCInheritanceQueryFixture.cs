@@ -20,7 +20,7 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase
     {
         base.OnModelCreating(modelBuilder, context);
 
-        // Configure TPT for hierarchies
+        // Configure TPC for hierarchies
         modelBuilder.Entity<Plant>().UseTpcMappingStrategy();
         modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
         modelBuilder.Entity<Drink>().UseTpcMappingStrategy();
@@ -31,12 +31,10 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase
         modelBuilder.Entity<Country>().Property(e => e.Id).ValueGeneratedNever();
 
         modelBuilder.Entity<Bird>().ToTable("Birds");
-        modelBuilder.Entity<Eagle>().ToTable("Eagle");
         modelBuilder.Entity<Kiwi>().ToTable("Kiwi");
         modelBuilder.Entity<Animal>().Property(e => e.Species).HasMaxLength(100);
         modelBuilder.Entity<Eagle>().HasMany(e => e.Prey).WithOne().HasForeignKey(e => e.EagleId).IsRequired(false);
 
-        modelBuilder.Entity<Drink>().ToTable("Drinks");
         modelBuilder.Entity<Coke>().ToTable("Coke");
         modelBuilder.Entity<Lilt>().ToTable("Lilt");
         modelBuilder.Entity<Tea>().ToTable("Tea");

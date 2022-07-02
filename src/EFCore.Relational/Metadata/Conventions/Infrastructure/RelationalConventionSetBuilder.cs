@@ -83,6 +83,8 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(checkConstraintConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(triggerConvention);
 
+        conventionSet.EntityTypeAnnotationChangedConventions.Add(tableNameFromDbSetConvention);
+
         ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, valueGenerationConvention);
 
         ReplaceConvention(conventionSet.ForeignKeyOwnershipChangedConventions, valueGenerationConvention);
