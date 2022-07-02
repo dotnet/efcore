@@ -2286,6 +2286,54 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(max) NOT NULL;");
 EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestSequenceSchema].[TestSequence];');");
     }
 
+    [ConditionalFact]
+    public async Task Create_sequence_and_dependent_column()
+    {
+        await Test(
+            builder => builder.Entity("People").Property<int>("Id"),
+            builder => { },
+            builder =>
+            {
+                builder.HasSequence<int>("TestSequence");
+                builder.Entity("People").Property<int>("SeqProp").HasDefaultValueSql("NEXT VALUE FOR TestSequence");
+            },
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.Equal("TestSequence", sequence.Name);
+            });
+
+        AssertSql(
+            @"CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;",
+            //
+            @"ALTER TABLE [People] ADD [SeqProp] int NOT NULL DEFAULT (NEXT VALUE FOR TestSequence);");
+    }
+
+    [ConditionalFact]
+    public async Task Drop_sequence_and_dependent_column()
+    {
+        await Test(
+            builder => builder.Entity("People").Property<int>("Id"),
+            builder =>
+            {
+                builder.HasSequence<int>("TestSequence");
+                builder.Entity("People").Property<int>("SeqProp").HasDefaultValueSql("NEXT VALUE FOR TestSequence");
+            },
+            builder => { },
+            model => Assert.Empty(model.Sequences));
+
+        AssertSql(
+            @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SeqProp');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] DROP COLUMN [SeqProp];",
+            //
+            @"DROP SEQUENCE [TestSequence];");
+    }
+
     public override async Task InsertDataOperation()
     {
         await base.InsertDataOperation();
