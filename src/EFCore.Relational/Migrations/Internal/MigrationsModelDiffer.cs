@@ -16,31 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 /// </summary>
 public class MigrationsModelDiffer : IMigrationsModelDiffer
 {
-    private static readonly Type[] DropOperationTypes =
-    {
-        typeof(DropIndexOperation),
-        typeof(DropPrimaryKeyOperation),
-        typeof(DropUniqueConstraintOperation),
-        typeof(DropCheckConstraintOperation)
-    };
-
-    private static readonly Type[] AlterOperationTypes =
-    {
-        typeof(AddPrimaryKeyOperation), typeof(AddUniqueConstraintOperation), typeof(AlterSequenceOperation)
-    };
-
-    private static readonly Type[] RenameOperationTypes =
-    {
-        typeof(RenameColumnOperation), typeof(RenameIndexOperation), typeof(RenameSequenceOperation)
-    };
-
-    private static readonly Type[] ColumnOperationTypes = { typeof(AddColumnOperation), typeof(AlterColumnOperation) };
-
-    private static readonly Type[] ConstraintOperationTypes =
-    {
-        typeof(AddForeignKeyOperation), typeof(CreateIndexOperation), typeof(AddCheckConstraintOperation)
-    };
-
     private Dictionary<ITable, IRowIdentityMap>? _sourceIdentityMaps;
     private Dictionary<ITable, IRowIdentityMap>? _targetIdentityMaps;
 
@@ -149,98 +124,71 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         foreach (var operation in operations)
         {
-            var type = operation.GetType();
-            if (type == typeof(DropForeignKeyOperation))
+            switch (operation)
             {
-                dropForeignKeyOperations.Add(operation);
-            }
-            else if (DropOperationTypes.Contains(type))
-            {
-                dropOperations.Add(operation);
-            }
-            else if (type == typeof(DropColumnOperation))
-            {
-                if (string.IsNullOrWhiteSpace(diffContext.FindColumn((DropColumnOperation)operation)!.ComputedColumnSql))
-                {
+                case DropForeignKeyOperation:
+                    dropForeignKeyOperations.Add(operation);
+                    break;
+                case DropIndexOperation or DropPrimaryKeyOperation or DropUniqueConstraintOperation or DropCheckConstraintOperation:
+                    dropOperations.Add(operation);
+                    break;
+                case DropColumnOperation dropColumnOperation
+                    when string.IsNullOrWhiteSpace(diffContext.FindColumn(dropColumnOperation)!.ComputedColumnSql):
                     dropColumnOperations.Add(operation);
-                }
-                else
-                {
+                    break;
+                case DropColumnOperation:
                     dropComputedColumnOperations.Add(operation);
-                }
-            }
-            else if (type == typeof(DropTableOperation))
-            {
-                dropTableOperations.Add((DropTableOperation)operation);
-            }
-            else if (type == typeof(DropSequenceOperation))
-            {
-                dropSequenceOperations.Add((DropSequenceOperation)operation);
-            }
-            else if (type == typeof(EnsureSchemaOperation))
-            {
-                ensureSchemaOperations.Add(operation);
-            }
-            else if (type == typeof(CreateSequenceOperation))
-            {
-                createSequenceOperations.Add(operation);
-            }
-            else if (type == typeof(CreateTableOperation))
-            {
-                createTableOperations.Add((CreateTableOperation)operation);
-            }
-            else if (type == typeof(AlterDatabaseOperation))
-            {
-                alterDatabaseOperations.Add(operation);
-            }
-            else if (type == typeof(AlterTableOperation))
-            {
-                alterTableOperations.Add(operation);
-            }
-            else if (ColumnOperationTypes.Contains(type))
-            {
-                if (string.IsNullOrWhiteSpace(((ColumnOperation)operation).ComputedColumnSql))
-                {
+                    break;
+                case DropTableOperation dropTableOperation:
+                    dropTableOperations.Add(dropTableOperation);
+                    break;
+                case DropSequenceOperation dropSequenceOperation:
+                    dropSequenceOperations.Add(dropSequenceOperation);
+                    break;
+                case EnsureSchemaOperation:
+                    ensureSchemaOperations.Add(operation);
+                    break;
+                case CreateSequenceOperation:
+                    createSequenceOperations.Add(operation);
+                    break;
+                case CreateTableOperation createTableOperation:
+                    createTableOperations.Add(createTableOperation);
+                    break;
+                case AlterDatabaseOperation:
+                    alterDatabaseOperations.Add(operation);
+                    break;
+                case AddColumnOperation or AlterColumnOperation
+                    when string.IsNullOrWhiteSpace(((ColumnOperation)operation).ComputedColumnSql):
                     columnOperations.Add(operation);
-                }
-                else
-                {
+                    break;
+                case AddColumnOperation or AlterColumnOperation:
                     computedColumnOperations.Add(operation);
-                }
-            }
-            else if (AlterOperationTypes.Contains(type))
-            {
-                alterOperations.Add(operation);
-            }
-            else if (type == typeof(RestartSequenceOperation))
-            {
-                restartSequenceOperations.Add(operation);
-            }
-            else if (ConstraintOperationTypes.Contains(type))
-            {
-                constraintOperations.Add(operation);
-            }
-            else if (RenameOperationTypes.Contains(type))
-            {
-                renameOperations.Add(operation);
-            }
-            else if (type == typeof(RenameTableOperation))
-            {
-                renameTableOperations.Add(operation);
-            }
-            else if (type == typeof(DeleteDataOperation))
-            {
-                sourceDataOperations.Add(operation);
-            }
-            else if (type == typeof(InsertDataOperation)
-                     || type == typeof(UpdateDataOperation))
-            {
-                targetDataOperations.Add(operation);
-            }
-            else
-            {
-                leftovers.Add(operation);
-                Check.DebugFail("Unexpected operation type: " + operation.GetType());
+                    break;
+                case AddPrimaryKeyOperation or AddUniqueConstraintOperation or AlterSequenceOperation:
+                    alterOperations.Add(operation);
+                    break;
+                case RestartSequenceOperation:
+                    restartSequenceOperations.Add(operation);
+                    break;
+                case AddForeignKeyOperation or CreateIndexOperation or AddCheckConstraintOperation:
+                    constraintOperations.Add(operation);
+                    break;
+                case RenameColumnOperation or RenameIndexOperation or RenameSequenceOperation:
+                    renameOperations.Add(operation);
+                    break;
+                case RenameTableOperation:
+                    renameTableOperations.Add(operation);
+                    break;
+                case DeleteDataOperation:
+                    sourceDataOperations.Add(operation);
+                    break;
+                case InsertDataOperation or UpdateDataOperation:
+                    targetDataOperations.Add(operation);
+                    break;
+                default:
+                    leftovers.Add(operation);
+                    Check.DebugFail("Unexpected operation type: " + operation.GetType());
+                    break;
             }
         }
 
