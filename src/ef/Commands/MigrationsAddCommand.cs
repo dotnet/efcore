@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.IO;
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
@@ -17,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             if (string.IsNullOrEmpty(_name!.Value))
             {
                 throw new CommandException(Resources.MissingArgument(_name.Name));
+            }
+             if (_name?.Name?.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            {
+                throw new CommandException("Invalid migration name. Names must not contain any invalid characters, e.g [-,/,:]");
             }
         }
 
