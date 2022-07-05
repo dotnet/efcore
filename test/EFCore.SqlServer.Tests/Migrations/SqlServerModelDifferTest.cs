@@ -421,16 +421,16 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 downOps,
                 o =>
                 {
-                    var operation = Assert.IsType<DropSequenceOperation>(o);
-                    Assert.Equal("dbo", operation.Schema);
-                    Assert.Equal("EntityFrameworkHiLoSequence", operation.Name);
-                },
-                o =>
-                {
                     var m = Assert.IsType<DeleteDataOperation>(o);
                     AssertMultidimensionalArray(
                         m.KeyValues,
                         v => Assert.Equal(43, v));
+                },
+                o =>
+                {
+                    var operation = Assert.IsType<DropSequenceOperation>(o);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("EntityFrameworkHiLoSequence", operation.Name);
                 }));
 
     [ConditionalFact]
