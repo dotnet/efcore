@@ -1516,14 +1516,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 field, property, entityType);
 
         /// <summary>
-        ///     Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Provide a navigation in the 'HasMany' call in 'OnModelCreating'. Consider adding a private property for this.
-        /// </summary>
-        public static string MissingInverseManyToManyNavigation(object? principalEntityType, object? declaringEntityType)
-            => string.Format(
-                GetString("MissingInverseManyToManyNavigation", nameof(principalEntityType), nameof(declaringEntityType)),
-                principalEntityType, declaringEntityType);
-
-        /// <summary>
         ///     Runtime metadata changes are not allowed when the model hasn't been marked as read-only.
         /// </summary>
         public static string ModelMutable

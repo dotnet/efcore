@@ -93,7 +93,7 @@ public class ShadowFixupTest
 
         if (setToDependent)
         {
-            var collection = new HashSet<object> { dependent };
+            var collection = new HashSet<Product> { dependent };
             principalEntry.Collection("Products").CurrentValue = collection;
         }
 

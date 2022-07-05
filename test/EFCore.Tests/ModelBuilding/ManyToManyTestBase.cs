@@ -446,44 +446,6 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Throws_for_many_to_many_with_only_one_navigation_configured()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            Assert.Equal(
-                CoreStrings.MissingInverseManyToManyNavigation(
-                    nameof(ManyToManyNavPrincipal),
-                    nameof(NavDependent)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ManyToManyNavPrincipal>()
-                        .HasMany<NavDependent>( /* leaving empty causes the exception */)
-                        .WithMany(d => d.ManyToManyPrincipals)).Message);
-        }
-
-        [ConditionalFact]
-        public virtual void Throws_for_many_to_many_with_a_shadow_navigation()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Ignore<OneToOneNavPrincipal>();
-            modelBuilder.Ignore<OneToManyNavPrincipal>();
-            modelBuilder.Entity<NavDependent>().Ignore(d => d.ManyToManyPrincipals);
-
-            modelBuilder.Entity<ManyToManyNavPrincipal>()
-                .HasMany(d => d.Dependents)
-                .WithMany("Shadow");
-
-            Assert.Equal(
-                CoreStrings.ShadowManyToManyNavigation(
-                    nameof(NavDependent),
-                    "Shadow",
-                    nameof(ManyToManyNavPrincipal),
-                    nameof(ManyToManyNavPrincipal.Dependents)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.FinalizeModel()).Message);
-        }
-
-        [ConditionalFact]
         public virtual void Throws_for_self_ref_with_same_navigation()
         {
             var modelBuilder = CreateModelBuilder();

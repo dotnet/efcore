@@ -308,8 +308,10 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
         {
             if (entity is TIncludingEntity includingEntity)
             {
-                var collectionAccessor = navigation.GetCollectionAccessor()!;
-                collectionAccessor.GetOrCreate(includingEntity, forMaterialization: true);
+                if (!navigation.IsShadowProperty())
+                {
+                    navigation.GetCollectionAccessor()!.GetOrCreate(includingEntity, forMaterialization: true);
+                }
 
                 if (setLoaded)
                 {
@@ -370,14 +372,18 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
         {
             var entityParameter = Expression.Parameter(entityType);
             var relatedEntityParameter = Expression.Parameter(relatedEntityType);
-            var expressions = new List<Expression>
+            var expressions = new List<Expression>();
+            
+            if (!navigation.IsShadowProperty())
             {
-                navigation.IsCollection
-                    ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
-                    : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
+                expressions.Add(
+                    navigation.IsCollection
+                        ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
+                        : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation));
             };
 
-            if (inverseNavigation != null)
+            if (inverseNavigation != null
+                && !inverseNavigation.IsShadowProperty())
             {
                 expressions.Add(
                     inverseNavigation.IsCollection

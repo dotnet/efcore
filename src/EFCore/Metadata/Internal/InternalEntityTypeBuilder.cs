@@ -4118,139 +4118,160 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     {
         List<SkipNavigation>? navigationsToDetach = null;
         List<(InternalSkipNavigationBuilder Navigation, InternalSkipNavigationBuilder Inverse)>? detachedNavigations = null;
-        var navigationName = navigationProperty.Name!;
-        var memberInfo = navigationProperty.MemberInfo;
-        var existingNavigation = Metadata.FindSkipNavigation(navigationName);
-        if (existingNavigation != null)
-        {
-            Check.DebugAssert(
-                memberInfo == null
-                || existingNavigation.IsIndexerProperty()
-                || memberInfo.IsSameAs(existingNavigation.GetIdentifyingMemberInfo()),
-                "Expected memberInfo to be the same on the existing navigation");
-
-            Check.DebugAssert(
-                collection == null || collection == existingNavigation.IsCollection,
-                "Expected existing navigation to have the same cardinality");
-
-            Check.DebugAssert(
-                onDependent == null || onDependent == existingNavigation.IsOnDependent,
-                "Expected existing navigation to be on the same side");
-
-            if (existingNavigation.DeclaringEntityType != Metadata)
-            {
-                if (!IsIgnored(navigationName, configurationSource))
-                {
-                    Metadata.RemoveIgnored(navigationName);
-                }
-            }
-
-            if (configurationSource.HasValue)
-            {
-                existingNavigation.UpdateConfigurationSource(configurationSource.Value);
-            }
-
-            return existingNavigation.Builder;
-        }
-
-        if (configurationSource != ConfigurationSource.Explicit
-            && (!configurationSource.HasValue
-                || !CanAddSkipNavigation(navigationName, memberInfo?.GetMemberType(), configurationSource.Value)))
-        {
-            return null;
-        }
-
-        foreach (var derivedType in Metadata.GetDerivedTypes())
-        {
-            var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
-            if (conflictingNavigation != null)
-            {
-                navigationsToDetach ??= new List<SkipNavigation>();
-
-                navigationsToDetach.Add(conflictingNavigation);
-            }
-        }
-
-        if (collection == null
-            && memberInfo != null)
-        {
-            var navigationType = memberInfo.GetMemberType();
-            var navigationTargetClrType = navigationType.TryGetSequenceType();
-            collection = navigationTargetClrType != null
-                && navigationType != targetEntityType.ClrType
-                && navigationTargetClrType.IsAssignableFrom(targetEntityType.ClrType);
-        }
-
         InternalSkipNavigationBuilder builder;
-        using (ModelBuilder.Metadata.DelayConventions())
+        
+        var navigationName = navigationProperty.Name;
+        if (navigationName != null)
         {
-            Metadata.RemoveIgnored(navigationName);
-
-            foreach (var conflictingProperty in Metadata.FindPropertiesInHierarchy(navigationName))
+            var memberInfo = navigationProperty.MemberInfo;
+            var existingNavigation = Metadata.FindSkipNavigation(navigationName);
+            if (existingNavigation != null)
             {
-                if (conflictingProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
+                Check.DebugAssert(
+                    memberInfo == null
+                    || existingNavigation.IsIndexerProperty()
+                    || memberInfo.IsSameAs(existingNavigation.GetIdentifyingMemberInfo()),
+                    "Expected memberInfo to be the same on the existing navigation");
+
+                Check.DebugAssert(
+                    collection == null || collection == existingNavigation.IsCollection,
+                    "Expected existing navigation to have the same cardinality");
+
+                Check.DebugAssert(
+                    onDependent == null || onDependent == existingNavigation.IsOnDependent,
+                    "Expected existing navigation to be on the same side");
+
+                if (existingNavigation.DeclaringEntityType != Metadata)
                 {
-                    conflictingProperty.DeclaringEntityType.RemoveProperty(conflictingProperty);
+                    if (!IsIgnored(navigationName, configurationSource))
+                    {
+                        Metadata.RemoveIgnored(navigationName);
+                    }
+                }
+
+                if (configurationSource.HasValue)
+                {
+                    existingNavigation.UpdateConfigurationSource(configurationSource.Value);
+                }
+
+                return existingNavigation.Builder;
+            }
+
+            if (configurationSource != ConfigurationSource.Explicit
+                && (!configurationSource.HasValue
+                    || !CanAddSkipNavigation(navigationName, memberInfo?.GetMemberType(), configurationSource.Value)))
+            {
+                return null;
+            }
+
+            foreach (var derivedType in Metadata.GetDerivedTypes())
+            {
+                var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
+                if (conflictingNavigation != null)
+                {
+                    navigationsToDetach ??= new List<SkipNavigation>();
+
+                    navigationsToDetach.Add(conflictingNavigation);
                 }
             }
 
-            foreach (var conflictingServiceProperty in Metadata.FindServicePropertiesInHierarchy(navigationName))
+            if (collection == null
+                && memberInfo != null)
             {
-                if (conflictingServiceProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
-                {
-                    conflictingServiceProperty.DeclaringEntityType.RemoveServiceProperty(conflictingServiceProperty);
-                }
+                var navigationType = memberInfo.GetMemberType();
+                var navigationTargetClrType = navigationType.TryGetSequenceType();
+                collection = navigationTargetClrType != null
+                    && navigationType != targetEntityType.ClrType
+                    && navigationTargetClrType.IsAssignableFrom(targetEntityType.ClrType);
             }
 
-            foreach (var conflictingNavigation in Metadata.FindNavigationsInHierarchy(navigationName))
+            using (ModelBuilder.Metadata.DelayConventions())
             {
-                if (conflictingNavigation.GetConfigurationSource() == ConfigurationSource.Explicit)
+                Metadata.RemoveIgnored(navigationName);
+
+                foreach (var conflictingProperty in Metadata.FindPropertiesInHierarchy(navigationName))
                 {
-                    continue;
+                    if (conflictingProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
+                    {
+                        conflictingProperty.DeclaringEntityType.RemoveProperty(conflictingProperty);
+                    }
                 }
 
-                var conflictingForeignKey = conflictingNavigation.ForeignKey;
-                if (conflictingForeignKey.GetConfigurationSource() == ConfigurationSource.Convention)
+                foreach (var conflictingServiceProperty in Metadata.FindServicePropertiesInHierarchy(navigationName))
                 {
-                    conflictingForeignKey.DeclaringEntityType.Builder.HasNoRelationship(
-                        conflictingForeignKey, ConfigurationSource.Convention);
+                    if (conflictingServiceProperty.GetConfigurationSource() != ConfigurationSource.Explicit)
+                    {
+                        conflictingServiceProperty.DeclaringEntityType.RemoveServiceProperty(conflictingServiceProperty);
+                    }
                 }
-                else if (conflictingForeignKey.Builder.HasNavigation(
-                             (string?)null,
-                             conflictingNavigation.IsOnDependent,
-                             configurationSource.Value)
-                         == null)
+
+                foreach (var conflictingNavigation in Metadata.FindNavigationsInHierarchy(navigationName))
                 {
-                    return null;
+                    if (conflictingNavigation.GetConfigurationSource() == ConfigurationSource.Explicit)
+                    {
+                        continue;
+                    }
+
+                    var conflictingForeignKey = conflictingNavigation.ForeignKey;
+                    if (conflictingForeignKey.GetConfigurationSource() == ConfigurationSource.Convention)
+                    {
+                        conflictingForeignKey.DeclaringEntityType.Builder.HasNoRelationship(
+                            conflictingForeignKey, ConfigurationSource.Convention);
+                    }
+                    else if (conflictingForeignKey.Builder.HasNavigation(
+                                 (string?)null,
+                                 conflictingNavigation.IsOnDependent,
+                                 configurationSource.Value)
+                             == null)
+                    {
+                        return null;
+                    }
+                }
+
+                if (navigationsToDetach != null)
+                {
+                    detachedNavigations = new List<(InternalSkipNavigationBuilder, InternalSkipNavigationBuilder)>();
+                    foreach (var navigationToDetach in navigationsToDetach)
+                    {
+                        var inverse = navigationToDetach.Inverse;
+                        detachedNavigations.Add((DetachSkipNavigation(navigationToDetach)!, DetachSkipNavigation(inverse)!));
+                    }
+                }
+
+                builder = Metadata.AddSkipNavigation(
+                    navigationName, memberInfo,
+                    targetEntityType, collection ?? true, onDependent ?? false, configurationSource.Value)!.Builder;
+
+                if (detachedNavigations != null)
+                {
+                    foreach (var (navigation, inverse) in detachedNavigations)
+                    {
+                        navigation.Attach(this, inverseBuilder: inverse);
+                    }
                 }
             }
-
-            if (navigationsToDetach != null)
+        }
+        else
+        {
+            if (navigationName == null)
             {
-                detachedNavigations = new List<(InternalSkipNavigationBuilder, InternalSkipNavigationBuilder)>();
-                foreach (var navigationToDetach in navigationsToDetach)
+                var generatedNavigationName = targetEntityType.ShortName();
+                navigationName = generatedNavigationName;
+                var uniquifier = 0;
+                while(Metadata.FindMembersInHierarchy(navigationName).Any())
                 {
-                    var inverse = navigationToDetach.Inverse;
-                    detachedNavigations.Add((DetachSkipNavigation(navigationToDetach)!, DetachSkipNavigation(inverse)!));
+                    navigationName = generatedNavigationName + (++uniquifier);
                 }
             }
 
             builder = Metadata.AddSkipNavigation(
-                navigationName, memberInfo,
-                targetEntityType, collection ?? true, onDependent ?? false, configurationSource.Value)!.Builder;
-
-            if (detachedNavigations != null)
-            {
-                foreach (var (navigation, inverse) in detachedNavigations)
-                {
-                    navigation.Attach(this, inverseBuilder: inverse);
-                }
-            }
+                navigationName, null,
+                targetEntityType, collection ?? true, onDependent ?? false, ConfigurationSource.Explicit)!.Builder;
         }
 
         return builder.Metadata.IsInModel
             ? builder
-            : Metadata.FindSkipNavigation(navigationName)?.Builder;
+            : Metadata.FindSkipNavigation(navigationName!)?.Builder;
     }
 
     /// <summary>

@@ -98,11 +98,10 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
         IEntityType entityType,
         ChangeTrackingStrategy changeTrackingStrategy)
     {
-        if (navigation.GetCollectionAccessor()
-                ?.GetOrCreate(entry.Entity, forMaterialization: false) is not INotifyCollectionChanged notifyingCollection)
+        var collection = entry.GetOrCreateCollection(navigation, forMaterialization: false);
+        if (collection is not INotifyCollectionChanged notifyingCollection)
         {
-            var collectionType = navigation.GetCollectionAccessor()
-                ?.GetOrCreate(entry.Entity, forMaterialization: false).GetType().DisplayName(fullName: false);
+            var collectionType = collection.GetType().DisplayName(fullName: false);
             throw new InvalidOperationException(
                 CoreStrings.NonNotifyingCollection(navigation.Name, entityType.DisplayName(), collectionType, changeTrackingStrategy));
         }

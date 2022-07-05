@@ -78,30 +78,33 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                 foreach (var navigationBase in entityType.GetDeclaredNavigations()
                              .Concat<IConventionNavigationBase>(entityType.GetDeclaredSkipNavigations()))
                 {
-                    if (navigationBase.PropertyInfo == null)
+                    if (!navigationBase.IsShadowProperty())
                     {
-                        throw new InvalidOperationException(
-                            ProxiesStrings.FieldProperty(navigationBase.Name, entityType.DisplayName()));
-                    }
+                        if (navigationBase.PropertyInfo == null)
+                        {
+                            throw new InvalidOperationException(
+                                ProxiesStrings.FieldProperty(navigationBase.Name, entityType.DisplayName()));
+                        }
 
-                    if (_options.UseChangeTrackingProxies
-                        && navigationBase.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
-                    {
-                        throw new InvalidOperationException(
-                            ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
-                    }
-
-                    if (_options.UseLazyLoadingProxies)
-                    {
-                        if (!navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual()
-                            && (!(navigationBase is INavigation navigation
-                                && navigation.ForeignKey.IsOwnership)))
+                        if (_options.UseChangeTrackingProxies
+                            && navigationBase.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
                         {
                             throw new InvalidOperationException(
                                 ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
                         }
 
-                        navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                        if (_options.UseLazyLoadingProxies)
+                        {
+                            if (!navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual()
+                                && (!(navigationBase is INavigation navigation
+                                    && navigation.ForeignKey.IsOwnership)))
+                            {
+                                throw new InvalidOperationException(
+                                    ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                            }
+
+                            navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                        }
                     }
                 }
 

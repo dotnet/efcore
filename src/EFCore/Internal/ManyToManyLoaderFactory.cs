@@ -25,12 +25,14 @@ public class ManyToManyLoaderFactory
     public virtual ICollectionLoader Create(ISkipNavigation skipNavigation)
         => (ICollectionLoader)GenericCreate.MakeGenericMethod(
                 skipNavigation.TargetEntityType.ClrType,
-                skipNavigation.DeclaringEntityType.ClrType)
+                skipNavigation.DeclaringEntityType.ClrType,
+                skipNavigation.JoinEntityType.ClrType)
             .Invoke(null, new object[] { skipNavigation })!;
 
     [UsedImplicitly]
-    private static ICollectionLoader CreateManyToMany<TEntity, TTargetEntity>(ISkipNavigation skipNavigation)
+    private static ICollectionLoader CreateManyToMany<TEntity, TTargetEntity, TJoinEntity>(ISkipNavigation skipNavigation)
         where TEntity : class
         where TTargetEntity : class
-        => new ManyToManyLoader<TEntity, TTargetEntity>(skipNavigation);
+        where TJoinEntity : class
+        => new ManyToManyLoader<TEntity, TTargetEntity, TJoinEntity>(skipNavigation);
 }

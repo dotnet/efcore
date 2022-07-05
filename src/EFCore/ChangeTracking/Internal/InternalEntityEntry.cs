@@ -921,11 +921,12 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             ? GetOrCreateCollectionTyped(navigationBase)
             : navigationBase.GetCollectionAccessor()!.GetOrCreate(Entity, forMaterialization);
 
-    private ICollection<object> GetOrCreateCollectionTyped(INavigationBase navigation)
+    private object GetOrCreateCollectionTyped(INavigationBase navigation)
     {
-        if (!(_shadowValues[navigation.GetShadowIndex()] is ICollection<object> collection))
+        var collection = _shadowValues[navigation.GetShadowIndex()]; 
+        if (collection == null)
         {
-            collection = new HashSet<object>();
+            collection = navigation.GetCollectionAccessor()!.Create();
             _shadowValues[navigation.GetShadowIndex()] = collection;
         }
 
@@ -938,10 +939,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool CollectionContains(INavigationBase navigationBase, InternalEntityEntry value)
-        => navigationBase.IsShadowProperty()
-            ? GetOrCreateCollectionTyped(navigationBase).Contains(value.Entity)
-            : navigationBase.GetCollectionAccessor()!.Contains(Entity, value.Entity);
+    public bool CollectionContains(INavigationBase navigationBase, object value)
+    {
+        var collectionAccessor = navigationBase.GetCollectionAccessor()!;
+        return navigationBase.IsShadowProperty()
+            ? collectionAccessor.ContainsStandalone(GetOrCreateCollectionTyped(navigationBase), value)
+            : collectionAccessor.Contains(Entity, value);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -951,18 +955,19 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     /// </summary>
     public bool AddToCollection(
         INavigationBase navigationBase,
-        InternalEntityEntry value,
+        object value,
         bool forMaterialization)
     {
+        var collectionAccessor = navigationBase.GetCollectionAccessor()!;
         if (!navigationBase.IsShadowProperty())
         {
-            return navigationBase.GetCollectionAccessor()!.Add(Entity, value.Entity, forMaterialization);
+            return collectionAccessor.Add(Entity, value, forMaterialization);
         }
 
         var collection = GetOrCreateCollectionTyped(navigationBase);
-        if (!collection.Contains(value.Entity))
+        if (!collectionAccessor.ContainsStandalone(collection, value))
         {
-            collection.Add(value.Entity);
+            collectionAccessor.AddStandalone(collection, value);
             return true;
         }
 
@@ -975,10 +980,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool RemoveFromCollection(INavigationBase navigationBase, InternalEntityEntry value)
-        => navigationBase.IsShadowProperty()
-            ? GetOrCreateCollectionTyped(navigationBase).Remove(value.Entity)
-            : navigationBase.GetCollectionAccessor()!.Remove(Entity, value.Entity);
+    public bool RemoveFromCollection(INavigationBase navigationBase, object value)
+    {
+        var collectionAccessor = navigationBase.GetCollectionAccessor()!;
+        return navigationBase.IsShadowProperty()
+            ? collectionAccessor.RemoveStandalone(GetOrCreateCollectionTyped(navigationBase), value)
+            : collectionAccessor.Remove(Entity, value);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

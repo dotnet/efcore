@@ -115,16 +115,6 @@ public class ModelValidator : IModelValidator
                         CoreStrings.SkipNavigationNoInverse(
                             skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
                 }
-
-                if (skipNavigation.IsShadowProperty())
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ShadowManyToManyNavigation(
-                            skipNavigation.DeclaringEntityType.DisplayName(),
-                            skipNavigation.Name,
-                            skipNavigation.Inverse.DeclaringEntityType.DisplayName(),
-                            skipNavigation.Inverse.Name));
-                }
             }
         }
     }

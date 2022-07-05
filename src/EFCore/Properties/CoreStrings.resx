@@ -980,9 +980,6 @@
   <data name="MissingBackingField" xml:space="preserve">
     <value>The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.</value>
   </data>
-  <data name="MissingInverseManyToManyNavigation" xml:space="preserve">
-    <value>Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Provide a navigation in the 'HasMany' call in 'OnModelCreating'. Consider adding a private property for this.</value>
-  </data>
   <data name="ModelMutable" xml:space="preserve">
     <value>Runtime metadata changes are not allowed when the model hasn't been marked as read-only.</value>
   </data>
