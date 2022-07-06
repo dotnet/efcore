@@ -1,8 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
@@ -316,6 +319,67 @@ INNER JOIN (
 ) AS [t0] ON [t].[ParcelNumber] = [t0].[Parcel]
 WHERE [t].[TableId] = 123
 ORDER BY [t].[ParcelNumber]");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context27427>();
+            using var context = contextFactory.CreateContext();
+            var query = context.DemoEntities
+                     .FromSqlRaw("SELECT * FROM DemoEntities WHERE Id = {0}", new SqlParameter { Value = 1 })
+                     .Select(e => e.Id);
+
+            var query2 = context.DemoEntities
+                     .Where(e => query.Contains(e.Id))
+                     .GroupBy(e => e.Id)
+                     .Select(g => new { g.Key, Aggregate = g.Count() });
+
+            if (async)
+            {
+                await query2.ToListAsync();
+            }
+            else
+            {
+                query2.ToList();
+            }
+
+            AssertSql(
+                @"p0='1'
+
+SELECT [d].[Id] AS [Key], (
+    SELECT COUNT(*)
+    FROM [DemoEntities] AS [d0]
+    WHERE EXISTS (
+        SELECT 1
+        FROM (
+            SELECT * FROM DemoEntities WHERE Id = @p0
+        ) AS [m0]
+        WHERE [m0].[Id] = [d0].[Id]) AND ([d].[Id] = [d0].[Id])) AS [Aggregate]
+FROM [DemoEntities] AS [d]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT * FROM DemoEntities WHERE Id = @p0
+    ) AS [m]
+    WHERE [m].[Id] = [d].[Id])
+GROUP BY [d].[Id]");
+        }
+
+        protected class Context27427 : DbContext
+        {
+            public Context27427(DbContextOptions options)
+                   : base(options)
+            {
+            }
+
+            public DbSet<DemoEntity> DemoEntities { get; set; }
+        }
+
+        protected class DemoEntity
+        {
+            public int Id { get; set; }
         }
     }
 }
