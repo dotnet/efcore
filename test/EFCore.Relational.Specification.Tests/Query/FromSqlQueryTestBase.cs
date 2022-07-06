@@ -1502,6 +1502,25 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             Assert.Equal(26, actual.Length);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(bool async)
+        {
+            using var context = CreateContext();
+            var city = "Seattle";
+            var fromSqlQuery = context.Customers.FromSqlRaw(
+                NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
+                                CreateDbParameter("city", city));
+
+            var query = fromSqlQuery.Intersect(fromSqlQuery);
+
+            var actual = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            Assert.Single(actual);
+        }
+
         protected string NormalizeDelimitersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
