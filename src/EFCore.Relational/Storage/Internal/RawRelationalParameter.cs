@@ -52,8 +52,7 @@ public class RawRelationalParameter : RelationalParameterBase
 
         if (value is DbParameter dbParameter)
         {
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27427", out var enabled) && enabled)
-                && command.Parameters.Contains(dbParameter.ParameterName))
+            if (command.Parameters.Contains(dbParameter.ParameterName))
             {
                 return;
             }
