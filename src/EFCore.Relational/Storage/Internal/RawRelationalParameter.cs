@@ -50,11 +50,19 @@ public class RawRelationalParameter : RelationalParameterBase
             value is DbParameter,
             $"{nameof(value)} isn't a DbParameter in {nameof(RawRelationalParameter)}.{nameof(AddDbParameter)}");
 
-        if (value is DbParameter dbParameter
-            && dbParameter.Direction == ParameterDirection.Input
-            && value is ICloneable cloneable)
+        if (value is DbParameter dbParameter)
         {
-            value = cloneable.Clone();
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27427", out var enabled) && enabled)
+                && command.Parameters.Contains(dbParameter.ParameterName))
+            {
+                return;
+            }
+
+            if (dbParameter.Direction == ParameterDirection.Input
+                && value is ICloneable cloneable)
+            {
+                value = cloneable.Clone();
+            }
         }
 
         command.Parameters.Add(value);

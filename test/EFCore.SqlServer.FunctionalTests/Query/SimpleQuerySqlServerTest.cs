@@ -1,9 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
+using Microsoft.Data.SqlClient;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class SimpleQuerySqlServerTest : SimpleQueryRelationalTestBase
@@ -470,5 +471,58 @@ FROM (
     FROM [Dogs] AS [d]
 ) AS [t]
 WHERE [t].[Species] IS NOT NULL AND ([t].[Species] LIKE N'F%')");
+        }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27427>();
+        using var context = contextFactory.CreateContext();
+        var query = context.DemoEntities
+                 .FromSqlRaw("SELECT * FROM DemoEntities WHERE Id = {0}", new SqlParameter { Value = 1 })
+                 .Select(e => e.Id);
+
+        var query2 = context.DemoEntities
+                 .Where(e => query.Contains(e.Id))
+                 .GroupBy(e => e.Id)
+                 .Select(g => new { g.Key, Aggregate = g.Count() });
+
+        if (async)
+        {
+            await query2.ToListAsync();
+        }
+        else
+        {
+            query2.ToList();
+        }
+
+        AssertSql(
+            @"p0='1'
+
+SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
+FROM [DemoEntities] AS [d]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT * FROM DemoEntities WHERE Id = @p0
+    ) AS [m]
+    WHERE [m].[Id] = [d].[Id])
+GROUP BY [d].[Id]");
+    }
+
+    protected class Context27427 : DbContext
+    {
+        public Context27427(DbContextOptions options)
+               : base(options)
+        {
+        }
+
+        public DbSet<DemoEntity> DemoEntities { get; set; }
+    }
+
+    protected class DemoEntity
+    {
+        public int Id { get; set; }
     }
 }
