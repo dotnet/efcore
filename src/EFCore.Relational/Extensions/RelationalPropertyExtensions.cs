@@ -1451,7 +1451,7 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IMutableRelationalPropertyOverrides> GetOverrides(this IMutableProperty property)
-        => ((IEnumerable<IMutableRelationalPropertyOverrides>?)RelationalPropertyOverrides.Get(property))
+        => RelationalPropertyOverrides.Get(property)?.Cast<IMutableRelationalPropertyOverrides>()
         ?? Enumerable.Empty<IMutableRelationalPropertyOverrides>();
 
     /// <summary>
@@ -1466,7 +1466,7 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IConventionRelationalPropertyOverrides> GetOverrides(this IConventionProperty property)
-        => ((IEnumerable<IConventionRelationalPropertyOverrides>?)RelationalPropertyOverrides.Get(property))
+        => RelationalPropertyOverrides.Get(property)?.Cast<IConventionRelationalPropertyOverrides>()
         ?? Enumerable.Empty<IConventionRelationalPropertyOverrides>();
 
     /// <summary>
@@ -1481,7 +1481,7 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IRelationalPropertyOverrides> GetOverrides(this IProperty property)
-        => ((IEnumerable<IRelationalPropertyOverrides>?)RelationalPropertyOverrides.Get(property))
+        => RelationalPropertyOverrides.Get(property)?.Cast<IRelationalPropertyOverrides>()
         ?? Enumerable.Empty<IRelationalPropertyOverrides>();
 
     /// <summary>

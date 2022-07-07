@@ -63,15 +63,21 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
             });
     }
 
-    protected async Task InitializeAsync(Action<ModelBuilder> onModelCreating, bool sensitiveLogEnabled = true)
-        => ContextFactory = await InitializeAsync<EntitySplittingContext>(
+    protected async Task InitializeAsync(
+        Action<ModelBuilder> onModelCreating,
+        Action<DbContextOptionsBuilder> onConfiguring = null,
+        Action<EntitySplittingContext> seed = null,
+        bool sensitiveLogEnabled = true)
+        => ContextFactory = await InitializeAsync(
             onModelCreating,
+            seed: seed,
             shouldLogCategory: _ => true,
             onConfiguring: options =>
             {
                 options.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning))
                     .ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning))
                     .EnableSensitiveDataLogging(sensitiveLogEnabled);
+                onConfiguring?.Invoke(options);
             }
         );
 

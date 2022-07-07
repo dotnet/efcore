@@ -845,8 +845,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var tableName = (string?)tableNameAnnotation?.Value ?? table?.Name;
         if (tableNameAnnotation == null
-            && (tableName == null
-                || entityType.BaseType?.GetTableName() == tableName))
+            && entityType.BaseType != null
+            && entityType.BaseType.GetTableName() == tableName)
         {
             return;
         }

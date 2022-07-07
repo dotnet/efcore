@@ -64,18 +64,18 @@ public static class SqlServerTestModelBuilderExtensions
 
     public static RelationalModelBuilderTest.TestTableBuilder<TEntity> IsTemporal<TEntity>(
         this RelationalModelBuilderTest.TestTableBuilder<TEntity> builder,
-        Action<SqlServerModelBuilderGenericTest.TestTemporalTableBuilder<TEntity>> buildAction)
+        Action<SqlServerModelBuilderTestBase.TestTemporalTableBuilder<TEntity>> buildAction)
         where TEntity : class
     {
         switch (builder)
         {
             case IInfrastructure<TableBuilder<TEntity>> genericBuilder:
                 genericBuilder.Instance.IsTemporal(
-                    b => buildAction(new SqlServerModelBuilderGenericTest.GenericTestTemporalTableBuilder<TEntity>(b)));
+                    b => buildAction(new SqlServerModelBuilderTestBase.GenericTestTemporalTableBuilder<TEntity>(b)));
                 break;
             case IInfrastructure<TableBuilder> nongenericBuilder:
                 nongenericBuilder.Instance.IsTemporal(
-                    b => buildAction(new SqlServerModelBuilderGenericTest.NonGenericTestTemporalTableBuilder<TEntity>(b)));
+                    b => buildAction(new SqlServerModelBuilderTestBase.NonGenericTestTemporalTableBuilder<TEntity>(b)));
                 break;
         }
 

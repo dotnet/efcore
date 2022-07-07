@@ -215,10 +215,13 @@ public class ModelSnapshotSqlServerTest
         Value2
     }
 
-    private class BaseEntity
+    private abstract class AbstractBase
     {
         public int Id { get; set; }
-
+    }
+    
+    private class BaseEntity : AbstractBase
+    {
         public string Discriminator { get; set; }
     }
 
@@ -455,11 +458,12 @@ public class ModelSnapshotSqlServerTest
                 builder.Entity<DerivedEntity>()
                     .ToTable("DerivedEntity", "foo");
                 builder.Entity<BaseEntity>();
+                builder.Entity<AbstractBase>();
             },
             AddBoilerPlate(
                 GetHeading()
                 + @"
-            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
@@ -467,10 +471,16 @@ public class ModelSnapshotSqlServerTest
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
 
-                    b.Property<string>(""Discriminator"")
-                        .HasColumnType(""nvarchar(max)"");
-
                     b.HasKey(""Id"");
+
+                    b.ToTable(""AbstractBase"");
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"");
 
                     b.ToTable(""BaseEntity"");
                 });
@@ -493,14 +503,21 @@ public class ModelSnapshotSqlServerTest
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });"),
-            o =>
+            model =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(4, model.GetAnnotations().Count());
+                Assert.Equal(3, model.GetEntityTypes().Count());
 
-                Assert.Equal(
-                    "DerivedEntity",
-                    o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity")
-                        .GetTableName());
+                var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
+                Assert.Equal("AbstractBase", abstractBase.GetTableName());
+                Assert.Equal("TPT", abstractBase.GetMappingStrategy());
+
+                var baseType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity");
+                Assert.Equal("BaseEntity", baseType.GetTableName());
+
+                var derived = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
+                Assert.Equal("DerivedEntity", derived.GetTableName());
+                Assert.Equal("foo", derived.GetSchema());
             });
 
     [ConditionalFact]
@@ -529,6 +546,8 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey(""Id"");
 
                     b.ToTable(""BaseEntity"");
+
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -576,6 +595,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
+                    b.ToTable((string)null);
+
                     b.ToView(""EntityWithOneProperty"", (string)null);
                 });"),
             o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
@@ -596,6 +617,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
+                    b.ToTable((string)null);
+
                     b.ToView(""EntityWithOneProperty"", ""ViewSchema"");
                 });"),
             o =>
@@ -612,12 +635,13 @@ public class ModelSnapshotSqlServerTest
                 builder.Entity<DerivedEntity>()
                     .ToTable("DerivedEntity", "foo")
                     .ToView("DerivedView", "foo");
-                builder.Entity<BaseEntity>().UseTpcMappingStrategy();
+                builder.Entity<BaseEntity>();
+                builder.Entity<AbstractBase>().UseTpcMappingStrategy();
             },
             AddBoilerPlate(
                 GetHeading()
                 + @"
-            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
@@ -625,14 +649,18 @@ public class ModelSnapshotSqlServerTest
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
 
-                    b.Property<string>(""Discriminator"")
-                        .HasColumnType(""nvarchar(max)"");
-
                     b.HasKey(""Id"");
 
-                    b.ToTable(""BaseEntity"");
+                    b.ToTable((string)null);
 
                     b.UseTpcMappingStrategy();
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"");
+
+                    b.ToTable(""BaseEntity"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -646,11 +674,21 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToView(""DerivedView"", ""foo"");
                 });"),
-            o =>
+            model =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(4, model.GetAnnotations().Count());
+                Assert.Equal(3, model.GetEntityTypes().Count());
 
-                var derived = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
+                var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
+                Assert.Null(abstractBase.GetTableName());
+                Assert.Null(abstractBase.GetViewName());
+                Assert.Equal("TPC", abstractBase.GetMappingStrategy());
+
+                var baseType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity");
+                Assert.Equal("BaseEntity", baseType.GetTableName());
+                Assert.Null(baseType.GetViewName());
+
+                var derived = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
                 Assert.Equal("DerivedEntity", derived.GetTableName());
                 Assert.Equal("DerivedView", derived.GetViewName());
             });
@@ -979,6 +1017,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
+                    b.ToTable((string)null);
+
                     b.ToView(""EntityWithOneProperty"", null, v =>
                         {
                             v.Property(""Shadow"");
@@ -1001,6 +1041,8 @@ public class ModelSnapshotSqlServerTest
                                 .HasColumnType(""int"");
 
                             b1.HasKey(""Id"");
+
+                            b1.ToTable((string)null);
 
                             b1.ToView(""EntityWithOneProperty"", null, v =>
                                 {
@@ -1132,6 +1174,8 @@ public class ModelSnapshotSqlServerTest
                     b.Property<string>(""Something"")
                         .HasColumnType(""nvarchar(max)"");
 
+                    b.ToTable((string)null);
+
                     b.ToFunction(""GetCount"");
                 });"),
             o => Assert.Equal("GetCount", o.GetEntityTypes().Single().GetFunctionName()));
@@ -1149,6 +1193,8 @@ public class ModelSnapshotSqlServerTest
                         .HasColumnType(""int"");
 
                     b.HasKey(""Id"");
+
+                    b.ToTable((string)null);
 
                     b.ToSqlQuery(""query"");
                 });"),
@@ -1264,6 +1310,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntity"");
 
                     b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -1567,6 +1615,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntity"");
 
                     b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
@@ -1634,6 +1684,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntity"");
 
                     b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""BaseEntity"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
@@ -1707,6 +1759,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntityWithStructDiscriminator"");
 
                     b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""Base"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntityWithStructDiscriminator"", b =>
@@ -3367,6 +3421,8 @@ namespace RootNamespace
                                 .HasColumnType(""int"");
 
                             b1.HasKey(""TestOwnerId"", ""Id"");
+
+                            b1.ToTable((string)null);
 
                             b1.ToView(""OwnedView"", (string)null);
 
@@ -5810,6 +5866,8 @@ namespace RootNamespace
                     b.ToTable(""BaseType"");
 
                     b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseType"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>

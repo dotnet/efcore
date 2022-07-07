@@ -18,6 +18,7 @@ public class CSharpMigrationsGeneratorTest
 {
     private static readonly string _nl = Environment.NewLine;
     private static readonly string _toTable = _nl + @"entityTypeBuilder.ToTable(""WithAnnotations"")";
+    private static readonly string _toNullTable = _nl + @"entityTypeBuilder.ToTable((string)null)";
 
     [ConditionalFact]
     public void Test_new_annotations_handled_for_entity_types()
@@ -139,19 +140,22 @@ public class CSharpMigrationsGeneratorTest
 #pragma warning disable CS0612 // Type or member is obsolete
                 CoreAnnotationNames.DefiningQuery,
 #pragma warning restore CS0612 // Type or member is obsolete
-                (Expression.Lambda(Expression.Constant(null)), "")
+                (Expression.Lambda(Expression.Constant(null)), _toNullTable)
             },
             {
                 RelationalAnnotationNames.ViewName,
-                ("MyView", _nl + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToView) + @"(""MyView"")")
+                ("MyView", _toNullTable + ";" + _nl + _nl
+                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToView) + @"(""MyView"")")
             },
             {
                 RelationalAnnotationNames.FunctionName,
-                (null, _nl + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToFunction) + @"(null)")
+                (null, _toNullTable + ";" + _nl + _nl
+                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToFunction) + @"(null)")
             },
             {
                 RelationalAnnotationNames.SqlQuery,
-                (null, _nl + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery) + @"(null)")
+                (null, _toNullTable + ";" + _nl + _nl
+                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery) + @"(null)")
             }
         };
 

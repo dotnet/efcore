@@ -20,8 +20,7 @@ public abstract class TPCGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtu
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(
-            w =>
-                w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+            w => w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -31,12 +30,8 @@ public abstract class TPCGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtu
         modelBuilder.Entity<Faction>().UseTpcMappingStrategy();
         modelBuilder.Entity<LocustLeader>().UseTpcMappingStrategy();
 
-        modelBuilder.Entity<Gear>().ToTable("Gears");
-        modelBuilder.Entity<Officer>().ToTable("Officers");
-
         modelBuilder.Entity<LocustHorde>().ToTable("LocustHordes");
 
-        modelBuilder.Entity<LocustLeader>().ToTable("LocustLeaders");
         modelBuilder.Entity<LocustCommander>().ToTable("LocustCommanders");
     }
 }
