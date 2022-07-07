@@ -1488,7 +1488,49 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
                 .Where(o => byte.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => byte.Parse(c.Phone.Substring(0, 3)) == 30),
+            entryCount: 1);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "ALFKI")
+                   .Select(c => byte.Parse(c.CustomerID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_Parse_Greater_Than_Max_Value_Overflows(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID == "ALFKI")
+                    .Select(c => byte.Parse(c.PostalCode)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_Parse_Negative_Overflows(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID == "ALFKI")
+                    .Select(c => byte.Parse(c.Phone.Substring(3, 4))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Byte_Parse_Decimal_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "BLONP")
+                   .Select(c => byte.Parse(c.Phone.Substring(0, 4))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1499,7 +1541,34 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
                 .Where(o => decimal.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => decimal.Parse(c.PostalCode) == 12209m),
+            entryCount: 1);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP")
+                .Where(c => decimal.Parse(c.Phone.Substring(0, 4)) == 88.6m),
+            entryCount: 1);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => decimal.Parse(c.Phone.Substring(3, 4)) == -7m),
+            entryCount: 1);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Decimal_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertQueryScalar(
+               async,
+               ss => ss.Set<Customer>()
+                       .Where(c => c.CustomerID == "ALFKI")
+                       .Select(c => decimal.Parse(c.CustomerID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1510,7 +1579,34 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
                 .Where(o => double.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => double.Parse(c.PostalCode) == 12209d),
+            entryCount: 1);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP")
+                .Where(c => double.Parse(c.Phone.Substring(0, 4)) == 88.6d),
+            entryCount: 1);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => double.Parse(c.Phone.Substring(3, 4)) == -7d),
+            entryCount: 1);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Double_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertQueryScalar(
+               async,
+               ss => ss.Set<Customer>()
+                       .Where(c => c.CustomerID == "ALFKI")
+                       .Select(c => double.Parse(c.CustomerID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1521,7 +1617,46 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
                 .Where(o => short.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => short.Parse(c.PostalCode) == 12209),
+            entryCount: 1);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => short.Parse(c.Phone.Substring(3, 4)) == -7),
+            entryCount: 1);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Short_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "ALFKI")
+                   .Select(c => short.Parse(c.CustomerID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Short_Parse_Greater_Than_Max_Value_Overflows(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "BLAUS")
+                   .Select(c => short.Parse(c.PostalCode)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Short_Parse_Decimal_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "BLONP")
+                   .Select(c => short.Parse(c.Phone.Substring(0, 4))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1532,7 +1667,37 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
                 .Where(o => int.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => int.Parse(c.PostalCode) == 12209),
+            entryCount: 1);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => int.Parse(c.Phone.Substring(3, 4)) == -7),
+            entryCount: 1);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Int_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "ALFKI")
+                   .Select(c => int.Parse(c.CustomerID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Int_Parse_Decimal_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "BLONP")
+                   .Select(c => int.Parse(c.Phone.Substring(0, 4))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1543,7 +1708,37 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
                 .Where(o => long.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => long.Parse(c.PostalCode) == 12209L),
+            entryCount: 1);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                .Where(c => long.Parse(c.Phone.Substring(3, 4)) == -7L),
+            entryCount: 1);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Long_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "ALFKI")
+                   .Select(c => long.Parse(c.CustomerID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Long_Parse_Decimal_Bad_Format(bool async)
+        => AssertQueryScalar(
+           async,
+           ss => ss.Set<Customer>()
+                   .Where(c => c.CustomerID == "BLONP")
+                   .Select(c => long.Parse(c.Phone.Substring(0, 4))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
