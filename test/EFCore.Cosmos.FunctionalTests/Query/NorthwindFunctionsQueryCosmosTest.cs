@@ -108,10 +108,50 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @arg))
         AssertSql();
     }
 
+    public override async Task Byte_Parse_Non_Numeric_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Byte_Parse_Non_Numeric_Bad_Format(async));
+
+        AssertSql();
+    }
+
+    public override async Task Byte_Parse_Greater_Than_Max_Value_Overflows(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Byte_Parse_Greater_Than_Max_Value_Overflows(async));
+
+        AssertSql();
+    }
+
+    public override async Task Byte_Parse_Negative_Overflows(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Byte_Parse_Negative_Overflows(async));
+
+        AssertSql();
+    }
+
+    public override async Task Byte_Parse_Decimal_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Byte_Parse_Decimal_Bad_Format(async));
+
+        AssertSql();
+    }
+
     public override async Task Decimal_Parse(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Decimal_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Decimal_Parse_Non_Numeric_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Decimal_Parse_Non_Numeric_Bad_Format(async));
 
         AssertSql();
     }
@@ -124,10 +164,42 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @arg))
         AssertSql();
     }
 
+    public override async Task Double_Parse_Non_Numeric_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Double_Parse_Non_Numeric_Bad_Format(async));
+
+        AssertSql();
+    }
+
     public override async Task Short_Parse(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Short_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Short_Parse_Non_Numeric_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Short_Parse_Non_Numeric_Bad_Format(async));
+
+        AssertSql();
+    }
+
+    public override async Task Short_Parse_Greater_Than_Max_Value_Overflows(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Short_Parse_Greater_Than_Max_Value_Overflows(async));
+
+        AssertSql();
+    }
+
+    public override async Task Short_Parse_Decimal_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Short_Parse_Decimal_Bad_Format(async));
 
         AssertSql();
     }
@@ -140,10 +212,42 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] = @arg))
         AssertSql();
     }
 
+    public override async Task Int_Parse_Non_Numeric_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Int_Parse_Non_Numeric_Bad_Format(async));
+
+        AssertSql();
+    }
+
+    public override async Task Int_Parse_Decimal_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Int_Parse_Decimal_Bad_Format(async));
+
+        AssertSql();
+    }
+
     public override async Task Long_Parse(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Long_Parse(async));
+
+        AssertSql();
+    }
+
+    public override async Task Long_Parse_Non_Numeric_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Long_Parse_Non_Numeric_Bad_Format(async));
+
+        AssertSql();
+    }
+
+    public override async Task Long_Parse_Decimal_Bad_Format(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Long_Parse_Decimal_Bad_Format(async));
 
         AssertSql();
     }
