@@ -46,10 +46,18 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual TEntity? Find(object?[]? keyValues)
-        => keyValues == null || keyValues.Any(v => v == null)
-            ? null
-            : (FindTracked(keyValues!, out var keyProperties)
-                ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues))));
+    {
+        if (keyValues == null
+            || keyValues.Any(v => v == null))
+        {
+            return default;
+        }
+
+        var (key, processedKeyValues, _) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: false, default);
+
+        return FindTracked(key, processedKeyValues)
+                ?? _queryRoot.FirstOrDefault(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,11 +82,13 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return default;
         }
 
-        var tracked = FindTracked(keyValues!, out var keyProperties);
+        var (key, processedKeyValues, ct) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: true, cancellationToken);
+
+        var tracked = FindTracked(key, processedKeyValues);
         return tracked != null
             ? new ValueTask<TEntity?>(tracked)
             : new ValueTask<TEntity?>(
-                _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
+                _queryRoot.FirstOrDefaultAsync(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)), ct));
     }
 
     /// <summary>
@@ -95,12 +105,14 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return default;
         }
 
-        var tracked = FindTracked(keyValues!, out var keyProperties);
+        var (key, processedKeyValues, ct) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: true, cancellationToken);
+
+        var tracked = FindTracked(key, processedKeyValues);
         return tracked != null
             ? new ValueTask<object?>(tracked)
             : new ValueTask<object?>(
                 _queryRoot.FirstOrDefaultAsync(
-                    BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
+                    BuildObjectLambda(key.Properties, new ValueBuffer(processedKeyValues)), ct));
     }
 
     /// <summary>
@@ -259,23 +271,41 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             ? navigation.ForeignKey.PrincipalKey.Properties
             : navigation.ForeignKey.Properties;
 
-    private TEntity? FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
+    private (IKey Key, object[] KeyValues,CancellationToken CancellationToken) ValidateKeyPropertiesAndExtractCancellationToken(
+            object[] keyValues,
+            bool async,
+            CancellationToken cancellationToken)
     {
         var key = _entityType.FindPrimaryKey()!;
-        keyProperties = key.Properties;
+        var keyPropertiesCount = key.Properties.Count;
 
-        if (keyProperties.Count != keyValues.Length)
+        if (keyPropertiesCount != keyValues.Length)
         {
-            if (keyProperties.Count == 1)
+            if (async
+                && keyPropertiesCount == keyValues.Length - 1
+                && keyValues[keyPropertiesCount] is CancellationToken ct)
+            {
+                var newValues = new object[keyPropertiesCount];
+                Array.Copy(keyValues, newValues, keyPropertiesCount);
+                return (key, newValues, ct);
+            }
+
+            if (keyPropertiesCount == 1)
             {
                 throw new ArgumentException(
                     CoreStrings.FindNotCompositeKey(typeof(TEntity).ShortDisplayName(), keyValues.Length));
             }
 
             throw new ArgumentException(
-                CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), keyProperties.Count, keyValues.Length));
+                CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), keyPropertiesCount, keyValues.Length));
         }
 
+        return (key, keyValues, cancellationToken);
+    }
+
+    private TEntity? FindTracked(IKey key, object[] keyValues)
+    {
+        var keyProperties = key.Properties;
         for (var i = 0; i < keyValues.Length; i++)
         {
             var valueType = keyValues[i].GetType();
