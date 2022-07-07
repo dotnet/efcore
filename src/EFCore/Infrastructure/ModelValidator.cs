@@ -604,7 +604,8 @@ public class ModelValidator : IModelValidator
             if (!discriminatorProperty.ClrType.IsInstanceOfType(discriminatorValue))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.DiscriminatorValueIncompatible(discriminatorValue, discriminatorProperty.Name, discriminatorProperty.ClrType));
+                    CoreStrings.DiscriminatorValueIncompatible(
+                        discriminatorValue, derivedType.DisplayName(), discriminatorProperty.ClrType.DisplayName()));
             }
 
             if (discriminatorValues.TryGetValue(discriminatorValue, out var duplicateEntityType))

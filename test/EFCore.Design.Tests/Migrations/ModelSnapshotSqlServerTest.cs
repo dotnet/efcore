@@ -1094,7 +1094,8 @@ public class ModelSnapshotSqlServerTest
             builder =>
             {
                 builder.HasDefaultSchema("default");
-                builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null);
+                builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null)
+                    .UpdateUsingStoredProcedure("Update", "sproc", p => p.HasParameter(e => e.Id));
             },
             AddBoilerPlate(
                 @"

@@ -742,6 +742,207 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.UpdateUsingStoredProcedure(
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UpdateUsingStoredProcedure(
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.UpdateUsingStoredProcedure(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UpdateUsingStoredProcedure(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.UpdateUsingStoredProcedure(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UpdateUsingStoredProcedure(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+        
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.InsertUsingStoredProcedure(
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.InsertUsingStoredProcedure(
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.InsertUsingStoredProcedure(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.InsertUsingStoredProcedure(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> InsertUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.InsertUsingStoredProcedure(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.InsertUsingStoredProcedure(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+        
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.DeleteUsingStoredProcedure(
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.DeleteUsingStoredProcedure(
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.DeleteUsingStoredProcedure(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.DeleteUsingStoredProcedure(
+                    name,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> DeleteUsingStoredProcedure<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        string? schema,
+        Action<RelationalModelBuilderTest.TestStoredProcedureBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.DeleteUsingStoredProcedure(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.GenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.DeleteUsingStoredProcedure(
+                    name, schema,
+                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestStoredProcedureBuilder<TEntity>(b)));
+                break;
+        }
+        
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
         string name,

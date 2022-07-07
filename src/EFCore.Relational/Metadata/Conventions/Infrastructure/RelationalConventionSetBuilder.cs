@@ -75,6 +75,7 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.EntityTypeAddedConventions.Add(entitySplittingConvention);
         conventionSet.EntityTypeAddedConventions.Add(checkConstraintConvention);
         conventionSet.EntityTypeAddedConventions.Add(triggerConvention);
+        conventionSet.EntityTypeAddedConventions.Add(new StoredProcedureConvention(Dependencies, RelationalDependencies));
 
         ValueGenerationConvention valueGenerationConvention =
             new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);

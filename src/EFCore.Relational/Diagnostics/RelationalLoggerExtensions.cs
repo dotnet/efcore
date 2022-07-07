@@ -2775,15 +2775,15 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
-    ///     Logs the <see cref="RelationalEventId.KeyUnmappedProperties" /> event.
+    ///     Logs the <see cref="RelationalEventId.KeyPropertiesNotMappedToTable" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="key">The foreign key.</param>
-    public static void KeyUnmappedProperties(
+    public static void KeyPropertiesNotMappedToTable(
         this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
         IKey key)
     {
-        var definition = RelationalResources.LogKeyUnmappedProperties(diagnostics);
+        var definition = RelationalResources.LogKeyPropertiesNotMappedToTable(diagnostics);
 
         if (diagnostics.ShouldLog(definition))
         {
@@ -2798,14 +2798,14 @@ public static class RelationalLoggerExtensions
         {
             var eventData = new KeyEventData(
                 definition,
-                KeyUnmappedProperties,
+                KeyPropertiesNotMappedToTable,
                 key);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
     }
 
-    private static string KeyUnmappedProperties(EventDefinitionBase definition, EventData payload)
+    private static string KeyPropertiesNotMappedToTable(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string, string>)definition;
         var p = (KeyEventData)payload;

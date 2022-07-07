@@ -78,7 +78,7 @@ public class RuntimeRelationalPropertyOverrides : AnnotatableBase, IRelationalPr
     }
 
     /// <inheritdoc />
-    bool IReadOnlyRelationalPropertyOverrides.ColumnNameOverridden
+    bool IReadOnlyRelationalPropertyOverrides.IsColumnNameOverridden
     {
         [DebuggerStepThrough]
         get => FindAnnotation(RelationalAnnotationNames.ColumnName) != null;

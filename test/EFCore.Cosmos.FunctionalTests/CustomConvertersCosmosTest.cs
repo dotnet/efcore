@@ -13,11 +13,6 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
         Fixture.TestSqlLoggerFactory.Clear();
     }
 
-    public override void Can_perform_query_with_max_length()
-    {
-        // Over the 2Mb document limit
-    }
-
     [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_filter_projection_with_inline_enum_variable(bool async)
         => base.Can_filter_projection_with_inline_enum_variable(async);

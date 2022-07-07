@@ -78,6 +78,21 @@ public static class RelationalAnnotationNames
     public const string FunctionName = Prefix + "FunctionName";
 
     /// <summary>
+    ///     The name for mapped delete stored procedure annotations.
+    /// </summary>
+    public const string DeleteStoredProcedure = Prefix + "DeleteStoredProcedure";
+
+    /// <summary>
+    ///     The name for mapped insert stored procedure annotations.
+    /// </summary>
+    public const string InsertStoredProcedure = Prefix + "InsertStoredProcedure";
+    
+    /// <summary>
+    ///     The name for mapped update stored procedure annotations.
+    /// </summary>
+    public const string UpdateStoredProcedure = Prefix + "UpdateStoredProcedure";
+
+    /// <summary>
     ///     The name for mapped sql query annotations.
     /// </summary>
     public const string SqlQuery = Prefix + "SqlQuery";

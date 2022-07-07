@@ -97,7 +97,7 @@ public static class RelationalEventId
         DuplicateColumnOrders,
         ForeignKeyTpcPrincipalWarning,
         TpcStoreGeneratedIdentityWarning,
-        KeyUnmappedProperties,
+        KeyPropertiesNotMappedToTable,
 
         // Update events
         BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -825,8 +825,8 @@ public static class RelationalEventId
     ///         This event uses the <see cref="KeyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
-    public static readonly EventId KeyUnmappedProperties =
-        MakeValidationId(Id.KeyUnmappedProperties);
+    public static readonly EventId KeyPropertiesNotMappedToTable =
+        MakeValidationId(Id.KeyPropertiesNotMappedToTable);
 
     /// <summary>
     ///     A foreign key specifies properties which don't map to the related tables.

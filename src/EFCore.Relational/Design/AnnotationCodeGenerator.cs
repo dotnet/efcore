@@ -31,6 +31,9 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.Triggers,
         RelationalAnnotationNames.Sequences,
         RelationalAnnotationNames.DbFunctions,
+        RelationalAnnotationNames.DeleteStoredProcedure,
+        RelationalAnnotationNames.InsertStoredProcedure,
+        RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
         RelationalAnnotationNames.RelationalOverrides
     };
