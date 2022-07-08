@@ -2338,6 +2338,28 @@ public class ChangeTrackerTest
         Assert.Empty(order.OrderDetails);
     }
 
+    [ConditionalFact] // Issue #26827
+    public void Setting_dependent_to_null_for_client_cascaded_optional_is_not_overwritten_by_DetectChanges()
+    {
+        using var context = new EarlyLearningCenter();
+        var bobby = context.Add(new Bobby { Buggy = new() }).Entity;
+
+        context.SaveChanges();
+        context.ChangeTracker.Clear();
+
+        bobby = context.Set<Bobby>().Include(e => e.Buggy).Single(e => e.Id == bobby.Id);
+
+        Assert.NotNull(bobby.Buggy);
+
+        bobby.Buggy = null;
+
+        Assert.Null(bobby.Buggy);
+
+        context.ChangeTracker.DetectChanges();
+
+        Assert.Null(bobby.Buggy);
+    }
+
     [ConditionalFact]
     public void Keyless_type_negative_cases()
     {
@@ -3703,6 +3725,17 @@ public class ChangeTrackerTest
         public PrincipalGN? PrincipalGN { get; set; }
     }
 
+    public class Bobby
+    {
+        public int Id { get; set; }
+        public Buggy? Buggy { get; set; }
+    }
+
+    public class Buggy
+    {
+        public int Id { get; set; }
+    }
+
     private class EarlyLearningCenter : DbContext
     {
         private readonly IInterceptor[] _interceptors;
@@ -3800,6 +3833,15 @@ public class ChangeTrackerTest
                 });
 
             modelBuilder.Entity<DependentGN>().Property(e => e.Id).ValueGeneratedNever();
+
+            modelBuilder.Entity<Buggy>(entity =>
+            {
+                entity.Property<int?>("BobbyId");
+                entity.HasOne<Bobby>()
+                    .WithOne(p => p.Buggy)
+                    .HasForeignKey<Buggy>("BobbyId")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         private class DummyValueGenerator : ValueGenerator<int>

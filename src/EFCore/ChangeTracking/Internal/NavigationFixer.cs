@@ -781,6 +781,7 @@ public class NavigationFixer : INavigationFixer
                     {
                         var toDependent = foreignKey.PrincipalToDependent;
                         if (CanOverrideCurrentValue(entry, toDependent, dependentEntry, fromQuery)
+                            && (!fromQuery || CanOverrideCurrentValue(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery))
                             && !IsAmbiguous(dependentEntry))
                         {
                             SetNavigation(entry, toDependent, dependentEntry, fromQuery);
@@ -792,7 +793,8 @@ public class NavigationFixer : INavigationFixer
                 {
                     foreach (InternalEntityEntry dependentEntry in dependents)
                     {
-                        if (!IsAmbiguous(dependentEntry))
+                        if (!IsAmbiguous(dependentEntry)
+                            && (!fromQuery || CanOverrideCurrentValue(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery)))
                         {
                             SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
                             AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
@@ -1440,14 +1442,27 @@ public class NavigationFixer : INavigationFixer
         InternalEntityEntry value,
         bool fromQuery)
     {
-        if (fromQuery)
+        var existingValue = navigation == null ? null : entry[navigation];
+        if (existingValue == null
+            || existingValue == value.Entity)
         {
             return true;
         }
 
-        var existingValue = navigation == null ? null : entry[navigation];
-        return existingValue == null
-            || existingValue == value.Entity;
+        if (!fromQuery)
+        {
+            return false;
+        }
+
+        var existingEntry = entry.StateManager.TryGetEntry(existingValue, throwOnNonUniqueness: false);
+        if (existingEntry == null)
+        {
+            return true;
+        }
+        
+        SetForeignKeyProperties(entry, existingEntry, ((INavigation)navigation!).ForeignKey, setModified: true, fromQuery);
+
+        return false;
     }
 
     private void SetNavigation(InternalEntityEntry entry, INavigationBase? navigation, InternalEntityEntry? value, bool fromQuery)
