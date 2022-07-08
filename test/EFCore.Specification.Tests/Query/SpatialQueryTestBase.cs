@@ -210,6 +210,22 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task EnvelopeCombine_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PointEntity>()
+                .Where(e => e.Point != null)
+                .GroupBy(e => e.Group)
+                .Select(g => new { Id = g.Key, Combined = EnvelopeCombiner.CombineAsGeometry(g.Select(e => e.Point)) }),
+            elementSorter: x => x.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Combined, a.Combined, GeometryComparer.Instance);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains(bool async)
     {
         var point = Fixture.GeometryFactory.CreatePoint(new Coordinate(0.25, 0.25));

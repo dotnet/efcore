@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -119,6 +120,10 @@ FROM [PointEntity] AS [p]
 WHERE [p].[Point] IS NOT NULL
 GROUP BY [p].[Group]");
     }
+
+    // SQL Server returns a CurvePolygon, https://github.com/NetTopologySuite/NetTopologySuite.IO.SqlServerBytes/issues/18
+    public override async Task EnvelopeCombine_aggregate(bool async)
+        => await Assert.ThrowsAsync<ParseException>(() => base.EnvelopeCombine_aggregate(async));
 
     public override async Task Contains(bool async)
     {

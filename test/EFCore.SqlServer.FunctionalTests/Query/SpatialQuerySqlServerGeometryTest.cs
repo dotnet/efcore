@@ -126,6 +126,17 @@ WHERE [p].[Point] IS NOT NULL
 GROUP BY [p].[Group]");
     }
 
+    public override async Task EnvelopeCombine_aggregate(bool async)
+    {
+        await base.EnvelopeCombine_aggregate(async);
+
+        AssertSql(
+            @"SELECT [p].[Group] AS [Id], geometry::EnvelopeAggregate([p].[Point]) AS [Combined]
+FROM [PointEntity] AS [p]
+WHERE [p].[Point] IS NOT NULL
+GROUP BY [p].[Group]");
+    }
+
     public override async Task Contains(bool async)
     {
         await base.Contains(async);
