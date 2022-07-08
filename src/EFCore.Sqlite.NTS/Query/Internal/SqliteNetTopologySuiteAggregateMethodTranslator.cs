@@ -26,8 +26,10 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
     private static readonly MethodInfo UnionMethod
         = typeof(UnaryUnionOp).GetRuntimeMethod(nameof(UnaryUnionOp.Union), new[] { typeof(IEnumerable<Geometry>) })!;
 
+    private static readonly MethodInfo EnvelopeCombineMethod
+        = typeof(EnvelopeCombiner).GetRuntimeMethod(nameof(EnvelopeCombiner.CombineAsGeometry), new[] { typeof(IEnumerable<Geometry>) })!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,13 +37,8 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteNetTopologySuiteAggregateMethodTranslator(
-        ISqlExpressionFactory sqlExpressionFactory,
-        IRelationalTypeMappingSource typeMappingSource)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-        _typeMappingSource = typeMappingSource;
-    }
+    public SqliteNetTopologySuiteAggregateMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,48 +50,67 @@ public class SqliteNetTopologySuiteAggregateMethodTranslator : IAggregateMethodC
         MethodInfo method, EnumerableExpression source, IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (source.Selector is not SqlExpression sqlExpression
-            || (method != GeometryCombineMethod && method != UnionMethod && method != ConvexHullMethod))
+        if (source.Selector is not SqlExpression sqlExpression)
         {
             return null;
         }
 
-        if (source.Predicate != null)
+        if (method == ConvexHullMethod)
         {
-            sqlExpression = _sqlExpressionFactory.Case(
-                new List<CaseWhenClause> { new(source.Predicate, sqlExpression) },
-                elseResult: null);
-        }
+            CombineAggregateTerms();
 
-        if (source.IsDistinct)
-        {
-            sqlExpression = new DistinctExpression(sqlExpression);
-        }
-
-        if (method == GeometryCombineMethod || method == UnionMethod)
-        {
+            // Spatialite has no built-in aggregate convex hull, but we can simply apply Collect beforehand
             return _sqlExpressionFactory.Function(
-                method == GeometryCombineMethod ? "Collect" : "GUnion",
-                new[] { sqlExpression },
+                "ConvexHull",
+                new[]
+                {
+                    _sqlExpressionFactory.Function(
+                        "Collect",
+                        new[] { sqlExpression },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        typeof(Geometry))
+                },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false },
+                argumentsPropagateNullability: new[] { true },
                 typeof(Geometry));
         }
 
-        // Spatialite has no built-in aggregate convex hull, but we can simply apply Collect beforehand
+        var functionName = method == UnionMethod
+            ? "GUnion"
+            : method == GeometryCombineMethod
+                ? "Collect"
+                : method == EnvelopeCombineMethod
+                    ? "Extent"
+                    : null;
+
+        if (functionName is null)
+        {
+            return null;
+        }
+
+        CombineAggregateTerms();
+
         return _sqlExpressionFactory.Function(
-            "ConvexHull",
-            new[]
-            {
-                _sqlExpressionFactory.Function(
-                    "Collect",
-                    new[] { sqlExpression },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { false },
-                    typeof(Geometry))
-            },
+            functionName,
+            new[] { sqlExpression },
             nullable: true,
-            argumentsPropagateNullability: new[] { true },
+            argumentsPropagateNullability: new[] { false },
             typeof(Geometry));
+
+        void CombineAggregateTerms()
+        {
+            if (source.Predicate != null)
+            {
+                sqlExpression = _sqlExpressionFactory.Case(
+                    new List<CaseWhenClause> { new(source.Predicate, sqlExpression) },
+                    elseResult: null);
+            }
+
+            if (source.IsDistinct)
+            {
+                sqlExpression = new DistinctExpression(sqlExpression);
+            }
+        }
     }
 }
