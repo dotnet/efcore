@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppSettingsTip" xml:space="preserve">
-    <value>Don't forget to copy appsettings.json alongside your bundle if you need it to apply migrations.</value>
+    <value>It is currently required to execute the migrations bundle in a folder that contains an appsettings.json file with a connection string even if you are passing the connection string through the --connection args.</value>
   </data>
   <data name="AssemblyDescription" xml:space="preserve">
     <value>The assembly to use. Required.</value>
