@@ -1447,6 +1447,21 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5))");
     }
 
+    public override Task String_Join_over_non_nullable_column(bool async)
+        => AssertTranslationFailed(() => base.String_Join_over_non_nullable_column(async));
+
+    public override Task String_Join_with_predicate(bool async)
+        => AssertTranslationFailed(() => base.String_Join_with_predicate(async));
+
+    public override Task String_Join_with_ordering(bool async)
+        => AssertTranslationFailed(() => base.String_Join_with_ordering(async));
+
+    public override Task String_Join_over_nullable_column(bool async)
+        => AssertTranslationFailed(() => base.String_Join_over_nullable_column(async));
+
+    public override Task String_Concat(bool async)
+        => AssertTranslationFailed(() => base.String_Concat(async));
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

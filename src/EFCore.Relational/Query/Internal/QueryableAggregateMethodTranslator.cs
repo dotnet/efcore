@@ -74,6 +74,8 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                             averageSqlExpression.Type,
                             averageSqlExpression.TypeMapping);
 
+                // Count/LongCount are special since if the argument is a star fragment, it needs to be transformed to any non-null constant
+                // when a predicate is applied.
                 case nameof(Queryable.Count)
                 when methodInfo == QueryableMethods.CountWithoutPredicate
                     || methodInfo == QueryableMethods.CountWithPredicate:

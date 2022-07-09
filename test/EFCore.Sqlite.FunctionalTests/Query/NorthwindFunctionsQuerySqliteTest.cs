@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelationalTestBase<
@@ -322,6 +324,64 @@ WHERE substr(""c"".""ContactName"", length(""c"".""ContactName""), 1) = 's'");
             @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE 'M' = '' OR instr(""c"".""ContactName"", 'M') > 0");
+    }
+
+    public override async Task String_Join_over_non_nullable_column(bool async)
+    {
+        await base.String_Join_over_non_nullable_column(async);
+
+        AssertSql(
+            @"SELECT ""c"".""City"", COALESCE(group_concat(""c"".""CustomerID"", '|'), '') AS ""Customers""
+FROM ""Customers"" AS ""c""
+GROUP BY ""c"".""City""");
+    }
+
+    public override async Task String_Join_over_nullable_column(bool async)
+    {
+        await base.String_Join_over_nullable_column(async);
+
+        AssertSql(
+            @"SELECT ""c"".""City"", COALESCE(group_concat(COALESCE(""c"".""Region"", ''), '|'), '') AS ""Regions""
+FROM ""Customers"" AS ""c""
+GROUP BY ""c"".""City""");
+    }
+
+    public override async Task String_Join_with_predicate(bool async)
+    {
+        await base.String_Join_with_predicate(async);
+
+        AssertSql(
+            @"SELECT ""c"".""City"", COALESCE(group_concat(CASE
+    WHEN length(""c"".""ContactName"") > 10 THEN ""c"".""CustomerID""
+END, '|'), '') AS ""Customers""
+FROM ""Customers"" AS ""c""
+GROUP BY ""c"".""City""");
+    }
+
+    public override async Task String_Join_with_ordering(bool async)
+    {
+        // SQLite does not support input ordering on aggregate methods; the below does client evaluation.
+        await base.String_Join_with_ordering(async);
+
+        AssertSql(
+            @"SELECT ""t"".""City"", ""c0"".""CustomerID""
+FROM (
+    SELECT ""c"".""City""
+    FROM ""Customers"" AS ""c""
+    GROUP BY ""c"".""City""
+) AS ""t""
+LEFT JOIN ""Customers"" AS ""c0"" ON ""t"".""City"" = ""c0"".""City""
+ORDER BY ""t"".""City"", ""c0"".""CustomerID"" DESC");
+    }
+
+    public override async Task String_Concat(bool async)
+    {
+        await base.String_Concat(async);
+
+        AssertSql(
+            @"SELECT ""c"".""City"", COALESCE(group_concat(""c"".""CustomerID"", ''), '') AS ""Customers""
+FROM ""Customers"" AS ""c""
+GROUP BY ""c"".""City""");
     }
 
     public override async Task IsNullOrWhiteSpace_in_predicate(bool async)

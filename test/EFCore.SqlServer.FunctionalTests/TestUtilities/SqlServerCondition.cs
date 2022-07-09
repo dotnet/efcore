@@ -15,5 +15,7 @@ public enum SqlServerCondition
     SupportsFullTextSearch = 1 << 6,
     SupportsOnlineIndexes = 1 << 7,
     SupportsTemporalTablesCascadeDelete = 1 << 8,
-    SupportsUtf8 = 1 << 9
+    SupportsUtf8 = 1 << 9,
+    SupportsFunctions2019 = 1 << 10,
+    SupportsFunctions2017 = 1 << 11
 }
