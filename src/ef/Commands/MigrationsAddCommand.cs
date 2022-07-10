@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
+using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
@@ -19,10 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 throw new CommandException(Resources.MissingArgument(_name.Name));
             }
-             if (_name?.Name?.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
-            {
-                throw new CommandException("Invalid migration name. Names must not contain any invalid characters, e.g [-,/,:]");
-            }
+
+            // sanitizing migration name. If there is a reserve character in the migration name
+            _name.Name = new string(_name.Name.Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray());
         }
 
         protected override int Execute(string[] args)
@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             return base.Execute(args);
         }
-
         private static void ReportJson(IDictionary files)
         {
             Reporter.WriteData("{");
