@@ -3015,10 +3015,7 @@ ORDER BY [t].[Id], [t0].[c], [t0].[Id1]");
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
 
-        Assert.Equal(
-            CoreStrings.ExpressionParameterizationExceptionSensitive(
-                "Convert(value(Microsoft.EntityFrameworkCore.Query.ComplexNavigationsCollectionsQueryTestBase`1+<>c__DisplayClass140_0[Microsoft.EntityFrameworkCore.Query.TemporalComplexNavigationsSharedTypeQuerySqlServerFixture]).ss.Set(), DbSet`1).TemporalAsOf(1/1/2010 12:00:00 AM)"),
-            exception.Message);
+        Assert.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("X").Substring(0, 30), exception.Message);
         Assert.True(exception.InnerException is InvalidCastException);
     }
 

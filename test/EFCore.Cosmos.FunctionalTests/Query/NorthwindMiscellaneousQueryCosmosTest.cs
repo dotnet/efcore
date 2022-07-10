@@ -4146,6 +4146,13 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         AssertSql();
     }
 
+    public override async Task EF_Property_include_on_incorrect_property_throws(bool async)
+    {
+        await base.EF_Property_include_on_incorrect_property_throws(async);
+
+        AssertSql();
+    }
+
     public override async Task SkipWhile_throws_meaningful_exception(bool async)
     {
         await base.SkipWhile_throws_meaningful_exception(async);

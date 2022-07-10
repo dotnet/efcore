@@ -1038,9 +1038,9 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[ThreeId], [t0].[TwoId]");
         AssertSql();
     }
 
-    public override async Task Filered_includes_accessed_via_different_path_are_merged(bool async)
+    public override async Task Filtered_includes_accessed_via_different_path_are_merged(bool async)
     {
-        await base.Filered_includes_accessed_via_different_path_are_merged(async);
+        await base.Filtered_includes_accessed_via_different_path_are_merged(async);
 
         AssertSql();
     }
@@ -1806,6 +1806,52 @@ FROM (
     FROM [Leaves] AS [l]
 ) AS [t]
 WHERE 0 = 1");
+    }
+
+    public override async Task Filtered_include_skip_navigation_order_by_take_EF_Property(bool async)
+    {
+        await base.Filtered_include_skip_navigation_order_by_take_EF_Property(async);
+
+        AssertSql(
+            @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId]
+FROM [EntityCompositeKeys] AS [e]
+LEFT JOIN (
+    SELECT [t].[TwoSkipSharedId], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
+    FROM (
+        SELECT [e0].[TwoSkipSharedId], [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3], [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3] ORDER BY [e1].[Id]) AS [row]
+        FROM [EntityCompositeKeyEntityTwo] AS [e0]
+        INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
+    ) AS [t]
+    WHERE [t].[row] <= 2
+) AS [t0] ON [e].[Key1] = [t0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [t0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [t0].[CompositeKeySkipSharedKey3]
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Id]");
+    }
+
+    public override async Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_EF_Property(bool async)
+    {
+        await base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_EF_Property(async);
+
+        AssertSql(
+            @"SELECT [e].[Id], [e].[Name], [t1].[OneId], [t1].[TwoId], [t1].[JoinOneToTwoExtraId], [t1].[Id], [t1].[CollectionInverseId], [t1].[ExtraId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[ThreeId], [t1].[TwoId0], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0]
+FROM [EntityOnes] AS [e]
+OUTER APPLY (
+    SELECT [t].[OneId], [t].[TwoId], [t].[JoinOneToTwoExtraId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t0].[ThreeId], [t0].[TwoId] AS [TwoId0], [t0].[Id] AS [Id0], [t0].[CollectionInverseId] AS [CollectionInverseId0], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId] AS [ReferenceInverseId0]
+    FROM (
+        SELECT [j].[OneId], [j].[TwoId], [j].[JoinOneToTwoExtraId], [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId]
+        FROM [JoinOneToTwo] AS [j]
+        INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+        WHERE [e].[Id] = [j].[OneId]
+        ORDER BY [e0].[Id]
+        OFFSET 1 ROWS FETCH NEXT 2 ROWS ONLY
+    ) AS [t]
+    LEFT JOIN (
+        SELECT [j0].[ThreeId], [j0].[TwoId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
+        FROM [JoinTwoToThree] AS [j0]
+        INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
+        WHERE [e1].[Id] < 10
+    ) AS [t0] ON [t].[Id] = [t0].[TwoId]
+) AS [t1]
+ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[ThreeId], [t1].[TwoId0]");
     }
 
     private void AssertSql(params string[] expected)
