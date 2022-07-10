@@ -327,6 +327,15 @@
   <data name="DbSetIncorrectGenericType" xml:space="preserve">
     <value>Cannot create DbSet for entity type '{entityType}' since it is of type '{entityClrType}' but the generic type provided is of type '{genericType}'.</value>
   </data>
+  <data name="DebugViewError" xml:space="preserve">
+    <value>Debug view threw {message}. Please report this at https://github.com/dotnet/efcore</value>
+  </data>
+  <data name="DebugViewQueryExpressionError" xml:space="preserve">
+    <value>Error creating query expression: {message}.</value>
+  </data>
+  <data name="DebugViewQueryStringError" xml:space="preserve">
+    <value>Error creating query string: {message}.</value>
+  </data>
   <data name="DeleteBehaviorAttributeNotOnNavigationProperty" xml:space="preserve">
     <value>The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.</value>
   </data>

@@ -113,41 +113,48 @@ public interface IRelationalModel : IAnnotatable
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder.Append(indentString).Append("RelationalModel: ");
-
-        if (Collation != null)
+        try
         {
-            builder.AppendLine().Append(indentString).Append("Collation: ").Append(Collation);
+            builder.Append(indentString).Append("RelationalModel: ");
+
+            if (Collation != null)
+            {
+                builder.AppendLine().Append(indentString).Append("Collation: ").Append(Collation);
+            }
+
+            foreach (var table in Tables)
+            {
+                builder.AppendLine().Append(table.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var view in Views)
+            {
+                builder.AppendLine().Append(view.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var function in Functions)
+            {
+                builder.AppendLine().Append(function.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var query in Queries)
+            {
+                builder.AppendLine().Append(query.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var sequence in Sequences)
+            {
+                builder.AppendLine().Append(sequence.ToDebugString(options, indent + 2));
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent));
+            }
         }
-
-        foreach (var table in Tables)
+        catch (Exception exception)
         {
-            builder.AppendLine().Append(table.ToDebugString(options, indent + 2));
-        }
-
-        foreach (var view in Views)
-        {
-            builder.AppendLine().Append(view.ToDebugString(options, indent + 2));
-        }
-
-        foreach (var function in Functions)
-        {
-            builder.AppendLine().Append(function.ToDebugString(options, indent + 2));
-        }
-
-        foreach (var query in Queries)
-        {
-            builder.AppendLine().Append(query.ToDebugString(options, indent + 2));
-        }
-
-        foreach (var sequence in Sequences)
-        {
-            builder.AppendLine().Append(sequence.ToDebugString(options, indent + 2));
-        }
-
-        if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-        {
-            builder.Append(AnnotationsToDebugString(indent));
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();
