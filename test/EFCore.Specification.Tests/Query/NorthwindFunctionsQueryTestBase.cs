@@ -1485,14 +1485,14 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
-                .Where(o => byte.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
+                byte.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => byte.Parse(c.Phone.Substring(0, 3)) == 30),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                byte.Parse(c.Phone.Substring(0, 3)) == 30),
             entryCount: 1);
     }
 
@@ -1538,26 +1538,26 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
-                .Where(o => decimal.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
+                decimal.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => decimal.Parse(c.PostalCode) == 12209m),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                decimal.Parse(c.PostalCode) == 12209m),
             entryCount: 1);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP")
-                .Where(c => decimal.Parse(c.Phone.Substring(0, 4)) == 88.6m),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP" &&
+                decimal.Parse(c.Phone.Substring(0, 4)) == 88.6m),
             entryCount: 1);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => decimal.Parse(c.Phone.Substring(3, 4)) == -7m),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                decimal.Parse(c.Phone.Substring(3, 4)) == -7m),
             entryCount: 1);
     }
 
@@ -1576,26 +1576,26 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
-                .Where(o => double.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
+                double.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => double.Parse(c.PostalCode) == 12209d),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                double.Parse(c.PostalCode) == 12209d),
             entryCount: 1);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP")
-                .Where(c => double.Parse(c.Phone.Substring(0, 4)) == 88.6d),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "BLONP" &&
+                double.Parse(c.Phone.Substring(0, 4)) == 88.6d),
             entryCount: 1);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => double.Parse(c.Phone.Substring(3, 4)) == -7d),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                double.Parse(c.Phone.Substring(3, 4)) == -7d),
             entryCount: 1);
     }
 
@@ -1614,20 +1614,20 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
-                .Where(o => short.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
+                short.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => short.Parse(c.PostalCode) == 12209),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                short.Parse(c.PostalCode) == 12209),
             entryCount: 1);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => short.Parse(c.Phone.Substring(3, 4)) == -7),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                short.Parse(c.Phone.Substring(3, 4)) == -7),
             entryCount: 1);
     }
 
@@ -1664,20 +1664,20 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
-                .Where(o => int.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
+                int.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => int.Parse(c.PostalCode) == 12209),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                int.Parse(c.PostalCode) == 12209),
             entryCount: 1);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => int.Parse(c.Phone.Substring(3, 4)) == -7),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                int.Parse(c.Phone.Substring(3, 4)) == -7),
             entryCount: 1);
     }
 
@@ -1705,20 +1705,20 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI")
-                .Where(o => long.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
+            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
+                long.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
             entryCount: 6);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => long.Parse(c.PostalCode) == 12209L),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                long.Parse(c.PostalCode) == 12209L),
             entryCount: 1);
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                .Where(c => long.Parse(c.Phone.Substring(3, 4)) == -7L),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
+                long.Parse(c.Phone.Substring(3, 4)) == -7L),
             entryCount: 1);
     }
 
