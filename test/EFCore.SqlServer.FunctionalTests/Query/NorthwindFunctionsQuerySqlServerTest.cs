@@ -196,10 +196,6 @@ GROUP BY [o].[ProductID]
         await base.Byte_Parse(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
-            //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, SUBSTRING([c].[Phone], 0 + 1, 3)) = CAST(30 AS tinyint)");
@@ -242,10 +238,6 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, SUBSTRING([c].[Phone], 0 
         await base.Decimal_Parse(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0",
-            //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), [c].[PostalCode]) = 12209.0",
@@ -272,10 +264,6 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), SUBSTRING([c].[Pho
         await base.Double_Parse(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0E0",
-            //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(float, [c].[PostalCode]) = 12209.0E0",
@@ -302,10 +290,6 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(float, SUBSTRING([c].[Phone], 3 + 
         await base.Short_Parse(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
-            //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(smallint, [c].[PostalCode]) = CAST(12209 AS smallint)",
@@ -344,10 +328,6 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(smallint, SUBSTRING([c].[Phone], 3
         await base.Int_Parse(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0",
-            //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(int, [c].[PostalCode]) = 12209",
@@ -378,10 +358,6 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(int, SUBSTRING([c].[Phone], 3 + 1,
         await base.Long_Parse(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
-            //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(bigint, [c].[PostalCode]) = CAST(12209 AS bigint)",
