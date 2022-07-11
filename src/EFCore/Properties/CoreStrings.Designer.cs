@@ -575,6 +575,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, entityClrType, genericType);
 
         /// <summary>
+        ///     Debug view threw {message}. Please report this at https://github.com/dotnet/efcore
+        /// </summary>
+        public static string DebugViewError(object? message)
+            => string.Format(
+                GetString("DebugViewError", nameof(message)),
+                message);
+
+        /// <summary>
+        ///     Error creating query expression: {message}.
+        /// </summary>
+        public static string DebugViewQueryExpressionError(object? message)
+            => string.Format(
+                GetString("DebugViewQueryExpressionError", nameof(message)),
+                message);
+
+        /// <summary>
+        ///     Error creating query string: {message}.
+        /// </summary>
+        public static string DebugViewQueryStringError(object? message)
+            => string.Format(
+                GetString("DebugViewQueryStringError", nameof(message)),
+                message);
+
+        /// <summary>
         ///     The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.
         /// </summary>
         public static string DeleteBehaviorAttributeNotOnNavigationProperty

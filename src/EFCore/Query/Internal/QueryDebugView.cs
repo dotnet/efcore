@@ -38,7 +38,19 @@ public class QueryDebugView
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Expression
-        => _toExpressionString();
+    {
+        get
+        {
+            try
+            {
+                return _toExpressionString();
+            }
+            catch (Exception exception)
+            {
+                return CoreStrings.DebugViewQueryExpressionError(exception.Message);
+            }
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,5 +59,17 @@ public class QueryDebugView
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Query
-        => _toQueryString();
+    {
+        get
+        {
+            try
+            {
+                return _toQueryString();
+            }
+            catch (Exception exception)
+            {
+                return CoreStrings.DebugViewQueryStringError(exception.Message);
+            }
+        }
+    }
 }

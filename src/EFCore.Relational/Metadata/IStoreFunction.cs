@@ -71,71 +71,78 @@ public interface IStoreFunction : ITableBase
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder
-            .Append(indentString)
-            .Append("StoreFunction: ");
-
-        if (ReturnType != null)
-        {
-            builder.Append(ReturnType);
-        }
-        else
-        {
-            builder.Append(EntityTypeMappings.FirstOrDefault()?.EntityType.DisplayName() ?? "");
-        }
-
-        builder.Append(' ');
-
-        if (Schema != null)
+        try
         {
             builder
-                .Append(Schema)
-                .Append('.');
+                .Append(indentString)
+                .Append("StoreFunction: ");
+
+            if (ReturnType != null)
+            {
+                builder.Append(ReturnType);
+            }
+            else
+            {
+                builder.Append(EntityTypeMappings.FirstOrDefault()?.EntityType.DisplayName() ?? "");
+            }
+
+            builder.Append(' ');
+
+            if (Schema != null)
+            {
+                builder
+                    .Append(Schema)
+                    .Append('.');
+            }
+
+            builder.Append(Name);
+
+            if (IsBuiltIn)
+            {
+                builder.Append(" IsBuiltIn");
+            }
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+            {
+                var parameters = Parameters.ToList();
+                if (parameters.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Parameters: ");
+                    foreach (var parameter in parameters)
+                    {
+                        builder.AppendLine().Append(parameter.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var mappings = EntityTypeMappings.ToList();
+                if (mappings.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  EntityTypeMappings: ");
+                    foreach (var mapping in mappings)
+                    {
+                        builder.AppendLine().Append(mapping.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var columns = Columns.ToList();
+                if (columns.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Columns: ");
+                    foreach (var column in columns)
+                    {
+                        builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(AnnotationsToDebugString(indent: indent + 2));
+                }
+            }
         }
-
-        builder.Append(Name);
-
-        if (IsBuiltIn)
+        catch (Exception exception)
         {
-            builder.Append(" IsBuiltIn");
-        }
-
-        if ((options & MetadataDebugStringOptions.SingleLine) == 0)
-        {
-            var parameters = Parameters.ToList();
-            if (parameters.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Parameters: ");
-                foreach (var parameter in parameters)
-                {
-                    builder.AppendLine().Append(parameter.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var mappings = EntityTypeMappings.ToList();
-            if (mappings.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  EntityTypeMappings: ");
-                foreach (var mapping in mappings)
-                {
-                    builder.AppendLine().Append(mapping.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var columns = Columns.ToList();
-            if (columns.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Columns: ");
-                foreach (var column in columns)
-                {
-                    builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
-                }
-            }
-
-            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-            {
-                builder.Append(AnnotationsToDebugString(indent: indent + 2));
-            }
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

@@ -147,53 +147,60 @@ public interface IReadOnlyForeignKey : IReadOnlyAnnotatable
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder.Append(indentString);
-
-        var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
-        if (singleLine)
+        try
         {
-            builder.Append("ForeignKey: ");
-        }
+            builder.Append(indentString);
 
-        builder
-            .Append(DeclaringEntityType.DisplayName())
-            .Append(' ')
-            .Append(Properties.Format())
-            .Append(" -> ")
-            .Append(PrincipalEntityType.DisplayName())
-            .Append(' ')
-            .Append(PrincipalKey.Properties.Format());
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
+            if (singleLine)
+            {
+                builder.Append("ForeignKey: ");
+            }
 
-        if (IsUnique)
-        {
-            builder.Append(" Unique");
-        }
-
-        if (IsOwnership)
-        {
-            builder.Append(" Ownership");
-        }
-
-        if (PrincipalToDependent != null)
-        {
-            builder.Append(" ToDependent: ").Append(PrincipalToDependent.Name);
-        }
-
-        if (DependentToPrincipal != null)
-        {
-            builder.Append(" ToPrincipal: ").Append(DependentToPrincipal.Name);
-        }
-
-        if (DeleteBehavior != DeleteBehavior.NoAction)
-        {
             builder
+                .Append(DeclaringEntityType.DisplayName())
                 .Append(' ')
-                .Append(DeleteBehavior);
-        }
+                .Append(Properties.Format())
+                .Append(" -> ")
+                .Append(PrincipalEntityType.DisplayName())
+                .Append(' ')
+                .Append(PrincipalKey.Properties.Format());
 
-        if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (IsUnique)
+            {
+                builder.Append(" Unique");
+            }
+
+            if (IsOwnership)
+            {
+                builder.Append(" Ownership");
+            }
+
+            if (PrincipalToDependent != null)
+            {
+                builder.Append(" ToDependent: ").Append(PrincipalToDependent.Name);
+            }
+
+            if (DependentToPrincipal != null)
+            {
+                builder.Append(" ToPrincipal: ").Append(DependentToPrincipal.Name);
+            }
+
+            if (DeleteBehavior != DeleteBehavior.NoAction)
+            {
+                builder
+                    .Append(' ')
+                    .Append(DeleteBehavior);
+            }
+
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent + 2));
+            }
+        }
+        catch (Exception exception)
         {
-            builder.Append(AnnotationsToDebugString(indent + 2));
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

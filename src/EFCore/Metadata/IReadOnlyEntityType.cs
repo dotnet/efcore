@@ -760,118 +760,125 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder
-            .Append(indentString)
-            .Append("EntityType: ")
-            .Append(DisplayName());
-
-        if (BaseType != null)
+        try
         {
-            builder.Append(" Base: ").Append(BaseType.DisplayName());
+            builder
+                .Append(indentString)
+                .Append("EntityType: ")
+                .Append(DisplayName());
+
+            if (BaseType != null)
+            {
+                builder.Append(" Base: ").Append(BaseType.DisplayName());
+            }
+
+            if (HasSharedClrType)
+            {
+                builder.Append(" CLR Type: ").Append(ClrType.ShortDisplayName());
+            }
+
+            if (IsAbstract())
+            {
+                builder.Append(" Abstract");
+            }
+
+            if (FindPrimaryKey() == null)
+            {
+                builder.Append(" Keyless");
+            }
+
+            if (IsOwned())
+            {
+                builder.Append(" Owned");
+            }
+
+            if (this is EntityType
+                && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
+            }
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+            {
+                var properties = GetDeclaredProperties().ToList();
+                if (properties.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Properties: ");
+                    foreach (var property in properties)
+                    {
+                        builder.AppendLine().Append(property.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var navigations = GetDeclaredNavigations().ToList();
+                if (navigations.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Navigations: ");
+                    foreach (var navigation in navigations)
+                    {
+                        builder.AppendLine().Append(navigation.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var skipNavigations = GetDeclaredSkipNavigations().ToList();
+                if (skipNavigations.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Skip navigations: ");
+                    foreach (var skipNavigation in skipNavigations)
+                    {
+                        builder.AppendLine().Append(skipNavigation.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var serviceProperties = GetDeclaredServiceProperties().ToList();
+                if (serviceProperties.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Service properties: ");
+                    foreach (var serviceProperty in serviceProperties)
+                    {
+                        builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var keys = GetDeclaredKeys().ToList();
+                if (keys.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Keys: ");
+                    foreach (var key in keys)
+                    {
+                        builder.AppendLine().Append(key.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var fks = GetDeclaredForeignKeys().ToList();
+                if (fks.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Foreign keys: ");
+                    foreach (var fk in fks)
+                    {
+                        builder.AppendLine().Append(fk.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var indexes = GetDeclaredIndexes().ToList();
+                if (indexes.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Indexes: ");
+                    foreach (var index in indexes)
+                    {
+                        builder.AppendLine().Append(index.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(AnnotationsToDebugString(indent: indent + 2));
+                }
+            }
         }
-
-        if (HasSharedClrType)
+        catch (Exception exception)
         {
-            builder.Append(" CLR Type: ").Append(ClrType.ShortDisplayName());
-        }
-
-        if (IsAbstract())
-        {
-            builder.Append(" Abstract");
-        }
-
-        if (FindPrimaryKey() == null)
-        {
-            builder.Append(" Keyless");
-        }
-
-        if (IsOwned())
-        {
-            builder.Append(" Owned");
-        }
-
-        if (this is EntityType
-            && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
-        {
-            builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
-        }
-
-        if ((options & MetadataDebugStringOptions.SingleLine) == 0)
-        {
-            var properties = GetDeclaredProperties().ToList();
-            if (properties.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Properties: ");
-                foreach (var property in properties)
-                {
-                    builder.AppendLine().Append(property.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var navigations = GetDeclaredNavigations().ToList();
-            if (navigations.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Navigations: ");
-                foreach (var navigation in navigations)
-                {
-                    builder.AppendLine().Append(navigation.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var skipNavigations = GetDeclaredSkipNavigations().ToList();
-            if (skipNavigations.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Skip navigations: ");
-                foreach (var skipNavigation in skipNavigations)
-                {
-                    builder.AppendLine().Append(skipNavigation.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var serviceProperties = GetDeclaredServiceProperties().ToList();
-            if (serviceProperties.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Service properties: ");
-                foreach (var serviceProperty in serviceProperties)
-                {
-                    builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var keys = GetDeclaredKeys().ToList();
-            if (keys.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Keys: ");
-                foreach (var key in keys)
-                {
-                    builder.AppendLine().Append(key.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var fks = GetDeclaredForeignKeys().ToList();
-            if (fks.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Foreign keys: ");
-                foreach (var fk in fks)
-                {
-                    builder.AppendLine().Append(fk.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var indexes = GetDeclaredIndexes().ToList();
-            if (indexes.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Indexes: ");
-                foreach (var index in indexes)
-                {
-                    builder.AppendLine().Append(index.ToDebugString(options, indent + 4));
-                }
-            }
-
-            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-            {
-                builder.Append(AnnotationsToDebugString(indent: indent + 2));
-            }
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();
