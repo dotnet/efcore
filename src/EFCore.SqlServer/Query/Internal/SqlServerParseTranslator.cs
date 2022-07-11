@@ -28,7 +28,7 @@ public class SqlServerParseTranslator : IMethodCallTranslator
     private static readonly IEnumerable<MethodInfo> SupportedMethods
         = ClrTypeToStoreTypeMap.Keys
             .SelectMany(
-                t => t.GetTypeInfo().GetDeclaredMethods("Parse")
+                t => t.GetTypeInfo().GetDeclaredMethods(nameof(int.Parse))
                     .Where(
                         m => m.GetParameters().Length == 1
                             && m.GetParameters().First().ParameterType == typeof(string)));
