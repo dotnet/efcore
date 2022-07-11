@@ -1481,20 +1481,12 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Byte_Parse(bool async)
-    {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
-                byte.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
-            entryCount: 6);
-
-        await AssertQuery(
+    public virtual Task Byte_Parse(bool async)
+        => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
                 byte.Parse(c.Phone.Substring(0, 3)) == 30),
             entryCount: 1);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1538,12 +1530,6 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
-                decimal.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
-            entryCount: 6);
-
-        await AssertQuery(
-            async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
                 decimal.Parse(c.PostalCode) == 12209m),
             entryCount: 1);
@@ -1576,12 +1562,6 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
-                double.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
-            entryCount: 6);
-
-        await AssertQuery(
-            async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
                 double.Parse(c.PostalCode) == 12209d),
             entryCount: 1);
@@ -1612,12 +1592,6 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Short_Parse(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
-                short.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
-            entryCount: 6);
-
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
@@ -1664,12 +1638,6 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
-                int.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
-            entryCount: 6);
-
-        await AssertQuery(
-            async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
                 int.Parse(c.PostalCode) == 12209),
             entryCount: 1);
@@ -1703,12 +1671,6 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Long_Parse(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI" &&
-                long.Parse(Convert.ToString(o.OrderID % 1)) >= 0),
-            entryCount: 6);
-
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" &&
