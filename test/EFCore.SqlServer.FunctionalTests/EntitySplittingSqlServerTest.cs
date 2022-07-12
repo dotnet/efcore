@@ -10,7 +10,7 @@ public class EntitySplittingSqlServerTest : EntitySplittingTestBase
     {
     }
     
-    [ConditionalFact(Skip = "Entity splitting query Issue #620")]
+    [ConditionalFact]
     public virtual async Task Can_roundtrip_with_triggers()
     {
         await InitializeAsync(modelBuilder =>
@@ -60,6 +60,33 @@ END");
             Assert.Equal(MeterReadingStatus.NotAccesible, reading.ReadingStatus);
             Assert.Equal("100", reading.CurrentRead);
         }
+    }
+
+    public override async Task Can_roundtrip()
+    {
+        await base.Can_roundtrip();
+
+        AssertSql(
+            @"@p0='2' (Nullable = true)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [MeterReadings] ([ReadingStatus])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);",
+                //
+                @"@p1='1'
+@p2='100' (Size = 4000)
+@p3=NULL (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [MeterReadingDetails] ([Id], [CurrentRead], [PreviousRead])
+VALUES (@p1, @p2, @p3);",
+                //
+                @"SELECT TOP(2) [m].[Id], [m0].[CurrentRead], [m0].[PreviousRead], [m].[ReadingStatus]
+FROM [MeterReadings] AS [m]
+INNER JOIN [MeterReadingDetails] AS [m0] ON [m].[Id] = [m0].[Id]");
     }
 
     protected override ITestStoreFactory TestStoreFactory

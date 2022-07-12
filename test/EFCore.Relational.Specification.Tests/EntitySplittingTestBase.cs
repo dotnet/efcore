@@ -11,10 +11,10 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact(Skip = "Entity splitting query Issue #620")]
+    [ConditionalFact]
     public virtual async Task Can_roundtrip()
     {
-        await InitializeAsync(OnModelCreating, sensitiveLogEnabled: false);
+        await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
 
         await using (var context = CreateContext())
         {
