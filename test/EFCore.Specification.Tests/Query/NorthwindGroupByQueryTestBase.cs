@@ -1988,7 +1988,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                         ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
                         : Array.Empty<int>()),
             assertOrder: true,
-            elementAsserter: (e, a) => Assert.True(e.SequenceEqual(a)));
+            elementAsserter: (e, a) => Assert.True(e.OrderBy(x => x).SequenceEqual(a.OrderBy(x => x))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
