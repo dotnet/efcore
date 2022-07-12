@@ -472,6 +472,19 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Filtered_include_skip_navigation_order_by_take_EF_Property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityCompositeKey>().Include(
+                e => EF.Property<ICollection<EntityTwo>>(e, "TwoSkipShared").OrderBy(i => i.Id).Take(2)),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
+                new ExpectedFilteredInclude<EntityCompositeKey, EntityTwo>(
+                    et => et.TwoSkipShared, includeFilter: x => x.OrderBy(i => i.Id).Take(2))),
+            entryCount: 63);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_order_by_skip_take(bool async)
         => AssertQuery(
             async,
@@ -530,6 +543,22 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<EntityOne>().Include(e => e.TwoSkip.OrderBy(i => i.Id).Skip(1).Take(2))
                 .ThenInclude(e => e.ThreeSkipFull.Where(i => i.Id < 10)),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
+                new ExpectedFilteredInclude<EntityOne, EntityTwo>(
+                    et => et.TwoSkip, includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2)),
+                new ExpectedFilteredInclude<EntityTwo, EntityThree>(
+                    et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.Where(i => i.Id < 10))),
+            entryCount: 100);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_EF_Property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityOne>().Include(e => EF.Property<ICollection<EntityTwo>>(e, "TwoSkip").OrderBy(i => i.Id).Skip(1).Take(2))
+                .ThenInclude<EntityOne, EntityTwo, IEnumerable<EntityThree>>(
+                    e => EF.Property<ICollection<EntityThree>>(e, "ThreeSkipFull").Where(i => i.Id < 10)),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedFilteredInclude<EntityOne, EntityTwo>(
@@ -665,7 +694,7 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory(Skip = "Issue#21332")]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filered_includes_accessed_via_different_path_are_merged(bool async)
+    public virtual Task Filtered_includes_accessed_via_different_path_are_merged(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<EntityThree>().Include(e => e.OneSkipPayloadFull).ThenInclude(e => e.Collection.Where(i => i.Id < 5))

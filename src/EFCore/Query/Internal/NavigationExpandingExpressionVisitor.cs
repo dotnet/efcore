@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -1070,6 +1071,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             if (currentExpression is MethodCallExpression methodCallExpression)
             {
+                if (methodCallExpression.Method.IsEFPropertyMethod())
+                {
+                    return (currentExpression, default);
+                }
+                
                 if (!methodCallExpression.Method.IsGenericMethod
                     || !SupportedFilteredIncludeOperations.Contains(methodCallExpression.Method.GetGenericMethodDefinition()))
                 {
@@ -2037,41 +2043,18 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             case ParameterExpression:
                 return includeTreeNode;
 
-            case MemberExpression memberExpression
-                when memberExpression.Expression != null:
-                var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
-                var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression, setLoaded);
-                var entityType = innerIncludeTreeNode.EntityType;
-                if (convertedType != null)
+            case MethodCallExpression methodCallExpression
+                when methodCallExpression.TryGetEFPropertyArguments(out var entityExpression, out var propertyName):
+                if (TryExtractIncludeTreeNode(entityExpression, propertyName, out var addedEfPropertyNode))
                 {
-                    entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                        .FirstOrDefault(et => et.ClrType == convertedType);
-                    if (entityType == null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.InvalidTypeConversationWithInclude(expression, convertedType.ShortDisplayName()));
-                    }
+                    return addedEfPropertyNode;
                 }
 
-                var navigation = entityType.FindNavigation(memberExpression.Member);
-                if (navigation != null)
+                break;
+
+            case MemberExpression { Expression: { } } memberExpression:
+                if (TryExtractIncludeTreeNode(memberExpression.Expression, memberExpression.Member.Name, out var addedNode))
                 {
-                    var addedNode = innerIncludeTreeNode.AddNavigation(navigation, setLoaded);
-
-                    // This is to add eager Loaded navigations when owner type is included.
-                    PopulateEagerLoadedNavigations(addedNode);
-
-                    return addedNode;
-                }
-
-                var skipNavigation = entityType.FindSkipNavigation(memberExpression.Member);
-                if (skipNavigation != null)
-                {
-                    var addedNode = innerIncludeTreeNode.AddNavigation(skipNavigation, setLoaded);
-
-                    // This is to add eager Loaded navigations when owner type is included.
-                    PopulateEagerLoadedNavigations(addedNode);
-
                     return addedNode;
                 }
 
@@ -2079,6 +2062,43 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
 
         throw new InvalidOperationException(CoreStrings.InvalidIncludeExpression(expression));
+        
+        bool TryExtractIncludeTreeNode(
+            Expression innerExpression, 
+            string propertyName,
+            [NotNullWhen(true)] out IncludeTreeNode? addedNode)
+        {
+            innerExpression = innerExpression.UnwrapTypeConversion(out var convertedType);
+            var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression, setLoaded);
+            var entityType = innerIncludeTreeNode.EntityType;
+
+            if (convertedType != null)
+            {
+                entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                    .FirstOrDefault(et => et.ClrType == convertedType);
+                if (entityType == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidTypeConversationWithInclude(expression, convertedType.ShortDisplayName()));
+                }
+            }
+
+            var navigation = (INavigationBase?)entityType.FindNavigation(propertyName)
+                ?? entityType.FindSkipNavigation(propertyName);
+                
+            if (navigation != null)
+            {
+                addedNode = innerIncludeTreeNode.AddNavigation(navigation, setLoaded);
+
+                // This is to add eager Loaded navigations when owner type is included.
+                PopulateEagerLoadedNavigations(addedNode);
+
+                return true;
+            }
+
+            addedNode = null;
+            return false;
+        }
     }
 
     private Expression Reduce(Expression source)

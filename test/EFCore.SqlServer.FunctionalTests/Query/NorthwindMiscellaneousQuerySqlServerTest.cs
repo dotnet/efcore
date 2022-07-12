@@ -6323,6 +6323,13 @@ FROM [Orders] AS [o]");
         AssertSql();
     }
 
+    public override async Task EF_Property_include_on_incorrect_property_throws(bool async)
+    {
+        await base.EF_Property_include_on_incorrect_property_throws(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

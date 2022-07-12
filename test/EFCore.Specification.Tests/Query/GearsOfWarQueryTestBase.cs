@@ -199,6 +199,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Property_based_Include_navigation_on_derived_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>().OfType<Officer>().Include(o => EF.Property<Officer>(o, "Reports")),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_Where_Navigation_Included(bool async)
         => AssertQuery(
             async,
@@ -2932,6 +2940,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_reference_on_derived_type_using_EF_Property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustLeader>().Include(lc => EF.Property<Gear>((LocustCommander)lc, "DefeatedBy")),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_on_derived_type_using_string_nested1(bool async)
         => AssertQuery(
             async,
@@ -2984,6 +3000,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include("Reports"),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_collection_on_derived_type_using_EF_Property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Include(o => EF.Property<ICollection<Gear>>((Officer)o, "Reports")),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
 
     [ConditionalTheory]

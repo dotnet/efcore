@@ -8650,6 +8650,39 @@ WHERE NOT (EXISTS (
     WHERE [g].[FullName] = [w].[OwnerFullName]))");
     }
 
+    public override async Task Include_reference_on_derived_type_using_EF_Property(bool async)
+    {
+        await base.Include_reference_on_derived_type_using_EF_Property(async);
+
+        AssertSql(
+            @"SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [Gears] AS [g] ON [l].[DefeatedByNickname] = [g].[Nickname] AND [l].[DefeatedBySquadId] = [g].[SquadId]");
+    }
+
+    public override async Task Include_collection_on_derived_type_using_EF_Property(bool async)
+    {
+        await base.Include_collection_on_derived_type_using_EF_Property(async);
+
+        AssertSql(
+            @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gears] AS [g]
+LEFT JOIN [Gears] AS [g0] ON [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId]
+ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname]");
+    }
+
+    public override async Task EF_Property_based_Include_navigation_on_derived_type(bool async)
+    {
+        await base.EF_Property_based_Include_navigation_on_derived_type(async);
+
+        AssertSql(
+            @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+FROM [Gears] AS [g]
+LEFT JOIN [Gears] AS [g0] ON [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId]
+WHERE [g].[Discriminator] = N'Officer'
+ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname]");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
