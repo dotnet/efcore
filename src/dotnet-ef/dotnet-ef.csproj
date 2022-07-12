@@ -15,7 +15,7 @@ dotnet ef database update
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>
     <!-- Because this project uses a custom nuspec, this is necessary to ensure the generated shims are in the publish directory. -->
     <PackagedShimOutputRootDirectory>$(OutDir)</PackagedShimOutputRootDirectory>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
@@ -96,6 +96,8 @@ dotnet ef database update
       <NuspecProperty Include="OutputExeSymbol=..\..\artifacts\bin\ef\$(Configuration)\net461\ef.pdb" />
       <NuspecProperty Include="OutputX86Exe=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.exe" />
       <NuspecProperty Include="OutputX86ExeSymbol=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.pdb" />
+      <NuspecProperty Include="OutputARM64Exe=..\..\artifacts\bin\ef\ARM64\$(Configuration)\net461\ef.exe" />
+      <NuspecProperty Include="OutputARM64ExeSymbol=..\..\artifacts\bin\ef\ARM64\$(Configuration)\net461\ef.pdb" />
     </ItemGroup>
   </Target>
 </Project>
