@@ -1087,6 +1087,9 @@ public class StateManager : IStateManager
         var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
         var principalIsDetached = entry.EntityState == EntityState.Detached;
 
+        var detectChangesEnabled = Context.ChangeTracker.AutoDetectChangesEnabled
+            && !((IRuntimeModel)Model).SkipDetectChanges;
+
         foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
         foreach (var fk in foreignKeys)
         {
@@ -1103,7 +1106,10 @@ public class StateManager : IStateManager
                     continue;
                 }
 
-                ChangeDetector.DetectChanges(dependent);
+                if (detectChangesEnabled)
+                {
+                    ChangeDetector.DetectChanges(dependent);
+                }
 
                 if (dependent.EntityState != EntityState.Deleted
                     && dependent.EntityState != EntityState.Detached
