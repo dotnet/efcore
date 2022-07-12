@@ -4253,15 +4253,12 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
         else
         {
-            if (navigationName == null)
+            var generatedNavigationName = targetEntityType.ShortName();
+            navigationName = generatedNavigationName;
+            var uniquifier = 0;
+            while (Metadata.FindMembersInHierarchy(navigationName).Any())
             {
-                var generatedNavigationName = targetEntityType.ShortName();
-                navigationName = generatedNavigationName;
-                var uniquifier = 0;
-                while(Metadata.FindMembersInHierarchy(navigationName).Any())
-                {
-                    navigationName = generatedNavigationName + (++uniquifier);
-                }
+                navigationName = generatedNavigationName + (++uniquifier);
             }
 
             builder = Metadata.AddSkipNavigation(

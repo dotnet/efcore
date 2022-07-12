@@ -2510,14 +2510,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SetOperationWithDifferentIncludesInOperands");
 
         /// <summary>
-        ///     Unable to set up a many-to-many relationship between '{leftEntityType}.{leftNavigation}' and '{rightEntityType}.{rightNavigation}' because one or both of the navigations don't have a corresponding CLR property. Consider adding a corresponding private property to the entity CLR type.
-        /// </summary>
-        public static string ShadowManyToManyNavigation(object? leftEntityType, object? leftNavigation, object? rightEntityType, object? rightNavigation)
-            => string.Format(
-                GetString("ShadowManyToManyNavigation", nameof(leftEntityType), nameof(leftNavigation), nameof(rightEntityType), nameof(rightNavigation)),
-                leftEntityType, leftNavigation, rightEntityType, rightNavigation);
-
-        /// <summary>
         ///     The shared-type entity type '{entityType}' cannot have a base type.
         /// </summary>
         public static string SharedTypeDerivedType(object? entityType)

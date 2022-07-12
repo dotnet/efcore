@@ -45,7 +45,7 @@ public interface IClrCollectionAccessor
     bool Remove(object entity, object value);
 
     /// <summary>
-    ///     Adds a value to the collection, unless it is already contained in the collection.
+    ///     Adds a value to the passed collection, unless it is already contained in the collection.
     /// </summary>
     /// <param name="collection">The collection.</param>
     /// <param name="value">The value to add.</param>
@@ -53,7 +53,7 @@ public interface IClrCollectionAccessor
     bool AddStandalone(object collection, object value);
 
     /// <summary>
-    ///     Checks whether the value is contained in the collection.
+    ///     Checks whether the value is contained in the passed collection.
     /// </summary>
     /// <param name="collection">The collection.</param>
     /// <param name="value">The value to check.</param>
@@ -61,7 +61,7 @@ public interface IClrCollectionAccessor
     bool ContainsStandalone(object collection, object value);
 
     /// <summary>
-    ///     Removes a value from the collection.
+    ///     Removes a value from the passed collection.
     /// </summary>
     /// <param name="collection">The collection.</param>
     /// <param name="value">The value to check.</param>

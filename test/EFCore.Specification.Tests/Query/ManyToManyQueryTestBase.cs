@@ -794,15 +794,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => ss.Set<UnidirectionalEntityOne>().Where(e => e.TwoSkip.All(e => e.Name.Contains("B"))),
             entryCount: 1);
 
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_any_without_predicate_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityOne>().Where(e => e.ThreeSkipPayloadFull.Where(e => e.Name.Contains("B")).Any()),
-        //     entryCount: 0);
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Skip_navigation_any_with_predicate_unidirectional(bool async)
@@ -838,117 +829,12 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
             assertOrder: true,
             entryCount: 20);
 
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_long_count_without_predicate_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityTwo>().Where(e => e.ThreeSkipFull.LongCount() > 0),
-        //     entryCount: 19);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_long_count_with_predicate_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityTwo>().OrderByDescending(e => e.SelfSkipSharedLeft.LongCount(e => e.Name.StartsWith("L")))
-        //         .ThenBy(e => e.Id),
-        //     assertOrder: true,
-        //     entryCount: 20);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_select_many_average_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertAverage(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityTwo>().SelectMany(e => e.CompositeKeySkipShared.Select(e => e.Key1)));
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_select_many_max_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertMax(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityThree>().SelectMany(e => e.CompositeKeySkipFull.Select(e => e.Key1)),
-        //     entryCount: 0);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_select_many_min_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertMin(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityThree>().SelectMany(e => e.RootSkipShared.Select(e => e.Id)),
-        //     entryCount: 0);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_select_many_sum_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertSum(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityRoot>().SelectMany(e => e.CompositeKeySkipShared.Select(e => e.Key1)));
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Skip_navigation_select_subquery_average_unidirectional(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<UnidirectionalEntityLeaf>().Select(e => e.CompositeKeySkipFull.Average(e => e.Key1)));
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_select_subquery_max_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQueryScalar(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityTwo>().Select(e => e.OneSkip.Max(e => e.Id)));
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_select_subquery_min_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQueryScalar(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityThree>().Select(e => e.OneSkipPayloadFull.Min(e => e.Id)));
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_select_subquery_sum_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQueryScalar(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityTwo>().Select(e => e.OneSkipShared.Sum(e => e.Id)));
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_order_by_first_or_default_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityThree>().Select(e => e.OneSkipPayloadFullShared.OrderBy(i => i.Id).FirstOrDefault()),
-        //     entryCount: 12);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_order_by_single_or_default_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityOne>().Select(e => e.SelfSkipPayloadRight.OrderBy(i => i.Id).Take(1).SingleOrDefault()),
-        //     entryCount: 9);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_order_by_last_or_default_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityBranch>().Select(e => e.OneSkip.OrderBy(i => i.Id).LastOrDefault()),
-        //     entryCount: 6);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -957,17 +843,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<UnidirectionalEntityThree>().Select(e => e.TwoSkipFull.OrderBy(i => i.Id).Reverse().FirstOrDefault()),
             entryCount: 11);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Skip_navigation_cast_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityCompositeKey>().OrderBy(e => e.Key1).Select(e => e.LeafSkipFull.Cast<UnidirectionalEntityRoot>()),
-        //     assertOrder: true,
-        //     elementAsserter: (e, a) => AssertCollection(e, a),
-        //     entryCount: 4);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1043,17 +918,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
                   select t,
             entryCount: 20);
 
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Select_many_over_skip_navigation_order_by_skip_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => from r in ss.Set<UnidirectionalEntityOne>()
-        //           from t in r.ThreeSkipPayloadFull.OrderBy(e => e.Id).Skip(2)
-        //           select t,
-        //     entryCount: 16);
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_many_over_skip_navigation_order_by_take_unidirectional(bool async)
@@ -1073,17 +937,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
                   from t in r.ThreeSkipPayloadFullShared.OrderBy(e => e.Id).Skip(2).Take(3)
                   select t,
             entryCount: 7);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Select_many_over_skip_navigation_of_type_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => from r in ss.Set<UnidirectionalEntityThree>()
-        //           from t in r.RootSkipShared.OfType<UnidirectionalEntityBranch>()
-        //           select t,
-        //     entryCount: 9);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1106,41 +959,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a),
             entryCount: 13);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Select_skip_navigation_multiple_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => from r in ss.Set<UnidirectionalEntityTwo>()
-        //           orderby r.Id
-        //           select new
-        //           {
-        //               r.ThreeSkipFull,
-        //               r.SelfSkipSharedLeft,
-        //               r.CompositeKeySkipShared
-        //           },
-        //     assertOrder: true,
-        //     elementAsserter: (e, a) =>
-        //     {
-        //         AssertCollection(e.ThreeSkipFull, a.ThreeSkipFull);
-        //         AssertCollection(e.SelfSkipSharedLeft, a.SelfSkipSharedLeft);
-        //         AssertCollection(e.CompositeKeySkipShared, a.CompositeKeySkipShared);
-        //     },
-        //     entryCount: 50);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Select_skip_navigation_first_or_default_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => from r in ss.Set<UnidirectionalEntityThree>()
-        //           orderby r.Id
-        //           select r.CompositeKeySkipFull.OrderBy(e => e.Key1).ThenBy(e => e.Key2).FirstOrDefault(),
-        //     assertOrder: true,
-        //     entryCount: 12);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1252,36 +1070,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
                     et => et.ThreeSkipFull, includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))),
             entryCount: 57);
 
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filtered_then_include_skip_navigation_where_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityRoot>().Include(e => e.ThreeSkipShared)
-        //         .ThenInclude(e => e.OneSkipPayloadFullShared.Where(i => i.Id < 10)),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedInclude<EntityRoot>(et => et.ThreeSkipShared),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityThree, UnidirectionalEntityOne>(
-        //             et => et.OneSkipPayloadFullShared, "ThreeSkipShared", includeFilter: x => x.Where(i => i.Id < 10))),
-        //     entryCount: 78);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filtered_then_include_skip_navigation_order_by_skip_take_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityRoot>().Include(e => e.CompositeKeySkipShared)
-        //         .ThenInclude(e => e.ThreeSkipFull.OrderBy(i => i.Id).Skip(1).Take(2)),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedInclude<EntityRoot>(et => et.CompositeKeySkipShared),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityCompositeKey, UnidirectionalEntityThree>(
-        //             et => et.ThreeSkipFull, "CompositeKeySkipShared", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))),
-        //     entryCount: 104);
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filtered_include_skip_navigation_where_then_include_skip_navigation_unidirectional(bool async)
@@ -1295,38 +1083,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
                 new ExpectedInclude<UnidirectionalEntityCompositeKey>(et => et.TwoSkipShared, "CompositeKeySkipFull")),
             entryCount: 44);
 
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityOne>().Include(e => e.TwoSkip.OrderBy(i => i.Id).Skip(1).Take(2))
-        //         .ThenInclude(e => e.ThreeSkipFull.Where(i => i.Id < 10)),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityTwo>(
-        //             et => et.TwoSkip, includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2)),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityTwo, UnidirectionalEntityThree>(
-        //             et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.Where(i => i.Id < 10))),
-        //     entryCount: 100);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityOne>().Include(e => e.TwoSkip.Where(i => i.Id < 10))
-        //         .ThenInclude(e => e.ThreeSkipFull.OrderBy(i => i.Id).Skip(1).Take(2)),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityTwo>(
-        //             et => et.TwoSkip, includeFilter: x => x.Where(i => i.Id < 10)),
-        //         new ExpectedFilteredInclude<EntityTwo, EntityThree>(
-        //             et => et.ThreeSkipFull, "TwoSkip", includeFilter: x => x.OrderBy(i => i.Id).Skip(1).Take(2))),
-        //     entryCount: 106);
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_include_on_skip_navigation_combined_unidirectional(bool async)
@@ -1336,88 +1092,23 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .Include(e => e.OneSkip).ThenInclude(e => e.Collection),
             entryCount: 88);
 
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filter_include_on_skip_navigation_combined_with_filtered_then_includes_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityThree>().Include(e => e.OneSkipPayloadFull.Where(i => i.Id < 10))
-        //         .ThenInclude(e => e.TwoSkip.OrderBy(e => e.Id).Skip(1).Take(2))
-        //         .Include(e => e.OneSkipPayloadFull).ThenInclude(e => e.BranchSkip.Where(e => e.Id < 20)),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedFilteredInclude<UnidirectionalEntityThree, UnidirectionalEntityOne>(
-        //             et => et.OneSkipPayloadFull, includeFilter: x => x.Where(i => i.Id < 10)),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityTwo>(
-        //             et => et.TwoSkip, "OneSkipPayloadFull", includeFilter: x => x.OrderBy(e => e.Id).Skip(1).Take(2)),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityBranch>(
-        //             et => et.BranchSkip, "OneSkipPayloadFull", includeFilter: x => x.Where(e => e.Id < 20))),
-        //     entryCount: 116);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Throws_when_different_filtered_include_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => Assert.Equal(
-        //     CoreStrings.MultipleFilteredIncludesOnSameNavigation(
-        //             "navigation    .Where(i => i.Id < 20)", "navigation    .Where(i => i.Id < 10)")
-        //         .Replace("\r", "").Replace("\n", ""),
-        //     (await Assert.ThrowsAsync<InvalidOperationException>(
-        //         () => AssertQuery(
-        //             async,
-        //             ss => ss.Set<UnidirectionalEntityTwo>().Include(e => e.OneSkip.Where(i => i.Id < 10)).ThenInclude(e => e.BranchSkip)
-        //                 .Include(e => e.OneSkip.Where(i => i.Id < 20)).ThenInclude(e => e.ThreeSkipPayloadFull)))).Message
-        //     .Replace("\r", "").Replace("\n", ""));
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Throws_when_different_filtered_then_include_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => Assert.Equal(
-        //     CoreStrings.MultipleFilteredIncludesOnSameNavigation(
-        //             "navigation    .Where(i => i.Id < 20)", "navigation    .Where(i => i.Id < 10)")
-        //         .Replace("\r", "").Replace("\n", ""),
-        //     (await Assert.ThrowsAsync<InvalidOperationException>(
-        //         () => AssertQuery(
-        //             async,
-        //             ss => ss.Set<UnidirectionalEntityCompositeKey>()
-        //                 .Include(e => e.TwoSkipShared)
-        //                 .ThenInclude(e => e.OneSkip.Where(i => i.Id < 10)).ThenInclude(e => e.BranchSkip)
-        //                 .Include(e => e.TwoSkipShared)
-        //                 .ThenInclude(e => e.OneSkip.Where(i => i.Id < 20)).ThenInclude(e => e.ThreeSkipPayloadFull)))).Message
-        //     .Replace("\r", "").Replace("\n", ""));
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filtered_include_on_skip_navigation_then_filtered_include_on_navigation_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityThree>().Include(e => e.OneSkipPayloadFull.Where(i => i.Id > 15))
-        //         .ThenInclude(e => e.Collection.Where(i => i.Id < 5)),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedFilteredInclude<UnidirectionalEntityThree, UnidirectionalEntityOne>(
-        //             et => et.OneSkipPayloadFull, includeFilter: x => x.Where(i => i.Id > 15)),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityTwo>(
-        //             et => et.Collection, "OneSkipPayloadFull", includeFilter: x => x.Where(i => i.Id < 5))),
-        //     entryCount: 61);
-
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filtered_include_on_navigation_then_filtered_include_on_skip_navigation_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityOne>().Include(e => e.Collection.Where(i => i.Id > 15))
-        //         .ThenInclude(e => e.ThreeSkipFull.Where(i => i.Id < 5)),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityTwo>(et => et.Collection, includeFilter: x => x.Where(i => i.Id > 15)),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityTwo, UnidirectionalEntityThree>(
-        //             et => et.ThreeSkipFull, "Collection", includeFilter: x => x.Where(i => i.Id < 5))),
-        //     entryCount: 29);
+    public virtual async Task Throws_when_different_filtered_include_unidirectional(bool async)
+        => Assert.Equal(
+            CoreStrings.MultipleFilteredIncludesOnSameNavigation(
+                    "navigation    .Where(i => i.Id < 20)", "navigation    .Where(i => i.Id < 10)")
+                .Replace("\r", "").Replace("\n", ""),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<UnidirectionalEntityTwo>()
+                        .Include(e => EF.Property<IEnumerable<UnidirectionalEntityOne>>(e, "UnidirectionalEntityOne").Where(i => i.Id < 10))
+                        .ThenInclude(e => e.BranchSkip)
+                        .Include(e => EF.Property<IEnumerable<UnidirectionalEntityOne>>(e, "UnidirectionalEntityOne").Where(i => i.Id < 20))
+                        .ThenInclude<UnidirectionalEntityTwo, UnidirectionalEntityOne, ICollection<UnidirectionalEntityThree>>(
+                            e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree"))))).Message
+            .Replace("\r", "").Replace("\n", ""));
 
     [ConditionalTheory(Skip = "Issue#21332")]
     [MemberData(nameof(IsAsyncData))]
@@ -1427,47 +1118,6 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => ss.Set<UnidirectionalEntityOne>().Include("ThreeSkipPayloadFull.CollectionInverse")
                 .Include(e => e.JoinThreePayloadFull).ThenInclude(e => e.Three).ThenInclude(e => e.ReferenceInverse),
             entryCount: 0);
-
-    [ConditionalTheory(Skip = "Issue#21332; TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Filered_includes_accessed_via_different_path_are_merged_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => AssertQuery(
-        //     async,
-        //     ss => ss.Set<UnidirectionalEntityThree>().Include(e => e.OneSkipPayloadFull).ThenInclude(e => e.Collection.Where(i => i.Id < 5))
-        //         .Include(e => e.JoinOnePayloadFull).ThenInclude(e => e.One).ThenInclude(e => e.Collection)
-        //         .ThenInclude(e => e.Reference),
-        //     elementAsserter: (e, a) => AssertInclude(
-        //         e, a,
-        //         new ExpectedInclude<UnidirectionalEntityThree>(e => e.OneSkipPayloadFull),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityTwo>(
-        //             e => e.Collection, "OneSkipPayloadFull", includeFilter: x => x.Where(i => i.Id < 5)),
-        //         new ExpectedInclude<UnidirectionalEntityThree>(e => e.JoinOnePayloadFull),
-        //         new ExpectedInclude<UnidirectionalJoinOneToThreePayloadFull>(e => e.One, "JoinOnePayloadFull"),
-        //         new ExpectedFilteredInclude<UnidirectionalEntityOne, UnidirectionalEntityTwo>(
-        //             e => e.Collection, "JoinOnePayloadFull.One", includeFilter: x => x.Where(i => i.Id < 5)),
-        //         new ExpectedInclude<UnidirectionalEntityTwo>(e => e.Reference, "OneSkipPayloadFull.Collection"),
-        //         new ExpectedInclude<UnidirectionalEntityTwo>(e => e.Reference, "JoinOnePayloadFull.One.Collection")),
-        //     entryCount: 0);
-
-    [ConditionalTheory(Skip = "Issue#21332; TODOU: Needs #27493")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Throws_when_different_filtered_then_include_via_different_paths_unidirectional(bool async)
-        => Task.CompletedTask;
-        // => Assert.Equal(
-        //     CoreStrings.MultipleFilteredIncludesOnSameNavigation(
-        //             "navigation    .Where(i => i.Id < 20)", "navigation    .Where(i => i.Id < 10)")
-        //         .Replace("\r", "").Replace("\n", ""),
-        //     (await Assert.ThrowsAsync<InvalidOperationException>(
-        //         () => AssertQuery(
-        //             async,
-        //             ss => ss.Set<UnidirectionalEntityThree>()
-        //                 .Include(e => e.OneSkipPayloadFull)
-        //                 .ThenInclude(e => e.Collection.Where(i => i.Id < 20))
-        //                 .Include(e => e.JoinOnePayloadFull)
-        //                 .ThenInclude(e => e.One)
-        //                 .ThenInclude(e => e.Collection.Where(i => i.Id < 10))))).Message
-        //     .Replace("\r", "").Replace("\n", ""));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -840,113 +840,111 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         }
 
         Assert.Equal(children, left.TwoSkipShared.ToList());
-
-        // TODOU: Should be 7, when #27493 is implemented.
-        Assert.Equal(17, context.ChangeTracker.Entries().Count());
+        Assert.Equal(7, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory(Skip = "TODOU: Needs #27493")]
+    [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]
-    public virtual Task Load_collection_using_Query_with_filtered_Include_unidirectional(bool async)
+    public virtual async Task Load_collection_using_Query_with_filtered_Include_unidirectional(bool async)
     {
-        return Task.CompletedTask;
-        // using var context = Fixture.CreateContext();
-        //
-        // var left = context.Set<UnidirectionalEntityOne>().Find(3);
-        //
-        // ClearLog();
-        //
-        // var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
-        //
-        // Assert.False(collectionEntry.IsLoaded);
-        //
-        // var children = async
-        //     ? await collectionEntry.Query().Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11)).ToListAsync()
-        //     : collectionEntry.Query().Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11)).ToList();
-        //
-        // Assert.False(collectionEntry.IsLoaded);
-        // foreach (var entityTwo in left.TwoSkipShared)
-        // {
-        //     Assert.False(context.Entry(entityTwo).Collection("UnidirectionalEntityOne").IsLoaded);
-        //     Assert.True(context.Entry(entityTwo).Collection(e => e.ThreeSkipFull).IsLoaded);
-        //
-        //     foreach (var entityThree in entityTwo.ThreeSkipFull)
-        //     {
-        //         Assert.False(context.Entry(entityThree).Collection(e => e.TwoSkipFull).IsLoaded);
-        //     }
-        // }
-        //
-        // RecordLog();
-        // context.ChangeTracker.LazyLoadingEnabled = false;
-        //
-        // Assert.Equal(3, left.TwoSkipShared.Count);
-        // foreach (var right in left.TwoSkipShared)
-        // {
-        //     Assert.Contains(left, context.Entry(right).Collection("UnidirectionalEntityOne").CurrentValue!.Cast<object>());
-        //     foreach (var three in right.ThreeSkipFull)
-        //     {
-        //         Assert.True(three.Id == 11 || three.Id == 13);
-        //         Assert.Contains(right, three.TwoSkipFull);
-        //     }
-        // }
-        //
-        // Assert.Equal(children, left.TwoSkipShared.ToList());
-        //
-        // Assert.Equal(9, context.ChangeTracker.Entries().Count());
+        using var context = Fixture.CreateContext();
+
+        var left = await context.Set<UnidirectionalEntityOne>().FindAsync(3);
+
+        ClearLog();
+
+        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+        Assert.False(collectionEntry.IsLoaded);
+
+        var children = async
+            ? await collectionEntry.Query()
+                .Include(e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree")
+                    .Where(e => e.Id == 13 || e.Id == 11)).ToListAsync()
+            : collectionEntry.Query()
+                .Include(e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree")
+                .Where(e => e.Id == 13 || e.Id == 11)).ToList();
+
+        Assert.False(collectionEntry.IsLoaded);
+        foreach (var entityTwo in left.TwoSkipShared)
+        {
+            Assert.False(context.Entry(entityTwo).Collection("UnidirectionalEntityOne").IsLoaded);
+            Assert.True(context.Entry(entityTwo).Collection("UnidirectionalEntityThree").IsLoaded);
+
+            foreach (var entityThree in
+                     context.Entry(entityTwo).Collection<UnidirectionalEntityThree>("UnidirectionalEntityThree").CurrentValue!)
+            {
+                Assert.False(context.Entry(entityThree).Collection(e => e.TwoSkipFull).IsLoaded);
+            }
+        }
+
+        RecordLog();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        Assert.Equal(3, left.TwoSkipShared.Count);
+        foreach (var right in left.TwoSkipShared)
+        {
+            Assert.Contains(left, context.Entry(right).Collection("UnidirectionalEntityOne").CurrentValue!.Cast<object>());
+            foreach (var three in context.Entry(right).Collection<UnidirectionalEntityThree>("UnidirectionalEntityThree").CurrentValue!)
+            {
+                Assert.True(three.Id == 11 || three.Id == 13);
+                Assert.Contains(right, three.TwoSkipFull);
+            }
+        }
+
+        Assert.Equal(children, left.TwoSkipShared.ToList());
+
+        Assert.Equal(9, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory (Skip = "TODOU: Needs #27493")]
+    [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]
-    public virtual Task Load_collection_using_Query_with_filtered_Include_and_projection_unidirectional(bool async)
+    public virtual async Task Load_collection_using_Query_with_filtered_Include_and_projection_unidirectional(bool async)
     {
-        return Task.CompletedTask;
-        // using var context = Fixture.CreateContext();
-        //
-        // var left = context.Set<UnidirectionalEntityOne>().Find(3);
-        //
-        // ClearLog();
-        //
-        // var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
-        //
-        // Assert.False(collectionEntry.IsLoaded);
-        //
-        // var queryable = collectionEntry
-        //     .Query()
-        //     .Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11))
-        //     .OrderBy(e => e.Id)
-        //     .Select(
-        //         e => new
-        //         {
-        //             e.Id,
-        //             e.Name,
-        //             Count3 = e.ThreeSkipFull.Count
-        //         });
-        //
-        // var projected = async
-        //     ? await queryable.ToListAsync()
-        //     : queryable.ToList();
-        //
-        // RecordLog();
-        // context.ChangeTracker.LazyLoadingEnabled = false;
-        // Assert.False(collectionEntry.IsLoaded);
-        // Assert.Empty(left.TwoSkipShared);
-        // Assert.Single(context.ChangeTracker.Entries());
-        //
-        // Assert.Equal(3, projected.Count);
-        //
-        // Assert.Equal(10, projected[0].Id);
-        // Assert.Equal("EntityTwo 10", projected[0].Name);
-        // Assert.Equal(1, projected[0].Count3);
-        //
-        // Assert.Equal(11, projected[1].Id);
-        // Assert.Equal("EntityTwo 11", projected[1].Name);
-        // Assert.Equal(4, projected[1].Count3);
-        //
-        // Assert.Equal(16, projected[2].Id);
-        // Assert.Equal("EntityTwo 16", projected[2].Name);
-        // Assert.Equal(2, projected[2].Count3);
+        using var context = Fixture.CreateContext();
+
+        var left = await context.Set<UnidirectionalEntityOne>().FindAsync(3);
+
+        ClearLog();
+
+        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+
+        Assert.False(collectionEntry.IsLoaded);
+
+        var queryable = collectionEntry
+            .Query()
+            .Include(
+                e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree")
+                    .Where(e => e.Id == 13 || e.Id == 11))
+            .OrderBy(e => e.Id)
+            .Select(
+                e => new
+                {
+                    e.Id, e.Name,
+                });
+
+        var projected = async
+            ? await queryable.ToListAsync()
+            : queryable.ToList();
+
+        RecordLog();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+        Assert.False(collectionEntry.IsLoaded);
+        Assert.Empty(left.TwoSkipShared);
+        Assert.Single(context.ChangeTracker.Entries());
+
+        Assert.Equal(3, projected.Count);
+
+        Assert.Equal(10, projected[0].Id);
+        Assert.Equal("EntityTwo 10", projected[0].Name);
+
+        Assert.Equal(11, projected[1].Id);
+        Assert.Equal("EntityTwo 11", projected[1].Name);
+
+        Assert.Equal(16, projected[2].Id);
+        Assert.Equal("EntityTwo 16", projected[2].Name);
     }
 
     [ConditionalTheory]

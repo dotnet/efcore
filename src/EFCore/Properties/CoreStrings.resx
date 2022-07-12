@@ -1370,9 +1370,6 @@
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
     <value>Unable to translate set operation since both operands have different 'Include' operations. Consider having same 'Include' applied on both sides.</value>
   </data>
-  <data name="ShadowManyToManyNavigation" xml:space="preserve">
-    <value>Unable to set up a many-to-many relationship between '{leftEntityType}.{leftNavigation}' and '{rightEntityType}.{rightNavigation}' because one or both of the navigations don't have a corresponding CLR property. Consider adding a corresponding private property to the entity CLR type.</value>
-  </data>
   <data name="SharedTypeDerivedType" xml:space="preserve">
     <value>The shared-type entity type '{entityType}' cannot have a base type.</value>
   </data>

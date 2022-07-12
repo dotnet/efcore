@@ -918,10 +918,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     /// </summary>
     public object GetOrCreateCollection(INavigationBase navigationBase, bool forMaterialization)
         => navigationBase.IsShadowProperty()
-            ? GetOrCreateCollectionTyped(navigationBase)
+            ? GetOrCreateShadowCollection(navigationBase)
             : navigationBase.GetCollectionAccessor()!.GetOrCreate(Entity, forMaterialization);
 
-    private object GetOrCreateCollectionTyped(INavigationBase navigation)
+    private object GetOrCreateShadowCollection(INavigationBase navigation)
     {
         var collection = _shadowValues[navigation.GetShadowIndex()]; 
         if (collection == null)
@@ -943,7 +943,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         var collectionAccessor = navigationBase.GetCollectionAccessor()!;
         return navigationBase.IsShadowProperty()
-            ? collectionAccessor.ContainsStandalone(GetOrCreateCollectionTyped(navigationBase), value)
+            ? collectionAccessor.ContainsStandalone(GetOrCreateShadowCollection(navigationBase), value)
             : collectionAccessor.Contains(Entity, value);
     }
 
@@ -964,7 +964,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             return collectionAccessor.Add(Entity, value, forMaterialization);
         }
 
-        var collection = GetOrCreateCollectionTyped(navigationBase);
+        var collection = GetOrCreateShadowCollection(navigationBase);
         if (!collectionAccessor.ContainsStandalone(collection, value))
         {
             collectionAccessor.AddStandalone(collection, value);
@@ -984,7 +984,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         var collectionAccessor = navigationBase.GetCollectionAccessor()!;
         return navigationBase.IsShadowProperty()
-            ? collectionAccessor.RemoveStandalone(GetOrCreateCollectionTyped(navigationBase), value)
+            ? collectionAccessor.RemoveStandalone(GetOrCreateShadowCollection(navigationBase), value)
             : collectionAccessor.Remove(Entity, value);
     }
 

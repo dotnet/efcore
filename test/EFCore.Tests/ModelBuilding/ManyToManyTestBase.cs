@@ -446,6 +446,192 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Many_to_many_with_only_Has_navigation_configured()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<UniCategory>().HasMany(e => e.Products).WithMany();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var manyToManyA = model.FindEntityType(typeof(UniCategory))!;
+            var manyToManyB = model.FindEntityType(typeof(UniProduct))!;
+            var joinEntityType = model.GetEntityTypes()
+                .Where(et => et.ClrType == Model.DefaultPropertyBagType)
+                .Single();
+            Assert.Equal("UniCategoryUniProduct", joinEntityType.Name);
+
+            var navigationOnManyToManyA = manyToManyA.GetSkipNavigations().Single();
+            var navigationOnManyToManyB = manyToManyB.GetSkipNavigations().Single();
+            Assert.Equal("Products", navigationOnManyToManyA.Name);
+            Assert.Equal("UniCategory", navigationOnManyToManyB.Name);
+            Assert.Same(navigationOnManyToManyA.Inverse, navigationOnManyToManyB);
+            Assert.Same(navigationOnManyToManyB.Inverse, navigationOnManyToManyA);
+            Assert.False(navigationOnManyToManyA.IsShadowProperty());
+            Assert.True(navigationOnManyToManyB.IsShadowProperty());
+
+            var manyToManyAForeignKey = navigationOnManyToManyA.ForeignKey;
+            var manyToManyBForeignKey = navigationOnManyToManyB.ForeignKey;
+            Assert.NotNull(manyToManyAForeignKey);
+            Assert.NotNull(manyToManyBForeignKey);
+            Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+            Assert.Equal(manyToManyAForeignKey.DeclaringEntityType, joinEntityType);
+            Assert.Equal(manyToManyBForeignKey.DeclaringEntityType, joinEntityType);
+
+            var key = joinEntityType.FindPrimaryKey()!;
+            Assert.Equal(
+                new[]
+                {
+                    "ProductsId",
+                    "UniCategoryId"
+                },
+                key.Properties.Select(p => p.Name));
+
+            Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
+        }
+
+        [ConditionalFact]
+        public virtual void Many_to_many_with_no_navigations_configured()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<NoCategory>().HasMany<NoProduct>().WithMany();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var manyToManyA = model.FindEntityType(typeof(NoCategory))!;
+            var manyToManyB = model.FindEntityType(typeof(NoProduct))!;
+            var joinEntityType = model.GetEntityTypes()
+                .Where(et => et.ClrType == Model.DefaultPropertyBagType)
+                .Single();
+            Assert.Equal("NoCategoryNoProduct", joinEntityType.Name);
+
+            var navigationOnManyToManyA = manyToManyA.GetSkipNavigations().Single();
+            var navigationOnManyToManyB = manyToManyB.GetSkipNavigations().Single();
+            Assert.Equal("NoProduct", navigationOnManyToManyA.Name);
+            Assert.Equal("NoCategory", navigationOnManyToManyB.Name);
+            Assert.Same(navigationOnManyToManyA.Inverse, navigationOnManyToManyB);
+            Assert.Same(navigationOnManyToManyB.Inverse, navigationOnManyToManyA);
+            Assert.True(navigationOnManyToManyA.IsShadowProperty());
+            Assert.True(navigationOnManyToManyB.IsShadowProperty());
+
+            var manyToManyAForeignKey = navigationOnManyToManyA.ForeignKey;
+            var manyToManyBForeignKey = navigationOnManyToManyB.ForeignKey;
+            Assert.NotNull(manyToManyAForeignKey);
+            Assert.NotNull(manyToManyBForeignKey);
+            Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+            Assert.Equal(manyToManyAForeignKey.DeclaringEntityType, joinEntityType);
+            Assert.Equal(manyToManyBForeignKey.DeclaringEntityType, joinEntityType);
+
+            var key = joinEntityType.FindPrimaryKey()!;
+            Assert.Equal(
+                new[]
+                {
+                    "NoCategoryId",
+                    "NoProductId"
+                },
+                key.Properties.Select(p => p.Name));
+
+            Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
+        }
+
+        [ConditionalFact]
+        public virtual void Many_to_many_with_a_shadow_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<OneToOneNavPrincipal>();
+            modelBuilder.Ignore<OneToManyNavPrincipal>();
+            modelBuilder.Entity<NavDependent>().Ignore(d => d.ManyToManyPrincipals);
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>()
+                .HasMany(d => d.Dependents)
+                .WithMany("Shadow");
+
+            var model = modelBuilder.FinalizeModel();
+
+            var manyToManyA = model.FindEntityType(typeof(ManyToManyNavPrincipal))!;
+            var manyToManyB = model.FindEntityType(typeof(NavDependent))!;
+            var joinEntityType = model.GetEntityTypes()
+                .Where(et => et.ClrType == Model.DefaultPropertyBagType)
+                .Single();
+            Assert.Equal("ManyToManyNavPrincipalNavDependent", joinEntityType.Name);
+
+            var navigationOnManyToManyA = manyToManyA.GetSkipNavigations().Single();
+            var navigationOnManyToManyB = manyToManyB.GetSkipNavigations().Single();
+            Assert.Equal("Dependents", navigationOnManyToManyA.Name);
+            Assert.Equal("Shadow", navigationOnManyToManyB.Name);
+            Assert.Same(navigationOnManyToManyA.Inverse, navigationOnManyToManyB);
+            Assert.Same(navigationOnManyToManyB.Inverse, navigationOnManyToManyA);
+            Assert.False(navigationOnManyToManyA.IsShadowProperty());
+            Assert.True(navigationOnManyToManyB.IsShadowProperty());
+
+            var manyToManyAForeignKey = navigationOnManyToManyA.ForeignKey;
+            var manyToManyBForeignKey = navigationOnManyToManyB.ForeignKey;
+            Assert.NotNull(manyToManyAForeignKey);
+            Assert.NotNull(manyToManyBForeignKey);
+            Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+            Assert.Equal(manyToManyAForeignKey.DeclaringEntityType, joinEntityType);
+            Assert.Equal(manyToManyBForeignKey.DeclaringEntityType, joinEntityType);
+
+            var key = joinEntityType.FindPrimaryKey()!;
+            Assert.Equal(
+                new[]
+                {
+                    "DependentsId",
+                    "ShadowId"
+                },
+                key.Properties.Select(p => p.Name));
+
+            Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
+        }
+
+        [ConditionalFact]
+        public virtual void Many_to_many_with_only_With_navigation_configured()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<UniProduct>().HasMany<UniCategory>().WithMany(c => c.Products);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var manyToManyA = model.FindEntityType(typeof(UniProduct))!;
+            var manyToManyB = model.FindEntityType(typeof(UniCategory))!;
+            var joinEntityType = model.GetEntityTypes()
+                .Where(et => et.ClrType == Model.DefaultPropertyBagType)
+                .Single();
+            Assert.Equal("UniCategoryUniProduct", joinEntityType.Name);
+
+            var navigationOnManyToManyA = manyToManyA.GetSkipNavigations().Single();
+            var navigationOnManyToManyB = manyToManyB.GetSkipNavigations().Single();
+            Assert.Equal("UniCategory", navigationOnManyToManyA.Name);
+            Assert.Equal("Products", navigationOnManyToManyB.Name);
+            Assert.Same(navigationOnManyToManyA.Inverse, navigationOnManyToManyB);
+            Assert.Same(navigationOnManyToManyB.Inverse, navigationOnManyToManyA);
+            Assert.True(navigationOnManyToManyA.IsShadowProperty());
+            Assert.False(navigationOnManyToManyB.IsShadowProperty());
+
+            var manyToManyAForeignKey = navigationOnManyToManyA.ForeignKey;
+            var manyToManyBForeignKey = navigationOnManyToManyB.ForeignKey;
+            Assert.NotNull(manyToManyAForeignKey);
+            Assert.NotNull(manyToManyBForeignKey);
+            Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+            Assert.Equal(manyToManyAForeignKey.DeclaringEntityType, joinEntityType);
+            Assert.Equal(manyToManyBForeignKey.DeclaringEntityType, joinEntityType);
+
+            var key = joinEntityType.FindPrimaryKey()!;
+            Assert.Equal(
+                new[]
+                {
+                    "ProductsId",
+                    "UniCategoryId"
+                },
+                key.Properties.Select(p => p.Name));
+
+            Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
+        }
+
+        [ConditionalFact]
         public virtual void Throws_for_self_ref_with_same_navigation()
         {
             var modelBuilder = CreateModelBuilder();

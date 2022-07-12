@@ -214,7 +214,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     The name of the collection navigation property on the other end of this relationship.
     /// </param>
     /// <returns>An object to further configure the relationship.</returns>
-    public virtual CollectionCollectionBuilder WithMany(string navigationName)
+    public virtual CollectionCollectionBuilder WithMany(string? navigationName = null)
     {
         var leftName = Builder?.Metadata.PrincipalToDependent?.Name;
         var collectionCollectionBuilder =
