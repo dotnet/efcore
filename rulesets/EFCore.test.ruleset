@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="EFCore" ToolsVersion="15.0">
+  <Include Path="StyleCop.noxmldocs.ruleset" Action="Default" />
+  <Include Path="FxCop.test.ruleset" Action="Default" />
+  <Include Path="Documentation.ruleset" Action="Default" />
+</RuleSet>

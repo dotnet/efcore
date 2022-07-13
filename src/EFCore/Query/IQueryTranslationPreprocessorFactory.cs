@@ -1,22 +1,29 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+/// <summary>
+///     A factory for creating <see cref="QueryTranslationPreprocessor" /> instances.
+/// </summary>
+/// <remarks>
+///     <para>
+///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+///         <see cref="DbContext" /> instance will use its own instance of this service.
+///         The implementation may depend on other services registered with any lifetime.
+///         The implementation does not need to be thread-safe.
+///     </para>
+///     <para>
+///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///         and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
+///     </para>
+/// </remarks>
+public interface IQueryTranslationPreprocessorFactory
 {
     /// <summary>
-    ///     <para>
-    ///         A factory for creating <see cref="QueryTranslationPreprocessor" /> instances.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    ///     </para>
+    ///     Creates a new <see cref="QueryTranslationPreprocessor" /> for given <see cref="QueryCompilationContext" />.
     /// </summary>
-    public interface IQueryTranslationPreprocessorFactory
-    {
-        QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext);
-    }
+    /// <param name="queryCompilationContext">The query compilation context to use.</param>
+    /// <returns>The created visitor.</returns>
+    QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext);
 }

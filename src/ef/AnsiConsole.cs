@@ -1,15 +1,14 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Tools
-{
-    internal static class AnsiConsole
-    {
-        public static readonly AnsiTextWriter _out = new AnsiTextWriter(Console.Out);
+namespace Microsoft.EntityFrameworkCore.Tools;
 
-        public static void WriteLine(string text)
-            => _out.WriteLine(text);
-    }
+internal static class AnsiConsole
+{
+    public static readonly AnsiTextWriter Out = new(Console.Out);
+
+    public static void WriteLine(string? text)
+        => Out.WriteLine(text);
 }

@@ -1,0 +1,12 @@
+﻿<#@ template visibility="internal" linePragmas="false" #>
+<#@ parameter name="ContextType" type="System.String" #>
+<#@ parameter name="Assembly" type="System.String" #>
+<#@ parameter name="StartupAssembly" type="System.String" #>
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
+
+return MigrationsBundle.Execute(
+    "<#= ContextType #>",
+    Assembly.Load(new AssemblyName("<#= Assembly #>")),
+    Assembly.Load(new AssemblyName("<#= StartupAssembly #>")),
+    args);

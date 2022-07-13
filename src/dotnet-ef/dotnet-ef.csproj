@@ -12,7 +12,7 @@ dotnet ef dbcontext scaffold
 dotnet ef database drop
 dotnet ef database update
     </Description>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86;win-arm64</PackAsToolShimRuntimeIdentifiers>
@@ -20,32 +20,29 @@ dotnet ef database update
     <PackagedShimOutputRootDirectory>$(OutDir)</PackagedShimOutputRootDirectory>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
-    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
-    <!--
-      This keeps ef.exe targeting the default version of .NET Core for netcoreapp3.1,
-      which maximizes the machines on which this tool will be compatible.
-    -->
-    <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
+    <RollForward>Major</RollForward>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\ef\CommandLineUtils\*.cs" />
-    <Compile Include="..\ef\Commands\CommandBase.cs" />
-    <Compile Include="..\ef\Commands\ContextCommandBase.cs" />
-    <Compile Include="..\ef\Commands\DatabaseCommand.cs" />
-    <Compile Include="..\ef\Commands\DbContextCommand.cs" />
-    <Compile Include="..\ef\Commands\EFCommandBase.cs" />
-    <Compile Include="..\ef\Commands\HelpCommandBase.cs" />
-    <Compile Include="..\ef\Commands\MigrationsCommand.cs" />
-    <Compile Include="..\ef\Commands\RootCommand.cs" />
+    <Compile Include="..\ef\CommandLineUtils\*.cs" Link="CommandLineUtils\%(Filename).cs" />
+    <Compile Include="..\ef\Commands\CommandBase.cs" Link="Commands\CommandBase.cs" />
+    <Compile Include="..\ef\Commands\ContextCommandBase.cs" Link="Commands\ContextCommandBase.cs" />
+    <Compile Include="..\ef\Commands\DatabaseCommand.cs" Link="Commands\DatabaseCommand.cs" />
+    <Compile Include="..\ef\Commands\DbContextCommand.cs" Link="Commands\DbContextCommand.cs" />
+    <Compile Include="..\ef\Commands\EFCommandBase.cs" Link="Commands\EFCommandBase.cs" />
+    <Compile Include="..\ef\Commands\HelpCommandBase.cs" Link="Commands\HelpCommandBase.cs" />
+    <Compile Include="..\ef\Commands\MigrationsCommand.cs" Link="Commands\MigrationsCommand.cs" />
+    <Compile Include="..\ef\Commands\RootCommand.cs" Link="Commands\Commands.cs" />
     <Compile Include="..\ef\AnsiConsole.cs" />
     <Compile Include="..\ef\AnsiConstants.cs" />
     <Compile Include="..\ef\AnsiTextWriter.cs" />
     <Compile Include="..\ef\CommandException.cs" />
     <Compile Include="..\ef\Json.cs" />
     <Compile Include="..\ef\Reporter.cs" />
-    <Compile Include="..\ef\Commands\**\*.Configure.cs" />
+    <Compile Include="..\ef\Commands\**\*.Configure.cs" Link="Commands\%(RecursiveDir)%(Filename).cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
   </ItemGroup>
 
@@ -76,8 +73,7 @@ dotnet ef database update
     </Compile>
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties"
-      DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup" >
+  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg. -->
       <IncludeSymbols>true</IncludeSymbols>

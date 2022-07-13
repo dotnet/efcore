@@ -1,124 +1,331 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+/// <summary>
+///     <para>
+///         A class that visits a SQL expression tree.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+public abstract class SqlExpressionVisitor : ExpressionVisitor
 {
-    public abstract class SqlExpressionVisitor : ExpressionVisitor
+    /// <inheritdoc />
+    protected override Expression VisitExtension(Expression extensionExpression)
     {
-        protected override Expression VisitExtension(Expression extensionExpression)
+        switch (extensionExpression)
         {
-            switch (extensionExpression)
-            {
-                case CaseExpression caseExpression:
-                    return VisitCase(caseExpression);
+            case ShapedQueryExpression shapedQueryExpression:
+                return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
 
-                case ColumnExpression columnExpression:
-                    return VisitColumn(columnExpression);
+            case AtTimeZoneExpression atTimeZoneExpression:
+                return VisitAtTimeZone(atTimeZoneExpression);
 
-                case CrossApplyExpression crossApplyExpression:
-                    return VisitCrossApply(crossApplyExpression);
+            case CaseExpression caseExpression:
+                return VisitCase(caseExpression);
 
-                case CrossJoinExpression crossJoinExpression:
-                    return VisitCrossJoin(crossJoinExpression);
+            case CollateExpression collateExpression:
+                return VisitCollate(collateExpression);
 
-                case ExceptExpression exceptExpression:
-                    return VisitExcept(exceptExpression);
+            case ColumnExpression columnExpression:
+                return VisitColumn(columnExpression);
 
-                case ExistsExpression existsExpression:
-                    return VisitExists(existsExpression);
+            case CrossApplyExpression crossApplyExpression:
+                return VisitCrossApply(crossApplyExpression);
 
-                case FromSqlExpression fromSqlExpression:
-                    return VisitFromSql(fromSqlExpression);
+            case CrossJoinExpression crossJoinExpression:
+                return VisitCrossJoin(crossJoinExpression);
 
-                case InExpression inExpression:
-                    return VisitIn(inExpression);
+            case DistinctExpression distinctExpression:
+                return VisitDistinct(distinctExpression);
 
-                case IntersectExpression intersectExpression:
-                    return VisitIntersect(intersectExpression);
+            case ExceptExpression exceptExpression:
+                return VisitExcept(exceptExpression);
 
-                case InnerJoinExpression innerJoinExpression:
-                    return VisitInnerJoin(innerJoinExpression);
+            case ExistsExpression existsExpression:
+                return VisitExists(existsExpression);
 
-                case LeftJoinExpression leftJoinExpression:
-                    return VisitLeftJoin(leftJoinExpression);
+            case FromSqlExpression fromSqlExpression:
+                return VisitFromSql(fromSqlExpression);
 
-                case LikeExpression likeExpression:
-                    return VisitLike(likeExpression);
+            case InExpression inExpression:
+                return VisitIn(inExpression);
 
-                case OrderingExpression orderingExpression:
-                    return VisitOrdering(orderingExpression);
+            case IntersectExpression intersectExpression:
+                return VisitIntersect(intersectExpression);
 
-                case OuterApplyExpression outerApplyExpression:
-                    return VisitOuterApply(outerApplyExpression);
+            case InnerJoinExpression innerJoinExpression:
+                return VisitInnerJoin(innerJoinExpression);
 
-                case ProjectionExpression projectionExpression:
-                    return VisitProjection(projectionExpression);
+            case LeftJoinExpression leftJoinExpression:
+                return VisitLeftJoin(leftJoinExpression);
 
-                case RowNumberExpression rowNumberExpression:
-                    return VisitRowNumber(rowNumberExpression);
+            case LikeExpression likeExpression:
+                return VisitLike(likeExpression);
 
-                case SelectExpression selectExpression:
-                    return VisitSelect(selectExpression);
+            case OrderingExpression orderingExpression:
+                return VisitOrdering(orderingExpression);
 
-                case SqlBinaryExpression sqlBinaryExpression:
-                    return VisitSqlBinary(sqlBinaryExpression);
+            case OuterApplyExpression outerApplyExpression:
+                return VisitOuterApply(outerApplyExpression);
 
-                case SqlUnaryExpression sqlUnaryExpression:
-                    return VisitSqlUnary(sqlUnaryExpression);
+            case ProjectionExpression projectionExpression:
+                return VisitProjection(projectionExpression);
 
-                case SqlConstantExpression sqlConstantExpression:
-                    return VisitSqlConstant(sqlConstantExpression);
+            case TableValuedFunctionExpression tableValuedFunctionExpression:
+                return VisitTableValuedFunction(tableValuedFunctionExpression);
 
-                case SqlFragmentExpression sqlFragmentExpression:
-                    return VisitSqlFragment(sqlFragmentExpression);
+            case RowNumberExpression rowNumberExpression:
+                return VisitRowNumber(rowNumberExpression);
 
-                case SqlFunctionExpression sqlFunctionExpression:
-                    return VisitSqlFunction(sqlFunctionExpression);
+            case ScalarSubqueryExpression scalarSubqueryExpression:
+                return VisitScalarSubquery(scalarSubqueryExpression);
 
-                case SqlParameterExpression sqlParameterExpression:
-                    return VisitSqlParameter(sqlParameterExpression);
+            case SelectExpression selectExpression:
+                return VisitSelect(selectExpression);
 
-                case ScalarSubqueryExpression subSelectExpression:
-                    return VisitSubSelect(subSelectExpression);
+            case SqlBinaryExpression sqlBinaryExpression:
+                return VisitSqlBinary(sqlBinaryExpression);
 
-                case TableExpression tableExpression:
-                    return VisitTable(tableExpression);
+            case SqlConstantExpression sqlConstantExpression:
+                return VisitSqlConstant(sqlConstantExpression);
 
-                case UnionExpression unionExpression:
-                    return VisitUnion(unionExpression);
-            }
+            case SqlFragmentExpression sqlFragmentExpression:
+                return VisitSqlFragment(sqlFragmentExpression);
 
-            return base.VisitExtension(extensionExpression);
+            case SqlFunctionExpression sqlFunctionExpression:
+                return VisitSqlFunction(sqlFunctionExpression);
+
+            case SqlParameterExpression sqlParameterExpression:
+                return VisitSqlParameter(sqlParameterExpression);
+
+            case SqlUnaryExpression sqlUnaryExpression:
+                return VisitSqlUnary(sqlUnaryExpression);
+
+            case TableExpression tableExpression:
+                return VisitTable(tableExpression);
+
+            case UnionExpression unionExpression:
+                return VisitUnion(unionExpression);
         }
 
-        protected abstract Expression VisitCase(CaseExpression caseExpression);
-        protected abstract Expression VisitColumn(ColumnExpression columnExpression);
-        protected abstract Expression VisitCrossApply(CrossApplyExpression crossApplyExpression);
-        protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
-        protected abstract Expression VisitExcept(ExceptExpression exceptExpression);
-        protected abstract Expression VisitExists(ExistsExpression existsExpression);
-        protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
-        protected abstract Expression VisitIn(InExpression inExpression);
-        protected abstract Expression VisitIntersect(IntersectExpression intersectExpression);
-        protected abstract Expression VisitLike(LikeExpression likeExpression);
-        protected abstract Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression);
-        protected abstract Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression);
-        protected abstract Expression VisitOrdering(OrderingExpression orderingExpression);
-        protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
-        protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
-        protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
-        protected abstract Expression VisitSelect(SelectExpression selectExpression);
-        protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
-        protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
-        protected abstract Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression);
-        protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
-        protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
-        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlCastExpression);
-        protected abstract Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression);
-        protected abstract Expression VisitTable(TableExpression tableExpression);
-        protected abstract Expression VisitUnion(UnionExpression unionExpression);
+        return base.VisitExtension(extensionExpression);
     }
+
+
+    /// <summary>
+    ///     Visits the children of the sql "at time zone" expression.
+    /// </summary>
+    /// <param name="atTimeZoneExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitAtTimeZone(AtTimeZoneExpression atTimeZoneExpression);
+
+    /// <summary>
+    ///     Visits the children of the case expression.
+    /// </summary>
+    /// <param name="caseExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitCase(CaseExpression caseExpression);
+
+    /// <summary>
+    ///     Visits the children of the collate expression.
+    /// </summary>
+    /// <param name="collateExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitCollate(CollateExpression collateExpression);
+
+    /// <summary>
+    ///     Visits the children of the column expression.
+    /// </summary>
+    /// <param name="columnExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitColumn(ColumnExpression columnExpression);
+
+    /// <summary>
+    ///     Visits the children of the cross apply expression.
+    /// </summary>
+    /// <param name="crossApplyExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitCrossApply(CrossApplyExpression crossApplyExpression);
+
+    /// <summary>
+    ///     Visits the children of the cross join expression.
+    /// </summary>
+    /// <param name="crossJoinExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
+
+    /// <summary>
+    ///     Visits the children of the distinct expression.
+    /// </summary>
+    /// <param name="distinctExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitDistinct(DistinctExpression distinctExpression);
+
+    /// <summary>
+    ///     Visits the children of the except expression.
+    /// </summary>
+    /// <param name="exceptExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitExcept(ExceptExpression exceptExpression);
+
+    /// <summary>
+    ///     Visits the children of the exists expression.
+    /// </summary>
+    /// <param name="existsExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitExists(ExistsExpression existsExpression);
+
+    /// <summary>
+    ///     Visits the children of the from sql expression.
+    /// </summary>
+    /// <param name="fromSqlExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
+
+    /// <summary>
+    ///     Visits the children of the in expression.
+    /// </summary>
+    /// <param name="inExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitIn(InExpression inExpression);
+
+    /// <summary>
+    ///     Visits the children of the intersect expression.
+    /// </summary>
+    /// <param name="intersectExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitIntersect(IntersectExpression intersectExpression);
+
+    /// <summary>
+    ///     Visits the children of the like expression.
+    /// </summary>
+    /// <param name="likeExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitLike(LikeExpression likeExpression);
+
+    /// <summary>
+    ///     Visits the children of the inner join expression.
+    /// </summary>
+    /// <param name="innerJoinExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression);
+
+    /// <summary>
+    ///     Visits the children of the left join expression.
+    /// </summary>
+    /// <param name="leftJoinExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression);
+
+    /// <summary>
+    ///     Visits the children of the ordering expression.
+    /// </summary>
+    /// <param name="orderingExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitOrdering(OrderingExpression orderingExpression);
+
+    /// <summary>
+    ///     Visits the children of the outer apply expression.
+    /// </summary>
+    /// <param name="outerApplyExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
+
+    /// <summary>
+    ///     Visits the children of the projection expression.
+    /// </summary>
+    /// <param name="projectionExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
+
+    /// <summary>
+    ///     Visits the children of the table valued function expression.
+    /// </summary>
+    /// <param name="tableValuedFunctionExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression);
+
+    /// <summary>
+    ///     Visits the children of the row number expression.
+    /// </summary>
+    /// <param name="rowNumberExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
+
+    /// <summary>
+    ///     Visits the children of the scalar subquery expression.
+    /// </summary>
+    /// <param name="scalarSubqueryExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression);
+
+    /// <summary>
+    ///     Visits the children of the select expression.
+    /// </summary>
+    /// <param name="selectExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitSelect(SelectExpression selectExpression);
+
+    /// <summary>
+    ///     Visits the children of the sql binary expression.
+    /// </summary>
+    /// <param name="sqlBinaryExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
+
+    /// <summary>
+    ///     Visits the children of the sql constant expression.
+    /// </summary>
+    /// <param name="sqlConstantExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
+
+    /// <summary>
+    ///     Visits the children of the sql fragment expression.
+    /// </summary>
+    /// <param name="sqlFragmentExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression);
+
+    /// <summary>
+    ///     Visits the children of the sql function expression.
+    /// </summary>
+    /// <param name="sqlFunctionExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
+
+    /// <summary>
+    ///     Visits the children of the sql parameter expression.
+    /// </summary>
+    /// <param name="sqlParameterExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
+
+    /// <summary>
+    ///     Visits the children of the sql unary expression.
+    /// </summary>
+    /// <param name="sqlUnaryExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression);
+
+    /// <summary>
+    ///     Visits the children of the table expression.
+    /// </summary>
+    /// <param name="tableExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitTable(TableExpression tableExpression);
+
+    /// <summary>
+    ///     Visits the children of the union expression.
+    /// </summary>
+    /// <param name="unionExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitUnion(UnionExpression unionExpression);
 }

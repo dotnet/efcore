@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             command.HandleResponseFiles = true;
 
             command.OnExecute(
-                () =>
+                args =>
                 {
                     Reporter.IsVerbose = verbose.HasValue();
                     Reporter.NoColor = noColor.HasValue();
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
                     Validate();
 
-                    return Execute();
+                    return Execute(args);
                 });
         }
 
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
         }
 
-        protected virtual int Execute()
+        protected virtual int Execute(string[] args)
             => 0;
     }
 }

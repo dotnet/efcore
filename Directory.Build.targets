@@ -1,29 +1,6 @@
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
-  <ItemGroup>
-    <!-- Use the latest version instead of the one bundled with the SDK -->
-    <KnownFrameworkReference Update="Microsoft.NETCore.App">
-      <LatestRuntimeFrameworkVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRuntimeVersion)</LatestRuntimeFrameworkVersion>
-      <DefaultRuntimeFrameworkVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)' And '$(TargetLatestDotNetRuntime)' != 'false'">$(MicrosoftNETCoreAppRuntimeVersion)</DefaultRuntimeFrameworkVersion>
-      <TargetingPackVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRefPackageVersion)</TargetingPackVersion>
-    </KnownFrameworkReference>
-    <KnownFrameworkReference Update="NETStandard.Library">
-      <TargetingPackVersion Condition="'%(TargetFramework)' == 'netstandard2.1'">$(NETStandardLibraryRefPackageVersion)</TargetingPackVersion>
-    </KnownFrameworkReference>
-
-    <!-- Workaround for netstandard2.1 projects until we can get a preview 8 SDK containing https://github.com/dotnet/sdk/pull/3463 fix. -->
-    <KnownFrameworkReference Update="NETStandard.Library">
-      <RuntimeFrameworkName>NETStandard.Library</RuntimeFrameworkName>
-    </KnownFrameworkReference>
-
-    <!-- Track compiler separately from Arcade.-->
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset"
-        Version="$(MicrosoftNetCompilersToolsetVersion)"
-        PrivateAssets="all"
-        IsImplicitlyDefined="true" />
-  </ItemGroup>
-
   <Target Name="GetCustomAssemblyAttributes"
           BeforeTargets="GetAssemblyAttributes"
           Condition=" '$(MSBuildProjectExtension)' == '.csproj' "

@@ -1,72 +1,85 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Commands;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools;
+
+public class CommandsTest
 {
-    public class CommandsTest
+    [Fact]
+    public void Short_names_are_unique()
     {
-        [Fact]
-        public void Short_names_are_unique()
+        foreach (var command in GetCommands())
         {
-            foreach (var command in GetCommands())
+            foreach (var group in command.Options.GroupBy(o => o.ShortName))
             {
-                foreach (var group in command.Options.GroupBy(o => o.ShortName))
-                {
-                    Assert.True(
-                        group.Key == null || group.Count() == 1,
-                        "Duplicate short names on command '"
-                        + GetFullName(command)
-                        + "': "
-                        + string.Join("; ", group.Select(o => o.Template)));
-                }
+                Assert.True(
+                    group.Key == null || group.Count() == 1,
+                    "Duplicate short names on command '"
+                    + GetFullName(command)
+                    + "': "
+                    + string.Join("; ", group.Select(o => o.Template)));
             }
         }
+    }
 
-        private static IEnumerable<CommandLineApplication> GetCommands()
+    [Fact]
+    public void Long_names_are_unique()
+    {
+        foreach (var command in GetCommands())
         {
-            var app = new CommandLineApplication { Name = "ef" };
-
-            new RootCommand().Configure(app);
-
-            return GetCommands(app);
-        }
-
-        private static IEnumerable<CommandLineApplication> GetCommands(CommandLineApplication command)
-        {
-            var commands = new Stack<CommandLineApplication>();
-            commands.Push(command);
-
-            while (commands.Count != 0)
+            foreach (var group in command.Options.GroupBy(o => o.LongName))
             {
-                command = commands.Pop();
-
-                yield return command;
-
-                foreach (var subcommand in command.Commands)
-                {
-                    commands.Push(subcommand);
-                }
+                Assert.True(
+                    group.Key == null || group.Count() == 1,
+                    "Duplicate option names on command '"
+                    + GetFullName(command)
+                    + "': "
+                    + string.Join("; ", group.Select(o => o.Template)));
             }
         }
+    }
 
-        private static string GetFullName(CommandLineApplication command)
+    private static IEnumerable<CommandLineApplication> GetCommands()
+    {
+        var app = new CommandLineApplication { Name = "ef" };
+
+        new RootCommand().Configure(app);
+
+        return GetCommands(app);
+    }
+
+    private static IEnumerable<CommandLineApplication> GetCommands(CommandLineApplication command)
+    {
+        var commands = new Stack<CommandLineApplication>();
+        commands.Push(command);
+
+        while (commands.Count != 0)
         {
-            var names = new Stack<string>();
+            command = commands.Pop();
 
-            while (command != null)
+            yield return command;
+
+            foreach (var subcommand in command.Commands)
             {
-                names.Push(command.Name);
-
-                command = command.Parent;
+                commands.Push(subcommand);
             }
-
-            return string.Join(" ", names);
         }
+    }
+
+    private static string GetFullName(CommandLineApplication command)
+    {
+        var names = new Stack<string>();
+
+        while (command != null)
+        {
+            names.Push(command.Name);
+
+            command = command.Parent;
+        }
+
+        return string.Join(" ", names);
     }
 }

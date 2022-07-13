@@ -1,42 +1,73 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+/// <summary>
+///     Base interface for navigations and properties.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+/// </remarks>
+public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
 {
     /// <summary>
-    ///     Base type for navigation and scalar properties.
+    ///     Gets the type that this property-like object belongs to.
     /// </summary>
-    public interface IPropertyBase : IAnnotatable
+    new ITypeBase DeclaringType
     {
-        /// <summary>
-        ///     Gets the name of the property.
-        /// </summary>
-        string Name { get; }
-
-        /// <summary>
-        ///     Gets the type that this property belongs to.
-        /// </summary>
-        ITypeBase DeclaringType { get; }
-
-        /// <summary>
-        ///     Gets the type of value that this property holds.
-        /// </summary>
-        Type ClrType { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property that this
-        ///     object represents. This may be <c>null</c> for shadow properties or properties mapped directly to fields.
-        /// </summary>
-        PropertyInfo PropertyInfo { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="FieldInfo" /> for the underlying CLR field for this property.
-        ///     This may be <c>null</c> for shadow properties or if the backing field for the property is not known.
-        /// </summary>
-        FieldInfo FieldInfo { get; }
+        [DebuggerStepThrough]
+        get => (ITypeBase)((IReadOnlyPropertyBase)this).DeclaringType;
     }
+
+    /// <summary>
+    ///     Gets a <see cref="IClrPropertyGetter" /> for reading the value of this property.
+    /// </summary>
+    /// <remarks>
+    ///     Note that it is an error to call this method for a shadow property (<see cref="IReadOnlyPropertyBase.IsShadowProperty" />)
+    ///     since such a property has no associated <see cref="MemberInfo" />.
+    /// </remarks>
+    /// <returns>The accessor.</returns>
+    IClrPropertyGetter GetGetter();
+
+    /// <summary>
+    ///     Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    IComparer<IUpdateEntry> GetCurrentValueComparer();
+
+    /// <summary>
+    ///     Gets the <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> that should be used to
+    ///     get or set a value for the given property.
+    /// </summary>
+    /// <remarks>
+    ///     Note that it is an error to call this method for a shadow property (<see cref="IReadOnlyPropertyBase.IsShadowProperty" />)
+    ///     since such a property has no associated <see cref="MemberInfo" />.
+    /// </remarks>
+    /// <param name="forMaterialization">
+    ///     If <see langword="true" />, then the member to use for query materialization will be returned.
+    /// </param>
+    /// <param name="forSet">
+    ///     If <see langword="true" />, then the member to use for setting the property value will be returned, otherwise
+    ///     the member to use for getting the property value will be returned.
+    /// </param>
+    /// <returns>The <see cref="MemberInfo" /> to use.</returns>
+    MemberInfo GetMemberInfo(bool forMaterialization, bool forSet)
+    {
+        if (this.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
+        {
+            return memberInfo!;
+        }
+
+        throw new InvalidOperationException(errorMessage);
+    }
+
+    /// <summary>
+    ///     Gets the property index for this property.
+    /// </summary>
+    /// <returns>The index of the property.</returns>
+    int GetIndex()
+        => this.GetPropertyIndexes().Index;
 }

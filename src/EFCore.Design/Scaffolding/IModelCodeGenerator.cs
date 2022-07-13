@@ -1,25 +1,23 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Metadata;
+namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding
+/// <summary>
+///     Used to generate code for a model.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
+/// </remarks>
+public interface IModelCodeGenerator : ILanguageBasedService
 {
     /// <summary>
-    ///     Used to generate code for a model.
+    ///     Generates code for a model.
     /// </summary>
-    public interface IModelCodeGenerator : ILanguageBasedService
-    {
-        /// <summary>
-        ///     Generates code for a model.
-        /// </summary>
-        /// <param name="model"> The model. </param>
-        /// <param name="options"> The options to use during generation. </param>
-        /// <returns> The generated model. </returns>
-        ScaffoldedModel GenerateModel(
-            [NotNull] IModel model,
-            [NotNull] ModelCodeGenerationOptions options);
-    }
+    /// <param name="model">The model.</param>
+    /// <param name="options">The options to use during generation.</param>
+    /// <returns>The generated model.</returns>
+    ScaffoldedModel GenerateModel(
+        IModel model,
+        ModelCodeGenerationOptions options);
 }
