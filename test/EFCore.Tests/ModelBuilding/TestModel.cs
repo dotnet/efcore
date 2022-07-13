@@ -169,6 +169,27 @@ public abstract partial class ModelBuilderTest
         public virtual Product Product { get; set; } = null!;
     }
 
+    protected class UniProduct
+    {
+        public int Id { get; set; }
+    }
+
+    protected class UniCategory
+    {
+        public int Id { get; set; }
+        public virtual ICollection<UniProduct>? Products { get; set; }
+    }
+
+    protected class NoProduct
+    {
+        public int Id { get; set; }
+    }
+
+    protected class NoCategory
+    {
+        public int Id { get; set; }
+    }
+
     [NotMapped]
     protected class Product
     {

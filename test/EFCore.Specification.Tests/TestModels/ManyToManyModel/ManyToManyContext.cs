@@ -21,6 +21,13 @@ public class ManyToManyContext : PoolableDbContext
     public DbSet<ImplicitManyToManyB> ImplicitManyToManyBs { get; set; }
     public DbSet<GeneratedKeysLeft> GeneratedKeysLefts { get; set; }
     public DbSet<GeneratedKeysRight> GeneratedKeysRights { get; set; }
+    public DbSet<UnidirectionalEntityOne> UnidirectionalEntityOnes { get; set; }
+    public DbSet<UnidirectionalEntityTwo> UnidirectionalEntityTwos { get; set; }
+    public DbSet<UnidirectionalEntityThree> UnidirectionalEntityThrees { get; set; }
+    public DbSet<UnidirectionalEntityCompositeKey> UnidirectionalEntityCompositeKeys { get; set; }
+    public DbSet<UnidirectionalEntityRoot> UnidirectionalEntityRoots { get; set; }
+    public DbSet<UnidirectionalGeneratedKeysLeft> UnidirectionalGeneratedKeysLefts { get; set; }
+    public DbSet<UnidirectionalGeneratedKeysRight> UnidirectionalGeneratedKeysRights { get; set; }
 }
 
 public static class ManyToManyContextExtensions

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ManyToManyLoadTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ManyToManyLoadTestBase<TFixture>.ManyToManyLoadFixtureBase
 {
     protected ManyToManyLoadTestBase(TFixture fixture)
@@ -1096,6 +1096,7 @@ public abstract class ManyToManyLoadTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class ManyToManyLoadFixtureBase : ManyToManyQueryFixtureBase
     {
-        protected override string StoreName { get; } = "ManyToManyLoadTest";
+        protected override string StoreName
+            => "ManyToManyLoadTest";
     }
 }

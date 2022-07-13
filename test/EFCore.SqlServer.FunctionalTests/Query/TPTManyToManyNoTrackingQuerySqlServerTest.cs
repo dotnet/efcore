@@ -1787,7 +1787,8 @@ LEFT JOIN (
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Id]");
     }
 
-    public override async Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_EF_Property(bool async)
+    public override async Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_EF_Property(
+        bool async)
     {
         await base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_EF_Property(async);
 
@@ -1812,6 +1813,614 @@ OUTER APPLY (
     ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 ) AS [t1]
 ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[ThreeId], [t1].[TwoId0]");
+    }
+
+    public override async Task Include_skip_navigation_then_include_inverse_works_for_tracking_query_unidirectional(bool async)
+    {
+        await base.Include_skip_navigation_then_include_inverse_works_for_tracking_query_unidirectional(async);
+
+        AssertSql();
+    }
+
+    public override async Task Skip_navigation_all_unidirectional(bool async)
+    {
+        await base.Skip_navigation_all_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name]
+FROM [UnidirectionalEntityOnes] AS [u]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [UnidirectionalJoinOneToTwo] AS [u0]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
+    WHERE [u].[Id] = [u0].[OneId] AND NOT ([u1].[Name] LIKE N'%B%'))");
+    }
+
+    public override async Task Skip_navigation_any_with_predicate_unidirectional(bool async)
+    {
+        await base.Skip_navigation_any_with_predicate_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name]
+FROM [UnidirectionalEntityOnes] AS [u]
+WHERE EXISTS (
+    SELECT 1
+    FROM [UnidirectionalEntityOneUnidirectionalEntityTwo] AS [u0]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoSkipSharedId] = [u1].[Id]
+    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND ([u1].[Name] LIKE N'%B%'))");
+    }
+
+    public override async Task Skip_navigation_contains_unidirectional(bool async)
+    {
+        await base.Skip_navigation_contains_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name]
+FROM [UnidirectionalEntityOnes] AS [u]
+WHERE EXISTS (
+    SELECT 1
+    FROM [UnidirectionalJoinOneToThreePayloadFullShared] AS [u0]
+    INNER JOIN [UnidirectionalEntityThrees] AS [u1] ON [u0].[ThreeId] = [u1].[Id]
+    WHERE [u].[Id] = [u0].[OneId] AND [u1].[Id] = 1)");
+    }
+
+    public override async Task Skip_navigation_count_without_predicate_unidirectional(bool async)
+    {
+        await base.Skip_navigation_count_without_predicate_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name]
+FROM [UnidirectionalEntityOnes] AS [u]
+WHERE (
+    SELECT COUNT(*)
+    FROM [UnidirectionalJoinOneSelfPayload] AS [u0]
+    INNER JOIN [UnidirectionalEntityOnes] AS [u1] ON [u0].[LeftId] = [u1].[Id]
+    WHERE [u].[Id] = [u0].[RightId]) > 0");
+    }
+
+    public override async Task Skip_navigation_count_with_predicate_unidirectional(bool async)
+    {
+        await base.Skip_navigation_count_with_predicate_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name]
+FROM [UnidirectionalEntityOnes] AS [u]
+ORDER BY (
+    SELECT COUNT(*)
+    FROM [UnidirectionalJoinOneToBranch] AS [u0]
+    INNER JOIN (
+        SELECT [u1].[Id], [u1].[Name], [u2].[Number], [u3].[IsGreen], CASE
+            WHEN [u3].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+        END AS [Discriminator]
+        FROM [UnidirectionalRoots] AS [u1]
+        INNER JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
+        LEFT JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
+    ) AS [t] ON [u0].[UnidirectionalEntityBranchId] = [t].[Id]
+    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND [t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%')), [u].[Id]");
+    }
+
+    public override async Task Skip_navigation_select_subquery_average_unidirectional(bool async)
+    {
+        await base.Skip_navigation_select_subquery_average_unidirectional(async);
+
+        AssertSql(
+            @"SELECT (
+    SELECT AVG(CAST([u3].[Key1] AS float))
+    FROM [UnidirectionalJoinCompositeKeyToLeaf] AS [u2]
+    INNER JOIN [UnidirectionalEntityCompositeKeys] AS [u3] ON [u2].[CompositeId1] = [u3].[Key1] AND [u2].[CompositeId2] = [u3].[Key2] AND [u2].[CompositeId3] = [u3].[Key3]
+    WHERE [u].[Id] = [u2].[LeafId])
+FROM [UnidirectionalRoots] AS [u]
+INNER JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
+INNER JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]");
+    }
+
+    public override async Task Skip_navigation_order_by_reverse_first_or_default_unidirectional(bool async)
+    {
+        await base.Skip_navigation_order_by_reverse_first_or_default_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId]
+FROM [UnidirectionalEntityThrees] AS [u]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId]
+    FROM (
+        SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[ThreeId], ROW_NUMBER() OVER(PARTITION BY [u0].[ThreeId] ORDER BY [u1].[Id] DESC) AS [row]
+        FROM [UnidirectionalJoinTwoToThree] AS [u0]
+        INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [u].[Id] = [t0].[ThreeId]");
+    }
+
+    public override async Task Skip_navigation_of_type_unidirectional(bool async)
+    {
+        await base.Skip_navigation_of_type_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator], [t0].[RootSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
+FROM [UnidirectionalEntityCompositeKeys] AS [u]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator], [u0].[RootSkipSharedId], [u0].[UnidirectionalEntityCompositeKeyKey1], [u0].[UnidirectionalEntityCompositeKeyKey2], [u0].[UnidirectionalEntityCompositeKeyKey3]
+    FROM [UnidirectionalEntityCompositeKeyUnidirectionalEntityRoot] AS [u0]
+    INNER JOIN (
+        SELECT [u1].[Id], [u1].[Name], [u2].[Number], [u3].[IsGreen], CASE
+            WHEN [u3].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+            WHEN [u2].[Id] IS NOT NULL THEN N'UnidirectionalEntityBranch'
+        END AS [Discriminator]
+        FROM [UnidirectionalRoots] AS [u1]
+        LEFT JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
+        LEFT JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
+    ) AS [t] ON [u0].[RootSkipSharedId] = [t].[Id]
+    WHERE [t].[Discriminator] = N'UnidirectionalEntityLeaf'
+) AS [t0] ON [u].[Key1] = [t0].[UnidirectionalEntityCompositeKeyKey1] AND [u].[Key2] = [t0].[UnidirectionalEntityCompositeKeyKey2] AND [u].[Key3] = [t0].[UnidirectionalEntityCompositeKeyKey3]
+ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[RootSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]");
+    }
+
+    public override async Task Join_with_skip_navigation_unidirectional(bool async)
+    {
+        await base.Join_with_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [u0].[Id], [u0].[CollectionInverseId], [u0].[ExtraId], [u0].[Name], [u0].[ReferenceInverseId]
+FROM [UnidirectionalEntityTwos] AS [u]
+INNER JOIN [UnidirectionalEntityTwos] AS [u0] ON [u].[Id] = (
+    SELECT TOP(1) [u2].[Id]
+    FROM [UnidirectionalEntityTwoUnidirectionalEntityTwo] AS [u1]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u2] ON [u1].[SelfSkipSharedRightId] = [u2].[Id]
+    WHERE [u0].[Id] = [u1].[UnidirectionalEntityTwoId]
+    ORDER BY [u2].[Id])");
+    }
+
+    public override async Task Left_join_with_skip_navigation_unidirectional(bool async)
+    {
+        await base.Left_join_with_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [u0].[Key1], [u0].[Key2], [u0].[Key3], [u0].[Name]
+FROM [UnidirectionalEntityCompositeKeys] AS [u]
+LEFT JOIN [UnidirectionalEntityCompositeKeys] AS [u0] ON (
+    SELECT TOP(1) [u2].[Id]
+    FROM [UnidirectionalEntityCompositeKeyUnidirectionalEntityTwo] AS [u1]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u2] ON [u1].[TwoSkipSharedId] = [u2].[Id]
+    WHERE [u].[Key1] = [u1].[UnidirectionalEntityCompositeKeyKey1] AND [u].[Key2] = [u1].[UnidirectionalEntityCompositeKeyKey2] AND [u].[Key3] = [u1].[UnidirectionalEntityCompositeKeyKey3]
+    ORDER BY [u2].[Id]) = (
+    SELECT TOP(1) [u4].[Id]
+    FROM [UnidirectionalJoinThreeToCompositeKeyFull] AS [u3]
+    INNER JOIN [UnidirectionalEntityThrees] AS [u4] ON [u3].[ThreeId] = [u4].[Id]
+    WHERE [u0].[Key1] = [u3].[CompositeId1] AND [u0].[Key2] = [u3].[CompositeId2] AND [u0].[Key3] = [u3].[CompositeId3]
+    ORDER BY [u4].[Id])
+ORDER BY [u].[Key1], [u0].[Key1], [u].[Key2], [u0].[Key2]");
+    }
+
+    public override async Task Select_many_over_skip_navigation_unidirectional(bool async)
+    {
+        await base.Select_many_over_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
+FROM [UnidirectionalRoots] AS [u]
+INNER JOIN (
+    SELECT [u3].[Id], [u3].[CollectionInverseId], [u3].[Name], [u3].[ReferenceInverseId], [u2].[UnidirectionalEntityRootId]
+    FROM [UnidirectionalEntityRootUnidirectionalEntityThree] AS [u2]
+    INNER JOIN [UnidirectionalEntityThrees] AS [u3] ON [u2].[ThreeSkipSharedId] = [u3].[Id]
+) AS [t] ON [u].[Id] = [t].[UnidirectionalEntityRootId]");
+    }
+
+    public override async Task Select_many_over_skip_navigation_where_unidirectional(bool async)
+    {
+        await base.Select_many_over_skip_navigation_where_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
+FROM [UnidirectionalEntityOnes] AS [u]
+LEFT JOIN (
+    SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId]
+    FROM [UnidirectionalJoinOneToTwo] AS [u0]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
+) AS [t] ON [u].[Id] = [t].[OneId]");
+    }
+
+    public override async Task Select_many_over_skip_navigation_order_by_take_unidirectional(bool async)
+    {
+        await base.Select_many_over_skip_navigation_order_by_take_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId]
+FROM [UnidirectionalEntityOnes] AS [u]
+INNER JOIN (
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[UnidirectionalEntityOneId]
+    FROM (
+        SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[UnidirectionalEntityOneId], ROW_NUMBER() OVER(PARTITION BY [u0].[UnidirectionalEntityOneId] ORDER BY [u1].[Id]) AS [row]
+        FROM [UnidirectionalEntityOneUnidirectionalEntityTwo] AS [u0]
+        INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoSkipSharedId] = [u1].[Id]
+    ) AS [t]
+    WHERE [t].[row] <= 2
+) AS [t0] ON [u].[Id] = [t0].[UnidirectionalEntityOneId]");
+    }
+
+    public override async Task Select_many_over_skip_navigation_order_by_skip_take_unidirectional(bool async)
+    {
+        await base.Select_many_over_skip_navigation_order_by_skip_take_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
+FROM [UnidirectionalEntityOnes] AS [u]
+INNER JOIN (
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[OneId]
+    FROM (
+        SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId], ROW_NUMBER() OVER(PARTITION BY [u0].[OneId] ORDER BY [u1].[Id]) AS [row]
+        FROM [UnidirectionalJoinOneToThreePayloadFullShared] AS [u0]
+        INNER JOIN [UnidirectionalEntityThrees] AS [u1] ON [u0].[ThreeId] = [u1].[Id]
+    ) AS [t]
+    WHERE 2 < [t].[row] AND [t].[row] <= 5
+) AS [t0] ON [u].[Id] = [t0].[OneId]");
+    }
+
+    public override async Task Select_many_over_skip_navigation_cast_unidirectional(bool async)
+    {
+        await base.Select_many_over_skip_navigation_cast_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator]
+FROM [UnidirectionalEntityOnes] AS [u]
+INNER JOIN (
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator], [u0].[UnidirectionalEntityOneId]
+    FROM [UnidirectionalJoinOneToBranch] AS [u0]
+    INNER JOIN (
+        SELECT [u1].[Id], [u1].[Name], [u2].[Number], [u3].[IsGreen], CASE
+            WHEN [u3].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+        END AS [Discriminator]
+        FROM [UnidirectionalRoots] AS [u1]
+        INNER JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
+        LEFT JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
+    ) AS [t] ON [u0].[UnidirectionalEntityBranchId] = [t].[Id]
+) AS [t0] ON [u].[Id] = [t0].[UnidirectionalEntityOneId]");
+    }
+
+    public override async Task Select_skip_navigation_unidirectional(bool async)
+    {
+        await base.Select_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [t].[Id], [t].[Name], [t].[LeftId], [t].[RightId]
+FROM [UnidirectionalEntityOnes] AS [u]
+LEFT JOIN (
+    SELECT [u1].[Id], [u1].[Name], [u0].[LeftId], [u0].[RightId]
+    FROM [UnidirectionalJoinOneSelfPayload] AS [u0]
+    INNER JOIN [UnidirectionalEntityOnes] AS [u1] ON [u0].[LeftId] = [u1].[Id]
+) AS [t] ON [u].[Id] = [t].[RightId]
+ORDER BY [u].[Id], [t].[LeftId], [t].[RightId]");
+    }
+
+    public override async Task Include_skip_navigation_unidirectional(bool async)
+    {
+        await base.Include_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator], [t0].[RootSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
+FROM [UnidirectionalEntityCompositeKeys] AS [u]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator], [u0].[RootSkipSharedId], [u0].[UnidirectionalEntityCompositeKeyKey1], [u0].[UnidirectionalEntityCompositeKeyKey2], [u0].[UnidirectionalEntityCompositeKeyKey3]
+    FROM [UnidirectionalEntityCompositeKeyUnidirectionalEntityRoot] AS [u0]
+    INNER JOIN (
+        SELECT [u1].[Id], [u1].[Name], [u2].[Number], [u3].[IsGreen], CASE
+            WHEN [u3].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+            WHEN [u2].[Id] IS NOT NULL THEN N'UnidirectionalEntityBranch'
+        END AS [Discriminator]
+        FROM [UnidirectionalRoots] AS [u1]
+        LEFT JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
+        LEFT JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
+    ) AS [t] ON [u0].[RootSkipSharedId] = [t].[Id]
+) AS [t0] ON [u].[Key1] = [t0].[UnidirectionalEntityCompositeKeyKey1] AND [u].[Key2] = [t0].[UnidirectionalEntityCompositeKeyKey2] AND [u].[Key3] = [t0].[UnidirectionalEntityCompositeKeyKey3]
+ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[RootSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]");
+    }
+
+    public override async Task Include_skip_navigation_then_reference_unidirectional(bool async)
+    {
+        await base.Include_skip_navigation_then_reference_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId]
+FROM [UnidirectionalEntityTwos] AS [u]
+LEFT JOIN (
+    SELECT [u1].[Id], [u1].[Name], [u2].[Id] AS [Id0], [u2].[CollectionInverseId], [u2].[ExtraId], [u2].[Name] AS [Name0], [u2].[ReferenceInverseId], [u0].[OneId], [u0].[TwoId]
+    FROM [UnidirectionalJoinOneToTwo] AS [u0]
+    INNER JOIN [UnidirectionalEntityOnes] AS [u1] ON [u0].[OneId] = [u1].[Id]
+    LEFT JOIN [UnidirectionalEntityTwos] AS [u2] ON [u1].[Id] = [u2].[ReferenceInverseId]
+) AS [t] ON [u].[Id] = [t].[TwoId]
+ORDER BY [u].[Id], [t].[OneId], [t].[TwoId], [t].[Id]");
+    }
+
+    public override async Task Include_skip_navigation_then_include_skip_navigation_unidirectional(bool async)
+    {
+        await base.Include_skip_navigation_then_include_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t1].[Id], [t1].[Name], [t1].[Number], [t1].[IsGreen], [t1].[LeafId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id0], [t1].[Name0], [t1].[UnidirectionalEntityBranchId], [t1].[UnidirectionalEntityOneId]
+FROM [UnidirectionalEntityCompositeKeys] AS [u]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [u0].[LeafId], [u0].[CompositeId1], [u0].[CompositeId2], [u0].[CompositeId3], [t0].[Id] AS [Id0], [t0].[Name] AS [Name0], [t0].[UnidirectionalEntityBranchId], [t0].[UnidirectionalEntityOneId]
+    FROM [UnidirectionalJoinCompositeKeyToLeaf] AS [u0]
+    INNER JOIN (
+        SELECT [u1].[Id], [u1].[Name], [u2].[Number], [u3].[IsGreen]
+        FROM [UnidirectionalRoots] AS [u1]
+        INNER JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
+        INNER JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
+    ) AS [t] ON [u0].[LeafId] = [t].[Id]
+    LEFT JOIN (
+        SELECT [u5].[Id], [u5].[Name], [u4].[UnidirectionalEntityBranchId], [u4].[UnidirectionalEntityOneId]
+        FROM [UnidirectionalJoinOneToBranch] AS [u4]
+        INNER JOIN [UnidirectionalEntityOnes] AS [u5] ON [u4].[UnidirectionalEntityOneId] = [u5].[Id]
+    ) AS [t0] ON [t].[Id] = [t0].[UnidirectionalEntityBranchId]
+) AS [t1] ON [u].[Key1] = [t1].[CompositeId1] AND [u].[Key2] = [t1].[CompositeId2] AND [u].[Key3] = [t1].[CompositeId3]
+ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t1].[LeafId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id], [t1].[UnidirectionalEntityBranchId], [t1].[UnidirectionalEntityOneId]");
+    }
+
+    public override async Task Include_skip_navigation_then_include_reference_and_skip_navigation_unidirectional(bool async)
+    {
+        await base.Include_skip_navigation_then_include_reference_and_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[Name], [u].[ReferenceInverseId], [t0].[Id], [t0].[Name], [t0].[Id0], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId], [t0].[OneId], [t0].[ThreeId], [t0].[Id1], [t0].[Name1], [t0].[LeftId], [t0].[RightId]
+FROM [UnidirectionalEntityThrees] AS [u]
+LEFT JOIN (
+    SELECT [u1].[Id], [u1].[Name], [u2].[Id] AS [Id0], [u2].[CollectionInverseId], [u2].[ExtraId], [u2].[Name] AS [Name0], [u2].[ReferenceInverseId], [u0].[OneId], [u0].[ThreeId], [t].[Id] AS [Id1], [t].[Name] AS [Name1], [t].[LeftId], [t].[RightId]
+    FROM [UnidirectionalJoinOneToThreePayloadFull] AS [u0]
+    INNER JOIN [UnidirectionalEntityOnes] AS [u1] ON [u0].[OneId] = [u1].[Id]
+    LEFT JOIN [UnidirectionalEntityTwos] AS [u2] ON [u1].[Id] = [u2].[ReferenceInverseId]
+    LEFT JOIN (
+        SELECT [u4].[Id], [u4].[Name], [u3].[LeftId], [u3].[RightId]
+        FROM [UnidirectionalJoinOneSelfPayload] AS [u3]
+        INNER JOIN [UnidirectionalEntityOnes] AS [u4] ON [u3].[RightId] = [u4].[Id]
+    ) AS [t] ON [u1].[Id] = [t].[LeftId]
+) AS [t0] ON [u].[Id] = [t0].[ThreeId]
+ORDER BY [u].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id], [t0].[Id0], [t0].[LeftId], [t0].[RightId]");
+    }
+
+    public override async Task Include_skip_navigation_and_reference_unidirectional(bool async)
+    {
+        await base.Include_skip_navigation_and_reference_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [u0].[Id], [t].[Id], [t].[Name], [t].[TwoSkipSharedId], [t].[UnidirectionalEntityOneId], [u0].[CollectionInverseId], [u0].[Name], [u0].[ReferenceInverseId]
+FROM [UnidirectionalEntityTwos] AS [u]
+LEFT JOIN [UnidirectionalEntityThrees] AS [u0] ON [u].[Id] = [u0].[ReferenceInverseId]
+LEFT JOIN (
+    SELECT [u2].[Id], [u2].[Name], [u1].[TwoSkipSharedId], [u1].[UnidirectionalEntityOneId]
+    FROM [UnidirectionalEntityOneUnidirectionalEntityTwo] AS [u1]
+    INNER JOIN [UnidirectionalEntityOnes] AS [u2] ON [u1].[UnidirectionalEntityOneId] = [u2].[Id]
+) AS [t] ON [u].[Id] = [t].[TwoSkipSharedId]
+ORDER BY [u].[Id], [u0].[Id], [t].[TwoSkipSharedId], [t].[UnidirectionalEntityOneId]");
+    }
+
+    public override async Task Filtered_include_skip_navigation_where_unidirectional(bool async)
+    {
+        await base.Filtered_include_skip_navigation_where_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[OneId], [t].[ThreeId]
+FROM [EntityThrees] AS [e]
+LEFT JOIN (
+    SELECT [e0].[Id], [e0].[Name], [j].[OneId], [j].[ThreeId]
+    FROM [JoinOneToThreePayloadFullShared] AS [j]
+    INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
+    WHERE [e0].[Id] < 10
+) AS [t] ON [e].[Id] = [t].[ThreeId]
+ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId]");
+    }
+
+    public override async Task Filtered_include_skip_navigation_order_by_unidirectional(bool async)
+    {
+        await base.Filtered_include_skip_navigation_order_by_unidirectional(async);
+AssertSql(
+    @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[Name], [u].[ReferenceInverseId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
+FROM [UnidirectionalEntityThrees] AS [u]
+LEFT JOIN (
+    SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[ThreeId], [u0].[TwoId]
+    FROM [UnidirectionalJoinTwoToThree] AS [u0]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
+) AS [t] ON [u].[Id] = [t].[ThreeId]
+ORDER BY [u].[Id], [t].[Id], [t].[ThreeId]");
+    }
+
+    public override async Task Filtered_include_skip_navigation_order_by_skip_unidirectional(bool async)
+    {
+        await base.Filtered_include_skip_navigation_order_by_skip_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[SelfSkipSharedRightId], [t0].[UnidirectionalEntityTwoId]
+FROM [UnidirectionalEntityTwos] AS [u]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[SelfSkipSharedRightId], [t].[UnidirectionalEntityTwoId]
+    FROM (
+        SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[SelfSkipSharedRightId], [u0].[UnidirectionalEntityTwoId], ROW_NUMBER() OVER(PARTITION BY [u0].[UnidirectionalEntityTwoId] ORDER BY [u1].[Id]) AS [row]
+        FROM [UnidirectionalEntityTwoUnidirectionalEntityTwo] AS [u0]
+        INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[SelfSkipSharedRightId] = [u1].[Id]
+    ) AS [t]
+    WHERE 2 < [t].[row]
+) AS [t0] ON [u].[Id] = [t0].[UnidirectionalEntityTwoId]
+ORDER BY [u].[Id], [t0].[UnidirectionalEntityTwoId], [t0].[Id]");
+    }
+
+    public override async Task Filtered_include_skip_navigation_order_by_take_unidirectional(bool async)
+    {
+        await base.Filtered_include_skip_navigation_order_by_take_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[TwoSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
+FROM [UnidirectionalEntityCompositeKeys] AS [u]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[TwoSkipSharedId], [t].[UnidirectionalEntityCompositeKeyKey1], [t].[UnidirectionalEntityCompositeKeyKey2], [t].[UnidirectionalEntityCompositeKeyKey3]
+    FROM (
+        SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[TwoSkipSharedId], [u0].[UnidirectionalEntityCompositeKeyKey1], [u0].[UnidirectionalEntityCompositeKeyKey2], [u0].[UnidirectionalEntityCompositeKeyKey3], ROW_NUMBER() OVER(PARTITION BY [u0].[UnidirectionalEntityCompositeKeyKey1], [u0].[UnidirectionalEntityCompositeKeyKey2], [u0].[UnidirectionalEntityCompositeKeyKey3] ORDER BY [u1].[Id]) AS [row]
+        FROM [UnidirectionalEntityCompositeKeyUnidirectionalEntityTwo] AS [u0]
+        INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoSkipSharedId] = [u1].[Id]
+    ) AS [t]
+    WHERE [t].[row] <= 2
+) AS [t0] ON [u].[Key1] = [t0].[UnidirectionalEntityCompositeKeyKey1] AND [u].[Key2] = [t0].[UnidirectionalEntityCompositeKeyKey2] AND [u].[Key3] = [t0].[UnidirectionalEntityCompositeKeyKey3]
+ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3], [t0].[Id]");
+    }
+
+    public override async Task Filtered_include_skip_navigation_order_by_skip_take_unidirectional(bool async)
+    {
+        await base.Filtered_include_skip_navigation_order_by_skip_take_unidirectional(async);
+AssertSql(
+    @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
+FROM [UnidirectionalEntityCompositeKeys] AS [u]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[Id0], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]
+    FROM (
+        SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[Id] AS [Id0], [u0].[CompositeId1], [u0].[CompositeId2], [u0].[CompositeId3], ROW_NUMBER() OVER(PARTITION BY [u0].[CompositeId1], [u0].[CompositeId2], [u0].[CompositeId3] ORDER BY [u1].[Id]) AS [row]
+        FROM [UnidirectionalJoinThreeToCompositeKeyFull] AS [u0]
+        INNER JOIN [UnidirectionalEntityThrees] AS [u1] ON [u0].[ThreeId] = [u1].[Id]
+    ) AS [t]
+    WHERE 1 < [t].[row] AND [t].[row] <= 3
+) AS [t0] ON [u].[Key1] = [t0].[CompositeId1] AND [u].[Key2] = [t0].[CompositeId2] AND [u].[Key3] = [t0].[CompositeId3]
+ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id]");
+    }
+
+    public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation_unidirectional(bool async)
+    {
+        await base.Filtered_include_skip_navigation_where_then_include_skip_navigation_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name], [u0].[Number], [u1].[IsGreen], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId], [t0].[TwoSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
+FROM [UnidirectionalRoots] AS [u]
+INNER JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
+INNER JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
+LEFT JOIN (
+    SELECT [u3].[Key1], [u3].[Key2], [u3].[Key3], [u3].[Name], [u2].[LeafId], [u2].[CompositeId1], [u2].[CompositeId2], [u2].[CompositeId3], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name] AS [Name0], [t].[ReferenceInverseId], [t].[TwoSkipSharedId], [t].[UnidirectionalEntityCompositeKeyKey1], [t].[UnidirectionalEntityCompositeKeyKey2], [t].[UnidirectionalEntityCompositeKeyKey3]
+    FROM [UnidirectionalJoinCompositeKeyToLeaf] AS [u2]
+    INNER JOIN [UnidirectionalEntityCompositeKeys] AS [u3] ON [u2].[CompositeId1] = [u3].[Key1] AND [u2].[CompositeId2] = [u3].[Key2] AND [u2].[CompositeId3] = [u3].[Key3]
+    LEFT JOIN (
+        SELECT [u5].[Id], [u5].[CollectionInverseId], [u5].[ExtraId], [u5].[Name], [u5].[ReferenceInverseId], [u4].[TwoSkipSharedId], [u4].[UnidirectionalEntityCompositeKeyKey1], [u4].[UnidirectionalEntityCompositeKeyKey2], [u4].[UnidirectionalEntityCompositeKeyKey3]
+        FROM [UnidirectionalEntityCompositeKeyUnidirectionalEntityTwo] AS [u4]
+        INNER JOIN [UnidirectionalEntityTwos] AS [u5] ON [u4].[TwoSkipSharedId] = [u5].[Id]
+    ) AS [t] ON [u3].[Key1] = [t].[UnidirectionalEntityCompositeKeyKey1] AND [u3].[Key2] = [t].[UnidirectionalEntityCompositeKeyKey2] AND [u3].[Key3] = [t].[UnidirectionalEntityCompositeKeyKey3]
+    WHERE [u3].[Key1] < 5
+) AS [t0] ON [u].[Id] = [t0].[LeafId]
+ORDER BY [u].[Id], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[TwoSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]");
+    }
+
+    public override async Task Filter_include_on_skip_navigation_combined_unidirectional(bool async)
+    {
+        await base.Filter_include_on_skip_navigation_combined_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId], [t].[Id1], [t].[CollectionInverseId0], [t].[ExtraId0], [t].[Name1], [t].[ReferenceInverseId0]
+FROM [EntityTwos] AS [e]
+LEFT JOIN (
+    SELECT [e0].[Id], [e0].[Name], [e1].[Id] AS [Id0], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name] AS [Name0], [e1].[ReferenceInverseId], [j].[OneId], [j].[TwoId], [e2].[Id] AS [Id1], [e2].[CollectionInverseId] AS [CollectionInverseId0], [e2].[ExtraId] AS [ExtraId0], [e2].[Name] AS [Name1], [e2].[ReferenceInverseId] AS [ReferenceInverseId0]
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityOnes] AS [e0] ON [j].[OneId] = [e0].[Id]
+    LEFT JOIN [EntityTwos] AS [e1] ON [e0].[Id] = [e1].[ReferenceInverseId]
+    LEFT JOIN [EntityTwos] AS [e2] ON [e0].[Id] = [e2].[CollectionInverseId]
+    WHERE [e0].[Id] < 10
+) AS [t] ON [e].[Id] = [t].[TwoId]
+ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]");
+    }
+
+    public override async Task Throws_when_different_filtered_include_unidirectional(bool async)
+    {
+        await base.Throws_when_different_filtered_include_unidirectional(async);
+
+        AssertSql();
+    }
+
+    public override async Task Includes_accessed_via_different_path_are_merged_unidirectional(bool async)
+    {
+        await base.Includes_accessed_via_different_path_are_merged_unidirectional(async);
+
+        AssertSql();
+    }
+
+    public override async Task Select_many_over_skip_navigation_where_non_equality_unidirectional(bool async)
+    {
+        await base.Select_many_over_skip_navigation_where_non_equality_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
+FROM [UnidirectionalEntityOnes] AS [u]
+LEFT JOIN (
+    SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId]
+    FROM [UnidirectionalJoinOneToTwo] AS [u0]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
+) AS [t] ON [u].[Id] = [t].[OneId] AND [u].[Id] <> [t].[Id]");
+    }
+
+    public override async Task Contains_on_skip_collection_navigation_unidirectional(bool async)
+    {
+        await base.Contains_on_skip_collection_navigation_unidirectional(async);
+
+        AssertSql(
+            @"@__entity_equality_two_0_Id='1' (Nullable = true)
+
+SELECT [u].[Id], [u].[Name]
+FROM [UnidirectionalEntityOnes] AS [u]
+WHERE EXISTS (
+    SELECT 1
+    FROM [UnidirectionalJoinOneToTwo] AS [u0]
+    INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
+    WHERE [u].[Id] = [u0].[OneId] AND [u1].[Id] = @__entity_equality_two_0_Id)");
+    }
+
+    public override async Task GetType_in_hierarchy_in_base_type_unidirectional(bool async)
+    {
+        await base.GetType_in_hierarchy_in_base_type_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name], [u0].[Number], [u1].[IsGreen], CASE
+    WHEN [u1].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+    WHEN [u0].[Id] IS NOT NULL THEN N'UnidirectionalEntityBranch'
+END AS [Discriminator]
+FROM [UnidirectionalRoots] AS [u]
+LEFT JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
+LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
+WHERE [u1].[Id] IS NULL AND [u0].[Id] IS NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_intermediate_type_unidirectional(bool async)
+    {
+        await base.GetType_in_hierarchy_in_intermediate_type_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name], [u0].[Number], [u1].[IsGreen], CASE
+    WHEN [u1].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+    WHEN [u0].[Id] IS NOT NULL THEN N'UnidirectionalEntityBranch'
+END AS [Discriminator]
+FROM [UnidirectionalRoots] AS [u]
+LEFT JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
+LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
+WHERE [u1].[Id] IS NULL AND [u0].[Id] IS NOT NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_leaf_type_unidirectional(bool async)
+    {
+        await base.GetType_in_hierarchy_in_leaf_type_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name], [u0].[Number], [u1].[IsGreen], CASE
+    WHEN [u1].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+    WHEN [u0].[Id] IS NOT NULL THEN N'UnidirectionalEntityBranch'
+END AS [Discriminator]
+FROM [UnidirectionalRoots] AS [u]
+LEFT JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
+LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
+WHERE [u1].[Id] IS NOT NULL");
+    }
+
+    public override async Task GetType_in_hierarchy_in_querying_base_type_unidirectional(bool async)
+    {
+        await base.GetType_in_hierarchy_in_querying_base_type_unidirectional(async);
+
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name], [u0].[Number], [u1].[IsGreen], CASE
+    WHEN [u1].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
+END AS [Discriminator]
+FROM [UnidirectionalRoots] AS [u]
+INNER JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
+LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
+WHERE 0 = 1");
     }
 
     private void AssertSql(params string[] expected)
