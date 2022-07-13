@@ -16,5 +16,9 @@ public abstract class TPTManyToManyQueryRelationalFixture : ManyToManyQueryRelat
         modelBuilder.Entity<EntityRoot>().ToTable("Roots");
         modelBuilder.Entity<EntityBranch>().ToTable("Branches");
         modelBuilder.Entity<EntityLeaf>().ToTable("Leaves");
+
+        modelBuilder.Entity<UnidirectionalEntityRoot>().ToTable("UnidirectionalRoots");
+        modelBuilder.Entity<UnidirectionalEntityBranch>().ToTable("UnidirectionalBranches");
+        modelBuilder.Entity<UnidirectionalEntityLeaf>().ToTable("UnidirectionalLeaves");
     }
 }

@@ -1022,7 +1022,7 @@ public class NavigationFixer : INavigationFixer
                 {
                     if (navigation.IsCollection)
                     {
-                        if (entry.CollectionContains(navigation, referencedEntry))
+                        if (entry.CollectionContains(navigation, referencedEntry.Entity))
                         {
                             FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
                         }
@@ -1491,7 +1491,7 @@ public class NavigationFixer : INavigationFixer
             _inFixup = true;
             try
             {
-                if (entry.AddToCollection(navigation, value, fromQuery))
+                if (entry.AddToCollection(navigation, value.Entity, fromQuery))
                 {
                     entry.AddToCollectionSnapshot(navigation, value.Entity);
                 }
@@ -1508,7 +1508,7 @@ public class NavigationFixer : INavigationFixer
         _inFixup = true;
         try
         {
-            if (entry.RemoveFromCollection(navigation, value))
+            if (entry.RemoveFromCollection(navigation, value.Entity))
             {
                 entry.RemoveFromCollectionSnapshot(navigation, value.Entity);
             }

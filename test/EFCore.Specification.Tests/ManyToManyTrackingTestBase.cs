@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ManyToManyTrackingTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
 {
     [ConditionalTheory]

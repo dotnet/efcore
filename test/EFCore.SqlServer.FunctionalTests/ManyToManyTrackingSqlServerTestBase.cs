@@ -39,6 +39,21 @@ public abstract class ManyToManyTrackingSqlServerTestBase<TFixture> : ManyToMany
                 .Entity<JoinOneToThreePayloadFull>()
                 .Property(e => e.Payload)
                 .HasDefaultValue("Generated");
+
+            modelBuilder
+                .Entity<UnidirectionalJoinOneSelfPayload>()
+                .Property(e => e.Payload)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder
+                .SharedTypeEntity<Dictionary<string, object>>("UnidirectionalJoinOneToThreePayloadFullShared")
+                .IndexerProperty<string>("Payload")
+                .HasDefaultValue("Generated");
+
+            modelBuilder
+                .Entity<UnidirectionalJoinOneToThreePayloadFull>()
+                .Property(e => e.Payload)
+                .HasDefaultValue("Generated");
         }
     }
 }

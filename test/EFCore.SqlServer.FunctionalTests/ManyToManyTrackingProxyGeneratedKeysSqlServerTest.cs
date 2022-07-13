@@ -28,6 +28,15 @@ public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest
         // Mutable properties aren't proxyable on Dictionary
     }
 
+    public override Task Can_insert_many_to_many_shared_with_payload_unidirectional(bool async)
+        // Mutable properties aren't proxyable on Dictionary
+        => Task.CompletedTask;
+
+    public override void Can_update_many_to_many_shared_with_payload_unidirectional()
+    {
+        // Mutable properties aren't proxyable on Dictionary
+    }
+
     protected override bool RequiresDetectChanges
         => false;
 
@@ -52,6 +61,10 @@ public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest
                 .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
                 .Ignore("Payload"); // Mutable properties aren't proxyable on Dictionary
 
+            modelBuilder
+                .SharedTypeEntity<Dictionary<string, object>>("UnidirectionalJoinOneToThreePayloadFullShared")
+                .Ignore("Payload"); // Mutable properties aren't proxyable on Dictionary
+
             modelBuilder.Entity<EntityOne>().Property(e => e.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<EntityTwo>().Property(e => e.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<EntityThree>().Property(e => e.Id).ValueGeneratedOnAdd();
@@ -60,6 +73,12 @@ public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest
             modelBuilder.SharedTypeEntity<ProxyableSharedType>("PST").IndexerProperty<int>("Id").ValueGeneratedOnAdd();
             modelBuilder.Entity<ImplicitManyToManyA>().Property(e => e.Id).ValueGeneratedOnAdd();
             modelBuilder.Entity<ImplicitManyToManyB>().Property(e => e.Id).ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<UnidirectionalEntityOne>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<UnidirectionalEntityTwo>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<UnidirectionalEntityThree>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<UnidirectionalEntityCompositeKey>().Property(e => e.Key1).ValueGeneratedOnAdd();
+            modelBuilder.Entity<UnidirectionalEntityRoot>().Property(e => e.Id).ValueGeneratedOnAdd();
         }
     }
 }

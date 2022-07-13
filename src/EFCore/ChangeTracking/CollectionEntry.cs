@@ -55,6 +55,11 @@ public class CollectionEntry : NavigationEntry
 
     private void LocalDetectChanges()
     {
+        if (Metadata.IsShadowProperty())
+        {
+            EnsureInitialized();
+        }
+        
         var collection = CurrentValue;
         if (collection != null)
         {
@@ -274,7 +279,7 @@ public class CollectionEntry : NavigationEntry
     }
 
     private void EnsureInitialized()
-        => Metadata.GetCollectionAccessor()!.GetOrCreate(InternalEntry.Entity, forMaterialization: true);
+        => InternalEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
 
     /// <summary>
     ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
@@ -302,7 +307,7 @@ public class CollectionEntry : NavigationEntry
     [EntityFrameworkInternal]
     protected virtual InternalEntityEntry? GetInternalTargetEntry(object entity)
         => CurrentValue == null
-            || !Metadata.GetCollectionAccessor()!.Contains(InternalEntry.Entity, entity)
+            || !InternalEntry.CollectionContains(Metadata, entity)
                 ? null
                 : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
 

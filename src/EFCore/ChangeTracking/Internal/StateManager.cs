@@ -803,7 +803,7 @@ public class StateManager : IStateManager
                         var navigationValue = referencedFromEntry![navigation];
                         if (navigationValue != null && navigation.IsCollection)
                         {
-                            navigation.GetCollectionAccessor()!.Remove(referencedFromEntry.Entity, newEntry.Entity);
+                            referencedFromEntry.RemoveFromCollection(navigation, newEntry.Entity);
                         }
                     }
 
