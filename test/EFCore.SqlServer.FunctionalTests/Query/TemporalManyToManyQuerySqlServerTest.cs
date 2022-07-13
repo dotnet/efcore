@@ -28,6 +28,13 @@ public class TemporalManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTes
             typeof(EntityRoot),
             typeof(EntityBranch),
             typeof(EntityLeaf),
+            typeof(UnidirectionalEntityOne),
+            typeof(UnidirectionalEntityTwo),
+            typeof(UnidirectionalEntityThree),
+            typeof(UnidirectionalEntityCompositeKey),
+            typeof(UnidirectionalEntityRoot),
+            typeof(UnidirectionalEntityBranch),
+            typeof(UnidirectionalEntityLeaf),
         };
 
         var rewriter = new TemporalPointInTimeQueryRewriter(Fixture.ChangesDate, temporalEntityTypes);

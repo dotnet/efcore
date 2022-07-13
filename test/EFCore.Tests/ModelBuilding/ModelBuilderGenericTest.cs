@@ -169,7 +169,7 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
         protected virtual TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
             => new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
-        
+
         protected virtual TestPropertyBuilder<TProperty> Wrap<TProperty>(PropertyBuilder<TProperty> propertyBuilder)
             => new GenericTestPropertyBuilder<TProperty>(propertyBuilder);
 
@@ -575,7 +575,7 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
         public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
             => Wrap(PropertyBuilder.HasConversion<TConverter, TComparer>());
-        
+
         public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
             => Wrap(PropertyBuilder.HasConversion<TConverter, TComparer, TProviderComparer>());
 
@@ -707,7 +707,7 @@ public class ModelBuilderGenericTest : ModelBuilderTest
                 CollectionNavigationBuilder.WithOne(navigationExpression));
 
         public override TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            string navigationName)
+            string? navigationName = null)
             => new GenericTestCollectionCollectionBuilder<TRelatedEntity, TEntity>(
                 CollectionNavigationBuilder.WithMany(navigationName));
 

@@ -320,26 +320,26 @@ public sealed partial class SelectExpression
                     // Always skip the table of ColumnExpression since it will traverse into deeper subquery
                     return columnExpression;
 
-                case LeftJoinExpression leftJoinExpression:
-                    var leftJoinTableAlias = leftJoinExpression.Table.Alias!;
+                case PredicateJoinExpressionBase predicateJoinExpressionBase:
+                    var predicateJoinTableAlias = predicateJoinExpressionBase.Table.Alias!;
                     // Visiting the join predicate will add some columns for join table.
                     // But if all the referenced columns are in join predicate only then we can remove the join table.
                     // So if there are no referenced columns yet means there is still potential to remove this table,
                     // In such case we moved the columns encountered in join predicate to other dictionary and later merge
                     // if there are more references to the join table outside of join predicate.
-                    // We currently do this only for LeftJoin since that is the only predicate join table we remove.
                     // We should also remove references to the outer if this column gets removed then that subquery can also remove projections
-                    // But currently we only remove table for TPT scenario in which there are all table expressions which connects via joins.
-                    var joinOnSameLevel = _columnReferenced!.ContainsKey(leftJoinTableAlias);
-                    var noReferences = !joinOnSameLevel || _columnReferenced[leftJoinTableAlias] == null;
-                    base.Visit(leftJoinExpression);
+                    // But currently we only remove table for TPT & entity splitting scenario
+                    // in which there are all table expressions which connects via joins.
+                    var joinOnSameLevel = _columnReferenced!.ContainsKey(predicateJoinTableAlias);
+                    var noReferences = !joinOnSameLevel || _columnReferenced[predicateJoinTableAlias] == null;
+                    base.Visit(predicateJoinExpressionBase);
                     if (noReferences && joinOnSameLevel)
                     {
-                        _columnsUsedInJoinCondition![leftJoinTableAlias] = _columnReferenced[leftJoinTableAlias];
-                        _columnReferenced[leftJoinTableAlias] = null;
+                        _columnsUsedInJoinCondition![predicateJoinTableAlias] = _columnReferenced[predicateJoinTableAlias];
+                        _columnReferenced[predicateJoinTableAlias] = null;
                     }
 
-                    return leftJoinExpression;
+                    return predicateJoinExpressionBase;
 
                 default:
                     return base.Visit(expression);
@@ -930,7 +930,7 @@ public sealed partial class SelectExpression
                 };
                 newSelectExpression._mutable = selectExpression._mutable;
 
-                newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
+                newSelectExpression._removableJoinTables.AddRange(selectExpression._removableJoinTables);
 
                 foreach (var kvp in selectExpression._tpcDiscriminatorValues)
                 {

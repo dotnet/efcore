@@ -42,7 +42,7 @@ public class ClrCollectionAccessorFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IClrCollectionAccessor? Create(INavigationBase navigation)
-        => !navigation.IsCollection || navigation.IsShadowProperty() ? null : Create(navigation, navigation.TargetEntityType);
+        => !navigation.IsCollection ? null : Create(navigation, navigation.TargetEntityType);
 
     private static IClrCollectionAccessor? Create(IPropertyBase navigation, IEntityType? targetType)
     {
@@ -58,7 +58,10 @@ public class ClrCollectionAccessorFactory
         }
 
         var memberInfo = GetMostDerivedMemberInfo();
-        var propertyType = navigation.IsIndexerProperty() ? navigation.ClrType : memberInfo.GetMemberType();
+        var propertyType = navigation.IsIndexerProperty() || navigation.IsShadowProperty() 
+            ? navigation.ClrType 
+            : memberInfo!.GetMemberType();
+        
         var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
 
         if (elementType == null)
@@ -81,7 +84,7 @@ public class ClrCollectionAccessorFactory
         }
 
         var boundMethod = GenericCreate.MakeGenericMethod(
-            memberInfo.DeclaringType!, propertyType, elementType);
+            memberInfo?.DeclaringType ?? navigation.DeclaringType.ClrType, propertyType, elementType);
 
         try
         {
@@ -93,7 +96,7 @@ public class ClrCollectionAccessorFactory
             throw invocationException.InnerException!;
         }
 
-        MemberInfo GetMostDerivedMemberInfo()
+        MemberInfo? GetMostDerivedMemberInfo()
         {
             var propertyInfo = navigation.PropertyInfo;
             var fieldInfo = navigation.FieldInfo;
@@ -104,7 +107,7 @@ public class ClrCollectionAccessorFactory
                     ? fieldInfo
                     : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
                         ? propertyInfo
-                        : fieldInfo)!;
+                        : fieldInfo);
         }
     }
 
@@ -117,33 +120,37 @@ public class ClrCollectionAccessorFactory
         var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
         var valueParameter = Expression.Parameter(typeof(TCollection), "collection");
 
-        var memberInfoForRead = navigation.GetMemberInfo(forMaterialization: false, forSet: false);
-        navigation.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
-        navigation.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
-
-        var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
-        if (memberAccessForRead.Type != typeof(TCollection))
-        {
-            memberAccessForRead = Expression.Convert(memberAccessForRead, typeof(TCollection));
-        }
-
-        var getterDelegate = Expression.Lambda<Func<TEntity, TCollection>>(
-            memberAccessForRead,
-            entityParameter).Compile();
-
+        Func<TEntity, TCollection>? getterDelegate = null;
         Action<TEntity, TCollection>? setterDelegate = null;
         Action<TEntity, TCollection>? setterDelegateForMaterialization = null;
         Func<TEntity, Action<TEntity, TCollection>, TCollection>? createAndSetDelegate = null;
         Func<TCollection>? createDelegate = null;
 
-        if (memberInfoForWrite != null)
+        if (!navigation.IsShadowProperty())
         {
-            setterDelegate = CreateSetterDelegate(entityParameter, memberInfoForWrite, valueParameter);
-        }
+            var memberInfoForRead = navigation.GetMemberInfo(forMaterialization: false, forSet: false);
+            navigation.TryGetMemberInfo(forMaterialization: false, forSet: true, out var memberInfoForWrite, out _);
+            navigation.TryGetMemberInfo(forMaterialization: true, forSet: true, out var memberInfoForMaterialization, out _);
 
-        if (memberInfoForMaterialization != null)
-        {
-            setterDelegateForMaterialization = CreateSetterDelegate(entityParameter, memberInfoForMaterialization, valueParameter);
+            var memberAccessForRead = (Expression)Expression.MakeMemberAccess(entityParameter, memberInfoForRead);
+            if (memberAccessForRead.Type != typeof(TCollection))
+            {
+                memberAccessForRead = Expression.Convert(memberAccessForRead, typeof(TCollection));
+            }
+
+            getterDelegate = Expression.Lambda<Func<TEntity, TCollection>>(
+                memberAccessForRead,
+                entityParameter).Compile();
+
+            if (memberInfoForWrite != null)
+            {
+                setterDelegate = CreateSetterDelegate(entityParameter, memberInfoForWrite, valueParameter);
+            }
+
+            if (memberInfoForMaterialization != null)
+            {
+                setterDelegateForMaterialization = CreateSetterDelegate(entityParameter, memberInfoForMaterialization, valueParameter);
+            }
         }
 
         var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(

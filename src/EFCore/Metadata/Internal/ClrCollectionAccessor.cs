@@ -17,7 +17,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     where TElement : class
 {
     private readonly string _propertyName;
-    private readonly Func<TEntity, TCollection> _getCollection;
+    private readonly Func<TEntity, TCollection>? _getCollection;
     private readonly Action<TEntity, TCollection>? _setCollection;
     private readonly Action<TEntity, TCollection>? _setCollectionForMaterialization;
     private readonly Func<TEntity, Action<TEntity, TCollection>, TCollection>? _createAndSetCollection;
@@ -40,7 +40,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     /// </summary>
     public ClrICollectionAccessor(
         string propertyName,
-        Func<TEntity, TCollection> getCollection,
+        Func<TEntity, TCollection>? getCollection,
         Action<TEntity, TCollection>? setCollection,
         Action<TEntity, TCollection>? setCollectionForMaterialization,
         Func<TEntity, Action<TEntity, TCollection>, TCollection>? createAndSetCollection,
@@ -61,13 +61,19 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool Add(object entity, object value, bool forMaterialization)
-    {
-        var collection = GetOrCreateCollection(entity, forMaterialization);
-        var element = (TElement)value;
+        => AddStandalone(GetOrCreateCollection(entity, forMaterialization), value);
 
-        if (!Contains(collection, value))
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool AddStandalone(object collection, object value)
+    {
+        if (!ContainsStandalone(collection, value))
         {
-            collection.Add(element);
+            ((ICollection<TElement>)collection).Add((TElement)value);
 
             return true;
         }
@@ -131,7 +137,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
 
     private ICollection<TElement>? GetCollection(object instance)
     {
-        var enumerable = _getCollection((TEntity)instance);
+        var enumerable = _getCollection!((TEntity)instance);
         var collection = enumerable as ICollection<TElement>;
 
         if (enumerable != null
@@ -163,10 +169,26 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool Remove(object entity, object value)
-    {
-        var collection = GetCollection((TEntity)entity);
+    public virtual bool ContainsStandalone(object collection, object value)
+        => Contains((ICollection<TElement>)collection, value);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool Remove(object entity, object value)
+        => RemoveStandalone(GetCollection((TEntity)entity), value);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool RemoveStandalone(object? collection, object value)
+    {
         switch (collection)
         {
             case List<TElement> list:
@@ -196,7 +218,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
                     && ReferenceEquals(found, value)
                     && sortedSet.Remove(found);
             default:
-                return collection?.Remove((TElement)value) ?? false;
+                return ((ICollection<TElement>?)collection)?.Remove((TElement)value) ?? false;
         }
     }
 

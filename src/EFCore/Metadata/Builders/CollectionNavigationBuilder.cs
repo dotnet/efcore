@@ -214,18 +214,9 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     The name of the collection navigation property on the other end of this relationship.
     /// </param>
     /// <returns>An object to further configure the relationship.</returns>
-    public virtual CollectionCollectionBuilder WithMany(string navigationName)
+    public virtual CollectionCollectionBuilder WithMany(string? navigationName = null)
     {
-        if (Builder != null
-            && Builder.Metadata.PrincipalToDependent == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.MissingInverseManyToManyNavigation(
-                    Builder.Metadata.PrincipalEntityType.DisplayName(),
-                    Builder.Metadata.DeclaringEntityType.DisplayName()));
-        }
-
-        var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
+        var leftName = Builder?.Metadata.PrincipalToDependent?.Name;
         var collectionCollectionBuilder =
             new CollectionCollectionBuilder(
                 RelatedEntityType,
@@ -253,9 +244,9 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual IMutableSkipNavigation WithLeftManyNavigation(string inverseName)
+    protected virtual IMutableSkipNavigation WithLeftManyNavigation(string? inverseName)
     {
-        Check.NotEmpty(inverseName, nameof(inverseName));
+        Check.NullButNotEmpty(inverseName, nameof(inverseName));
 
         if (SkipNavigation != null)
         {
@@ -288,7 +279,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual IMutableSkipNavigation WithRightManyNavigation(string navigationName, string inverseName)
+    protected virtual IMutableSkipNavigation WithRightManyNavigation(string? navigationName, string? inverseName)
         => WithRightManyNavigation(MemberIdentity.Create(navigationName), inverseName);
 
     /// <summary>
@@ -306,29 +297,31 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     private IMutableSkipNavigation WithRightManyNavigation(MemberIdentity navigationMember, string? inverseName)
     {
         Check.DebugAssert(Builder == null, "Expected no associated foreign key at this point");
-        Check.DebugAssert(navigationMember.Name is not null, $"{nameof(navigationMember.Name)} is null");
 
         var navigationName = navigationMember.Name;
-        var conflictingNavigation = RelatedEntityType.FindNavigation(navigationName) as IConventionNavigation;
-        var foreignKey = (ForeignKey?)conflictingNavigation?.ForeignKey;
-        if (conflictingNavigation?.GetConfigurationSource() == ConfigurationSource.Explicit)
-        {
-            InternalForeignKeyBuilder.ThrowForConflictingNavigation(
-                foreignKey!, DeclaringEntityType, RelatedEntityType, inverseName, navigationName);
-        }
-
         using (((EntityType)RelatedEntityType).Model.DelayConventions())
         {
-            if (conflictingNavigation != null)
+            if (navigationName != null)
             {
-                foreignKey!.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, ConfigurationSource.Explicit);
-            }
-            else
-            {
-                var skipNavigation = RelatedEntityType.FindSkipNavigation(navigationMember.Name);
-                if (skipNavigation != null)
+                var conflictingNavigation = RelatedEntityType.FindNavigation(navigationName) as IConventionNavigation;
+                var foreignKey = (ForeignKey?)conflictingNavigation?.ForeignKey;
+                if (conflictingNavigation?.GetConfigurationSource() == ConfigurationSource.Explicit)
                 {
-                    return skipNavigation;
+                    InternalForeignKeyBuilder.ThrowForConflictingNavigation(
+                        foreignKey!, DeclaringEntityType, RelatedEntityType, inverseName, navigationName);
+                }
+
+                if (conflictingNavigation != null)
+                {
+                    foreignKey!.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, ConfigurationSource.Explicit);
+                }
+                else
+                {
+                    var skipNavigation = RelatedEntityType.FindSkipNavigation(navigationName);
+                    if (skipNavigation != null)
+                    {
+                        return skipNavigation;
+                    }
                 }
             }
 

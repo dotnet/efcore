@@ -422,14 +422,14 @@ public abstract partial class ModelBuilderTest
             ValueConverter<TProperty, TProvider> converter,
             ValueComparer? valueComparer,
             ValueComparer? providerComparerType);
-        
+
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer);
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer, ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
             where TComparer : ValueComparer;
-        
+
         public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
             where TComparer : ValueComparer
             where TProviderComparer : ValueComparer;
@@ -453,7 +453,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             Expression<Func<TRelatedEntity, TEntity?>>? navigationExpression = null);
 
-        public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string navigationName);
+        public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string? navigationName = null);
 
         public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             Expression<Func<TRelatedEntity, IEnumerable<TEntity>?>> navigationExpression);
