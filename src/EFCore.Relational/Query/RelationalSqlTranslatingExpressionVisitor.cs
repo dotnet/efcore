@@ -1320,7 +1320,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 return propertyAccess;
             }
 
-            var table = entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+            var table = entityType.GetViewOrTableMappings().SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
                 ?? entityType.GetDefaultMappings().Single().Table;
             if (!table.IsOptional(entityType))
             {

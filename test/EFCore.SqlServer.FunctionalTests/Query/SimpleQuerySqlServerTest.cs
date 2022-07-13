@@ -179,7 +179,10 @@ FROM [Users] AS [u]");
 SELECT [o].[Id], [o].[CancellationDate], [o].[OrderId], [o].[ShippingDate]
 FROM [OrderItems] AS [o]
 INNER JOIN (
-    SELECT [o0].[OrderId] AS [Key]
+    SELECT [o0].[OrderId] AS [Key], MAX(CASE
+        WHEN [o0].[ShippingDate] IS NULL AND [o0].[CancellationDate] IS NULL THEN [o0].[OrderId]
+        ELSE [o0].[OrderId] - 10000000
+    END) AS [IsPending]
     FROM [OrderItems] AS [o0]
     WHERE [o0].[OrderId] = @__orderId_0
     GROUP BY [o0].[OrderId]
