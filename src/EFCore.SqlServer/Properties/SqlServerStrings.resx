@@ -248,6 +248,10 @@
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
     <comment>Warning SqlServerEventId.MissingTableWarning string?</comment>
   </data>
+  <data name="LogMissingViewDefinitionRights" xml:space="preserve">
+    <value>The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.</value>
+    <comment>Warning SqlServerEventId.MissingViewDefinitionRightsWarning</comment>
+  </data>
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
     <comment>Warning SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
@@ -265,7 +269,7 @@
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
   <data name="LogSavepointsDisabledBecauseOfMARS" xml:space="preserve">
-    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
+    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
     <comment>Warning SqlServerEventId.SavepointsDisabledBecauseOfMARS</comment>
   </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">
@@ -280,8 +284,20 @@
   <data name="NoSavepointRelease" xml:space="preserve">
     <value>SQL Server does not support releasing a savepoint.</value>
   </data>
+  <data name="SaveChangesFailedBecauseOfComputedColumnWithFunction" xml:space="preserve">
+    <value>Could not save changes because the target table has computed column with a function that performs data access. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-computed-columns for more information.</value>
+  </data>
+  <data name="SaveChangesFailedBecauseOfTriggers" xml:space="preserve">
+    <value>Could not save changes because the target table has database triggers. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-triggers for more information.</value>
+  </data>
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
+  </data>
+  <data name="SplitQueryOffsetWithoutOrderBy" xml:space="preserve">
+    <value>The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.</value>
+  </data>
+  <data name="TemporalAllEntitiesMappedToSameTableMustBeTemporal" xml:space="preserve">
+    <value>Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.</value>
   </data>
   <data name="TemporalExpectedPeriodPropertyNotFound" xml:space="preserve">
     <value>Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.</value>
@@ -295,8 +311,8 @@
   <data name="TemporalNavigationExpansionOnlySupportedForAsOf" xml:space="preserve">
     <value>Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.</value>
   </data>
-  <data name="TemporalNotSupportedForTableSplitting" xml:space="preserve">
-    <value>Temporal tables are not supported for table splitting scenario. Table: '{table}'.</value>
+  <data name="TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping" xml:space="preserve">
+    <value>When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. Issue happens for entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.</value>
   </data>
   <data name="TemporalOnlyOnRoot" xml:space="preserve">
     <value>Only root entity type should be marked as temporal. Entity type: '{entityType}'.</value>

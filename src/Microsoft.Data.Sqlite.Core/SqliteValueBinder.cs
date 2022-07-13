@@ -246,6 +246,10 @@ namespace Microsoft.Data.Sqlite
                 { typeof(char), SqliteType.Text },
                 { typeof(DateTime), SqliteType.Text },
                 { typeof(DateTimeOffset), SqliteType.Text },
+#if NET6_0_OR_GREATER
+                { typeof(DateOnly), SqliteType.Text },
+                { typeof(TimeOnly), SqliteType.Text },
+#endif
                 { typeof(DBNull), SqliteType.Text },
                 { typeof(decimal), SqliteType.Text },
                 { typeof(double), SqliteType.Real },
@@ -255,7 +259,7 @@ namespace Microsoft.Data.Sqlite
                 { typeof(long), SqliteType.Integer },
                 { typeof(sbyte), SqliteType.Integer },
                 { typeof(short), SqliteType.Integer },
-                { typeof(string), SqliteType.Integer },
+                { typeof(string), SqliteType.Text },
                 { typeof(TimeSpan), SqliteType.Text },
                 { typeof(uint), SqliteType.Integer },
                 { typeof(ulong), SqliteType.Integer },

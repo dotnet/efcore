@@ -1,5 +1,6 @@
 <#
     Session["ResourceFile"] = "SqliteNTSStrings.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Sqlite.Properties";
     Session["LoggingDefinitionsClass"] = "SqliteNtsLoggingDefinitions";
     Session["NoDiagnostics"] = true;
 #>

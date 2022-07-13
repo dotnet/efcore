@@ -3,18 +3,17 @@
 
 using NetTopologySuite.Geometries;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
+namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
+
+public static class GeoExtensions
 {
-    public static class GeoExtensions
+    public static double Distance(this GeoPoint x, GeoPoint y)
     {
-        public static double Distance(this GeoPoint x, GeoPoint y)
-        {
-            var converter = new GeoPointConverter();
+        var converter = new GeoPointConverter();
 
-            var xPoint = (Point)converter.ConvertToProvider(x);
-            var yPoint = (Point)converter.ConvertToProvider(y);
+        var xPoint = (Point)converter.ConvertToProvider(x);
+        var yPoint = (Point)converter.ConvertToProvider(y);
 
-            return yPoint.Distance(xPoint);
-        }
+        return yPoint.Distance(xPoint);
     }
 }
