@@ -15,7 +15,8 @@ public class ManyToManyTrackingGeneratedKeysSqlServerTest
 
     public class ManyToManyTrackingGeneratedKeysSqlServerFixture : ManyToManyTrackingSqlServerFixtureBase
     {
-        protected override string StoreName { get; } = "ManyToManyTrackingGeneratedKeys";
+        protected override string StoreName
+            => "ManyToManyTrackingGeneratedKeys";
 
         public override bool UseGeneratedKeys
             => true;

@@ -202,7 +202,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
         public override bool SupportsLargeStringComparisons
             => true;
 
-        protected override string StoreName { get; } = "EverythingIsBytes";
+        protected override string StoreName
+            => "EverythingIsBytes";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerBytesTestStoreFactory.Instance;

@@ -1212,7 +1212,8 @@ FROM ""People"";",
 
     public class MigrationsSqliteFixture : MigrationsFixtureBase
     {
-        protected override string StoreName { get; } = nameof(MigrationsSqliteTest);
+        protected override string StoreName
+            => nameof(MigrationsSqliteTest);
 
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

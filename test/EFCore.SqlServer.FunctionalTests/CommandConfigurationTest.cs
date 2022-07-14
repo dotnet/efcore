@@ -90,7 +90,9 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
 
     public class CommandConfigurationFixture : SharedStoreFixtureBase<DbContext>
     {
-        protected override string StoreName { get; } = "CommandConfiguration";
+        protected override string StoreName
+            => "CommandConfiguration";
+
         protected override Type ContextType { get; } = typeof(ChipsContext);
 
         protected override ITestStoreFactory TestStoreFactory

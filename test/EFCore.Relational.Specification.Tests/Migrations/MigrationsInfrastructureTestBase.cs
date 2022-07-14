@@ -319,7 +319,8 @@ public abstract class
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;
 
-    protected override string StoreName { get; } = "MigrationsTest";
+    protected override string StoreName
+        => "MigrationsTest";
 
     public EmptyMigrationsContext CreateEmptyContext()
         => new(

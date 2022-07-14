@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<ManyToManyContext>, IQueryFixtureBase
 {
-    protected override string StoreName { get; } = "ManyToManyQueryTest";
+    protected override string StoreName
+        => "ManyToManyQueryTest";
 
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();

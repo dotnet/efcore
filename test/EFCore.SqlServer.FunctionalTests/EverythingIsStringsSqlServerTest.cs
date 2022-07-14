@@ -201,7 +201,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         public override bool PreservesDateTimeKind
             => false;
 
-        protected override string StoreName { get; } = "EverythingIsStrings";
+        protected override string StoreName
+            => "EverythingIsStrings";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerStringsTestStoreFactory.Instance;

@@ -27,7 +27,8 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
 
     public class CommandConfigurationTestFixture : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "Empty";
+        protected override string StoreName
+            => "Empty";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

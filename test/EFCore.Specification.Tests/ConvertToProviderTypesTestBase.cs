@@ -35,7 +35,8 @@ public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataType
 
     public abstract class ConvertToProviderTypesFixtureBase : BuiltInDataTypesFixtureBase
     {
-        protected override string StoreName { get; } = "ConvertToProviderTypes";
+        protected override string StoreName
+            => "ConvertToProviderTypes";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

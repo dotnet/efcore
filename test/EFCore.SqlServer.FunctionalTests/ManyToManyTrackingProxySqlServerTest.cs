@@ -39,7 +39,8 @@ public class ManyToManyTrackingProxySqlServerTest
 
     public class ManyToManyTrackingProxySqlServerFixture : ManyToManyTrackingSqlServerFixtureBase
     {
-        protected override string StoreName { get; } = "ManyToManyTrackingProxies";
+        protected override string StoreName
+            => "ManyToManyTrackingProxies";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).UseChangeTrackingProxies();

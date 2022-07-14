@@ -141,7 +141,9 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
 
     public class SqlServerTriggersFixture : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "SqlServerTriggers";
+        protected override string StoreName
+            => "SqlServerTriggers";
+
         protected override Type ContextType { get; } = typeof(TriggersContext);
 
         protected override ITestStoreFactory TestStoreFactory

@@ -87,7 +87,8 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
             },
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    protected override string StoreName { get; } = "NullSemanticsQueryTest";
+    protected override string StoreName
+        => "NullSemanticsQueryTest";
 
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;

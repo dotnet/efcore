@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : ComplexNavigationsSharedTypeQuerySqlServerFixture
 {
-    protected override string StoreName { get; } = "TemporalComplexNavigationsSharedType";
+    protected override string StoreName
+        => "TemporalComplexNavigationsSharedType";
 
     public DateTime ChangesDate { get; private set; }
 
@@ -61,7 +62,7 @@ public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : Complex
 
         ChangesDate = new DateTime(2010, 1, 1);
 
-        // clean up intermittent history since in the Seed method we do fixup in multiple stages 
+        // clean up intermittent history since in the Seed method we do fixup in multiple stages
         var tableName = nameof(Level1);
 
         context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
@@ -100,4 +101,3 @@ public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : Complex
         context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
     }
 }
-

@@ -762,7 +762,8 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
         public virtual IDisposable BeginTransaction(DbContext context)
             => context.Database.BeginTransaction();
 
-        protected override string StoreName { get; } = "MusicStore";
+        protected override string StoreName
+            => "MusicStore";
 
         protected override bool UsePooling
             => false;

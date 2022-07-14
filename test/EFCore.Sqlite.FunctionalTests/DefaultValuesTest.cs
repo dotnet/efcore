@@ -31,7 +31,8 @@ public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
         }
     }
 
-    protected override string StoreName { get; } = "DefaultKettleChips";
+    protected override string StoreName
+        => "DefaultKettleChips";
 
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

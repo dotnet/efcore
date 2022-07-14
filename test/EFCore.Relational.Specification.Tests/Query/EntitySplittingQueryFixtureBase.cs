@@ -13,7 +13,8 @@ public abstract class EntitySplittingQueryFixtureBase : SharedStoreFixtureBase<E
     {
     }
 
-    protected override string StoreName { get; } = "EntitySplittingQueryTest";
+    protected override string StoreName
+        => "EntitySplittingQueryTest";
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
        => (TestSqlLoggerFactory)ListLoggerFactory;

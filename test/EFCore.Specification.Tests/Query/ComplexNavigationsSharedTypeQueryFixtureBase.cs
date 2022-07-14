@@ -10,7 +10,8 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
 {
     private ComplexNavigationsWeakData _expectedData;
 
-    protected override string StoreName { get; } = "ComplexNavigationsOwned";
+    protected override string StoreName
+        => "ComplexNavigationsOwned";
 
     public override ISetSource GetExpectedData()
     {

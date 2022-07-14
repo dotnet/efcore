@@ -930,7 +930,8 @@ DROP TABLE PrincipalTable;");
 
     public class SqliteDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = nameof(SqliteDatabaseModelFactoryTest);
+        protected override string StoreName
+            => nameof(SqliteDatabaseModelFactoryTest);
 
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

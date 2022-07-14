@@ -9,7 +9,8 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 {
     private ComplexNavigationsDefaultData _expectedData;
 
-    protected override string StoreName { get; } = "ComplexNavigations";
+    protected override string StoreName
+        => "ComplexNavigations";
 
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();

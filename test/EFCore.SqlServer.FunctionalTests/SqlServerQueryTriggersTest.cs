@@ -109,7 +109,9 @@ public class SqlServerQueryTriggersTest : IClassFixture<SqlServerQueryTriggersTe
 
     public class SqlServerTriggersFixture : SharedStoreFixtureBase<DbContext>
     {
-        protected override string StoreName { get; } = "SqlServerQueryTriggers";
+        protected override string StoreName
+            => "SqlServerQueryTriggers";
+
         protected override Type ContextType { get; } = typeof(QueryTriggersContext);
 
         protected override ITestStoreFactory TestStoreFactory

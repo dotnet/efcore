@@ -2456,7 +2456,8 @@ DROP TABLE TestViewDefinition;");
 
     public class SqlServerDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = nameof(SqlServerDatabaseModelFactoryTest);
+        protected override string StoreName
+            => nameof(SqlServerDatabaseModelFactoryTest);
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

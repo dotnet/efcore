@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public abstract class StoreValueGenerationFixtureBase : SharedStoreFixtureBase<StoreValueGenerationContext>
 {
-    protected override string StoreName { get; } = "StoreValueGenerationTest";
+    protected override string StoreName
+        => "StoreValueGenerationTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

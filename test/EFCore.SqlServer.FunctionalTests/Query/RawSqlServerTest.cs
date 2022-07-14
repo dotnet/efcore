@@ -69,7 +69,8 @@ public class RawSqlServerTest : NonSharedModelTestBase
         }
     }
 
-    protected override string StoreName { get; } = "RawSqlServerTest";
+    protected override string StoreName
+        => "RawSqlServerTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
