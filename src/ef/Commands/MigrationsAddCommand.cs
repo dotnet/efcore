@@ -20,9 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 throw new CommandException(Resources.MissingArgument(_name.Name));
             }
-
-            // sanitizing migration name. If there is a reserve character in the migration name
-            _name.Name = new string(_name.Name.Where(c => !Path.GetInvalidFileNameChars().Contains(c)).ToArray());
         }
 
         protected override int Execute(string[] args)

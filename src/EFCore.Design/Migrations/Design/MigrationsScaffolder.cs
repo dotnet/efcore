@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.IO;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -385,6 +386,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
         var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
         var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
+        migrationFile = GetNormalizedFileName(migrationFile);
         var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
         var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
         var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
@@ -406,6 +408,8 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             SnapshotFile = modelSnapshotFile
         };
     }
+
+    private static string GetNormalizedFileName (string migrationFileName) => string.Join("_",migrationFileName.Split(Path.GetInvalidFileNameChars()));
 
     /// <summary>
     ///     Gets the namespace of a sibling type. If none, the default namespace is used.
