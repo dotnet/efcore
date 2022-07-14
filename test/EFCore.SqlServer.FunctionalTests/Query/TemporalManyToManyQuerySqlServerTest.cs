@@ -28,6 +28,13 @@ public class TemporalManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTes
             typeof(EntityRoot),
             typeof(EntityBranch),
             typeof(EntityLeaf),
+            typeof(UnidirectionalEntityOne),
+            typeof(UnidirectionalEntityTwo),
+            typeof(UnidirectionalEntityThree),
+            typeof(UnidirectionalEntityCompositeKey),
+            typeof(UnidirectionalEntityRoot),
+            typeof(UnidirectionalEntityBranch),
+            typeof(UnidirectionalEntityLeaf),
         };
 
         var rewriter = new TemporalPointInTimeQueryRewriter(Fixture.ChangesDate, temporalEntityTypes);
@@ -1002,9 +1009,9 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[ThreeId], [t0].[TwoId]");
             @"");
     }
 
-    public override async Task Filered_includes_accessed_via_different_path_are_merged(bool async)
+    public override async Task Filtered_includes_accessed_via_different_path_are_merged(bool async)
     {
-        await base.Filered_includes_accessed_via_different_path_are_merged(async);
+        await base.Filtered_includes_accessed_via_different_path_are_merged(async);
 
         AssertSql(
             @"");

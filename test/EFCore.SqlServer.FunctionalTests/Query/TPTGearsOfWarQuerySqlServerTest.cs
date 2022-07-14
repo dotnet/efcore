@@ -6943,8 +6943,11 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 INNER JOIN (
-    SELECT [g0].[Nickname]
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+        WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
     FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
 ) AS [t] ON [g].[Nickname] = [t].[Nickname]");
     }
 
@@ -6959,8 +6962,11 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 INNER JOIN (
-    SELECT [g0].[Nickname]
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+        WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
     FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
 ) AS [t] ON [g].[Nickname] = [t].[Nickname]");
     }
 
@@ -9894,6 +9900,66 @@ WHERE NOT (EXISTS (
     SELECT 1
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]))");
+    }
+
+    public override async Task Include_reference_on_derived_type_using_EF_Property(bool async)
+    {
+        await base.Include_reference_on_derived_type_using_EF_Property(async);
+
+        AssertSql(
+            @"SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
+    WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
+END AS [Discriminator], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+        WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
+    FROM [Gears] AS [g]
+    LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
+) AS [t] ON [l0].[DefeatedByNickname] = [t].[Nickname] AND [l0].[DefeatedBySquadId] = [t].[SquadId]");
+    }
+
+    public override async Task Include_collection_on_derived_type_using_EF_Property(bool async)
+    {
+        await base.Include_collection_on_derived_type_using_EF_Property(async);
+
+        AssertSql(
+            @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+    WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+END AS [Discriminator], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+FROM [Gears] AS [g]
+LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
+LEFT JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+        WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
+) AS [t] ON [g].[Nickname] = [t].[LeaderNickname] AND [g].[SquadId] = [t].[LeaderSquadId]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
+    }
+
+    public override async Task EF_Property_based_Include_navigation_on_derived_type(bool async)
+    {
+        await base.EF_Property_based_Include_navigation_on_derived_type(async);
+
+        AssertSql(
+            @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+    WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+END AS [Discriminator], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+FROM [Gears] AS [g]
+LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
+LEFT JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+        WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
+) AS [t] ON [g].[Nickname] = [t].[LeaderNickname] AND [g].[SquadId] = [t].[LeaderSquadId]
+WHERE [o].[Nickname] IS NOT NULL
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
     }
 
     private void AssertSql(params string[] expected)

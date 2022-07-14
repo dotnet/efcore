@@ -360,18 +360,22 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 }
 
                 var seed = seedAnnotation is null
-                    ? 1
+                    ? 1L
                     : seedAnnotation.Value is int intValue
                         ? intValue
-                        : (long?)seedAnnotation.Value ?? 1;
+                        : (long?)seedAnnotation.Value ?? 1L;
 
                 var increment = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentityIncrement)
                     ?? model.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.Value as int?
                     ?? 1;
                 return new MethodCallCodeFragment(
                     onModel ? ModelUseIdentityColumnsMethodInfo : PropertyUseIdentityColumnsMethodInfo,
-                    seed,
-                    increment);
+                    (seed, increment) switch
+                    {
+                        (1L, 1) => Array.Empty<object>(),
+                        (_, 1) => new object[] { seed },
+                        _ => new object[] { seed, increment }
+                    });
 
             case SqlServerValueGenerationStrategy.SequenceHiLo:
                 var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName);

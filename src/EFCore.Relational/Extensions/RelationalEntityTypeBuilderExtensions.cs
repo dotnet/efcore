@@ -19,6 +19,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
     ///     Configures TPC as the mapping strategy for the derived types. Each type will be mapped to a different database object.
     ///     All properties will be mapped to columns on the corresponding object.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
+    /// </remarks>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder UseTpcMappingStrategy(this EntityTypeBuilder entityTypeBuilder)
@@ -32,6 +35,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
     ///     Configures TPH as the mapping strategy for the derived types. All types will be mapped to the same database object.
     ///     This is the default mapping strategy.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
+    /// </remarks>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder UseTphMappingStrategy(this EntityTypeBuilder entityTypeBuilder)
@@ -45,6 +51,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
     ///     Configures TPT as the mapping strategy for the derived types. Each type will be mapped to a different database object.
     ///     Only the declared properties will be mapped to columns on the corresponding object.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
+    /// </remarks>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder UseTptMappingStrategy(this EntityTypeBuilder entityTypeBuilder)
@@ -58,6 +67,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
     ///     Configures TPC as the mapping strategy for the derived types. Each type will be mapped to a different database object.
     ///     All properties will be mapped to columns on the corresponding object.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
+    /// </remarks>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
@@ -68,6 +80,9 @@ public static partial class RelationalEntityTypeBuilderExtensions
     ///     Configures TPH as the mapping strategy for the derived types. All types will be mapped to the same database object.
     ///     This is the default mapping strategy.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
+    /// </remarks>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder<TEntity> UseTphMappingStrategy<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
@@ -78,11 +93,59 @@ public static partial class RelationalEntityTypeBuilderExtensions
     ///     Configures TPT as the mapping strategy for the derived types. Each type will be mapped to a different database object.
     ///     Only the declared properties will be mapped to columns on the corresponding object.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
+    /// </remarks>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static EntityTypeBuilder<TEntity> UseTptMappingStrategy<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
         where TEntity : class
         => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).UseTptMappingStrategy();
+
+    /// <summary>
+    ///     Sets the hierarchy mapping strategy.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="strategy">The mapping strategy for the derived types.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionEntityTypeBuilder? UseMappingStrategy(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? strategy,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetMappingStrategy(strategy, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetMappingStrategy(strategy, fromDataAnnotation);
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the hierarchy mapping strategy can be configured
+    ///     using the specified configuration source.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="strategy">The mapping strategy for the derived types.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetMappingStrategy(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? strategy,
+        bool fromDataAnnotation = false)
+        => entityTypeBuilder.CanSetAnnotation
+            (RelationalAnnotationNames.MappingStrategy, strategy, fromDataAnnotation);
 
     /// <summary>
     ///     Mark the table that this entity type is mapped to as excluded from migrations.

@@ -163,6 +163,111 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Join_over_non_nullable_column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    Customers = string.Join("|", g.Select(e => e.CustomerID))
+                }),
+            elementSorter: x => x.City,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.City, a.City);
+
+                // Ordering inside the string isn't specified server-side, split and reorder
+                Assert.Equal(
+                    e.Customers.Split("|").OrderBy(id => id).ToArray(),
+                    a.Customers.Split("|").OrderBy(id => id).ToArray());
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Join_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    Customers = string.Join("|", g.Where(e => e.ContactName.Length > 10).Select(e => e.CustomerID))
+                }),
+            elementSorter: x => x.City,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.City, a.City);
+
+                // Ordering inside the string isn't specified server-side, split and reorder
+                Assert.Equal(
+                    e.Customers.Split("|").OrderBy(id => id).ToArray(),
+                    a.Customers.Split("|").OrderBy(id => id).ToArray());
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Join_with_ordering(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    Customers = string.Join("|", g.OrderByDescending(e => e.CustomerID).Select(e => e.CustomerID))
+                }),
+            elementSorter: x => x.City);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Join_over_nullable_column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    Regions = string.Join("|", g.Select(e => e.Region))
+                }),
+            elementSorter: x => x.City,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.City, a.City);
+
+                // Ordering inside the string isn't specified server-side, split and reorder
+                Assert.Equal(
+                    e.Regions.Split("|").OrderBy(id => id).ToArray(),
+                    a.Regions.Split("|").OrderBy(id => id).ToArray());
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Concat(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.City)
+                .Select(g => new
+                {
+                    City = g.Key,
+                    Customers = string.Concat(g.Select(e => e.CustomerID))
+                }),
+            elementSorter: x => x.City,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.City, a.City);
+
+                // The best we can do for Concat without server-side ordering is sort the characters (concatenating without ordering
+                // and without a delimiter is somewhat dubious anyway).
+                Assert.Equal(e.Customers.OrderBy(c => c).ToArray(), a.Customers.OrderBy(c => c).ToArray());
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task String_Compare_simple_zero(bool async)
     {
         await AssertQuery(

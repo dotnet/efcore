@@ -591,6 +591,41 @@ public partial class DbContextTest
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
+    public void DetectChanges_is_called_for_cascade_delete_unless_disabled(bool autoDetectChangesEnabled)
+    {
+        var detectedChangesFor = new List<object>();
+
+        using var context = new EarlyLearningCenter();
+        context.ChangeTracker.DetectingEntityChanges += (_, args) =>
+        {
+            detectedChangesFor.Add(args.Entry.Entity);
+        };
+
+        context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChangesEnabled;
+
+        var products = new List<Product> { new() { Id = 1 }, new() { Id = 2 } };
+        var category = context.Attach(new Category { Id = 1, Products = products }).Entity;
+
+        Assert.Empty(detectedChangesFor);
+
+        context.Remove(category);
+
+        if (autoDetectChangesEnabled)
+        {
+            Assert.Equal(4, detectedChangesFor.Count);
+            Assert.Contains(products[0], detectedChangesFor);
+            Assert.Contains(products[1], detectedChangesFor);
+            Assert.Equal(2, detectedChangesFor.Count(e => ReferenceEquals(e, category)));
+        }
+        else
+        {
+            Assert.Empty(detectedChangesFor);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
     public void Entry_calls_DetectChanges_by_default(bool useGenericOverload)
     {
         using var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider());

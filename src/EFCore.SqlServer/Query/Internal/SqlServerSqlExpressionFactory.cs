@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlExpressionFactory : SqlExpressionFactory
 {
-    private IRelationalTypeMappingSource _typeMappingSource;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,9 +43,13 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
             return sqlExpression;
         }
 
-        return sqlExpression is AtTimeZoneExpression atTimeZoneExpression
-            ? ApplyTypeMappingOnAtTimeZone(atTimeZoneExpression, typeMapping)
-            : base.ApplyTypeMapping(sqlExpression, typeMapping);
+        return sqlExpression switch
+        {
+            AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
+            SqlServerAggregateFunctionExpression e => e.ApplyTypeMapping(typeMapping),
+
+            _ => base.ApplyTypeMapping(sqlExpression, typeMapping)
+        };
     }
 
     private SqlExpression ApplyTypeMappingOnAtTimeZone(AtTimeZoneExpression atTimeZoneExpression, RelationalTypeMapping? typeMapping)

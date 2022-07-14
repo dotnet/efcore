@@ -101,69 +101,99 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected virtual Expression VisitSqlServerAggregateFunction(SqlServerAggregateFunctionExpression aggregateFunctionExpression)
+    {
+        Sql.Append(aggregateFunctionExpression.Name);
+
+        Sql.Append("(");
+        GenerateList(aggregateFunctionExpression.Arguments, e => Visit(e));
+        Sql.Append(")");
+
+        if (aggregateFunctionExpression.Orderings.Count > 0)
+        {
+            Sql.Append(" WITHIN GROUP (ORDER BY ");
+            GenerateList(aggregateFunctionExpression.Orderings, e => Visit(e));
+            Sql.Append(")");
+        }
+
+        return aggregateFunctionExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is TableExpression tableExpression
-            && tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalOperationType) != null)
+        switch (extensionExpression)
         {
-            Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
-                .Append(" FOR SYSTEM_TIME ");
-
-            var temporalOperationType = (TemporalOperationType)tableExpression[SqlServerAnnotationNames.TemporalOperationType]!;
-
-            switch (temporalOperationType)
+            case TableExpression tableExpression
+                when tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalOperationType) != null:
             {
-                case TemporalOperationType.All:
-                    Sql.Append("ALL");
-                    break;
+                Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
+                    .Append(" FOR SYSTEM_TIME ");
 
-                case TemporalOperationType.AsOf:
-                    var pointInTime = (DateTime)tableExpression[SqlServerAnnotationNames.TemporalAsOfPointInTime]!;
-        
-                    Sql.Append("AS OF ")
-                        .Append(_typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(pointInTime));
-                    break;
+                var temporalOperationType = (TemporalOperationType)tableExpression[SqlServerAnnotationNames.TemporalOperationType]!;
 
-                case TemporalOperationType.Between:
-                case TemporalOperationType.ContainedIn:
-                case TemporalOperationType.FromTo:
-                    var from = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
-                        (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom]!);
+                switch (temporalOperationType)
+                {
+                    case TemporalOperationType.All:
+                        Sql.Append("ALL");
+                        break;
 
-                    var to = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
-                        (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo]!);
+                    case TemporalOperationType.AsOf:
+                        var pointInTime = (DateTime)tableExpression[SqlServerAnnotationNames.TemporalAsOfPointInTime]!;
 
-                    switch (temporalOperationType)
-                    {
-                        case TemporalOperationType.FromTo:
-                            Sql.Append($"FROM {from} TO {to}");
-                            break;
+                        Sql.Append("AS OF ")
+                            .Append(_typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(pointInTime));
+                        break;
 
-                        case TemporalOperationType.Between:
-                            Sql.Append($"BETWEEN {from} AND {to}");
-                            break;
+                    case TemporalOperationType.Between:
+                    case TemporalOperationType.ContainedIn:
+                    case TemporalOperationType.FromTo:
+                        var from = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
+                            (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom]!);
 
-                        case TemporalOperationType.ContainedIn:
-                            Sql.Append($"CONTAINED IN ({from}, {to})");
-                            break;
+                        var to = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
+                            (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo]!);
 
-                        default:
-                            throw new InvalidOperationException(tableExpression.Print());
-                    }
+                        switch (temporalOperationType)
+                        {
+                            case TemporalOperationType.FromTo:
+                                Sql.Append($"FROM {from} TO {to}");
+                                break;
 
-                    break;
+                            case TemporalOperationType.Between:
+                                Sql.Append($"BETWEEN {from} AND {to}");
+                                break;
 
-                default:
-                    throw new InvalidOperationException(tableExpression.Print());
+                            case TemporalOperationType.ContainedIn:
+                                Sql.Append($"CONTAINED IN ({from}, {to})");
+                                break;
+
+                            default:
+                                throw new InvalidOperationException(tableExpression.Print());
+                        }
+
+                        break;
+
+                    default:
+                        throw new InvalidOperationException(tableExpression.Print());
+                }
+
+                if (tableExpression.Alias != null)
+                {
+                    Sql.Append(AliasSeparator)
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
+                }
+
+                return tableExpression;
             }
 
-            if (tableExpression.Alias != null)
-            {
-                Sql.Append(AliasSeparator)
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
-            }
-
-            return tableExpression;
+            case SqlServerAggregateFunctionExpression aggregateFunctionExpression:
+                return VisitSqlServerAggregateFunction(aggregateFunctionExpression);
         }
 
         return base.VisitExtension(extensionExpression);
@@ -177,6 +207,24 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         if (sql.StartsWith("WITH", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+        }
+    }
+
+    private void GenerateList<T>(
+        IReadOnlyList<T> items,
+        Action<T> generationAction,
+        Action<IRelationalCommandBuilder>? joinAction = null)
+    {
+        joinAction ??= (isb => isb.Append(", "));
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (i > 0)
+            {
+                joinAction(Sql);
+            }
+
+            generationAction(items[i]);
         }
     }
 }

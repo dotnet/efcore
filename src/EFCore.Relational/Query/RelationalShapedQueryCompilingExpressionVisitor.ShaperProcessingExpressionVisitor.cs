@@ -548,7 +548,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Expression.Constant(parentIdentifierLambda.Compile()),
                                 Expression.Constant(outerIdentifierLambda.Compile()),
                                 Expression.Constant(navigation),
-                                Expression.Constant(navigation.GetCollectionAccessor()),
+                                Expression.Constant(navigation.IsShadowProperty() 
+                                    ? null 
+                                    : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
                                 Expression.Constant(_isTracking),
 #pragma warning disable EF1001 // Internal EF Core API usage.
                                 Expression.Constant(includeExpression.SetLoaded)));
@@ -937,14 +939,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         {
             var entityParameter = Expression.Parameter(entityType);
             var relatedEntityParameter = Expression.Parameter(relatedEntityType);
-            var expressions = new List<Expression>
-            {
-                navigation.IsCollection
-                    ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
-                    : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
-            };
+            var expressions = new List<Expression>();
 
-            if (inverseNavigation != null)
+            if (!navigation.IsShadowProperty())
+            {
+                expressions.Add(
+                    navigation.IsCollection
+                        ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
+                        : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation));
+            }
+
+            if (inverseNavigation != null
+                && !inverseNavigation.IsShadowProperty())
             {
                 expressions.Add(
                     inverseNavigation.IsCollection
@@ -1201,7 +1207,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> parentIdentifier,
             Func<QueryContext, DbDataReader, object[]> outerIdentifier,
             INavigationBase navigation,
-            IClrCollectionAccessor clrCollectionAccessor,
+            IClrCollectionAccessor? clrCollectionAccessor,
             bool trackingQuery,
             bool setLoaded)
             where TParent : class
@@ -1222,7 +1228,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     }
                 }
 
-                collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
+                collection = clrCollectionAccessor?.GetOrCreate(entity, forMaterialization: true);
             }
 
             var parentKey = parentIdentifier(queryContext, dbDataReader);

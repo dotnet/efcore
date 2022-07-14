@@ -11,21 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 /// </summary>
 public class CSharpModelGenerator : ModelCodeGenerator
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ICSharpDbContextGenerator CSharpDbContextGenerator { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ICSharpEntityTypeGenerator CSharpEntityTypeGenerator { get; }
+    private readonly CSharpDbContextGenerator _cSharpDbContextGenerator;
+    private readonly CSharpEntityTypeGenerator _cSharpEntityTypeGenerator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,12 +22,13 @@ public class CSharpModelGenerator : ModelCodeGenerator
     /// </summary>
     public CSharpModelGenerator(
         ModelCodeGeneratorDependencies dependencies,
-        ICSharpDbContextGenerator cSharpDbContextGenerator,
-        ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
+        IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
+        IAnnotationCodeGenerator annotationCodeGenerator,
+        ICSharpHelper cSharpHelper)
         : base(dependencies)
     {
-        CSharpDbContextGenerator = cSharpDbContextGenerator;
-        CSharpEntityTypeGenerator = cSharpEntityTypeGenerator;
+        _cSharpDbContextGenerator = new CSharpDbContextGenerator(providerConfigurationCodeGenerator, annotationCodeGenerator, cSharpHelper);
+        _cSharpEntityTypeGenerator = new CSharpEntityTypeGenerator(annotationCodeGenerator, cSharpHelper);
     }
 
     private const string FileExtension = ".cs";
@@ -76,7 +64,7 @@ public class CSharpModelGenerator : ModelCodeGenerator
                 CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
         }
 
-        var generatedCode = CSharpDbContextGenerator.WriteCode(
+        var generatedCode = _cSharpDbContextGenerator.WriteCode(
             model,
             options.ContextName,
             options.ConnectionString,
@@ -102,12 +90,12 @@ public class CSharpModelGenerator : ModelCodeGenerator
 
         foreach (var entityType in model.GetEntityTypes())
         {
-            if (Internal.CSharpDbContextGenerator.IsManyToManyJoinEntityType(entityType))
+            if (entityType.IsSimpleManyToManyJoinEntityType())
             {
                 continue;
             }
 
-            generatedCode = CSharpEntityTypeGenerator.WriteCode(
+            generatedCode = _cSharpEntityTypeGenerator.WriteCode(
                 entityType,
                 options.ModelNamespace,
                 options.UseDataAnnotations,

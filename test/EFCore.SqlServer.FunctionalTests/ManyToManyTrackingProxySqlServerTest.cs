@@ -25,6 +25,15 @@ public class ManyToManyTrackingProxySqlServerTest
         // Mutable properties aren't proxyable on Dictionary
     }
 
+    public override Task Can_insert_many_to_many_shared_with_payload_unidirectional(bool async)
+        // Mutable properties aren't proxyable on Dictionary
+        => Task.CompletedTask;
+
+    public override void Can_update_many_to_many_shared_with_payload_unidirectional()
+    {
+        // Mutable properties aren't proxyable on Dictionary
+    }
+
     protected override bool RequiresDetectChanges
         => false;
 
@@ -44,6 +53,10 @@ public class ManyToManyTrackingProxySqlServerTest
 
             modelBuilder
                 .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                .Ignore("Payload"); // Mutable properties aren't proxyable on Dictionary
+
+            modelBuilder
+                .SharedTypeEntity<Dictionary<string, object>>("UnidirectionalJoinOneToThreePayloadFullShared")
                 .Ignore("Payload"); // Mutable properties aren't proxyable on Dictionary
         }
     }

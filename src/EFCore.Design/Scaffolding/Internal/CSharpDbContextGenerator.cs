@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CSharpDbContextGenerator : ICSharpDbContextGenerator
+public class CSharpDbContextGenerator
 {
     private const string EntityLambdaIdentifier = "entity";
 
@@ -184,7 +184,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
         var generated = false;
         foreach (var entityType in model.GetEntityTypes())
         {
-            if (IsManyToManyJoinEntityType(entityType))
+            if (entityType.IsSimpleManyToManyJoinEntityType())
             {
                 continue;
             }
@@ -208,13 +208,13 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
 
     private void GenerateEntityTypeErrors(IModel model)
     {
-        var errors = model.GetEntityTypeErrors();
+        var errors = model.GetReverseEngineeringErrors();
         foreach (var entityTypeError in errors)
         {
-            _builder.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
+            _builder.AppendLine($"// {entityTypeError} Please see the warning messages.");
         }
 
-        if (errors.Count > 0)
+        if (errors.Any())
         {
             _builder.AppendLine();
         }
@@ -251,7 +251,8 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
                     connectionString);
 
                 _builder
-                    .AppendLines(_code.Fragment(useProviderCall, "optionsBuilder"), skipFinalNewline: true)
+                    .Append("optionsBuilder")
+                    .Append(_code.Fragment(useProviderCall, _builder.CurrentIndent + 1))
                     .AppendLine(";");
             }
 
@@ -283,7 +284,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
         annotations.Remove(CoreAnnotationNames.ProductVersion);
         annotations.Remove(RelationalAnnotationNames.MaxIdentifierLength);
         annotations.Remove(ScaffoldingAnnotationNames.DatabaseName);
-        annotations.Remove(ScaffoldingAnnotationNames.EntityTypeErrors);
+        annotations.Remove(ScaffoldingAnnotationNames.ReverseEngineeringErrors);
 
         var lines = new List<string>();
 
@@ -313,7 +314,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (IsManyToManyJoinEntityType(entityType))
+                if (entityType.IsSimpleManyToManyJoinEntityType())
                 {
                     continue;
                 }
@@ -452,7 +453,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
     private void GenerateTrigger(string tableBuilderName, ITrigger trigger)
     {
         var lines = new List<string> { $".HasTrigger({_code.Literal(trigger.Name!)})" };
-        
+
         var annotations = _annotationCodeGenerator
             .FilterIgnoredAnnotations(trigger.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
@@ -460,7 +461,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
         _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(trigger, annotations);
 
         GenerateAnnotations(trigger, annotations, lines);
-        
+
         AppendMultiLineFluentApi(null, lines, tableBuilderName);
     }
 
@@ -481,7 +482,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
             _builder
                 .AppendLine()
                 .Append(builderName ?? EntityLambdaIdentifier)
-                .Append(lines[0]);
+                .AppendLines(lines[0], skipFinalNewline: true);
 
             using (_builder.Indent())
             {
@@ -1156,7 +1157,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
                 }
             }
 
-            lines.Add(_code.Fragment(fluentApiCall));
+            lines.Add(_code.Fragment(fluentApiCall, indent: 1));
 
             if (fluentApiCall.Namespace is not null)
             {
@@ -1167,31 +1168,5 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
         lines.AddRange(
             annotations.Values.Select(
                 a => $".HasAnnotation({_code.Literal(a.Name)}, {_code.UnknownLiteral(a.Value)})"));
-    }
-
-    internal static bool IsManyToManyJoinEntityType(IEntityType entityType)
-    {
-        if (!entityType.GetNavigations().Any()
-            && !entityType.GetSkipNavigations().Any())
-        {
-            var primaryKey = entityType.FindPrimaryKey();
-            var properties = entityType.GetProperties().ToList();
-            var foreignKeys = entityType.GetForeignKeys().ToList();
-            if (primaryKey != null
-                && primaryKey.Properties.Count > 1
-                && foreignKeys.Count == 2
-                && primaryKey.Properties.Count == properties.Count
-                && foreignKeys[0].Properties.Count + foreignKeys[1].Properties.Count == properties.Count
-                && !foreignKeys[0].Properties.Intersect(foreignKeys[1].Properties).Any()
-                && foreignKeys[0].IsRequired
-                && foreignKeys[1].IsRequired
-                && !foreignKeys[0].IsUnique
-                && !foreignKeys[1].IsUnique)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

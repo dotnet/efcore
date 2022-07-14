@@ -632,10 +632,10 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
         public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter)
             => Wrap(PropertyBuilder.HasConversion(converter));
-        
+
         public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter, ValueComparer? valueComparer)
             => Wrap(PropertyBuilder.HasConversion(converter, valueComparer));
-        
+
         public override TestPropertyBuilder<TProperty> HasConversion<TStore>(
             ValueConverter<TProperty, TStore> converter,
             ValueComparer? valueComparer,
@@ -787,7 +787,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
 
         public override TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            string navigationName)
+            string? navigationName = null)
             => new NonGenericTestCollectionCollectionBuilder<TRelatedEntity, TEntity>(
                 CollectionNavigationBuilder.WithMany(navigationName));
 

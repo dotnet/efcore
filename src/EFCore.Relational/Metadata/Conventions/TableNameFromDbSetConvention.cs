@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 public class TableNameFromDbSetConvention :
     IEntityTypeAddedConvention,
     IEntityTypeBaseTypeChangedConvention,
+    IEntityTypeAnnotationChangedConvention,
     IModelFinalizingConvention
 {
     private readonly IDictionary<Type, string> _sets;
@@ -63,13 +64,7 @@ public class TableNameFromDbSetConvention :
     /// </summary>
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
-    /// <summary>
-    ///     Called after the base type of an entity type changes.
-    /// </summary>
-    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
-    /// <param name="newBaseType">The new base entity type.</param>
-    /// <param name="oldBaseType">The old base entity type.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionEntityType? newBaseType,
@@ -79,7 +74,9 @@ public class TableNameFromDbSetConvention :
         var entityType = entityTypeBuilder.Metadata;
 
         if (oldBaseType == null
-            && newBaseType != null)
+            && newBaseType != null
+            && (entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                == RelationalAnnotationNames.TphMappingStrategy)
         {
             entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
         }
@@ -92,21 +89,43 @@ public class TableNameFromDbSetConvention :
         }
     }
 
-    /// <summary>
-    ///     Called after an entity type is added to the model.
-    /// </summary>
-    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
     {
         var entityType = entityTypeBuilder.Metadata;
-        if (entityType.BaseType == null
-            && !entityType.HasSharedClrType
+        if (!entityType.HasSharedClrType
+            && (entityType.BaseType == null
+                || (entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                    != RelationalAnnotationNames.TphMappingStrategy)
             && _sets.TryGetValue(entityType.ClrType, out var setName))
         {
             entityTypeBuilder.ToTable(setName);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessEntityTypeAnnotationChanged(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        string name,
+        IConventionAnnotation? annotation,
+        IConventionAnnotation? oldAnnotation,
+        IConventionContext<IConventionAnnotation> context)
+    {
+        if (name == RelationalAnnotationNames.MappingStrategy
+            && annotation != null
+            && (entityTypeBuilder.Metadata.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                != RelationalAnnotationNames.TphMappingStrategy)
+        {
+            foreach (var deriverEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
+            {
+                if (!deriverEntityType.HasSharedClrType
+                    && _sets.TryGetValue(deriverEntityType.ClrType, out var setName))
+                {
+                    deriverEntityType.Builder.ToTable(setName);
+                }
+            }
         }
     }
 

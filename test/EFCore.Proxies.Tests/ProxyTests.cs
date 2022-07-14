@@ -206,28 +206,28 @@ public class ProxyTests
     public void Throws_if_type_not_available_to_Castle()
     {
         using var context = new NeweyContextN4();
-        Assert.Throws<GeneratorException>(() => context.CreateProxy<McLarenMp421>());
+        Assert.Throws<ArgumentException>(() => context.CreateProxy<McLarenMp421>());
     }
 
     [ConditionalFact]
     public void Throws_if_constructor_not_available_to_Castle()
     {
         using var context = new NeweyContextN5();
-        Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<RedBullRb3>());
+        Assert.Throws<ArgumentException>(() => context.CreateProxy<RedBullRb3>());
     }
 
     [ConditionalFact]
     public void CreateProxy_throws_if_constructor_args_do_not_match()
     {
         using var context = new NeweyContext();
-        Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88));
+        Assert.Throws<ArgumentException>(() => context.CreateProxy<March881>(77, 88));
     }
 
     [ConditionalFact]
     public void CreateProxy_throws_if_wrong_number_of_constructor_args()
     {
         using var context = new NeweyContext();
-        Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88, 99));
+        Assert.Throws<ArgumentException>(() => context.CreateProxy<March881>(77, 88, 99));
     }
 
     [ConditionalFact]

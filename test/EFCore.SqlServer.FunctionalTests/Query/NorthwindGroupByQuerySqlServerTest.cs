@@ -1520,7 +1520,7 @@ INNER JOIN [Orders] AS [o0] ON [t].[LastOrderID] = [o0].[OrderID]");
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[CustomerID]
+    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 5
@@ -1634,7 +1634,7 @@ INNER JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     INNER JOIN (
-        SELECT [o0].[CustomerID]
+        SELECT [o0].[CustomerID], MAX([o0].[OrderID]) AS [LastOrderID]
         FROM [Orders] AS [o0]
         GROUP BY [o0].[CustomerID]
         HAVING COUNT(*) > 5

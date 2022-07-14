@@ -287,7 +287,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         mainBuilder
             .Append(sequencesVariable).Append("[(").Append(code.Literal(sequence.Name)).Append(", ")
-            .Append(code.UnknownLiteral(sequence.Schema)).Append(")] = ")
+            .Append(code.Literal(sequence.Schema)).Append(")] = ")
             .Append(sequenceVariable).AppendLine(";")
             .AppendLine();
     }
@@ -343,7 +343,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
                 GenerateSimpleAnnotation(RelationalAnnotationNames.MappingFragments, fragmentsVariable, parameters);
             }
-            
+
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.Triggers,
                     out SortedDictionary<string, ITrigger> triggers))
@@ -413,9 +413,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append("var ").Append(triggerVariable).AppendLine(" = new RuntimeTrigger(").IncrementIndent()
             .Append(parameters.TargetName).AppendLine(",")
             .Append(code.Literal(trigger.ModelName)).AppendLine(",")
-            .Append(code.UnknownLiteral(trigger.Name)).AppendLine(",")
+            .Append(code.Literal(trigger.Name)).AppendLine(",")
             .Append(code.Literal(trigger.TableName)).AppendLine(",")
-            .Append(code.UnknownLiteral(trigger.TableSchema))
+            .Append(code.Literal(trigger.TableSchema))
             .AppendLine(");")
             .DecrementIndent()
             .AppendLine();
@@ -501,10 +501,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append("var ").Append(overrideVariable).AppendLine(" = new RuntimeRelationalPropertyOverrides(").IncrementIndent()
             .Append(parameters.TargetName).AppendLine(",");
         AppendLiteral(storeObject, mainBuilder, code);
-        
+
         mainBuilder.AppendLine(",")
             .Append(code.Literal(overrides.ColumnNameOverridden)).AppendLine(",")
-            .Append(code.UnknownLiteral(overrides.ColumnName)).AppendLine(");").DecrementIndent();
+            .Append(code.Literal(overrides.ColumnName)).AppendLine(");").DecrementIndent();
 
         CreateAnnotations(
             overrides,
@@ -602,12 +602,12 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             case StoreObjectType.Table:
                 builder
                     .Append("Table(").Append(code.Literal(storeObject.Name))
-                    .Append(", ").Append(code.UnknownLiteral(storeObject.Schema)).Append(")");
+                    .Append(", ").Append(code.Literal(storeObject.Schema)).Append(")");
                 break;
             case StoreObjectType.View:
                 builder
                     .Append("View(").Append(code.Literal(storeObject.Name))
-                    .Append(", ").Append(code.UnknownLiteral(storeObject.Schema)).Append(")");
+                    .Append(", ").Append(code.Literal(storeObject.Schema)).Append(")");
                 break;
             case StoreObjectType.SqlQuery:
                 builder

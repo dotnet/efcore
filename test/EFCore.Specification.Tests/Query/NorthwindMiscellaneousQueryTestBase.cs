@@ -5277,6 +5277,13 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => Assert.ThrowsAsync<InvalidOperationException>(
             async () => await AssertQuery(async, ss => ss.Set<Customer>().Include("OrderDetails")));
 
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Property_include_on_incorrect_property_throws(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await AssertQuery(async, ss => ss.Set<Customer>().Include(c => EF.Property<Customer>(c, "OrderDetails"))));
+
     [ConditionalTheory]
     [InlineData(false, false)]
     [InlineData(false, true)]

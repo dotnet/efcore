@@ -962,9 +962,9 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[ThreeId], [t0].[TwoId]");
         AssertSql(" ");
     }
 
-    public override async Task Filered_includes_accessed_via_different_path_are_merged(bool async)
+    public override async Task Filtered_includes_accessed_via_different_path_are_merged(bool async)
     {
-        await base.Filered_includes_accessed_via_different_path_are_merged(async);
+        await base.Filtered_includes_accessed_via_different_path_are_merged(async);
 
         AssertSql(" ");
     }

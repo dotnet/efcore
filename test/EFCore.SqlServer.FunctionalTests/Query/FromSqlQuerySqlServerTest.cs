@@ -747,10 +747,29 @@ WHERE EXISTS (
     WHERE [m].[CustomerID] = [o].[CustomerID])");
     }
 
+    public override async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(bool async)
+    {
+        await base.Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(async);
+
+        AssertSql(
+            @"city='Seattle' (Nullable = false) (Size = 7)
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @city
+) AS [m]
+INTERSECT
+SELECT [m0].[CustomerID], [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[Fax], [m0].[Phone], [m0].[PostalCode], [m0].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @city
+) AS [m0]");
+    }
+
     public override async Task FromSqlRaw_composed_with_common_table_expression(bool async)
     {
         var exception =
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.FromSqlRaw_composed_with_common_table_expression(async));
+
 
         Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
     }

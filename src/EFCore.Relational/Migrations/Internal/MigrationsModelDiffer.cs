@@ -20,7 +20,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
         typeof(DropIndexOperation),
         typeof(DropPrimaryKeyOperation),
-        typeof(DropSequenceOperation),
         typeof(DropUniqueConstraintOperation),
         typeof(DropCheckConstraintOperation)
     };
@@ -131,6 +130,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var dropColumnOperations = new List<MigrationOperation>();
         var dropComputedColumnOperations = new List<MigrationOperation>();
         var dropTableOperations = new List<DropTableOperation>();
+        var dropSequenceOperations = new List<MigrationOperation>();
         var ensureSchemaOperations = new List<MigrationOperation>();
         var createSequenceOperations = new List<MigrationOperation>();
         var createTableOperations = new List<CreateTableOperation>();
@@ -172,6 +172,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             else if (type == typeof(DropTableOperation))
             {
                 dropTableOperations.Add((DropTableOperation)operation);
+            }
+            else if (type == typeof(DropSequenceOperation))
+            {
+                dropSequenceOperations.Add((DropSequenceOperation)operation);
             }
             else if (type == typeof(EnsureSchemaOperation))
             {
@@ -312,6 +316,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(sourceDataOperations)
             .Concat(dropComputedColumnOperations)
             .Concat(dropColumnOperations)
+            .Concat(dropSequenceOperations)
             .Concat(ensureSchemaOperations)
             .Concat(renameTableOperations)
             .Concat(renameOperations)

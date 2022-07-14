@@ -215,10 +215,13 @@ public class ModelSnapshotSqlServerTest
         Value2
     }
 
-    private class BaseEntity
+    private abstract class AbstractBase
     {
         public int Id { get; set; }
-
+    }
+    
+    private class BaseEntity : AbstractBase
+    {
         public string Discriminator { get; set; }
     }
 
@@ -326,7 +329,7 @@ public class ModelSnapshotSqlServerTest
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
             SqlServerModelBuilderExtensions.HasDatabaseMaxSize(modelBuilder, ""100 MB"");
             SqlServerModelBuilderExtensions.HasServiceTierSql(modelBuilder, ""'basic'"");
             SqlServerModelBuilderExtensions.HasPerformanceLevelSql(modelBuilder, ""'S0'"");"),
@@ -389,7 +392,7 @@ public class ModelSnapshotSqlServerTest
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);"),
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);"),
             o =>
             {
                 Assert.Equal(6, o.GetAnnotations().Count());
@@ -414,7 +417,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -427,7 +430,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -455,22 +458,29 @@ public class ModelSnapshotSqlServerTest
                 builder.Entity<DerivedEntity>()
                     .ToTable("DerivedEntity", "foo");
                 builder.Entity<BaseEntity>();
+                builder.Entity<AbstractBase>();
             },
             AddBoilerPlate(
                 GetHeading()
                 + @"
-            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
-
-                    b.Property<string>(""Discriminator"")
-                        .HasColumnType(""nvarchar(max)"");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
+
+                    b.ToTable(""AbstractBase"");
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"");
 
                     b.ToTable(""BaseEntity"");
                 });
@@ -493,14 +503,21 @@ public class ModelSnapshotSqlServerTest
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });"),
-            o =>
+            model =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(4, model.GetAnnotations().Count());
+                Assert.Equal(3, model.GetEntityTypes().Count());
 
-                Assert.Equal(
-                    "DerivedEntity",
-                    o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity")
-                        .GetTableName());
+                var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
+                Assert.Equal("AbstractBase", abstractBase.GetTableName());
+                Assert.Equal("TPT", abstractBase.GetMappingStrategy());
+
+                var baseType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity");
+                Assert.Equal("BaseEntity", baseType.GetTableName());
+
+                var derived = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
+                Assert.Equal("DerivedEntity", derived.GetTableName());
+                Assert.Equal("foo", derived.GetSchema());
             });
 
     [ConditionalFact]
@@ -521,7 +538,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Discriminator"")
                         .HasColumnType(""nvarchar(max)"");
@@ -529,6 +546,8 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey(""Id"");
 
                     b.ToTable(""BaseEntity"");
+
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -576,6 +595,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
+                    b.ToTable((string)null);
+
                     b.ToView(""EntityWithOneProperty"", (string)null);
                 });"),
             o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
@@ -596,6 +617,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
+                    b.ToTable((string)null);
+
                     b.ToView(""EntityWithOneProperty"", ""ViewSchema"");
                 });"),
             o =>
@@ -612,27 +635,32 @@ public class ModelSnapshotSqlServerTest
                 builder.Entity<DerivedEntity>()
                     .ToTable("DerivedEntity", "foo")
                     .ToView("DerivedView", "foo");
-                builder.Entity<BaseEntity>().UseTpcMappingStrategy();
+                builder.Entity<BaseEntity>();
+                builder.Entity<AbstractBase>().UseTpcMappingStrategy();
             },
             AddBoilerPlate(
                 GetHeading()
                 + @"
-            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
-
-                    b.Property<string>(""Discriminator"")
-                        .HasColumnType(""nvarchar(max)"");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""BaseEntity"");
+                    b.ToTable((string)null);
 
                     b.UseTpcMappingStrategy();
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"");
+
+                    b.ToTable(""BaseEntity"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -646,11 +674,21 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToView(""DerivedView"", ""foo"");
                 });"),
-            o =>
+            model =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(4, model.GetAnnotations().Count());
+                Assert.Equal(3, model.GetEntityTypes().Count());
 
-                var derived = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
+                var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
+                Assert.Null(abstractBase.GetTableName());
+                Assert.Null(abstractBase.GetViewName());
+                Assert.Equal("TPC", abstractBase.GetMappingStrategy());
+
+                var baseType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity");
+                Assert.Equal("BaseEntity", baseType.GetTableName());
+                Assert.Null(baseType.GetViewName());
+
+                var derived = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
                 Assert.Equal("DerivedEntity", derived.GetTableName());
                 Assert.Equal("DerivedView", derived.GetViewName());
             });
@@ -718,7 +756,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""Shadow"")
                         .HasColumnType(""int"")
@@ -979,6 +1017,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
+                    b.ToTable((string)null);
+
                     b.ToView(""EntityWithOneProperty"", null, v =>
                         {
                             v.Property(""Shadow"");
@@ -1001,6 +1041,8 @@ public class ModelSnapshotSqlServerTest
                                 .HasColumnType(""int"");
 
                             b1.HasKey(""Id"");
+
+                            b1.ToTable((string)null);
 
                             b1.ToView(""EntityWithOneProperty"", null, v =>
                                 {
@@ -1060,7 +1102,7 @@ public class ModelSnapshotSqlServerTest
                 .HasDefaultSchema(""default"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
@@ -1132,6 +1174,8 @@ public class ModelSnapshotSqlServerTest
                     b.Property<string>(""Something"")
                         .HasColumnType(""nvarchar(max)"");
 
+                    b.ToTable((string)null);
+
                     b.ToFunction(""GetCount"");
                 });"),
             o => Assert.Equal("GetCount", o.GetEntityTypes().Single().GetFunctionName()));
@@ -1149,6 +1193,8 @@ public class ModelSnapshotSqlServerTest
                         .HasColumnType(""int"");
 
                     b.HasKey(""Id"");
+
+                    b.ToTable((string)null);
 
                     b.ToSqlQuery(""query"");
                 });"),
@@ -1212,7 +1258,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -1253,7 +1299,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -1264,6 +1310,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntity"");
 
                     b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -1301,7 +1349,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -1340,7 +1388,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -1385,7 +1433,7 @@ public class ModelSnapshotSqlServerTest
                 @"
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);"),
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);"),
             o =>
             {
                 Assert.Equal(4, o.GetAnnotations().Count());
@@ -1402,7 +1450,7 @@ public class ModelSnapshotSqlServerTest
                 @"
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 5L, 1);"),
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 5L);"),
             o =>
             {
                 Assert.Equal(4, o.GetAnnotations().Count());
@@ -1496,7 +1544,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -1527,7 +1575,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -1556,7 +1604,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -1567,6 +1615,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntity"");
 
                     b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
@@ -1623,7 +1673,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -1634,6 +1684,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntity"");
 
                     b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""BaseEntity"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
@@ -1696,7 +1748,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -1707,6 +1759,8 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""BaseEntityWithStructDiscriminator"");
 
                     b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""Base"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntityWithStructDiscriminator"", b =>
@@ -1764,7 +1818,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -1857,7 +1911,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -1894,7 +1948,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -1929,7 +1983,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -1969,7 +2023,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -1982,7 +2036,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -2057,7 +2111,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
@@ -2073,7 +2127,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Description"")
                         .HasColumnType(""nvarchar(max)"");
@@ -2201,7 +2255,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
@@ -2217,7 +2271,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Description"")
                         .HasColumnType(""nvarchar(max)"");
@@ -2374,7 +2428,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnUpdateSometimes()
@@ -2482,7 +2536,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<Guid>(""Property"")
                         .HasColumnType(""uniqueidentifier"");
@@ -2519,7 +2573,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<long>(""Day"")
                         .HasColumnType(""bigint"");
@@ -2550,7 +2604,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Day"")
                         .IsRequired()
@@ -2589,7 +2643,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<DateTime>(""End"")
                         .ValueGeneratedOnAddOrUpdate()
@@ -2609,16 +2663,15 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""EntityWithStringProperty"");
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable(""HistoryTable"");
-                            ttb
-                                .HasPeriodStart(""Start"")
-                                .HasColumnName(""PeriodStart"");
-                            ttb
-                                .HasPeriodEnd(""End"")
-                                .HasColumnName(""PeriodEnd"");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable(""HistoryTable"");
+                                ttb
+                                    .HasPeriodStart(""Start"")
+                                    .HasColumnName(""PeriodStart"");
+                                ttb
+                                    .HasPeriodEnd(""End"")
+                                    .HasColumnName(""PeriodEnd"");
+                            }));
                 });", usingSystem: true),
             o =>
             {
@@ -2651,7 +2704,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
@@ -2671,16 +2724,15 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""EntityWithStringProperty"");
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable(""EntityWithStringPropertyHistory"");
-                            ttb
-                                .HasPeriodStart(""PeriodStart"")
-                                .HasColumnName(""PeriodStart"");
-                            ttb
-                                .HasPeriodEnd(""PeriodEnd"")
-                                .HasColumnName(""PeriodEnd"");
-                        }
-                    ));
+                            {
+                                ttb.UseHistoryTable(""EntityWithStringPropertyHistory"");
+                                ttb
+                                    .HasPeriodStart(""PeriodStart"")
+                                    .HasColumnName(""PeriodStart"");
+                                ttb
+                                    .HasPeriodEnd(""PeriodEnd"")
+                                    .HasColumnName(""PeriodEnd"");
+                            }));
                 });", usingSystem: true),
             o =>
             {
@@ -2749,7 +2801,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"")
                         .HasName(""PK_Custom"");
@@ -2830,7 +2882,7 @@ public class ModelSnapshotSqlServerTest
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"");
 
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>(""Id""), 1L, 1);
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>(""Id""));
 
                             b1.Property<int?>(""EntityWithOnePropertyId"")
                                 .HasColumnType(""int"");
@@ -2977,7 +3029,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"")
                         .HasName(""PK_Custom"");
@@ -3062,7 +3114,7 @@ public class ModelSnapshotSqlServerTest
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"");
 
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>(""Id""), 1L, 1);
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>(""Id""));
 
                             b1.Property<int?>(""EntityWithOnePropertyId"")
                                 .HasColumnType(""int"");
@@ -3174,7 +3226,7 @@ public class ModelSnapshotSqlServerTest
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -3338,7 +3390,7 @@ namespace RootNamespace
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwner"", b =>
                 {
@@ -3346,7 +3398,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -3367,6 +3419,8 @@ namespace RootNamespace
                                 .HasColumnType(""int"");
 
                             b1.HasKey(""TestOwnerId"", ""Id"");
+
+                            b1.ToTable((string)null);
 
                             b1.ToView(""OwnedView"", (string)null);
 
@@ -3419,7 +3473,7 @@ namespace RootNamespace
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwner"", b =>
                 {
@@ -3427,7 +3481,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -3445,7 +3499,7 @@ namespace RootNamespace
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType(""int"");
 
-                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>(""Id""), 1L, 1);
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>(""Id""));
 
                             b1.Property<int>(""TestEnum"")
                                 .HasColumnType(""int"");
@@ -3525,7 +3579,7 @@ namespace RootNamespace
                         .HasColumnType(""int"")
                         .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -3551,7 +3605,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -3573,7 +3627,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .IsRequired()
@@ -3602,7 +3656,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -3667,7 +3721,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasMaxLength(100)
@@ -3692,7 +3746,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .IsUnicode(false)
@@ -3717,7 +3771,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasMaxLength(100)
@@ -3746,7 +3800,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<decimal>(""Price"")
                         .HasPrecision(7)
@@ -3779,7 +3833,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<decimal>(""Price"")
                         .HasPrecision(7, 3)
@@ -3816,7 +3870,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasMaxLength(100)
@@ -3853,7 +3907,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .IsConcurrencyToken()
@@ -3882,7 +3936,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"")
@@ -3911,7 +3965,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""CType"");
@@ -3939,7 +3993,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -3969,7 +4023,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -4000,7 +4054,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -4030,7 +4084,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAdd()
@@ -4060,7 +4114,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAddOrUpdate()
@@ -4090,7 +4144,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAddOrUpdate()
@@ -4124,7 +4178,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .ValueGeneratedOnAddOrUpdate()
@@ -4150,7 +4204,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<long>(""Day"")
                         .ValueGeneratedOnAdd()
@@ -4183,7 +4237,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Day"")
                         .IsRequired()
@@ -4223,7 +4277,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<long?>(""Day"")
                         .HasColumnType(""bigint"");
@@ -4248,7 +4302,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<long>(""Day"")
                         .HasColumnType(""bigint"");
@@ -4272,7 +4326,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Day"")
                         .HasColumnType(""nvarchar(max)"");
@@ -4301,7 +4355,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"")
@@ -4351,7 +4405,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -4387,7 +4441,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -4425,7 +4479,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 5L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 5L);
 
                     b.HasKey(""Id"");
 
@@ -4532,7 +4586,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"")
@@ -4552,7 +4606,7 @@ namespace RootNamespace
                 @"
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L, 1);"),
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L);"),
             o => Assert.Equal(8L, o.GetIdentitySeed()));
 
     [ConditionalFact]
@@ -4573,7 +4627,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 8L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 8L);
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4606,7 +4660,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4638,7 +4692,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -4665,7 +4719,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4698,7 +4752,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4741,7 +4795,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4772,7 +4826,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4804,7 +4858,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4844,7 +4898,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""X"")
                         .HasColumnType(""int"");
@@ -4907,7 +4961,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4944,7 +4998,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -4978,7 +5032,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5019,7 +5073,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
@@ -5048,7 +5102,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""FirstName"")
                         .HasColumnType(""nvarchar(450)"");
@@ -5090,7 +5144,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""FirstName"")
                         .HasColumnType(""nvarchar(450)"");
@@ -5136,7 +5190,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""FirstName"")
                         .HasColumnType(""nvarchar(450)"");
@@ -5188,7 +5242,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
@@ -5231,7 +5285,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -5244,7 +5298,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5307,7 +5361,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .IsRequired()
@@ -5360,7 +5414,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(450)"");
@@ -5405,7 +5459,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""AlternateId"")
                         .IsRequired()
@@ -5422,7 +5476,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(450)"");
@@ -5478,7 +5532,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5530,7 +5584,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5591,7 +5645,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<Guid>(""Property"")
                         .HasColumnType(""uniqueidentifier"");
@@ -5659,7 +5713,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -5672,7 +5726,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5725,7 +5779,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -5738,7 +5792,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5794,7 +5848,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
@@ -5810,6 +5864,8 @@ namespace RootNamespace
                     b.ToTable(""BaseType"");
 
                     b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseType"");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
@@ -5818,7 +5874,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -5872,7 +5928,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5936,7 +5992,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -5999,7 +6055,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -6012,7 +6068,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -6066,7 +6122,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -6079,7 +6135,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<int>(""AlternateId"")
                         .HasColumnType(""int"");
@@ -6274,7 +6330,7 @@ namespace RootNamespace
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithManyProperties"", b =>
                 {
@@ -6282,7 +6338,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<bool>(""Boolean"")
                         .HasColumnType(""bit"");
@@ -6621,7 +6677,7 @@ namespace RootNamespace
         => @"
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);"
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);"
             + (empty
                 ? null
                 : @"

@@ -45,7 +45,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = new();
     private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers = new();
-    private readonly List<int> _tptLeftJoinTables = new();
+    private readonly List<int> _removableJoinTables = new();
     private readonly Dictionary<TpcTablesExpression, (ColumnExpression, List<string>)> _tpcDiscriminatorValues
         = new(ReferenceEqualityComparer.Instance);
 
@@ -165,7 +165,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
 
                     var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate);
-                    _tptLeftJoinTables.Add(_tables.Count);
+                    _removableJoinTables.Add(_tables.Count);
                     AddTable(joinExpression, tableReferenceExpression);
                 }
 
@@ -187,7 +187,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 if (entityTypes.Length == 1)
                 {
                     // For single entity case, we don't need discriminator.
-                    var table = GetTableBase(entityTypes[0]);
+                    var table = entityTypes[0].GetViewOrTableMappings().Single().Table;
                     var tableExpression = new TableExpression(table);
 
                     var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias!);
@@ -212,7 +212,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
                 else
                 {
-                    var tables = entityTypes.Select(e => GetTableBase(e)).ToArray();
+                    var tables = entityTypes.Select(e => e.GetViewOrTableMappings().Single().Table).ToArray();
                     var properties = GetAllPropertiesInHierarchy(entityType).ToArray();
                     var propertyNamesMap = new Dictionary<IProperty, string>();
                     for (var i = 0; i < entityTypes.Length; i++)
@@ -314,39 +314,76 @@ public sealed partial class SelectExpression : TableExpressionBase
             default:
             {
                 // Also covers TPH
-                ITableBase table;
-                TableExpressionBase tableExpression;
                 if (entityType.GetFunctionMappings().SingleOrDefault(e => e.IsDefaultFunctionMapping) is IFunctionMapping functionMapping)
                 {
                     var storeFunction = functionMapping.Table;
 
-                    table = storeFunction;
-                    tableExpression = new TableValuedFunctionExpression((IStoreFunction)storeFunction, Array.Empty<SqlExpression>());
+                    GenerateNonHierarchyNonSplittingEntityType(
+                        storeFunction, new TableValuedFunctionExpression((IStoreFunction)storeFunction, Array.Empty<SqlExpression>()));
                 }
                 else
                 {
-                    table = GetTableBase(entityType);
-                    tableExpression = new TableExpression(table);
-                }
-
-                var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias!);
-                AddTable(tableExpression, tableReferenceExpression);
-
-                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in GetAllPropertiesInHierarchy(entityType))
-                {
-                    propertyExpressions[property] = CreateColumnExpression(property, table, tableReferenceExpression, nullable: false);
-                }
-
-                var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
-                _projectionMapping[new ProjectionMember()] = entityProjection;
-
-                var primaryKey = entityType.FindPrimaryKey();
-                if (primaryKey != null)
-                {
-                    foreach (var property in primaryKey.Properties)
+                    var mappings = entityType.GetViewOrTableMappings().ToList();
+                    if (mappings.Count == 1)
                     {
-                        _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
+                        var table = mappings[0].Table;
+
+                        GenerateNonHierarchyNonSplittingEntityType(table, new TableExpression(table));
+                    }
+                    else
+                    {
+                        // entity splitting
+                        var keyProperties = entityType.FindPrimaryKey()!.Properties;
+                        List<ColumnExpression> joinColumns = default!;
+                        var columns = new Dictionary<IProperty, ColumnExpression>();
+                        var tableReferenceExpressionMap = new Dictionary<ITableBase, TableReferenceExpression>();
+                        foreach (var mapping in mappings)
+                        {
+                            var table = mapping.Table;
+                            var tableExpression = new TableExpression(table);
+                            var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias);
+                            tableReferenceExpressionMap[table] = tableReferenceExpression;
+
+                            if (_tables.Count == 0)
+                            {
+                                AddTable(tableExpression, tableReferenceExpression);
+                                joinColumns = new List<ColumnExpression>();
+                                foreach (var property in keyProperties)
+                                {
+                                    var columnExpression = CreateColumnExpression(property, table, tableReferenceExpression, nullable: false);
+                                    columns[property] = columnExpression;
+                                    joinColumns.Add(columnExpression);
+                                    _identifier.Add((columnExpression, property.GetKeyValueComparer()));
+                                }
+                            }
+                            else
+                            {
+                                var innerColumns = keyProperties.Select(
+                                    p => CreateColumnExpression(p, table, tableReferenceExpression, nullable: false));
+
+                                var joinPredicate = joinColumns.Zip(innerColumns, (l, r) => sqlExpressionFactory.Equal(l, r))
+                                    .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
+
+                                var joinExpression = new InnerJoinExpression(tableExpression, joinPredicate);
+                                _removableJoinTables.Add(_tables.Count);
+                                AddTable(joinExpression, tableReferenceExpression);
+                            }
+                        }
+
+                        foreach (var property in entityType.GetProperties())
+                        {
+                            if (property.IsPrimaryKey())
+                            {
+                                continue;
+                            }
+
+                            var columnBase = mappings.Select(e => e.Table.FindColumn(property)).First(e => e != null)!;
+                            columns[property] = CreateColumnExpression(
+                                property, columnBase, tableReferenceExpressionMap[columnBase.Table], nullable: false);
+                        }
+
+                        var entityProjection = new EntityProjectionExpression(entityType, columns);
+                        _projectionMapping[new ProjectionMember()] = entityProjection;
                     }
                 }
             }
@@ -354,7 +391,29 @@ public sealed partial class SelectExpression : TableExpressionBase
             break;
         }
 
-        static ITableBase GetTableBase(IEntityType entityType) => entityType.GetViewOrTableMappings().Single().Table;
+        void GenerateNonHierarchyNonSplittingEntityType(ITableBase table, TableExpressionBase tableExpression)
+        {
+            var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias!);
+            AddTable(tableExpression, tableReferenceExpression);
+
+            var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var property in GetAllPropertiesInHierarchy(entityType))
+            {
+                propertyExpressions[property] = CreateColumnExpression(property, table, tableReferenceExpression, nullable: false);
+            }
+
+            var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
+            _projectionMapping[new ProjectionMember()] = entityProjection;
+
+            var primaryKey = entityType.FindPrimaryKey();
+            if (primaryKey != null)
+            {
+                foreach (var property in primaryKey.Properties)
+                {
+                    _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
+                }
+            }
+        }
 
         static ITableBase GetTableBaseFiltered(IEntityType entityType, List<ITableBase> existingTables)
             => entityType.GetViewOrTableMappings().Single(m => !existingTables.Contains(m.Table)).Table;
@@ -1713,8 +1772,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         _projectionMapping.Clear();
         select1._identifier.AddRange(_identifier);
         _identifier.Clear();
-        select1._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
-        _tptLeftJoinTables.Clear();
+        select1._removableJoinTables.AddRange(_removableJoinTables);
+        _removableJoinTables.Clear();
         foreach (var kvp in _tpcDiscriminatorValues)
         {
             select1._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
@@ -2902,8 +2961,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         Having = null;
         Offset = null;
         Limit = null;
-        subquery._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
-        _tptLeftJoinTables.Clear();
+        subquery._removableJoinTables.AddRange(_removableJoinTables);
+        _removableJoinTables.Clear();
         foreach (var kvp in _tpcDiscriminatorValues)
         {
             subquery._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
@@ -3213,14 +3272,17 @@ public sealed partial class SelectExpression : TableExpressionBase
         var columnExpressionFindingExpressionVisitor = new ColumnExpressionFindingExpressionVisitor();
         var columnsMap = columnExpressionFindingExpressionVisitor.FindColumns(this);
         var removedTableCount = 0;
+        // Start at 1 because we don't drop main table.
+        // Dropping main table is more complex because other tables need to unwrap joins to be main
         for (var i = 0; i < _tables.Count; i++)
         {
             var table = _tables[i];
             var tableAlias = GetAliasFromTableExpressionBase(table);
             if (columnsMap[tableAlias] == null
                 && (table is LeftJoinExpression
-                    || table is OuterApplyExpression)
-                && _tptLeftJoinTables?.Contains(i + removedTableCount) == true)
+                    || table is OuterApplyExpression
+                    || table is InnerJoinExpression) // This is only valid for removable join table which are from entity splitting
+                && _removableJoinTables?.Contains(i + removedTableCount) == true)
             {
                 _tables.RemoveAt(i);
                 _tableReferences.RemoveAt(i);
@@ -3341,7 +3403,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         ITableBase table,
         TableReferenceExpression tableExpression,
         bool nullable)
-        => new(property, table.FindColumn(property)!, tableExpression, nullable);
+        => CreateColumnExpression(property, table.FindColumn(property)!, tableExpression, nullable);
+
+    private static ConcreteColumnExpression CreateColumnExpression(
+        IProperty property,
+        IColumnBase columnBase,
+        TableReferenceExpression tableExpression,
+        bool nullable)
+        => new(property, columnBase, tableExpression, nullable);
 
     private ConcreteColumnExpression GenerateOuterColumn(
         TableReferenceExpression tableReferenceExpression,
@@ -3578,7 +3647,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     _usedAliases = _usedAliases,
                 };
                 newSelectExpression._mutable = false;
-                newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
+                newSelectExpression._removableJoinTables.AddRange(_removableJoinTables);
                 foreach (var kvp in newTpcDiscriminatorValues)
                 {
                     newSelectExpression._tpcDiscriminatorValues[kvp.Key] = kvp.Value;

@@ -40,49 +40,56 @@ public interface ITableMapping : ITableMappingBase
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder.Append(indentString);
-
-        var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
-        if (singleLine)
+        try
         {
-            builder.Append("TableMapping: ");
-        }
+            builder.Append(indentString);
 
-        builder
-            .Append(EntityType.Name)
-            .Append(" - ")
-            .Append(Table.Name);
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
+            if (singleLine)
+            {
+                builder.Append("TableMapping: ");
+            }
 
-        builder.Append(" ");
-        if (!IncludesDerivedTypes)
-        {
-            builder.Append("!");
-        }
-        builder.Append("IncludesDerivedTypes");
+            builder
+                .Append(EntityType.Name)
+                .Append(" - ")
+                .Append(Table.Name);
 
-        if (IsSharedTablePrincipal != null)
-        {
             builder.Append(" ");
-            if (!IsSharedTablePrincipal.Value)
+            if (!IncludesDerivedTypes)
             {
                 builder.Append("!");
             }
-            builder.Append("IsSharedTablePrincipal");
-        }
+            builder.Append("IncludesDerivedTypes");
 
-        if (IsSplitEntityTypePrincipal != null)
-        {
-            builder.Append(" ");
-            if (!IsSplitEntityTypePrincipal.Value)
+            if (IsSharedTablePrincipal != null)
             {
-                builder.Append("!");
+                builder.Append(" ");
+                if (!IsSharedTablePrincipal.Value)
+                {
+                    builder.Append("!");
+                }
+                builder.Append("IsSharedTablePrincipal");
             }
-            builder.Append("IsSplitEntityTypePrincipal");
-        }
 
-        if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            if (IsSplitEntityTypePrincipal != null)
+            {
+                builder.Append(" ");
+                if (!IsSplitEntityTypePrincipal.Value)
+                {
+                    builder.Append("!");
+                }
+                builder.Append("IsSplitEntityTypePrincipal");
+            }
+
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent + 2));
+            }
+        }
+        catch (Exception exception)
         {
-            builder.Append(AnnotationsToDebugString(indent + 2));
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

@@ -168,7 +168,7 @@ WHERE [c].[CustomerID] = @__entity_equality_local_0_CustomerID AND @__entity_equ
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID]
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] = @__entity_equality_local_0_CustomerID
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -358,12 +358,12 @@ LEFT JOIN (
     WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1
 INNER JOIN (
-    SELECT [t1].[EmployeeID]
+    SELECT [t1].[EmployeeID], [t1].[City], [t1].[Country], [t1].[FirstName], [t1].[ReportsTo], [t1].[Title]
     FROM (
         SELECT NULL AS [empty]
     ) AS [e1]
     LEFT JOIN (
-        SELECT [e2].[EmployeeID]
+        SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
         FROM [Employees] AS [e2]
         WHERE [e2].[EmployeeID] = -1
     ) AS [t1] ON 1 = 1
@@ -6319,6 +6319,13 @@ FROM [Orders] AS [o]");
     public override async Task Select_subquery_recursive_trivial_returning_queryable(bool async)
     {
         await base.Select_subquery_recursive_trivial_returning_queryable(async);
+
+        AssertSql();
+    }
+
+    public override async Task EF_Property_include_on_incorrect_property_throws(bool async)
+    {
+        await base.EF_Property_include_on_incorrect_property_throws(async);
 
         AssertSql();
     }

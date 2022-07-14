@@ -238,6 +238,63 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'%M%'");
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    public override async Task String_Join_over_non_nullable_column(bool async)
+    {
+        await base.String_Join_over_non_nullable_column(async);
+
+        AssertSql(
+            @"SELECT [c].[City], COALESCE(STRING_AGG([c].[CustomerID], N'|'), N'') AS [Customers]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    public override async Task String_Join_over_nullable_column(bool async)
+    {
+        await base.String_Join_over_nullable_column(async);
+
+        AssertSql(
+            @"SELECT [c].[City], COALESCE(STRING_AGG(COALESCE([c].[Region], N''), N'|'), N'') AS [Regions]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    public override async Task String_Join_with_predicate(bool async)
+    {
+        await base.String_Join_with_predicate(async);
+
+        AssertSql(
+            @"SELECT [c].[City], COALESCE(STRING_AGG(CASE
+    WHEN CAST(LEN([c].[ContactName]) AS int) > 10 THEN [c].[CustomerID]
+END, N'|'), N'') AS [Customers]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    public override async Task String_Join_with_ordering(bool async)
+    {
+        await base.String_Join_with_ordering(async);
+
+        AssertSql(
+            @"SELECT [c].[City], COALESCE(STRING_AGG([c].[CustomerID], N'|') WITHIN GROUP (ORDER BY [c].[CustomerID] DESC), N'') AS [Customers]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    public override async Task String_Concat(bool async)
+    {
+        await base.String_Concat(async);
+
+        AssertSql(
+            @"SELECT [c].[City], COALESCE(STRING_AGG([c].[CustomerID], N''), N'') AS [Customers]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+    }
+
     public override async Task String_Compare_simple_zero(bool async)
     {
         await base.String_Compare_simple_zero(async);
@@ -2008,6 +2065,65 @@ WHERE 0 = 1");
 
     public override Task Datetime_subtraction_TotalDays(bool async)
         => AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task StandardDeviation(bool async)
+    {
+        await using var ctx = CreateContext();
+
+        var query = ctx.Set<OrderDetail>()
+            .GroupBy(od => od.ProductID)
+            .Select(g => new
+            {
+                ProductID = g.Key,
+                SampleStandardDeviation = EF.Functions.StandardDeviationSample(g.Select(od => od.UnitPrice)),
+                PopulationStandardDeviation = EF.Functions.StandardDeviationPopulation(g.Select(od => od.UnitPrice))
+            });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var product9 = results.Single(r => r.ProductID == 9);
+        Assert.Equal(8.675943752699023, product9.SampleStandardDeviation.Value, 5);
+        Assert.Equal(7.759999999999856, product9.PopulationStandardDeviation.Value, 5);
+
+        AssertSql(
+            @"SELECT [o].[ProductID], STDEV([o].[UnitPrice]) AS [SampleStandardDeviation], STDEVP([o].[UnitPrice]) AS [PopulationStandardDeviation]
+FROM [Order Details] AS [o]
+GROUP BY [o].[ProductID]");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Variance(bool async)
+    {
+        await using var ctx = CreateContext();
+
+        var query = ctx.Set<OrderDetail>()
+            .GroupBy(od => od.ProductID)
+            .Select(
+                g => new
+                {
+                    ProductID = g.Key,
+                    SampleStandardDeviation = EF.Functions.VarianceSample(g.Select(od => od.UnitPrice)),
+                    PopulationStandardDeviation = EF.Functions.VariancePopulation(g.Select(od => od.UnitPrice))
+                });
+
+        var results = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        var product9 = results.Single(r => r.ProductID == 9);
+        Assert.Equal(75.2719999999972, product9.SampleStandardDeviation.Value, 5);
+        Assert.Equal(60.217599999997766, product9.PopulationStandardDeviation.Value, 5);
+
+        AssertSql(
+            @"SELECT [o].[ProductID], VAR([o].[UnitPrice]) AS [SampleStandardDeviation], VARP([o].[UnitPrice]) AS [PopulationStandardDeviation]
+FROM [Order Details] AS [o]
+GROUP BY [o].[ProductID]");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

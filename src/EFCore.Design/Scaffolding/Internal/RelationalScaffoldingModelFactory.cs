@@ -325,7 +325,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
                 var model = modelBuilder.Model;
                 model.RemoveEntityType(entityTypeName);
-                model.GetOrCreateEntityTypeErrors().Add(entityTypeName, errorMessage);
+                model.GetOrCreateReverseEngineeringErrors().Add(errorMessage);
                 return null;
             }
         }
@@ -675,7 +675,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         // when there are multiple foreign keys does not work.
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            if (CSharpDbContextGenerator.IsManyToManyJoinEntityType((IEntityType)entityType))
+            if (((IEntityType)entityType).IsSimpleManyToManyJoinEntityType())
             {
                 var fks = entityType.GetForeignKeys().ToArray();
                 var leftEntityType = fks[0].PrincipalEntityType;

@@ -5,29 +5,77 @@ using System.CodeDom.Compiler;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TextTemplating;
-using Microsoft.EntityFrameworkCore.TextTemplating.Internal;
+using Engine = Mono.TextTemplating.TemplatingEngine;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-internal class TextTemplatingModelGenerator : TemplatedModelGenerator
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class TextTemplatingModelGenerator : TemplatedModelGenerator
 {
-    private readonly ITextTemplating _host;
-    private readonly IOperationReporter _reporter;
+    private const string DbContextTemplate = "DbContext.t4";
+    private const string EntityTypeTemplate = "EntityType.t4";
+    private const string EntityTypeConfigurationTemplate = "EntityTypeConfiguration.t4";
 
+    private readonly IOperationReporter _reporter;
+    private readonly IServiceProvider _serviceProvider;
+    private Engine? _engine;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public TextTemplatingModelGenerator(
         ModelCodeGeneratorDependencies dependencies,
-        ITextTemplating textTemplatingService,
-        IOperationReporter reporter)
+        IOperationReporter reporter,
+        IServiceProvider serviceProvider)
         : base(dependencies)
     {
-        _host = textTemplatingService;
         _reporter = reporter;
+        _serviceProvider = serviceProvider;
     }
 
-    public override bool HasTemplates(string projectDir)
-        => File.Exists(Path.Combine(projectDir, TemplatesDirectory, "DbContext.t4"));
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Engine Engine
+        => _engine ??= new Engine();
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool HasTemplates(string projectDir)
+    {
+        var hasContextTemplate = File.Exists(Path.Combine(projectDir, TemplatesDirectory, DbContextTemplate));
+        var hasEntityTypeTemplate = File.Exists(Path.Combine(projectDir, TemplatesDirectory, EntityTypeTemplate));
+        var hasConfigurationTemplate = File.Exists(Path.Combine(projectDir, TemplatesDirectory, EntityTypeConfigurationTemplate));
+
+        if (hasConfigurationTemplate && !hasContextTemplate)
+        {
+            throw new OperationException(DesignStrings.NoContextTemplateButConfiguration);
+        }
+
+        return hasContextTemplate || hasEntityTypeTemplate || hasConfigurationTemplate;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override ScaffoldedModel GenerateModel(IModel model, ModelCodeGenerationOptions options)
     {
         if (options.ContextName == null)
@@ -42,129 +90,119 @@ internal class TextTemplatingModelGenerator : TemplatedModelGenerator
                 CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
         }
 
-        var resultingFiles = new ScaffoldedModel();
-
-        var contextTemplate = Path.Combine(options.ProjectDir!, TemplatesDirectory, "DbContext.t4");
-
-        Check.DebugAssert(_host.Session == null, "Session is not null.");
-        _host.Session = _host.CreateSession();
-        try
+        var host = new TextTemplatingEngineHost(_serviceProvider)
         {
-            _host.Session.Add("Model", model);
-            _host.Session.Add("Options", options);
-            _host.Session.Add("NamespaceHint", options.ContextNamespace ?? options.ModelNamespace);
-            _host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
+            Session =
+            {
+                { "Model", model },
+                { "Options", options },
+                { "NamespaceHint", options.ContextNamespace ?? options.ModelNamespace },
+                { "ProjectDefaultNamespace", options.RootNamespace }
+            }
+        };
+        var contextTemplate = Path.Combine(options.ProjectDir!, TemplatesDirectory, DbContextTemplate);
 
-            var handler = new TextTemplatingCallback();
-            var generatedCode = ProcessTemplate(contextTemplate, handler);
+        string generatedCode;
+        if (File.Exists(contextTemplate))
+        {
+            host.TemplateFile = contextTemplate;
 
-            var dbContextFileName = options.ContextName + handler.Extension;
-            resultingFiles.ContextFile = new ScaffoldedFile
+            generatedCode = ProcessTemplate(contextTemplate, host);
+        }
+        else
+        {
+            // TODO: Use default generator when C#
+            throw new OperationException(DesignStrings.NoContextTemplate);
+        }
+
+        var dbContextFileName = options.ContextName + host.Extension;
+        var resultingFiles = new ScaffoldedModel
+        {
+            ContextFile = new ScaffoldedFile
             {
                 Path = options.ContextDir != null
                     ? Path.Combine(options.ContextDir, dbContextFileName)
                     : dbContextFileName,
                 Code = generatedCode
-            };
-        }
-        finally
-        {
-            _host.Session = null;
-        }
+            }
+        };
 
-        var entityTypeTemplate = Path.Combine(options.ProjectDir!, TemplatesDirectory, "EntityType.t4");
+        var entityTypeTemplate = Path.Combine(options.ProjectDir!, TemplatesDirectory, EntityTypeTemplate);
         if (File.Exists(entityTypeTemplate))
         {
+            host.TemplateFile = entityTypeTemplate;
+
             foreach (var entityType in model.GetEntityTypes())
             {
-                // TODO: Should this be handled inside the template?
-                if (CSharpDbContextGenerator.IsManyToManyJoinEntityType(entityType))
+                host.Initialize();
+                host.Session.Add("EntityType", entityType);
+                host.Session.Add("Options", options);
+                host.Session.Add("NamespaceHint", options.ModelNamespace);
+                host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
+
+                generatedCode = ProcessTemplate(entityTypeTemplate, host);
+                if (string.IsNullOrWhiteSpace(generatedCode))
                 {
                     continue;
                 }
 
-                _host.Session = _host.CreateSession();
-                try
-                {
-                    _host.Session.Add("EntityType", entityType);
-                    _host.Session.Add("Options", options);
-                    _host.Session.Add("NamespaceHint", options.ModelNamespace);
-                    _host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
+                var entityTypeFileName = entityType.Name + host.Extension;
+                resultingFiles.AdditionalFiles.Add(
+                    new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+            }
+        }
 
-                    var handler = new TextTemplatingCallback();
-                    var generatedCode = ProcessTemplate(entityTypeTemplate, handler);
-                    if (string.IsNullOrWhiteSpace(generatedCode))
+        var configurationTemplate = Path.Combine(options.ProjectDir!, TemplatesDirectory, EntityTypeConfigurationTemplate);
+        if (File.Exists(configurationTemplate))
+        {
+            host.TemplateFile = configurationTemplate;
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                host.Initialize();
+                host.Session.Add("EntityType", entityType);
+                host.Session.Add("Options", options);
+                host.Session.Add("NamespaceHint", options.ContextNamespace ?? options.ModelNamespace);
+                host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
+
+                generatedCode = ProcessTemplate(configurationTemplate, host);
+                if (string.IsNullOrWhiteSpace(generatedCode))
+                {
+                    continue;
+                }
+
+                var configurationFileName = entityType.Name + "Configuration" + host.Extension;
+                resultingFiles.AdditionalFiles.Add(
+                    new ScaffoldedFile
                     {
-                        continue;
-                    }
-
-                    var entityTypeFileName = entityType.Name + handler.Extension;
-                    resultingFiles.AdditionalFiles.Add(
-                        new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
-                }
-                finally
-                {
-                    _host.Session = null;
-                }
+                        Path = options.ContextDir != null
+                            ? Path.Combine(options.ContextDir, configurationFileName)
+                            : configurationFileName,
+                        Code = generatedCode
+                    });
             }
         }
 
         return resultingFiles;
     }
 
-    private string ProcessTemplate(string inputFile, TextTemplatingCallback handler)
+    private string ProcessTemplate(string inputFile, TextTemplatingEngineHost host)
     {
-        var output = _host.ProcessTemplate(
-            inputFile,
-            File.ReadAllText(inputFile),
-            handler);
+        var output = Engine.ProcessTemplate(File.ReadAllText(inputFile), host);
 
-        foreach (CompilerError error in handler.Errors)
+        foreach (CompilerError error in host.Errors)
         {
-            var builder = new StringBuilder();
-
-            if (!string.IsNullOrEmpty(error.FileName))
-            {
-                builder.Append(error.FileName);
-
-                if (error.Line > 0)
-                {
-                    builder
-                        .Append("(")
-                        .Append(error.Line);
-
-                    if (error.Column > 0)
-                    {
-                        builder
-                            .Append(",")
-                            .Append(error.Line);
-                    }
-                    builder.Append(")");
-                }
-
-                builder.Append(" : ");
-            }
-
-            builder
-                .Append(error.IsWarning ? "warning" : "error")
-                .Append(" ")
-                .Append(error.ErrorNumber)
-                .Append(": ")
-                .AppendLine(error.ErrorText);
-
-            if (error.IsWarning)
-            {
-                _reporter.WriteWarning(builder.ToString());
-            }
-            else
-            {
-                _reporter.WriteError(builder.ToString());
-            }
+            _reporter.Write(error);
         }
 
-        if (handler.OutputEncoding != Encoding.UTF8)
+        if (host.OutputEncoding != Encoding.UTF8)
         {
-            _reporter.WriteWarning(DesignStrings.EncodingIgnored(handler.OutputEncoding.WebName));
+            _reporter.WriteWarning(DesignStrings.EncodingIgnored(host.OutputEncoding.WebName));
+        }
+
+        if (host.Errors.HasErrors)
+        {
+            throw new OperationException(DesignStrings.ErrorGeneratingOutput(inputFile));
         }
 
         return output;

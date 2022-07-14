@@ -68,7 +68,7 @@ If you install the latest preview release of the [.NET SDK](https://dotnet.micro
 
 ### Run tests
 
-Our tests are written using [xUnit.net](http://xunit.github.io/), and can be run with most test runners we have tried.
+Our tests are written using [xUnit.net](https://xunit.net/), and can be run with most test runners we have tried.
 Tests can be run on the command line (after build) by running `test`:
 
 ```console

@@ -215,22 +215,29 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder.Append(indentString).Append("Model: ");
-
-        if (this is Model
-            && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+        try
         {
-            builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
+            builder.Append(indentString).Append("Model: ");
+
+            if (this is Model
+                && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
+            }
+
+            foreach (var entityType in GetEntityTypes())
+            {
+                builder.AppendLine().Append(entityType.ToDebugString(options, indent + 2));
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent));
+            }
         }
-
-        foreach (var entityType in GetEntityTypes())
+        catch (Exception exception)
         {
-            builder.AppendLine().Append(entityType.ToDebugString(options, indent + 2));
-        }
-
-        if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-        {
-            builder.Append(AnnotationsToDebugString(indent));
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

@@ -22,13 +22,10 @@ public abstract class TPTGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtu
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<Gear>().ToTable("Gears");
-        modelBuilder.Entity<Officer>().ToTable("Officers");
+        modelBuilder.Entity<Gear>().UseTptMappingStrategy();
 
-        modelBuilder.Entity<Faction>().ToTable("Factions");
         modelBuilder.Entity<LocustHorde>().ToTable("LocustHordes");
 
-        modelBuilder.Entity<LocustLeader>().ToTable("LocustLeaders");
         modelBuilder.Entity<LocustCommander>().ToTable("LocustCommanders");
     }
 }

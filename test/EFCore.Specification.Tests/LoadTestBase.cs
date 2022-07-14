@@ -34,6 +34,7 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             AlternateId = "Root",
             SinglePkToPk = new SinglePkToPk { Id = 707 },
             Single = new Single { Id = 21 },
+            RequiredSingle = new RequiredSingle { Id = 21 },
             SingleAk = new SingleAk { Id = 42 },
             SingleShadowFk = new SingleShadowFk { Id = 62 },
             SingleCompositeKey = new SingleCompositeKey { Id = 62 }
@@ -78,6 +79,7 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             AlternateId = "Root",
             SinglePkToPk = new SinglePkToPk { Id = 707 },
             Single = new Single { Id = 21 },
+            RequiredSingle = new RequiredSingle { Id = 21 },
             SingleAk = new SingleAk { Id = 42 },
             SingleShadowFk = new SingleShadowFk { Id = 62 },
             SingleCompositeKey = new SingleCompositeKey { Id = 62 }
@@ -91,6 +93,7 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
             context.Entry(parent.SinglePkToPk).State = state;
             context.Entry(parent.Single).State = state;
+            context.Entry(parent.RequiredSingle).State = state;
             context.Entry(parent.SingleAk).State = state;
             context.Entry(parent.SingleShadowFk).State = state;
             context.Entry(parent.SingleCompositeKey).State = state;
@@ -101,6 +104,7 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.True(context.Entry(parent.SinglePkToPk).Reference(e => e.Parent).IsLoaded);
         Assert.True(context.Entry(parent.Single).Reference(e => e.Parent).IsLoaded);
+        Assert.True(context.Entry(parent.RequiredSingle).Reference(e => e.Parent).IsLoaded);
         Assert.True(context.Entry(parent.SingleAk).Reference(e => e.Parent).IsLoaded);
         Assert.True(context.Entry(parent.SingleShadowFk).Reference(e => e.Parent).IsLoaded);
         Assert.True(context.Entry(parent.SingleCompositeKey).Reference(e => e.Parent).IsLoaded);
@@ -5798,12 +5802,69 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Throws<InvalidOperationException>(() => referenceEntry.Query()).Message);
     }
 
+    [ConditionalFact] // Issue #27497
+    public virtual void Fixup_reference_after_FK_change_without_DetectChanges()
+    {
+        using var context = CreateContext();
+
+        var child = context.Attach(new Child { Id = 274, ParentId = 707 }).Entity;
+        var newParent = context.Attach(new Parent { Id = 497 }).Entity;
+
+        child.Parent = newParent;
+
+        var oldParent = context.Set<Parent>().Single(e => e.Id == 707);
+
+        Assert.Same(newParent, child.Parent);
+        Assert.Equal(497, child.ParentId);
+    }
+
+    [ConditionalFact] // Issue #27497
+    public virtual void Fixup_one_to_one_reference_after_FK_change_without_DetectChanges()
+    {
+        using var context = CreateContext();
+
+        var child = context.Attach(new Single { Id = 274, ParentId = 707 }).Entity;
+        var newParent = context.Attach(new Parent { Id = 497 }).Entity;
+
+        child.Parent = newParent;
+
+        var oldParent = context.Set<Parent>().Single(e => e.Id == 707);
+
+        Assert.Same(newParent, child.Parent);
+        Assert.Equal(497, child.ParentId);
+    }
+
+    [ConditionalFact]
+    public virtual void Setting_navigation_to_null_is_detected_by_local_DetectChanges() // Issue #26937
+    {
+        using var context = CreateContext();
+        context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+        var child = context.Attach(new RequiredSingle { Id = 274 }).Entity;
+        var newParent = new Parent { Id = 497 };
+        child.Parent = newParent;
+
+        var childEntry = context.Entry(child);
+        childEntry.DetectChanges();
+
+        Assert.Same(newParent, child.Parent);
+        Assert.Equal(newParent.Id, child.ParentId);
+        Assert.Equal(EntityState.Modified, childEntry.State);
+
+        child.Parent = null;
+        childEntry.DetectChanges();
+
+        Assert.Null(child.Parent);
+        Assert.Equal(EntityState.Deleted, childEntry.State);
+    }
+
     protected class Parent
     {
         private readonly Action<object, string> _loader;
         private IEnumerable<Child> _children;
         private SinglePkToPk _singlePkToPk;
         private Single _single;
+        private RequiredSingle _requiredSingle;
         private IEnumerable<ChildAk> _childrenAk;
         private SingleAk _singleAk;
         private IEnumerable<ChildShadowFk> _childrenShadowFk;
@@ -5841,6 +5902,12 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
         {
             get => _loader.Load(this, ref _single);
             set => _single = value;
+        }
+
+        public RequiredSingle RequiredSingle
+        {
+            get => _loader.Load(this, ref _requiredSingle);
+            set => _requiredSingle = value;
         }
 
         public IEnumerable<ChildAk> ChildrenAk
@@ -5948,6 +6015,32 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
         public int Id { get; set; }
 
         public int? ParentId { get; set; }
+
+        public Parent Parent
+        {
+            get => _loader.Load(this, ref _parent);
+            set => _parent = value;
+        }
+    }
+
+    protected class RequiredSingle
+    {
+        private readonly Action<object, string> _loader;
+        private Parent _parent;
+
+        public RequiredSingle()
+        {
+        }
+
+        public RequiredSingle(Action<object, string> lazyLoader)
+        {
+            _loader = lazyLoader;
+        }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public int ParentId { get; set; }
 
         public Parent Parent
         {
@@ -6287,6 +6380,10 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
                         .WithOne(e => e.Parent)
                         .HasForeignKey<Single>(e => e.ParentId);
 
+                    b.HasOne<RequiredSingle>(nameof(Parent.RequiredSingle))
+                        .WithOne(e => e.Parent)
+                        .HasForeignKey<RequiredSingle>(e => e.ParentId);
+
                     b.HasMany<ChildAk>(nameof(Parent.ChildrenAk))
                         .WithOne(e => e.Parent)
                         .HasPrincipalKey(e => e.AlternateId)
@@ -6341,6 +6438,7 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
                     Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
                     SinglePkToPk = new SinglePkToPk { Id = 707 },
                     Single = new Single { Id = 21 },
+                    RequiredSingle = new RequiredSingle { Id = 21 },
                     ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
                     SingleAk = new SingleAk { Id = 42 },
                     ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },

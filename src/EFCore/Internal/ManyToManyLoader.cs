@@ -91,17 +91,15 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
 
         return Query(context, keyValues);
     }
-
+    
     private object[]? PrepareForLoad(InternalEntityEntry entry)
     {
         if (entry.EntityState == EntityState.Detached)
         {
             throw new InvalidOperationException(CoreStrings.CannotLoadDetached(_skipNavigation.Name, entry.EntityType.DisplayName()));
         }
-
         var properties = _skipNavigation.ForeignKey.PrincipalKey.Properties;
         var values = new object[properties.Count];
-
         for (var i = 0; i < values.Length; i++)
         {
             var value = entry[properties[i]];
@@ -109,13 +107,10 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             {
                 return null;
             }
-
             values[i] = value;
         }
-
         return values;
     }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -159,13 +154,13 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     {
         var whereParameter = Expression.Parameter(typeof(TSourceEntity), "e");
         var entityParameter = Expression.Parameter(typeof(TEntity), "e");
-
         return Expression.Lambda<Func<TEntity, IEnumerable<TSourceEntity>>>(
             Expression.Call(
                 EnumerableMethods.Where.MakeGenericMethod(typeof(TSourceEntity)),
-                Expression.MakeMemberAccess(
+                Expression.Call(
+                    EF.PropertyMethod.MakeGenericMethod(skipNavigation.ClrType),
                     entityParameter,
-                    skipNavigation.GetIdentifyingMemberInfo()!),
+                    Expression.Constant(skipNavigation.Name, typeof(string))),
                 Expression.Lambda<Func<TSourceEntity, bool>>(
                     ExpressionExtensions.BuildPredicate(keyProperties, keyValues, whereParameter),
                     whereParameter)), entityParameter);
@@ -184,7 +179,6 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     private static Expression<Func<TSourceEntity, IEnumerable<TEntity>>> BuildSelectManyLambda(INavigationBase navigation)
     {
         var entityParameter = Expression.Parameter(typeof(TSourceEntity), "e");
-
         return Expression.Lambda<Func<TSourceEntity, IEnumerable<TEntity>>>(
             Expression.MakeMemberAccess(
                 entityParameter,

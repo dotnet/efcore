@@ -26,6 +26,9 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
     private static readonly MethodInfo UnionMethod
         = typeof(UnaryUnionOp).GetRuntimeMethod(nameof(UnaryUnionOp.Union), new[] { typeof(IEnumerable<Geometry>) })!;
 
+    private static readonly MethodInfo EnvelopeCombineMethod
+        = typeof(EnvelopeCombiner).GetRuntimeMethod(nameof(EnvelopeCombiner.CombineAsGeometry), new[] { typeof(IEnumerable<Geometry>) })!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
 
@@ -72,7 +75,9 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
                 ? "UnionAggregate"
                 : method == ConvexHullMethod
                     ? "ConvexHullAggregate"
-                    : null;
+                    : method == EnvelopeCombineMethod
+                        ? "EnvelopeAggregate"
+                        : null;
 
         if (functionName is null)
         {

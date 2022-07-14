@@ -27,6 +27,13 @@ public class IndentedStringBuilder
     private readonly StringBuilder _stringBuilder = new();
 
     /// <summary>
+    /// Gets the current indent level.
+    /// </summary>
+    /// <value>The current indent level.</value>
+    public virtual byte CurrentIndent
+        => _indent;
+
+    /// <summary>
     ///     The current length of the built string.
     /// </summary>
     public virtual int Length

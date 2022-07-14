@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Numerics;
+using System.Security;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -131,7 +132,7 @@ public class CSharpHelper : ICSharpHelper
             { typeof(Guid), (c, v) => c.Literal((Guid)v) },
             { typeof(int), (c, v) => c.Literal((int)v) },
             { typeof(long), (c, v) => c.Literal((long)v) },
-            { typeof(NestedClosureCodeFragment), (c, v) => c.Fragment((NestedClosureCodeFragment)v, 0) },
+            { typeof(NestedClosureCodeFragment), (c, v) => c.Fragment((NestedClosureCodeFragment)v) },
             { typeof(object[]), (c, v) => c.Literal((object[])v) },
             { typeof(object[,]), (c, v) => c.Literal((object[,])v) },
             { typeof(sbyte), (c, v) => c.Literal((sbyte)v) },
@@ -195,7 +196,7 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool ShouldUseFullName(Type type)
+    protected virtual bool ShouldUseFullName(Type type)
         => ShouldUseFullName(type.Name);
 
     /// <summary>
@@ -204,7 +205,7 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool ShouldUseFullName(string shortTypeName)
+    protected virtual bool ShouldUseFullName(string shortTypeName)
         => false;
 
     /// <summary>
@@ -310,9 +311,11 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Literal(string value)
+    public virtual string Literal(string? value)
         // do not use @"" syntax as in Migrations this can get indented at a newline and so add spaces to the literal
-        => "\"" + value.Replace(@"\", @"\\").Replace("\"", "\\\"").Replace("\n", @"\n").Replace("\r", @"\r") + "\"";
+        => value is not null
+            ? "\"" + value.Replace(@"\", @"\\").Replace("\"", "\\\"").Replace("\n", @"\n").Replace("\r", @"\r") + "\""
+            : "null";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1084,13 +1087,9 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier = null, bool typeQualified = false)
-        => Fragment(fragment, typeQualified, instanceIdentifier, indent: 0);
-
-    private string Fragment(MethodCallCodeFragment fragment, bool typeQualified, string? instanceIdentifier, int indent)
+    public virtual string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified)
     {
-        var builder = new IndentedStringBuilder();
-        var current = fragment;
+        var builder = new StringBuilder();
 
         if (typeQualified)
         {
@@ -1109,7 +1108,15 @@ public class CSharpHelper : ICSharpHelper
             for (var i = 0; i < fragment.Arguments.Count; i++)
             {
                 builder.Append(", ");
-                Argument(fragment.Arguments[i]);
+
+                if (fragment.Arguments[i] is NestedClosureCodeFragment nestedFragment)
+                {
+                    builder.Append(Fragment(nestedFragment, 1));
+                }
+                else
+                {
+                    builder.Append(UnknownLiteral(fragment.Arguments[i]));
+                }
             }
 
             builder.Append(')');
@@ -1117,21 +1124,56 @@ public class CSharpHelper : ICSharpHelper
             return builder.ToString();
         }
 
-        // Non-type-qualified fragment
-
         if (instanceIdentifier is not null)
         {
             builder.Append(instanceIdentifier);
-
-            if (current.ChainedCall is not null)
-            {
-                builder
-                    .AppendLine()
-                    .IncrementIndent();
-            }
         }
 
-        while (true)
+        builder.Append(Fragment(fragment, indent: 1));
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Fragment(MethodCallCodeFragment? fragment, int indent = 0)
+    {
+        if (fragment is null)
+        {
+            return string.Empty;
+        }
+
+        var builder = new IndentedStringBuilder();
+
+        if (fragment.ChainedCall is null)
+        {
+            AppendMethodCall(fragment);
+        }
+        else
+        {
+            for (var i = 0; i < indent; i++)
+            {
+                builder.IncrementIndent();
+            }
+
+            var current = fragment;
+            do
+            {
+                builder.AppendLine();
+                AppendMethodCall(current);
+
+                current = current.ChainedCall;
+            }
+            while (current is not null);
+        }
+
+        return builder.ToString();
+
+        void AppendMethodCall(MethodCallCodeFragment current)
         {
             builder
                 .Append('.')
@@ -1145,45 +1187,37 @@ public class CSharpHelper : ICSharpHelper
                     builder.Append(", ");
                 }
 
-                Argument(current.Arguments[i]);
+                if (current.Arguments[i] is NestedClosureCodeFragment nestedFragment)
+                {
+                    builder.Append(Fragment(nestedFragment, indent + 1));
+                }
+                else
+                {
+                    builder.Append(UnknownLiteral(current.Arguments[i]));
+                }
             }
 
             builder.Append(')');
 
-            if (current.ChainedCall is null)
-            {
-                break;
-            }
-
-            builder.AppendLine();
-            current = current.ChainedCall;
-        }
-
-        return builder.ToString();
-
-        void Argument(object? argument)
-        {
-            if (argument is NestedClosureCodeFragment nestedFragment)
-            {
-                builder.Append(Fragment(nestedFragment, indent));
-            }
-            else
-            {
-                builder.Append(UnknownLiteral(argument));
-            }
         }
     }
 
-    private string Fragment(NestedClosureCodeFragment fragment, int indent)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Fragment(NestedClosureCodeFragment fragment, int indent = 0)
     {
         if (fragment.MethodCalls.Count == 1)
         {
-            return fragment.Parameter + " => " + Fragment(fragment.MethodCalls[0], typeQualified: false, fragment.Parameter, indent);
+            return fragment.Parameter + " => " + fragment.Parameter + Fragment(fragment.MethodCalls[0], indent);
         }
 
         var builder = new IndentedStringBuilder();
         builder.AppendLine(fragment.Parameter + " =>");
-        for (var i = -1; i < indent; i++)
+        for (var i = 0; i < indent - 1; i++)
         {
             builder.IncrementIndent();
         }
@@ -1193,12 +1227,110 @@ public class CSharpHelper : ICSharpHelper
         {
             foreach (var methodCall in fragment.MethodCalls)
             {
-                builder.AppendLines(Fragment(methodCall, typeQualified: false, fragment.Parameter, indent + 1), skipFinalNewline: true);
+                builder
+                    .Append(fragment.Parameter)
+                    .Append(Fragment(methodCall, indent + 1));
                 builder.AppendLine(";");
             }
         }
 
-        builder.AppendLine("}");
+        builder.Append("}");
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Fragment(AttributeCodeFragment fragment)
+    {
+        var builder = new StringBuilder();
+
+        var attributeName = fragment.Type.Name;
+        if (attributeName.EndsWith("Attribute", StringComparison.Ordinal))
+        {
+            attributeName = attributeName[..^9];
+        }
+
+        builder
+            .Append("[")
+            .Append(attributeName);
+
+        if (fragment.Arguments.Count != 0
+            || fragment.NamedArguments.Count != 0)
+        {
+            builder.Append("(");
+
+            var first = true;
+            foreach (var value in fragment.Arguments)
+            {
+                if (!first)
+                {
+                    builder.Append(", ");
+                }
+                else
+                {
+                    first = false;
+                }
+
+                builder.Append(UnknownLiteral(value));
+            }
+
+            foreach (var item in fragment.NamedArguments)
+            {
+                if (!first)
+                {
+                    builder.Append(", ");
+                }
+                else
+                {
+                    first = false;
+                }
+
+                builder
+                    .Append(item.Key)
+                    .Append(" = ")
+                    .Append(UnknownLiteral(item.Value));
+            }
+
+            builder.Append(")");
+        }
+
+        builder.Append("]");
+
+        return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string XmlComment(string comment, int indent = 0)
+    {
+        var builder = new StringBuilder();
+
+        var first = true;
+        foreach (var line in comment.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+        {
+            if (!first)
+            {
+                builder
+                    .AppendLine()
+                    .Append(' ', indent * 4)
+                    .Append("/// ");
+            }
+            else
+            {
+                first = false;
+            }
+
+            builder.Append(SecurityElement.Escape(line));
+        }
 
         return builder.ToString();
     }

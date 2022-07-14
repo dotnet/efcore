@@ -80,27 +80,19 @@ public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNa
     ///     Configures this as a many-to-many relationship.
     /// </summary>
     /// <param name="navigationName">
-    ///     The name of the collection navigation property on the other end of this relationship.
+    ///     The name of the collection navigation property on the other end of this relationship. Can be <see langword="null"/> to
+    ///     create a unidirectional relationship.
     /// </param>
     /// <returns>An object to further configure the relationship.</returns>
-    public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string navigationName)
+    public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string? navigationName = null)
     {
-        if (Builder != null
-            && Builder.Metadata.PrincipalToDependent == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.MissingInverseManyToManyNavigation(
-                    Builder.Metadata.PrincipalEntityType.DisplayName(),
-                    Builder.Metadata.DeclaringEntityType.DisplayName()));
-        }
-
-        var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
+        var leftName = Builder?.Metadata.PrincipalToDependent?.Name;
         var collectionCollectionBuilder =
             new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithLeftManyNavigation(navigationName),
-                WithRightManyNavigation(navigationName, leftName!));
+                WithRightManyNavigation(navigationName, leftName));
 
         return collectionCollectionBuilder;
     }
@@ -119,16 +111,7 @@ public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNa
     public virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
         Expression<Func<TRelatedEntity, IEnumerable<TEntity>?>> navigationExpression)
     {
-        if (Builder != null
-            && Builder.Metadata.PrincipalToDependent == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.MissingInverseManyToManyNavigation(
-                    Builder.Metadata.PrincipalEntityType.DisplayName(),
-                    Builder.Metadata.DeclaringEntityType.DisplayName()));
-        }
-
-        var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
+        var leftName = Builder?.Metadata.PrincipalToDependent?.Name;
         var collectionCollectionBuilder =
             new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,

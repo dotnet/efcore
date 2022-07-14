@@ -840,10 +840,10 @@ namespace Internal
             {
             }
 
-            public override bool ShouldUseFullName(Type type)
+            protected override bool ShouldUseFullName(Type type)
                 => base.ShouldUseFullName(type);
 
-            public override bool ShouldUseFullName(string shortTypeName)
+            protected override bool ShouldUseFullName(string shortTypeName)
                 => base.ShouldUseFullName(shortTypeName)
                     || shortTypeName == nameof(Index)
                     || shortTypeName == nameof(Internal);
@@ -1048,6 +1048,7 @@ namespace TestNamespace
         {
             runtimeEntityType.AddAnnotation(""DiscriminatorMappingComplete"", false);
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
+            runtimeEntityType.AddAnnotation(""Relational:MappingStrategy"", ""TPH"");
             runtimeEntityType.AddAnnotation(""Relational:Schema"", null);
             runtimeEntityType.AddAnnotation(""Relational:SqlQuery"", null);
             runtimeEntityType.AddAnnotation(""Relational:TableName"", ""PrincipalDerived"");
@@ -1166,6 +1167,7 @@ namespace TestNamespace
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
+            runtimeEntityType.AddAnnotation(""Relational:MappingStrategy"", ""TPT"");
             runtimeEntityType.AddAnnotation(""Relational:Schema"", ""mySchema"");
             runtimeEntityType.AddAnnotation(""Relational:SqlQuery"", null);
             runtimeEntityType.AddAnnotation(""Relational:TableName"", ""PrincipalBase"");

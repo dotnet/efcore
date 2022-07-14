@@ -224,6 +224,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 message);
 
         /// <summary>
+        ///     Processing '{inputFile}' failed.
+        /// </summary>
+        public static string ErrorGeneratingOutput(object? inputFile)
+            => string.Format(
+                GetString("ErrorGeneratingOutput", nameof(inputFile)),
+                inputFile);
+
+        /// <summary>
         ///     The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.
         /// </summary>
         public static string ExistingFiles(object? outputDirectoryName, object? existingFiles)
@@ -454,6 +462,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NoContext", nameof(assembly)),
                 assembly);
+
+        /// <summary>
+        ///     You must provide a DbContext.t4 file in order to scaffold using custom templates.
+        /// </summary>
+        public static string NoContextTemplate
+            => GetString("NoContextTemplate");
+
+        /// <summary>
+        ///     You've provided an EntityTypeConfiguration.t4 file without a corresponding DbContext.t4 file. The generated DbContext code must be modified to work with your configuration classes. Provide a DbContext.t4 file and try again.
+        /// </summary>
+        public static string NoContextTemplateButConfiguration
+            => GetString("NoContextTemplateButConfiguration");
 
         /// <summary>
         ///     No DbContext named '{name}' was found.
