@@ -35,6 +35,25 @@ public class SqlServerValueGenerationStrategyThrowTest :
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
+    [ConditionalFact]
+    public virtual void SqlServerValueGeneration_conflicting_with_existing_default_value_strategy_throws()
+    {
+        var modelBuilder = CreateModelBuilder();
+        modelBuilder.Entity<Fred>()
+            .Property(e => e.Id)
+            .HasDefaultValueSql("2")
+            .UseKeySequence();
+
+        Assert.Equal(
+            CoreStrings.WarningAsErrorTemplate(
+                SqlServerEventId.ConflictingValueGenerationStrategiesWarning,
+                SqlServerResources.LogConflictingValueGenerationStrategies(
+                        new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage(SqlServerValueGenerationStrategy.Sequence.ToString(), "DefaultValueSql", "Id", nameof(Fred)),
+                "SqlServerEventId.ConflictingValueGenerationStrategiesWarning"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
     public class ThrowContext : DbContext
     {
         public ThrowContext(DbContextOptions options)

@@ -28,7 +28,7 @@ public class SqlServerValueGeneratorSelectorTest
         AssertGenerator<BinaryValueGenerator>("Binary");
     }
 
-    private void AssertGenerator<TExpected>(string propertyName, bool setSequences = false)
+    private void AssertGenerator<TExpected>(string propertyName, bool useHiLo = false, bool useKeySequence = false)
     {
         var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
         builder.Entity<AnEntity>(
@@ -39,10 +39,16 @@ public class SqlServerValueGeneratorSelectorTest
                 b.HasKey(propertyName);
             });
 
-        if (setSequences)
+        if (useHiLo)
         {
             builder.UseHiLo();
             Assert.NotNull(builder.Model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
+        }
+
+        if (useKeySequence)
+        {
+            builder.UseKeySequence();
+            Assert.NotNull(builder.Model.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
         }
 
         var model = builder.FinalizeModel();
@@ -114,19 +120,37 @@ public class SqlServerValueGeneratorSelectorTest
     [ConditionalFact]
     public void Returns_sequence_value_generators_when_configured_for_model()
     {
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<int>>("Id", setSequences: true);
-        AssertGenerator<CustomValueGenerator>("Custom", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<long>>("Long", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<short>>("Short", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<byte>>("Byte", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<int>>("NullableInt", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<long>>("NullableLong", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<short>>("NullableShort", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<byte>>("NullableByte", setSequences: true);
-        AssertGenerator<SqlServerSequenceHiLoValueGenerator<decimal>>("Decimal", setSequences: true);
-        AssertGenerator<StringValueGenerator>("String", setSequences: true);
-        AssertGenerator<SequentialGuidValueGenerator>("Guid", setSequences: true);
-        AssertGenerator<BinaryValueGenerator>("Binary", setSequences: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<int>>("Id", useHiLo: true);
+        AssertGenerator<CustomValueGenerator>("Custom", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<long>>("Long", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<short>>("Short", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<byte>>("Byte", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<int>>("NullableInt", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<long>>("NullableLong", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<short>>("NullableShort", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<byte>>("NullableByte", useHiLo: true);
+        AssertGenerator<SqlServerSequenceHiLoValueGenerator<decimal>>("Decimal", useHiLo: true);
+        AssertGenerator<StringValueGenerator>("String", useHiLo: true);
+        AssertGenerator<SequentialGuidValueGenerator>("Guid", useHiLo: true);
+        AssertGenerator<BinaryValueGenerator>("Binary", useHiLo: true);
+    }
+
+    [ConditionalFact]
+    public void Returns_built_in_generators_for_types_setup_for_value_generation_even_with_key_sequences()
+    {
+        AssertGenerator<TemporaryIntValueGenerator>("Id", useKeySequence: true);
+        AssertGenerator<CustomValueGenerator>("Custom", useKeySequence: true);
+        AssertGenerator<TemporaryLongValueGenerator>("Long", useKeySequence: true);
+        AssertGenerator<TemporaryShortValueGenerator>("Short", useKeySequence: true);
+        AssertGenerator<TemporaryByteValueGenerator>("Byte", useKeySequence: true);
+        AssertGenerator<TemporaryIntValueGenerator>("NullableInt", useKeySequence: true);
+        AssertGenerator<TemporaryLongValueGenerator>("NullableLong", useKeySequence: true);
+        AssertGenerator<TemporaryShortValueGenerator>("NullableShort", useKeySequence: true);
+        AssertGenerator<TemporaryByteValueGenerator>("NullableByte", useKeySequence: true);
+        AssertGenerator<TemporaryDecimalValueGenerator>("Decimal", useKeySequence: true);
+        AssertGenerator<StringValueGenerator>("String", useKeySequence: true);
+        AssertGenerator<SequentialGuidValueGenerator>("Guid", useKeySequence: true);
+        AssertGenerator<BinaryValueGenerator>("Binary", useKeySequence: true);
     }
 
     [ConditionalFact]

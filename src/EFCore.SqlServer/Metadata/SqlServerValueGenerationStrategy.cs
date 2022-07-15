@@ -33,5 +33,10 @@ public enum SqlServerValueGenerationStrategy
     /// <summary>
     ///     A pattern that uses a normal SQL Server <c>Identity</c> column in the same way as EF6 and earlier.
     /// </summary>
-    IdentityColumn
+    IdentityColumn,
+
+    /// <summary>
+    ///     A pattern that uses a database sequence to generate values for the key.
+    /// </summary>
+    Sequence
 }

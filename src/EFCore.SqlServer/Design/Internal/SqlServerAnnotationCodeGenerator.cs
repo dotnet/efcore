@@ -23,6 +23,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerModelBuilderExtensions.UseHiLo), new[] { typeof(ModelBuilder), typeof(string), typeof(string) })!;
 
+    private static readonly MethodInfo ModelUseKeySequenceMethodInfo
+        = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerModelBuilderExtensions.UseKeySequence), new[] { typeof(ModelBuilder), typeof(string), typeof(string) })!;
+
     private static readonly MethodInfo ModelHasDatabaseMaxSizeMethodInfo
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerModelBuilderExtensions.HasDatabaseMaxSize), new[] { typeof(ModelBuilder), typeof(string) })!;
@@ -58,6 +62,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     private static readonly MethodInfo PropertyUseHiLoMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerPropertyBuilderExtensions.UseHiLo), new[] { typeof(PropertyBuilder), typeof(string), typeof(string) })!;
+
+    private static readonly MethodInfo PropertyUseKeySequenceMethodInfo
+        = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerPropertyBuilderExtensions.UseKeySequence), new[] { typeof(PropertyBuilder), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo IndexIsClusteredMethodInfo
         = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
@@ -378,6 +386,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                     });
 
             case SqlServerValueGenerationStrategy.SequenceHiLo:
+            {
                 var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName);
                 var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceSchema);
                 return new MethodCallCodeFragment(
@@ -388,6 +397,21 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         (_, null) => new object[] { name },
                         _ => new object[] { name!, schema }
                     });
+            }
+
+            case SqlServerValueGenerationStrategy.Sequence:
+            {
+                var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.KeySequenceName);
+                var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.KeySequenceSchema);
+                return new MethodCallCodeFragment(
+                    onModel ? ModelUseKeySequenceMethodInfo : PropertyUseKeySequenceMethodInfo,
+                    (name, schema) switch
+                    {
+                        (null, null) => Array.Empty<object>(),
+                        (_, null) => new object[] { name },
+                        _ => new object[] { name!, schema }
+                    });
+            }
 
             case SqlServerValueGenerationStrategy.None:
                 return new MethodCallCodeFragment(

@@ -7,4 +7,11 @@ public class TPCInheritanceQuerySqlServerFixture : TPCInheritanceQueryFixture
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+    {
+        modelBuilder.UseKeySequence();
+
+        base.OnModelCreating(modelBuilder, context);
+    }
 }

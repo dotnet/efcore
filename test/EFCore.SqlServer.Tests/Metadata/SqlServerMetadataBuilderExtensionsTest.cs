@@ -183,6 +183,24 @@ public class SqlServerMetadataBuilderExtensionsTest
     }
 
     [ConditionalFact]
+    public void Throws_setting_key_sequence_generation_for_invalid_type()
+    {
+        var propertyBuilder = CreateBuilder()
+            .Entity(typeof(Splot))
+            .Property(typeof(string), "Name");
+
+        Assert.Equal(
+            SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
+            Assert.Throws<ArgumentException>(
+                () => propertyBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.Sequence)).Message);
+
+        Assert.Equal(
+            SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
+            Assert.Throws<ArgumentException>(
+                () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseKeySequence()).Message);
+    }
+
+    [ConditionalFact]
     public void Throws_setting_identity_generation_for_invalid_type_only_with_explicit()
     {
         var propertyBuilder = CreateBuilder()

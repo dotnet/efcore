@@ -49,6 +49,8 @@ public static class SqlServerModelBuilderExtensions
         model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
         model.SetHiLoSequenceName(name);
         model.SetHiLoSequenceSchema(schema);
+        model.SetKeySequenceName(null);
+        model.SetKeySequenceSchema(null);
         model.SetIdentitySeed(null);
         model.SetIdentityIncrement(null);
 
@@ -113,6 +115,104 @@ public static class SqlServerModelBuilderExtensions
     }
 
     /// <summary>
+    ///     Configures the model to use a sequence to generate values for key properties
+    ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="name">The name of the sequence.</param>
+    /// <param name="schema">The schema of the sequence.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static ModelBuilder UseKeySequence(
+        this ModelBuilder modelBuilder,
+        string? name = null,
+        string? schema = null)
+    {
+        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(schema, nameof(schema));
+
+        var model = modelBuilder.Model;
+
+        name ??= SqlServerModelExtensions.DefaultKeySequenceName;
+
+        if (model.FindSequence(name, schema) == null)
+        {
+            modelBuilder.HasSequence(name, schema).IncrementsBy(1);
+        }
+
+        model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.Sequence);
+        model.SetKeySequenceName(name);
+        model.SetKeySequenceSchema(schema);
+        model.SetHiLoSequenceName(null);
+        model.SetHiLoSequenceSchema(null);
+        model.SetIdentitySeed(null);
+        model.SetIdentityIncrement(null);
+
+        return modelBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the database sequence to generate values for key properties
+    ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="name">The name of the sequence.</param>
+    /// <param name="schema">The schema of the sequence.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>A builder to further configure the sequence.</returns>
+    public static IConventionSequenceBuilder? HasKeySequence(
+        this IConventionModelBuilder modelBuilder,
+        string? name,
+        string? schema,
+        bool fromDataAnnotation = false)
+    {
+        if (!modelBuilder.CanSetSequence(name, schema))
+        {
+            return null;
+        }
+
+        modelBuilder.Metadata.SetKeySequenceName(name, fromDataAnnotation);
+        modelBuilder.Metadata.SetKeySequenceSchema(schema, fromDataAnnotation);
+
+        return name == null ? null : modelBuilder.HasSequence(name, schema, fromDataAnnotation);
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given name and schema can be set for the key value generation sequence.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="modelBuilder">The model builder.</param>
+    /// <param name="name">The name of the sequence.</param>
+    /// <param name="schema">The schema of the sequence.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given name and schema can be set for the hi-lo sequence.</returns>
+    public static bool CanSetSequence(
+        this IConventionModelBuilder modelBuilder,
+        string? name,
+        string? schema,
+        bool fromDataAnnotation = false)
+    {
+        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(schema, nameof(schema));
+
+        return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.KeySequenceName, name, fromDataAnnotation)
+            && modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.KeySequenceSchema, schema, fromDataAnnotation);
+    }
+
+    /// <summary>
     ///     Configures the model to use the SQL Server IDENTITY feature to generate values for key properties
     ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server. This is the default
     ///     behavior when targeting SQL Server.
@@ -136,6 +236,8 @@ public static class SqlServerModelBuilderExtensions
         model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
         model.SetIdentitySeed(seed);
         model.SetIdentityIncrement(increment);
+        model.SetKeySequenceName(null);
+        model.SetKeySequenceSchema(null);
         model.SetHiLoSequenceName(null);
         model.SetHiLoSequenceSchema(null);
 
@@ -284,10 +386,19 @@ public static class SqlServerModelBuilderExtensions
             {
                 modelBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);
                 modelBuilder.HasIdentityColumnIncrement(null, fromDataAnnotation);
+                modelBuilder.HasKeySequence(null, null, fromDataAnnotation);
             }
 
             if (valueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
             {
+                modelBuilder.HasHiLoSequence(null, null, fromDataAnnotation);
+                modelBuilder.HasKeySequence(null, null, fromDataAnnotation);
+            }
+
+            if (valueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence)
+            {
+                modelBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);
+                modelBuilder.HasIdentityColumnIncrement(null, fromDataAnnotation);
                 modelBuilder.HasHiLoSequence(null, null, fromDataAnnotation);
             }
 

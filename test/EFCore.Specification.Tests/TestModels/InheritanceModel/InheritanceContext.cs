@@ -16,11 +16,11 @@ public class InheritanceContext : PoolableDbContext
     public DbSet<Drink> Drinks { get; set; }
     public DbSet<Plant> Plants { get; set; }
 
-    public static void Seed(InheritanceContext context)
+    public static void Seed(InheritanceContext context, bool useGeneratedKeys)
     {
-        var animals = InheritanceData.CreateAnimals();
+        var animals = InheritanceData.CreateAnimals(useGeneratedKeys);
         var countries = InheritanceData.CreateCountries();
-        var drinks = InheritanceData.CreateDrinks();
+        var drinks = InheritanceData.CreateDrinks(useGeneratedKeys);
         var plants = InheritanceData.CreatePlants();
 
         InheritanceData.WireUp(animals, countries);

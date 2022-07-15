@@ -96,6 +96,54 @@ public class SqlServerValueGenerationScenariosTest
     }
 
     [ConditionalFact]
+    public void Insert_with_key_sequence()
+    {
+        using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using (var context = new BlogContextKeySequence(testStore.Name))
+        {
+            context.Database.EnsureCreatedResiliently();
+
+            context.AddRange(
+                new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+
+            context.SaveChanges();
+        }
+
+        using (var context = new BlogContextKeySequence(testStore.Name))
+        {
+            var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+
+            Assert.Equal(1, blogs[0].Id);
+            Assert.Equal(1, blogs[0].OtherId);
+            Assert.Equal(2, blogs[1].Id);
+            Assert.Equal(2, blogs[1].OtherId);
+        }
+    }
+
+    public class BlogContextKeySequence : ContextBase
+    {
+        public BlogContextKeySequence(string databaseName)
+            : base(databaseName)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.UseKeySequence();
+
+            modelBuilder.Entity<Blog>(
+                eb =>
+                {
+                    eb.HasAlternateKey(
+                        b => new { b.OtherId });
+                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+                });
+        }
+    }
+
+    [ConditionalFact]
     public void Insert_with_default_value_from_sequence()
     {
         using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);

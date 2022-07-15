@@ -59,6 +59,7 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
             {
                 SqlServerValueGenerationStrategy? strategy = null;
                 var declaringTable = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
+                var declaringView = property.GetMappedStoreObjects(StoreObjectType.View).FirstOrDefault();
                 if (declaringTable.Name != null!)
                 {
                     strategy = property.GetValueGenerationStrategy(declaringTable, Dependencies.TypeMappingSource);
@@ -70,7 +71,6 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 }
                 else
                 {
-                    var declaringView = property.GetMappedStoreObjects(StoreObjectType.View).FirstOrDefault();
                     if (declaringView.Name != null!)
                     {
                         strategy = property.GetValueGenerationStrategy(declaringView, Dependencies.TypeMappingSource);
@@ -86,6 +86,15 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 if (strategy != null)
                 {
                     property.Builder.HasValueGenerationStrategy(strategy);
+
+                    if (strategy == SqlServerValueGenerationStrategy.Sequence)
+                    {
+                        var sequence = property.FindKeySequence(declaringTable.Name != null ? declaringTable : declaringView)!;
+
+                        property.Builder.HasDefaultValueSql(
+                            RelationalDependencies.UpdateSqlGenerator.GenerateObtainNextSequenceValueOperation(
+                                sequence.Name, sequence.Schema));
+                    }
                 }
             }
         }
