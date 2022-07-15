@@ -126,7 +126,8 @@ public class SqlServerModelValidator : RelationalModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties()
                          .Where(
-                             p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
+                             p => (p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
+                                     || p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.Sequence)
                                  && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
                                  && !p.IsKey()
                                  && p.ValueGenerated != ValueGenerated.Never
@@ -135,6 +136,31 @@ public class SqlServerModelValidator : RelationalModelValidator
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the key value generation is valid for the given inheritance mapping strategy.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="mappingStrategy">The inheritance mapping strategy.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidateValueGenerationForMappingStrategy(
+        IEntityType entityType,
+        IKey key,
+        string mappingStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (entityType.GetTableName() != null
+            && mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            foreach (var storeGeneratedProperty in key.Properties.Where(
+                         p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
+                             && p.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.Sequence))
+            {
+                logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
             }
         }
     }

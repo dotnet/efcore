@@ -196,6 +196,79 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Passes_for_duplicate_column_names_with_KeySequence()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>(
+            cb =>
+            {
+                cb.ToTable("Animal");
+                cb.Property(c => c.Id).UseKeySequence();
+            });
+        modelBuilder.Entity<Dog>(
+            db =>
+            {
+                db.ToTable("Animal");
+                db.Property(d => d.Id).UseKeySequence();
+                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_duplicate_column_names_with_different_KeySequence_name()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>(
+            cb =>
+            {
+                cb.ToTable("Animal");
+                cb.Property(c => c.Id).UseKeySequence("foo");
+            });
+        modelBuilder.Entity<Dog>(
+            db =>
+            {
+                db.ToTable("Animal");
+                db.Property(d => d.Id).UseKeySequence();
+                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+            });
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                nameof(Cat), nameof(Cat.Id), nameof(Dog), nameof(Dog.Id), nameof(Cat.Id), nameof(Animal),
+                "NEXT VALUE FOR [foo]",
+                "NEXT VALUE FOR [EntityFrameworkKeySequence]"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_duplicate_column_name_with_different_KeySequence_schema()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Cat>(
+            cb =>
+            {
+                cb.ToTable("Animal");
+                cb.Property(c => c.Id).UseKeySequence("foo", "dbo");
+            });
+        modelBuilder.Entity<Dog>(
+            db =>
+            {
+                db.ToTable("Animal");
+                db.Property(d => d.Id).UseKeySequence("foo", "dba");
+                db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
+            });
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
+                nameof(Cat), nameof(Cat.Id), nameof(Dog), nameof(Dog.Id), nameof(Cat.Id), nameof(Animal),
+                "NEXT VALUE FOR [dbo].[foo]",
+                "NEXT VALUE FOR [dba].[foo]"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -549,6 +622,27 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.UseHiLo();
+
+        modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_non_key_KeySequence()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Dog>().Property(c => c.Type).UseKeySequence();
+
+        VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Passes_for_non_key_KeySequence_on_model()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.UseKeySequence();
 
         modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 

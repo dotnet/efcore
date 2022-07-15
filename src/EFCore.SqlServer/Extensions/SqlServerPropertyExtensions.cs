@@ -198,6 +198,186 @@ public static class SqlServerPropertyExtensions
         => (ISequence?)((IReadOnlyProperty)property).FindHiLoSequence(storeObject);
 
     /// <summary>
+    ///     Returns the name to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The name to use for the key value generation sequence.</returns>
+    public static string? GetKeySequenceName(this IReadOnlyProperty property)
+        => (string?)property[SqlServerAnnotationNames.KeySequenceName];
+
+    /// <summary>
+    ///     Returns the name to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The name to use for the key value generation sequence.</returns>
+    public static string? GetKeySequenceName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    {
+        var annotation = property.FindAnnotation(SqlServerAnnotationNames.KeySequenceName);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetKeySequenceName(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets the name to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="name">The sequence name to use.</param>
+    public static void SetKeySequenceName(this IMutableProperty property, string? name)
+        => property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.KeySequenceName,
+            Check.NullButNotEmpty(name, nameof(name)));
+
+    /// <summary>
+    ///     Sets the name to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="name">The sequence name to use.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetKeySequenceName(
+        this IConventionProperty property,
+        string? name,
+        bool fromDataAnnotation = false)
+    {
+        property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.KeySequenceName,
+            Check.NullButNotEmpty(name, nameof(name)),
+            fromDataAnnotation);
+
+        return name;
+    }
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the key value generation sequence name.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the key value generation sequence name.</returns>
+    public static ConfigurationSource? GetKeySequenceNameConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(SqlServerAnnotationNames.KeySequenceName)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the schema to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The schema to use for the key value generation sequence.</returns>
+    public static string? GetKeySequenceSchema(this IReadOnlyProperty property)
+        => (string?)property[SqlServerAnnotationNames.KeySequenceSchema];
+
+    /// <summary>
+    ///     Returns the schema to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The schema to use for the key value generation sequence.</returns>
+    public static string? GetKeySequenceSchema(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    {
+        var annotation = property.FindAnnotation(SqlServerAnnotationNames.KeySequenceSchema);
+        if (annotation != null)
+        {
+            return (string?)annotation.Value;
+        }
+
+        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetKeySequenceSchema(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets the schema to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="schema">The schema to use.</param>
+    public static void SetKeySequenceSchema(this IMutableProperty property, string? schema)
+        => property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.KeySequenceSchema,
+            Check.NullButNotEmpty(schema, nameof(schema)));
+
+    /// <summary>
+    ///     Sets the schema to use for the key value generation sequence.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="schema">The schema to use.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetKeySequenceSchema(
+        this IConventionProperty property,
+        string? schema,
+        bool fromDataAnnotation = false)
+    {
+        property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.KeySequenceSchema,
+            Check.NullButNotEmpty(schema, nameof(schema)),
+            fromDataAnnotation);
+
+        return schema;
+    }
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the key value generation sequence schema.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the key value generation sequence schema.</returns>
+    public static ConfigurationSource? GetKeySequenceSchemaConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(SqlServerAnnotationNames.KeySequenceSchema)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Finds the <see cref="ISequence" /> in the model to use for the key value generation pattern.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
+    public static IReadOnlySequence? FindKeySequence(this IReadOnlyProperty property)
+    {
+        var model = property.DeclaringEntityType.Model;
+
+        var sequenceName = property.GetKeySequenceName()
+            ?? model.GetKeySequenceName();
+
+        var sequenceSchema = property.GetKeySequenceSchema()
+            ?? model.GetKeySequenceSchema();
+
+        return model.FindSequence(sequenceName, sequenceSchema);
+    }
+
+    /// <summary>
+    ///     Finds the <see cref="ISequence" /> in the model to use for the key value generation pattern.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
+    public static IReadOnlySequence? FindKeySequence(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    {
+        var model = property.DeclaringEntityType.Model;
+
+        var sequenceName = property.GetKeySequenceName(storeObject)
+            ?? model.GetKeySequenceName();
+
+        var sequenceSchema = property.GetKeySequenceSchema(storeObject)
+            ?? model.GetKeySequenceSchema();
+
+        return model.FindSequence(sequenceName, sequenceSchema);
+    }
+
+    /// <summary>
+    ///     Finds the <see cref="ISequence" /> in the model to use for the key value generation pattern.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
+    public static ISequence? FindKeySequence(this IProperty property)
+        => (ISequence?)((IReadOnlyProperty)property).FindKeySequence();
+
+    /// <summary>
+    ///     Finds the <see cref="ISequence" /> in the model to use for the key value generation pattern.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
+    public static ISequence? FindKeySequence(this IProperty property, in StoreObjectIdentifier storeObject)
+        => (ISequence?)((IReadOnlyProperty)property).FindKeySequence(storeObject);
+
+    /// <summary>
     ///     Returns the identity seed.
     /// </summary>
     /// <param name="property">The property.</param>
@@ -543,16 +723,18 @@ public static class SqlServerPropertyExtensions
             return (SqlServerValueGenerationStrategy?)annotation.Value ?? SqlServerValueGenerationStrategy.None;
         }
 
+        var defaultValueGenerationStrategy = GetDefaultValueGenerationStrategy(property);
+
         if (property.ValueGenerated != ValueGenerated.OnAdd
             || property.IsForeignKey()
             || property.TryGetDefaultValue(out _)
-            || property.GetDefaultValueSql() != null
+            || (defaultValueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence && property.GetDefaultValueSql() != null)
             || property.GetComputedColumnSql() != null)
         {
             return SqlServerValueGenerationStrategy.None;
         }
 
-        return GetDefaultValueGenerationStrategy(property);
+        return defaultValueGenerationStrategy;
     }
 
     /// <summary>
@@ -618,8 +800,8 @@ public static class SqlServerPropertyExtensions
             return SqlServerValueGenerationStrategy.None;
         }
 
-        var defaultStategy = GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
-        if (defaultStategy != SqlServerValueGenerationStrategy.None)
+        var defaultStrategy = GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
+        if (defaultStrategy != SqlServerValueGenerationStrategy.None)
         {
             if (annotation != null)
             {
@@ -627,7 +809,7 @@ public static class SqlServerPropertyExtensions
             }
         }
 
-        return defaultStategy;
+        return defaultStrategy;
     }
 
     /// <summary>
@@ -647,10 +829,11 @@ public static class SqlServerPropertyExtensions
     {
         var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
 
-        if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+        if ((modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+            || modelStrategy == SqlServerValueGenerationStrategy.Sequence)
             && IsCompatibleWithValueGeneration(property))
         {
-            return SqlServerValueGenerationStrategy.SequenceHiLo;
+            return modelStrategy.Value;
         }
 
         return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
@@ -665,10 +848,12 @@ public static class SqlServerPropertyExtensions
         ITypeMappingSource? typeMappingSource)
     {
         var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
-        if (modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+
+        if ((modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
+                || modelStrategy == SqlServerValueGenerationStrategy.Sequence)
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
         {
-            return SqlServerValueGenerationStrategy.SequenceHiLo;
+            return modelStrategy.Value;
         }
 
         return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
@@ -786,7 +971,8 @@ public static class SqlServerPropertyExtensions
                         property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
             }
 
-            if (value == SqlServerValueGenerationStrategy.SequenceHiLo
+            if ((value == SqlServerValueGenerationStrategy.SequenceHiLo
+                    || value == SqlServerValueGenerationStrategy.Sequence)
                 && !IsCompatibleWithValueGeneration(property))
             {
                 throw new ArgumentException(

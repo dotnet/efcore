@@ -692,7 +692,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.EntitySplittingMissingProperties(nameof(Animal), "AnimalDetails"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_entity_splitting_to_table_with_all_properties()
     {
@@ -785,7 +785,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             modelBuilder,
             LogLevel.Error);
     }
-    
+
     [ConditionalFact]
     public void Detects_unnamed_key_properties_mapped_to_different_fragments_in_entity_splitting()
     {
@@ -2122,7 +2122,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var definition =
             RelationalResources.LogTpcStoreGeneratedIdentity(new TestLogger<TestRelationalLoggingDefinitions>());
         VerifyWarning(
-            definition.GenerateMessage(nameof(Animal.Id), nameof(Animal)),
+            definition.GenerateMessage(nameof(Animal), nameof(Animal.Id)),
             modelBuilder,
             LogLevel.Warning);
     }

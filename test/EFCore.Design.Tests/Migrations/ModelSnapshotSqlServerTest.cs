@@ -219,7 +219,7 @@ public class ModelSnapshotSqlServerTest
     {
         public int Id { get; set; }
     }
-    
+
     private class BaseEntity : AbstractBase
     {
         public string Discriminator { get; set; }
@@ -374,6 +374,44 @@ public class ModelSnapshotSqlServerTest
                 Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, o.GetValueGenerationStrategy());
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.SequenceHiLo,
+                    o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
+            });
+
+    [ConditionalFact]
+    public virtual void Model_fluent_APIs_for_sequence_key_are_properly_generated()
+        => Test(
+            builder =>
+            {
+                builder.UseKeySequence();
+                builder.Entity<EntityWithOneProperty>();
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                @"
+            modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseKeySequence(modelBuilder, ""EntityFrameworkKeySequence"");
+
+            modelBuilder.HasSequence(""EntityFrameworkKeySequence"");
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasDefaultValueSql(""NEXT VALUE FOR [EntityFrameworkKeySequence]"");
+
+                    SqlServerPropertyBuilderExtensions.UseKeySequence(b.Property<int>(""Id""));
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithOneProperty"");
+                });"),
+            o =>
+            {
+                Assert.Equal(SqlServerValueGenerationStrategy.Sequence, o.GetValueGenerationStrategy());
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.Sequence,
                     o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
             });
 
@@ -1226,7 +1264,7 @@ public class ModelSnapshotSqlServerTest
             model =>
             {
                 Assert.Equal(5, model.GetAnnotations().Count());
-                
+
                 var sequence = model.GetSequences().Single();
                 Assert.Equal(2, sequence.StartValue);
                 Assert.Equal(1, sequence.MinValue);

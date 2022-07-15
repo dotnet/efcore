@@ -7,4 +7,11 @@ public class TPCFiltersInheritanceQuerySqlServerFixture : TPCInheritanceQuerySql
 {
     protected override bool EnableFilters
         => true;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+    {
+        modelBuilder.UseKeySequence();
+
+        base.OnModelCreating(modelBuilder, context);
+    }
 }

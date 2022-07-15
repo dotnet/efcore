@@ -15,9 +15,9 @@ public class InheritanceData : ISetSource
 
     private InheritanceData()
     {
-        Animals = CreateAnimals();
+        Animals = CreateAnimals(useGeneratedKeys);
         Countries = CreateCountries();
-        Drinks = CreateDrinks();
+        Drinks = CreateDrinks(useGeneratedKeys);
         Plants = CreatePlants();
 
         WireUp(Animals, Countries);
@@ -147,11 +147,12 @@ public class InheritanceData : ISetSource
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
-    public static IReadOnlyList<Animal> CreateAnimals()
+    public static IReadOnlyList<Animal> CreateAnimals(bool useGeneratedKeys)
         => new List<Animal>
         {
             new Kiwi
             {
+                Id = useGeneratedKeys ? 0 : 1,
                 Species = "Apteryx haastii",
                 Name = "Great spotted kiwi",
                 IsFlightless = true,
@@ -159,6 +160,7 @@ public class InheritanceData : ISetSource
             },
             new Eagle
             {
+                Id = useGeneratedKeys ? 0 : 2,
                 Species = "Aquila chrysaetos canadensis",
                 Name = "American golden eagle",
                 Group = EagleGroup.Booted
@@ -171,24 +173,27 @@ public class InheritanceData : ISetSource
             new() { Id = 1, Name = "New Zealand" }, new() { Id = 2, Name = "USA" },
         };
 
-    public static IReadOnlyList<Drink> CreateDrinks()
+    public static IReadOnlyList<Drink> CreateDrinks(bool useGeneratedKeys)
         => new List<Drink>
         {
             new Tea
             {
-                Id = 1,
+                Id = useGeneratedKeys ? 0 : 1,
+                SortIndex = 1,
                 HasMilk = true,
                 CaffeineGrams = 1
             },
             new Lilt
             {
-                Id = 2,
+                Id = useGeneratedKeys ? 0 : 2,
+                SortIndex = 2,
                 SugarGrams = 4,
                 Carbonation = 7
             },
             new Coke
             {
-                Id = 3,
+                Id = useGeneratedKeys ? 0 : 3,
+                SortIndex = 3,
                 SugarGrams = 6,
                 CaffeineGrams = 4,
                 Carbonation = 5
@@ -218,7 +223,6 @@ public class InheritanceData : ISetSource
         IReadOnlyList<Country> countries)
     {
         ((Eagle)animals[1]).Prey.Add((Bird)animals[0]);
-        ((Bird)animals[0]).EagleId = animals[1].Species;
 
         countries[0].Animals.Add(animals[0]);
         animals[0].CountryId = countries[0].Id;

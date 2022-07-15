@@ -1314,6 +1314,11 @@ public class RelationalModelValidator : ModelValidator
                     throw new InvalidOperationException(
                        RelationalStrings.AbstractTpc(entityType.DisplayName(), storeObject));
                 }
+                
+                foreach (var key in entityType.GetKeys())
+                {
+                    ValidateValueGenerationForMappingStrategy(entityType, key, mappingStrategy, logger);
+                }
             }
 
             if (entityType.BaseType != null)
@@ -1349,17 +1354,8 @@ public class RelationalModelValidator : ModelValidator
             }
             else
             {
-                var primaryKey = entityType.FindPrimaryKey();
-                if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
-                {
-                    var storeGeneratedProperty = primaryKey?.Properties.FirstOrDefault(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0);
-                    if (storeGeneratedProperty != null
-                        && entityType.GetTableName() != null)
-                    {
-                        logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
-                    }
-                }
-                else if (primaryKey == null)
+                if (mappingStrategy != RelationalAnnotationNames.TpcMappingStrategy 
+                    && entityType.FindPrimaryKey() == null)
                 {
                     throw new InvalidOperationException(
                        RelationalStrings.KeylessMappingStrategy(mappingStrategy ?? RelationalAnnotationNames.TptMappingStrategy, entityType.DisplayName()));
@@ -1391,6 +1387,29 @@ public class RelationalModelValidator : ModelValidator
 
                     discriminatorValues[valueString] = derivedType;
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the key value generation is valid for the given inheritance mapping strategy.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="mappingStrategy">The inheritance mapping strategy.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateValueGenerationForMappingStrategy(
+        IEntityType entityType,
+        IKey key,
+        string mappingStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (entityType.GetTableName() != null
+            && mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            foreach (var storeGeneratedProperty in key.Properties.Where(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0))
+            {
+                logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
             }
         }
     }

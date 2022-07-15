@@ -45,13 +45,21 @@ public sealed record RelationalConventionSetBuilderDependencies
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
-    public RelationalConventionSetBuilderDependencies(IRelationalAnnotationProvider relationalAnnotationProvider)
+    public RelationalConventionSetBuilderDependencies(
+        IRelationalAnnotationProvider relationalAnnotationProvider,
+        IUpdateSqlGenerator updateSqlGenerator)
     {
         RelationalAnnotationProvider = relationalAnnotationProvider;
+        UpdateSqlGenerator = updateSqlGenerator;
     }
 
     /// <summary>
     ///     The relational annotation provider.
     /// </summary>
     public IRelationalAnnotationProvider RelationalAnnotationProvider { get; init; }
+    
+    /// <summary>
+    ///     For generation of SQL.
+    /// </summary>
+    public IUpdateSqlGenerator UpdateSqlGenerator { get; init; }
 }

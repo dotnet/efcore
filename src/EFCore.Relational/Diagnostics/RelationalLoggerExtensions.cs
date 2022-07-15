@@ -2944,8 +2944,8 @@ public static class RelationalLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                property.Name,
-                property.DeclaringEntityType.DisplayName());
+                property.DeclaringEntityType.DisplayName(),
+                property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2964,8 +2964,8 @@ public static class RelationalLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyEventData)payload;
         return d.GenerateMessage(
-            p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName());
+            p.Property.DeclaringEntityType.DisplayName(),
+            p.Property.Name);
     }
 
     /// <summary>

@@ -21,11 +21,14 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
     protected virtual bool HasDiscriminator
         => true;
 
+    protected virtual bool UseGeneratedKeys
+        => true;
+
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();
 
     public virtual ISetSource GetExpectedData()
-        => InheritanceData.Instance;
+        => new InheritanceData(UseGeneratedKeys);
 
     public virtual ISetSource GetFilteredExpectedData(DbContext context)
     {
@@ -34,7 +37,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
             return cachedResult;
         }
 
-        var expectedData = InheritanceData.Instance;
+        var expectedData = new InheritanceData(UseGeneratedKeys);
         if (EnableFilters)
         {
             var animals = expectedData.Animals.Where(a => a.CountryId == 1).ToList();
@@ -361,7 +364,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         modelBuilder.Entity<Kiwi>();
         modelBuilder.Entity<Eagle>();
         modelBuilder.Entity<Bird>();
-        modelBuilder.Entity<Animal>().HasKey(e => e.Species);
+        modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Rose>();
         modelBuilder.Entity<Daisy>();
         modelBuilder.Entity<Flower>();
@@ -372,7 +375,16 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         modelBuilder.Entity<Lilt>();
         modelBuilder.Entity<Coke>();
 
-        modelBuilder.Entity<Drink>().Property(m => m.Id).ValueGeneratedNever();
+        if (UseGeneratedKeys)
+        {
+            modelBuilder.Entity<Animal>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Drink>().Property(e => e.Id).ValueGeneratedOnAdd();
+        }
+        else
+        {
+            modelBuilder.Entity<Animal>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Drink>().Property(e => e.Id).ValueGeneratedNever();
+        }
 
         if (HasDiscriminator)
         {
@@ -393,8 +405,5 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
     }
 
     protected override void Seed(InheritanceContext context)
-        => InheritanceContext.Seed(context);
-
-    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder);
+        => InheritanceContext.Seed(context, UseGeneratedKeys);
 }
