@@ -1970,7 +1970,8 @@ public abstract class FieldMappingTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "FieldMapping";
+        protected override string StoreName
+            => "FieldMapping";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

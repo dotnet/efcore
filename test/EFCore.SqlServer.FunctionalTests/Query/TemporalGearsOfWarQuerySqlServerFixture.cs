@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TemporalGearsOfWarQuerySqlServerFixture : GearsOfWarQuerySqlServerFixture
 {
-    protected override string StoreName { get; } = "TemporalGearsOfWarQueryTest";
+    protected override string StoreName
+        => "TemporalGearsOfWarQueryTest";
 
     public DateTime ChangesDate { get; private set; }
 

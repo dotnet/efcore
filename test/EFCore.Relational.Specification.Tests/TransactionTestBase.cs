@@ -1469,7 +1469,8 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class TransactionFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "TransactionTest";
+        protected override string StoreName
+            => "TransactionTest";
 
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Database.Transaction.Name;

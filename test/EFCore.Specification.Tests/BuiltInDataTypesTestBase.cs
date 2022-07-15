@@ -2103,7 +2103,8 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
 
     public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "BuiltInDataTypes";
+        protected override string StoreName
+            => "BuiltInDataTypes";
 
         public virtual int LongStringLength
             => 9000;

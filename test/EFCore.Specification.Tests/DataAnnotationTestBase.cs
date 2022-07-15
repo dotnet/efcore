@@ -2813,7 +2813,8 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "DataAnnotations";
+        protected override string StoreName
+            => "DataAnnotations";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

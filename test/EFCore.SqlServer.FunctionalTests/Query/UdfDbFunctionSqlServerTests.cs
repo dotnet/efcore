@@ -814,7 +814,8 @@ ORDER BY [a].[Id], [g].[Year]");
 
     public class SqlServer : UdfFixtureBase
     {
-        protected override string StoreName { get; } = "UDFDbFunctionSqlServerTests";
+        protected override string StoreName
+            => "UDFDbFunctionSqlServerTests";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

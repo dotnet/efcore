@@ -768,7 +768,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class FindFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
-            protected override string StoreName { get; } = "FindTest";
+            protected override string StoreName
+                => "FindTest";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

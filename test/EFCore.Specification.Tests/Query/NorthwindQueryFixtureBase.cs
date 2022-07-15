@@ -264,7 +264,8 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
             },
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    protected override string StoreName { get; } = "Northwind";
+    protected override string StoreName
+        => "Northwind";
 
     protected override bool UsePooling
         => typeof(TModelCustomizer) == typeof(NoopModelCustomizer);

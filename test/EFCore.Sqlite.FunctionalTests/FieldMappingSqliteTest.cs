@@ -46,7 +46,8 @@ public abstract class FieldMappingSqliteTest
 
         public class EnforceFieldFixture : FieldMappingSqliteFixtureBase
         {
-            protected override string StoreName { get; } = "FieldMappingEnforceFieldTest";
+            protected override string StoreName
+                => "FieldMappingEnforceFieldTest";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -66,7 +67,8 @@ public abstract class FieldMappingSqliteTest
 
         public class EnforceFieldForQueryFixture : FieldMappingSqliteFixtureBase
         {
-            protected override string StoreName { get; } = "FieldMappingFieldQueryTest";
+            protected override string StoreName
+                => "FieldMappingFieldQueryTest";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -359,7 +361,8 @@ public abstract class FieldMappingSqliteTest
 
         public class EnforcePropertyFixture : FieldMappingSqliteFixtureBase
         {
-            protected override string StoreName { get; } = "FieldMappingEnforcePropertyTest";
+            protected override string StoreName
+                => "FieldMappingEnforcePropertyTest";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

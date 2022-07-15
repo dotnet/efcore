@@ -137,7 +137,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class GrpcFixtureBase : SharedStoreFixtureBase<GrpcContext>
     {
-        protected override string StoreName { get; } = "GrpcTest";
+        protected override string StoreName
+            => "GrpcTest";
 
         protected override void Seed(GrpcContext context)
         {

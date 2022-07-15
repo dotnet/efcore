@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class QueryFilterFuncletizationFixtureBase : SharedStoreFixtureBase<QueryFilterFuncletizationContext>
 {
-    protected override string StoreName { get; } = "QueryFilterFuncletizationTest";
+    protected override string StoreName
+        => "QueryFilterFuncletizationTest";
 
     protected override bool UsePooling
         => false;

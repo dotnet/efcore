@@ -447,7 +447,8 @@ ORDER BY [i].[_Position];");
 
     public class StoreValueGenerationSequenceWithTriggerSqlServerFixture : StoreValueGenerationTriggerSqlServerFixture
     {
-        protected override string StoreName { get; } = "StoreValueGenerationSequenceWithTriggerTest";
+        protected override string StoreName
+            => "StoreValueGenerationSequenceWithTriggerTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

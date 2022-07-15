@@ -546,7 +546,8 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        protected override string StoreName { get; } = "FunkyDataQueryTest";
+        protected override string StoreName
+            => "FunkyDataQueryTest";
 
         public override FunkyDataContext CreateContext()
         {

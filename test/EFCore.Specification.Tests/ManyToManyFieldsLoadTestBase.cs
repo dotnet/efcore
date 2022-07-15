@@ -1002,7 +1002,8 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFi
 
     public abstract class ManyToManyFieldsLoadFixtureBase : ManyToManyFieldsQueryFixtureBase
     {
-        protected override string StoreName { get; } = "ManyToManyFieldsLoadTest";
+        protected override string StoreName
+            => "ManyToManyFieldsLoadTest";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(

@@ -9,7 +9,8 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
 {
     private GearsOfWarData _expectedData;
 
-    protected override string StoreName { get; } = "GearsOfWarQueryTest";
+    protected override string StoreName
+        => "GearsOfWarQueryTest";
 
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();
