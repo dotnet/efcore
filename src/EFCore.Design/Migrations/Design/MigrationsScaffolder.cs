@@ -91,7 +91,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         {
             throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
         }
-        
+
         var (key, typeInfo) = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
         var migrationNamespace =
@@ -409,7 +409,12 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         };
     }
 
-    private static string GetNormalizedFileName (string migrationFileName) => string.Join("_",migrationFileName.Split(Path.GetInvalidFileNameChars()));
+    private static string GetNormalizedFileName(string migrationFileName)
+    {
+        char[] invalidChars = { '#', '%', '&', '{', '}', '\\', '<', '>', '*', '?', '/', '$', '!', ':', '@', '+', '=', '"', '|' };
+        return string.Join("_", migrationFileName.Split(invalidChars.ToArray()));
+    }
+
 
     /// <summary>
     ///     Gets the namespace of a sibling type. If none, the default namespace is used.
