@@ -591,6 +591,19 @@ public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<ISer
         => throw new NotSupportedException();
 
     /// <summary>
+    ///     Gets an <see cref="EntityEntry{TEntity}" /> for the given entity. The entry provides
+    ///     access to change tracking information and operations for the entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="entity">The entity to get the entry for.</param>
+    /// <returns>The entry for the given entity.</returns>
+    public virtual EntityEntry<TEntity> Entry(TEntity entity)
+        => throw new NotSupportedException();
+
+    /// <summary>
     ///     Returns an <see cref="IEnumerator{T}" /> which when enumerated will execute a query against the database
     ///     to load all entities from the database.
     /// </summary>
