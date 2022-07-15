@@ -15,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="storeObject">The key of the value to get.</param>
         /// <returns>
-        ///     <see langword="true"/> if the collection contains an element with the specified key;
-        ///     otherwise, <see langword="false"/>.
+        ///     The value associated with the specified key, or <see langword="null"/> if not found.
         /// </returns>
         T? Find(in StoreObjectIdentifier storeObject);
         
