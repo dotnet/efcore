@@ -59,11 +59,9 @@ public static class SqliteDbContextOptionsBuilderExtensions
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseSqlite(
         this DbContextOptionsBuilder optionsBuilder,
-        string connectionString,
+        string? connectionString,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
     {
-        Check.NotEmpty(connectionString, nameof(connectionString));
-
         var extension = (SqliteOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -145,7 +143,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
-        string connectionString,
+        string? connectionString,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseSqlite(
