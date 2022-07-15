@@ -37,6 +37,17 @@ public class MigrationsScaffolderTest
         Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
     }
 
+    [Fact]
+   
+    public void Save_normalizes_migration_name()
+    {
+        using var projectDir = new TempDirectory();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration("feat:test", "WebApplication1");
+        var migrationFile = scaffolder.Save(projectDir, migration, outputDir: null);
+        Assert.Contains("feat_test",migrationFile.MigrationFile);
+    }
+
     [ConditionalFact]
     public void ScaffoldMigration_can_override_namespace()
     {
