@@ -12,7 +12,8 @@ public class GearsOfWarODataQueryTestFixture : GearsOfWarQuerySqlServerFixture, 
 {
     private IHost _selfHostServer;
 
-    protected override string StoreName { get; } = "ODataGearsOfWarQueryTest";
+    protected override string StoreName
+        => "ODataGearsOfWarQueryTest";
 
     public GearsOfWarODataQueryTestFixture()
     {

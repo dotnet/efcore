@@ -97,7 +97,8 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
         public virtual IDisposable BeginTransaction(DbContext context)
             => context.Database.BeginTransaction();
 
-        protected override string StoreName { get; } = "OverzealousInitialization";
+        protected override string StoreName
+            => "OverzealousInitialization";
 
         protected override void Seed(AlbumViewerContext context)
         {

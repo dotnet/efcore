@@ -28,7 +28,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
 
             Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
         }
-        
+
         await using (var context = CreateContext())
         {
             var reading = await context.MeterReadings.SingleAsync();
@@ -38,7 +38,8 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         }
     }
 
-    protected override string StoreName { get; } = "EntitySplittingTest";
+    protected override string StoreName
+        => "EntitySplittingTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
@@ -47,7 +48,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
 
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
-    
+
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<MeterReading>(

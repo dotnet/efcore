@@ -9,7 +9,8 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
 {
     private readonly Dictionary<bool, ISetSource> _expectedDataCache = new();
 
-    protected override string StoreName { get; } = "InheritanceTest";
+    protected override string StoreName
+        => "InheritanceTest";
 
     protected virtual bool EnableFilters
         => false;

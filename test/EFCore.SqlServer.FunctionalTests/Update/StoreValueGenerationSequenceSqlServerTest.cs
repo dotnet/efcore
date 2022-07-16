@@ -371,7 +371,8 @@ WHERE [Id] = @p1;");
 
     public class StoreValueGenerationSequenceSqlServerFixture : StoreValueGenerationFixtureBase
     {
-        protected override string StoreName { get; } = "StoreValueGenerationSequenceTest";
+        protected override string StoreName
+            => "StoreValueGenerationSequenceTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

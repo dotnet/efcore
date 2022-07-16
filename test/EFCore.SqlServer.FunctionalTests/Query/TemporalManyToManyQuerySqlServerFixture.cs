@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBase
 {
-    protected override string StoreName { get; } = "TemporalManyToManyQueryTest";
+    protected override string StoreName
+        => "TemporalManyToManyQueryTest";
 
     public DateTime ChangesDate { get; private set; }
 

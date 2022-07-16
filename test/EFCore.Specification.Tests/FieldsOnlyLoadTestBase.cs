@@ -4607,7 +4607,8 @@ public abstract class FieldsOnlyLoadTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class FieldsOnlyLoadFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "FieldsOnlyLoadTest";
+        protected override string StoreName
+            => "FieldsOnlyLoadTest";
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
             => base.AddServices(serviceCollection.AddScoped<IChangeDetector, ChangeDetectorProxy>());

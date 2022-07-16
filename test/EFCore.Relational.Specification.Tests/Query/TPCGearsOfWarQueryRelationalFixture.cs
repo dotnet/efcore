@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class TPCGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
 {
-    protected override string StoreName { get; } = "TPCGearsOfWarQueryTest";
+    protected override string StoreName
+        => "TPCGearsOfWarQueryTest";
 
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;

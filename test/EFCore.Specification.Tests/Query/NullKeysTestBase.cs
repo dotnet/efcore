@@ -207,7 +207,8 @@ public abstract class NullKeysTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class NullKeysFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "NullKeysTest";
+        protected override string StoreName
+            => "NullKeysTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

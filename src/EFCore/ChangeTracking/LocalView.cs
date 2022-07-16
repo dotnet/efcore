@@ -56,6 +56,7 @@ public class LocalView<TEntity> :
     private ObservableBackedBindingList<TEntity>? _bindingList;
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
+    private readonly IEntityType _entityType;
     private int _countChanges;
     private int? _count;
     private bool _triggeringStateManagerChange;
@@ -72,6 +73,7 @@ public class LocalView<TEntity> :
     public LocalView(DbSet<TEntity> set)
     {
         _context = set.GetService<ICurrentDbContext>().Context;
+        _entityType = set.EntityType;
 
         set.GetService<ILocalViewListener>().RegisterView(StateManagerChangedHandler);
     }
@@ -208,7 +210,7 @@ public class LocalView<TEntity> :
         // to Add it again since doing so would change its state to Added, which is probably not what
         // was wanted in this case.
 
-        var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item);
+        var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item, _entityType);
         if (entry.EntityState == EntityState.Deleted
             || entry.EntityState == EntityState.Detached)
         {

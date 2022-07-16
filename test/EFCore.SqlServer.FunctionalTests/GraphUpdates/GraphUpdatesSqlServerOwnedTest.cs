@@ -36,7 +36,8 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
 
     public class SqlServerFixture : GraphUpdatesSqlServerFixtureBase
     {
-        protected override string StoreName { get; } = "GraphOwnedUpdatesTest";
+        protected override string StoreName
+            => "GraphOwnedUpdatesTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

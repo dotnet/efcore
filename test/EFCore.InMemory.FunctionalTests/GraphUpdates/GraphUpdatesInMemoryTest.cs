@@ -174,7 +174,8 @@ public class GraphUpdatesInMemoryTest : GraphUpdatesTestBase<GraphUpdatesInMemor
 
     public class InMemoryFixture : GraphUpdatesFixtureBase
     {
-        protected override string StoreName { get; } = "GraphUpdatesTest";
+        protected override string StoreName
+            => "GraphUpdatesTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => InMemoryTestStoreFactory.Instance;

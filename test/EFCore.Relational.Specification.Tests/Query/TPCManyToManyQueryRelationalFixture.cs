@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class TPCManyToManyQueryRelationalFixture : ManyToManyQueryRelationalFixture
 {
-    protected override string StoreName { get; } = "TPCManyToManyQueryTest";
+    protected override string StoreName
+        => "TPCManyToManyQueryTest";
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(

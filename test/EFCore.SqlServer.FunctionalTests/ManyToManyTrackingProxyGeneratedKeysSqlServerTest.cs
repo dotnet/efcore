@@ -42,7 +42,8 @@ public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest
 
     public class ManyToManyTrackingProxyGeneratedKeysSqlServerFixture : ManyToManyTrackingSqlServerFixtureBase
     {
-        protected override string StoreName { get; } = "ManyToManyTrackingProxyGeneratedKeys";
+        protected override string StoreName
+            => "ManyToManyTrackingProxyGeneratedKeys";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).UseChangeTrackingProxies();

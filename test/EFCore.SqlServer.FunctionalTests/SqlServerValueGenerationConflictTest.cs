@@ -133,7 +133,9 @@ public class SqlServerValueGenerationConflictTest<TContext>
 public class SqlServerValueGenerationStrategyFixture<TContext> : SharedStoreFixtureBase<DbContext>
     where TContext : DbContext
 {
-    protected override string StoreName { get; } = "SqlServerValueGenerationStrategy";
+    protected override string StoreName
+        => "SqlServerValueGenerationStrategy";
+
     protected override Type ContextType { get; } = typeof(TContext);
 
     protected override ITestStoreFactory TestStoreFactory

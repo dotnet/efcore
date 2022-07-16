@@ -1234,7 +1234,8 @@ ORDER BY [s].[Id]");
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
-        protected override string StoreName { get; } = "TemporalOwnedQueryTest";
+        protected override string StoreName
+            => "TemporalOwnedQueryTest";
 
         public DateTime ChangesDate { get; private set; }
 

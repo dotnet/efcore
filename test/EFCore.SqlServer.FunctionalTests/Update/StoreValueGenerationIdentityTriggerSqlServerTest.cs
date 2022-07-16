@@ -437,7 +437,8 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     {
         private string? _identityResetCommand;
 
-        protected override string StoreName { get; } = "StoreValueGenerationIdentityWithTriggerTest";
+        protected override string StoreName
+            => "StoreValueGenerationIdentityWithTriggerTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

@@ -801,7 +801,8 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
 
     public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
     {
-        protected override string StoreName { get; } = "CustomConverters";
+        protected override string StoreName
+            => "CustomConverters";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
