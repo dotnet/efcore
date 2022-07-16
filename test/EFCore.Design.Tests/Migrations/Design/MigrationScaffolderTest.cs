@@ -37,15 +37,15 @@ public class MigrationsScaffolderTest
         Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
     }
 
-    [Fact]
-   
-    public void Save_normalizes_migration_name()
+    [Theory]
+    [InlineData("feat:test", "feat_test")]
+    public void Save_normalizes_migration_name(string actualValue, string expectedValue)
     {
         using var projectDir = new TempDirectory();
         var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
-        var migration = scaffolder.ScaffoldMigration("feat:test", "WebApplication1");
+        var migration = scaffolder.ScaffoldMigration(actualValue, "WebApplication1");
         var migrationFile = scaffolder.Save(projectDir, migration, outputDir: null);
-        Assert.Contains("feat_test",migrationFile.MigrationFile);
+        Assert.Contains(expectedValue,migrationFile.MigrationFile);
     }
 
     [ConditionalFact]

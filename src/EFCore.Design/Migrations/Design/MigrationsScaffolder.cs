@@ -385,9 +385,9 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     {
         var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
         var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
-        var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
-        migrationFile = GetNormalizedFileName(migrationFile);
-        var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
+        var normalizedMIgrationId = GetNormalizedMigrationId(migration.MigrationId);
+        var migrationFile = Path.Combine(migrationDirectory, normalizedMIgrationId + migration.FileExtension);
+        var migrationMetadataFile = Path.Combine(migrationDirectory, normalizedMIgrationId + ".Designer" + migration.FileExtension);
         var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
         var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
         var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
@@ -409,10 +409,10 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         };
     }
 
-    private static string GetNormalizedFileName(string migrationFileName)
+    private static string GetNormalizedMigrationId(string migrationId)
     {
         char[] invalidChars = { '#', '%', '&', '{', '}', '\\', '<', '>', '*', '?', '/', '$', '!', ':', '@', '+', '=', '"', '|' };
-        return string.Join("_", migrationFileName.Split(invalidChars.ToArray()));
+        return string.Join("_", migrationId.Split(invalidChars));
     }
 
 
