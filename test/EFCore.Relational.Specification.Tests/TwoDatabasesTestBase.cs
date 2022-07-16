@@ -74,9 +74,10 @@ public abstract class TwoDatabasesTestBase
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Can_set_connection_string_in_interceptor(bool withConnectionString)
+    [InlineData(true, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual void Can_set_connection_string_in_interceptor(bool withConnectionString, bool withNullConnectionString)
     {
         using var context1 = CreateBackingContext("TwoDatabasesIntercept");
 
@@ -132,7 +133,8 @@ public abstract class TwoDatabasesTestBase
 
     protected abstract DbContextOptionsBuilder CreateTestOptions(
         DbContextOptionsBuilder optionsBuilder,
-        bool withConnectionString = false);
+        bool withConnectionString = false,
+        bool withNullConnectionString = false);
 
     protected abstract TwoDatabasesWithDataContext CreateBackingContext(string databaseName);
 

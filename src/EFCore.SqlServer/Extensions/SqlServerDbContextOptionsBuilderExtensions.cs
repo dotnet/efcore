@@ -62,11 +62,9 @@ public static class SqlServerDbContextOptionsExtensions
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseSqlServer(
         this DbContextOptionsBuilder optionsBuilder,
-        string connectionString,
+        string? connectionString,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
-        Check.NotEmpty(connectionString, nameof(connectionString));
-
         var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -152,7 +150,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
-        string connectionString,
+        string? connectionString,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseSqlServer(
