@@ -4232,7 +4232,8 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class StoreGeneratedFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "StoreGeneratedTest";
+        protected override string StoreName
+            => "StoreGeneratedTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

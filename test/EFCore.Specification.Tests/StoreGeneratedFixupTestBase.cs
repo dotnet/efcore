@@ -4403,7 +4403,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
 
     public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "StoreGeneratedFixup";
+        protected override string StoreName
+            => "StoreGeneratedFixup";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

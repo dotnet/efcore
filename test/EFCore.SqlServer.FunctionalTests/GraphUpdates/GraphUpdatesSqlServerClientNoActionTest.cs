@@ -19,7 +19,8 @@ public class GraphUpdatesSqlServerClientNoActionTest : GraphUpdatesSqlServerTest
         public override bool ForceClientNoAction
             => true;
 
-        protected override string StoreName { get; } = "GraphClientNoActionUpdatesTest";
+        protected override string StoreName
+            => "GraphClientNoActionUpdatesTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

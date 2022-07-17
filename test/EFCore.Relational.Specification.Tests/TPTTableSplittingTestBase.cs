@@ -17,7 +17,8 @@ public abstract class TPTTableSplittingTestBase : TableSplittingTestBase
         // TODO: Issue #22060
         => Task.CompletedTask;
 
-    protected override string StoreName { get; } = "TPTTableSplittingTest";
+    protected override string StoreName
+        => "TPTTableSplittingTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class UpdatesFixtureBase : SharedStoreFixtureBase<UpdatesContext>
 {
-    protected override string StoreName { get; } = "UpdateTest";
+    protected override string StoreName
+        => "UpdateTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

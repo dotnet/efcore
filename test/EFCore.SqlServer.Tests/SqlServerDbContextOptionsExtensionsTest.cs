@@ -43,15 +43,17 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.Connection);
     }
 
-    [ConditionalFact]
-    public void Can_add_extension_with_connection_string_using_generic_options()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_add_extension_with_connection_string_using_generic_options(bool nullConnectionString)
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-        optionsBuilder.UseSqlServer("Database=Whisper");
+        optionsBuilder.UseSqlServer(nullConnectionString ? null : "Database=Whisper");
 
         var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
-        Assert.Equal("Database=Whisper", extension.ConnectionString);
+        Assert.Equal(nullConnectionString ? null : "Database=Whisper", extension.ConnectionString);
         Assert.Null(extension.Connection);
     }
 
@@ -83,12 +85,14 @@ public class SqlServerDbContextOptionsExtensionsTest
         Assert.Null(extension.ConnectionString);
     }
 
-    [ConditionalFact]
-    public void Service_collection_extension_method_can_configure_sqlserver_options()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Service_collection_extension_method_can_configure_sqlserver_options(bool nullConnectionString)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSqlServer<ApplicationDbContext>(
-            "Database=Crunchie",
+            nullConnectionString ? null : "Database=Crunchie",
             sqlServerOption =>
             {
                 sqlServerOption.MaxBatchSize(123);
@@ -115,7 +119,7 @@ public class SqlServerDbContextOptionsExtensionsTest
 
             Assert.Equal(123, sqlServerOptions.MaxBatchSize);
             Assert.Equal(30, sqlServerOptions.CommandTimeout);
-            Assert.Equal("Database=Crunchie", sqlServerOptions.ConnectionString);
+            Assert.Equal(nullConnectionString ? null : "Database=Crunchie", sqlServerOptions.ConnectionString);
         }
     }
 

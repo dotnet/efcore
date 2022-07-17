@@ -618,7 +618,8 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
     }
 
-    protected override string StoreName { get; } = "TableSplittingTest";
+    protected override string StoreName
+        => "TableSplittingTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

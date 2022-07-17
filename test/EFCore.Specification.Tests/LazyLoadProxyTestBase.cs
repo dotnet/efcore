@@ -2801,7 +2801,8 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class LoadFixtureBase : SharedStoreFixtureBase<DbContext>
     {
-        protected override string StoreName { get; } = "LazyLoadProxyTest";
+        protected override string StoreName
+            => "LazyLoadProxyTest";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder.UseLazyLoadingProxies());

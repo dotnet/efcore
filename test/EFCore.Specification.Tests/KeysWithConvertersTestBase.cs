@@ -6875,7 +6875,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
 
     public abstract class KeysWithConvertersFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "KeysWithConverters";
+        protected override string StoreName
+            => "KeysWithConverters";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

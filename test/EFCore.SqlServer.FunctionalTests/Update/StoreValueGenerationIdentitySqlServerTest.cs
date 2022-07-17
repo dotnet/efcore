@@ -393,7 +393,8 @@ VALUES (@p1);");
     {
         private string? _identityResetCommand;
 
-        protected override string StoreName { get; } = "StoreValueGenerationIdentityTest";
+        protected override string StoreName
+            => "StoreValueGenerationIdentityTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

@@ -814,7 +814,8 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         protected override bool UsePooling
             => false;
 
-        protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
+        protected override string StoreName
+            => nameof(ExecutionStrategyTest);
 
         public new RelationalTestStore TestStore
             => (RelationalTestStore)base.TestStore;

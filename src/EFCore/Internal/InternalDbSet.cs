@@ -370,7 +370,7 @@ public class InternalDbSet<TEntity> :
         foreach (var entity in entities)
         {
             await SetEntityStateAsync(
-                    stateManager.GetOrCreateEntry(entity),
+                    stateManager.GetOrCreateEntry(entity, EntityType),
                     EntityState.Added,
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -425,6 +425,26 @@ public class InternalDbSet<TEntity> :
     /// </summary>
     public override void UpdateRange(IEnumerable<TEntity> entities)
         => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override EntityEntry<TEntity> Entry(TEntity entity)
+    {
+        Check.NotNull(entity, nameof(entity));
+
+        var entry = EntryWithoutDetectChanges(entity);
+
+        if (_context.ChangeTracker.AutoDetectChangesEnabled)
+        {
+            entry.DetectChanges();
+        }
+
+        return entry;
+    }
 
     private IEntityFinder<TEntity> Finder
         => (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(EntityType);

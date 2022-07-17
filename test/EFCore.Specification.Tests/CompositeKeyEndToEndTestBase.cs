@@ -192,7 +192,8 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture> : IClassFixture<TFi
 
     public abstract class CompositeKeyEndToEndFixtureBase : SharedStoreFixtureBase<DbContext>
     {
-        protected override string StoreName { get; } = "CompositeKeyEndToEndTest";
+        protected override string StoreName
+            => "CompositeKeyEndToEndTest";
 
         protected override Type ContextType { get; } = typeof(BronieContext);
     }

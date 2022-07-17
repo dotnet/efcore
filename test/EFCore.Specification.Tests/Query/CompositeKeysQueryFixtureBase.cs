@@ -9,7 +9,8 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
 {
     private CompositeKeysDefaultData _expectedData;
 
-    protected override string StoreName { get; } = "CompositeKeys";
+    protected override string StoreName
+        => "CompositeKeys";
 
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();

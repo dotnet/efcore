@@ -42,7 +42,8 @@ public class AutoincrementTest : IClassFixture<AutoincrementTest.AutoincrementFi
 
     public class AutoincrementFixture : SharedStoreFixtureBase<DbContext>
     {
-        protected override string StoreName { get; } = "AutoincrementTest";
+        protected override string StoreName
+            => "AutoincrementTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

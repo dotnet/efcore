@@ -1099,7 +1099,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        protected override string StoreName { get; } = "OwnedQueryTest";
+        protected override string StoreName
+            => "OwnedQueryTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -121,7 +121,8 @@ public class ProxyGraphUpdatesInMemoryTest
 
         public class ProxyGraphUpdatesWithLazyLoadingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
         {
-            protected override string StoreName { get; } = "ProxyGraphLazyLoadingUpdatesTest";
+            protected override string StoreName
+                => "ProxyGraphLazyLoadingUpdatesTest";
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder.UseLazyLoadingProxies());
@@ -151,7 +152,8 @@ public class ProxyGraphUpdatesInMemoryTest
 
         public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
         {
-            protected override string StoreName { get; } = "ProxyGraphChangeTrackingUpdatesTest";
+            protected override string StoreName
+                => "ProxyGraphChangeTrackingUpdatesTest";
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder.UseChangeTrackingProxies());
@@ -177,7 +179,8 @@ public class ProxyGraphUpdatesInMemoryTest
 
         public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
         {
-            protected override string StoreName { get; } = "ProxyGraphLazyLoadingAndChangeTrackingUpdatesTest";
+            protected override string StoreName
+                => "ProxyGraphLazyLoadingAndChangeTrackingUpdatesTest";
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(

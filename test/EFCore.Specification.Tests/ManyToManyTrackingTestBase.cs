@@ -5986,6 +5986,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixtu
             return context;
         }
 
-        protected override string StoreName { get; } = "ManyToManyTracking";
+        protected override string StoreName
+            => "ManyToManyTracking";
     }
 }
