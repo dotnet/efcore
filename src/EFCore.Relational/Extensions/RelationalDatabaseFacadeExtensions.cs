@@ -144,7 +144,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -178,7 +178,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -215,7 +215,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -280,7 +280,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -315,7 +315,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///         into this method. Doing so may expose your application to SQL injection attacks.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -357,7 +357,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -398,7 +398,7 @@ public static class RelationalDatabaseFacadeExtensions
     ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>

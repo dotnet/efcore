@@ -71,7 +71,7 @@ public static class RelationalQueryableExtensions
     ///         placeholders as above (<c>{0}</c>), you can also use named placeholders directly in the SQL query string.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -114,7 +114,7 @@ public static class RelationalQueryableExtensions
     ///         you supply will automatically be converted to a <see cref="DbParameter" />.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     Represents a SQL query string.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public interface ISqlQuery : ITableBase
