@@ -21,7 +21,7 @@ public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture> : Comp
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is QueryRootExpression rootExpression)
+            if (extensionExpression is EntityQueryRootExpression rootExpression)
             {
                 var splitMethod = _asSplitQueryMethod.MakeGenericMethod(rootExpression.EntityType.ClrType);
 

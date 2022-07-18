@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     Convention that converts accesses of <see cref="DbSet{TEntity}" /> inside query filters into <see cref="QueryRootExpression" />.
+///     Convention that converts accesses of <see cref="DbSet{TEntity}" /> inside query filters into <see cref="EntityQueryRootExpression" />.
 ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
 ///     query pipeline.
 /// </summary>
@@ -31,7 +31,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
     /// <summary>
-    ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters to <see cref="QueryRootExpression" />.
+    ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters to <see cref="EntityQueryRootExpression" />.
     /// </summary>
     protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; set; }
 
@@ -51,7 +51,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     }
 
     /// <summary>
-    ///     A visitor that rewrites DbSet accesses encountered in an expression to <see cref="QueryRootExpression" />.
+    ///     A visitor that rewrites DbSet accesses encountered in an expression to <see cref="EntityQueryRootExpression" />.
     /// </summary>
     protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
     {
@@ -68,7 +68,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
         }
 
         /// <summary>
-        ///     Rewrites DbSet accesses encountered in the expression to <see cref="QueryRootExpression" />.
+        ///     Rewrites DbSet accesses encountered in the expression to <see cref="EntityQueryRootExpression" />.
         /// </summary>
         /// <param name="model">The model to look for entity types.</param>
         /// <param name="expression">The query expression to rewrite.</param>
@@ -92,7 +92,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
                 && _model != null)
             {
                 var entityClrType = memberExpression.Type.GetGenericArguments()[0];
-                return new QueryRootExpression(FindEntityType(entityClrType)!);
+                return new EntityQueryRootExpression(FindEntityType(entityClrType)!);
             }
 
             return base.VisitMember(memberExpression);
@@ -157,7 +157,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
                     throw new InvalidOperationException(message);
                 }
 
-                return new QueryRootExpression(entityType);
+                return new EntityQueryRootExpression(entityType);
             }
 
             return base.VisitMethodCall(methodCallExpression);

@@ -146,9 +146,9 @@ public static class RelationalQueryableExtensions
         object?[] arguments,
         [CallerMemberName] string memberName = null!)
     {
-        var queryRootExpression = (QueryRootExpression)source.Expression;
+        var entityQueryRootExpression = (EntityQueryRootExpression)source.Expression;
 
-        var entityType = queryRootExpression.EntityType;
+        var entityType = entityQueryRootExpression.EntityType;
         if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
             && entityType.FindDiscriminatorProperty() == null)
         {
@@ -156,7 +156,7 @@ public static class RelationalQueryableExtensions
         }
 
         return new FromSqlQueryRootExpression(
-            queryRootExpression.QueryProvider!,
+            entityQueryRootExpression.QueryProvider!,
             entityType,
             sql,
             Expression.Constant(arguments));

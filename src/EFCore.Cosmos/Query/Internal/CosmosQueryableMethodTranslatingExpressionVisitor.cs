@@ -86,9 +86,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 && methodCallExpression.Method.IsGenericMethod
                 && queryRootMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Where)
             {
-                if (queryRootMethodCallExpression.Arguments[0] is QueryRootExpression queryRootExpression)
+                if (queryRootMethodCallExpression.Arguments[0] is EntityQueryRootExpression entityQueryRootExpression)
                 {
-                    var entityType = queryRootExpression.EntityType;
+                    var entityType = entityQueryRootExpression.EntityType;
 
                     if (queryRootMethodCallExpression.Arguments[1] is UnaryExpression unaryExpression
                         && unaryExpression.Operand is LambdaExpression lambdaExpression)

@@ -617,7 +617,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     }
 
     /// <summary>
-    ///     A visitor that rewrites <see cref="QueryRootExpression" /> encountered in an expression to use a different entity type.
+    ///     A visitor that rewrites <see cref="EntityQueryRootExpression" /> encountered in an expression to use a different entity type.
     /// </summary>
     protected class QueryRootRewritingExpressionVisitor : ExpressionVisitor
     {
@@ -633,7 +633,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
 
         /// <summary>
-        ///     Rewrites <see cref="QueryRootExpression" /> encountered in an expression to use a different entity type.
+        ///     Rewrites <see cref="EntityQueryRootExpression" /> encountered in an expression to use a different entity type.
         /// </summary>
         /// <param name="expression">The query expression to rewrite.</param>
         public Expression Rewrite(Expression expression)
@@ -641,8 +641,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
         /// <inheritdoc />
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is QueryRootExpression queryRootExpression
-                ? queryRootExpression.UpdateEntityType(_model.FindEntityType(queryRootExpression.EntityType.Name)!)
+            => extensionExpression is EntityQueryRootExpression entityQueryRootExpression
+                ? entityQueryRootExpression.UpdateEntityType(_model.FindEntityType(entityQueryRootExpression.EntityType.Name)!)
                 : base.VisitExtension(extensionExpression);
     }
 }

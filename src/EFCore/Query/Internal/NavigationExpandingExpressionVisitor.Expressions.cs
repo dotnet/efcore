@@ -7,11 +7,11 @@ public partial class NavigationExpandingExpressionVisitor
 {
     private sealed class EntityReference : Expression, IPrintableExpression
     {
-        public EntityReference(IEntityType entityType, QueryRootExpression? queryRootExpression)
+        public EntityReference(IEntityType entityType, EntityQueryRootExpression? entityQueryRootExpression)
         {
             EntityType = entityType;
             IncludePaths = new IncludeTreeNode(entityType, this, setLoaded: true);
-            QueryRootExpression = queryRootExpression;
+            EntityQueryRootExpression = entityQueryRootExpression;
         }
 
         public IEntityType EntityType { get; }
@@ -21,7 +21,7 @@ public partial class NavigationExpandingExpressionVisitor
         public bool IsOptional { get; private set; }
         public IncludeTreeNode IncludePaths { get; private set; }
         public IncludeTreeNode? LastIncludeTreeNode { get; private set; }
-        public QueryRootExpression? QueryRootExpression { get; }
+        public EntityQueryRootExpression? EntityQueryRootExpression { get; }
 
         public override ExpressionType NodeType
             => ExpressionType.Extension;
@@ -34,7 +34,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public EntityReference Snapshot()
         {
-            var result = new EntityReference(EntityType, QueryRootExpression) { IsOptional = IsOptional };
+            var result = new EntityReference(EntityType, EntityQueryRootExpression) { IsOptional = IsOptional };
             result.IncludePaths = IncludePaths.Snapshot(result);
 
             return result;

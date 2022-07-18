@@ -77,10 +77,11 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
         if (extensionExpression is QueryRootExpression queryRootExpression)
         {
             // Query roots must be processed.
-            if (extensionExpression.GetType() == typeof(QueryRootExpression))
+            if (extensionExpression.GetType() == typeof(EntityQueryRootExpression)
+                && extensionExpression is EntityQueryRootExpression entityQueryRootExpression)
             {
                 // This requires exact type match on query root to avoid processing derived query roots.
-                return CreateShapedQueryExpression(queryRootExpression.EntityType);
+                return CreateShapedQueryExpression(entityQueryRootExpression.EntityType);
             }
 
             throw new InvalidOperationException(
