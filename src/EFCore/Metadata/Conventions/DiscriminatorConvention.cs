@@ -72,13 +72,13 @@ public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEn
 
             if (newBaseType.BaseType == null)
             {
-                discriminator?.HasValue(newBaseType, newBaseType.ShortName());
+                discriminator?.HasValue(newBaseType, newBaseType.GetDefaultDiscriminatorValue());
             }
         }
 
         if (discriminator != null)
         {
-            discriminator.HasValue(entityTypeBuilder.Metadata, entityTypeBuilder.Metadata.ShortName());
+            discriminator.HasValue(entityTypeBuilder.Metadata, entityTypeBuilder.Metadata.GetDefaultDiscriminatorValue());
             SetDefaultDiscriminatorValues(derivedEntityTypes, discriminator);
         }
     }
@@ -115,7 +115,7 @@ public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEn
     {
         foreach (var entityType in entityTypes)
         {
-            discriminatorBuilder.HasValue(entityType, entityType.ShortName());
+            discriminatorBuilder.HasValue(entityType, entityType.GetDefaultDiscriminatorValue());
         }
     }
 }

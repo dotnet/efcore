@@ -1238,6 +1238,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.
+        /// </summary>
+        public static string StoredProcedureGeneratedPropertiesNotMapped(object? entityType, object? sproc, object? properties)
+            => string.Format(
+                GetString("StoredProcedureGeneratedPropertiesNotMapped", nameof(entityType), nameof(sproc), nameof(properties)),
+                entityType, sproc, properties);
+
+        /// <summary>
         ///     The keyless entity type '{entityType}' was configured to use '{sproc}'. An entity type requires a primary key to be able to be mapped to a stored procedure.
         /// </summary>
         public static string StoredProcedureKeyless(object? entityType, object? sproc)
@@ -1252,6 +1260,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("StoredProcedureNoName", nameof(entityType), nameof(sproc)),
                 entityType, sproc);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.
+        /// </summary>
+        public static string StoredProcedureOutputParameterNotGenerated(object? entityType, object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureOutputParameterNotGenerated", nameof(entityType), nameof(property), nameof(sproc)),
+                entityType, property, sproc);
 
         /// <summary>
         ///     The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.

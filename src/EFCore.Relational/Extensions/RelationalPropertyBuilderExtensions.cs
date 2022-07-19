@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -357,6 +358,54 @@ public static class RelationalPropertyBuilderExtensions
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
 
+    /// <summary>
+    ///     Sets the direction of the stored procedure parameter.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="direction">The direction.</param>
+    /// <param name="storeObject">The identifier of the stored procedure.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionPropertyBuilder? HasDirection(
+        this IConventionPropertyBuilder propertyBuilder,
+        ParameterDirection direction,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+    {
+        if (!propertyBuilder.CanSetDirection(direction, storeObject, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        propertyBuilder.Metadata.SetDirection(direction, storeObject, fromDataAnnotation);
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given direction can be configured on the corresponding stored procedure parameter.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="direction">The direction.</param>
+    /// <param name="storeObject">The identifier of the stored procedure.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the property can be mapped to the given column.</returns>
+    public static bool CanSetDirection(
+        this IConventionPropertyBuilder propertyBuilder,
+        ParameterDirection direction,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+    {
+        var overrides = (IConventionRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(
+            propertyBuilder.Metadata, storeObject);
+        return overrides == null
+            || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                .Overrides(overrides.GetDirectionConfigurationSource())
+            || overrides.Direction == direction;
+    }
+    
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a
     ///     relational database.

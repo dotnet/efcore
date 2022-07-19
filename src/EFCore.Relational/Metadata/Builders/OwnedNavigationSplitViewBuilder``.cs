@@ -44,6 +44,17 @@ public class OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> :
     public virtual ViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
         => new(MappingFragment.StoreObject, OwnedNavigationBuilder.Property(propertyExpression));
 
+    /// <summary>
+    ///     Adds or updates an annotation on the view. If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
+        string annotation, object? value)
+        => (OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
+
     OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>.Instance
         => OwnedNavigationBuilder;
 }

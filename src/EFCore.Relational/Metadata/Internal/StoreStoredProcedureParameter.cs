@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -9,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class FunctionColumnMapping : ColumnMappingBase, IFunctionColumnMapping
+public class StoreStoredProcedureParameter
+    : ColumnBase<StoredProcedureParameterMapping>, IStoreStoredProcedureParameter
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,17 +20,15 @@ public class FunctionColumnMapping : ColumnMappingBase, IFunctionColumnMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public FunctionColumnMapping(
-        IProperty property,
-        FunctionColumn column,
-        FunctionMapping functionMapping)
-        : base(property, column, functionMapping)
+    public StoreStoredProcedureParameter(
+        string name,
+        string type,
+        StoreStoredProcedure storedProcedure,
+        ParameterDirection direction)
+        : base(name, type, storedProcedure)
     {
+        Direction = direction;
     }
-
-    /// <inheritdoc />
-    public virtual IFunctionMapping FunctionMapping
-        => (IFunctionMapping)TableMapping;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,9 +36,11 @@ public class FunctionColumnMapping : ColumnMappingBase, IFunctionColumnMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override RelationalTypeMapping GetTypeMapping()
-        => Property.FindRelationalTypeMapping(
-            StoreObjectIdentifier.DbFunction(FunctionMapping.DbFunction.Name))!;
+    public virtual StoreStoredProcedure StoredProcedure
+        => (StoreStoredProcedure)Table;
+
+    /// <inheritdoc />
+    public virtual ParameterDirection Direction { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,11 +49,19 @@ public class FunctionColumnMapping : ColumnMappingBase, IFunctionColumnMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override string ToString()
-        => ((IFunctionColumnMapping)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        => ((IStoreStoredProcedureParameter)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-    IFunctionColumn IFunctionColumnMapping.Column
+    /// <inheritdoc />
+    IStoreStoredProcedure IStoreStoredProcedureParameter.StoredProcedure
     {
         [DebuggerStepThrough]
-        get => (IFunctionColumn)Column;
+        get => StoredProcedure;
+    }
+
+    /// <inheritdoc />
+    IReadOnlyList<IStoredProcedureParameterMapping> IStoreStoredProcedureParameter.PropertyMappings
+    {
+        [DebuggerStepThrough]
+        get => PropertyMappings;
     }
 }

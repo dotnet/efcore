@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -276,7 +277,7 @@ public class RelationalModelValidator : ModelValidator
     private static void ValidateSproc(IStoredProcedure sproc, string mappingStrategy)
     {
         var entityType = sproc.EntityType;
-        var storeObjectIdentifier = ((StoredProcedure)sproc).CreateIdentifier()!.Value;
+        var storeObjectIdentifier = sproc.GetStoreIdentifier();
 
         var primaryKey = entityType.FindPrimaryKey();
         if (primaryKey == null)
@@ -311,18 +312,49 @@ public class RelationalModelValidator : ModelValidator
         }
         else if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
         {
-            if (entityType.BaseType != null)
+            var baseType = entityType.BaseType;
+            if (baseType != null)
             {
                 foreach (var property in primaryKey.Properties)
                 {
                     properties.Add(property.Name, property);
                 }
+
+                while (baseType != null && baseType.IsAbstract())
+                {
+                    if (StoredProcedure.FindDeclaredStoredProcedure(baseType, storeObjectIdentifier.StoreObjectType) != null)
+                    {
+                        break;
+                    }
+                    
+                    foreach (var property in baseType.GetDeclaredProperties())
+                    {
+                        properties.Add(property.Name, property);
+                    }
+                    
+                    baseType = baseType.BaseType;
+                }
             }
+        }
+
+        var storeGeneratedProperties = new Dictionary<string, IProperty>();
+        switch (storeObjectIdentifier.StoreObjectType)
+        {
+            case StoreObjectType.InsertStoredProcedure:
+                storeGeneratedProperties = properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnAdd) != 0)
+                    .ToDictionary(p => p.Key, p => p.Value);
+
+                break;
+            case StoreObjectType.UpdateStoredProcedure:
+                storeGeneratedProperties = properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnUpdate) != 0)
+                    .ToDictionary(p => p.Key, p => p.Value);
+
+                break;
         }
 
         foreach (var resultColumn in sproc.ResultColumns)
         {
-            if (!properties!.TryGetValue(resultColumn, out var property))
+            if (!properties.TryGetValue(resultColumn, out var property))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureResultColumnNotFound(
@@ -332,7 +364,7 @@ public class RelationalModelValidator : ModelValidator
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
-                    if ((property.ValueGenerated & ValueGenerated.OnAdd) == 0)
+                    if (!storeGeneratedProperties.Remove(property.Name))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureResultColumnNotGenerated(
@@ -345,7 +377,7 @@ public class RelationalModelValidator : ModelValidator
                         RelationalStrings.StoredProcedureResultColumnDelete(
                             entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
                 case StoreObjectType.UpdateStoredProcedure:
-                    if ((property.ValueGenerated & ValueGenerated.OnUpdate) == 0)
+                    if (!storeGeneratedProperties.Remove(property.Name))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureResultColumnNotGenerated(
@@ -358,30 +390,63 @@ public class RelationalModelValidator : ModelValidator
 
         foreach (var parameter in sproc.Parameters)
         {
-            if (!properties!.TryGetAndRemove(parameter, out IProperty property))
+            if (!properties.TryGetAndRemove(parameter, out IProperty property))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureParameterNotFound(
                         parameter, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
             }
 
-            if (storeObjectIdentifier.StoreObjectType == StoreObjectType.DeleteStoredProcedure
-                && !property.IsPrimaryKey()
-                && !property.IsConcurrencyToken)
+            switch (storeObjectIdentifier.StoreObjectType)
             {
-                throw new InvalidOperationException(
-                    RelationalStrings.StoredProcedureDeleteNonKeyProperty(
-                        entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                case StoreObjectType.InsertStoredProcedure:
+                    if (property.GetDirection(storeObjectIdentifier) != ParameterDirection.Input
+                        && !storeGeneratedProperties.Remove(property.Name))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureOutputParameterNotGenerated(
+                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                    }
+
+                    break;
+                case StoreObjectType.DeleteStoredProcedure:
+                    if (!property.IsPrimaryKey()
+                        && !property.IsConcurrencyToken)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureDeleteNonKeyProperty(
+                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                    }
+                    
+                    break;
+                case StoreObjectType.UpdateStoredProcedure:
+                    if (property.GetDirection(storeObjectIdentifier) != ParameterDirection.Input
+                        && !storeGeneratedProperties.Remove(property.Name))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureOutputParameterNotGenerated(
+                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                    }
+
+                    break;
             }
+        }
+        
+        if (storeGeneratedProperties.Count > 0)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureGeneratedPropertiesNotMapped(
+                    entityType.DisplayName(),
+                    storeObjectIdentifier.DisplayName(),
+                    storeGeneratedProperties.Values.Format(false)));
         }
 
         foreach (var resultColumn in sproc.ResultColumns)
         {
-            properties!.Remove(resultColumn);
+            properties.Remove(resultColumn);
         }
 
-        if (properties != null
-            && properties.Count > 0)
+        if (properties.Count > 0)
         {
             foreach (var property in properties.Values.ToList())
             {
@@ -1729,7 +1794,7 @@ public class RelationalModelValidator : ModelValidator
         var isSproc = storeObjectType == StoreObjectType.DeleteStoredProcedure
             || storeObjectType == StoreObjectType.InsertStoredProcedure
             || storeObjectType == StoreObjectType.UpdateStoredProcedure;
-        var rootSproc = isSproc ? StoredProcedure.GetDeclaredStoredProcedure(rootEntityType, storeObjectType) : null;
+        var rootSproc = isSproc ? StoredProcedure.FindDeclaredStoredProcedure(rootEntityType, storeObjectType) : null;
         var rootId = StoreObjectIdentifier.Create(rootEntityType, storeObjectType);
         foreach (var entityType in rootEntityType.GetDerivedTypes())
         {
@@ -1743,7 +1808,7 @@ public class RelationalModelValidator : ModelValidator
             {
                 if (rootSproc != null)
                 {
-                    var sproc = StoredProcedure.GetDeclaredStoredProcedure(entityType, storeObjectType);
+                    var sproc = StoredProcedure.FindDeclaredStoredProcedure(entityType, storeObjectType);
                     if (sproc != null
                         && sproc != rootSproc)
                     {

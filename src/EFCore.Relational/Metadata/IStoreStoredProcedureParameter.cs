@@ -1,36 +1,38 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a column in a SQL query.
+///     Represents a parameter in a stored procedure.
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-///     for more information and examples.
-/// </remarks>
-public interface ISqlQueryColumn : IColumnBase
+public interface IStoreStoredProcedureParameter : IColumnBase
 {
     /// <summary>
-    ///     Gets the containing SQL query.
+    ///     Gets the containing stored procedure.
     /// </summary>
-    ISqlQuery SqlQuery { get; }
+    IStoreStoredProcedure StoredProcedure { get; }
 
     /// <summary>
     ///     Gets the property mappings.
     /// </summary>
-    new IReadOnlyList<ISqlQueryColumnMapping> PropertyMappings { get; }
+    new IReadOnlyList<IStoredProcedureParameterMapping> PropertyMappings { get; }
+    
+    /// <summary>
+    ///     Gets the direction of the parameter.
+    /// </summary>
+    ParameterDirection Direction { get; }
 
     /// <summary>
     ///     Returns the property mapping for the given entity type.
     /// </summary>
     /// <param name="entityType">An entity type.</param>
     /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
-    new ISqlQueryColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
-        => (ISqlQueryColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
+    IStoredProcedureParameterMapping? FindParameterMapping(IReadOnlyEntityType entityType)
+        => (IStoredProcedureParameterMapping?)FindColumnMapping(entityType);
 
     /// <summary>
     ///     <para>
@@ -54,13 +56,18 @@ public interface ISqlQueryColumn : IColumnBase
         var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
         if (singleLine)
         {
-            builder.Append($"SqlQueryColumn: {Table.Name}.");
+            builder.Append($"StoredProcedureParameter: {Table.Name}.");
         }
 
         builder.Append(Name).Append(" (");
         builder.Append(StoreType).Append(')');
         builder.Append(IsNullable ? " Nullable" : " NonNullable");
         builder.Append(')');
+
+        if (Direction != ParameterDirection.Input)
+        {
+            builder.Append(" ").Append(Direction);
+        }
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
         {

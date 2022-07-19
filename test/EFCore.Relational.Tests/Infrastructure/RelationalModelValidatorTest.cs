@@ -2736,6 +2736,33 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_non_generated_insert_stored_procedure_output_parameter_in_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>()
+            .InsertUsingStoredProcedure(s => s.HasParameter(a => a.Name, p => p.IsOutput()))
+            .UseTpcMappingStrategy();
+        modelBuilder.Entity<Cat>();
+
+        VerifyError(
+            RelationalStrings.StoredProcedureOutputParameterNotGenerated(nameof(Animal), nameof(Animal.Name), "Animal_Insert"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_non_generated_update_stored_procedure_input_output_parameter()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>()
+            .Ignore(a => a.FavoritePerson)
+            .UpdateUsingStoredProcedure(s => s.HasParameter(a => a.Id).HasParameter(a => a.Name, p => p.IsInputOutput()));
+
+        VerifyError(
+            RelationalStrings.StoredProcedureOutputParameterNotGenerated(nameof(Animal), nameof(Animal.Name), "Animal_Update"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_delete_stored_procedure_result_columns_in_TPH()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2853,6 +2880,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_missing_generated_stored_procedure_parameters()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>()
+            .UpdateUsingStoredProcedure("Update", s => s
+                .HasParameter(a => a.Id, p => p.HasName("MyId"))
+                .HasParameter(a => a.Name)
+                .HasParameter("FavoritePersonId")
+                .HasParameter(a => a.Name))
+            .Property(a => a.Name).ValueGeneratedOnUpdate();
+
+        VerifyError(
+            RelationalStrings.StoredProcedureGeneratedPropertiesNotMapped(nameof(Animal),
+                "Update", "{'Name'}"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_missing_stored_procedure_parameters_in_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2865,7 +2910,10 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 .HasResultColumn(a => a.Name))
             .Property(a => a.Name).ValueGeneratedOnUpdate();
         modelBuilder.Entity<Cat>()
-            .UpdateUsingStoredProcedure(s => s.HasParameter(c => c.Breed).HasParameter(a => a.Name));
+            .UpdateUsingStoredProcedure(s => s
+                .HasResultColumn(a => a.Name)
+                .HasParameter(c => c.Breed)
+                .HasParameter(a => a.Name));
 
         VerifyError(
             RelationalStrings.StoredProcedurePropertiesNotMapped(nameof(Cat), "Cat_Update", "{'Identity', 'Id', 'FavoritePersonId'}"),

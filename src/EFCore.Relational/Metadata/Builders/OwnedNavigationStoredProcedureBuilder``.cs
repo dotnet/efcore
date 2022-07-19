@@ -80,7 +80,7 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         Action<StoredProcedureParameterBuilder> buildAction)
     {
         Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(((StoredProcedure)Metadata).CreateIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
     
@@ -131,7 +131,7 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(((StoredProcedure)Metadata).CreateIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 

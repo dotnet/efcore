@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -64,6 +65,36 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
         Check.NullButNotEmpty(name, nameof(name));
 
         InternalOverrides.SetColumnName(name, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures the stored procedure parameter as both an input and output parameter.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
+    ///     <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
+    public virtual StoredProcedureParameterBuilder IsInputOutput()
+    {
+        ((IMutableRelationalPropertyOverrides)InternalOverrides).Direction = ParameterDirection.InputOutput;
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures the stored procedure parameter as an output parameter.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
+    ///     <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
+    public virtual StoredProcedureParameterBuilder IsOutput()
+    {
+        ((IMutableRelationalPropertyOverrides)InternalOverrides).Direction = ParameterDirection.Output;
 
         return this;
     }

@@ -927,8 +927,16 @@ public static partial class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
+        var entityType = entityTypeBuilder.Metadata;
+        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && !entityType.ClrType.IsInstantiable())
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.AbstractTpc(entityType.DisplayName(), name ?? sprocType.ToString()));
+        }
+
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
-            entityTypeBuilder.Metadata, sprocType, name, schema);
+            entityType, sprocType, name, schema);
         buildAction(new(sprocBuilder.Metadata, entityTypeBuilder));
 
         return entityTypeBuilder;

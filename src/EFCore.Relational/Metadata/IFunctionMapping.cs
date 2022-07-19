@@ -59,9 +59,9 @@ public interface IFunctionMapping : ITableMappingBase
             builder.Append("FunctionMapping: ");
         }
 
-        builder.Append(EntityType.Name).Append(" - ");
+        builder.Append(EntityType.DisplayName()).Append(" - ");
 
-        builder.Append(Table.Name);
+        builder.Append(StoreFunction.Name);
 
         if (IsDefaultFunctionMapping)
         {

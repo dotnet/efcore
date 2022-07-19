@@ -24,6 +24,14 @@ public interface IViewColumn : IColumnBase
     new IReadOnlyList<IViewColumnMapping> PropertyMappings { get; }
 
     /// <summary>
+    ///     Returns the property mapping for the given entity type.
+    /// </summary>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
+    new IViewColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+        => (IViewColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>

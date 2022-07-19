@@ -93,6 +93,11 @@ public static class RelationalAnnotationNames
     public const string UpdateStoredProcedure = Prefix + "UpdateStoredProcedure";
 
     /// <summary>
+    ///     The name for mapped function name annotations.
+    /// </summary>
+    public const string ParameterDirection = Prefix + "ParameterDirection";
+
+    /// <summary>
     ///     The name for mapped sql query annotations.
     /// </summary>
     public const string SqlQuery = Prefix + "SqlQuery";
@@ -233,6 +238,46 @@ public static class RelationalAnnotationNames
     ///     The name for function column mappings annotations.
     /// </summary>
     public const string FunctionColumnMappings = Prefix + "FunctionColumnMappings";
+
+    /// <summary>
+    ///     The name for insert stored procedure mappings annotations.
+    /// </summary>
+    public const string InsertStoredProcedureMappings = Prefix + "InsertStoredProcedureMappings";
+
+    /// <summary>
+    ///     The name for insert stored procedure result column mappings annotations.
+    /// </summary>
+    public const string InsertStoredProcedureResultColumnMappings = Prefix + "InsertStoredProcedureResultColumnMappings";
+
+    /// <summary>
+    ///     The name for insert stored procedure parameter mappings annotations.
+    /// </summary>
+    public const string InsertStoredProcedureParameterMappings = Prefix + "InsertStoredProcedureParameterMappings";
+
+    /// <summary>
+    ///     The name for delete stored procedure mappings annotations.
+    /// </summary>
+    public const string DeleteStoredProcedureMappings = Prefix + "DeleteStoredProcedureMappings";
+
+    /// <summary>
+    ///     The name for delete stored procedure parameter mappings annotations.
+    /// </summary>
+    public const string DeleteStoredProcedureParameterMappings = Prefix + "DeleteStoredProcedureParameterMappings";
+
+    /// <summary>
+    ///     The name for update stored procedure mappings annotations.
+    /// </summary>
+    public const string UpdateStoredProcedureMappings = Prefix + "UpdateStoredProcedureMappings";
+
+    /// <summary>
+    ///     The name for update stored procedure result column mappings annotations.
+    /// </summary>
+    public const string UpdateStoredProcedureResultColumnMappings = Prefix + "UpdateStoredProcedureResultColumnMappings";
+
+    /// <summary>
+    ///     The name for update stored procedure parameter mappings annotations.
+    /// </summary>
+    public const string UpdateStoredProcedureParameterMappings = Prefix + "UpdateStoredProcedureParameterMappings";
 
     /// <summary>
     ///     The name for sql query mappings annotations.

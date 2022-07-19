@@ -1358,8 +1358,7 @@ public class CSharpHelper : ICSharpHelper
             return ch < 'A'
                 ? ch >= '0'
                 && ch <= '9'
-                : ch <= 'Z'
-                || ch == '_';
+                : ch <= 'Z';
         }
 
         if (ch <= 'z')

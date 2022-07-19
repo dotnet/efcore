@@ -6,23 +6,23 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a relational database function in an model in
+///     Represents a stored procedure in a model in
 ///     the form that can be mutated while the model is being built.
 /// </summary>
 public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnnotatable
 {
     /// <summary>
-    ///     Gets or sets the name of the function in the database.
+    ///     Gets or sets the name of the stored procedure in the database.
     /// </summary>
     new string? Name { get; [param: NotNull] set; }
 
     /// <summary>
-    ///     Gets or sets the schema of the function in the database.
+    ///     Gets or sets the schema of the stored procedure in the database.
     /// </summary>
     new string? Schema { get; set; }
 
     /// <summary>
-    ///     Gets the entity type in which this function is defined.
+    ///     Gets the entity type in which this stored procedure is defined.
     /// </summary>
     new IMutableEntityType EntityType { get; }
 

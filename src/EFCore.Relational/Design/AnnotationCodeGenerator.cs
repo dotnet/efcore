@@ -35,7 +35,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.InsertStoredProcedure,
         RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
-        RelationalAnnotationNames.RelationalOverrides
+        RelationalAnnotationNames.RelationalOverrides,
+        RelationalAnnotationNames.ParameterDirection
     };
 
     #region MethodInfos

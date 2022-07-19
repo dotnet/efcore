@@ -160,19 +160,8 @@ public interface IColumn : IColumnBase
     /// </summary>
     /// <param name="entityType">An entity type.</param>
     /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
-    public virtual IColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
-    {
-        for (var i = 0; i < PropertyMappings.Count; i++)
-        {
-            var mapping = PropertyMappings[i];
-            if (mapping.Property.DeclaringEntityType.IsAssignableFrom(entityType))
-            {
-                return mapping;
-            }
-        }
-
-        return null;
-    }
+    new IColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+        => (IColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
 
     /// <summary>
     ///     <para>

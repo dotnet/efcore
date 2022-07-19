@@ -65,6 +65,22 @@ public class SplitViewBuilder : IInfrastructure<EntityTypeBuilder>
     public virtual ViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
         => new(MappingFragment.StoreObject, EntityTypeBuilder.Property<TProperty>(propertyName));
 
+    /// <summary>
+    ///     Adds or updates an annotation on the view. If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual SplitViewBuilder HasAnnotation(string annotation, object? value)
+    {
+        Check.NotEmpty(annotation, nameof(annotation));
+
+        ((EntityTypeMappingFragment)MappingFragment).Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
     EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
 
     #region Hidden System.Object members

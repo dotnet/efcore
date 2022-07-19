@@ -7,6 +7,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public static class RelationalTestModelBuilderExtensions
 {
+    public static ModelBuilderTest.TestModelBuilder HasDefaultSchema(
+        this ModelBuilderTest.TestModelBuilder modelBuilder,
+        string? schema)
+    {
+        modelBuilder.GetInfrastructure().HasDefaultSchema(schema);
+
+        return modelBuilder;
+    }
+
+    public static ModelBuilderTest.TestModelBuilder UseCollation(
+        this ModelBuilderTest.TestModelBuilder modelBuilder,
+        string? collation)
+    {
+        modelBuilder.GetInfrastructure().UseCollation(collation);
+
+        return modelBuilder;
+    }
+
     public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasColumnName<TProperty>(
         this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
         string? name)
@@ -755,6 +773,15 @@ public static class RelationalTestModelBuilderExtensions
                 break;
         }
 
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToFunction<TEntity>(
+        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+        string name,
+        Action<RelationalModelBuilderTest.TestTableValuedFunctionBuilder<TEntity>> buildAction)
+        where TEntity : class
+    {
         return builder;
     }
 

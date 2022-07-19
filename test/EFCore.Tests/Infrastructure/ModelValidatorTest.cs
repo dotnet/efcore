@@ -970,7 +970,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Abstract>().Property<int>("SomeId").ValueGeneratedOnAdd();
         modelBuilder.Entity<Abstract>().HasAlternateKey("SomeId");
         modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>("SomeId");
-        modelBuilder.Entity<Generic<string>>();
+        modelBuilder.Entity<Generic<string>>().Metadata.SetDiscriminatorValue("GenericString");
 
         VerifyError(
             CoreStrings.ForeignKeyPropertyInKey(

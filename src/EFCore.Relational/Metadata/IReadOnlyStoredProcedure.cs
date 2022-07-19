@@ -32,6 +32,36 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     bool AreTransactionsSuppressed { get; }
 
     /// <summary>
+    ///     Returns the store identifier of this stored procedure.
+    /// </summary>
+    /// <returns>The store identifier. <see langword="null"/> if there is no corresponding store object.</returns>
+    StoreObjectIdentifier? GetStoreIdentifier()
+    {
+        var name = Name;
+        if (name == null)
+        {
+            return null;
+        }
+
+        if (EntityType.GetInsertStoredProcedure() == this)
+        {
+            return StoreObjectIdentifier.InsertStoredProcedure(name, Schema);
+        }
+
+        if (EntityType.GetDeleteStoredProcedure() == this)
+        {
+            return StoreObjectIdentifier.DeleteStoredProcedure(name, Schema);
+        }
+        
+        if (EntityType.GetUpdateStoredProcedure() == this)
+        {
+            return StoreObjectIdentifier.UpdateStoredProcedure(name, Schema);
+        }
+
+        return null;
+    }
+
+    /// <summary>
     ///     Gets the names of properties mapped to parameters for this stored procedure.
     /// </summary>
     IReadOnlyList<string> Parameters { get; }

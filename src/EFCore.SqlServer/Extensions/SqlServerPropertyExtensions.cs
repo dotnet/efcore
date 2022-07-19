@@ -846,6 +846,11 @@ public static class SqlServerPropertyExtensions
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource? typeMappingSource)
     {
+        if (storeObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return false;
+        }
+
         var valueConverter = property.GetValueConverter()
             ?? (property.FindRelationalTypeMapping(storeObject)
                 ?? typeMappingSource?.FindMapping((IProperty)property))?.Converter;

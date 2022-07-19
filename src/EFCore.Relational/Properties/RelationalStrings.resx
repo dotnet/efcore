@@ -864,11 +864,17 @@
   <data name="StoredProcedureDeleteNonKeyProperty" xml:space="preserve">
     <value>The non-key property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only key properties are supported for Delete stored procedures.</value>
   </data>
+  <data name="StoredProcedureGeneratedPropertiesNotMapped" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.</value>
+  </data>
   <data name="StoredProcedureKeyless" xml:space="preserve">
     <value>The keyless entity type '{entityType}' was configured to use '{sproc}'. An entity type requires a primary key to be able to be mapped to a stored procedure.</value>
   </data>
   <data name="StoredProcedureNoName" xml:space="preserve">
     <value>The entity type '{entityType}' was configured to use '{sproc}', but the store name was not specified. Configure the stored procedure name explicitly.</value>
+  </data>
+  <data name="StoredProcedureOutputParameterNotGenerated" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.</value>
   </data>
   <data name="StoredProcedureOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.</value>

@@ -38,7 +38,7 @@ public class InternalStoredProcedureBuilder :
         string? name = null,
         string? schema = null)
     {
-        var sproc = StoredProcedure.GetDeclaredStoredProcedure(entityType, sprocType);
+        var sproc = (StoredProcedure?)StoredProcedure.FindDeclaredStoredProcedure(entityType, sprocType);
         if (sproc == null)
         {
             sproc = name == null
@@ -69,7 +69,7 @@ public class InternalStoredProcedureBuilder :
         StoreObjectType sprocType,
         bool fromDataAnnotation)
     {
-        var sproc = StoredProcedure.GetDeclaredStoredProcedure(entityType, sprocType);
+        var sproc = (StoredProcedure?)StoredProcedure.FindDeclaredStoredProcedure(entityType, sprocType);
         if (sproc == null)
         {
             sproc = StoredProcedure.SetStoredProcedure(entityType, sprocType, fromDataAnnotation);
@@ -156,57 +156,6 @@ public class InternalStoredProcedureBuilder :
     public virtual bool CanSetSchema(string? schema, ConfigurationSource configurationSource)
         => configurationSource.Overrides(Metadata.GetSchemaConfigurationSource())
             || Metadata.Schema == schema;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual PropertyBuilder CreatePropertyBuilder(EntityTypeBuilder entityTypeBuilder, string propertyName)
-    {
-        var entityType = entityTypeBuilder.Metadata;
-        var property = entityType.FindProperty(propertyName);
-        if (property == null)
-        {
-            property = entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties())
-                .FirstOrDefault(p => p.Name == propertyName);
-        }
-
-        if (property == null)
-        {
-            throw new InvalidOperationException(CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));
-        }
-
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        return new ModelBuilder(entityType.Model)
-#pragma warning restore EF1001 // Internal EF Core API usage.
-            .Entity(property.DeclaringEntityType.Name)
-            .Property(property.ClrType, propertyName);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual PropertyBuilder CreatePropertyBuilder<TDerivedEntity, TProperty>(
-        EntityTypeBuilder entityTypeBuilder,
-        Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
-        where TDerivedEntity : class
-    {
-        var memberInfo = propertyExpression.GetMemberAccess();
-        var entityType = entityTypeBuilder.Metadata;
-        if (entityType.ClrType != typeof(TDerivedEntity))
-        {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            entityTypeBuilder = new ModelBuilder(entityType.Model).Entity(typeof(TDerivedEntity));
-#pragma warning restore EF1001 // Internal EF Core API usage.
-        }
-
-        return entityTypeBuilder.Property(memberInfo.GetMemberType(), memberInfo.Name);
-    }
     
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
