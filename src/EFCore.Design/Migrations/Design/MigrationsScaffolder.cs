@@ -385,9 +385,9 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     {
         var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
         var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
-        var normalizedMIgrationId = GetNormalizedMigrationId(migration.MigrationId);
-        var migrationFile = Path.Combine(migrationDirectory, normalizedMIgrationId + migration.FileExtension);
-        var migrationMetadataFile = Path.Combine(migrationDirectory, normalizedMIgrationId + ".Designer" + migration.FileExtension);
+        var normalizedMigrationId = GetNormalizedMigrationId(migration.MigrationId);
+        var migrationFile = Path.Combine(migrationDirectory, normalizedMigrationId + migration.FileExtension);
+        var migrationMetadataFile = Path.Combine(migrationDirectory, normalizedMigrationId + ".Designer" + migration.FileExtension);
         var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
         var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
         var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
