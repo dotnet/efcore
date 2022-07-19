@@ -313,7 +313,7 @@ WHERE c[""Discriminator""] IN (""Eagle"", ""Kiwi"")");
         await base.Discriminator_with_cast_in_shadow_property(async);
 
         AssertSql(
-            @"SELECT VALUE {""Predator"" : c[""EagleId""]}
+            @"SELECT VALUE {""Predator"" : c[""Name""]}
 FROM root c
 WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (""Kiwi"" = c[""Discriminator""]))");
     }
