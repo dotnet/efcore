@@ -519,32 +519,31 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
             => () => CreateContext();
 
         public virtual ISetSource GetExpectedData()
-            => new FunkyDataData();
+            => FunkyDataData.Instance;
 
-        public IReadOnlyDictionary<Type, object> GetEntitySorters()
-            => new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
+        public IReadOnlyDictionary<Type, object> EntitySorters { get; } =
+            new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
                 .ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-            => new Dictionary<Type, Action<object, object>>
+        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+        {
             {
+                typeof(FunkyCustomer), (e, a) =>
                 {
-                    typeof(FunkyCustomer), (e, a) =>
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
                     {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (FunkyCustomer)e;
-                            var aa = (FunkyCustomer)a;
+                        var ee = (FunkyCustomer)e;
+                        var aa = (FunkyCustomer)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee.FirstName, aa.FirstName);
-                            Assert.Equal(ee.LastName, aa.LastName);
-                            Assert.Equal(ee.NullableBool, aa.NullableBool);
-                        }
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.FirstName, aa.FirstName);
+                        Assert.Equal(ee.LastName, aa.LastName);
+                        Assert.Equal(ee.NullableBool, aa.NullableBool);
                     }
                 }
-            }.ToDictionary(e => e.Key, e => (object)e.Value);
+            }
+        }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         protected override string StoreName
             => "FunkyDataQueryTest";
