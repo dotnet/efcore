@@ -323,7 +323,8 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     ComputedColumnSql = column.ComputedColumnSql,
                     IsStored = column.IsStored,
                     Comment = column.Comment,
-                    Collation = column.Collation
+                    Collation = column.Collation,
+                    Table = createTableOperation.Name
                 };
                 addColumnOperation.AddAnnotations(column.GetAnnotations());
                 createTableOperation.Columns.Add(addColumnOperation);
