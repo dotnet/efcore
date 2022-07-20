@@ -5,13 +5,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 public class InheritanceData : ISetSource
 {
+    public static readonly InheritanceData Instance = new();
+
     public IReadOnlyList<Animal> Animals { get; }
     public IReadOnlyList<AnimalQuery> AnimalQueries { get; }
     public IReadOnlyList<Country> Countries { get; }
     public IReadOnlyList<Drink> Drinks { get; }
     public IReadOnlyList<Plant> Plants { get; }
 
-    public InheritanceData()
+    private InheritanceData()
     {
         Animals = CreateAnimals();
         Countries = CreateCountries();

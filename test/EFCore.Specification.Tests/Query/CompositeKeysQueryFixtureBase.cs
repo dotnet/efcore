@@ -7,8 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<CompositeKeysContext>, IQueryFixtureBase
 {
-    private CompositeKeysDefaultData _expectedData;
-
     protected override string StoreName
         => "CompositeKeys";
 
@@ -16,14 +14,7 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
         => () => CreateContext();
 
     public virtual ISetSource GetExpectedData()
-    {
-        if (_expectedData == null)
-        {
-            _expectedData = new CompositeKeysDefaultData();
-        }
-
-        return _expectedData;
-    }
+        => CompositeKeysDefaultData.Instance;
 
     public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
     {
@@ -205,97 +196,95 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
         };
     }
 
-    public IReadOnlyDictionary<Type, object> GetEntitySorters()
-        => new Dictionary<Type, Func<object, object>>
+    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    {
+        { typeof(CompositeOne), e => (((CompositeOne)e)?.Id1, ((CompositeOne)e)?.Id2) },
+        { typeof(CompositeTwo), e => (((CompositeTwo)e)?.Id1, ((CompositeTwo)e)?.Id2) },
+        { typeof(CompositeThree), e => (((CompositeThree)e)?.Id1, ((CompositeThree)e)?.Id2) },
+        { typeof(CompositeFour), e => (((CompositeFour)e)?.Id1, ((CompositeFour)e)?.Id2) },
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    {
         {
-            { typeof(CompositeOne), e => (((CompositeOne)e)?.Id1, ((CompositeOne)e)?.Id2) },
-            { typeof(CompositeTwo), e => (((CompositeTwo)e)?.Id1, ((CompositeTwo)e)?.Id2) },
-            { typeof(CompositeThree), e => (((CompositeThree)e)?.Id1, ((CompositeThree)e)?.Id2) },
-            { typeof(CompositeFour), e => (((CompositeFour)e)?.Id1, ((CompositeFour)e)?.Id2) },
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+            typeof(CompositeOne), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
 
-    public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-        => new Dictionary<Type, Action<object, object>>
+                if (a != null)
+                {
+                    var ee = (CompositeOne)e;
+                    var aa = (CompositeOne)a;
+
+                    Assert.Equal(ee.Id1, aa.Id1);
+                    Assert.Equal(ee.Id2, aa.Id2);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Date, aa.Date);
+                }
+            }
+        },
         {
+            typeof(CompositeTwo), (e, a) =>
             {
-                typeof(CompositeOne), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (CompositeTwo)e;
+                    var aa = (CompositeTwo)a;
 
-                    if (a != null)
-                    {
-                        var ee = (CompositeOne)e;
-                        var aa = (CompositeOne)a;
-
-                        Assert.Equal(ee.Id1, aa.Id1);
-                        Assert.Equal(ee.Id2, aa.Id2);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Date, aa.Date);
-                    }
+                    Assert.Equal(ee.Id1, aa.Id1);
+                    Assert.Equal(ee.Id2, aa.Id2);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Date, aa.Date);
+                    Assert.Equal(ee.Level1_Optional_Id1, aa.Level1_Optional_Id1);
+                    Assert.Equal(ee.Level1_Optional_Id2, aa.Level1_Optional_Id2);
+                    Assert.Equal(ee.Level1_Required_Id1, aa.Level1_Required_Id1);
+                    Assert.Equal(ee.Level1_Required_Id2, aa.Level1_Required_Id2);
                 }
-            },
+            }
+        },
+        {
+            typeof(CompositeThree), (e, a) =>
             {
-                typeof(CompositeTwo), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (CompositeThree)e;
+                    var aa = (CompositeThree)a;
 
-                    if (a != null)
-                    {
-                        var ee = (CompositeTwo)e;
-                        var aa = (CompositeTwo)a;
-
-                        Assert.Equal(ee.Id1, aa.Id1);
-                        Assert.Equal(ee.Id2, aa.Id2);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Date, aa.Date);
-                        Assert.Equal(ee.Level1_Optional_Id1, aa.Level1_Optional_Id1);
-                        Assert.Equal(ee.Level1_Optional_Id2, aa.Level1_Optional_Id2);
-                        Assert.Equal(ee.Level1_Required_Id1, aa.Level1_Required_Id1);
-                        Assert.Equal(ee.Level1_Required_Id2, aa.Level1_Required_Id2);
-                    }
+                    Assert.Equal(ee.Id1, aa.Id1);
+                    Assert.Equal(ee.Id2, aa.Id2);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Level2_Optional_Id1, aa.Level2_Optional_Id1);
+                    Assert.Equal(ee.Level2_Optional_Id2, aa.Level2_Optional_Id2);
+                    Assert.Equal(ee.Level2_Required_Id1, aa.Level2_Required_Id1);
+                    Assert.Equal(ee.Level2_Required_Id2, aa.Level2_Required_Id2);
                 }
-            },
+            }
+        },
+        {
+            typeof(CompositeFour), (e, a) =>
             {
-                typeof(CompositeThree), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (CompositeFour)e;
+                    var aa = (CompositeFour)a;
 
-                    if (a != null)
-                    {
-                        var ee = (CompositeThree)e;
-                        var aa = (CompositeThree)a;
-
-                        Assert.Equal(ee.Id1, aa.Id1);
-                        Assert.Equal(ee.Id2, aa.Id2);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Level2_Optional_Id1, aa.Level2_Optional_Id1);
-                        Assert.Equal(ee.Level2_Optional_Id2, aa.Level2_Optional_Id2);
-                        Assert.Equal(ee.Level2_Required_Id1, aa.Level2_Required_Id1);
-                        Assert.Equal(ee.Level2_Required_Id2, aa.Level2_Required_Id2);
-                    }
+                    Assert.Equal(ee.Id1, aa.Id1);
+                    Assert.Equal(ee.Id2, aa.Id2);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Level3_Optional_Id1, aa.Level3_Optional_Id1);
+                    Assert.Equal(ee.Level3_Optional_Id2, aa.Level3_Optional_Id2);
+                    Assert.Equal(ee.Level3_Required_Id1, aa.Level3_Required_Id1);
+                    Assert.Equal(ee.Level3_Required_Id2, aa.Level3_Required_Id2);
                 }
-            },
-            {
-                typeof(CompositeFour), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (CompositeFour)e;
-                        var aa = (CompositeFour)a;
-
-                        Assert.Equal(ee.Id1, aa.Id1);
-                        Assert.Equal(ee.Id2, aa.Id2);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Level3_Optional_Id1, aa.Level3_Optional_Id1);
-                        Assert.Equal(ee.Level3_Optional_Id2, aa.Level3_Optional_Id2);
-                        Assert.Equal(ee.Level3_Required_Id1, aa.Level3_Required_Id1);
-                        Assert.Equal(ee.Level3_Required_Id2, aa.Level3_Required_Id2);
-                    }
-                }
-            },
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+            }
+        },
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -390,6 +379,12 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
 
     protected class CompositeKeysDefaultData : CompositeKeysData
     {
+        public static readonly CompositeKeysDefaultData Instance = new();
+
+        private CompositeKeysDefaultData()
+        {
+        }
+
         public override IQueryable<TEntity> Set<TEntity>()
         {
             if (typeof(TEntity) == typeof(CompositeOne))
