@@ -1700,15 +1700,15 @@ public static class RelationalPropertyExtensions
         Check.DebugAssert(previousDetailedErrorsEnabled == detailedErrorsEnabled, "Differing values of DetailedErrorsEnabled");
 #endif
 
-        var getReadFieldValue = property.GetOrAddRuntimeAnnotationValue(
-            RelationalAnnotationNames.GetReaderFieldValue,
-            static x => CreateGetValueDelegate(x.property, x.detailedErrorsEnabled),
+        var fieldValueGetter = property.GetOrAddRuntimeAnnotationValue(
+            RelationalAnnotationNames.FieldValueGetter,
+            static x => CreateFieldValueGetter(x.property, x.detailedErrorsEnabled),
             (property, detailedErrorsEnabled));
 
-        return getReadFieldValue(relationalReader.DbDataReader, ordinal);
+        return fieldValueGetter(relationalReader.DbDataReader, ordinal);
     }
 
-    private static Func<DbDataReader, int, object?> CreateGetValueDelegate(IProperty property, bool detailedErrorsEnabled)
+    private static Func<DbDataReader, int, object?> CreateFieldValueGetter(IProperty property, bool detailedErrorsEnabled)
     {
         var readerParameter = Expression.Parameter(typeof(DbDataReader), "reader");
         var indexParameter = Expression.Parameter(typeof(int), "index");
