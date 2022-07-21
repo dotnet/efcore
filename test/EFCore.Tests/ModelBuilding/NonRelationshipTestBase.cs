@@ -829,12 +829,12 @@ public abstract partial class ModelBuilderTest
             var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
             Assert.Null(entityType.FindProperty("Up").GetValueConverter());
-            
+
             var down = entityType.FindProperty("Down");
             Assert.Same(stringConverter, down.GetValueConverter());
             Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
             Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
-            
+
             var charm = entityType.FindProperty("Charm");
             Assert.Same(intConverter, charm.GetValueConverter());
             Assert.IsType<ValueComparer.DefaultValueComparer<int>>(charm.GetValueComparer());
@@ -915,7 +915,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(Quarks));
-            
+
             var up = entityType.FindProperty("Up");
             Assert.Null(up.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
@@ -937,7 +937,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<float>>(strange.GetValueComparer());
             Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
         }
-        
+
         [ConditionalFact]
         public virtual void Properties_can_have_value_converter_set()
         {
@@ -1809,7 +1809,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.HasIndex(ix => ix.Id).IsUnique();
             entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
             entityBuilder.HasIndex(ix => ix.Id, "Named");
-            entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending(true);
+            entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending();
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1826,7 +1826,7 @@ public abstract partial class ModelBuilderTest
             var namedIndex = entityType.FindIndex("Named");
             Assert.False(namedIndex.IsUnique);
             var descendingIndex = entityType.FindIndex("Descending");
-            Assert.Equal(new[] { true }, descendingIndex.IsDescending);
+            Assert.Equal(Array.Empty<bool>(), descendingIndex.IsDescending);
         }
 
         [ConditionalFact]

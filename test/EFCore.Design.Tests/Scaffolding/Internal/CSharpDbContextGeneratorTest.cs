@@ -714,7 +714,9 @@ namespace TestNamespace
                             x.Property<int>("Y");
                             x.Property<int>("Z");
                             x.HasKey("Id");
-                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_empty");
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_unspecified");
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_empty")
+                                .IsDescending();
                             x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_ascending")
                                 .IsDescending(false, false, false);
                             x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_descending")
@@ -761,16 +763,18 @@ namespace TestNamespace
         {
             modelBuilder.Entity<EntityWithIndexes>(entity =>
             {
-                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_ascending"")
-                    .IsDescending(false, false, false);
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_ascending"");
 
                 entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_descending"")
-                    .IsDescending(true, true, true);
+                    .IsDescending();
 
-                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_empty"");
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_empty"")
+                    .IsDescending();
 
                 entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_mixed"")
                     .IsDescending(false, true, false);
+
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_unspecified"");
 
                 entity.Property(e => e.Id).UseIdentityColumn();
             });
@@ -787,16 +791,19 @@ namespace TestNamespace
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes")!;
-                    Assert.Equal(4, entityType.GetIndexes().Count());
+                    Assert.Equal(5, entityType.GetIndexes().Count());
+
+                    var unspecifiedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_unspecified");
+                    Assert.Null(unspecifiedIndex.IsDescending);
 
                     var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-                    Assert.Null(emptyIndex.IsDescending);
+                    Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
 
                     var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
-                    Assert.Equal(new[] { false, false, false }, allAscendingIndex.IsDescending);
+                    Assert.Null(allAscendingIndex.IsDescending);
 
                     var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
-                    Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);
+                    Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
 
                     var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
                     Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
