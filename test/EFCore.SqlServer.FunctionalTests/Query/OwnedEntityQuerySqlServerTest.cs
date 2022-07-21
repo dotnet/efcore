@@ -138,4 +138,14 @@ FROM (
 LEFT JOIN [IM_SupplierData] AS [i1] ON [t].[OwnerId] = [i1].[IntermediateOwnedEntityOwnerId]
 ORDER BY [t].[Id]");
     }
+
+    public override async Task Owned_entity_with_all_null_properties_materializes_when_not_containing_another_owned_entity(bool async)
+    {
+        await base.Owned_entity_with_all_null_properties_materializes_when_not_containing_another_owned_entity(async);
+
+        AssertSql(
+            @"SELECT [r].[Id], [r].[Buyer], [r].[Rot_ApartmentNo], [r].[Rot_ServiceType], [r].[Rut_Value]
+FROM [RotRutCases] AS [r]
+ORDER BY [r].[Buyer]");
+    }
 }

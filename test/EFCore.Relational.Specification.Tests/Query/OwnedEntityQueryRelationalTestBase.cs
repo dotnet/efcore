@@ -227,4 +227,12 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
                 });
         }
     }
+
+    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    {
+        return base.AddOptions(builder).ConfigureWarnings(
+            c => c
+                .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
+                .Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning));
+    }
 }
