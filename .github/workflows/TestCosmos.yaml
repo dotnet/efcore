@@ -27,4 +27,5 @@ jobs:
         shell: cmd
 
       - name: Test on Cosmos
-        run: .dotnet\dotnet test test\EFCore.Cosmos.FunctionalTests
+        run: test.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+        shell: cmd
