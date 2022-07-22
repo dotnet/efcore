@@ -29,13 +29,13 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     /// </summary>
     public Trigger(
         IMutableEntityType entityType,
-        string name,
+        string modelName,
         string? tableName,
         string? tableSchema,
         ConfigurationSource configurationSource)
     {
         EntityType = entityType;
-        ModelName = name;
+        ModelName = modelName;
         _tableName = tableName;
         _tableSchema = tableSchema;
         _configurationSource = configurationSource;
@@ -47,40 +47,40 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
             entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Triggers, triggers);
         }
 
-        if (triggers.ContainsKey(name))
+        if (triggers.ContainsKey(modelName))
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateTrigger(
-                    name, entityType.DisplayName(), entityType.DisplayName()));
+                    modelName, entityType.DisplayName(), entityType.DisplayName()));
         }
 
-        var baseTrigger = entityType.BaseType?.FindTrigger(name);
+        var baseTrigger = entityType.BaseType?.FindTrigger(modelName);
         if (baseTrigger != null)
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateTrigger(
-                    name, entityType.DisplayName(), baseTrigger.EntityType.DisplayName()));
+                    modelName, entityType.DisplayName(), baseTrigger.EntityType.DisplayName()));
         }
 
         foreach (var derivedType in entityType.GetDerivedTypes())
         {
-            var derivedTrigger = FindTrigger(derivedType, name);
+            var derivedTrigger = FindTrigger(derivedType, modelName);
             if (derivedTrigger != null)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateTrigger(
-                        name, entityType.DisplayName(), derivedTrigger.EntityType.DisplayName()));
+                        modelName, entityType.DisplayName(), derivedTrigger.EntityType.DisplayName()));
             }
         }
 
         if (entityType.GetTableName() is null)
         {
-            throw new InvalidOperationException(RelationalStrings.TriggerOnUnmappedEntityType(name, entityType.DisplayName()));
+            throw new InvalidOperationException(RelationalStrings.TriggerOnUnmappedEntityType(modelName, entityType.DisplayName()));
         }
 
         EnsureMutable();
 
-        triggers.Add(name, this);
+        triggers.Add(modelName, this);
 
         _builder = new InternalTriggerBuilder(this, ((IConventionModel)entityType.Model).Builder);
     }
@@ -113,8 +113,8 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     /// </summary>
     public static IReadOnlyTrigger? FindTrigger(
         IReadOnlyEntityType entityType,
-        string name)
-        => entityType.BaseType?.FindTrigger(name) ?? FindDeclaredTrigger(entityType, name);
+        string modelName)
+        => entityType.BaseType?.FindTrigger(modelName) ?? FindDeclaredTrigger(entityType, modelName);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -122,11 +122,11 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IReadOnlyTrigger? FindDeclaredTrigger(IReadOnlyEntityType entityType, string name)
+    public static IReadOnlyTrigger? FindDeclaredTrigger(IReadOnlyEntityType entityType, string modelName)
     {
         var triggers = (SortedDictionary<string, ITrigger>?)entityType[RelationalAnnotationNames.Triggers];
 
-        return triggers is not null && triggers.TryGetValue(name, out var trigger)
+        return triggers is not null && triggers.TryGetValue(modelName, out var trigger)
             ? trigger
             : null;
     }
@@ -137,17 +137,17 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Trigger? RemoveTrigger(IMutableEntityType entityType, string name)
+    public static Trigger? RemoveTrigger(IMutableEntityType entityType, string modelName)
     {
         var triggers = (SortedDictionary<string, ITrigger>?)entityType[RelationalAnnotationNames.Triggers];
         if (triggers == null
-            || !triggers.TryGetValue(name, out var trigger))
+            || !triggers.TryGetValue(modelName, out var trigger))
         {
             return null;
         }
 
         var mutableTrigger = (Trigger)trigger;
-        triggers.Remove(name);
+        triggers.Remove(modelName);
         mutableTrigger.SetRemovedFromModel();
 
         return mutableTrigger;

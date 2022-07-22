@@ -57,13 +57,13 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
     /// </summary>
     public static IConventionTrigger? HasTrigger(
         IConventionEntityType entityType,
-        string name,
+        string modelName,
         string? tableName,
         string? tableSchema,
         ConfigurationSource configurationSource)
     {
         List<IConventionTrigger>? triggersToBeDetached = null;
-        var trigger = entityType.FindTrigger(name);
+        var trigger = entityType.FindTrigger(modelName);
         if (trigger != null)
         {
             if ((tableName == null && tableSchema == null)
@@ -78,13 +78,13 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
                 return null;
             }
 
-            entityType.RemoveTrigger(name);
+            entityType.RemoveTrigger(modelName);
         }
         else
         {
             foreach (var derivedType in entityType.GetDerivedTypes())
             {
-                var derivedTrigger = (IConventionTrigger?)Trigger.FindDeclaredTrigger(derivedType, name);
+                var derivedTrigger = (IConventionTrigger?)Trigger.FindDeclaredTrigger(derivedType, modelName);
                 if (derivedTrigger == null)
                 {
                     continue;
@@ -114,7 +114,7 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
             }
         }
 
-        trigger = new Trigger((IMutableEntityType)entityType, name, tableName, tableSchema, configurationSource);
+        trigger = new Trigger((IMutableEntityType)entityType, modelName, tableName, tableSchema, configurationSource);
 
         if (detachedTriggers != null)
         {
