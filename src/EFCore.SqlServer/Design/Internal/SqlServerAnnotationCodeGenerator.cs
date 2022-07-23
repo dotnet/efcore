@@ -401,15 +401,18 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
             case SqlServerValueGenerationStrategy.Sequence:
             {
-                var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.KeySequenceName);
-                var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.KeySequenceSchema);
+                var nameOrSuffix = GetAndRemove<string>(
+                    annotations,
+                    onModel ? SqlServerAnnotationNames.SequenceNameSuffix : SqlServerAnnotationNames.SequenceName);
+
+                var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.SequenceSchema);
                 return new MethodCallCodeFragment(
                     onModel ? ModelUseKeySequencesMethodInfo : PropertyUseSequenceMethodInfo,
-                    (name, schema) switch
+                    (name: nameOrSuffix, schema) switch
                     {
                         (null, null) => Array.Empty<object>(),
-                        (_, null) => new object[] { name },
-                        _ => new object[] { name!, schema }
+                        (_, null) => new object[] { nameOrSuffix },
+                        _ => new object[] { nameOrSuffix!, schema }
                     });
             }
 

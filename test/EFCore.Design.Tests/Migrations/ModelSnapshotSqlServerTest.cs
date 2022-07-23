@@ -390,16 +390,16 @@ public class ModelSnapshotSqlServerTest
                 @"
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, ""EntityFrameworkKeySequence"");
+            SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, ""Sequence"");
 
-            modelBuilder.HasSequence(""EntityFrameworkKeySequence"");
+            modelBuilder.HasSequence(""EntityWithOnePropertySequence"");
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
-                        .HasDefaultValueSql(""NEXT VALUE FOR [EntityFrameworkKeySequence]"");
+                        .HasDefaultValueSql(""NEXT VALUE FOR [EntityWithOnePropertySequence]"");
 
                     SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>(""Id""));
 

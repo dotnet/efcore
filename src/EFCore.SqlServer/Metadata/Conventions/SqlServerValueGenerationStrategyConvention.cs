@@ -2,6 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -90,7 +93,11 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
 
                     if (strategy == SqlServerValueGenerationStrategy.Sequence)
                     {
-                        var sequence = property.FindSequence(declaringTable)!;
+                        var sequence = modelBuilder.HasSequence(
+                            property.GetSequenceName(declaringTable)
+                            ?? entityType.GetRootType().ShortName() + modelBuilder.Metadata.GetSequenceNameSuffix(),
+                            property.GetSequenceSchema(declaringTable)
+                            ?? modelBuilder.Metadata.GetSequenceSchema()).Metadata;
 
                         property.Builder.HasDefaultValueSql(
                             RelationalDependencies.UpdateSqlGenerator.GenerateObtainNextSequenceValueOperation(

@@ -49,8 +49,8 @@ public static class SqlServerModelBuilderExtensions
         model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo);
         model.SetHiLoSequenceName(name);
         model.SetHiLoSequenceSchema(schema);
-        model.SetKeySequenceName(null);
-        model.SetKeySequenceSchema(null);
+        model.SetSequenceNameSuffix(null);
+        model.SetSequenceSchema(null);
         model.SetIdentitySeed(null);
         model.SetIdentityIncrement(null);
 
@@ -115,7 +115,7 @@ public static class SqlServerModelBuilderExtensions
     }
 
     /// <summary>
-    ///     Configures the model to use a sequence to generate values for key properties
+    ///     Configures the model to use a sequence per hierarchy to generate values for key properties
     ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
     /// </summary>
     /// <remarks>
@@ -124,29 +124,24 @@ public static class SqlServerModelBuilderExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="modelBuilder">The model builder.</param>
-    /// <param name="name">The name of the sequence.</param>
+    /// <param name="nameSuffix">The name that will suffix the table name for each sequence created automatically.</param>
     /// <param name="schema">The schema of the sequence.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ModelBuilder UseKeySequences(
         this ModelBuilder modelBuilder,
-        string? name = null,
+        string? nameSuffix = null,
         string? schema = null)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(nameSuffix, nameof(nameSuffix));
         Check.NullButNotEmpty(schema, nameof(schema));
 
         var model = modelBuilder.Model;
 
-        name ??= SqlServerModelExtensions.DefaultKeySequenceName;
-
-        if (model.FindSequence(name, schema) == null)
-        {
-            modelBuilder.HasSequence(name, schema);
-        }
+        nameSuffix ??= SqlServerModelExtensions.DefaultSequenceNameSuffix;
 
         model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.Sequence);
-        model.SetKeySequenceName(name);
-        model.SetKeySequenceSchema(schema);
+        model.SetSequenceNameSuffix(nameSuffix);
+        model.SetSequenceSchema(schema);
         model.SetHiLoSequenceName(null);
         model.SetHiLoSequenceSchema(null);
         model.SetIdentitySeed(null);
@@ -180,10 +175,10 @@ public static class SqlServerModelBuilderExtensions
             return null;
         }
 
-        modelBuilder.Metadata.SetKeySequenceName(name, fromDataAnnotation);
-        modelBuilder.Metadata.SetKeySequenceSchema(schema, fromDataAnnotation);
+        modelBuilder.Metadata.SetSequenceNameSuffix(name, fromDataAnnotation);
+        modelBuilder.Metadata.SetSequenceSchema(schema, fromDataAnnotation);
 
-        return name == null ? null : modelBuilder.HasSequence(name, schema, fromDataAnnotation);
+        return null;
     }
 
     /// <summary>
@@ -195,21 +190,21 @@ public static class SqlServerModelBuilderExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="modelBuilder">The model builder.</param>
-    /// <param name="name">The name of the sequence.</param>
+    /// <param name="nameSuffix">The name of the sequence.</param>
     /// <param name="schema">The schema of the sequence.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given name and schema can be set for the hi-lo sequence.</returns>
     public static bool CanSetKeySequences(
         this IConventionModelBuilder modelBuilder,
-        string? name,
+        string? nameSuffix,
         string? schema,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(nameSuffix, nameof(nameSuffix));
         Check.NullButNotEmpty(schema, nameof(schema));
 
-        return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.KeySequenceName, name, fromDataAnnotation)
-            && modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.KeySequenceSchema, schema, fromDataAnnotation);
+        return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceNameSuffix, nameSuffix, fromDataAnnotation)
+            && modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceSchema, schema, fromDataAnnotation);
     }
 
     /// <summary>
@@ -236,8 +231,8 @@ public static class SqlServerModelBuilderExtensions
         model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
         model.SetIdentitySeed(seed);
         model.SetIdentityIncrement(increment);
-        model.SetKeySequenceName(null);
-        model.SetKeySequenceSchema(null);
+        model.SetSequenceNameSuffix(null);
+        model.SetSequenceSchema(null);
         model.SetHiLoSequenceName(null);
         model.SetHiLoSequenceSchema(null);
 

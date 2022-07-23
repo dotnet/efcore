@@ -203,7 +203,7 @@ public static class SqlServerPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The name to use for the key value generation sequence.</returns>
     public static string? GetSequenceName(this IReadOnlyProperty property)
-        => (string?)property[SqlServerAnnotationNames.KeySequenceName];
+        => (string?)property[SqlServerAnnotationNames.SequenceName];
 
     /// <summary>
     ///     Returns the name to use for the key value generation sequence.
@@ -213,7 +213,7 @@ public static class SqlServerPropertyExtensions
     /// <returns>The name to use for the key value generation sequence.</returns>
     public static string? GetSequenceName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        var annotation = property.FindAnnotation(SqlServerAnnotationNames.KeySequenceName);
+        var annotation = property.FindAnnotation(SqlServerAnnotationNames.SequenceName);
         if (annotation != null)
         {
             return (string?)annotation.Value;
@@ -229,7 +229,7 @@ public static class SqlServerPropertyExtensions
     /// <param name="name">The sequence name to use.</param>
     public static void SetSequenceName(this IMutableProperty property, string? name)
         => property.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.KeySequenceName,
+            SqlServerAnnotationNames.SequenceName,
             Check.NullButNotEmpty(name, nameof(name)));
 
     /// <summary>
@@ -245,7 +245,7 @@ public static class SqlServerPropertyExtensions
         bool fromDataAnnotation = false)
     {
         property.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.KeySequenceName,
+            SqlServerAnnotationNames.SequenceName,
             Check.NullButNotEmpty(name, nameof(name)),
             fromDataAnnotation);
 
@@ -258,7 +258,7 @@ public static class SqlServerPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the key value generation sequence name.</returns>
     public static ConfigurationSource? GetSequenceNameConfigurationSource(this IConventionProperty property)
-        => property.FindAnnotation(SqlServerAnnotationNames.KeySequenceName)?.GetConfigurationSource();
+        => property.FindAnnotation(SqlServerAnnotationNames.SequenceName)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the schema to use for the key value generation sequence.
@@ -266,7 +266,7 @@ public static class SqlServerPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The schema to use for the key value generation sequence.</returns>
     public static string? GetSequenceSchema(this IReadOnlyProperty property)
-        => (string?)property[SqlServerAnnotationNames.KeySequenceSchema];
+        => (string?)property[SqlServerAnnotationNames.SequenceSchema];
 
     /// <summary>
     ///     Returns the schema to use for the key value generation sequence.
@@ -276,7 +276,7 @@ public static class SqlServerPropertyExtensions
     /// <returns>The schema to use for the key value generation sequence.</returns>
     public static string? GetSequenceSchema(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        var annotation = property.FindAnnotation(SqlServerAnnotationNames.KeySequenceSchema);
+        var annotation = property.FindAnnotation(SqlServerAnnotationNames.SequenceSchema);
         if (annotation != null)
         {
             return (string?)annotation.Value;
@@ -292,7 +292,7 @@ public static class SqlServerPropertyExtensions
     /// <param name="schema">The schema to use.</param>
     public static void SetSequenceSchema(this IMutableProperty property, string? schema)
         => property.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.KeySequenceSchema,
+            SqlServerAnnotationNames.SequenceSchema,
             Check.NullButNotEmpty(schema, nameof(schema)));
 
     /// <summary>
@@ -308,7 +308,7 @@ public static class SqlServerPropertyExtensions
         bool fromDataAnnotation = false)
     {
         property.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.KeySequenceSchema,
+            SqlServerAnnotationNames.SequenceSchema,
             Check.NullButNotEmpty(schema, nameof(schema)),
             fromDataAnnotation);
 
@@ -321,7 +321,7 @@ public static class SqlServerPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the key value generation sequence schema.</returns>
     public static ConfigurationSource? GetSequenceSchemaConfigurationSource(this IConventionProperty property)
-        => property.FindAnnotation(SqlServerAnnotationNames.KeySequenceSchema)?.GetConfigurationSource();
+        => property.FindAnnotation(SqlServerAnnotationNames.SequenceSchema)?.GetConfigurationSource();
 
     /// <summary>
     ///     Finds the <see cref="ISequence" /> in the model to use for the key value generation pattern.
@@ -333,10 +333,10 @@ public static class SqlServerPropertyExtensions
         var model = property.DeclaringEntityType.Model;
 
         var sequenceName = property.GetSequenceName()
-            ?? model.GetKeySequenceName();
+            ?? model.GetSequenceNameSuffix();
 
         var sequenceSchema = property.GetSequenceSchema()
-            ?? model.GetKeySequenceSchema();
+            ?? model.GetSequenceSchema();
 
         return model.FindSequence(sequenceName, sequenceSchema);
     }
@@ -352,10 +352,10 @@ public static class SqlServerPropertyExtensions
         var model = property.DeclaringEntityType.Model;
 
         var sequenceName = property.GetSequenceName(storeObject)
-            ?? model.GetKeySequenceName();
+            ?? model.GetSequenceNameSuffix();
 
         var sequenceSchema = property.GetSequenceSchema(storeObject)
-            ?? model.GetKeySequenceSchema();
+            ?? model.GetSequenceSchema();
 
         return model.FindSequence(sequenceName, sequenceSchema);
     }
