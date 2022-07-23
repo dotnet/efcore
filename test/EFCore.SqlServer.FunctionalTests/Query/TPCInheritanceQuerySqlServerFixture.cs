@@ -10,7 +10,7 @@ public class TPCInheritanceQuerySqlServerFixture : TPCInheritanceQueryFixture
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.UseKeySequence();
+        modelBuilder.UseKeySequences();
 
         base.OnModelCreating(modelBuilder, context);
     }

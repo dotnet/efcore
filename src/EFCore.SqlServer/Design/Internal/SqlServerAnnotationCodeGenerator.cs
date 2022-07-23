@@ -23,9 +23,9 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerModelBuilderExtensions.UseHiLo), new[] { typeof(ModelBuilder), typeof(string), typeof(string) })!;
 
-    private static readonly MethodInfo ModelUseKeySequenceMethodInfo
+    private static readonly MethodInfo ModelUseKeySequencesMethodInfo
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerModelBuilderExtensions.UseKeySequence), new[] { typeof(ModelBuilder), typeof(string), typeof(string) })!;
+            nameof(SqlServerModelBuilderExtensions.UseKeySequences), new[] { typeof(ModelBuilder), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo ModelHasDatabaseMaxSizeMethodInfo
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
@@ -63,9 +63,9 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerPropertyBuilderExtensions.UseHiLo), new[] { typeof(PropertyBuilder), typeof(string), typeof(string) })!;
 
-    private static readonly MethodInfo PropertyUseKeySequenceMethodInfo
+    private static readonly MethodInfo PropertyUseSequenceMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerPropertyBuilderExtensions.UseKeySequence), new[] { typeof(PropertyBuilder), typeof(string), typeof(string) })!;
+            nameof(SqlServerPropertyBuilderExtensions.UseSequence), new[] { typeof(PropertyBuilder), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo IndexIsClusteredMethodInfo
         = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
@@ -404,7 +404,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.KeySequenceName);
                 var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.KeySequenceSchema);
                 return new MethodCallCodeFragment(
-                    onModel ? ModelUseKeySequenceMethodInfo : PropertyUseKeySequenceMethodInfo,
+                    onModel ? ModelUseKeySequencesMethodInfo : PropertyUseSequenceMethodInfo,
                     (name, schema) switch
                     {
                         (null, null) => Array.Empty<object>(),

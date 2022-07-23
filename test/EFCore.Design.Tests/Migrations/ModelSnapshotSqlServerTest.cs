@@ -382,7 +382,7 @@ public class ModelSnapshotSqlServerTest
         => Test(
             builder =>
             {
-                builder.UseKeySequence();
+                builder.UseKeySequences();
                 builder.Entity<EntityWithOneProperty>();
                 builder.Ignore<EntityWithTwoProperties>();
             },
@@ -390,7 +390,7 @@ public class ModelSnapshotSqlServerTest
                 @"
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseKeySequence(modelBuilder, ""EntityFrameworkKeySequence"");
+            SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, ""EntityFrameworkKeySequence"");
 
             modelBuilder.HasSequence(""EntityFrameworkKeySequence"");
 
@@ -401,7 +401,7 @@ public class ModelSnapshotSqlServerTest
                         .HasColumnType(""int"")
                         .HasDefaultValueSql(""NEXT VALUE FOR [EntityFrameworkKeySequence]"");
 
-                    SqlServerPropertyBuilderExtensions.UseKeySequence(b.Property<int>(""Id""));
+                    SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 

@@ -59,7 +59,6 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
             {
                 SqlServerValueGenerationStrategy? strategy = null;
                 var declaringTable = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
-                var declaringView = property.GetMappedStoreObjects(StoreObjectType.View).FirstOrDefault();
                 if (declaringTable.Name != null!)
                 {
                     strategy = property.GetValueGenerationStrategy(declaringTable, Dependencies.TypeMappingSource);
@@ -71,6 +70,7 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 }
                 else
                 {
+                    var declaringView = property.GetMappedStoreObjects(StoreObjectType.View).FirstOrDefault();
                     if (declaringView.Name != null!)
                     {
                         strategy = property.GetValueGenerationStrategy(declaringView, Dependencies.TypeMappingSource);
@@ -83,13 +83,14 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 }
 
                 // Needed for the annotation to show up in the model snapshot
-                if (strategy != null)
+                if (strategy != null
+                    && declaringTable.Name != null)
                 {
                     property.Builder.HasValueGenerationStrategy(strategy);
 
                     if (strategy == SqlServerValueGenerationStrategy.Sequence)
                     {
-                        var sequence = property.FindKeySequence(declaringTable.Name != null ? declaringTable : declaringView)!;
+                        var sequence = property.FindSequence(declaringTable)!;
 
                         property.Builder.HasDefaultValueSql(
                             RelationalDependencies.UpdateSqlGenerator.GenerateObtainNextSequenceValueOperation(

@@ -52,7 +52,7 @@ public class SqlServerValueGenerationStrategyConventionTest
     public void Annotations_are_added_when_conventional_model_builder_is_used_with_key_sequences()
     {
         var model = SqlServerTestHelpers.Instance.CreateConventionBuilder()
-            .UseKeySequence()
+            .UseKeySequences()
             .Model;
 
         model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);

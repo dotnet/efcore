@@ -252,12 +252,12 @@ public class SqlServerAnnotationCodeGeneratorTest
     {
         var generator = CreateGenerator();
         var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
-        modelBuilder.UseKeySequence("KeySequenceName", "KeySequenceSchema");
+        modelBuilder.UseKeySequences("KeySequenceName", "KeySequenceSchema");
 
         var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations).Single();
 
-        Assert.Equal("UseKeySequence", result.Method);
+        Assert.Equal("UseKeySequences", result.Method);
         Assert.Equal("SqlServerModelBuilderExtensions", result.DeclaringType);
 
         Assert.Collection(
@@ -271,13 +271,13 @@ public class SqlServerAnnotationCodeGeneratorTest
     {
         var generator = CreateGenerator();
         var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
-        modelBuilder.Entity("Post", x => x.Property<int>("Id").UseKeySequence("KeySequenceName", "KeySequenceSchema"));
+        modelBuilder.Entity("Post", x => x.Property<int>("Id").UseSequence("KeySequenceName", "KeySequenceSchema"));
         var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
 
         var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
         var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
 
-        Assert.Equal("UseKeySequence", result.Method);
+        Assert.Equal("UseSequence", result.Method);
         Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
 
         Assert.Collection(

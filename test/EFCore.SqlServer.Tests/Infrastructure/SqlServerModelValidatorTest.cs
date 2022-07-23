@@ -203,13 +203,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             cb =>
             {
                 cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseKeySequence();
+                cb.Property(c => c.Id).UseSequence();
             });
         modelBuilder.Entity<Dog>(
             db =>
             {
                 db.ToTable("Animal");
-                db.Property(d => d.Id).UseKeySequence();
+                db.Property(d => d.Id).UseSequence();
                 db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
             });
 
@@ -224,13 +224,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             cb =>
             {
                 cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseKeySequence("foo");
+                cb.Property(c => c.Id).UseSequence("foo");
             });
         modelBuilder.Entity<Dog>(
             db =>
             {
                 db.ToTable("Animal");
-                db.Property(d => d.Id).UseKeySequence();
+                db.Property(d => d.Id).UseSequence();
                 db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
             });
 
@@ -250,13 +250,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             cb =>
             {
                 cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseKeySequence("foo", "dbo");
+                cb.Property(c => c.Id).UseSequence("foo", "dbo");
             });
         modelBuilder.Entity<Dog>(
             db =>
             {
                 db.ToTable("Animal");
-                db.Property(d => d.Id).UseKeySequence("foo", "dba");
+                db.Property(d => d.Id).UseSequence("foo", "dba");
                 db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
             });
 
@@ -632,7 +632,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Detects_non_key_KeySequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Dog>().Property(c => c.Type).UseKeySequence();
+        modelBuilder.Entity<Dog>().Property(c => c.Type).UseSequence();
 
         VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder);
     }
@@ -642,7 +642,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.UseKeySequence();
+        modelBuilder.UseKeySequences();
 
         modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 

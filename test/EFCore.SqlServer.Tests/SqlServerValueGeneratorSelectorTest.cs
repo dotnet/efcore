@@ -47,7 +47,7 @@ public class SqlServerValueGeneratorSelectorTest
 
         if (useKeySequence)
         {
-            builder.UseKeySequence();
+            builder.UseKeySequences();
             Assert.NotNull(builder.Model.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
         }
 

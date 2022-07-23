@@ -149,7 +149,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <param name="name">The name of the sequence.</param>
     /// <param name="schema">The schema of the sequence.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static PropertyBuilder UseKeySequence(
+    public static PropertyBuilder UseSequence(
         this PropertyBuilder propertyBuilder,
         string? name = null,
         string? schema = null)
@@ -169,8 +169,8 @@ public static class SqlServerPropertyBuilderExtensions
         }
 
         property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.Sequence);
-        property.SetKeySequenceName(name);
-        property.SetKeySequenceSchema(schema);
+        property.SetSequenceName(name);
+        property.SetSequenceSchema(schema);
         property.SetHiLoSequenceName(null);
         property.SetHiLoSequenceSchema(null);
         property.SetIdentitySeed(null);
@@ -193,11 +193,11 @@ public static class SqlServerPropertyBuilderExtensions
     /// <param name="name">The name of the sequence.</param>
     /// <param name="schema">The schema of the sequence.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static PropertyBuilder<TProperty> UseKeySequence<TProperty>(
+    public static PropertyBuilder<TProperty> UseSequence<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         string? name = null,
         string? schema = null)
-        => (PropertyBuilder<TProperty>)UseKeySequence((PropertyBuilder)propertyBuilder, name, schema);
+        => (PropertyBuilder<TProperty>)UseSequence((PropertyBuilder)propertyBuilder, name, schema);
 
     /// <summary>
     ///     Configures the database sequence used for the key value generation pattern to generate values for the key property,
@@ -213,19 +213,19 @@ public static class SqlServerPropertyBuilderExtensions
     /// <param name="schema">The schema of the sequence.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>A builder to further configure the sequence.</returns>
-    public static IConventionSequenceBuilder? HasKeySequence(
+    public static IConventionSequenceBuilder? HasSequence(
         this IConventionPropertyBuilder propertyBuilder,
         string? name,
         string? schema,
         bool fromDataAnnotation = false)
     {
-        if (!propertyBuilder.CanSetKeySequence(name, schema, fromDataAnnotation))
+        if (!propertyBuilder.CanSetSequence(name, schema, fromDataAnnotation))
         {
             return null;
         }
 
-        propertyBuilder.Metadata.SetKeySequenceName(name, fromDataAnnotation);
-        propertyBuilder.Metadata.SetKeySequenceSchema(schema, fromDataAnnotation);
+        propertyBuilder.Metadata.SetSequenceName(name, fromDataAnnotation);
+        propertyBuilder.Metadata.SetSequenceSchema(schema, fromDataAnnotation);
 
         return name == null
             ? null
@@ -245,7 +245,7 @@ public static class SqlServerPropertyBuilderExtensions
     /// <param name="schema">The schema of the sequence.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given name and schema can be set for the key value generation sequence.</returns>
-    public static bool CanSetKeySequence(
+    public static bool CanSetSequence(
         this IConventionPropertyBuilder propertyBuilder,
         string? name,
         string? schema,
@@ -282,8 +282,8 @@ public static class SqlServerPropertyBuilderExtensions
         property.SetIdentityIncrement(increment);
         property.SetHiLoSequenceName(null);
         property.SetHiLoSequenceSchema(null);
-        property.SetKeySequenceName(null);
-        property.SetKeySequenceSchema(null);
+        property.SetSequenceName(null);
+        property.SetSequenceSchema(null);
 
         return propertyBuilder;
     }
@@ -629,13 +629,13 @@ public static class SqlServerPropertyBuilderExtensions
             {
                 propertyBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);
                 propertyBuilder.HasIdentityColumnIncrement(null, fromDataAnnotation);
-                propertyBuilder.HasKeySequence(null, null, fromDataAnnotation);
+                propertyBuilder.HasSequence(null, null, fromDataAnnotation);
             }
 
             if (valueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
             {
                 propertyBuilder.HasHiLoSequence(null, null, fromDataAnnotation);
-                propertyBuilder.HasKeySequence(null, null, fromDataAnnotation);
+                propertyBuilder.HasSequence(null, null, fromDataAnnotation);
             }
 
             if (valueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence)
