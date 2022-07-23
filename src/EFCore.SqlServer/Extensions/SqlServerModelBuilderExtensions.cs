@@ -127,7 +127,7 @@ public static class SqlServerModelBuilderExtensions
     /// <param name="name">The name of the sequence.</param>
     /// <param name="schema">The schema of the sequence.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ModelBuilder UseKeySequence(
+    public static ModelBuilder UseKeySequences(
         this ModelBuilder modelBuilder,
         string? name = null,
         string? schema = null)
@@ -141,7 +141,7 @@ public static class SqlServerModelBuilderExtensions
 
         if (model.FindSequence(name, schema) == null)
         {
-            modelBuilder.HasSequence(name, schema).IncrementsBy(1);
+            modelBuilder.HasSequence(name, schema);
         }
 
         model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.Sequence);
@@ -169,13 +169,13 @@ public static class SqlServerModelBuilderExtensions
     /// <param name="schema">The schema of the sequence.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>A builder to further configure the sequence.</returns>
-    public static IConventionSequenceBuilder? HasKeySequence(
+    public static IConventionSequenceBuilder? HasKeySequences(
         this IConventionModelBuilder modelBuilder,
         string? name,
         string? schema,
         bool fromDataAnnotation = false)
     {
-        if (!modelBuilder.CanSetSequence(name, schema))
+        if (!modelBuilder.CanSetKeySequences(name, schema))
         {
             return null;
         }
@@ -199,7 +199,7 @@ public static class SqlServerModelBuilderExtensions
     /// <param name="schema">The schema of the sequence.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given name and schema can be set for the hi-lo sequence.</returns>
-    public static bool CanSetSequence(
+    public static bool CanSetKeySequences(
         this IConventionModelBuilder modelBuilder,
         string? name,
         string? schema,
@@ -386,13 +386,13 @@ public static class SqlServerModelBuilderExtensions
             {
                 modelBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);
                 modelBuilder.HasIdentityColumnIncrement(null, fromDataAnnotation);
-                modelBuilder.HasKeySequence(null, null, fromDataAnnotation);
+                modelBuilder.HasKeySequences(null, null, fromDataAnnotation);
             }
 
             if (valueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
             {
                 modelBuilder.HasHiLoSequence(null, null, fromDataAnnotation);
-                modelBuilder.HasKeySequence(null, null, fromDataAnnotation);
+                modelBuilder.HasKeySequences(null, null, fromDataAnnotation);
             }
 
             if (valueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence)

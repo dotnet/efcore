@@ -42,7 +42,7 @@ public class SqlServerValueGenerationStrategyThrowTest :
         modelBuilder.Entity<Fred>()
             .Property(e => e.Id)
             .HasDefaultValueSql("2")
-            .UseKeySequence();
+            .UseSequence();
 
         Assert.Equal(
             CoreStrings.WarningAsErrorTemplate(

@@ -173,7 +173,7 @@ public static class SqlServerModelExtensions
 
     /// <summary>
     ///     Returns the schema to use for the default hi-lo sequence.
-    ///     <see cref="SqlServerPropertyBuilderExtensions.UseKeySequence" />
+    ///     <see cref="SqlServerPropertyBuilderExtensions.UseSequence" />
     /// </summary>
     /// <param name="model">The model.</param>
     /// <returns>The schema to use for the default key value generation sequence.</returns>

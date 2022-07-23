@@ -364,7 +364,7 @@ public class SqlServerBuilderExtensionsTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.UseKeySequence();
+        modelBuilder.UseKeySequences();
 
         var relationalExtensions = modelBuilder.Model;
         var sqlServerExtensions = modelBuilder.Model;
@@ -382,7 +382,7 @@ public class SqlServerBuilderExtensionsTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.UseKeySequence("Snook");
+        modelBuilder.UseKeySequences("Snook");
 
         var relationalExtensions = modelBuilder.Model;
         var sqlServerExtensions = modelBuilder.Model;
@@ -409,7 +409,7 @@ public class SqlServerBuilderExtensionsTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.UseKeySequence("Snook", "Tasty");
+        modelBuilder.UseKeySequences("Snook", "Tasty");
 
         var relationalExtensions = modelBuilder.Model;
         var sqlServerExtensions = modelBuilder.Model;
@@ -442,7 +442,7 @@ public class SqlServerBuilderExtensionsTest
             .HasMin(111)
             .HasMax(2222);
 
-        modelBuilder.UseKeySequence("Snook", "Tasty");
+        modelBuilder.UseKeySequences("Snook", "Tasty");
 
         var relationalExtensions = modelBuilder.Model;
         var sqlServerExtensions = modelBuilder.Model;
@@ -467,7 +467,7 @@ public class SqlServerBuilderExtensionsTest
             .HasMin(111)
             .HasMax(2222);
 
-        modelBuilder.UseKeySequence("Snook", "Tasty");
+        modelBuilder.UseKeySequences("Snook", "Tasty");
 
         var relationalExtensions = modelBuilder.Model;
         var sqlServerExtensions = modelBuilder.Model;
@@ -744,14 +744,14 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity<Customer>()
             .Property(e => e.Id)
-            .UseKeySequence();
+            .UseSequence();
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal(SqlServerModelExtensions.DefaultKeySequenceName, property.GetKeySequenceName());
+        Assert.Equal(SqlServerModelExtensions.DefaultKeySequenceName, property.GetSequenceName());
 
         Assert.NotNull(model.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
         Assert.NotNull(model.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
@@ -765,15 +765,15 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity<Customer>()
             .Property(e => e.Id)
-            .UseKeySequence("Snook");
+            .UseSequence("Snook");
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal("Snook", property.GetKeySequenceName());
-        Assert.Null(property.GetKeySequenceSchema());
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Null(property.GetSequenceSchema());
 
         Assert.NotNull(model.FindSequence("Snook"));
 
@@ -796,15 +796,15 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity<Customer>()
             .Property(e => e.Id)
-            .UseKeySequence("Snook", "Tasty");
+            .UseSequence("Snook", "Tasty");
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal("Snook", property.GetKeySequenceName());
-        Assert.Equal("Tasty", property.GetKeySequenceSchema());
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
 
         Assert.NotNull(model.FindSequence("Snook", "Tasty"));
 
@@ -833,15 +833,15 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity<Customer>()
             .Property(e => e.Id)
-            .UseKeySequence("Snook", "Tasty");
+            .UseSequence("Snook", "Tasty");
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal("Snook", property.GetKeySequenceName());
-        Assert.Equal("Tasty", property.GetKeySequenceSchema());
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
 
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
@@ -856,15 +856,15 @@ public class SqlServerBuilderExtensionsTest
             .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
             .Entity<Customer>()
             .Property(e => e.Id)
-            .UseKeySequence("Snook", "Tasty");
+            .UseSequence("Snook", "Tasty");
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal("Snook", property.GetKeySequenceName());
-        Assert.Equal("Tasty", property.GetKeySequenceSchema());
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
 
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
@@ -885,15 +885,15 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity<Customer>()
             .Property(e => e.Id)
-            .UseKeySequence("Snook", "Tasty");
+            .UseSequence("Snook", "Tasty");
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal("Snook", property.GetKeySequenceName());
-        Assert.Equal("Tasty", property.GetKeySequenceSchema());
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
 
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
@@ -916,15 +916,15 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity<Customer>()
             .Property(e => e.Id)
-            .UseKeySequence("Snook", "Tasty");
+            .UseSequence("Snook", "Tasty");
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal("Snook", property.GetKeySequenceName());
-        Assert.Equal("Tasty", property.GetKeySequenceSchema());
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
 
         ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
     }
@@ -1017,7 +1017,7 @@ public class SqlServerBuilderExtensionsTest
             modelBuilder
                 .Entity<Customer>()
                 .Property(e => e.Id)
-                .UseKeySequence());
+                .UseSequence());
     }
 
     [ConditionalFact]
@@ -1038,7 +1038,7 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity(typeof(Customer))
             .Property(typeof(int), "Id")
-            .UseKeySequence();
+            .UseSequence();
     }
 
     [ConditionalFact]

@@ -131,7 +131,7 @@ public class SqlServerValueGenerationScenariosTest
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.UseKeySequence();
+            modelBuilder.UseKeySequences();
 
             modelBuilder.Entity<Blog>(
                 eb =>

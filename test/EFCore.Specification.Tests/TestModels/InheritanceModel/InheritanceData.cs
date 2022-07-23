@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 public class InheritanceData : ISetSource
 {
-    public static readonly InheritanceData Instance = new();
+    public static readonly InheritanceData Instance = new(useGeneratedKeys: false);
+    public static readonly InheritanceData GeneratedKeysInstance = new(useGeneratedKeys: true);
 
     public IReadOnlyList<Animal> Animals { get; }
     public IReadOnlyList<AnimalQuery> AnimalQueries { get; }
@@ -13,7 +14,7 @@ public class InheritanceData : ISetSource
     public IReadOnlyList<Drink> Drinks { get; }
     public IReadOnlyList<Plant> Plants { get; }
 
-    private InheritanceData()
+    public InheritanceData(bool useGeneratedKeys)
     {
         Animals = CreateAnimals(useGeneratedKeys);
         Countries = CreateCountries();

@@ -452,7 +452,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 x =>
                 {
                     x.ToTable("Firefly", "dbo");
-                    x.Property<int>("SequenceId").UseKeySequence(schema: "dbo");
+                    x.Property<int>("SequenceId").UseSequence(schema: "dbo");
                     x.HasData(
                         new { Id = 43 });
                 }),

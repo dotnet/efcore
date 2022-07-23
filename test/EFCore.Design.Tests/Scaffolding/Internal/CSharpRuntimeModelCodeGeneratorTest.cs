@@ -3847,7 +3847,7 @@ namespace TestNamespace
 
                     Assert.Single((IEnumerable)model.GetEntityTypes());
                     var dataEntity = model.FindEntityType(typeof(Data));
-                    Assert.Same(keySequence, dataEntity!.FindPrimaryKey().Properties.Single().FindKeySequence());
+                    Assert.Same(keySequence, dataEntity!.FindPrimaryKey().Properties.Single().FindSequence());
                 });
 
         public class KeySequencesContext : SqlServerContextBase
@@ -3859,7 +3859,7 @@ namespace TestNamespace
                 modelBuilder.Entity<Data>(
                     eb =>
                     {
-                        eb.Property<int>("Id").UseKeySequence("KeySeq", "KeySeqSchema");
+                        eb.Property<int>("Id").UseSequence("KeySeq", "KeySeqSchema");
                         eb.HasKey("Id");
                     });
             }

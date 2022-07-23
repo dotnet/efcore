@@ -197,7 +197,7 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.Equal(
             SqlServerStrings.SequenceBadType("Name", nameof(Splot), "string"),
             Assert.Throws<ArgumentException>(
-                () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseKeySequence()).Message);
+                () => new PropertyBuilder((IMutableProperty)propertyBuilder.Metadata).UseSequence()).Message);
     }
 
     [ConditionalFact]

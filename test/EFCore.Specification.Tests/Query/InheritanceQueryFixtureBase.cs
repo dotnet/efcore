@@ -28,7 +28,9 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         => () => CreateContext();
 
     public virtual ISetSource GetExpectedData()
-        => new InheritanceData(UseGeneratedKeys);
+        => UseGeneratedKeys
+            ? InheritanceData.GeneratedKeysInstance
+            : InheritanceData.Instance;
 
     public virtual ISetSource GetFilteredExpectedData(DbContext context)
     {
@@ -66,10 +68,10 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         { typeof(Daisy), e => ((Daisy)e)?.Species },
         { typeof(Rose), e => ((Rose)e)?.Species },
         { typeof(Country), e => ((Country)e)?.Id },
-        { typeof(Drink), e => ((Drink)e)?.Id },
-        { typeof(Coke), e => ((Coke)e)?.Id },
-        { typeof(Lilt), e => ((Lilt)e)?.Id },
-        { typeof(Tea), e => ((Tea)e)?.Id },
+        { typeof(Drink), e => ((Drink)e)?.SortIndex },
+        { typeof(Coke), e => ((Coke)e)?.SortIndex },
+        { typeof(Lilt), e => ((Lilt)e)?.SortIndex },
+        { typeof(Tea), e => ((Tea)e)?.SortIndex },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -104,7 +106,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     Assert.Equal(ee.Name, aa.Name);
                     Assert.Equal(ee.CountryId, aa.CountryId);
                     Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
                 }
             }
         },
@@ -122,7 +123,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     Assert.Equal(ee.Name, aa.Name);
                     Assert.Equal(ee.CountryId, aa.CountryId);
                     Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
                     Assert.Equal(ee.Group, aa.Group);
                 }
             }
@@ -141,7 +141,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     Assert.Equal(ee.Name, aa.Name);
                     Assert.Equal(ee.CountryId, aa.CountryId);
                     Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
                     Assert.Equal(ee.FoundOn, aa.FoundOn);
                 }
             }
@@ -304,7 +303,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Drink)e;
                     var aa = (Drink)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                 }
             }
         },
@@ -318,7 +317,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Coke)e;
                     var aa = (Coke)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                     Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                     Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
                     Assert.Equal(ee.Carbonation, aa.Carbonation);
@@ -335,7 +334,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Lilt)e;
                     var aa = (Lilt)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                     Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                     Assert.Equal(ee.Carbonation, aa.Carbonation);
                 }
@@ -351,7 +350,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Tea)e;
                     var aa = (Tea)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                     Assert.Equal(ee.HasMilk, aa.HasMilk);
                     Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
                 }
