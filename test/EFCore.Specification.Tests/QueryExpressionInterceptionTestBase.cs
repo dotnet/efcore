@@ -26,7 +26,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         var query = context.Set<Singularity>().Where(e => e.Type == "Black Hole");
         var results = async ? await query.ToListAsync() : query.ToList();
 
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         Assert.Equal("Black Hole", results[0].Type);
 
         AssertNormalOutcome(context, interceptor);
@@ -55,7 +55,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         var query = context.Set<Singularity>().Where(e => e.Type == "Bing Bang");
         var results = async ? await query.ToListAsync() : query.ToList();
 
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         Assert.Equal("Bing Bang", results[0].Type);
 
         AssertNormalOutcome(context, interceptor1);
@@ -90,7 +90,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         var query = context.Set<Singularity>().Where(e => e.Type == "Black Hole");
         var results = async ? await query.ToListAsync() : query.ToList();
 
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         Assert.Equal("Bing Bang", results[0].Type);
 
         AssertNormalOutcome(context, interceptor);

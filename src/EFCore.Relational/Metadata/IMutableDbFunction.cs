@@ -45,7 +45,7 @@ public interface IMutableDbFunction : IReadOnlyDbFunction, IMutableAnnotatable
     new RelationalTypeMapping? TypeMapping { get; set; }
 
     /// <summary>
-    ///     Gets the <see cref="IMutableModel" /> in which this function is defined.
+    ///     Gets the model in which this function is defined.
     /// </summary>
     new IMutableModel Model { get; }
 

@@ -31,7 +31,7 @@ public interface IReadOnlyRelationalPropertyOverrides : IReadOnlyAnnotatable
     /// <summary>
     ///     Gets a value indicating whether the column name is overriden.
     /// </summary>
-    bool ColumnNameOverridden { get; }
+    bool IsColumnNameOverridden { get; }
 
     /// <summary>
     ///     <para>
@@ -55,7 +55,7 @@ public interface IReadOnlyRelationalPropertyOverrides : IReadOnlyAnnotatable
             .Append("Override: ")
             .Append(StoreObject.DisplayName());
 
-        if (ColumnNameOverridden)
+        if (IsColumnNameOverridden)
         {
             builder.Append(" ColumnName: ")
                 .Append(ColumnName);

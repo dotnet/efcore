@@ -129,7 +129,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             annotations.Remove(RelationalAnnotationNames.CheckConstraints);
             annotations.Remove(RelationalAnnotationNames.Comment);
             annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
-
+                
             // These need to be set explicitly to prevent default values from being generated
             annotations[RelationalAnnotationNames.TableName] = entityType.GetTableName();
             annotations[RelationalAnnotationNames.Schema] = entityType.GetSchema();
@@ -348,7 +348,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         => new(
             runtimeProperty,
             propertyOverrides.StoreObject,
-            propertyOverrides.ColumnNameOverridden,
+            propertyOverrides.IsColumnNameOverridden,
             propertyOverrides.ColumnName);
 
     /// <summary>

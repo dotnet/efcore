@@ -99,9 +99,9 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         ReturnType = returnType;
         Model = model;
         _configurationSource = configurationSource;
-        _builder = new InternalDbFunctionBuilder(this, ((IConventionModel)model).Builder);
+        _builder = new(this, ((IConventionModel)model).Builder);
         _parameters = parameters == null
-            ? new List<DbFunctionParameter>()
+            ? new()
             : parameters
                 .Select(p => new DbFunctionParameter(this, p.Name, p.Type))
                 .ToList();
@@ -639,6 +639,15 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual DbFunctionParameter? FindParameter(string name)
+        => Parameters.SingleOrDefault(p => p.Name == name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [DisallowNull]
     public virtual IStoreFunction? StoreFunction { get; set; }
 
@@ -718,15 +727,6 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         [DebuggerStepThrough]
         get => _parameters;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual DbFunctionParameter? FindParameter(string name)
-        => Parameters.SingleOrDefault(p => p.Name == name);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

@@ -4854,11 +4854,43 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         RemoveUnusedDiscriminatorProperty(discriminatorProperty, configurationSource);
 
         rootTypeBuilder.Metadata.SetDiscriminatorProperty(discriminatorProperty, configurationSource);
+        
+        RemoveIncompatibleDiscriminatorValues(Metadata, discriminatorProperty, configurationSource);
+
         discriminatorPropertyBuilder.IsRequired(true, ConfigurationSource.Convention);
         discriminatorPropertyBuilder.HasValueGeneratorFactory(
             typeof(DiscriminatorValueGeneratorFactory), ConfigurationSource.Convention);
 
         return new DiscriminatorBuilder(Metadata);
+    }
+
+    private void RemoveIncompatibleDiscriminatorValues(
+        EntityType entityType,
+        Property? newDiscriminatorProperty,
+        ConfigurationSource configurationSource)
+    {
+        if ((newDiscriminatorProperty != null || entityType.BaseType != null)
+            && (newDiscriminatorProperty == null
+                || newDiscriminatorProperty.ClrType.IsInstanceOfType(((IReadOnlyEntityType)entityType).GetDiscriminatorValue())))
+        {
+            return;
+        }
+
+        if (configurationSource.Overrides(((IConventionEntityType)entityType).GetDiscriminatorValueConfigurationSource()))
+        {
+            ((IMutableEntityType)entityType).RemoveDiscriminatorValue();
+        }
+
+        if (entityType.BaseType == null)
+        {
+            foreach (var derivedType in entityType.GetDerivedTypes())
+            {
+                if (configurationSource.Overrides(((IConventionEntityType)derivedType).GetDiscriminatorValueConfigurationSource()))
+                {
+                    ((IMutableEntityType)derivedType).RemoveDiscriminatorValue();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -4881,6 +4913,8 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
 
         Metadata.SetDiscriminatorProperty(null, configurationSource);
+        
+        RemoveIncompatibleDiscriminatorValues(Metadata, null, configurationSource);
 
         if (configurationSource == ConfigurationSource.Explicit)
         {

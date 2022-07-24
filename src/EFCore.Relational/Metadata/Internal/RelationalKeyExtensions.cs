@@ -171,7 +171,7 @@ public static class RelationalKeyExtensions
                         return null;
                     }
 
-                    logger.KeyUnmappedProperties((IKey)key);
+                    logger.KeyPropertiesNotMappedToTable((IKey)key);
                 }
 
                 return null;

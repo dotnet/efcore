@@ -174,8 +174,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.RemoveDiscriminatorValue))
+            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType))
         };
     }
 }

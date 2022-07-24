@@ -503,7 +503,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         AppendLiteral(storeObject, mainBuilder, code);
 
         mainBuilder.AppendLine(",")
-            .Append(code.Literal(overrides.ColumnNameOverridden)).AppendLine(",")
+            .Append(code.Literal(overrides.IsColumnNameOverridden)).AppendLine(",")
             .Append(code.Literal(overrides.ColumnName)).AppendLine(");").DecrementIndent();
 
         CreateAnnotations(

@@ -53,6 +53,7 @@ public class RelationalModelValidator : ModelValidator
         ValidatePropertyOverrides(model, logger);
         ValidateSqlQueries(model, logger);
         ValidateDbFunctions(model, logger);
+        ValidateStoredProcedures(model, logger);
         ValidateSharedTableCompatibility(model, logger);
         ValidateSharedViewCompatibility(model, logger);
         ValidateDefaultValuesOnKeys(model, logger);
@@ -195,6 +196,233 @@ public class RelationalModelValidator : ModelValidator
                 throw new InvalidOperationException(
                     RelationalStrings.InvalidMappedFunctionWithParameters(
                         entityType.DisplayName(), mappedFunctionName, parameters));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the mapping/configuration of stored procedures in the model.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateStoredProcedures(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        var storedProcedures = new Dictionary<StoreObjectIdentifier, List<IEntityType>>();
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            var mappingStrategy = entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy;
+            var deleteStoredProcedure = entityType.GetDeleteStoredProcedure();
+            if (deleteStoredProcedure != null)
+            {
+                AddSproc(StoreObjectType.DeleteStoredProcedure, entityType, storedProcedures);
+                ValidateSproc(deleteStoredProcedure, mappingStrategy);
+            }
+
+            var insertStoredProcedure = entityType.GetInsertStoredProcedure();
+            if (insertStoredProcedure != null)
+            {
+                AddSproc(StoreObjectType.InsertStoredProcedure, entityType, storedProcedures);
+                ValidateSproc(insertStoredProcedure, mappingStrategy);
+            }
+
+            var updateStoredProcedure = entityType.GetUpdateStoredProcedure();
+            if (updateStoredProcedure != null)
+            {
+                AddSproc(StoreObjectType.UpdateStoredProcedure, entityType, storedProcedures);
+                ValidateSproc(updateStoredProcedure, mappingStrategy);
+            }
+        }
+
+        foreach (var (sproc, mappedTypes) in storedProcedures)
+        {
+            foreach (var mappedType in mappedTypes)
+            {
+                if (mappedTypes[0].GetRootType() != mappedType.GetRootType())
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.StoredProcedureTableSharing(
+                            mappedTypes[0].DisplayName(),
+                            mappedType.DisplayName(),
+                            sproc.DisplayName()));
+                }
+            }
+        }
+
+        static void AddSproc(
+            StoreObjectType storedProcedureType,
+            IEntityType entityType,
+            Dictionary<StoreObjectIdentifier, List<IEntityType>> storedProcedures)
+        {
+            var sprocId = StoreObjectIdentifier.Create(entityType, storedProcedureType);
+            if (sprocId == null)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureNoName(
+                        entityType.DisplayName(), storedProcedureType));
+            }
+
+            if (!storedProcedures.TryGetValue(sprocId.Value, out var mappedTypes))
+            {
+                mappedTypes = new List<IEntityType>();
+                storedProcedures[sprocId.Value] = mappedTypes;
+            }
+
+            mappedTypes.Add(entityType);
+        }
+    }
+
+    private static void ValidateSproc(IStoredProcedure sproc, string mappingStrategy)
+    {
+        var entityType = sproc.EntityType;
+        var storeObjectIdentifier = ((StoredProcedure)sproc).CreateIdentifier()!.Value;
+
+        var primaryKey = entityType.FindPrimaryKey();
+        if (primaryKey == null)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureKeyless(
+                    entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+        }
+        
+        var properties = entityType.GetDeclaredProperties().ToDictionary(p => p.Name);
+        if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
+        {
+            if (entityType.BaseType != null)
+            {
+                return;
+            }
+
+            foreach (var property in entityType.GetDerivedProperties())
+            {
+                properties.Add(property.Name, property);
+            }
+        }
+        else if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            if (entityType.BaseType != null)
+            {
+                foreach (var property in entityType.BaseType.GetProperties())
+                {
+                    properties.Add(property.Name, property);
+                }
+            }
+        }
+        else if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
+        {
+            if (entityType.BaseType != null)
+            {
+                foreach (var property in primaryKey.Properties)
+                {
+                    properties.Add(property.Name, property);
+                }
+            }
+        }
+
+        foreach (var resultColumn in sproc.ResultColumns)
+        {
+            if (!properties!.TryGetValue(resultColumn, out var property))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureResultColumnNotFound(
+                        resultColumn, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+            }
+
+            switch (storeObjectIdentifier.StoreObjectType)
+            {
+                case StoreObjectType.InsertStoredProcedure:
+                    if ((property.ValueGenerated & ValueGenerated.OnAdd) == 0)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureResultColumnNotGenerated(
+                                entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                    }
+
+                    break;
+                case StoreObjectType.DeleteStoredProcedure:
+                    throw new InvalidOperationException(
+                        RelationalStrings.StoredProcedureResultColumnDelete(
+                            entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                case StoreObjectType.UpdateStoredProcedure:
+                    if ((property.ValueGenerated & ValueGenerated.OnUpdate) == 0)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureResultColumnNotGenerated(
+                                entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                    }
+
+                    break;
+            }
+        }
+
+        foreach (var parameter in sproc.Parameters)
+        {
+            if (!properties!.TryGetAndRemove(parameter, out IProperty property))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureParameterNotFound(
+                        parameter, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+            }
+
+            if (storeObjectIdentifier.StoreObjectType == StoreObjectType.DeleteStoredProcedure
+                && !property.IsPrimaryKey()
+                && !property.IsConcurrencyToken)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureDeleteNonKeyProperty(
+                        entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+            }
+        }
+
+        foreach (var resultColumn in sproc.ResultColumns)
+        {
+            properties!.Remove(resultColumn);
+        }
+
+        if (properties != null
+            && properties.Count > 0)
+        {
+            foreach (var property in properties.Values.ToList())
+            {
+                switch (storeObjectIdentifier.StoreObjectType)
+                {
+                    case StoreObjectType.InsertStoredProcedure:
+                        if ((property.ValueGenerated & ValueGenerated.OnAdd) == 0
+                            && property.GetBeforeSaveBehavior() != PropertySaveBehavior.Save)
+                        {
+                            properties.Remove(property.Name);
+                        }
+
+                        break;
+                    case StoreObjectType.DeleteStoredProcedure:
+                        if (!property.IsPrimaryKey()
+                            && !property.IsConcurrencyToken)
+                        {
+                            properties.Remove(property.Name);
+                        }
+
+                        break;
+                    case StoreObjectType.UpdateStoredProcedure:
+                        if (!property.IsPrimaryKey()
+                            && !property.IsConcurrencyToken
+                            && (property.ValueGenerated & ValueGenerated.OnUpdate) == 0
+                            && property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
+                        {
+                            properties.Remove(property.Name);
+                        }
+
+                        break;
+                }
+            }
+
+            if (properties.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedurePropertiesNotMapped(
+                        entityType.DisplayName(),
+                        storeObjectIdentifier.DisplayName(),
+                        properties.Values.Format(false)));
             }
         }
     }
@@ -1306,7 +1534,11 @@ public class RelationalModelValidator : ModelValidator
                 ValidateMappingStrategy(entityType, mappingStrategy);
                 var storeObject = entityType.GetSchemaQualifiedTableName()
                     ?? entityType.GetSchemaQualifiedViewName()
-                    ?? entityType.GetFunctionName();
+                    ?? entityType.GetFunctionName()
+                    ?? entityType.GetSqlQuery()
+                    ?? entityType.GetInsertStoredProcedure()?.GetSchemaQualifiedName()
+                    ?? entityType.GetDeleteStoredProcedure()?.GetSchemaQualifiedName()
+                    ?? entityType.GetUpdateStoredProcedure()?.GetSchemaQualifiedName();
                 if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
                     && !entityType.ClrType.IsInstantiable()
                     && storeObject != null)
@@ -1343,8 +1575,13 @@ public class RelationalModelValidator : ModelValidator
                        RelationalStrings.NonTphMappingStrategy(mappingStrategy, entityType.DisplayName()));
                 }
 
-                ValidateTphMapping(entityType, forTables: false);
-                ValidateTphMapping(entityType, forTables: true);
+                ValidateTphMapping(entityType, StoreObjectType.Table);
+                ValidateTphMapping(entityType, StoreObjectType.View);
+                ValidateTphMapping(entityType, StoreObjectType.Function);
+                ValidateTphMapping(entityType, StoreObjectType.InsertStoredProcedure);
+                ValidateTphMapping(entityType, StoreObjectType.DeleteStoredProcedure);
+                ValidateTphMapping(entityType, StoreObjectType.UpdateStoredProcedure);
+                
                 ValidateDiscriminatorValues(entityType);
             }
             else
@@ -1365,8 +1602,11 @@ public class RelationalModelValidator : ModelValidator
                        RelationalStrings.KeylessMappingStrategy(mappingStrategy ?? RelationalAnnotationNames.TptMappingStrategy, entityType.DisplayName()));
                 }
 
-                ValidateNonTphMapping(entityType, forTables: false);
-                ValidateNonTphMapping(entityType, forTables: true);
+                ValidateNonTphMapping(entityType, StoreObjectType.Table);
+                ValidateNonTphMapping(entityType, StoreObjectType.View);
+                ValidateNonTphMapping(entityType, StoreObjectType.InsertStoredProcedure);
+                ValidateNonTphMapping(entityType, StoreObjectType.DeleteStoredProcedure);
+                ValidateNonTphMapping(entityType, StoreObjectType.UpdateStoredProcedure);
 
                 var derivedTypes = entityType.GetDerivedTypesInclusive().ToList();
                 var discriminatorValues = new Dictionary<string, IEntityType>();
@@ -1376,6 +1616,7 @@ public class RelationalModelValidator : ModelValidator
                     {
                         continue;
                     }
+
                     var discriminatorValue = derivedType.GetDiscriminatorValue();
                     if (discriminatorValue is not string valueString)
                     {
@@ -1414,32 +1655,41 @@ public class RelationalModelValidator : ModelValidator
         };
     }
 
-    private static void ValidateNonTphMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateNonTphMapping(IEntityType rootEntityType, StoreObjectType storeObjectType)
     {
         var isTpc = rootEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
-        var derivedTypes = new Dictionary<(string, string?), IEntityType>();
+        var derivedTypes = new Dictionary<StoreObjectIdentifier, IEntityType>();
         foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
         {
-            var name = forTables ? entityType.GetTableName() : entityType.GetViewName();
-            if (name == null)
+            var storeObject = StoreObjectIdentifier.Create(entityType, storeObjectType);
+            if (storeObject == null)
             {
                 continue;
             }
 
-            var schema = forTables ? entityType.GetSchema() : entityType.GetViewSchema();
-            if (derivedTypes.TryGetValue((name, schema), out var otherType))
+            if (derivedTypes.TryGetValue(storeObject.Value, out var otherType))
             {
-                throw new InvalidOperationException(
-                    forTables
-                        ? RelationalStrings.NonTphTableClash(
-                            entityType.DisplayName(), otherType.DisplayName(), entityType.GetSchemaQualifiedTableName())
-                        : RelationalStrings.NonTphViewClash(
-                            entityType.DisplayName(), otherType.DisplayName(), entityType.GetSchemaQualifiedViewName()));
+                switch (storeObjectType)
+                {
+                    case StoreObjectType.Table:
+                        throw new InvalidOperationException(
+                            RelationalStrings.NonTphTableClash(
+                                entityType.DisplayName(), otherType.DisplayName(), storeObject.Value.DisplayName()));
+                    case StoreObjectType.View:
+                        throw new InvalidOperationException(
+                            RelationalStrings.NonTphViewClash(
+                                entityType.DisplayName(), otherType.DisplayName(), storeObject.Value.DisplayName()));
+                    case StoreObjectType.InsertStoredProcedure:
+                    case StoreObjectType.DeleteStoredProcedure:
+                    case StoreObjectType.UpdateStoredProcedure:
+                        throw new InvalidOperationException(
+                            RelationalStrings.NonTphStoredProcedureClash(
+                                entityType.DisplayName(), otherType.DisplayName(), storeObject.Value.DisplayName()));
+                }
             }
 
             if (isTpc)
             {
-                var storeObject = StoreObjectIdentifier.Create(entityType, forTables ? StoreObjectType.Table : StoreObjectType.View)!;
                 var rowInternalFk = entityType.FindDeclaredReferencingRowInternalForeignKeys(storeObject.Value)
                     .FirstOrDefault();
                 if (rowInternalFk != null
@@ -1452,10 +1702,10 @@ public class RelationalModelValidator : ModelValidator
                 }
             }
 
-            derivedTypes[(name, schema)] = entityType;
+            derivedTypes[storeObject.Value] = entityType;
         }
 
-        var rootStoreObject = StoreObjectIdentifier.Create(rootEntityType, forTables ? StoreObjectType.Table : StoreObjectType.View);
+        var rootStoreObject = StoreObjectIdentifier.Create(rootEntityType, storeObjectType);
         if (rootStoreObject == null)
         {
             return;
@@ -1466,47 +1716,69 @@ public class RelationalModelValidator : ModelValidator
             && rootEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
         {
             var derivedTypePair = derivedTypes.First(kv => kv.Value != rootEntityType);
-            var (derivedName, derivedSchema) = derivedTypePair.Key;
             throw new InvalidOperationException(RelationalStrings.TpcTableSharingDependent(
                 rootEntityType.DisplayName(),
                 rootStoreObject.Value.DisplayName(),
                 derivedTypePair.Value.DisplayName(),
-                derivedSchema == null ? derivedName : $"{derivedSchema}.{derivedName}"));
+                derivedTypePair.Key.DisplayName()));
         }
     }
 
-    private static void ValidateTphMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateTphMapping(IEntityType rootEntityType, StoreObjectType storeObjectType)
     {
-        string? firstName = null;
-        string? firstSchema = null;
-        IEntityType? firstType = null;
-        foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
+        var isSproc = storeObjectType == StoreObjectType.DeleteStoredProcedure
+            || storeObjectType == StoreObjectType.InsertStoredProcedure
+            || storeObjectType == StoreObjectType.UpdateStoredProcedure;
+        var rootSproc = isSproc ? StoredProcedure.GetDeclaredStoredProcedure(rootEntityType, storeObjectType) : null;
+        var rootId = StoreObjectIdentifier.Create(rootEntityType, storeObjectType);
+        foreach (var entityType in rootEntityType.GetDerivedTypes())
         {
-            var name = forTables ? entityType.GetTableName() : entityType.GetViewName();
-            if (name == null)
+            var entityId = StoreObjectIdentifier.Create(entityType, storeObjectType);
+            if (entityId == null)
             {
                 continue;
             }
 
-            if (firstType == null)
+            if (rootId == entityId)
             {
-                firstType = entityType;
-                firstName = forTables ? firstType.GetTableName() : firstType.GetViewName();
-                firstSchema = forTables ? firstType.GetSchema() : firstType.GetViewSchema();
+                if (rootSproc != null)
+                {
+                    var sproc = StoredProcedure.GetDeclaredStoredProcedure(entityType, storeObjectType);
+                    if (sproc != null
+                        && sproc != rootSproc)
+                    {
+                        throw new InvalidOperationException(RelationalStrings.StoredProcedureTphDuplicate(
+                            entityType.DisplayName(), rootEntityType.DisplayName(), rootId?.DisplayName()));
+                    }
+                }
+
                 continue;
             }
 
-            var schema = forTables ? entityType.GetSchema() : entityType.GetViewSchema();
-            if (name != firstName || schema != firstSchema)
+            switch (storeObjectType)
             {
-                throw new InvalidOperationException(
-                    forTables
-                        ? RelationalStrings.TphTableMismatch(
-                            entityType.DisplayName(), entityType.GetSchemaQualifiedTableName(),
-                            firstType.DisplayName(), firstType.GetSchemaQualifiedTableName())
-                        : RelationalStrings.TphViewMismatch(
-                            entityType.DisplayName(), entityType.GetSchemaQualifiedViewName(),
-                            firstType.DisplayName(), firstType.GetSchemaQualifiedViewName()));
+                case StoreObjectType.Table:
+                    throw new InvalidOperationException(
+                        RelationalStrings.TphTableMismatch(
+                            entityType.DisplayName(), entityId.Value.DisplayName(),
+                            rootEntityType.DisplayName(), rootId?.DisplayName()));
+                case StoreObjectType.View:
+                    throw new InvalidOperationException(
+                        RelationalStrings.TphViewMismatch(
+                            entityType.DisplayName(), entityId.Value.DisplayName(),
+                            rootEntityType.DisplayName(), rootId?.DisplayName()));
+                case StoreObjectType.Function:
+                    throw new InvalidOperationException(
+                        RelationalStrings.TphDbFunctionMismatch(
+                            entityType.DisplayName(), entityId.Value.DisplayName(),
+                            rootEntityType.DisplayName(), rootId?.DisplayName()));
+                case StoreObjectType.InsertStoredProcedure:
+                case StoreObjectType.DeleteStoredProcedure:
+                case StoreObjectType.UpdateStoredProcedure:
+                    throw new InvalidOperationException(
+                        RelationalStrings.TphStoredProcedureMismatch(
+                            entityType.DisplayName(), entityId.Value.DisplayName(),
+                            rootEntityType.DisplayName(), rootId?.DisplayName()));
             }
         }
     }
@@ -1699,6 +1971,13 @@ public class RelationalModelValidator : ModelValidator
                         case StoreObjectType.Function:
                             throw new InvalidOperationException(
                                 RelationalStrings.FunctionOverrideMismatch(
+                                    entityType.DisplayName() + "." + property.Name,
+                                    storeObjectOverride.StoreObject.DisplayName()));
+                        case StoreObjectType.InsertStoredProcedure:
+                        case StoreObjectType.DeleteStoredProcedure:
+                        case StoreObjectType.UpdateStoredProcedure:
+                            throw new InvalidOperationException(
+                                RelationalStrings.StoredProcedureOverrideMismatch(
                                     entityType.DisplayName() + "." + property.Name,
                                     storeObjectOverride.StoreObject.DisplayName()));
                         default:

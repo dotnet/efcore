@@ -3310,35 +3310,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     {
         CheckDiscriminatorProperty(property);
 
-        if (((property == null && BaseType == null)
-                || (property != null && !property.ClrType.IsInstanceOfType(((IReadOnlyEntityType)this).GetDiscriminatorValue()))))
-        {
-            RemoveDiscriminatorValue(this, configurationSource);
-            if (BaseType == null)
-            {
-                foreach (var derivedType in GetDerivedTypes())
-                {
-                    RemoveDiscriminatorValue(derivedType, configurationSource);
-                }
-            }
-        }
-
         return ((string?)SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource)?.Value)
             == property?.Name
                 ? property
                 : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-
-        static void RemoveDiscriminatorValue(IReadOnlyEntityType entityType, ConfigurationSource configurationSource)
-        {
-            if (configurationSource is ConfigurationSource.Convention or ConfigurationSource.DataAnnotation)
-            {
-                ((IConventionEntityType)entityType).RemoveDiscriminatorValue(configurationSource == ConfigurationSource.DataAnnotation);
-            }
-            else
-            {
-                ((IMutableEntityType)entityType).RemoveDiscriminatorValue();
-            }
-        }
     }
 
     private void CheckDiscriminatorProperty(Property? property)

@@ -539,7 +539,18 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
             if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
             {
-                return $"{declaringType.Name} expected to have a {expectedName} method";
+                if (method.Name.StartsWith("Has", StringComparison.Ordinal))
+                {
+                    var otherExpectedName = "CanHave" + method.Name[3..];
+                    if (!methodLookup.TryGetValue(otherExpectedName, out canSetMethod))
+                    {
+                        return $"{declaringType.Name} expected to have a {expectedName} or {otherExpectedName} method";
+                    }
+                }
+                else
+                {
+                    return $"{declaringType.Name} expected to have a {expectedName} method";
+                }
             }
 
             var parameterIndex = method.IsStatic ? 1 : 0;
@@ -1177,6 +1188,18 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 IReadOnlyList<MethodInfo> Runtime)>
             MetadataMethods { get; } = new();
 
+        protected static MethodInfo GetMethod(Type type, string name, int genericParameterCount,
+            Func<Type[], Type[], Type[]> parameterGenerator)
+            => type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                .Single(
+                    mi => mi.Name == name
+                        && ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                            || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                        && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                            parameterGenerator(
+                                type.IsGenericType ? type.GenericTypeArguments : Array.Empty<Type>(),
+                                mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>())));
+        
         protected virtual void Initialize()
         {
             foreach (var typeTuple in MetadataTypes.Values)
