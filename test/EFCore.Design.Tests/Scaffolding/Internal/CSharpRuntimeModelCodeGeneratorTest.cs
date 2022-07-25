@@ -3794,8 +3794,8 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             id.AddAnnotation(""Relational:DefaultValueSql"", ""NEXT VALUE FOR [KeySeqSchema].[KeySeq]"");
-            id.AddAnnotation(""SqlServer:KeySequenceName"", ""KeySeq"");
-            id.AddAnnotation(""SqlServer:KeySequenceSchema"", ""KeySeqSchema"");
+            id.AddAnnotation(""SqlServer:SequenceName"", ""KeySeq"");
+            id.AddAnnotation(""SqlServer:SequenceSchema"", ""KeySeqSchema"");
             id.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.Sequence);
 
             var blob = runtimeEntityType.AddProperty(

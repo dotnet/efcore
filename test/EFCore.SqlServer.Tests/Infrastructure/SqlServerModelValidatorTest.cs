@@ -199,6 +199,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public virtual void Passes_for_duplicate_column_names_with_KeySequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>(
             cb =>
             {
@@ -224,13 +225,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             cb =>
             {
                 cb.ToTable("Animal");
-                cb.Property(c => c.Id).UseSequence("foo");
+                cb.Property(c => c.Id).HasColumnName("Id").UseSequence("foo");
             });
         modelBuilder.Entity<Dog>(
             db =>
             {
                 db.ToTable("Animal");
-                db.Property(d => d.Id).UseSequence();
+                db.Property(d => d.Id).HasColumnName("Id").UseSequence("bar");
                 db.HasOne<Cat>().WithOne().HasForeignKey<Dog>(d => d.Id);
             });
 
@@ -238,7 +239,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
                 nameof(Cat), nameof(Cat.Id), nameof(Dog), nameof(Dog.Id), nameof(Cat.Id), nameof(Animal),
                 "NEXT VALUE FOR [foo]",
-                "NEXT VALUE FOR [EntityFrameworkKeySequence]"),
+                "NEXT VALUE FOR [bar]"),
             modelBuilder);
     }
 

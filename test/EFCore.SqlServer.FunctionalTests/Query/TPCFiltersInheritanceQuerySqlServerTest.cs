@@ -181,7 +181,7 @@ WHERE [e].[CountryId] = 1");
             @"SELECT TOP(2) [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]
 FROM [Eagle] AS [e]",
             //
-            @"@__p_0='4'
+            @"@__p_0='1'
 
 SELECT TOP(1) [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]
 FROM [Eagle] AS [e]

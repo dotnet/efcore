@@ -370,11 +370,8 @@ public class SqlServerBuilderExtensionsTest
         var sqlServerExtensions = modelBuilder.Model;
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
-        Assert.Equal(SqlServerModelExtensions.DefaultKeySequenceName, sqlServerExtensions.GetKeySequenceName());
-        Assert.Null(sqlServerExtensions.GetKeySequenceSchema());
-
-        Assert.NotNull(relationalExtensions.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
-        Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
+        Assert.Equal(SqlServerModelExtensions.DefaultSequenceNameSuffix, sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Null(sqlServerExtensions.GetSequenceSchema());
     }
 
     [ConditionalFact]
@@ -388,20 +385,8 @@ public class SqlServerBuilderExtensionsTest
         var sqlServerExtensions = modelBuilder.Model;
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
-        Assert.Equal("Snook", sqlServerExtensions.GetKeySequenceName());
-        Assert.Null(sqlServerExtensions.GetKeySequenceSchema());
-
-        Assert.NotNull(relationalExtensions.FindSequence("Snook"));
-
-        var sequence = sqlServerExtensions.FindSequence("Snook");
-
-        Assert.Equal("Snook", sequence.Name);
-        Assert.Null(sequence.Schema);
-        Assert.Equal(1, sequence.IncrementBy);
-        Assert.Equal(1, sequence.StartValue);
-        Assert.Null(sequence.MinValue);
-        Assert.Null(sequence.MaxValue);
-        Assert.Same(typeof(long), sequence.Type);
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Null(sqlServerExtensions.GetSequenceSchema());
     }
 
     [ConditionalFact]
@@ -411,17 +396,23 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder.UseKeySequences("Snook", "Tasty");
 
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id);
+
+        modelBuilder.FinalizeModel();
+
         var relationalExtensions = modelBuilder.Model;
         var sqlServerExtensions = modelBuilder.Model;
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
-        Assert.Equal("Snook", sqlServerExtensions.GetKeySequenceName());
-        Assert.Equal("Tasty", sqlServerExtensions.GetKeySequenceSchema());
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Equal("Tasty", sqlServerExtensions.GetSequenceSchema());
 
-        Assert.NotNull(relationalExtensions.FindSequence("Snook", "Tasty"));
+        Assert.NotNull(relationalExtensions.FindSequence("CustomerSnook", "Tasty"));
 
-        var sequence = sqlServerExtensions.FindSequence("Snook", "Tasty");
-        Assert.Equal("Snook", sequence.Name);
+        var sequence = sqlServerExtensions.FindSequence("CustomerSnook", "Tasty");
+        Assert.Equal("CustomerSnook", sequence.Name);
         Assert.Equal("Tasty", sequence.Schema);
         Assert.Equal(1, sequence.IncrementBy);
         Assert.Equal(1, sequence.StartValue);
@@ -448,8 +439,8 @@ public class SqlServerBuilderExtensionsTest
         var sqlServerExtensions = modelBuilder.Model;
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
-        Assert.Equal("Snook", sqlServerExtensions.GetKeySequenceName());
-        Assert.Equal("Tasty", sqlServerExtensions.GetKeySequenceSchema());
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Equal("Tasty", sqlServerExtensions.GetSequenceSchema());
 
         ValidateSchemaNamedSpecificSequence(relationalExtensions.FindSequence("Snook", "Tasty"));
         ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
@@ -473,8 +464,8 @@ public class SqlServerBuilderExtensionsTest
         var sqlServerExtensions = modelBuilder.Model;
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
-        Assert.Equal("Snook", sqlServerExtensions.GetKeySequenceName());
-        Assert.Equal("Tasty", sqlServerExtensions.GetKeySequenceSchema());
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Equal("Tasty", sqlServerExtensions.GetSequenceSchema());
 
         ValidateSchemaNamedSpecificSequence(relationalExtensions.FindSequence("Snook", "Tasty"));
         ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
@@ -746,15 +737,15 @@ public class SqlServerBuilderExtensionsTest
             .Property(e => e.Id)
             .UseSequence();
 
+        modelBuilder.FinalizeModel();
+
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
         Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-        Assert.Equal(SqlServerModelExtensions.DefaultKeySequenceName, property.GetSequenceName());
 
-        Assert.NotNull(model.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
-        Assert.NotNull(model.FindSequence(SqlServerModelExtensions.DefaultKeySequenceName));
+        Assert.NotNull(model.FindSequence(nameof(Customer) + SqlServerModelExtensions.DefaultSequenceNameSuffix));
     }
 
     [ConditionalFact]
@@ -766,6 +757,8 @@ public class SqlServerBuilderExtensionsTest
             .Entity<Customer>()
             .Property(e => e.Id)
             .UseSequence("Snook");
+
+        modelBuilder.FinalizeModel();
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
@@ -797,6 +790,8 @@ public class SqlServerBuilderExtensionsTest
             .Entity<Customer>()
             .Property(e => e.Id)
             .UseSequence("Snook", "Tasty");
+
+        modelBuilder.FinalizeModel();
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");

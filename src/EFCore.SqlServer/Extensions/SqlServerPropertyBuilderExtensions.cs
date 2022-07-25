@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -159,15 +160,6 @@ public static class SqlServerPropertyBuilderExtensions
 
         var property = propertyBuilder.Metadata;
 
-        name ??= SqlServerModelExtensions.DefaultKeySequenceName;
-
-        var model = property.DeclaringEntityType.Model;
-
-        if (model.FindSequence(name, schema) == null)
-        {
-            model.AddSequence(name, schema).IncrementBy = 1;
-        }
-
         property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.Sequence);
         property.SetSequenceName(name);
         property.SetSequenceSchema(schema);
@@ -254,8 +246,8 @@ public static class SqlServerPropertyBuilderExtensions
         Check.NullButNotEmpty(name, nameof(name));
         Check.NullButNotEmpty(schema, nameof(schema));
 
-        return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.KeySequenceName, name, fromDataAnnotation)
-            && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.KeySequenceSchema, schema, fromDataAnnotation);
+        return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceName, name, fromDataAnnotation)
+            && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceSchema, schema, fromDataAnnotation);
     }
 
     /// <summary>

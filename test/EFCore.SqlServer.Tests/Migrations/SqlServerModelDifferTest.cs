@@ -462,12 +462,12 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var operation = Assert.IsType<CreateSequenceOperation>(o);
                     Assert.Equal("dbo", operation.Schema);
-                    Assert.Equal("EntityFrameworkKeySequence", operation.Name);
+                    Assert.Equal("FireflySequence", operation.Name);
                 },
                 o =>
                 {
                     var operation = Assert.IsType<AlterColumnOperation>(o);
-                    Assert.Equal("NEXT VALUE FOR [dbo].[EntityFrameworkKeySequence]", operation.DefaultValueSql);
+                    Assert.Equal("NEXT VALUE FOR [dbo].[FireflySequence]", operation.DefaultValueSql);
                 },
                 o =>
                 {
@@ -489,7 +489,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var operation = Assert.IsType<DropSequenceOperation>(o);
                     Assert.Equal("dbo", operation.Schema);
-                    Assert.Equal("EntityFrameworkKeySequence", operation.Name);
+                    Assert.Equal("FireflySequence", operation.Name);
                 },
                 o =>
                 {

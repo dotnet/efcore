@@ -58,19 +58,14 @@ public class SqlServerValueGenerationStrategyConventionTest
         model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
 
         var annotations = model.GetAnnotations().OrderBy(a => a.Name).ToList();
-        Assert.Equal(4, annotations.Count);
+        Assert.Equal(3, annotations.Count);
 
         Assert.Equal(RelationalAnnotationNames.MaxIdentifierLength, annotations[0].Name);
 
-        Assert.Equal(
-            RelationalAnnotationNames.Sequences,
-            annotations[1].Name);
-        Assert.NotNull(annotations[1].Value);
+        Assert.Equal(SqlServerAnnotationNames.SequenceNameSuffix, annotations[1].Name);
+        Assert.Equal(SqlServerModelExtensions.DefaultSequenceNameSuffix, annotations[1].Value);
 
-        Assert.Equal(SqlServerAnnotationNames.KeySequenceName, annotations[2].Name);
-        Assert.Equal(SqlServerModelExtensions.DefaultKeySequenceName, annotations[2].Value);
-
-        Assert.Equal(SqlServerAnnotationNames.ValueGenerationStrategy, annotations[3].Name);
-        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, annotations[3].Value);
+        Assert.Equal(SqlServerAnnotationNames.ValueGenerationStrategy, annotations[2].Name);
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, annotations[2].Value);
     }
 }
