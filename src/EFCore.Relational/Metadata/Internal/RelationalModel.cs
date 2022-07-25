@@ -1077,6 +1077,29 @@ public class RelationalModel : Annotatable, IRelationalModel
         storedProcedureMappings.Add(storedProcedureMapping);
         storeStoredProcedure.EntityTypeMappings.Add(storedProcedureMapping);
 
+        static StoreStoredProcedure GetOrCreateStoreStoredProcedure(
+            IRuntimeStoredProcedure storedProcedure,
+            RelationalModel model)
+        {
+            var storeStoredProcedure = (StoreStoredProcedure?)storedProcedure.StoreStoredProcedure;
+            if (storeStoredProcedure == null)
+            {
+                storeStoredProcedure = (StoreStoredProcedure?)model.FindStoredProcedure(storedProcedure.Name, storedProcedure.Schema);
+                if (storeStoredProcedure == null)
+                {
+                    storeStoredProcedure = new StoreStoredProcedure(storedProcedure, model);
+                    model.StoredProcedures.Add((storeStoredProcedure.Name, storeStoredProcedure.Schema), storeStoredProcedure);
+                }
+                else
+                {
+                    storedProcedure.StoreStoredProcedure = storeStoredProcedure;
+                    storeStoredProcedure.StoredProcedures.Add(storedProcedure);
+                }
+            }
+
+            return storeStoredProcedure;
+        }
+
         static StoreStoredProcedureParameter GetOrCreateStoreStoredProcedureParameter(
             IProperty property,
             StoreStoredProcedure storeStoredProcedure,
@@ -1123,29 +1146,6 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             return column;
         }
-    }
-
-    private static StoreStoredProcedure GetOrCreateStoreStoredProcedure(
-        IRuntimeStoredProcedure storedProcedure,
-        RelationalModel model)
-    {
-        var storeStoredProcedure = (StoreStoredProcedure?)storedProcedure.StoreStoredProcedure;
-        if (storeStoredProcedure == null)
-        {
-            storeStoredProcedure = (StoreStoredProcedure?)model.FindStoredProcedure(storedProcedure.Name, storedProcedure.Schema);
-            if (storeStoredProcedure == null)
-            {
-                storeStoredProcedure = new StoreStoredProcedure(storedProcedure, model);
-                model.StoredProcedures.Add((storeStoredProcedure.Name, storeStoredProcedure.Schema), storeStoredProcedure);
-            }
-            else
-            {
-                storedProcedure.StoreStoredProcedure = storeStoredProcedure;
-                storeStoredProcedure.StoredProcedures.Add(storedProcedure);
-            }
-        }
-
-        return storeStoredProcedure;
     }
 
     private static void PopulateTableConfiguration(Table table, bool designTime)

@@ -358,6 +358,7 @@ public class RelationalModelValidator : ModelValidator
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
+                case StoreObjectType.UpdateStoredProcedure:
                     if (!storeGeneratedProperties.Remove(property.Name))
                     {
                         throw new InvalidOperationException(
@@ -370,15 +371,6 @@ public class RelationalModelValidator : ModelValidator
                     throw new InvalidOperationException(
                         RelationalStrings.StoredProcedureResultColumnDelete(
                             entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
-                case StoreObjectType.UpdateStoredProcedure:
-                    if (!storeGeneratedProperties.Remove(property.Name))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.StoredProcedureResultColumnNotGenerated(
-                                entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
-                    }
-
-                    break;
                 default:
                     Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
                     break;

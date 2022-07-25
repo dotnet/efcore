@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore;
 public static partial class RelationalEntityTypeBuilderExtensions
 {
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -34,7 +34,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -56,7 +56,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
     
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -80,7 +80,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -102,7 +102,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -126,7 +126,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -152,7 +152,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -172,7 +172,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -194,7 +194,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -218,7 +218,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -242,7 +242,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -268,7 +268,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -296,7 +296,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for updates when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
@@ -310,7 +310,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             entityTypeBuilder.Metadata, StoreObjectType.UpdateStoredProcedure, fromDataAnnotation);
     
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -330,7 +330,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
     
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -352,7 +352,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -376,7 +376,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -398,7 +398,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -422,7 +422,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -448,7 +448,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -468,7 +468,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -490,7 +490,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -514,7 +514,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -538,7 +538,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -564,7 +564,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
     
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -592,7 +592,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for deletes when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
@@ -606,7 +606,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             entityTypeBuilder.Metadata, StoreObjectType.DeleteStoredProcedure, fromDataAnnotation);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -626,7 +626,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
     
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -648,7 +648,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
     
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -672,7 +672,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -694,7 +694,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -718,7 +718,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -744,7 +744,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -764,7 +764,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -786,7 +786,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -810,7 +810,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -834,7 +834,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -860,7 +860,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
@@ -888,7 +888,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             buildAction);
 
     /// <summary>
-    ///     Configures the stored procedure that the entity type would use for inserts when targeting a relational database.
+    ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
