@@ -18,6 +18,21 @@ public class OperationExecutorTest
     public class OperationBaseTests
     {
         [ConditionalFact]
+        public void Operations_have_design_time_flag_set()
+        {
+            var handler = new OperationResultHandler();
+            var result = "Twilight Sparkle";
+
+            new MockOperation<string>(handler, () =>
+            {
+                Assert.True(EF.IsDesignTime);
+                return result;
+            });
+
+            Assert.Equal(result, handler.Result);
+        }
+
+        [ConditionalFact]
         public void Execute_catches_exceptions()
         {
             var handler = new OperationResultHandler();

@@ -697,6 +697,7 @@ public class OperationExecutor : MarshalByRefObject
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
         protected OperationBase(IOperationResultHandler resultHandler)
         {
+            EF.IsDesignTime = true;
             _resultHandler = resultHandler;
         }
 
