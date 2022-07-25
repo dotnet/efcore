@@ -34,7 +34,7 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     /// <summary>
     ///     Returns the store identifier of this stored procedure.
     /// </summary>
-    /// <returns>The store identifier. <see langword="null"/> if there is no corresponding store object.</returns>
+    /// <returns>The store identifier. <see langword="null" /> if there is no corresponding store object.</returns>
     StoreObjectIdentifier? GetStoreIdentifier()
     {
         var name = Name;

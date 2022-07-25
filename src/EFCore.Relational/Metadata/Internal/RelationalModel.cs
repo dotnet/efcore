@@ -948,22 +948,22 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             mappedType = mappedType.BaseType;
         }
-
-        if ((insertStoredProcedureMappings?.Count ?? 0) != 0)
+        
+        if (insertStoredProcedureMappings?.Count > 0)
         {
-            insertStoredProcedureMappings!.Reverse();
+            insertStoredProcedureMappings.Reverse();
             entityType.SetRuntimeAnnotation(RelationalAnnotationNames.InsertStoredProcedureMappings, insertStoredProcedureMappings);
         }
 
-        if ((deleteStoredProcedureMappings?.Count ?? 0) != 0)
+        if (deleteStoredProcedureMappings?.Count > 0)
         {
-            deleteStoredProcedureMappings!.Reverse();
+            deleteStoredProcedureMappings.Reverse();
             entityType.SetRuntimeAnnotation(RelationalAnnotationNames.DeleteStoredProcedureMappings, deleteStoredProcedureMappings);
         }
 
-        if ((updateStoredProcedureMappings?.Count ?? 0) != 0)
+        if (updateStoredProcedureMappings?.Count > 0)
         {
-            updateStoredProcedureMappings!.Reverse();
+            updateStoredProcedureMappings.Reverse();
             entityType.SetRuntimeAnnotation(RelationalAnnotationNames.UpdateStoredProcedureMappings, updateStoredProcedureMappings);
         }
     }
@@ -981,26 +981,18 @@ public class RelationalModel : Annotatable, IRelationalModel
         var identifier = storedProcedure.GetStoreIdentifier();
         var storedProcedureMapping = new StoredProcedureMapping(
             entityType, storeStoredProcedure, storedProcedure, includesDerivedTypes);
-        var parameterMappingAnnotationName = "";
-        var columnMappingAnnotationName = "";
-
-        switch (identifier.StoreObjectType)
+        var (parameterMappingAnnotationName, columnMappingAnnotationName) = identifier.StoreObjectType switch
         {
-            case StoreObjectType.InsertStoredProcedure:
-                parameterMappingAnnotationName = RelationalAnnotationNames.InsertStoredProcedureParameterMappings;
-                columnMappingAnnotationName = RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings;
-                break;
-            case StoreObjectType.DeleteStoredProcedure:
-                parameterMappingAnnotationName = RelationalAnnotationNames.DeleteStoredProcedureParameterMappings;
-                break;
-            case StoreObjectType.UpdateStoredProcedure:
-                parameterMappingAnnotationName = RelationalAnnotationNames.UpdateStoredProcedureParameterMappings;
-                columnMappingAnnotationName = RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings;
-                break;
-            default:
-                Check.DebugFail("Unexpected stored procedure type: " + identifier.StoreObjectType);
-                break;
-        }
+            StoreObjectType.InsertStoredProcedure
+                => (RelationalAnnotationNames.InsertStoredProcedureParameterMappings,
+                    RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings),
+            StoreObjectType.DeleteStoredProcedure
+                => (RelationalAnnotationNames.DeleteStoredProcedureParameterMappings, ""),
+            StoreObjectType.UpdateStoredProcedure
+                => (RelationalAnnotationNames.UpdateStoredProcedureParameterMappings,
+                    RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings),
+            _ => throw new Exception("Unexpected stored procedure type: " + identifier.StoreObjectType)
+        };
 
         foreach (var parameter in storedProcedure.Parameters)
         {
@@ -1084,53 +1076,53 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         storedProcedureMappings.Add(storedProcedureMapping);
         storeStoredProcedure.EntityTypeMappings.Add(storedProcedureMapping);
-    }
 
-    private static StoreStoredProcedureParameter GetOrCreateStoreStoredProcedureParameter(
-        IProperty property,
-        StoreStoredProcedure storeStoredProcedure,
-        StoreObjectIdentifier identifier)
-    {
-        var columnName = property.GetColumnName(identifier)!;
-        var storeParameter = (StoreStoredProcedureParameter?)storeStoredProcedure.FindParameter(columnName);
-        if (storeParameter == null)
+        static StoreStoredProcedureParameter GetOrCreateStoreStoredProcedureParameter(
+            IProperty property,
+            StoreStoredProcedure storeStoredProcedure,
+            StoreObjectIdentifier identifier)
         {
-            storeParameter = new StoreStoredProcedureParameter(
-                columnName,
-                property.GetColumnType(identifier),
-                storeStoredProcedure,
-                property.GetDirection(identifier)) { IsNullable = property.IsColumnNullable(identifier) };
-            storeStoredProcedure.AddParameter(storeParameter);
-        }
-        else if (!property.IsColumnNullable(identifier))
-        {
-            storeParameter.IsNullable = false;
-        }
-
-        return storeParameter;
-    }
-
-    private static StoreStoredProcedureResultColumn GetOrCreateStoreStoredProcedureResultColumn(
-        IProperty property,
-        StoreStoredProcedure storeStoredProcedure,
-        StoreObjectIdentifier identifier)
-    {
-        var columnName = property.GetColumnName(identifier)!;
-        var column = (StoreStoredProcedureResultColumn?)storeStoredProcedure.FindResultColumn(columnName);
-        if (column == null)
-        {
-            column = new StoreStoredProcedureResultColumn(columnName, property.GetColumnType(identifier), storeStoredProcedure)
+            var columnName = property.GetColumnName(identifier)!;
+            var storeParameter = (StoreStoredProcedureParameter?)storeStoredProcedure.FindParameter(columnName);
+            if (storeParameter == null)
             {
-                IsNullable = property.IsColumnNullable(identifier)
-            };
-            storeStoredProcedure.AddResultColumn(column);
-        }
-        else if (!property.IsColumnNullable(identifier))
-        {
-            column.IsNullable = false;
+                storeParameter = new StoreStoredProcedureParameter(
+                    columnName,
+                    property.GetColumnType(identifier),
+                    storeStoredProcedure,
+                    property.GetDirection(identifier)) { IsNullable = property.IsColumnNullable(identifier) };
+                storeStoredProcedure.AddParameter(storeParameter);
+            }
+            else if (!property.IsColumnNullable(identifier))
+            {
+                storeParameter.IsNullable = false;
+            }
+
+            return storeParameter;
         }
 
-        return column;
+        static StoreStoredProcedureResultColumn GetOrCreateStoreStoredProcedureResultColumn(
+            IProperty property,
+            StoreStoredProcedure storeStoredProcedure,
+            StoreObjectIdentifier identifier)
+        {
+            var columnName = property.GetColumnName(identifier)!;
+            var column = (StoreStoredProcedureResultColumn?)storeStoredProcedure.FindResultColumn(columnName);
+            if (column == null)
+            {
+                column = new StoreStoredProcedureResultColumn(columnName, property.GetColumnType(identifier), storeStoredProcedure)
+                {
+                    IsNullable = property.IsColumnNullable(identifier)
+                };
+                storeStoredProcedure.AddResultColumn(column);
+            }
+            else if (!property.IsColumnNullable(identifier))
+            {
+                column.IsNullable = false;
+            }
+
+            return column;
+        }
     }
 
     private static StoreStoredProcedure GetOrCreateStoreStoredProcedure(

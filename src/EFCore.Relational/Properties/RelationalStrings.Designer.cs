@@ -1230,7 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, query);
 
         /// <summary>
-        ///     The non-key property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only key properties are supported for Delete stored procedures.
+        ///     The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.
         /// </summary>
         public static string StoredProcedureDeleteNonKeyProperty(object? entityType, object? property, object? sproc)
             => string.Format(

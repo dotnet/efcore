@@ -87,13 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Mapping.TPH => 3,
                     _ => 6
                 }, model.Tables.Count());
-            
-            //Assert.Equal(mapping switch
-            //{
-            //    Mapping.TPC => 9,
-            //    Mapping.TPH => 3,
-            //    _ => 10
-            //}, model.StoredProcedures.Count());
+
+            Assert.Equal(mapping switch
+            {
+                Mapping.TPC => 24,
+                Mapping.TPH => 18,
+                _ => 27
+            }, model.StoredProcedures.Count());
 
             Assert.Empty(model.Views);
             Assert.True(model.Model.GetEntityTypes().All(et => !et.GetViewMappings().Any()));
@@ -1018,18 +1018,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.NotNull(specialCustomerDbIndex.MappedIndexes.Single());
             }
         }
-        
+
         private static void AssertSprocs(IRelationalModel model, Mapping mapping)
         {
             var orderType = model.Model.FindEntityType(typeof(Order));
             var orderInsertMapping = orderType.GetInsertStoredProcedureMappings().Single();
             Assert.True(orderInsertMapping.IncludesDerivedTypes);
             Assert.Same(orderType.GetInsertStoredProcedure(), orderInsertMapping.StoredProcedure);
-            
+
             Assert.Equal(
                 new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
                 orderInsertMapping.ParameterMappings.Select(m => m.Property.Name));
-            
+
             Assert.Equal(
                 new[] { nameof(Order.Id) },
                 orderInsertMapping.ResultColumnMappings.Select(m => m.Property.Name));
@@ -1044,21 +1044,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[] { nameof(Order) },
                 ordersInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
-            
+
             Assert.Equal(
-                new[]
-                {
-                    nameof(Order.AlternateId),
-                    nameof(Order.CustomerId),
-                    nameof(Order.OrderDate)
-                },
+                new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
                 ordersInsertSproc.Parameters.Select(m => m.Name));
-            
+
             Assert.Equal(
-                new[]
-                {
-                    nameof(Order.Id)
-                },
+                new[] { nameof(Order.Id) },
                 ordersInsertSproc.ResultColumns.Select(m => m.Name));
             Assert.Equal(ordersInsertSproc.ResultColumns, ordersInsertSproc.Columns);
 
@@ -1088,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var extraSpecialCustomerType = model.Model.FindEntityType(typeof(ExtraSpecialCustomer));
             var orderDetailsOwnership = orderType.FindNavigation(nameof(Order.Details)).ForeignKey;
             var orderDetailsType = orderDetailsOwnership.DeclaringEntityType;
-            
+
             Assert.Empty(ordersInsertSproc.GetReferencingRowInternalForeignKeys(orderType));
             Assert.Equal(
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersInsertSproc.Name),
@@ -1110,73 +1102,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var billingAddressOwnership = orderDetailsType.FindNavigation(nameof(OrderDetails.BillingAddress)).ForeignKey;
             Assert.True(billingAddressOwnership.IsRequiredDependent);
-            
+
             var billingAddressType = billingAddressOwnership.DeclaringEntityType;
 
             var shippingAddressOwnership = orderDetailsType.FindNavigation(nameof(OrderDetails.ShippingAddress)).ForeignKey;
             Assert.True(shippingAddressOwnership.IsRequiredDependent);
-            
-            var shippingAddressType = shippingAddressOwnership.DeclaringEntityType;
-            
-                var billingAddressInsertMapping = billingAddressType.GetInsertStoredProcedureMappings().Single();
-                Assert.Same(billingAddressType.GetInsertStoredProcedure(), billingAddressInsertMapping.StoredProcedure);
-                Assert.Same(billingAddressType, billingAddressInsertMapping.StoredProcedure.EntityType);
 
-                var billingAddressInsertSproc = billingAddressInsertMapping.StoreStoredProcedure;
-                Assert.Equal("BillingAddress_Insert", billingAddressInsertSproc.Name);
-                Assert.Null(billingAddressInsertSproc.Schema);
-                Assert.Equal(
-                    new[]
-                    {
-                        "OrderDetails.BillingAddress#Address"
-                    },
-                    billingAddressInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+            var billingAddressInsertMapping = billingAddressType.GetInsertStoredProcedureMappings().Single();
+            Assert.Same(billingAddressType.GetInsertStoredProcedure(), billingAddressInsertMapping.StoredProcedure);
+            Assert.Same(billingAddressType, billingAddressInsertMapping.StoredProcedure.EntityType);
 
-                Assert.Equal(
-                    new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId" },
-                    billingAddressInsertSproc.Parameters.Select(m => m.Name));
+            var billingAddressInsertSproc = billingAddressInsertMapping.StoreStoredProcedure;
+            Assert.Equal("BillingAddress_Insert", billingAddressInsertSproc.Name);
+            Assert.Null(billingAddressInsertSproc.Schema);
+            Assert.Equal(
+                new[] { "OrderDetails.BillingAddress#Address" },
+                billingAddressInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
-                Assert.Empty(billingAddressInsertSproc.ResultColumns.Select(m => m.Name));
+            Assert.Equal(
+                new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId" },
+                billingAddressInsertSproc.Parameters.Select(m => m.Name));
 
-                var billingAddressUpdateMapping = billingAddressType.GetUpdateStoredProcedureMappings().Single();
-                Assert.Same(billingAddressType.GetUpdateStoredProcedure(), billingAddressUpdateMapping.StoredProcedure);
-                Assert.Same(billingAddressType, billingAddressUpdateMapping.StoredProcedure.EntityType);
+            Assert.Empty(billingAddressInsertSproc.ResultColumns.Select(m => m.Name));
 
-                var billingAddressUpdateSproc = billingAddressUpdateMapping.StoreStoredProcedure;
-                Assert.Equal("BillingAddress_Update", billingAddressUpdateSproc.Name);
-                Assert.Null(billingAddressUpdateSproc.Schema);
-                Assert.Equal(
-                    new[]
-                    {
-                        "OrderDetails.BillingAddress#Address"
-                    },
-                    billingAddressUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+            var billingAddressUpdateMapping = billingAddressType.GetUpdateStoredProcedureMappings().Single();
+            Assert.Same(billingAddressType.GetUpdateStoredProcedure(), billingAddressUpdateMapping.StoredProcedure);
+            Assert.Same(billingAddressType, billingAddressUpdateMapping.StoredProcedure.EntityType);
 
-                Assert.Equal(
-                    new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId" },
-                    billingAddressUpdateSproc.Parameters.Select(m => m.Name));
+            var billingAddressUpdateSproc = billingAddressUpdateMapping.StoreStoredProcedure;
+            Assert.Equal("BillingAddress_Update", billingAddressUpdateSproc.Name);
+            Assert.Null(billingAddressUpdateSproc.Schema);
+            Assert.Equal(
+                new[] { "OrderDetails.BillingAddress#Address" },
+                billingAddressUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
-                Assert.Empty(billingAddressUpdateSproc.ResultColumns.Select(m => m.Name));
+            Assert.Equal(
+                new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId" },
+                billingAddressUpdateSproc.Parameters.Select(m => m.Name));
 
-                var billingAddressDeleteMapping = billingAddressType.GetDeleteStoredProcedureMappings().Single();
-                Assert.Same(billingAddressType.GetDeleteStoredProcedure(), billingAddressDeleteMapping.StoredProcedure);
-                Assert.Same(billingAddressType, billingAddressDeleteMapping.StoredProcedure.EntityType);
+            Assert.Empty(billingAddressUpdateSproc.ResultColumns.Select(m => m.Name));
 
-                var billingAddressDeleteSproc = billingAddressDeleteMapping.StoreStoredProcedure;
-                Assert.Equal("BillingAddress_Delete", billingAddressDeleteSproc.Name);
-                Assert.Null(billingAddressDeleteSproc.Schema);
-                Assert.Equal(
-                    new[]
-                    {
-                        "OrderDetails.BillingAddress#Address"
-                    },
-                    billingAddressDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+            var billingAddressDeleteMapping = billingAddressType.GetDeleteStoredProcedureMappings().Single();
+            Assert.Same(billingAddressType.GetDeleteStoredProcedure(), billingAddressDeleteMapping.StoredProcedure);
+            Assert.Same(billingAddressType, billingAddressDeleteMapping.StoredProcedure.EntityType);
 
-                Assert.Equal(
-                    new[] { "OrderDetailsOrderId" },
-                    billingAddressDeleteSproc.Parameters.Select(m => m.Name));
+            var billingAddressDeleteSproc = billingAddressDeleteMapping.StoreStoredProcedure;
+            Assert.Equal("BillingAddress_Delete", billingAddressDeleteSproc.Name);
+            Assert.Null(billingAddressDeleteSproc.Schema);
+            Assert.Equal(
+                new[] { "OrderDetails.BillingAddress#Address" },
+                billingAddressDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
-                Assert.Empty(billingAddressDeleteSproc.ResultColumns.Select(m => m.Name));
+            Assert.Equal(
+                new[] { "OrderDetailsOrderId" },
+                billingAddressDeleteSproc.Parameters.Select(m => m.Name));
+
+            Assert.Empty(billingAddressDeleteSproc.ResultColumns.Select(m => m.Name));
 
             Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
 
@@ -1201,7 +1182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(customerInsertSproc.IsOptional(specialCustomerType));
                 Assert.False(customerInsertSproc.IsOptional(extraSpecialCustomerType));
             }
-            
+
             var customerUpdateSproc = customerType.GetUpdateStoredProcedureMappings().Last().StoreStoredProcedure;
             Assert.False(customerUpdateSproc.IsOptional(customerType));
             if (mapping == Mapping.TPC)
@@ -1216,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(customerUpdateSproc.IsOptional(specialCustomerType));
                 Assert.False(customerUpdateSproc.IsOptional(extraSpecialCustomerType));
             }
-            
+
             var customerDeleteSproc = customerType.GetDeleteStoredProcedureMappings().Last().StoreStoredProcedure;
             Assert.False(customerDeleteSproc.IsOptional(customerType));
             if (mapping == Mapping.TPC)
@@ -1257,13 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     specialCustomerType.GetInsertStoredProcedureMappings().Single(m => m.IncludesDerivedTypes).StoreStoredProcedure.Name);
                 Assert.Null(baseInsertSproc.Schema);
                 Assert.Equal(
-                    new[]
-                    {
-                        nameof(AbstractBase),
-                        nameof(Customer),
-                        nameof(ExtraSpecialCustomer),
-                        nameof(SpecialCustomer)
-                    },
+                    new[] { nameof(AbstractBase), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
                     baseInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
                 Assert.Equal(
@@ -1295,13 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Null(baseUpdateSproc.Schema);
                 Assert.Equal(
-                    new[]
-                    {
-                        nameof(AbstractBase),
-                        nameof(Customer),
-                        nameof(ExtraSpecialCustomer),
-                        nameof(SpecialCustomer)
-                    },
+                    new[] { nameof(AbstractBase), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
                     baseUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
                 Assert.Equal(
@@ -1333,13 +1302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Null(baseDeleteSproc.Schema);
                 Assert.Equal(
-                    new[]
-                    {
-                        nameof(AbstractBase),
-                        nameof(Customer),
-                        nameof(ExtraSpecialCustomer),
-                        nameof(SpecialCustomer)
-                    },
+                    new[] { nameof(AbstractBase), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
                     baseDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
                 Assert.Equal(
@@ -1362,8 +1325,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Null(
                     specialCustomerInsertSproc.EntityTypeMappings.Single(m => m.EntityType == specialCustomerType).IsSharedTablePrincipal);
 
-                var specialtyInsertParameter = specialCustomerInsertSproc.Parameters.Single(c => c.Name == nameof(SpecialCustomer.Specialty));
-                
+                var specialtyInsertParameter =
+                    specialCustomerInsertSproc.Parameters.Single(c => c.Name == nameof(SpecialCustomer.Specialty));
+
                 Assert.False(specialtyInsertParameter.IsNullable);
 
                 var specialtyProperty = specialtyInsertParameter.PropertyMappings.First().Property;
@@ -1422,7 +1386,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var extraSpecialCustomerUpdateSproc =
                     extraSpecialCustomerType.GetUpdateStoredProcedureMappings().Select(t => t.StoreStoredProcedure)
                         .First(t => t.Name == "ExtraSpecialCustomer_Update");
-                
+
                 var idPropertyUpdateParameter = baseUpdateSproc.FindParameter(idProperty)!;
                 var idPropertyUpdateParameterMapping = idProperty.GetUpdateStoredProcedureParameterMappings().First();
                 Assert.Same(idPropertyUpdateParameter, baseUpdateSproc.FindParameter("UpdateId"));
@@ -1447,11 +1411,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             extraSpecialCustomerUpdateSproc.Name, extraSpecialCustomerUpdateSproc.Schema)
                     },
                     idProperty.GetMappedStoreObjects(StoreObjectType.UpdateStoredProcedure));
-                
+
                 var extraSpecialCustomerDeleteSproc =
                     extraSpecialCustomerType.GetDeleteStoredProcedureMappings().Select(t => t.StoreStoredProcedure)
                         .First(t => t.Name == "ExtraSpecialCustomer_Delete");
-                
+
                 var idPropertyDeleteParameter = baseDeleteSproc.FindParameter(idProperty)!;
                 var idPropertyDeleteParameterMapping = idProperty.GetDeleteStoredProcedureParameterMappings().First();
                 Assert.Same(idPropertyDeleteParameter, baseDeleteSproc.FindParameter("DeleteId"));
@@ -1466,12 +1430,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Equal(10, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
                 Assert.Equal(
-                    new[] { 
+                    new[]
+                    {
                         StoreObjectIdentifier.DeleteStoredProcedure(baseDeleteSproc.Name, baseDeleteSproc.Schema),
                         StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema),
                         StoreObjectIdentifier.DeleteStoredProcedure(specialCustomerDeleteSproc.Name, specialCustomerDeleteSproc.Schema),
                         StoreObjectIdentifier.DeleteStoredProcedure(
-                            extraSpecialCustomerDeleteSproc.Name, extraSpecialCustomerDeleteSproc.Schema) },
+                            extraSpecialCustomerDeleteSproc.Name, extraSpecialCustomerDeleteSproc.Schema)
+                    },
                     idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
             }
             else
@@ -1490,7 +1456,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(
                         new[] { "Discriminator", "SpecialtyAk" },
                         baseInsertMapping.ParameterMappings.Select(m => m.Property.Name));
-            
+
                     Assert.Equal(
                         new[] { nameof(AbstractBase.Id) },
                         baseInsertMapping.ResultColumnMappings.Select(m => m.Property.Name));
@@ -1514,7 +1480,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(SpecialCustomer)
                         },
                         baseInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
-            
+
                     Assert.Equal(
                         new[]
                         {
@@ -1532,7 +1498,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Equal(new[] { "InsertId" }, baseInsertSproc.ResultColumns.Select(m => m.Name));
                     Assert.Equal(baseInsertSproc.ResultColumns, baseInsertSproc.Columns);
-                    
+
                     Assert.True(specialCustomerInsertMapping.IncludesDerivedTypes);
                     Assert.Same(customerUpdateSproc, specialCustomerUpdateSproc);
 
@@ -1550,7 +1516,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(
                         new[] { nameof(AbstractBase.Id) },
                         baseUpdateMapping.ParameterMappings.Select(m => m.Property.Name));
-            
+
                     Assert.Empty(
                         baseUpdateMapping.ResultColumnMappings.Select(m => m.Property.Name));
                     Assert.Equal(baseUpdateMapping.ResultColumnMappings, baseUpdateMapping.ColumnMappings);
@@ -1573,7 +1539,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(SpecialCustomer)
                         },
                         baseUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
-            
+
                     Assert.Equal(
                         new[]
                         {
@@ -1590,7 +1556,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Empty(baseUpdateSproc.ResultColumns.Select(m => m.Name));
                     Assert.Equal(baseUpdateSproc.ResultColumns, baseUpdateSproc.Columns);
-                    
+
                     var baseDeleteMapping = abstractBaseType.GetDeleteStoredProcedureMappings().Single();
                     Assert.True(baseDeleteMapping.IncludesDerivedTypes);
                     Assert.Same(abstractBaseType.GetDeleteStoredProcedure(), baseDeleteMapping.StoredProcedure);
@@ -1598,7 +1564,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Equal(
                         new[] { nameof(AbstractBase.Id) },
                         baseDeleteMapping.ParameterMappings.Select(m => m.Property.Name));
-            
+
                     Assert.Empty(
                         baseDeleteMapping.ResultColumnMappings.Select(m => m.Property.Name));
                     Assert.Equal(baseDeleteMapping.ResultColumnMappings, baseDeleteMapping.ColumnMappings);
@@ -1621,17 +1587,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(SpecialCustomer)
                         },
                         baseDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
-            
+
                     Assert.Equal(
-                        new[]
-                        {
-                            "DeleteId"
-                        },
+                        new[] { "DeleteId" },
                         baseDeleteSproc.Parameters.Select(m => m.Name));
 
                     Assert.Empty(baseDeleteSproc.ResultColumns.Select(m => m.Name));
                     Assert.Equal(baseDeleteSproc.ResultColumns, baseDeleteSproc.Columns);
-                    
+
                     Assert.True(specialCustomerInsertMapping.IncludesDerivedTypes);
                     Assert.Same(customerInsertSproc, specialCustomerInsertSproc);
 
@@ -1641,22 +1604,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                     Assert.Single(specialCustomerInsertSproc.Columns);
                     Assert.Equal(9, specialCustomerInsertSproc.Parameters.Count());
-                    
+
                     Assert.True(specialtyParameter.IsNullable);
 
-                    var abstractStringColumn = specialCustomerInsertSproc.Parameters.Single(c => c.Name == nameof(AbstractCustomer.AbstractString));
+                    var abstractStringColumn =
+                        specialCustomerInsertSproc.Parameters.Single(c => c.Name == nameof(AbstractCustomer.AbstractString));
                     Assert.True(specialtyParameter.IsNullable);
                     Assert.Equal(2, specialtyParameter.PropertyMappings.Count);
 
                     var abstractStringProperty = abstractStringColumn.PropertyMappings.First().Property;
                     Assert.Equal(3, abstractStringProperty.GetInsertStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
-                            StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema)
-                        },
+                        new[] { StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema) },
                         abstractStringProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
-                    
+
                     var idPropertyInsertColumn = baseInsertSproc.FindResultColumn(idProperty)!;
                     var idPropertyInsertColumnMapping = idProperty.GetInsertStoredProcedureResultColumnMappings().First();
                     Assert.Same(idPropertyInsertColumn, baseInsertSproc.FindResultColumn("InsertId"));
@@ -1667,16 +1628,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(baseInsertSproc, idPropertyInsertColumn.StoredProcedure);
                     Assert.Same(idPropertyInsertColumn.StoredProcedure, idPropertyInsertColumn.Table);
                     Assert.Same(idPropertyInsertColumnMapping, idPropertyInsertColumn.FindColumnMapping(abstractBaseType));
-                    
+
                     Assert.Empty(idProperty.GetInsertStoredProcedureParameterMappings());
                     Assert.Equal(5, idProperty.GetInsertStoredProcedureResultColumnMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
-                            StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema)
-                        },
+                        new[] { StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema) },
                         idProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
-                    
+
                     var idPropertyUpdateParameter = baseUpdateSproc.FindParameter(idProperty)!;
                     var idPropertyUpdateParameterMapping = idProperty.GetUpdateStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyUpdateParameter, baseUpdateSproc.FindParameter("UpdateId"));
@@ -1688,16 +1646,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(baseUpdateSproc, idPropertyUpdateParameter.StoredProcedure);
                     Assert.Same(idPropertyUpdateParameter.StoredProcedure, idPropertyUpdateParameter.Table);
                     Assert.Same(idPropertyUpdateParameterMapping, idPropertyUpdateParameter.FindParameterMapping(abstractBaseType));
-                    
+
                     Assert.Empty(idProperty.GetUpdateStoredProcedureResultColumnMappings());
                     Assert.Equal(5, idProperty.GetUpdateStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
-                            StoreObjectIdentifier.UpdateStoredProcedure(customerUpdateSproc.Name, customerUpdateSproc.Schema)
-                        },
+                        new[] { StoreObjectIdentifier.UpdateStoredProcedure(customerUpdateSproc.Name, customerUpdateSproc.Schema) },
                         idProperty.GetMappedStoreObjects(StoreObjectType.UpdateStoredProcedure));
-                    
+
                     var idPropertyDeleteParameter = baseDeleteSproc.FindParameter(idProperty)!;
                     var idPropertyDeleteParameterMapping = idProperty.GetDeleteStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyDeleteParameter, baseDeleteSproc.FindParameter("DeleteId"));
@@ -1709,13 +1664,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(baseDeleteSproc, idPropertyDeleteParameter.StoredProcedure);
                     Assert.Same(idPropertyDeleteParameter.StoredProcedure, idPropertyDeleteParameter.Table);
                     Assert.Same(idPropertyDeleteParameterMapping, idPropertyDeleteParameter.FindParameterMapping(abstractBaseType));
-                    
+
                     Assert.Equal(5, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
                     Assert.Equal(
-                        new[]
-                        {
-                            StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema)
-                        },
+                        new[] { StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema) },
                         idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
                 }
                 else
@@ -1811,24 +1763,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(customerInsertSproc, idPropertyInsertColumn.StoredProcedure);
                     Assert.Same(idPropertyInsertColumn.StoredProcedure, idPropertyInsertColumn.Table);
                     Assert.Same(idPropertyInsertColumnMapping, idPropertyInsertColumn.FindColumnMapping(abstractBaseType));
-                    
+
                     Assert.Empty(idProperty.GetInsertStoredProcedureResultColumnMappings());
                     Assert.Equal(3, idProperty.GetInsertStoredProcedureParameterMappings().Count());
                     Assert.Equal(
                         new[]
                         {
                             StoreObjectIdentifier.InsertStoredProcedure(customerInsertSproc.Name, customerInsertSproc.Schema),
-                            StoreObjectIdentifier.InsertStoredProcedure(specialCustomerInsertSproc.Name, specialCustomerInsertSproc.Schema),
-                            StoreObjectIdentifier.InsertStoredProcedure(extraSpecialCustomerInsertSproc.Name, extraSpecialCustomerInsertSproc.Schema)
+                            StoreObjectIdentifier.InsertStoredProcedure(
+                                specialCustomerInsertSproc.Name, specialCustomerInsertSproc.Schema),
+                            StoreObjectIdentifier.InsertStoredProcedure(
+                                extraSpecialCustomerInsertSproc.Name, extraSpecialCustomerInsertSproc.Schema)
                         },
                         idProperty.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure));
-                    
+
                     var extraSpecialCustomerUpdateSproc =
                         extraSpecialCustomerType.GetUpdateStoredProcedureMappings().Select(t => t.StoreStoredProcedure)
                             .First(t => t.Name == "ExtraSpecialCustomer_Update");
 
                     Assert.Single(extraSpecialCustomerUpdateSproc.EntityTypeMappings);
-                    
+
                     var idPropertyUpdateParameter = customerUpdateSproc.FindParameter(idProperty)!;
                     var idPropertyUpdateParameterMapping = idProperty.GetUpdateStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyUpdateParameter, customerUpdateSproc.FindParameter("UpdateId"));
@@ -1853,13 +1807,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                 extraSpecialCustomerUpdateSproc.Name, extraSpecialCustomerUpdateSproc.Schema)
                         },
                         idProperty.GetMappedStoreObjects(StoreObjectType.UpdateStoredProcedure));
-                                        
+
                     var extraSpecialCustomerDeleteSproc =
                         extraSpecialCustomerType.GetDeleteStoredProcedureMappings().Select(t => t.StoreStoredProcedure)
                             .First(t => t.Name == "ExtraSpecialCustomer_Delete");
 
                     Assert.Single(extraSpecialCustomerDeleteSproc.EntityTypeMappings);
-                    
+
                     var idPropertyDeleteParameter = customerDeleteSproc.FindParameter(idProperty)!;
                     var idPropertyDeleteParameterMapping = idProperty.GetDeleteStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyDeleteParameter, customerDeleteSproc.FindParameter("DeleteId"));
@@ -1871,14 +1825,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Same(customerDeleteSproc, idPropertyDeleteParameter.StoredProcedure);
                     Assert.Same(idPropertyDeleteParameter.StoredProcedure, idPropertyDeleteParameter.Table);
                     Assert.Same(idPropertyDeleteParameterMapping, idPropertyDeleteParameter.FindParameterMapping(abstractBaseType));
-                    
+
                     Assert.Equal(3, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
                     Assert.Equal(
                         new[]
                         {
                             StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema),
-                            StoreObjectIdentifier.DeleteStoredProcedure(specialCustomerDeleteSproc.Name, specialCustomerDeleteSproc.Schema),
-                            StoreObjectIdentifier.DeleteStoredProcedure(extraSpecialCustomerDeleteSproc.Name, extraSpecialCustomerDeleteSproc.Schema)
+                            StoreObjectIdentifier.DeleteStoredProcedure(
+                                specialCustomerDeleteSproc.Name, specialCustomerDeleteSproc.Schema),
+                            StoreObjectIdentifier.DeleteStoredProcedure(
+                                extraSpecialCustomerDeleteSproc.Name, extraSpecialCustomerDeleteSproc.Schema)
                         },
                         idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
                 }

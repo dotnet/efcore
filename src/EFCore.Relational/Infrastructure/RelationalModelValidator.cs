@@ -337,20 +337,14 @@ public class RelationalModelValidator : ModelValidator
             }
         }
 
-        var storeGeneratedProperties = new Dictionary<string, IProperty>();
-        switch (storeObjectIdentifier.StoreObjectType)
+        var storeGeneratedProperties = storeObjectIdentifier.StoreObjectType switch
         {
-            case StoreObjectType.InsertStoredProcedure:
-                storeGeneratedProperties = properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnAdd) != 0)
-                    .ToDictionary(p => p.Key, p => p.Value);
-
-                break;
-            case StoreObjectType.UpdateStoredProcedure:
-                storeGeneratedProperties = properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnUpdate) != 0)
-                    .ToDictionary(p => p.Key, p => p.Value);
-
-                break;
-        }
+            StoreObjectType.InsertStoredProcedure
+                => properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnAdd) != 0).ToDictionary(p => p.Key, p => p.Value),
+            StoreObjectType.UpdateStoredProcedure
+                => properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnUpdate) != 0).ToDictionary(p => p.Key, p => p.Value),
+            _ => new Dictionary<string, IProperty>()
+        };
 
         foreach (var resultColumn in sproc.ResultColumns)
         {
@@ -385,6 +379,9 @@ public class RelationalModelValidator : ModelValidator
                     }
 
                     break;
+                default:
+                    Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
+                    break;
             }
         }
 
@@ -400,6 +397,7 @@ public class RelationalModelValidator : ModelValidator
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
+                case StoreObjectType.UpdateStoredProcedure:
                     if (property.GetDirection(storeObjectIdentifier) != ParameterDirection.Input
                         && !storeGeneratedProperties.Remove(property.Name))
                     {
@@ -419,15 +417,8 @@ public class RelationalModelValidator : ModelValidator
                     }
                     
                     break;
-                case StoreObjectType.UpdateStoredProcedure:
-                    if (property.GetDirection(storeObjectIdentifier) != ParameterDirection.Input
-                        && !storeGeneratedProperties.Remove(property.Name))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.StoredProcedureOutputParameterNotGenerated(
-                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
-                    }
-
+                default:
+                    Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
                     break;
             }
         }
@@ -438,7 +429,7 @@ public class RelationalModelValidator : ModelValidator
                 RelationalStrings.StoredProcedureGeneratedPropertiesNotMapped(
                     entityType.DisplayName(),
                     storeObjectIdentifier.DisplayName(),
-                    storeGeneratedProperties.Values.Format(false)));
+                    storeGeneratedProperties.Values.Format()));
         }
 
         foreach (var resultColumn in sproc.ResultColumns)
