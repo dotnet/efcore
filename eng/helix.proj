@@ -37,6 +37,13 @@
     </XUnitProject>
   </ItemGroup>
 
+  <!-- Work-around for https://github.com/dotnet/runtime/issues/70758 -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))'">
+    <XUnitProject Update="$(RepoRoot)/test/EFCore.InMemory.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.Sqlite.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); export COMPlus_EnableWriteXorExecute=0</PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
   <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Also remove other projects as they will be run outside of docker. -->
   <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`ubuntu-18.04-helix-sqlserver-amd64`))'">
     <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
