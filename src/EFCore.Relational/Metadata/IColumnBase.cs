@@ -40,4 +40,23 @@ public interface IColumnBase : IAnnotatable
     ///     Gets the property mappings.
     /// </summary>
     IReadOnlyList<IColumnMappingBase> PropertyMappings { get; }
+
+    /// <summary>
+    ///     Returns the property mapping for the given entity type.
+    /// </summary>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
+    public virtual IColumnMappingBase? FindColumnMapping(IReadOnlyEntityType entityType)
+    {
+        for (var i = 0; i < PropertyMappings.Count; i++)
+        {
+            var mapping = PropertyMappings[i];
+            if (mapping.Property.DeclaringEntityType.IsAssignableFrom(entityType))
+            {
+                return mapping;
+            }
+        }
+
+        return null;
+    }
 }

@@ -47,7 +47,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
         modelBuilder.Entity<Abstract>().HasAlternateKey("SomeId", "SomeOtherId");
         modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>("SomeId");
-        modelBuilder.Entity<Generic<string>>();
+        modelBuilder.Entity<Generic<string>>().Metadata.SetDiscriminatorValue("GenericString");
 
         Validate(modelBuilder);
     }

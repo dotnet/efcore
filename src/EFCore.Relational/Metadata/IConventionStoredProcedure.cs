@@ -6,30 +6,30 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a relational database function in a model in
+///     Represents a stored procedure in a model in
 ///     the form that can be mutated while the model is being built.
 /// </summary>
 public interface IConventionStoredProcedure : IReadOnlyStoredProcedure, IConventionAnnotatable
 {
     /// <summary>
-    ///     Gets the entity type in which this function is defined.
+    ///     Gets the entity type in which this stored procedure is defined.
     /// </summary>
     new IConventionEntityType EntityType { get; }
 
     /// <summary>
-    ///     Gets the builder that can be used to configure this function.
+    ///     Gets the builder that can be used to configure this stored procedure.
     /// </summary>
     /// <exception cref="InvalidOperationException">If the function has been removed from the model.</exception>
     new IConventionStoredProcedureBuilder Builder { get; }
 
     /// <summary>
-    ///     Gets the configuration source for this function.
+    ///     Gets the configuration source for this stored procedure.
     /// </summary>
     /// <returns>The configuration source for this function.</returns>
     ConfigurationSource GetConfigurationSource();
 
     /// <summary>
-    ///     Sets the name of the function in the database.
+    ///     Sets the name of the stored procedure in the database.
     /// </summary>
     /// <param name="name">The name of the function in the database.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
@@ -43,7 +43,7 @@ public interface IConventionStoredProcedure : IReadOnlyStoredProcedure, IConvent
     ConfigurationSource? GetNameConfigurationSource();
 
     /// <summary>
-    ///     Sets the schema of the function in the database.
+    ///     Sets the schema of the stored procedure in the database.
     /// </summary>
     /// <param name="schema">The schema of the function in the database.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>

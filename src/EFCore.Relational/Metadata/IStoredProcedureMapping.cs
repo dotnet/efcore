@@ -6,31 +6,34 @@ using System.Text;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a column in a SQL query.
+///     Represents entity type mapping to a stored procedure.
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-///     for more information and examples.
-/// </remarks>
-public interface ISqlQueryColumn : IColumnBase
+public interface IStoredProcedureMapping : ITableMappingBase
 {
     /// <summary>
-    ///     Gets the containing SQL query.
+    ///     Gets the target stored procedure in the database.
     /// </summary>
-    ISqlQuery SqlQuery { get; }
+    IStoreStoredProcedure StoreStoredProcedure { get; }
 
     /// <summary>
-    ///     Gets the property mappings.
+    ///     Gets the target stored procedure in the model.
     /// </summary>
-    new IReadOnlyList<ISqlQueryColumnMapping> PropertyMappings { get; }
+    IStoredProcedure StoredProcedure { get; }
 
     /// <summary>
-    ///     Returns the property mapping for the given entity type.
+    ///     Gets the stored procedure identifier including whether it's used for insert, delete or update.
     /// </summary>
-    /// <param name="entityType">An entity type.</param>
-    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
-    new ISqlQueryColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
-        => (ISqlQueryColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
+    StoreObjectIdentifier StoredProcedureIdentifier { get; }
+
+    /// <summary>
+    ///     Gets the parameter mappings corresponding to the target stored procedure.
+    /// </summary>
+    IEnumerable<IStoredProcedureParameterMapping> ParameterMappings { get; }
+
+    /// <summary>
+    ///     Gets the result column mappings corresponding to the target stored procedure.
+    /// </summary>
+    IEnumerable<IStoredProcedureResultColumnMapping> ResultColumnMappings { get; }
 
     /// <summary>
     ///     <para>
@@ -54,13 +57,19 @@ public interface ISqlQueryColumn : IColumnBase
         var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
         if (singleLine)
         {
-            builder.Append($"SqlQueryColumn: {Table.Name}.");
+            builder.Append("StoredProcedureMapping: ");
         }
 
-        builder.Append(Name).Append(" (");
-        builder.Append(StoreType).Append(')');
-        builder.Append(IsNullable ? " Nullable" : " NonNullable");
-        builder.Append(')');
+        builder.Append(EntityType.DisplayName()).Append(" - ");
+
+        builder.Append(StoreStoredProcedure.Name);
+        
+        builder.Append(" Type:").Append(StoredProcedureIdentifier.StoreObjectType);
+
+        if (IncludesDerivedTypes)
+        {
+            builder.Append(" IncludesDerivedTypes");
+        }
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
         {

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -32,6 +33,12 @@ public interface IReadOnlyRelationalPropertyOverrides : IReadOnlyAnnotatable
     ///     Gets a value indicating whether the column name is overriden.
     /// </summary>
     bool IsColumnNameOverridden { get; }
+
+    /// <summary>
+    ///     Gets the direction of the stored procedure parameter.
+    /// </summary>
+    ParameterDirection? Direction
+        => ((ParameterDirection?)this[RelationalAnnotationNames.ParameterDirection]);
 
     /// <summary>
     ///     <para>

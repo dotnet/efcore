@@ -6,31 +6,19 @@ using System.Text;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a column in a SQL query.
+///     Represents property mapping to a stored procedure result column.
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-///     for more information and examples.
-/// </remarks>
-public interface ISqlQueryColumn : IColumnBase
+public interface IStoredProcedureResultColumnMapping : IColumnMappingBase
 {
     /// <summary>
-    ///     Gets the containing SQL query.
+    ///     Gets the target column.
     /// </summary>
-    ISqlQuery SqlQuery { get; }
+    new IStoreStoredProcedureResultColumn Column { get; }
 
     /// <summary>
-    ///     Gets the property mappings.
+    ///     Gets the containing stored procedure mapping.
     /// </summary>
-    new IReadOnlyList<ISqlQueryColumnMapping> PropertyMappings { get; }
-
-    /// <summary>
-    ///     Returns the property mapping for the given entity type.
-    /// </summary>
-    /// <param name="entityType">An entity type.</param>
-    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
-    new ISqlQueryColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
-        => (ISqlQueryColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
+    IStoredProcedureMapping StoredProcedureMapping { get; }
 
     /// <summary>
     ///     <para>
@@ -54,13 +42,12 @@ public interface ISqlQueryColumn : IColumnBase
         var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
         if (singleLine)
         {
-            builder.Append($"SqlQueryColumn: {Table.Name}.");
+            builder.Append("StoredProcedureResultColumnMapping: ");
         }
 
-        builder.Append(Name).Append(" (");
-        builder.Append(StoreType).Append(')');
-        builder.Append(IsNullable ? " Nullable" : " NonNullable");
-        builder.Append(')');
+        builder.Append(Property.Name).Append(" - ");
+
+        builder.Append(Column.Name);
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
         {

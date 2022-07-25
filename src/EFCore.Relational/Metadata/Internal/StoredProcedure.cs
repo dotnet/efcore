@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class StoredProcedure :
-    ConventionAnnotatable, IStoredProcedure, IMutableStoredProcedure, IConventionStoredProcedure
+    ConventionAnnotatable, IRuntimeStoredProcedure, IMutableStoredProcedure, IConventionStoredProcedure
 {
     private readonly List<string> _parameters = new();
     private readonly HashSet<string> _parametersSet = new();
@@ -20,6 +20,7 @@ public class StoredProcedure :
     private string? _name;
     private InternalStoredProcedureBuilder? _builder;
     private bool _areTransactionsSuppressed;
+    private IStoreStoredProcedure? _storeStoredProcedure;
 
     private ConfigurationSource _configurationSource;
     private ConfigurationSource? _schemaConfigurationSource;
@@ -86,11 +87,11 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static StoredProcedure? FindStoredProcedure(
+    public static IStoredProcedure? FindStoredProcedure(
         IReadOnlyEntityType entityType,
         StoreObjectType sprocType)
     {
-        var storedProcedure = GetDeclaredStoredProcedure(entityType, sprocType);
+        var storedProcedure = FindDeclaredStoredProcedure(entityType, sprocType);
         if (storedProcedure != null)
         {
             return storedProcedure;
@@ -112,12 +113,12 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static StoredProcedure? GetDeclaredStoredProcedure(
+    public static IStoredProcedure? FindDeclaredStoredProcedure(
         IReadOnlyEntityType entityType,
         StoreObjectType sprocType)
     {
         var sprocAnnotation = entityType.FindAnnotation(GetAnnotationName(sprocType));
-        return sprocAnnotation != null ? (StoredProcedure?)sprocAnnotation.Value : null;
+        return sprocAnnotation != null ? (IStoredProcedure?)sprocAnnotation.Value : null;
     }
 
     /// <summary>
@@ -130,13 +131,13 @@ public class StoredProcedure :
         IMutableEntityType entityType,
         StoreObjectType sprocType)
     {
-        var oldId = GetDeclaredStoredProcedure(entityType, sprocType)?.CreateIdentifier();
+        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var sproc = new StoredProcedure(entityType, ConfigurationSource.Explicit);
         entityType.SetAnnotation(GetAnnotationName(sprocType), sproc);
 
         if (oldId != null)
         {
-            UpdateOverrides(oldId.Value, sproc.CreateIdentifier(), (IConventionEntityType)entityType);
+            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)sproc).GetStoreIdentifier(), (IConventionEntityType)entityType);
         }
         
         return sproc;
@@ -154,14 +155,14 @@ public class StoredProcedure :
         string name,
         string? schema)
     {
-        var oldId = GetDeclaredStoredProcedure(entityType, sprocType)?.CreateIdentifier();
+        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var sproc = new StoredProcedure(entityType, ConfigurationSource.Explicit);
         entityType.SetAnnotation(GetAnnotationName(sprocType), sproc);
         sproc.SetName(name, schema, ConfigurationSource.Explicit, skipOverrides: true);
 
         if (oldId != null)
         {
-            UpdateOverrides(oldId.Value, sproc.CreateIdentifier(), (IConventionEntityType)entityType);
+            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)sproc).GetStoreIdentifier(), (IConventionEntityType)entityType);
         }
 
         return sproc;
@@ -178,7 +179,7 @@ public class StoredProcedure :
         StoreObjectType sprocType,
         bool fromDataAnnotation)
     {
-        var oldId = GetDeclaredStoredProcedure(entityType, sprocType)?.CreateIdentifier();
+        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var sproc = new StoredProcedure(
             (IMutableEntityType)entityType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -187,7 +188,7 @@ public class StoredProcedure :
         if (oldId != null
             && sproc != null)
         {
-            UpdateOverrides(oldId.Value, sproc.CreateIdentifier(), entityType);
+            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)sproc).GetStoreIdentifier(), entityType);
         }
 
         return sproc;
@@ -206,7 +207,7 @@ public class StoredProcedure :
         string? schema,
         bool fromDataAnnotation)
     {
-        var oldId = GetDeclaredStoredProcedure(entityType, sprocType)?.CreateIdentifier();
+        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
         var sproc = new StoredProcedure((IMutableEntityType)entityType, configurationSource);
         sproc = (StoredProcedure?)entityType.SetAnnotation(GetAnnotationName(sprocType), sproc)?.Value;
@@ -216,7 +217,7 @@ public class StoredProcedure :
         if (oldId != null
             && sproc != null)
         {
-            UpdateOverrides(oldId.Value, sproc.CreateIdentifier(), entityType);
+            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)sproc).GetStoreIdentifier(), entityType);
         }
 
         return sproc;
@@ -230,7 +231,7 @@ public class StoredProcedure :
     /// </summary>
     public static IMutableStoredProcedure? RemoveStoredProcedure(IMutableEntityType entityType, StoreObjectType sprocType)
     {
-        var oldId = GetDeclaredStoredProcedure(entityType, sprocType)?.CreateIdentifier();
+        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var sproc = (IMutableStoredProcedure?)entityType.RemoveAnnotation(GetAnnotationName(sprocType))?.Value;
 
         if (oldId != null
@@ -250,7 +251,7 @@ public class StoredProcedure :
     /// </summary>
     public static IConventionStoredProcedure? RemoveStoredProcedure(IConventionEntityType entityType, StoreObjectType sprocType)
     {
-        var oldId = GetDeclaredStoredProcedure(entityType, sprocType)?.CreateIdentifier();
+        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var sproc = (IConventionStoredProcedure?)entityType.RemoveAnnotation(GetAnnotationName(sprocType))?.Value;
 
         if (oldId != null
@@ -281,38 +282,6 @@ public class StoredProcedure :
             StoreObjectType.UpdateStoredProcedure => RelationalAnnotationNames.UpdateStoredProcedure,
             _ => throw new InvalidOperationException("Unsopported sproc type " + sprocType)
         };
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual StoreObjectIdentifier? CreateIdentifier()
-    {
-        var name = Name;
-        if (name == null)
-        {
-            return null;
-        }
-
-        if (EntityType.GetInsertStoredProcedure() == this)
-        {
-            return StoreObjectIdentifier.InsertStoredProcedure(name, Schema);
-        }
-
-        if (EntityType.GetDeleteStoredProcedure() == this)
-        {
-            return StoreObjectIdentifier.DeleteStoredProcedure(name, Schema);
-        }
-        
-        if (EntityType.GetUpdateStoredProcedure() == this)
-        {
-            return StoreObjectIdentifier.UpdateStoredProcedure(name, Schema);
-        }
-
-        return null;
-    }
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -346,7 +315,7 @@ public class StoredProcedure :
     {
         EnsureMutable();
 
-        var oldId = CreateIdentifier();
+        var oldId = ((IReadOnlyStoredProcedure)this).GetStoreIdentifier();
         
         _schema = schema;
 
@@ -354,7 +323,7 @@ public class StoredProcedure :
 
         if (oldId != null)
         {
-            UpdateOverrides(oldId.Value, CreateIdentifier(), (IConventionEntityType)EntityType);
+            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier(), (IConventionEntityType)EntityType);
         }
 
         return schema;
@@ -378,6 +347,12 @@ public class StoredProcedure :
 
     private string? GetDefaultName()
     {
+        var tableName = EntityType.GetTableName() ?? EntityType.GetDefaultTableName();
+        if (tableName == null)
+        {
+            return null;
+        }
+        
         string? suffix;
         if (EntityType.GetInsertStoredProcedure() == this)
         {
@@ -396,12 +371,6 @@ public class StoredProcedure :
             return null;
         }
 
-        var tableName = EntityType.GetDefaultTableName();
-        if (tableName == null)
-        {
-            return null;
-        }
-
         return tableName + suffix;
     }
 
@@ -415,7 +384,7 @@ public class StoredProcedure :
     {
         EnsureMutable();
 
-        var oldId = CreateIdentifier();
+        var oldId = ((IReadOnlyStoredProcedure)this).GetStoreIdentifier();
 
         _name = name;
 
@@ -425,7 +394,7 @@ public class StoredProcedure :
 
         if (oldId != null)
         {
-            UpdateOverrides(oldId.Value, CreateIdentifier(), (IConventionEntityType)EntityType);
+            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier(), (IConventionEntityType)EntityType);
         }
 
         return name;
@@ -441,7 +410,7 @@ public class StoredProcedure :
     {
         EnsureMutable();
 
-        var oldId = CreateIdentifier();
+        var oldId = ((IReadOnlyStoredProcedure)this).GetStoreIdentifier();
 
         _name = name;
 
@@ -456,7 +425,7 @@ public class StoredProcedure :
         if (!skipOverrides
             && oldId != null)
         {
-            UpdateOverrides(oldId.Value, CreateIdentifier(), (IConventionEntityType)EntityType);
+            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier(), (IConventionEntityType)EntityType);
         }
     }
 
@@ -568,15 +537,6 @@ public class StoredProcedure :
         return false;
     }
 
-    ///// <summary>
-    /////     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    /////     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    /////     any release. You should only use it directly in your code with extreme caution and knowing that
-    /////     doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///// </summary>
-    //[DisallowNull]
-    //public virtual IStoreFunction? StoreFunction { get; set; }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -633,9 +593,16 @@ public class StoredProcedure :
         get => (IEntityType)EntityType;
     }
 
-    ///// <inheritdoc />
-    //IStoreFunction IDbFunction.StoreFunction
-    //    => StoreFunction!; // Relational model creation ensures StoreFunction is populated
+    /// <inheritdoc />
+    IStoreStoredProcedure IStoredProcedure.StoreStoredProcedure
+        => _storeStoredProcedure!; // Relational model creation ensures StoreStoredProcedure is populated
+    
+    /// <inheritdoc />
+    IStoreStoredProcedure IRuntimeStoredProcedure.StoreStoredProcedure
+    {
+        get => _storeStoredProcedure!;
+        set => _storeStoredProcedure = value;
+    }
 
     /// <inheritdoc />
     [DebuggerStepThrough]

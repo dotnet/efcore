@@ -77,8 +77,15 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
             : !ClrType.IsInstantiable()
                 || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
             ? null
-            : (object)ShortName();
+            : (object?)GetDefaultDiscriminatorValue();
     }
+    
+    /// <summary>
+    ///     Returns the default discriminator value that would be used for this entity type.
+    /// </summary>
+    /// <returns>The default discriminator value for this entity type.</returns>
+    string GetDefaultDiscriminatorValue()
+        => !HasSharedClrType ? ClrType.ShortDisplayName() : ShortName();
 
     /// <summary>
     ///     Gets all types in the model from which a given entity type derives, starting with the root.

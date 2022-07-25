@@ -6,31 +6,27 @@ using System.Text;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a column in a SQL query.
+///     Represents a result column in a stored procedure.
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-///     for more information and examples.
-/// </remarks>
-public interface ISqlQueryColumn : IColumnBase
+public interface IStoreStoredProcedureResultColumn : IColumnBase
 {
     /// <summary>
-    ///     Gets the containing SQL query.
+    ///     Gets the containing stored procedure.
     /// </summary>
-    ISqlQuery SqlQuery { get; }
+    IStoreStoredProcedure StoredProcedure { get; }
 
     /// <summary>
     ///     Gets the property mappings.
     /// </summary>
-    new IReadOnlyList<ISqlQueryColumnMapping> PropertyMappings { get; }
+    new IReadOnlyList<IStoredProcedureResultColumnMapping> PropertyMappings { get; }
 
     /// <summary>
     ///     Returns the property mapping for the given entity type.
     /// </summary>
     /// <param name="entityType">An entity type.</param>
     /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
-    new ISqlQueryColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
-        => (ISqlQueryColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
+    new IStoredProcedureResultColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+        => (IStoredProcedureResultColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
 
     /// <summary>
     ///     <para>
@@ -54,7 +50,7 @@ public interface ISqlQueryColumn : IColumnBase
         var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
         if (singleLine)
         {
-            builder.Append($"SqlQueryColumn: {Table.Name}.");
+            builder.Append($"StoredProcedureResultColumn: {Table.Name}.");
         }
 
         builder.Append(Name).Append(" (");

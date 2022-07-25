@@ -70,7 +70,7 @@ public class OwnedNavigationStoredProcedureBuilder :
     public virtual OwnedNavigationStoredProcedureBuilder HasParameter(string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
     {
         Builder.HasParameter(propertyName, ConfigurationSource.Explicit);
-        buildAction(new(((StoredProcedure)Metadata).CreateIdentifier()!.Value, CreatePropertyBuilder(propertyName)));
+        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyName)));
         return this;
     }
     
@@ -128,7 +128,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         string propertyName, Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         Builder.HasResultColumn(propertyName, ConfigurationSource.Explicit);
-        buildAction(new(((StoredProcedure)Metadata).CreateIdentifier()!.Value, CreatePropertyBuilder(propertyName)));
+        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyName)));
         return this;
     }
 

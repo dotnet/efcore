@@ -104,7 +104,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(((StoredProcedure)Metadata).CreateIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -185,7 +185,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(((StoredProcedure)Metadata).CreateIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 

@@ -6,53 +6,53 @@ using System.Text;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a function in the database.
+///     Represents a stored procedure in a database.
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
-/// </remarks>
-public interface IStoreFunction : ITableBase
+public interface IStoreStoredProcedure : ITableBase
 {
     /// <summary>
-    ///     Gets the associated model functions.
+    ///     Gets the associated model stored procedures.
     /// </summary>
-    IEnumerable<IDbFunction> DbFunctions { get; }
+    IEnumerable<IStoredProcedure> StoredProcedures { get; }
 
     /// <summary>
-    ///     Gets the value indicating whether the database function is built-in.
+    ///     Gets the entity type mappings.
     /// </summary>
-    bool IsBuiltIn { get; }
+    new IEnumerable<IStoredProcedureMapping> EntityTypeMappings { get; }
 
     /// <summary>
-    ///     Gets the parameters for this function.
+    ///     Gets the parameters for this stored procedures.
     /// </summary>
-    IEnumerable<IStoreFunctionParameter> Parameters { get; }
+    IEnumerable<IStoreStoredProcedureParameter> Parameters { get; }
 
     /// <summary>
-    ///     Gets the scalar return type.
+    ///     Gets the parameter with the given name. Returns <see langword="null" />
+    ///     if no parameter with the given name is defined for the returned row set.
     /// </summary>
-    string? ReturnType { get; }
+    IStoreStoredProcedureParameter? FindParameter(string name);
 
     /// <summary>
-    ///     Gets the entity type mappings for the returned row set.
+    ///     Gets the parameter mapped to the given property. Returns <see langword="null" />
+    ///     if no parameter is mapped to the given property.
     /// </summary>
-    new IEnumerable<IFunctionMapping> EntityTypeMappings { get; }
+    IStoreStoredProcedureParameter? FindParameter(IProperty property);
 
     /// <summary>
     ///     Gets the columns defined for the returned row set.
     /// </summary>
-    new IEnumerable<IFunctionColumn> Columns { get; }
+    IEnumerable<IStoreStoredProcedureResultColumn> ResultColumns { get; }
 
     /// <summary>
-    ///     Gets the column with the given name. Returns <see langword="null" />
-    ///     if no column with the given name is defined for the returned row set.
+    ///     Gets the result column with the given name. Returns <see langword="null" />
+    ///     if no result column with the given name is defined for the returned row set.
     /// </summary>
-    new IFunctionColumn? FindColumn(string name);
+    IStoreStoredProcedureResultColumn? FindResultColumn(string name);
 
     /// <summary>
-    ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
+    ///     Gets the result column mapped to the given property. Returns <see langword="null" />
+    ///     if no result column is mapped to the given property.
     /// </summary>
-    new IFunctionColumn? FindColumn(IProperty property);
+    IStoreStoredProcedureResultColumn? FindResultColumn(IProperty property);
 
     /// <summary>
     ///     <para>
@@ -75,19 +75,8 @@ public interface IStoreFunction : ITableBase
         {
             builder
                 .Append(indentString)
-                .Append("StoreFunction: ");
-
-            if (ReturnType != null)
-            {
-                builder.Append(ReturnType);
-            }
-            else
-            {
-                builder.Append(EntityTypeMappings.FirstOrDefault()?.EntityType.DisplayName() ?? "");
-            }
-
-            builder.Append(' ');
-
+                .Append("StoreStoredProcedure: ");
+            
             if (Schema != null)
             {
                 builder
@@ -96,11 +85,6 @@ public interface IStoreFunction : ITableBase
             }
 
             builder.Append(Name);
-
-            if (IsBuiltIn)
-            {
-                builder.Append(" IsBuiltIn");
-            }
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
@@ -114,6 +98,16 @@ public interface IStoreFunction : ITableBase
                     }
                 }
 
+                var resultColumns = ResultColumns.ToList();
+                if (resultColumns.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  ResultColumns: ");
+                    foreach (var column in resultColumns)
+                    {
+                        builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
+                    }
+                }
+
                 var mappings = EntityTypeMappings.ToList();
                 if (mappings.Count != 0)
                 {
@@ -121,16 +115,6 @@ public interface IStoreFunction : ITableBase
                     foreach (var mapping in mappings)
                     {
                         builder.AppendLine().Append(mapping.ToDebugString(options, indent + 4));
-                    }
-                }
-
-                var columns = Columns.ToList();
-                if (columns.Count != 0)
-                {
-                    builder.AppendLine().Append(indentString).Append("  Columns: ");
-                    foreach (var column in columns)
-                    {
-                        builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
                     }
                 }
 
