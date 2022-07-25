@@ -37,12 +37,12 @@ public static class SqlServerDbSetExtensions
         where TEntity : class
     {
         var queryableSource = (IQueryable)source;
-        var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
-        var entityType = queryRootExpression.EntityType;
+        var entityQueryRootExpression = (EntityQueryRootExpression)queryableSource.Expression;
+        var entityType = entityQueryRootExpression.EntityType;
 
         return queryableSource.Provider.CreateQuery<TEntity>(
             new TemporalAsOfQueryRootExpression(
-                queryRootExpression.QueryProvider!,
+                entityQueryRootExpression.QueryProvider!,
                 entityType,
                 utcPointInTime)).AsNoTracking();
     }
@@ -83,12 +83,12 @@ public static class SqlServerDbSetExtensions
         where TEntity : class
     {
         var queryableSource = (IQueryable)source;
-        var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
-        var entityType = queryRootExpression.EntityType;
+        var entityQueryRootExpression = (EntityQueryRootExpression)queryableSource.Expression;
+        var entityType = entityQueryRootExpression.EntityType;
 
         return queryableSource.Provider.CreateQuery<TEntity>(
             new TemporalFromToQueryRootExpression(
-                queryRootExpression.QueryProvider!,
+                entityQueryRootExpression.QueryProvider!,
                 entityType,
                 utcFrom,
                 utcTo)).AsNoTracking();
@@ -130,12 +130,12 @@ public static class SqlServerDbSetExtensions
         where TEntity : class
     {
         var queryableSource = (IQueryable)source;
-        var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
-        var entityType = queryRootExpression.EntityType;
+        var entityQueryRootExpression = (EntityQueryRootExpression)queryableSource.Expression;
+        var entityType = entityQueryRootExpression.EntityType;
 
         return queryableSource.Provider.CreateQuery<TEntity>(
             new TemporalBetweenQueryRootExpression(
-                queryRootExpression.QueryProvider!,
+                entityQueryRootExpression.QueryProvider!,
                 entityType,
                 utcFrom,
                 utcTo)).AsNoTracking();
@@ -177,12 +177,12 @@ public static class SqlServerDbSetExtensions
         where TEntity : class
     {
         var queryableSource = (IQueryable)source;
-        var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
-        var entityType = queryRootExpression.EntityType;
+        var entityQueryRootExpression = (EntityQueryRootExpression)queryableSource.Expression;
+        var entityType = entityQueryRootExpression.EntityType;
 
         return queryableSource.Provider.CreateQuery<TEntity>(
             new TemporalContainedInQueryRootExpression(
-                queryRootExpression.QueryProvider!,
+                entityQueryRootExpression.QueryProvider!,
                 entityType,
                 utcFrom,
                 utcTo)).AsNoTracking();
@@ -208,11 +208,11 @@ public static class SqlServerDbSetExtensions
         where TEntity : class
     {
         var queryableSource = (IQueryable)source;
-        var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
-        var entityType = queryRootExpression.EntityType;
+        var entityQueryRootExpression = (EntityQueryRootExpression)queryableSource.Expression;
+        var entityType = entityQueryRootExpression.EntityType;
 
         return queryableSource.Provider.CreateQuery<TEntity>(
             new TemporalAllQueryRootExpression(
-                queryRootExpression.QueryProvider!, entityType)).AsNoTracking();
+                entityQueryRootExpression.QueryProvider!, entityType)).AsNoTracking();
     }
 }

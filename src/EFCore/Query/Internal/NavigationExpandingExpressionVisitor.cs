@@ -147,15 +147,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         switch (extensionExpression)
         {
-            case QueryRootExpression queryRootExpression:
-                var entityType = queryRootExpression.EntityType;
+            case EntityQueryRootExpression entityQueryRootExpression:
+                var entityType = entityQueryRootExpression.EntityType;
 #pragma warning disable CS0618 // Type or member is obsolete
                 var definingQuery = entityType.GetDefiningQuery();
 #pragma warning restore CS0618 // Type or member is obsolete
                 NavigationExpansionExpression navigationExpansionExpression;
                 if (definingQuery != null
                     // Apply defining query only when it is not custom query root
-                    && queryRootExpression.GetType() == typeof(QueryRootExpression))
+                    && entityQueryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
                     var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
@@ -171,7 +171,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 }
                 else
                 {
-                    navigationExpansionExpression = CreateNavigationExpansionExpression(queryRootExpression, entityType);
+                    navigationExpansionExpression = CreateNavigationExpansionExpression(entityQueryRootExpression, entityType);
                 }
 
                 return ApplyQueryFilter(entityType, navigationExpansionExpression);
@@ -814,7 +814,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             && entityReference.EntityType.GetAllBaseTypes().Concat(entityReference.EntityType.GetDerivedTypesInclusive())
                 .FirstOrDefault(et => et.ClrType == castType) is IEntityType castEntityType)
         {
-            var newEntityReference = new EntityReference(castEntityType, entityReference.QueryRootExpression);
+            var newEntityReference = new EntityReference(castEntityType, entityReference.EntityQueryRootExpression);
             if (entityReference.IsOptional)
             {
                 newEntityReference.MarkAsOptional();
@@ -1642,7 +1642,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
                     var filterWrapper = Expression.Call(
                         QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
-                        new QueryRootExpression(rootEntityType),
+                        new EntityQueryRootExpression(rootEntityType),
                         filterPredicate);
                     filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
 
@@ -1686,7 +1686,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 
             if (!_extensibilityHelper.AreQueryRootsCompatible(
-                    outerEntityReference.QueryRootExpression, innerEntityReference.QueryRootExpression))
+                    outerEntityReference.EntityQueryRootExpression, innerEntityReference.EntityQueryRootExpression))
             {
                 throw new InvalidOperationException(CoreStrings.IncompatibleSourcesForSetOperation);
             }
@@ -1841,7 +1841,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         // if sourceExpression is not a query root we will throw when trying to construct temporal root expression
         // regular queries don't use the query root so they will still be fine
-        var entityReference = new EntityReference(entityType, sourceExpression as QueryRootExpression);
+        var entityReference = new EntityReference(entityType, sourceExpression as EntityQueryRootExpression);
         PopulateEagerLoadedNavigations(entityReference.IncludePaths);
 
         var currentTree = new NavigationTreeExpression(entityReference);

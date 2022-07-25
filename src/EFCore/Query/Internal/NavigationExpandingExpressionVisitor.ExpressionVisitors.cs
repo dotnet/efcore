@@ -144,9 +144,9 @@ public partial class NavigationExpandingExpressionVisitor
                 }
 
                 // make sure that we can actually expand this navigation (later)
-                _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.QueryRootExpression);
+                _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.EntityQueryRootExpression);
 
-                var ownedEntityReference = new EntityReference(targetType, entityReference.QueryRootExpression);
+                var ownedEntityReference = new EntityReference(targetType, entityReference.EntityQueryRootExpression);
                 _navigationExpandingExpressionVisitor.PopulateEagerLoadedNavigations(ownedEntityReference.IncludePaths);
                 ownedEntityReference.MarkAsOptional();
                 if (entityReference.IncludePaths.TryGetValue(navigation, out var includePath))
@@ -217,8 +217,8 @@ public partial class NavigationExpandingExpressionVisitor
                     var secondTargetType = navigation.TargetEntityType;
                     // we can use the entity reference here. If the join entity wasn't temporal,
                     // the query root creation validator would have thrown the exception when it was being created
-                    _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.QueryRootExpression);
-                    var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.QueryRootExpression);
+                    _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.EntityQueryRootExpression);
+                    var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.EntityQueryRootExpression);
                     var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
                     if (includeTree != null)
@@ -267,8 +267,8 @@ public partial class NavigationExpandingExpressionVisitor
                     // Second pseudo-navigation is a collection
                     var secondTargetType = navigation.TargetEntityType;
 
-                    _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.QueryRootExpression);
-                    var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.QueryRootExpression);
+                    _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.EntityQueryRootExpression);
+                    var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.EntityQueryRootExpression);
                     var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
                     if (includeTree != null)
@@ -345,8 +345,8 @@ public partial class NavigationExpandingExpressionVisitor
 
             Check.DebugAssert(!targetType.IsOwned(), "Owned entity expanding foreign key.");
 
-            _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.QueryRootExpression);
-            var innerQueryable = _extensibilityHelper.CreateQueryRoot(targetType, entityReference.QueryRootExpression);
+            _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.EntityQueryRootExpression);
+            var innerQueryable = _extensibilityHelper.CreateQueryRoot(targetType, entityReference.EntityQueryRootExpression);
             var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
             // Value known to be non-null
@@ -1072,9 +1072,9 @@ public partial class NavigationExpandingExpressionVisitor
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is QueryRootExpression queryRootExpression
-                && queryRootExpression.EntityType == _entityType
-                    ? _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(queryRootExpression, _entityType)
+            => extensionExpression is EntityQueryRootExpression entityQueryRootExpression
+                && entityQueryRootExpression.EntityType == _entityType
+                    ? _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(entityQueryRootExpression, _entityType)
                     : base.VisitExtension(extensionExpression);
     }
 

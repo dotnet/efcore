@@ -122,16 +122,16 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                 return CreateShapedQueryExpression(entityType, queryExpression);
 
-            case QueryRootExpression queryRootExpression
-                when queryRootExpression.GetType() == typeof(QueryRootExpression)
-                && queryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
+            case EntityQueryRootExpression entityQueryRootExpression
+                when entityQueryRootExpression.GetType() == typeof(EntityQueryRootExpression)
+                && entityQueryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
                     ISqlQuery sqlQuery:
                 return CreateShapedQueryExpression(
-                    queryRootExpression.EntityType,
+                    entityQueryRootExpression.EntityType,
                     _sqlExpressionFactory.Select(
-                        queryRootExpression.EntityType,
+                        entityQueryRootExpression.EntityType,
                         new FromSqlExpression(
-                            queryRootExpression.EntityType.GetDefaultMappings().Single().Table,
+                            entityQueryRootExpression.EntityType.GetDefaultMappings().Single().Table,
                             sqlQuery.Sql,
                             Expression.Constant(Array.Empty<object>(), typeof(object[])))));
 
