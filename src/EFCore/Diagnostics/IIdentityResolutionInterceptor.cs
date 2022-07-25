@@ -35,8 +35,8 @@ public interface IIdentityResolutionInterceptor : IInterceptor
     ///     an already tracked instance. This method must apply any property values and relationship changes from the new instance
     ///     into the existing instance. The new instance is then discarded.
     /// </summary>
-    /// <param name="context">The <see cref="DbContext"/> is use.</param>
+    /// <param name="interceptionData">Contextual information about the identity resolution.</param>
     /// <param name="existingEntry">The entry for the existing tracked entity instance.</param>
-    /// <param name="newInstance">The new entity instance, which will be discarded after this call.</param>
-    void UpdateTrackedInstance(DbContext context, EntityEntry existingEntry, object newInstance);
+    /// <param name="newEntity">The new entity instance, which will be discarded after this call.</param>
+    void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity);
 }

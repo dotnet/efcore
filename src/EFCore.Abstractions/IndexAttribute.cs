@@ -22,7 +22,22 @@ public sealed class IndexAttribute : Attribute
     /// <summary>
     ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
     /// </summary>
+    /// <param name="propertyName">The first (or only) property in the index.</param>
+    /// <param name="additionalPropertyNames">The additional properties which constitute the index, if any, in order.</param>
+    public IndexAttribute(string propertyName, params string[] additionalPropertyNames)
+    {
+        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.HasNoEmptyElements(additionalPropertyNames, nameof(additionalPropertyNames));
+
+        PropertyNames = new List<string> { propertyName };
+        ((List<string>)PropertyNames).AddRange(additionalPropertyNames);
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
+    /// </summary>
     /// <param name="propertyNames">The properties which constitute the index, in order (there must be at least one).</param>
+    [Obsolete("Use the other constructor")]
     public IndexAttribute(params string[] propertyNames)
     {
         Check.NotEmpty(propertyNames, nameof(propertyNames));

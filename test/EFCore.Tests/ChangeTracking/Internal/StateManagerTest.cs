@@ -48,7 +48,7 @@ public class StateManagerTest
     {
         using var context = new IdentityConflictContext(copy
             ? new UpdatingIdentityResolutionInterceptor()
-            : new SkippingIdentityResolutionInterceptor());
+            : new IgnoringIdentityResolutionInterceptor());
 
         var entity = new SingleKey { Id = 77, AlternateId = 66, Value = "Existing" };
         context.Attach(entity);
@@ -76,7 +76,7 @@ public class StateManagerTest
     [ConditionalFact]
     public void Resolving_identity_conflict_for_primary_key_throws_if_alternate_key_changes()
     {
-        using var context = new IdentityConflictContext(new SkippingIdentityResolutionInterceptor());
+        using var context = new IdentityConflictContext(new IgnoringIdentityResolutionInterceptor());
 
         context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
 
@@ -116,16 +116,16 @@ public class StateManagerTest
 
     private class NaiveCopyingIdentityResolutionInterceptor : IIdentityResolutionInterceptor
     {
-        public void UpdateTrackedInstance(DbContext context, EntityEntry existingEntry, object newInstance)
+        public void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity)
         {
-            existingEntry.CurrentValues.SetValues(newInstance);
+            existingEntry.CurrentValues.SetValues(newEntity);
         }
     }
 
     [ConditionalFact]
     public void Resolving_identity_conflict_for_alternate_key_throws_if_primary_key_changes()
     {
-        using var context = new IdentityConflictContext(new SkippingIdentityResolutionInterceptor());
+        using var context = new IdentityConflictContext(new IgnoringIdentityResolutionInterceptor());
 
         context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
         Assert.Equal(
@@ -169,7 +169,7 @@ public class StateManagerTest
     {
         using var context = new IdentityConflictContext(copy
             ? new UpdatingIdentityResolutionInterceptor()
-            : new SkippingIdentityResolutionInterceptor());
+            : new IgnoringIdentityResolutionInterceptor());
 
         var owned = new SingleKeyOwned { Value = "Existing" };
         context.Attach(
@@ -229,7 +229,7 @@ public class StateManagerTest
     {
         using var context = new IdentityConflictContext(copy
             ? new UpdatingIdentityResolutionInterceptor()
-            : new SkippingIdentityResolutionInterceptor());
+            : new IgnoringIdentityResolutionInterceptor());
 
         var entity = new CompositeKey
         {

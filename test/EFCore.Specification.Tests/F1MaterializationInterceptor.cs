@@ -87,25 +87,25 @@ public class F1MaterializationInterceptor : IMaterializationInterceptor
             _ => result
         };
 
-    public object CreatedInstance(MaterializationInterceptionData materializationData, object instance)
+    public object CreatedInstance(MaterializationInterceptionData materializationData, object entity)
     {
-        Assert.True(instance is IF1Proxy);
+        Assert.True(entity is IF1Proxy);
 
-        ((IF1Proxy)instance).CreatedCalled = true;
+        ((IF1Proxy)entity).CreatedCalled = true;
 
-        return instance;
+        return entity;
     }
 
     public InterceptionResult InitializingInstance(
         MaterializationInterceptionData materializationData,
-        object instance,
+        object entity,
         InterceptionResult result)
     {
-        Assert.True(instance is IF1Proxy);
+        Assert.True(entity is IF1Proxy);
 
-        ((IF1Proxy)instance).InitializingCalled = true;
+        ((IF1Proxy)entity).InitializingCalled = true;
 
-        if (instance is Sponsor sponsor)
+        if (entity is Sponsor sponsor)
         {
             sponsor.Id = materializationData.GetPropertyValue<int>(nameof(sponsor.Id));
             sponsor.Name = "Intercepted: " + materializationData.GetPropertyValue<string>(nameof(sponsor.Name));
@@ -116,17 +116,17 @@ public class F1MaterializationInterceptor : IMaterializationInterceptor
         return result;
     }
 
-    public object InitializedInstance(MaterializationInterceptionData materializationData, object instance)
+    public object InitializedInstance(MaterializationInterceptionData materializationData, object entity)
     {
-        Assert.True(instance is IF1Proxy);
+        Assert.True(entity is IF1Proxy);
 
-        ((IF1Proxy)instance).InitializedCalled = true;
+        ((IF1Proxy)entity).InitializedCalled = true;
 
-        if (instance is Sponsor.SponsorProxy sponsor)
+        if (entity is Sponsor.SponsorProxy sponsor)
         {
             return new Sponsor.SponsorDoubleProxy(sponsor);
         }
 
-        return instance;
+        return entity;
     }
 }

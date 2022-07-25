@@ -56,7 +56,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
         }
 
-        var constructorBinding = ModifyBindings(entityType, entityInstanceName, entityType.ConstructorBinding!);
+        var constructorBinding = ModifyBindings(entityType, entityType.ConstructorBinding!);
 
         var bindingInfo = new ParameterBindingInfo(
             entityType,
@@ -405,7 +405,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                     }
                 }
 
-                binding = self.ModifyBindings(e, "v", binding);
+                binding = self.ModifyBindings(e, binding);
 
                 var materializationContextExpression = Expression.Parameter(typeof(MaterializationContext), "mc");
                 var bindingInfo = new ParameterBindingInfo(e, materializationContextExpression);
@@ -429,11 +429,12 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             },
             this);
 
-    private InstantiationBinding ModifyBindings(IEntityType entityType, string entityInstanceName, InstantiationBinding binding)
+    private InstantiationBinding ModifyBindings(IEntityType entityType, InstantiationBinding binding)
     {
+        var interceptionData = new InstantiationBindingInterceptionData(entityType);
         foreach (var bindingInterceptor in _bindingInterceptors)
         {
-            binding = bindingInterceptor.ModifyBinding(entityType, entityInstanceName, binding);
+            binding = bindingInterceptor.ModifyBinding(interceptionData, binding);
         }
 
         return binding;

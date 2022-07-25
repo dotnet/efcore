@@ -2436,49 +2436,49 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             MaterializationInterceptionData materializationData, InterceptionResult<object> result)
             => result;
 
-        public object CreatedInstance(MaterializationInterceptionData materializationData, object instance)
+        public object CreatedInstance(MaterializationInterceptionData materializationData, object entity)
         {
-            if (instance is IDictionary<string, object> joinEntity)
+            if (entity is IDictionary<string, object> joinEntity)
             {
                 joinEntity["CreatedCalled"] = true;
             }
             else
             {
-                ((PropertyValuesBase)instance).CreatedCalled = true;
+                ((PropertyValuesBase)entity).CreatedCalled = true;
             }
 
-            return instance;
+            return entity;
         }
 
         public InterceptionResult InitializingInstance(
             MaterializationInterceptionData materializationData,
-            object instance,
+            object entity,
             InterceptionResult result)
         {
-            if (instance is IDictionary<string, object> joinEntity)
+            if (entity is IDictionary<string, object> joinEntity)
             {
                 joinEntity["InitializingCalled"] = true;
             }
             else
             {
-                ((PropertyValuesBase)instance).InitializingCalled = true;
+                ((PropertyValuesBase)entity).InitializingCalled = true;
             }
 
             return result;
         }
 
-        public object InitializedInstance(MaterializationInterceptionData materializationData, object instance)
+        public object InitializedInstance(MaterializationInterceptionData materializationData, object entity)
         {
-            if (instance is IDictionary<string, object> joinEntity)
+            if (entity is IDictionary<string, object> joinEntity)
             {
                 joinEntity["InitializedCalled"] = true;
             }
             else
             {
-                ((PropertyValuesBase)instance).InitializedCalled = true;
+                ((PropertyValuesBase)entity).InitializedCalled = true;
             }
 
-            return instance;
+            return entity;
         }
     }
 }
