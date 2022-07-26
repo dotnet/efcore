@@ -67,7 +67,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
         else
         {
-            throw new NotSupportedException();
+            throw new InvalidOperationException(RelationalStrings.BulkOperationWithUnsupportedOperatorInSqlGeneration);
         }
 
         return deleteExpression;

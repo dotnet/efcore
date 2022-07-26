@@ -64,8 +64,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         {
             switch (expression)
             {
-                case SelectExpression selectExpression
-                when selectExpression.IsMutable():
+                case SelectExpression selectExpression when selectExpression.IsMutable():
                     throw new InvalidDataException(selectExpression.Print());
 
                 case ShapedQueryExpression shapedQueryExpression:

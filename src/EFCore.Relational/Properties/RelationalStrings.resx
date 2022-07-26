@@ -127,6 +127,12 @@
   <data name="BadSequenceType" xml:space="preserve">
     <value>Invalid type for sequence. Valid types are long (the default), int, short, byte and decimal.</value>
   </data>
+  <data name="BulkOperationOnKeylessEntityTypeWithUnsupportedOperator" xml:space="preserve">
+    <value>The bulk operation cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.</value>
+  </data>
+  <data name="BulkOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
+    <value>The bulk operation contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported in RelationalQueryableMethodTranslatingExpressionVisitor.</value>
+  </data>
   <data name="CannotChangeWhenOpen" xml:space="preserve">
     <value>The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>

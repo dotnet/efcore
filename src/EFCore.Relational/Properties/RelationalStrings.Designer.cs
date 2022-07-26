@@ -48,6 +48,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("BadSequenceType");
 
         /// <summary>
+        ///     The bulk operation cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.
+        /// </summary>
+        public static string BulkOperationOnKeylessEntityTypeWithUnsupportedOperator(object? entityType)
+            => string.Format(
+                GetString("BulkOperationOnKeylessEntityTypeWithUnsupportedOperator", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The bulk operation contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported in RelationalQueryableMethodTranslatingExpressionVisitor.
+        /// </summary>
+        public static string BulkOperationWithUnsupportedOperatorInSqlGeneration
+            => GetString("BulkOperationWithUnsupportedOperatorInSqlGeneration");
+
+        /// <summary>
         ///     The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.
         /// </summary>
         public static string CannotChangeWhenOpen

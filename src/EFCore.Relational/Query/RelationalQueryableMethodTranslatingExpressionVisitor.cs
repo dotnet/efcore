@@ -1029,8 +1029,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 }
                 else
                 {
-                    // TODO: Exception message
-                    throw new InvalidOperationException("specific message about keyless");
+                    throw new InvalidOperationException(
+                        RelationalStrings.BulkOperationOnKeylessEntityTypeWithUnsupportedOperator(entityType.DisplayName()));
                 }
             }
         }
@@ -1042,6 +1042,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <summary>
     ///     Validates if the current select expression can be used for bulk delete operation or it requires to be pushed into a subquery.
     /// </summary>
+    /// <remarks>
+    ///     By default, only single-table select expressions are supported, and only with a predicate.
+    ///     Providers can override this to allow more select expression features to be supported without pushing down into a subquery.
+    /// </remarks>
     /// <param name="selectExpression">The select expression to validate.</param>
     /// <param name="entityShaperExpression">The entity shaper expression on which delete operation is being applied.</param>
     /// <param name="tableExpression">The table expression from which rows are being deleted.</param>

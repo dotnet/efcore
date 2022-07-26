@@ -236,19 +236,31 @@ public static class RelationalQueryableExtensions
     #region BulkDelete
 
     /// <summary>
-    ///     TBD
+    ///     Deletes all entity instances which match the LINQ query from the database.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
     /// <param name="source">The source query.</param>
-    /// <returns> TBD </returns>
+    /// <returns>The total number of entity instances deleted from the database.</returns>
     public static int BulkDelete<TSource>(this IQueryable<TSource> source)
         => source.Provider.Execute<int>(Expression.Call(BulkDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression));
 
     /// <summary>
-    ///     TBD
+    ///     Asynchronously deletes all entity instances which match the LINQ query from the database.
     /// </summary>
     /// <param name="source">The source query.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns> TBD </returns>
+    /// <returns>The total number of entity instances deleted from the database.</returns>
     public static Task<int> BulkDeleteAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         => source.Provider is IAsyncQueryProvider provider
             ? provider.ExecuteAsync<Task<int>>(

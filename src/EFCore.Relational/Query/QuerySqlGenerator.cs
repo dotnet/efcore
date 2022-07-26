@@ -176,8 +176,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
         else
         {
-            // TODO: Exception message
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(RelationalStrings.BulkOperationWithUnsupportedOperatorInSqlGeneration);
         }
 
         return deleteExpression;
