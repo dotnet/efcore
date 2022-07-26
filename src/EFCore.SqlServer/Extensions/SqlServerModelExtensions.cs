@@ -22,6 +22,11 @@ public static class SqlServerModelExtensions
     public const string DefaultHiLoSequenceName = "EntityFrameworkHiLoSequence";
 
     /// <summary>
+    ///     The default prefix for sequences applied to properties.
+    /// </summary>
+    public const string DefaultSequenceNameSuffix = "Sequence";
+
+    /// <summary>
     ///     Returns the name to use for the default hi-lo sequence.
     /// </summary>
     /// <param name="model">The model.</param>
@@ -116,6 +121,103 @@ public static class SqlServerModelExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the default hi-lo sequence schema.</returns>
     public static ConfigurationSource? GetHiLoSequenceSchemaConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema)?.GetConfigurationSource();
+
+
+    /// <summary>
+    ///     Returns the suffix to append to the name of automatically created sequences.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>The name to use for the default key value generation sequence.</returns>
+    public static string GetSequenceNameSuffix(this IReadOnlyModel model)
+        => (string?)model[SqlServerAnnotationNames.SequenceNameSuffix]
+            ?? DefaultSequenceNameSuffix;
+
+    /// <summary>
+    ///     Sets the suffix to append to the name of automatically created sequences.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The value to set.</param>
+    public static void SetSequenceNameSuffix(this IMutableModel model, string? name)
+    {
+        Check.NullButNotEmpty(name, nameof(name));
+
+        model.SetOrRemoveAnnotation(SqlServerAnnotationNames.SequenceNameSuffix, name);
+    }
+
+    /// <summary>
+    ///     Sets the suffix to append to the name of automatically created sequences.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="name">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetSequenceNameSuffix(
+        this IConventionModel model,
+        string? name,
+        bool fromDataAnnotation = false)
+    {
+        Check.NullButNotEmpty(name, nameof(name));
+
+        model.SetOrRemoveAnnotation(SqlServerAnnotationNames.SequenceNameSuffix, name, fromDataAnnotation);
+
+        return name;
+    }
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the default value generation sequence name suffix.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the default key value generation sequence name.</returns>
+    public static ConfigurationSource? GetSequenceNameSuffixConfigurationSource(this IConventionModel model)
+        => model.FindAnnotation(SqlServerAnnotationNames.SequenceNameSuffix)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the schema to use for the default value generation sequence.
+    ///     <see cref="SqlServerPropertyBuilderExtensions.UseSequence" />
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>The schema to use for the default key value generation sequence.</returns>
+    public static string? GetSequenceSchema(this IReadOnlyModel model)
+        => (string?)model[SqlServerAnnotationNames.SequenceSchema];
+
+    /// <summary>
+    ///     Sets the schema to use for the default key value generation sequence.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="value">The value to set.</param>
+    public static void SetSequenceSchema(this IMutableModel model, string? value)
+    {
+        Check.NullButNotEmpty(value, nameof(value));
+
+        model.SetOrRemoveAnnotation(SqlServerAnnotationNames.SequenceSchema, value);
+    }
+
+    /// <summary>
+    ///     Sets the schema to use for the default key value generation sequence.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <param name="value">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetSequenceSchema(
+        this IConventionModel model,
+        string? value,
+        bool fromDataAnnotation = false)
+    {
+        Check.NullButNotEmpty(value, nameof(value));
+
+        model.SetOrRemoveAnnotation(SqlServerAnnotationNames.SequenceSchema, value, fromDataAnnotation);
+
+        return value;
+    }
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the default key value generation sequence schema.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the default key value generation sequence schema.</returns>
+    public static ConfigurationSource? GetSequenceSchemaConfigurationSource(this IConventionModel model)
+        => model.FindAnnotation(SqlServerAnnotationNames.SequenceSchema)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the default identity seed.

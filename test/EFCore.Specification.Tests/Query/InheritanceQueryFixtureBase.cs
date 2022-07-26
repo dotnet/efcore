@@ -21,11 +21,16 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
     protected virtual bool HasDiscriminator
         => true;
 
+    protected virtual bool UseGeneratedKeys
+        => true;
+
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();
 
     public virtual ISetSource GetExpectedData()
-        => InheritanceData.Instance;
+        => UseGeneratedKeys
+            ? InheritanceData.GeneratedKeysInstance
+            : InheritanceData.Instance;
 
     public virtual ISetSource GetFilteredExpectedData(DbContext context)
     {
@@ -34,7 +39,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
             return cachedResult;
         }
 
-        var expectedData = InheritanceData.Instance;
+        var expectedData = new InheritanceData(UseGeneratedKeys);
         if (EnableFilters)
         {
             var animals = expectedData.Animals.Where(a => a.CountryId == 1).ToList();
@@ -63,10 +68,10 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         { typeof(Daisy), e => ((Daisy)e)?.Species },
         { typeof(Rose), e => ((Rose)e)?.Species },
         { typeof(Country), e => ((Country)e)?.Id },
-        { typeof(Drink), e => ((Drink)e)?.Id },
-        { typeof(Coke), e => ((Coke)e)?.Id },
-        { typeof(Lilt), e => ((Lilt)e)?.Id },
-        { typeof(Tea), e => ((Tea)e)?.Id },
+        { typeof(Drink), e => ((Drink)e)?.SortIndex },
+        { typeof(Coke), e => ((Coke)e)?.SortIndex },
+        { typeof(Lilt), e => ((Lilt)e)?.SortIndex },
+        { typeof(Tea), e => ((Tea)e)?.SortIndex },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -101,7 +106,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     Assert.Equal(ee.Name, aa.Name);
                     Assert.Equal(ee.CountryId, aa.CountryId);
                     Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
                 }
             }
         },
@@ -119,7 +123,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     Assert.Equal(ee.Name, aa.Name);
                     Assert.Equal(ee.CountryId, aa.CountryId);
                     Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
                     Assert.Equal(ee.Group, aa.Group);
                 }
             }
@@ -138,7 +141,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     Assert.Equal(ee.Name, aa.Name);
                     Assert.Equal(ee.CountryId, aa.CountryId);
                     Assert.Equal(ee.IsFlightless, aa.IsFlightless);
-                    Assert.Equal(ee.EagleId, aa.EagleId);
                     Assert.Equal(ee.FoundOn, aa.FoundOn);
                 }
             }
@@ -301,7 +303,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Drink)e;
                     var aa = (Drink)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                 }
             }
         },
@@ -315,7 +317,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Coke)e;
                     var aa = (Coke)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                     Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                     Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
                     Assert.Equal(ee.Carbonation, aa.Carbonation);
@@ -332,7 +334,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Lilt)e;
                     var aa = (Lilt)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                     Assert.Equal(ee.SugarGrams, aa.SugarGrams);
                     Assert.Equal(ee.Carbonation, aa.Carbonation);
                 }
@@ -348,7 +350,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
                     var ee = (Tea)e;
                     var aa = (Tea)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.SortIndex, aa.SortIndex);
                     Assert.Equal(ee.HasMilk, aa.HasMilk);
                     Assert.Equal(ee.CaffeineGrams, aa.CaffeineGrams);
                 }
@@ -361,7 +363,7 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         modelBuilder.Entity<Kiwi>();
         modelBuilder.Entity<Eagle>();
         modelBuilder.Entity<Bird>();
-        modelBuilder.Entity<Animal>().HasKey(e => e.Species);
+        modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Rose>();
         modelBuilder.Entity<Daisy>();
         modelBuilder.Entity<Flower>();
@@ -372,7 +374,16 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         modelBuilder.Entity<Lilt>();
         modelBuilder.Entity<Coke>();
 
-        modelBuilder.Entity<Drink>().Property(m => m.Id).ValueGeneratedNever();
+        if (UseGeneratedKeys)
+        {
+            modelBuilder.Entity<Animal>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Drink>().Property(e => e.Id).ValueGeneratedOnAdd();
+        }
+        else
+        {
+            modelBuilder.Entity<Animal>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Drink>().Property(e => e.Id).ValueGeneratedNever();
+        }
 
         if (HasDiscriminator)
         {
@@ -393,8 +404,5 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
     }
 
     protected override void Seed(InheritanceContext context)
-        => InheritanceContext.Seed(context);
-
-    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder);
+        => InheritanceContext.Seed(context, UseGeneratedKeys);
 }

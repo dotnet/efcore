@@ -65,7 +65,8 @@ public class SqlServerStoreGenerationConvention : StoreGenerationConvention
 
                 break;
             case RelationalAnnotationNames.DefaultValueSql:
-                if (propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
+                if (propertyBuilder.Metadata.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.Sequence
+                    && propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) == null
                     && propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) != null)
                 {
                     context.StopProcessing();
@@ -83,9 +84,12 @@ public class SqlServerStoreGenerationConvention : StoreGenerationConvention
 
                 break;
             case SqlServerAnnotationNames.ValueGenerationStrategy:
-                if ((propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
-                        | propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
-                        | propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
+                if (((propertyBuilder.Metadata.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.Sequence
+                            && (propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
+                                || propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
+                                || propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null))
+                        || (propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
+                            || propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null))
                     && propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) != null)
                 {
                     context.StopProcessing();

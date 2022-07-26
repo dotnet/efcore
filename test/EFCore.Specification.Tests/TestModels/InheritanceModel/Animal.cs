@@ -5,6 +5,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 public abstract class Animal
 {
+    public int Id { get; set; }
     public string Species { get; set; }
     public string Name { get; set; }
     public int CountryId { get; set; }

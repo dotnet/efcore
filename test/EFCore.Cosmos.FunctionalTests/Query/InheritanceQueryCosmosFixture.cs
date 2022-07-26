@@ -10,4 +10,7 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+    protected override bool UseGeneratedKeys
+        => false;
 }
