@@ -49,11 +49,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             : base.VisitExtension(extensionExpression);
 
     /// <summary>
-    ///     Visits the given <paramref name="nonQueryExpression" />, returning an expression that when compiled, can execute the operation
-    ///     against the database.
+    ///     Visits the given <paramref name="nonQueryExpression" />, returning an expression that when compiled, can execute the non-
+    ///     query operation against the database.
     /// </summary>
     /// <param name="nonQueryExpression">The expression to be compiled.</param>
-    /// <returns>An expression ready to be compiled and executed.</returns>
+    /// <returns>An expression which executes a non-query operation.</returns>
     protected virtual Expression VisitNonQuery(NonQueryExpression nonQueryExpression)
     {
         var relationalCommandCache = new RelationalCommandCache(
