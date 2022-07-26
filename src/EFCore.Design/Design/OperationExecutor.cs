@@ -697,7 +697,6 @@ public class OperationExecutor : MarshalByRefObject
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
         protected OperationBase(IOperationResultHandler resultHandler)
         {
-            EF.IsDesignTime = true;
             _resultHandler = resultHandler;
         }
 
@@ -707,6 +706,7 @@ public class OperationExecutor : MarshalByRefObject
         /// <param name="action">The action to execute.</param>
         protected virtual void Execute(Action action)
         {
+            EF.IsDesignTime = true;
             try
             {
                 action();
@@ -714,6 +714,10 @@ public class OperationExecutor : MarshalByRefObject
             catch (Exception ex)
             {
                 _resultHandler.OnError(ex.GetType().FullName!, ex.Message, ex.ToString());
+            }
+            finally
+            {
+                EF.IsDesignTime = false;
             }
         }
 

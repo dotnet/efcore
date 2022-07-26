@@ -23,12 +23,15 @@ public class OperationExecutorTest
             var handler = new OperationResultHandler();
             var result = "Twilight Sparkle";
 
+            Assert.False(EF.IsDesignTime);
+
             new MockOperation<string>(handler, () =>
             {
                 Assert.True(EF.IsDesignTime);
                 return result;
             });
 
+            Assert.False(EF.IsDesignTime);
             Assert.Equal(result, handler.Result);
         }
 
