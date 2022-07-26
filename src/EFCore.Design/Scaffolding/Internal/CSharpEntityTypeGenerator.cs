@@ -215,7 +215,10 @@ public class CSharpEntityTypeGenerator
 
                 if (index.IsDescending is not null)
                 {
-                    indexAttribute.AddParameter($"{nameof(IndexAttribute.IsDescending)} = {_code.UnknownLiteral(index.IsDescending)}");
+                    indexAttribute.AddParameter(
+                        index.IsDescending.Count == 0
+                            ? $"{nameof(IndexAttribute.AllDescending)} = true"
+                            : $"{nameof(IndexAttribute.IsDescending)} = {_code.UnknownLiteral(index.IsDescending)}");
                 }
 
                 _sb.AppendLine(indexAttribute.ToString());

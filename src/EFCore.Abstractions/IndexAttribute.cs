@@ -18,6 +18,7 @@ public sealed class IndexAttribute : Attribute
     private string? _name;
     private bool? _isUnique;
     private bool[]? _isDescending;
+    private bool _allDescending;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
@@ -63,13 +64,38 @@ public sealed class IndexAttribute : Attribute
         get => _isDescending;
         set
         {
-            if (value is not null && value.Length != PropertyNames.Count)
+            if (value is not null)
             {
-                throw new ArgumentException(
-                    AbstractionsStrings.InvalidNumberOfIndexSortOrderValues(value.Length, PropertyNames.Count), nameof(IsDescending));
+                if (value.Length != PropertyNames.Count)
+                {
+                    throw new ArgumentException(
+                        AbstractionsStrings.InvalidNumberOfIndexSortOrderValues(value.Length, PropertyNames.Count), nameof(IsDescending));
+                }
+
+                if (_allDescending)
+                {
+                    throw new ArgumentException(AbstractionsStrings.CannotSpecifyBothIsDescendingAndAllDescending);
+                }
             }
 
             _isDescending = value;
+        }
+    }
+
+    /// <summary>
+    ///     Whether all index columns have descending sort order.
+    /// </summary>
+    public bool AllDescending
+    {
+        get => _allDescending;
+        set
+        {
+            if (IsDescending is not null)
+            {
+                throw new ArgumentException(AbstractionsStrings.CannotSpecifyBothIsDescendingAndAllDescending);
+            }
+
+            _allDescending = value;
         }
     }
 

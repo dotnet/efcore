@@ -98,6 +98,17 @@ public class IndexAttributeConventionTest
     }
 
     [ConditionalFact]
+    public void IndexAttribute_AllDescending_is_applied()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        var entityBuilder = modelBuilder.Entity<EntityWithTwoIndexes>();
+        modelBuilder.Model.FinalizeModel();
+
+        var allDescendingIndex = entityBuilder.Metadata.FindIndex("IndexOnBAndC")!;
+        Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
+    }
+
+    [ConditionalFact]
     public void IndexAttribute_can_be_applied_more_than_once_per_entity_type()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -332,7 +343,7 @@ public class IndexAttributeConventionTest
     }
 
     [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true)]
-    [Index(nameof(B), nameof(C), Name = "IndexOnBAndC", IsUnique = false)]
+    [Index(nameof(B), nameof(C), Name = "IndexOnBAndC", IsUnique = false, AllDescending = true)]
     private class EntityWithTwoIndexes
     {
         public int Id { get; set; }
