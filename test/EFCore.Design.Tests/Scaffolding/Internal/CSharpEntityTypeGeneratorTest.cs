@@ -304,6 +304,71 @@ namespace TestNamespace
             });
 
     [ConditionalFact]
+    public void IndexAttribute_is_generated_with_ascending_descending()
+        => Test(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "EntityWithAscendingDescendingIndexes",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("A");
+                        x.Property<int>("B");
+                        x.HasKey("Id");
+                        x.HasIndex(new[] { "A", "B" }, "AllAscending");
+                        x.HasIndex(new[] { "A", "B" }, "PartiallyDescending").IsDescending(true, false);
+                        x.HasIndex(new[] { "A", "B" }, "AllDescending").IsDescending();
+                    }),
+            new ModelCodeGenerationOptions { UseDataAnnotations = true },
+            code =>
+            {
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace
+{
+    [Index(""A"", ""B"", Name = ""AllAscending"")]
+    [Index(""A"", ""B"", Name = ""AllDescending"", AllDescending = true)]
+    [Index(""A"", ""B"", Name = ""PartiallyDescending"", IsDescending = new[] { true, false })]
+    public partial class EntityWithAscendingDescendingIndexes
+    {
+        [Key]
+        public int Id { get; set; }
+        public int A { get; set; }
+        public int B { get; set; }
+    }
+}
+",
+                    code.AdditionalFiles.Single(f => f.Path == "EntityWithAscendingDescendingIndexes.cs"));
+            },
+            model =>
+            {
+                var entityType = model.FindEntityType("TestNamespace.EntityWithAscendingDescendingIndexes");
+                var indexes = entityType.GetIndexes();
+                Assert.Collection(
+                    indexes,
+                    i =>
+                    {
+                        Assert.Equal("AllAscending", i.Name);
+                        Assert.Null(i.IsDescending);
+                    },
+                    i =>
+                    {
+                        Assert.Equal("AllDescending", i.Name);
+                        Assert.Equal(Array.Empty<bool>(), i.IsDescending);
+                    },
+                    i =>
+                    {
+                        Assert.Equal("PartiallyDescending", i.Name);
+                        Assert.Equal(new[] { true, false }, i.IsDescending);
+                    });
+            });
+
+    [ConditionalFact]
     public void Entity_with_indexes_generates_IndexAttribute_only_for_indexes_without_annotations()
         => Test(
             modelBuilder => modelBuilder

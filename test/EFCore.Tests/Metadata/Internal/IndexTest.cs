@@ -60,6 +60,48 @@ public class IndexTest
         Assert.True(index.IsUnique);
     }
 
+    [ConditionalFact]
+    public void IsDescending_all_ascending_is_normalized_to_null()
+    {
+        var entityType = CreateModel().AddEntityType(typeof(Customer));
+        var property1 = entityType.AddProperty(Customer.IdProperty);
+        var property2 = entityType.AddProperty(Customer.NameProperty);
+
+        var index = entityType.AddIndex(new[] { property1, property2 });
+        index.IsDescending = new[] { false, false };
+
+        Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
+        Assert.Null(index.IsDescending);
+    }
+
+    [ConditionalFact]
+    public void IsDescending_all_descending_is_normalized_to_empty()
+    {
+        var entityType = CreateModel().AddEntityType(typeof(Customer));
+        var property1 = entityType.AddProperty(Customer.IdProperty);
+        var property2 = entityType.AddProperty(Customer.NameProperty);
+
+        var index = entityType.AddIndex(new[] { property1, property2 });
+        index.IsDescending = new[] { true, true };
+
+        Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
+        Assert.Equal(Array.Empty<bool>(), index.IsDescending);
+    }
+
+    [ConditionalFact]
+    public void IsDescending_invalid_number_of_columns_throws()
+    {
+        var entityType = CreateModel().AddEntityType(typeof(Customer));
+        var property1 = entityType.AddProperty(Customer.IdProperty);
+        var property2 = entityType.AddProperty(Customer.NameProperty);
+
+        var index = entityType.AddIndex(new[] { property1, property2 });
+        var exception = Assert.Throws<ArgumentException>(() => index.IsDescending = new[] { true });
+        Assert.Equal(
+            CoreStrings.InvalidNumberOfIndexSortOrderValues("{'Id', 'Name'}", 1, 2) + " (Parameter 'descending')",
+            exception.Message);
+    }
+
     private static IMutableModel CreateModel()
         => new Model();
 

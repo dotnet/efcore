@@ -39,6 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 argumentName);
 
         /// <summary>
+        ///     IsDescending and AllDescending cannot both be specified on the [Index] attribute.
+        /// </summary>
+        public static string CannotSpecifyBothIsDescendingAndAllDescending
+            => GetString("CannotSpecifyBothIsDescendingAndAllDescending");
+
+        /// <summary>
         ///     The collection argument '{argumentName}' must not contain any empty elements.
         /// </summary>
         public static string CollectionArgumentHasEmptyElements(object? argumentName)

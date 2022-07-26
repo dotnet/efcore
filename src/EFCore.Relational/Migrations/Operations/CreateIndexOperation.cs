@@ -38,7 +38,7 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
         get => _columns!;
         set
         {
-            if (_isDescending is not null && value.Length != _isDescending.Length)
+            if (_isDescending is not null && _isDescending.Length > 0 && value.Length != _isDescending.Length)
             {
                 throw new ArgumentException(RelationalStrings.CreateIndexOperationWithInvalidSortOrder(_isDescending.Length, value.Length));
             }
@@ -60,7 +60,7 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
         get => _isDescending;
         set
         {
-            if (value is not null && _columns is not null && value.Length != _columns.Length)
+            if (value is not null && value.Length > 0 && _columns is not null && value.Length != _columns.Length)
             {
                 throw new ArgumentException(RelationalStrings.CreateIndexOperationWithInvalidSortOrder(value.Length, _columns.Length));
             }

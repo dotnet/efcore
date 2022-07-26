@@ -1439,7 +1439,7 @@ public class RelationalScaffoldingModelFactoryTest
             new DatabaseIndex
             {
                 Table = Table,
-                Name = "IX_empty",
+                Name = "IX_unspecified",
                 Columns = { table.Columns[0], table.Columns[1], table.Columns[2] }
             });
 
@@ -1476,14 +1476,14 @@ public class RelationalScaffoldingModelFactoryTest
 
         var entityType = model.FindEntityType("SomeTable")!;
 
-        var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-        Assert.Null(emptyIndex.IsDescending);
+        var unspecifiedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_unspecified");
+        Assert.Null(unspecifiedIndex.IsDescending);
 
         var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
         Assert.Null(allAscendingIndex.IsDescending);
 
         var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
-        Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);
+        Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
 
         var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
         Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);

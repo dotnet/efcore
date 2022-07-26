@@ -604,6 +604,7 @@ public class MigrationBuilder
     /// <param name="descending">
     ///     A set of values indicating whether each corresponding index column has descending sort order.
     ///     If <see langword="null" />, all columns will have ascending order.
+    ///     If an empty array, all columns will have descending order.
     /// </param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
