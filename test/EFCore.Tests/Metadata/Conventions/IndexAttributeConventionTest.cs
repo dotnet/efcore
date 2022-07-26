@@ -92,7 +92,7 @@ public class IndexAttributeConventionTest
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
-            AbstractionsStrings.CollectionArgumentHasEmptyElements("propertyNames"),
+            AbstractionsStrings.CollectionArgumentHasEmptyElements("additionalPropertyNames"),
             Assert.Throws<ArgumentException>(
                 () => modelBuilder.Entity(entityTypeWithInvalidIndex)).Message);
     }
@@ -356,7 +356,9 @@ public class IndexAttributeConventionTest
         public int D { get; set; }
     }
 
+#pragma warning disable CS0618
     [Index]
+#pragma warning restore CS0618
     private class EntityWithInvalidEmptyIndex
     {
         public int Id { get; set; }
@@ -364,7 +366,7 @@ public class IndexAttributeConventionTest
         public int B { get; set; }
     }
 
-    [Index(nameof(A), null, Name = "IndexOnAAndNull")]
+    [Index(nameof(A), (string)null, Name = "IndexOnAAndNull")]
     private class EntityWithInvalidNullIndexProperty
     {
         public int Id { get; set; }

@@ -24,42 +24,16 @@ public class QueryExpressionInterceptorAggregator : InterceptorAggregator<IQuery
             _interceptors = interceptors.ToArray();
         }
 
-        public Expression ProcessingQuery(
+        public Expression QueryCompilationStarting(
             Expression queryExpression,
             QueryExpressionEventData eventData)
         {
             for (var i = 0; i < _interceptors.Length; i++)
             {
-                queryExpression = _interceptors[i].ProcessingQuery(queryExpression, eventData);
+                queryExpression = _interceptors[i].QueryCompilationStarting(queryExpression, eventData);
             }
 
             return queryExpression;
-        }
-            
-        public Expression<Func<QueryContext, TResult>> CompilingQuery<TResult>(
-            Expression queryExpression,
-            Expression<Func<QueryContext, TResult>> queryExecutorExpression,
-            QueryExpressionEventData eventData)
-        {
-            for (var i = 0; i < _interceptors.Length; i++)
-            {
-                queryExecutorExpression = _interceptors[i].CompilingQuery(queryExpression, queryExecutorExpression, eventData);
-            }
-
-            return queryExecutorExpression;
-        }
-
-        public Func<QueryContext, TResult> CompiledQuery<TResult>(
-            Expression queryExpression,
-            QueryExpressionEventData eventData,
-            Func<QueryContext, TResult> queryExecutor)
-        {
-            for (var i = 0; i < _interceptors.Length; i++)
-            {
-                queryExecutor = _interceptors[i].CompiledQuery(queryExpression, eventData, queryExecutor);
-            }
-
-            return queryExecutor;
         }
     }
 }

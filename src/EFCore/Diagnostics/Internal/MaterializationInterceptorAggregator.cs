@@ -42,24 +42,24 @@ public class MaterializationInterceptorAggregator : InterceptorAggregator<IMater
 
         public object CreatedInstance(
             MaterializationInterceptionData materializationData,
-            object instance)
+            object entity)
         {
             for (var i = 0; i < _interceptors.Length; i++)
             {
-                instance = _interceptors[i].CreatedInstance(materializationData, instance);
+                entity = _interceptors[i].CreatedInstance(materializationData, entity);
             }
 
-            return instance;
+            return entity;
         }
 
         public InterceptionResult InitializingInstance(
             MaterializationInterceptionData materializationData,
-            object instance,
+            object entity,
             InterceptionResult result)
         {
             for (var i = 0; i < _interceptors.Length; i++)
             {
-                result = _interceptors[i].InitializingInstance(materializationData, instance, result);
+                result = _interceptors[i].InitializingInstance(materializationData, entity, result);
             }
 
             return result;
@@ -67,14 +67,14 @@ public class MaterializationInterceptorAggregator : InterceptorAggregator<IMater
 
         public object InitializedInstance(
             MaterializationInterceptionData materializationData,
-            object instance)
+            object entity)
         {
             for (var i = 0; i < _interceptors.Length; i++)
             {
-                instance = _interceptors[i].InitializedInstance(materializationData, instance);
+                entity = _interceptors[i].InitializedInstance(materializationData, entity);
             }
 
-            return instance;
+            return entity;
         }
     }
 }

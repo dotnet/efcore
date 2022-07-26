@@ -321,7 +321,7 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
         protected Book BookFactory()
             => new() { MaterializedBy = _id };
 
-        public InstantiationBinding ModifyBinding(IEntityType entityType, string entityInstanceName, InstantiationBinding binding)
+        public InstantiationBinding ModifyBinding(InstantiationBindingInterceptionData interceptionData, InstantiationBinding binding)
         {
             CalledCount++;
 
@@ -329,7 +329,7 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                 this,
                 typeof(TestBindingInterceptor).GetTypeInfo().GetDeclaredMethod(nameof(BookFactory))!,
                 new List<ParameterBinding>(),
-                entityType.ClrType);
+                interceptionData.EntityType.ClrType);
         }
     }
 
@@ -352,27 +352,27 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
         }
 
         public object CreatedInstance(
-            MaterializationInterceptionData materializationData, object instance)
+            MaterializationInterceptionData materializationData, object entity)
         {
-            _validate(materializationData, instance, nameof(CreatedInstance));
+            _validate(materializationData, entity, nameof(CreatedInstance));
 
-            return instance;
+            return entity;
         }
 
         public InterceptionResult InitializingInstance(
-            MaterializationInterceptionData materializationData, object instance, InterceptionResult result)
+            MaterializationInterceptionData materializationData, object entity, InterceptionResult result)
         {
-            _validate(materializationData, instance, nameof(InitializingInstance));
+            _validate(materializationData, entity, nameof(InitializingInstance));
 
             return result;
         }
 
         public object InitializedInstance(
-            MaterializationInterceptionData materializationData, object instance)
+            MaterializationInterceptionData materializationData, object entity)
         {
-            _validate(materializationData, instance, nameof(InitializedInstance));
+            _validate(materializationData, entity, nameof(InitializedInstance));
 
-            return instance;
+            return entity;
         }
     }
 
@@ -390,24 +390,24 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
             => result;
 
         public object CreatedInstance(
-            MaterializationInterceptionData materializationData, object instance)
+            MaterializationInterceptionData materializationData, object entity)
         {
-            ((Book)instance).CreatedBy += _id;
-            return instance;
+            ((Book)entity).CreatedBy += _id;
+            return entity;
         }
 
         public InterceptionResult InitializingInstance(
-            MaterializationInterceptionData materializationData, object instance, InterceptionResult result)
+            MaterializationInterceptionData materializationData, object entity, InterceptionResult result)
         {
-            ((Book)instance).InitializingBy += _id;
+            ((Book)entity).InitializingBy += _id;
             return result;
         }
 
         public object InitializedInstance(
-            MaterializationInterceptionData materializationData, object instance)
+            MaterializationInterceptionData materializationData, object entity)
         {
-            ((Book)instance).InitializedBy += _id;
-            return instance;
+            ((Book)entity).InitializedBy += _id;
+            return entity;
         }
     }
 }

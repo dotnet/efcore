@@ -2237,7 +2237,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original"};
         var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original"};
@@ -2296,7 +2296,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
         var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2348,7 +2348,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
         var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2413,7 +2413,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
         var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2465,7 +2465,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2519,7 +2519,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2570,7 +2570,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2626,7 +2626,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2683,7 +2683,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalHumans = new Human[]
         {
@@ -3252,7 +3252,7 @@ public class FixupTest
         using var context = new BadBeeContext(
             nameof(BadBeeContext), copy
                 ? new UpdatingIdentityResolutionInterceptor()
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var b1 = new EntityB { EntityBId = 1, Value = "b1" };
         context.BEntities.Attach(b1);

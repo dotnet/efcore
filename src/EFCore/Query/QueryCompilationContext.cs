@@ -178,20 +178,9 @@ public class QueryCompilationContext
             query,
             QueryContextParameter);
 
-        if (_queryExpressionInterceptor != null)
-        {
-            queryExecutorExpression = _queryExpressionInterceptor.CompilingQuery(
-                queryAndEventData.Query, queryExecutorExpression, queryAndEventData.EventData!);
-        }
-
         try
         {
-            var queryExecutor = queryExecutorExpression.Compile();
-
-            return _queryExpressionInterceptor != null
-                ? _queryExpressionInterceptor.CompiledQuery(
-                    queryAndEventData.Query, queryAndEventData.EventData!, queryExecutor)
-                : queryExecutor;
+            return queryExecutorExpression.Compile();
         }
         finally
         {

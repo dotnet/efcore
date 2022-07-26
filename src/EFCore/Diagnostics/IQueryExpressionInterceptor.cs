@@ -28,36 +28,8 @@ public interface IQueryExpressionInterceptor : IInterceptor
     /// <param name="queryExpression">The query expression.</param>
     /// <param name="eventData">Contextual information about the query environment.</param>
     /// <returns>The query expression tree to continue with, which may have been changed by the interceptor.</returns>
-    Expression ProcessingQuery(
+    Expression QueryCompilationStarting(
         Expression queryExpression,
         QueryExpressionEventData eventData)
         => queryExpression;
-
-    /// <summary>
-    ///     Called when EF is about to compile the query delegate that will be used to execute the query.
-    /// </summary>
-    /// <param name="queryExpression">The query expression.</param>
-    /// <param name="queryExecutorExpression">The expression that will be compiled into the execution delegate.</param>
-    /// <param name="eventData">Contextual information about the query environment.</param>
-    /// <typeparam name="TResult">The return type of the execution delegate.</typeparam>
-    /// <returns>The expression that will be compiled into the execution delegate, which may have been changed by the interceptor.</returns>
-    Expression<Func<QueryContext, TResult>> CompilingQuery<TResult>(
-        Expression queryExpression,
-        Expression<Func<QueryContext, TResult>> queryExecutorExpression,
-        QueryExpressionEventData eventData)
-        => queryExecutorExpression;
-
-    /// <summary>
-    ///     Called when EF is about to compile the query delegate that will be used to execute the query.
-    /// </summary>
-    /// <param name="queryExpression">The query expression.</param>
-    /// <param name="eventData">Contextual information about the query environment.</param>
-    /// <param name="queryExecutor">The delegate that will be used to execute the query.</param>
-    /// <typeparam name="TResult">The return type of the execution delegate.</typeparam>
-    /// <returns>The delegate that will be used to execute the query, which may have been changed by the interceptor.</returns>
-    Func<QueryContext, TResult> CompiledQuery<TResult>(
-        Expression queryExpression,
-        QueryExpressionEventData eventData,
-        Func<QueryContext, TResult> queryExecutor)
-        => queryExecutor;
 }
