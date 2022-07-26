@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable MethodHasAsyncOverload
@@ -1382,6 +1384,309 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Same(context2, context3);
         Assert.Null(context3.Database.CurrentTransaction);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection(bool async, bool openWithEf)
+    {
+        //using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+        var serviceProvider = new ServiceCollection()
+            .AddDbContextPool<PooledContext>(
+                ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                    .EnableServiceProviderCaching(false))
+            .BuildServiceProvider(validateScopes: true);
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scopedProvider = serviceScope.ServiceProvider;
+
+        var context1 = scopedProvider.GetRequiredService<PooledContext>();
+        var connection1 = context1.Database.GetDbConnection();
+
+        if (async)
+        {
+            if (openWithEf)
+            {
+                await context1.Database.OpenConnectionAsync();
+            }
+            else
+            {
+                await connection1.OpenAsync();
+            }
+        }
+        else
+        {
+            if (openWithEf)
+            {
+                context1.Database.OpenConnection();
+            }
+            else
+            {
+                connection1.Open();
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection1.State);
+
+        await Dispose(serviceScope, async);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        serviceScope = serviceProvider.CreateScope();
+        scopedProvider = serviceScope.ServiceProvider;
+
+        var context2 = scopedProvider.GetRequiredService<PooledContext>();
+        Assert.Same(context1, context2);
+
+        var connection2 = context2.Database.GetDbConnection();
+        Assert.Same(connection1, connection2);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        await Dispose(serviceScope, async);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_external_connection(bool async, bool startsOpen, bool openWithEf)
+    {
+        using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+
+        if (startsOpen)
+        {
+            if (async)
+            {
+                await connection.OpenAsync();
+            }
+            else
+            {
+                connection.Open();
+            }
+        }
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContextPool<PooledContext>(
+                ob => ob.UseSqlServer(connection)
+                    .EnableServiceProviderCaching(false))
+            .BuildServiceProvider(validateScopes: true);
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scopedProvider = serviceScope.ServiceProvider;
+
+        var context1 = scopedProvider.GetRequiredService<PooledContext>();
+        Assert.Same(connection, context1.Database.GetDbConnection());
+
+        if (!startsOpen)
+        {
+            if (async)
+            {
+                if (openWithEf)
+                {
+                    await context1.Database.OpenConnectionAsync();
+                }
+                else
+                {
+                    await connection.OpenAsync();
+                }
+            }
+            else
+            {
+                if (openWithEf)
+                {
+                    context1.Database.OpenConnection();
+                }
+                else
+                {
+                    connection.Open();
+                }
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(serviceScope, async);
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        serviceScope = serviceProvider.CreateScope();
+        scopedProvider = serviceScope.ServiceProvider;
+
+        var context2 = scopedProvider.GetRequiredService<PooledContext>();
+        Assert.Same(context1, context2);
+
+        Assert.Same(connection, context2.Database.GetDbConnection());
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(serviceScope, async);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection_with_factory(
+        bool async, bool openWithEf, bool withDependencyInjection)
+    {
+        var options = new DbContextOptionsBuilder<PooledContext>()
+            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+            .EnableServiceProviderCaching(false)
+            .Options;
+
+        var factory =
+            withDependencyInjection
+                ? new ServiceCollection()
+                    .AddPooledDbContextFactory<PooledContext>(
+                        ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false))
+                    .BuildServiceProvider(validateScopes: true)
+                    .GetRequiredService<IDbContextFactory<PooledContext>>()
+                : new PooledDbContextFactory<PooledContext>(options);
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        var connection1 = context1.Database.GetDbConnection();
+
+        if (async)
+        {
+            if (openWithEf)
+            {
+                await context1.Database.OpenConnectionAsync();
+            }
+            else
+            {
+                await connection1.OpenAsync();
+            }
+        }
+        else
+        {
+            if (openWithEf)
+            {
+                context1.Database.OpenConnection();
+            }
+            else
+            {
+                connection1.Open();
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection1.State);
+
+        await Dispose(context1, async);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        Assert.Same(context1, context2);
+
+        var connection2 = context2.Database.GetDbConnection();
+        Assert.Same(connection1, connection2);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        await Dispose(context2, async);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false, false, false)]
+    [InlineData(true, false, false, false)]
+    [InlineData(false, true, false, false)]
+    [InlineData(true, true, false, false)]
+    [InlineData(false, false, true, false)]
+    [InlineData(true, false, true, false)]
+    [InlineData(false, false, false, true)]
+    [InlineData(true, false, false, true)]
+    [InlineData(false, true, false, true)]
+    [InlineData(true, true, false, true)]
+    [InlineData(false, false, true, true)]
+    [InlineData(true, false, true, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_external_connection_with_factory(
+        bool async, bool startsOpen, bool openWithEf, bool withDependencyInjection)
+    {
+        using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+
+        if (startsOpen)
+        {
+            if (async)
+            {
+                await connection.OpenAsync();
+            }
+            else
+            {
+                connection.Open();
+            }
+        }
+
+        var options = new DbContextOptionsBuilder<PooledContext>()
+            .UseSqlServer(connection)
+            .EnableServiceProviderCaching(false)
+            .Options;
+
+        var factory =
+            withDependencyInjection
+                ? new ServiceCollection()
+                    .AddPooledDbContextFactory<PooledContext>(
+                        ob => ob.UseSqlServer(connection)
+                            .EnableServiceProviderCaching(false))
+                    .BuildServiceProvider(validateScopes: true)
+                    .GetRequiredService<IDbContextFactory<PooledContext>>()
+                : new PooledDbContextFactory<PooledContext>(options);
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        Assert.Same(connection, context1.Database.GetDbConnection());
+
+        if (!startsOpen)
+        {
+            if (async)
+            {
+                if (openWithEf)
+                {
+                    await context1.Database.OpenConnectionAsync();
+                }
+                else
+                {
+                    await connection.OpenAsync();
+                }
+            }
+            else
+            {
+                if (openWithEf)
+                {
+                    context1.Database.OpenConnection();
+                }
+                else
+                {
+                    connection.Open();
+                }
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(context1, async);
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        Assert.Same(context1, context2);
+
+        Assert.Same(connection, context2.Database.GetDbConnection());
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(context2, async);
     }
 
     [ConditionalTheory]
