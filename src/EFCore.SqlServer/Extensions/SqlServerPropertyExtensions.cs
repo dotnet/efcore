@@ -858,7 +858,9 @@ public static class SqlServerPropertyExtensions
 
         return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource)
-                ? SqlServerValueGenerationStrategy.IdentityColumn
+                ? property.DeclaringEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                    ? SqlServerValueGenerationStrategy.Sequence
+                    : SqlServerValueGenerationStrategy.IdentityColumn
                 : SqlServerValueGenerationStrategy.None;
     }
 

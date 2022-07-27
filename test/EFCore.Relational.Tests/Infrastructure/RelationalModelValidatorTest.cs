@@ -2138,7 +2138,14 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_store_generated_PK_in_TPC()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Animal>().UseTpcMappingStrategy();
+
+        modelBuilder.Entity<Animal>(
+            b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+            });
+
         modelBuilder.Entity<Cat>();
 
         var definition =
@@ -2356,7 +2363,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.SqlQueryOverrideMismatch("Animal.Name", "Dog"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_invalid_stored_procedure_overrides()
     {
@@ -2595,7 +2602,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 "Delete"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_keyless_entity_type_mapped_to_a_stored_procedure()
     {
@@ -2818,7 +2825,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         Validate(modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_missing_stored_procedure_parameters_in_TPT()
     {

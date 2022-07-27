@@ -52,6 +52,26 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         Validate(modelBuilder);
     }
 
+    public override void Detects_store_generated_PK_in_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Animal>(
+            b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.Property(e => e.Id).ValueGeneratedOnAdd();
+            });
+
+        modelBuilder.Entity<Cat>();
+
+        Validate(modelBuilder);
+
+        var keyProperty = modelBuilder.Model.FindEntityType(typeof(Animal))!.FindProperty(nameof(Animal.Id))!;
+        Assert.Equal(ValueGenerated.OnAdd, keyProperty.ValueGenerated);
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, keyProperty.GetValueGenerationStrategy());
+    }
+
     [ConditionalFact]
     public virtual void Passes_for_duplicate_column_names_within_hierarchy_with_identity()
     {

@@ -679,13 +679,16 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 GetHeading()
                 + @"
+            modelBuilder.HasSequence(""AbstractBaseSequence"");
+
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType(""int"");
+                        .HasColumnType(""int"")
+                        .HasDefaultValueSql(""NEXT VALUE FOR [AbstractBaseSequence]"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
+                    SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -714,7 +717,7 @@ public class ModelSnapshotSqlServerTest
                 });"),
             model =>
             {
-                Assert.Equal(4, model.GetAnnotations().Count());
+                Assert.Equal(5, model.GetAnnotations().Count());
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
                 var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
