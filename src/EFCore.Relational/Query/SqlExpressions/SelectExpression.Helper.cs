@@ -608,7 +608,7 @@ public sealed partial class SelectExpression
             => this;
 
         public override ConcreteColumnExpression MakeNullable()
-            => new(Name, _table, Type, TypeMapping!, true);
+            => IsNullable ? this : new(Name, _table, Type, TypeMapping!, true);
 
         public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
             => _table.UpdateTableReference(oldSelect, newSelect);
@@ -748,6 +748,13 @@ public sealed partial class SelectExpression
                         splitCollectionInfo.ShaperExpression,
                         collectionResultExpression.Navigation,
                         collectionResultExpression.ElementType);
+                }
+
+                if (value is int)
+                {
+                    var binding = (ProjectionBindingExpression)Visit(collectionResultExpression.ProjectionBindingExpression);
+
+                    return collectionResultExpression.Update(binding);
                 }
 
                 throw new InvalidOperationException();

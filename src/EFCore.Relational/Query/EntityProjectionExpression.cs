@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class EntityProjectionExpression : Expression
 {
     private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _propertyExpressionMap;
-    private readonly Dictionary<INavigation, EntityShaperExpression> _ownedNavigationMap = new();
+    private readonly Dictionary<INavigation, EntityShaperExpression> _ownedNavigationMap;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
@@ -29,9 +29,23 @@ public class EntityProjectionExpression : Expression
         IEntityType entityType,
         IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
         SqlExpression? discriminatorExpression = null)
+        : this(
+            entityType,
+            propertyExpressionMap,
+            new Dictionary<INavigation, EntityShaperExpression>(),
+            discriminatorExpression)
+    {
+    }
+
+    private EntityProjectionExpression(
+        IEntityType entityType,
+        IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
+        Dictionary<INavigation, EntityShaperExpression> ownedNavigationMap,
+        SqlExpression? discriminatorExpression = null)
     {
         EntityType = entityType;
         _propertyExpressionMap = propertyExpressionMap;
+        _ownedNavigationMap = ownedNavigationMap;
         DiscriminatorExpression = discriminatorExpression;
     }
 
@@ -69,8 +83,16 @@ public class EntityProjectionExpression : Expression
         var discriminatorExpression = (SqlExpression?)visitor.Visit(DiscriminatorExpression);
         changed |= discriminatorExpression != DiscriminatorExpression;
 
+        var ownedNavigationMap = new Dictionary<INavigation, EntityShaperExpression>();
+        foreach (var (navigation, entityShaperExpression) in _ownedNavigationMap)
+        {
+            var newExpression = (EntityShaperExpression)visitor.Visit(entityShaperExpression);
+            changed |= newExpression != entityShaperExpression;
+            ownedNavigationMap[navigation] = newExpression;
+        }
+
         return changed
-            ? new EntityProjectionExpression(EntityType, propertyExpressionMap, discriminatorExpression)
+            ? new EntityProjectionExpression(EntityType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression)
             : this;
     }
 
@@ -92,7 +114,65 @@ public class EntityProjectionExpression : Expression
             // if discriminator is column then we need to make it nullable
             discriminatorExpression = ce.MakeNullable();
         }
-        return new EntityProjectionExpression(EntityType, propertyExpressionMap, discriminatorExpression);
+
+        var primaryKeyProperties = GetMappedKeyProperties(EntityType.FindPrimaryKey()!);
+        var ownedNavigationMap = new Dictionary<INavigation, EntityShaperExpression>();
+        foreach (var (navigation, shaper) in _ownedNavigationMap)
+        {
+            if (shaper.EntityType.IsMappedToJson())
+            {
+                // even if shaper is nullable, we need to make sure key property map contains nullable keys,
+                // if json entity itself is optional, the shaper would be null, but the PK of the owner entity would be non-nullable intially
+                Debug.Assert(primaryKeyProperties != null, "Json entity type can't be keyless");
+
+                var jsonQueryExpression = (JsonQueryExpression)shaper.ValueBufferExpression;
+                var ownedPrimaryKeyProperties = GetMappedKeyProperties(shaper.EntityType.FindPrimaryKey()!)!;
+                var nullableKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
+                for (var i = 0; i < primaryKeyProperties.Count; i++)
+                {
+                    nullableKeyPropertyMap[ownedPrimaryKeyProperties[i]] = propertyExpressionMap[primaryKeyProperties[i]];
+                }
+
+                // reuse key columns from owner (that we just made nullable), so that the references are the same
+                var newJsonQueryExpression = jsonQueryExpression.MakeNullable(nullableKeyPropertyMap);
+                var newShaper = shaper.Update(newJsonQueryExpression).MakeNullable();
+                ownedNavigationMap[navigation] = newShaper;
+            }
+        }
+
+        return new EntityProjectionExpression(
+            EntityType,
+            propertyExpressionMap,
+            ownedNavigationMap,
+            discriminatorExpression);
+
+        static IReadOnlyList<IProperty>? GetMappedKeyProperties(IKey? key)
+        {
+            if (key == null)
+            {
+                return null;
+            }
+
+            if (!key.DeclaringEntityType.IsMappedToJson())
+            {
+                return key.Properties;
+            }
+
+            // TODO: fix this once we enable json entity being owned by another owned non-json entity (issue #28441)
+
+            // for json collections we need to filter out the ordinal key as it's not mapped to any column
+            // there could be multiple of these in deeply nested structures,
+            // so we traverse to the outermost owner to see how many mapped keys there are
+            var currentEntity = key.DeclaringEntityType;
+            while (currentEntity.IsMappedToJson())
+            {
+                currentEntity = currentEntity.FindOwnership()!.PrincipalEntityType;
+            }
+
+            var count = currentEntity.FindPrimaryKey()!.Properties.Count;
+
+            return key.Properties.Take(count).ToList();
+        }
     }
 
     /// <summary>
@@ -119,6 +199,16 @@ public class EntityProjectionExpression : Expression
             }
         }
 
+        var ownedNavigationMap = new Dictionary<INavigation, EntityShaperExpression>();
+        foreach (var (navigation, entityShaperExpression) in _ownedNavigationMap)
+        {
+            if (derivedType.IsAssignableFrom(navigation.DeclaringEntityType)
+                || navigation.DeclaringEntityType.IsAssignableFrom(derivedType))
+            {
+                ownedNavigationMap[navigation] = entityShaperExpression;
+            }
+        }
+
         var discriminatorExpression = DiscriminatorExpression;
         if (DiscriminatorExpression is CaseExpression caseExpression)
         {
@@ -130,7 +220,7 @@ public class EntityProjectionExpression : Expression
             discriminatorExpression = caseExpression.Update(operand: null, whenClauses, elseResult: null);
         }
 
-        return new EntityProjectionExpression(derivedType, propertyExpressionMap, discriminatorExpression);
+        return new EntityProjectionExpression(derivedType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression);
     }
 
     /// <summary>

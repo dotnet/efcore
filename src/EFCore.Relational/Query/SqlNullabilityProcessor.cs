@@ -416,6 +416,8 @@ public class SqlNullabilityProcessor
                 => VisitSqlParameter(sqlParameterExpression, allowOptimizedExpansion, out nullable),
             SqlUnaryExpression sqlUnaryExpression
                 => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
+            JsonScalarExpression jsonScalarExpression
+                => VisitJsonScalar(jsonScalarExpression, allowOptimizedExpansion, out nullable),
             _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -1149,6 +1151,23 @@ public class SqlNullabilityProcessor
         return !operandNullable && sqlUnaryExpression.OperatorType == ExpressionType.Not
             ? OptimizeNonNullableNotExpression(updated)
             : updated;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="JsonScalarExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="jsonScalarExpression">A json scalar expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitJsonScalar(
+        JsonScalarExpression jsonScalarExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        nullable = jsonScalarExpression.IsNullable;
+
+        return jsonScalarExpression;
     }
 
     private static bool? TryGetBoolConstantValue(SqlExpression? expression)

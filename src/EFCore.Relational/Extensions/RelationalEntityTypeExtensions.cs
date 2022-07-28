@@ -1758,10 +1758,10 @@ public static class RelationalEntityTypeExtensions
             Check.NullButNotEmpty(name, nameof(name)));
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity Type.
+    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given navigation.</returns>
+    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.</returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
 

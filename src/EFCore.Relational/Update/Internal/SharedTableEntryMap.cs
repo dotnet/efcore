@@ -110,8 +110,8 @@ public class SharedTableEntryMap<TValue>
 
         foreach (var foreignKey in foreignKeys)
         {
-            var dependentEntry = _updateAdapter.GetDependents(entry, foreignKey).SingleOrDefault();
-            if (dependentEntry != null)
+            var dependentEntries = _updateAdapter.GetDependents(entry, foreignKey);
+            foreach (var dependentEntry in dependentEntries)
             {
                 AddAllDependentsInclusive(dependentEntry, entries);
             }

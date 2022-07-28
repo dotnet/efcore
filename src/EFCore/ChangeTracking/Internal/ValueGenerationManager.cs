@@ -68,7 +68,6 @@ public class ValueGenerationManager : IValueGenerationManager
     public virtual void Generate(InternalEntityEntry entry, bool includePrimaryKey = true)
     {
         var entityEntry = new EntityEntry(entry);
-
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
             if (!entry.HasDefaultValue(property)

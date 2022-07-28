@@ -124,6 +124,11 @@ public static class RelationalKeyExtensions
             return null;
         }
 
+        if (key.DeclaringEntityType.IsMappedToJson())
+        {
+            return null;
+        }
+
         string? name;
         if (key.IsPrimaryKey())
         {

@@ -974,6 +974,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertyExpression);
 
         /// <summary>
+        ///     Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.
+        /// </summary>
+        public static string JsonCantNavigateToParentEntity(object? jsonEntity, object? parentEntity, object? navigation)
+            => string.Format(
+                GetString("JsonCantNavigateToParentEntity", nameof(jsonEntity), nameof(parentEntity), nameof(navigation)),
+                jsonEntity, parentEntity, navigation);
+
+        /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a view '{viewName}', but its owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as its owner.
         /// </summary>
         public static string JsonEntityMappedToDifferentViewThanOwner(object? jsonType, object? viewName, object? ownerType, object? ownerViewName)
@@ -1068,10 +1076,32 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEntityWithTableSplittingIsNotSupported");
 
         /// <summary>
+        ///     An error occurred while reading a JSON value for property '{entityType}.{propertyName}'. See the inner exception for more information.
+        /// </summary>
+        public static string JsonErrorExtractingJsonProperty(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("JsonErrorExtractingJsonProperty", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     This node should be handled by provider-specific sql generator.
+        /// </summary>
+        public static string JsonNodeMustBeHandledByProviderSpecificVisitor
+            => GetString("JsonNodeMustBeHandledByProviderSpecificVisitor");
+
+        /// <summary>
         ///     The JSON property name should only be configured on nested owned navigations.
         /// </summary>
         public static string JsonPropertyNameShouldBeConfiguredOnNestedNavigation
             => GetString("JsonPropertyNameShouldBeConfiguredOnNestedNavigation");
+
+        /// <summary>
+        ///     Entity {entity} is required but the JSON element containing it is null.
+        /// </summary>
+        public static string JsonRequiredEntityWithNullJson(object? entity)
+            => string.Format(
+                GetString("JsonRequiredEntityWithNullJson", nameof(entity)),
+                entity);
 
         /// <summary>
         ///     The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.

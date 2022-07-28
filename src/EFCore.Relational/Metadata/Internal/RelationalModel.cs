@@ -468,7 +468,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
                 var jsonColumn = new JsonColumn(containerColumnName, jsonColumnTypeMapping.StoreType, table, jsonColumnTypeMapping.ProviderValueComparer);
                 table.Columns.Add(containerColumnName, jsonColumn);
-                jsonColumn.IsNullable = !ownership.IsRequired || !ownership.IsUnique;
+                jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
 
                 if (ownership.PrincipalEntityType.BaseType != null)
                 {

@@ -49,22 +49,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override Expression CustomizeDataReaderExpression(Expression expression)
-        {
-            if (expression is UnaryExpression unary
-                && unary.NodeType == ExpressionType.Convert)
-            {
-                var parse = Expression.Call(
+            => Expression.MakeMemberAccess(
+                Expression.Call(
                     _jsonDocumentParseMethod,
-                    Expression.Convert(
-                        unary.Operand,
-                        typeof(string)),
-                    Expression.Default(typeof(JsonDocumentOptions)));
-
-                return Expression.MakeMemberAccess(parse, _jsonDocumentRootElementMember);
-            }
-
-            return base.CustomizeDataReaderExpression(expression);
-        }
+                    expression,
+                    Expression.Default(typeof(JsonDocumentOptions))),
+                _jsonDocumentRootElementMember);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

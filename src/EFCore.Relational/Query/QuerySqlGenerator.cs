@@ -1313,4 +1313,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         throw new InvalidOperationException(
             RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
     }
+
+    /// <inheritdoc />
+    protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
+        => throw new InvalidOperationException(
+            RelationalStrings.JsonNodeMustBeHandledByProviderSpecificVisitor);
 }

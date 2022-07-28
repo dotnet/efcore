@@ -481,6 +481,9 @@
   <data name="InvalidPropertyInSetProperty" xml:space="preserve">
     <value>The following lambda argument to 'SetProperty' does not represent a valid property to be set: '{propertyExpression}'.</value>
   </data>
+  <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
+    <value>Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.</value>
+  </data>
   <data name="JsonEntityMappedToDifferentViewThanOwner" xml:space="preserve">
     <value>Entity '{jsonType}' is mapped to JSON and also to a view '{viewName}', but its owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as its owner.</value>
   </data>
@@ -517,8 +520,17 @@
   <data name="JsonEntityWithTableSplittingIsNotSupported" xml:space="preserve">
     <value>Table splitting is not supported for entities containing entities mapped to JSON.</value>
   </data>
+  <data name="JsonErrorExtractingJsonProperty" xml:space="preserve">
+    <value>An error occurred while reading a JSON value for property '{entityType}.{propertyName}'. See the inner exception for more information.</value>
+  </data>
+  <data name="JsonNodeMustBeHandledByProviderSpecificVisitor" xml:space="preserve">
+    <value>This node should be handled by provider-specific sql generator.</value>
+  </data>
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
     <value>The JSON property name should only be configured on nested owned navigations.</value>
+  </data>
+  <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
+    <value>Entity {entity} is required but the JSON element containing it is null.</value>
   </data>
   <data name="KeylessMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>

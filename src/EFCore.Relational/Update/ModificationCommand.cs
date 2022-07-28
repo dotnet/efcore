@@ -321,6 +321,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
 
                 processedJsonNavigations.Add(navigation);
+
+                // parent entity got deleted, no need to do any json-specific processing
+                if (currentEntry.EntityState == EntityState.Deleted)
+                {
+                    continue;
+                }
+
                 var navigationValue = currentEntry.GetCurrentValue(navigation)!;
 
                 var json = CreateJson(
@@ -333,7 +340,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 var columnModificationParameters = new ColumnModificationParameters(
                     jsonColumnName,
                     originalValue: null,
-                    value: json.ToJsonString(),
+                    value: json?.ToJsonString(),
                     property: null,
                     columnType: jsonColumnTypeMapping.StoreType,
                     jsonColumnTypeMapping,
@@ -521,20 +528,22 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         return columnModifications;
     }
 
-    private JsonNode CreateJson(object? navigationValue, IUpdateEntry parentEntry, IEntityType entityType, int? ordinal, bool isCollection)
+    private JsonNode? CreateJson(object? navigationValue, IUpdateEntry parentEntry, IEntityType entityType, int? ordinal, bool isCollection)
     {
         if (navigationValue == null)
         {
-            return new JsonObject();
+            return isCollection ? new JsonArray() : null;
         }
 
         if (isCollection)
         {
             var i = 1;
-            var jsonNodes = new List<JsonNode>();
+            var jsonNodes = new List<JsonNode?>();
             foreach (var collectionElement in (IEnumerable)navigationValue)
             {
-                jsonNodes.Add(CreateJson(collectionElement, parentEntry, entityType, i++, isCollection: false));
+                // TODO: should we ever expect null entities inside a collection?
+                var collectionElementJson = CreateJson(collectionElement, parentEntry, entityType, i++, isCollection: false);
+                jsonNodes.Add(collectionElementJson);
             }
 
             return new JsonArray(jsonNodes.ToArray());
@@ -565,6 +574,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         foreach (var navigation in entityType.GetNavigations())
         {
+            // skip back-references to the parent
+            if (navigation.IsOnDependent)
+            {
+                continue;
+            }
+
             var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
             var ownedNavigationValue = entry.GetCurrentValue(navigation)!;
             var navigationJson = CreateJson(

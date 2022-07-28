@@ -54,6 +54,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
         TableExpression tableExpression => VisitTable(tableExpression),
         UnionExpression unionExpression => VisitUnion(unionExpression),
         UpdateExpression updateExpression => VisitUpdate(updateExpression),
+        JsonScalarExpression jsonScalarExpression => VisitJsonScalar(jsonScalarExpression),
         _ => base.VisitExtension(extensionExpression),
     };
 
@@ -281,4 +282,11 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="updateExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitUpdate(UpdateExpression updateExpression);
+
+    /// <summary>
+    ///     Visits the children of the JSON scalar expression.
+    /// </summary>
+    /// <param name="jsonScalarExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression);
 }

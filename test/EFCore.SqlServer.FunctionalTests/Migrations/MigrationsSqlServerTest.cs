@@ -6992,6 +6992,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                         o.Property<DateTime>("Date2");
                         o.ToJson();
                     });
+
+                    e.OwnsOne("Owned", "OwnedRequiredReference", o =>
+                    {
+                        o.Property<DateTime>("Date");
+                        o.ToJson();
+                    });
+
+                    e.Navigation("OwnedRequiredReference").IsRequired();
                 });
             },
             model =>
@@ -7012,6 +7020,13 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     {
                         Assert.Equal("OwnedReference", c.Name);
                         Assert.Equal("nvarchar(max)", c.StoreType);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("OwnedRequiredReference", c.Name);
+                        Assert.Equal("nvarchar(max)", c.StoreType);
+                        Assert.False(c.IsNullable);
                     });
                 Assert.Same(
                     table.Columns.Single(c => c.Name == "Id"),
@@ -7023,7 +7038,8 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [OwnedCollection] nvarchar(max) NULL,
-    [OwnedReference] nvarchar(max) NOT NULL,
+    [OwnedReference] nvarchar(max) NULL,
+    [OwnedRequiredReference] nvarchar(max) NOT NULL,
     CONSTRAINT [PK_Entity] PRIMARY KEY ([Id])
 );");
     }
@@ -7098,7 +7114,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [json_collection] nvarchar(max) NULL,
-    [json_reference] nvarchar(max) NOT NULL,
+    [json_reference] nvarchar(max) NULL,
     CONSTRAINT [PK_Entity] PRIMARY KEY ([Id])
 );");
     }
@@ -7135,6 +7151,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                         o.ToJson();
                     });
 
+                    e.OwnsOne("Owned", "OwnedRequiredReference", o =>
+                    {
+                        o.Property<DateTime>("Date");
+                        o.ToJson();
+                    });
+
+                    e.Navigation("OwnedRequiredReference").IsRequired();
+
                     e.OwnsMany("Owned2", "OwnedCollection", o =>
                     {
                         o.OwnsOne("Nested3", "NestedReference2", n =>
@@ -7168,6 +7192,13 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     {
                         Assert.Equal("OwnedReference", c.Name);
                         Assert.Equal("nvarchar(max)", c.StoreType);
+                        Assert.True(c.IsNullable);
+                    },
+                    c =>
+                    {
+                        Assert.Equal("OwnedRequiredReference", c.Name);
+                        Assert.Equal("nvarchar(max)", c.StoreType);
+                        Assert.False(c.IsNullable);
                     });
                 Assert.Same(
                     table.Columns.Single(c => c.Name == "Id"),
@@ -7177,7 +7208,9 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
         AssertSql(
             @"ALTER TABLE [Entity] ADD [OwnedCollection] nvarchar(max) NULL;",
                 //
-                @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NOT NULL DEFAULT N'';");
+                @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;",
+                //
+                @"ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT N'';");
     }
 
     [ConditionalFact]
@@ -7603,7 +7636,7 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference_NestedReference_Number];",
                 //
                 @"ALTER TABLE [Entity] ADD [OwnedCollection] nvarchar(max) NULL;",
                 //
-                @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NOT NULL DEFAULT N'';");
+                @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;");
     }
 
     [ConditionalFact]
@@ -7768,6 +7801,55 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];",
                         });
                         o.Property<DateTime>("Date");
                     });
+                });
+            },
+            model =>
+            {
+                var table = model.Tables.Single();
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name));
+            });
+
+        AssertSql();
+    }
+
+    [ConditionalFact]
+    public virtual async Task Convert_string_column_to_a_json_column_containing_required_reference()
+    {
+        await Test(
+            builder =>
+            {
+                builder.Entity("Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                });
+            },
+            builder =>
+            {
+                builder.Entity("Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+
+                    e.OwnsOne("Owned", "OwnedReference", o =>
+                    {
+                        o.ToJson("Name");
+                        o.OwnsOne("Nested", "NestedReference", n =>
+                        {
+                            n.Property<int>("Number");
+                        });
+                        o.OwnsMany("Nested2", "NestedCollection", n =>
+                        {
+                            n.Property<int>("Number2");
+                        });
+                        o.Property<DateTime>("Date");
+                    });
+
+                    e.Navigation("OwnedReference").IsRequired();
                 });
             },
             model =>

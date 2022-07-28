@@ -111,8 +111,10 @@ public class IncludeExpression : Expression, IPrintableExpression
         expressionPrinter.AppendLine("IncludeExpression(");
         using (expressionPrinter.Indent())
         {
+            expressionPrinter.AppendLine("EntityExpression:");
             expressionPrinter.Visit(EntityExpression);
             expressionPrinter.AppendLine(", ");
+            expressionPrinter.AppendLine("NavigationExpression:");
             expressionPrinter.Visit(NavigationExpression);
             expressionPrinter.AppendLine($", {Navigation.Name})");
         }
