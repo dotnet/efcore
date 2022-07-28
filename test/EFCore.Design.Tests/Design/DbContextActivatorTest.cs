@@ -8,40 +8,24 @@ public class DbContextActivatorTest
     [ConditionalFact]
     public void CreateInstance_works()
     {
-        EF.IsDesignTime = false;
-
-        var result = DbContextActivator.CreateInstance(typeof(TestContext));
-
-        Assert.IsType<TestContext>(result);
-
-        Assert.True(EF.IsDesignTime);
+        Assert.IsType<TestContext>(DbContextActivator.CreateInstance(typeof(TestContext)));
     }
 
     [ConditionalFact]
     public void CreateInstance_with_arguments_works()
     {
-        EF.IsDesignTime = false;
-
-        var result = DbContextActivator.CreateInstance(
+        Assert.IsType<TestContext>(DbContextActivator.CreateInstance(
             typeof(TestContext),
             null,
             null,
-            new[] { "A", "B" });
-
-        Assert.IsType<TestContext>(result);
-
-        Assert.True(EF.IsDesignTime);
+            new[] { "A", "B" }));
     }
 
     private class TestContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            Assert.True(EF.IsDesignTime);
-
-            options
+            => options
                 .EnableServiceProviderCaching(false)
                 .UseInMemoryDatabase(nameof(DbContextActivatorTest));
-        }
     }
 }
