@@ -14,12 +14,14 @@ public class SqliteEventIdTest : EventIdTestBase
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
         var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), owned: false, ConfigurationSource.Convention);
+        var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
         entityType.Model.FinalizeModel();
 
         var fakeFactories = new Dictionary<Type, Func<object>>
         {
             { typeof(string), () => "Fake" },
             { typeof(IEntityType), () => entityType },
+            { typeof(IKey), () => new Key(new[] { property }, ConfigurationSource.Convention) },
             { typeof(IReadOnlySequence), () => new FakeSequence() },
             { typeof(Type), () => typeof(object) }
         };

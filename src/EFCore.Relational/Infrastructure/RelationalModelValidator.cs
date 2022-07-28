@@ -1594,11 +1594,11 @@ public class RelationalModelValidator : ModelValidator
                     throw new InvalidOperationException(
                        RelationalStrings.AbstractTpc(entityType.DisplayName(), storeObject));
                 }
-                
-                foreach (var key in entityType.GetKeys())
-                {
-                    ValidateValueGenerationForMappingStrategy(entityType, key, mappingStrategy, logger);
-                }
+            }
+            
+            foreach (var key in entityType.GetKeys())
+            {
+                ValidateValueGeneration(entityType, key, logger);
             }
 
             if (entityType.BaseType != null)
@@ -1681,20 +1681,18 @@ public class RelationalModelValidator : ModelValidator
     }
 
     /// <summary>
-    ///     Validates the key value generation is valid for the given inheritance mapping strategy.
+    ///     Validates the key value generation is valid.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="key">The key.</param>
-    /// <param name="mappingStrategy">The inheritance mapping strategy.</param>
     /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateValueGenerationForMappingStrategy(
+    protected virtual void ValidateValueGeneration(
         IEntityType entityType,
         IKey key,
-        string mappingStrategy,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         if (entityType.GetTableName() != null
-            && mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+            && (string?)entityType[RelationalAnnotationNames.MappingStrategy] == RelationalAnnotationNames.TpcMappingStrategy)
         {
             foreach (var storeGeneratedProperty in key.Properties.Where(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0))
             {

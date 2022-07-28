@@ -1181,6 +1181,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId", "Shadow").HasPrincipalKey(
             p => new { p.Id, p.Name }).HasConstraintName("FK");
         modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
+        modelBuilder.Entity<Person>().Property(e => e.Id).ValueGeneratedNever();
 
         VerifyError(
             RelationalStrings.DuplicateForeignKeyColumnMismatch(
@@ -2356,7 +2357,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.SqlQueryOverrideMismatch("Animal.Name", "Dog"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_invalid_stored_procedure_overrides()
     {
@@ -2595,7 +2596,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 "Delete"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_keyless_entity_type_mapped_to_a_stored_procedure()
     {
@@ -2818,7 +2819,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         Validate(modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_missing_stored_procedure_parameters_in_TPT()
     {
@@ -3205,6 +3206,28 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Outer2.TpcDerived>().Metadata.SetDiscriminatorValue(1);
 
         VerifyError(RelationalStrings.NonTphDiscriminatorValueNotString(1, "TpcDerived"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Store_generated_in_composite_key()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<CarbonComposite>(
+            b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.Property(e => e.Id2).ValueGeneratedOnAdd();
+            });
+
+        Validate(modelBuilder);
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(CarbonComposite))!;
+        var keyProperties = entityType.FindPrimaryKey()!.Properties;
+        Assert.Equal(2, keyProperties.Count);
+        Assert.Equal(nameof(CarbonComposite.Id1), keyProperties[0].Name);
+        Assert.Equal(nameof(CarbonComposite.Id2), keyProperties[1].Name);
+        Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
+        Assert.Equal(ValueGenerated.OnAdd, keyProperties[1].ValueGenerated);
     }
 
     private class TpcBase

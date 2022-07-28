@@ -129,6 +129,10 @@
   <data name="InvalidMigrationOperation" xml:space="preserve">
     <value>SQLite does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
+  <data name="LogCompositeKeyWithValueGeneration" xml:space="preserve">
+    <value>The entity type '{entityType}' has composite key '{key}' which is configured to use generated values. SQLite does not support generated values on composite keys.</value>
+    <comment>Warning SqliteEventId.CompositeKeyWithValueGeneration string? string?</comment>
+  </data>
   <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.</value>
     <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string? string? string?</comment>
