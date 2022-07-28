@@ -72,6 +72,22 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    public override void Store_generated_in_composite_key()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<CarbonComposite>(
+            b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.Property(e => e.Id2).ValueGeneratedOnAdd();
+            });
+
+        VerifyWarning(
+            SqliteResources.LogCompositeKeyWithValueGeneration(
+                new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage(nameof(CarbonComposite), "{'Id1', 'Id2'}"),
+            modelBuilder);
+    }
+
     protected override TestHelpers TestHelpers
         => SqliteTestHelpers.Instance;
 }

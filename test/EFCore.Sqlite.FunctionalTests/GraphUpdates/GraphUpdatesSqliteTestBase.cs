@@ -49,6 +49,9 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBas
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
+
         protected virtual bool AutoDetectChanges
             => false;
 

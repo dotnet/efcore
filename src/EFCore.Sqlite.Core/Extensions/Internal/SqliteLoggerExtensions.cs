@@ -374,4 +374,43 @@ public static class SqliteLoggerExtensions
         var p = (TableRebuildEventData)payload;
         return d.GenerateMessage(p.OperationType.ShortDisplayName(), p.TableName);
     }
+    
+    /// <summary>
+    ///     Logs the <see cref="SqliteEventId.CompositeKeyWithValueGeneration" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="key">The key.</param>
+    public static void CompositeKeyWithValueGeneration(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IKey key)
+    {
+        var definition = SqliteResources.LogCompositeKeyWithValueGeneration(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                key.DeclaringEntityType.DisplayName(),
+                key.Properties.Format());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new KeyEventData(
+                definition,
+                CompositeKeyWithValueGeneration,
+                key);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string CompositeKeyWithValueGeneration(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string?, string?>)definition;
+        var p = (KeyEventData)payload;
+        return d.GenerateMessage(
+            p.Key.DeclaringEntityType.DisplayName(),
+            p.Key.Properties.Format());
+    }
 }

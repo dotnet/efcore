@@ -101,4 +101,31 @@ public class SqliteModelValidator : RelationalModelValidator
                     storeObject.DisplayName()));
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void ValidateValueGeneration(
+        IEntityType entityType,
+        IKey key,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateValueGeneration(entityType, key, logger);
+
+        var keyProperties = key.Properties;
+        if (key.IsPrimaryKey()
+            && keyProperties.Count(p => p.ClrType.UnwrapNullableType().IsInteger()) > 1
+            && keyProperties.Any(
+                p => p.ValueGenerated == ValueGenerated.OnAdd
+                    && p.ClrType.UnwrapNullableType().IsInteger()
+                    && !p.TryGetDefaultValue(out _)
+                    && p.GetDefaultValueSql() == null
+                    && !p.IsForeignKey()))
+        {
+            logger.CompositeKeyWithValueGeneration(key);
+        }
+    }
 }

@@ -100,6 +100,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteStrings", typeof(SqliteResources).Assembly);
 
         /// <summary>
+        ///     The entity type '{entityType}' has composite key '{key}' which is configured to use generated values. SQLite does not support generated values on composite keys.
+        /// </summary>
+        public static EventDefinition<string?, string?> LogCompositeKeyWithValueGeneration(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogCompositeKeyWithValueGeneration;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogCompositeKeyWithValueGeneration,
+                    logger,
+                    static logger => new EventDefinition<string?, string?>(
+                        logger.Options,
+                        SqliteEventId.CompositeKeyWithValueGeneration,
+                        LogLevel.Warning,
+                        "SqliteEventId.CompositeKeyWithValueGeneration",
+                        level => LoggerMessage.Define<string?, string?>(
+                            level,
+                            SqliteEventId.CompositeKeyWithValueGeneration,
+                            _resourceManager.GetString("LogCompositeKeyWithValueGeneration")!)));
+            }
+
+            return (EventDefinition<string?, string?>)definition;
+        }
+
+        /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
         /// </summary>
         public static EventDefinition<string?, string?, string?> LogForeignKeyScaffoldErrorPrincipalTableNotFound(IDiagnosticsLogger logger)

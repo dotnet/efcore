@@ -141,20 +141,18 @@ public class SqlServerModelValidator : RelationalModelValidator
     }
 
     /// <summary>
-    ///     Validates the key value generation is valid for the given inheritance mapping strategy.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="key">The key.</param>
-    /// <param name="mappingStrategy">The inheritance mapping strategy.</param>
-    /// <param name="logger">The logger to use.</param>
-    protected override void ValidateValueGenerationForMappingStrategy(
+    protected override void ValidateValueGeneration(
         IEntityType entityType,
         IKey key,
-        string mappingStrategy,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         if (entityType.GetTableName() != null
-            && mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+            && (string?)entityType[RelationalAnnotationNames.MappingStrategy] == RelationalAnnotationNames.TpcMappingStrategy)
         {
             foreach (var storeGeneratedProperty in key.Properties.Where(
                          p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0

@@ -17,6 +17,9 @@ public class CompositeKeyEndToEndSqliteTest : CompositeKeyEndToEndTestBase<
 
     public class CompositeKeyEndToEndSqliteFixture : CompositeKeyEndToEndFixtureBase
     {
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
+
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
     }
