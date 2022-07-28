@@ -112,6 +112,19 @@ public class RelationalValueGenerationConvention :
                 tableName,
                 entityTypeBuilder.Metadata.GetSchema());
         }
+        else if (name == RelationalAnnotationNames.MappingStrategy)
+        {
+            var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
+            if (primaryKey == null)
+            {
+                return;
+            }
+
+            foreach (var property in primaryKey.Properties)
+            {
+                property.Builder.ValueGenerated(GetValueGenerated(property));
+            }
+        }
     }
 
     private static void ProcessTableChanged(
@@ -123,14 +136,18 @@ public class RelationalValueGenerationConvention :
     {
         if (newTable == null)
         {
-            foreach (var property in entityTypeBuilder.Metadata.GetProperties())
+            if (entityTypeBuilder.Metadata.GetDerivedTypes().All(e => e.GetTableName() == null))
             {
-                property.Builder.ValueGenerated(null);
+                foreach (var property in entityTypeBuilder.Metadata.GetProperties())
+                {
+                    property.Builder.ValueGenerated(null);
+                }
             }
 
             return;
         }
-        else if (oldTable == null)
+
+        if (oldTable == null)
         {
             foreach (var property in entityTypeBuilder.Metadata.GetProperties())
             {
@@ -172,7 +189,33 @@ public class RelationalValueGenerationConvention :
 
         return tableName == null
             ? null
-            : GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+            : !MappingStrategyAllowsValueGeneration(property, property.DeclaringEntityType.GetMappingStrategy())
+                ? null
+                : GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+    }
+
+    /// <summary>
+    ///     Checks whether or not the mapping strategy and property allow value generation by convention.
+    /// </summary>
+    /// <param name="property">The property for which value generation is being considered.</param>
+    /// <param name="mappingStrategy">The current mapping strategy.</param>
+    /// <returns><see langword="true" /> if value generation is allowed; <see langword="false" /> otherwise.</returns>
+    protected virtual bool MappingStrategyAllowsValueGeneration(
+        IConventionProperty property,
+        string? mappingStrategy)
+    {
+        if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            var propertyType = property.ClrType.UnwrapNullableType();
+            if (property.IsPrimaryKey()
+                && propertyType.IsInteger()
+                && propertyType != typeof(byte))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>

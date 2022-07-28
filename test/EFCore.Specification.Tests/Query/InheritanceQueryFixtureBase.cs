@@ -374,17 +374,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         modelBuilder.Entity<Lilt>();
         modelBuilder.Entity<Coke>();
 
-        if (UseGeneratedKeys)
-        {
-            modelBuilder.Entity<Animal>().Property(e => e.Id).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Drink>().Property(e => e.Id).ValueGeneratedOnAdd();
-        }
-        else
-        {
-            modelBuilder.Entity<Animal>().Property(e => e.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Drink>().Property(e => e.Id).ValueGeneratedNever();
-        }
-
         if (HasDiscriminator)
         {
             modelBuilder.Entity<Bird>().HasDiscriminator<string>("Discriminator").IsComplete(IsDiscriminatorMappingComplete);
