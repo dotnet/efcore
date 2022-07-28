@@ -425,6 +425,22 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         AssertSql(" ");
     }
 
+    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    public override async Task Left_join_on_entity_with_owned_navigations(bool async)
+    {
+        await base.Left_join_on_entity_with_owned_navigations(async);
+
+        AssertSql(" ");
+    }
+
+    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    public override async Task Left_join_on_entity_with_owned_navigations_complex(bool async)
+    {
+        await base.Left_join_on_entity_with_owned_navigations_complex(async);
+
+        AssertSql(" ");
+    }
+
     public override async Task Filter_on_indexer_using_closure(bool async)
     {
         await base.Filter_on_indexer_using_closure(async);

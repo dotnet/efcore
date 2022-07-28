@@ -771,6 +771,8 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
 
     public abstract class Ef6GroupByFixtureBase : SharedStoreFixtureBase<ArubaContext>, IQueryFixtureBase
     {
+        private ArubaData _expectedData;
+
         protected override string StoreName
             => "Ef6GroupByTest";
 
@@ -813,7 +815,14 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             => new ArubaData(context);
 
         public virtual ISetSource GetExpectedData()
-            => new ArubaData();
+        {
+            if (_expectedData == null)
+            {
+                _expectedData = new ArubaData();
+            }
+
+            return _expectedData;
+        }
 
         public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {

@@ -1,6 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
+using System.Text.Json.Nodes;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -277,8 +281,64 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
+        var processedJsonNavigations = new List<INavigation>();
         foreach (var entry in _entries)
         {
+            if (entry.EntityType.IsMappedToJson())
+            {
+                // for JSON entry, traverse to the entry for root JSON entity
+                // and build entire JSON structure based on it
+                // this will be the column modification command
+                var jsonColumnName = entry.EntityType.GetJsonColumnName()!;
+                var jsonColumnTypeMapping = entry.EntityType.GetJsonColumnTypeMapping()!;
+
+                var currentEntry = entry;
+                var currentOwnership = currentEntry.EntityType.FindOwnership()!;
+                while (currentEntry.EntityType.IsMappedToJson())
+                {
+                    currentOwnership = currentEntry.EntityType.FindOwnership()!;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    currentEntry = ((InternalEntityEntry)currentEntry).StateManager.FindPrincipal((InternalEntityEntry)currentEntry, currentOwnership)!;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+                }
+
+                var navigation = currentOwnership.GetNavigation(pointsToPrincipal: false)!;
+                if (processedJsonNavigations.Contains(navigation))
+                {
+                    continue;
+                }
+
+                processedJsonNavigations.Add(navigation);
+                var navigationValue = currentEntry.GetCurrentValue(navigation)!;
+
+                var json = CreateJson(
+                    navigationValue,
+                    currentEntry,
+                    currentOwnership.DeclaringEntityType,
+                    ordinal: null,
+                    isCollection: navigation.IsCollection);
+
+                var columnModificationParameters = new ColumnModificationParameters(
+                    jsonColumnName,
+                    originalValue: null,
+                    value: json.ToJsonString(),
+                    property: null,
+                    columnType: jsonColumnTypeMapping.StoreType,
+                    jsonColumnTypeMapping,
+                    read: false,
+                    write: true,
+                    key: false,
+                    condition: false,
+                    _sensitiveLoggingEnabled)
+                {
+                    GenerateParameterName = _generateParameterName,
+                };
+
+                columnModifications.Add(new ColumnModification(columnModificationParameters));
+
+                continue;
+            }
+
             var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
 
             var tableMapping = GetTableMapping(entry.EntityType);
@@ -389,6 +449,65 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         return columnModifications;
     }
 
+    private JsonNode CreateJson(object? navigationValue, IUpdateEntry parentEntry, IEntityType entityType, int? ordinal, bool isCollection)
+    {
+        if (navigationValue == null)
+        {
+            return new JsonObject();
+        }
+
+        if (isCollection)
+        {
+            var i = 1;
+            var jsonNodes = new List<JsonNode>();
+            foreach (var collectionElement in (IEnumerable)navigationValue)
+            {
+                jsonNodes.Add(CreateJson(collectionElement, parentEntry, entityType, i++, isCollection: false));
+            }
+
+            return new JsonArray(jsonNodes.ToArray());
+        }
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var entry = (IUpdateEntry)((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(navigationValue, entityType)!;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+        var jsonNode = new JsonObject();
+        foreach (var property in entityType.GetProperties())
+        {
+            if (property.IsKey())
+            {
+                if (property.IsOrdinalKeyProperty() && ordinal != null)
+                {
+                    entry.SetStoreGeneratedValue(property, ordinal.Value);
+                }
+
+                continue;
+            }
+
+            // jsonPropertyName can only be null for key properties
+            var jsonPropertyName = property.GetJsonPropertyName()!;
+            var value = entry.GetCurrentProviderValue(property);
+            jsonNode[jsonPropertyName] = JsonValue.Create(value);
+        }
+
+        foreach (var navigation in entityType.GetNavigations())
+        {
+            var jsonPropertyName = navigation.GetJsonPropertyName()!;
+            var ownedNavigationValue = entry.GetCurrentValue(navigation)!;
+            var navigationJson = CreateJson(
+                ownedNavigationValue,
+                entry,
+                navigation.TargetEntityType,
+                ordinal: null,
+                isCollection: navigation.IsCollection);
+
+            jsonNode[jsonPropertyName] = navigationJson;
+        }
+
+        return jsonNode;
+    }
+
     private ITableMapping? GetTableMapping(IEntityType entityType)
     {
         ITableMapping? tableMapping = null;
@@ -414,6 +533,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     {
         foreach (var columnMapping in tableMapping.ColumnMappings)
         {
+            if (columnMapping.Property.DeclaringEntityType.IsMappedToJson())
+            {
+                continue;
+            }
+
             var columnName = columnMapping.Column.Name;
             if (!columnMap.TryGetValue(columnName, out var columnPropagator))
             {

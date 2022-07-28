@@ -60,9 +60,14 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
 
         var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies);
         var relationalCommentAttributeConvention = new RelationalColumnCommentAttributeConvention(Dependencies, RelationalDependencies);
+        var relationalPropertyJsonPropertyNameAttributeConvention = new RelationalPropertyJsonPropertyNameAttributeConvention(Dependencies, RelationalDependencies);
 
         conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
         conventionSet.PropertyAddedConventions.Add(relationalCommentAttributeConvention);
+        conventionSet.PropertyAddedConventions.Add(relationalPropertyJsonPropertyNameAttributeConvention);
+
+        var relationalNavigationJsonPropertyNameAttributeConvention = new RelationalNavigationJsonPropertyNameAttributeConvention(Dependencies, RelationalDependencies);
+        conventionSet.NavigationAddedConventions.Add(relationalNavigationJsonPropertyNameAttributeConvention);
 
         var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
         var entitySplittingConvention = new EntitySplittingConvention(Dependencies, RelationalDependencies);
@@ -85,6 +90,9 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(triggerConvention);
 
         conventionSet.EntityTypeAnnotationChangedConventions.Add(tableNameFromDbSetConvention);
+
+        var mapToJsonConvention = new RelationalMapToJsonConvention(Dependencies, RelationalDependencies);
+        conventionSet.EntityTypeAnnotationChangedConventions.Add(mapToJsonConvention);
 
         ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, valueGenerationConvention);
 
@@ -127,6 +135,8 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
             conventionSet.ModelFinalizingConventions,
             (QueryFilterRewritingConvention)new RelationalQueryFilterRewritingConvention(
                 Dependencies, RelationalDependencies));
+
+        conventionSet.ModelFinalizingConventions.Add(mapToJsonConvention);
 
         ReplaceConvention(
             conventionSet.ModelFinalizedConventions,

@@ -791,17 +791,59 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Simple_query_entity_with_owned_collection(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Star>());
-    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_on_entity_with_owned_navigations(bool async)
+        => AssertQuery(
+            async,
+            ss => from c1 in ss.Set<Planet>()
+                  join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
+                  from c2 in grouping.DefaultIfEmpty()
+                  select new { c1, c2.Id, c2, c2.Orders, c2.PersonAddress },
+            elementSorter: e => (e.c1.Id, e.c2.Id),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.c1, a.c1);
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.c2, a.c2);
+                AssertCollection(e.Orders, a.Orders, elementSorter: ee => ee.Id);
+                AssertEqual(e.PersonAddress, a.PersonAddress);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_on_entity_with_owned_navigations_complex(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+            from o in ss.Set<Planet>()
+            join sub in (
+                from c1 in ss.Set<Planet>()
+                join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
+                from c2 in grouping.DefaultIfEmpty()
+                select new { c1, c2.Id, c2 }).Distinct() on o.Id equals sub.Id into grouping2
+            from sub in grouping2.DefaultIfEmpty()
+            select new { o, sub },
+            elementSorter: e => (e.o.Id, e.sub.c1.Id, e.sub.Id),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.o, a.o);
+                AssertEqual(e.sub.Id, a.sub.Id);
+                AssertEqual(e.sub.c1, a.sub.c1);
+                AssertEqual(e.sub.c2, a.sub.c2);
+            });
 
     protected virtual DbContext CreateContext()
         => Fixture.CreateContext();
 
     public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
     {
+        private OwnedQueryData _expectedData;
+
         private static void AssertAddress(OwnedAddress expectedAddress, OwnedAddress actualAddress)
         {
             Assert.Equal(expectedAddress["AddressLine"], actualAddress["AddressLine"]);
@@ -841,7 +883,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             => () => CreateContext();
 
         public virtual ISetSource GetExpectedData()
-            => new OwnedQueryData();
+        {
+            if (_expectedData == null)
+            {
+                _expectedData = new OwnedQueryData();
+            }
+
+            return _expectedData;
+        }
 
         public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {

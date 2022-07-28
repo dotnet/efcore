@@ -3573,6 +3573,166 @@ namespace RootNamespace
                 Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
             });
 
+    [ConditionalFact]
+    public virtual void Owned_types_mapped_to_json_are_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>(
+                    b =>
+                    {
+                        b.HasKey(x => x.Id).HasName("PK_Custom");
+
+                        b.OwnsOne(x => x.EntityWithTwoProperties, bb =>
+                            {
+                                bb.ToJson();
+                                bb.Ignore(x => x.Id);
+                                bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                                bb.WithOwner(e => e.EntityWithOneProperty);
+                                bb.OwnsOne(x => x.EntityWithStringKey, bbb =>
+                                {
+                                    bbb.Ignore(x => x.Id);
+                                    bbb.OwnsMany(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
+                                });
+                            });
+                    });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
+
+                    b.HasKey(""Id"")
+                        .HasName(""PK_Custom"");
+
+                    b.ToTable(""EntityWithOneProperty"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
+                        {
+                            b1.Property<int>(""EntityWithOnePropertyId"")
+                                .HasColumnType(""int"");
+
+                            b1.Property<int>(""AlternateId"")
+                                .HasColumnType(""int"")
+                                .HasAnnotation(""Relational:JsonPropertyName"", ""NotKey"");
+
+                            b1.HasKey(""EntityWithOnePropertyId"");
+
+                            b1.ToTable(""EntityWithOneProperty"");
+
+                            b1.ToJson(""EntityWithTwoProperties"");
+
+                            b1.WithOwner(""EntityWithOneProperty"")
+                                .HasForeignKey(""EntityWithOnePropertyId"");
+
+                            b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", ""EntityWithStringKey"", b2 =>
+                                {
+                                    b2.Property<int>(""EntityWithTwoPropertiesEntityWithOnePropertyId"")
+                                        .HasColumnType(""int"");
+
+                                    b2.HasKey(""EntityWithTwoPropertiesEntityWithOnePropertyId"");
+
+                                    b2.ToTable(""EntityWithOneProperty"");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey(""EntityWithTwoPropertiesEntityWithOnePropertyId"");
+
+                                    b2.OwnsMany(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Properties"", b3 =>
+                                        {
+                                            b3.Property<int>(""EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId"")
+                                                .HasColumnType(""int"");
+
+                                            b3.Property<int>(""Id"")
+                                                .HasColumnType(""int"");
+
+                                            b3.Property<string>(""Name"")
+                                                .HasColumnType(""nvarchar(max)"");
+
+                                            b3.HasKey(""EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId"", ""Id"");
+
+                                            b3.ToTable(""EntityWithOneProperty"");
+
+                                            b3.WithOwner()
+                                                .HasForeignKey(""EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId"");
+                                        });
+
+                                    b2.Navigation(""Properties"")
+                                        .HasAnnotation(""Relational:JsonPropertyName"", ""JsonProps"");
+                                });
+
+                            b1.Navigation(""EntityWithOneProperty"");
+
+                            b1.Navigation(""EntityWithStringKey"");
+                        });
+
+                    b.Navigation(""EntityWithTwoProperties"");
+                });", usingSystem: false),
+            o =>
+            {
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
+
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                    .ForeignKey;
+                Assert.Equal("EntityWithOnePropertyId", ownership1.Properties[0].Name);
+
+                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
+                Assert.True(ownership1.IsRequired);
+                Assert.Equal("FK_EntityWithOneProperty_EntityWithOneProperty_EntityWithOnePropertyId", ownership1.GetConstraintName());
+                var ownedType1 = ownership1.DeclaringEntityType;
+                Assert.Equal("EntityWithOnePropertyId", ownedType1.FindPrimaryKey().Properties[0].Name);
+
+                var ownedProperties1 = ownedType1.GetProperties().ToList();
+                Assert.Equal("EntityWithOnePropertyId", ownedProperties1[0].Name);
+                Assert.Equal("AlternateId", ownedProperties1[1].Name);
+                Assert.Equal("NotKey", RelationalPropertyExtensions.GetJsonPropertyName(ownedProperties1[1]));
+
+                Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
+                Assert.Equal("EntityWithTwoProperties", ownedType1.GetJsonColumnName());
+
+                var ownership2 = ownedType1.FindNavigation(nameof(EntityWithStringKey)).ForeignKey;
+                Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownership2.Properties[0].Name);
+                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithStringKey), ownership2.PrincipalToDependent.Name);
+                Assert.True(ownership2.IsRequired);
+
+                var ownedType2 = ownership2.DeclaringEntityType;
+                Assert.Equal(nameof(EntityWithStringKey), ownedType2.DisplayName());
+                Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownedType2.FindPrimaryKey().Properties[0].Name);
+
+                var ownedProperties2 = ownedType2.GetProperties().ToList();
+                Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownedProperties2[0].Name);
+
+                var navigation3 = ownedType2.FindNavigation(nameof(EntityWithStringKey.Properties));
+                Assert.Equal("JsonProps", navigation3.GetJsonPropertyName());
+                var ownership3 = navigation3.ForeignKey;
+                Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", ownership3.Properties[0].Name);
+                Assert.Equal(nameof(EntityWithStringKey.Properties), ownership3.PrincipalToDependent.Name);
+                Assert.True(ownership3.IsRequired);
+                Assert.False(ownership3.IsUnique);
+
+                var ownedType3 = ownership3.DeclaringEntityType;
+                Assert.Equal(nameof(EntityWithStringProperty), ownedType3.DisplayName());
+                var pkProperties3 = ownedType3.FindPrimaryKey().Properties;
+                Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", pkProperties3[0].Name);
+                Assert.Equal("Id", pkProperties3[1].Name);
+
+                var ownedProperties3 = ownedType3.GetProperties().ToList();
+                Assert.Equal(3, ownedProperties3.Count);
+
+                Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", ownedProperties3[0].Name);
+                Assert.Equal("Id", ownedProperties3[1].Name);
+                Assert.Equal("Name", ownedProperties3[2].Name);
+            });
+
     private class Order
     {
         public int Id { get; set; }

@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Data;
+using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -129,6 +130,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     private readonly SqlServerStringTypeMapping _xml
         = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
+    private readonly SqlServerJsonTypeMapping _json
+        = new("nvarchar(max)");
+
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrNoFacetTypeMappings;
@@ -160,7 +164,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { typeof(short), _short },
                 { typeof(float), _real },
                 { typeof(decimal), _decimal182 },
-                { typeof(TimeSpan), _time }
+                { typeof(TimeSpan), _time },
+                { typeof(JsonElement), _json }
             };
 
         _clrNoFacetTypeMappings

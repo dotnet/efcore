@@ -4,6 +4,8 @@
 #nullable enable
 
 // ReSharper disable InconsistentNaming
+using static Microsoft.EntityFrameworkCore.ChangeTracking.MemberEntryTest;
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
@@ -1417,6 +1419,442 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             var joinEntity = entity.GetSkipNavigations().Single().JoinEntityType!;
 
             Assert.True(joinEntity.IsTemporal());
+        }
+
+        [ConditionalFact]
+        public virtual void Json_entity_and_normal_owned_can_exist_side_by_side_on_same_entity()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntity>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReference1);
+                b.OwnsOne(x => x.OwnedReference2, bb => bb.ToJson("reference"));
+                b.OwnsMany(x => x.OwnedCollection1);
+                b.OwnsMany(x => x.OwnedCollection2, bb => bb.ToJson("collection"));
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var owner = model.FindEntityType(typeof(JsonEntity))!;
+            Assert.False(owner.IsMappedToJson());
+            Assert.True(owner.GetDeclaredProperties().All(x => x.GetJsonPropertyName() == null));
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(4, ownedEntities.Count());
+            Assert.Equal(2, ownedEntities.Where(e => e.IsMappedToJson()).Count());
+            Assert.Equal(2, ownedEntities.Where(e => e.IsOwned() && !e.IsMappedToJson()).Count());
+            var reference = ownedEntities.Where(e => e.GetJsonColumnName() == "reference").Single();
+            Assert.Equal("Date", reference.GetProperty("Date").GetJsonPropertyName());
+            Assert.Equal("Fraction", reference.GetProperty("Fraction").GetJsonPropertyName());
+            Assert.Equal("Enum", reference.GetProperty("Enum").GetJsonPropertyName());
+
+            var collection = ownedEntities.Where(e => e.GetJsonColumnName() == "collection").Single();
+            Assert.Equal("Date", collection.GetProperty("Date").GetJsonPropertyName());
+            Assert.Equal("Fraction", collection.GetProperty("Fraction").GetJsonPropertyName());
+            Assert.Equal("Enum", collection.GetProperty("Enum").GetJsonPropertyName());
+
+            var nonJson = ownedEntities.Where(e => !e.IsMappedToJson()).ToList();
+            Assert.True(nonJson.All(x => x.GetProperty("Date").GetJsonPropertyName() == null));
+            Assert.True(nonJson.All(x => x.GetProperty("Fraction").GetJsonPropertyName() == null));
+            Assert.True(nonJson.All(x => x.GetProperty("Enum").GetJsonPropertyName() == null));
+        }
+
+        [ConditionalFact]
+        public virtual void Json_entity_with_tph_inheritance()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReferenceOnBase, bb => bb.ToJson("reference_on_base"));
+                b.OwnsMany(x => x.OwnedCollectionOnBase, bb => bb.ToJson("collection_on_base"));
+            });
+
+            modelBuilder.Entity<JsonEntityInheritanceDerived>(b =>
+            {
+                b.HasBaseType<JsonEntityInheritanceBase>();
+                b.OwnsOne(x => x.OwnedReferenceOnDerived, bb => bb.ToJson("reference_on_derived"));
+                b.OwnsMany(x => x.OwnedCollectionOnDerived, bb => bb.ToJson("collection_on_derived"));
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity)).ToList();
+            Assert.Equal(4, ownedEntities.Count());
+
+            foreach (var ownedEntity in ownedEntities)
+            {
+                Assert.Equal("Date", ownedEntity.GetProperty("Date").GetJsonPropertyName());
+                Assert.Equal("Fraction", ownedEntity.GetProperty("Fraction").GetJsonPropertyName());
+                Assert.Equal("Enum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
+            }
+
+            var jsonColumnNames = ownedEntities.Select(x => x.GetJsonColumnName()).OrderBy(x => x).ToList();
+            Assert.Equal("collection_on_base", jsonColumnNames[0]);
+            Assert.Equal("collection_on_derived", jsonColumnNames[1]);
+            Assert.Equal("reference_on_base", jsonColumnNames[2]);
+            Assert.Equal("reference_on_derived", jsonColumnNames[3]);
+        }
+
+        [ConditionalFact]
+        public virtual void Json_entity_with_nested_structure_same_property_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntityWithNesting>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReference1, bb =>
+                {
+                    bb.ToJson("ref1");
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.OwnsOne(x => x.OwnedReference2, bb =>
+                {
+                    bb.ToJson("ref2");
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.OwnsMany(x => x.OwnedCollection1, bb =>
+                {
+                    bb.ToJson("col1");
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.OwnsMany(x => x.OwnedCollection2, bb =>
+                {
+                    bb.ToJson("col2");
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
+            Assert.Equal(4, outerOwnedEntities.Count());
+
+            foreach (var outerOwnedEntity in outerOwnedEntities)
+            {
+                Assert.Equal("Date", outerOwnedEntity.GetProperty("Date").GetJsonPropertyName());
+                Assert.Equal("Fraction", outerOwnedEntity.GetProperty("Fraction").GetJsonPropertyName());
+                Assert.Equal("Enum", outerOwnedEntity.GetProperty("Enum").GetJsonPropertyName());
+                Assert.Equal("Reference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").GetJsonPropertyName());
+                Assert.Equal("Reference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").GetJsonPropertyName());
+                Assert.Equal("Collection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").GetJsonPropertyName());
+                Assert.Equal("Collection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").GetJsonPropertyName());
+            }
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(16, ownedEntities.Count());
+
+            foreach (var ownedEntity in ownedEntities)
+            {
+                Assert.Equal("Date", ownedEntity.GetProperty("Date").GetJsonPropertyName());
+                Assert.Equal("Fraction", ownedEntity.GetProperty("Fraction").GetJsonPropertyName());
+                Assert.Equal("Enum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Json_entity_nested_enums_have_conversions_to_string_by_default_ToJson_first()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntityWithNesting>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReference1, bb =>
+                {
+                    bb.ToJson();
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.Ignore(x => x.OwnedReference2);
+                b.OwnsMany(x => x.OwnedCollection1, bb =>
+                {
+                    bb.ToJson();
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                });
+
+                b.Ignore(x => x.OwnedCollection2);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
+            Assert.Equal(2, outerOwnedEntities.Count());
+
+            foreach (var outerOwnedEntity in outerOwnedEntities)
+            {
+                Assert.True(outerOwnedEntity.IsMappedToJson());
+                var myEnum = outerOwnedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
+                var typeMapping = myEnum.FindRelationalTypeMapping()!;
+                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+            }
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(8, ownedEntities.Count());
+
+            foreach (var ownedEntity in ownedEntities)
+            {
+                Assert.True(ownedEntity.IsMappedToJson());
+                var myEnum = ownedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
+                var typeMapping = myEnum.FindRelationalTypeMapping()!;
+                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Json_entity_nested_enums_have_conversions_to_string_by_default_ToJson_last()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntityWithNesting>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReference1, bb =>
+                {
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                    bb.ToJson();
+                });
+
+                b.Ignore(x => x.OwnedReference2);
+                b.OwnsMany(x => x.OwnedCollection1, bb =>
+                {
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                    bb.ToJson();
+                });
+
+                b.Ignore(x => x.OwnedCollection2);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
+            Assert.Equal(2, outerOwnedEntities.Count());
+
+            foreach (var outerOwnedEntity in outerOwnedEntities)
+            {
+                Assert.True(outerOwnedEntity.IsMappedToJson());
+                var myEnum = outerOwnedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
+                var typeMapping = myEnum.FindRelationalTypeMapping()!;
+                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+            }
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(8, ownedEntities.Count());
+
+            foreach (var ownedEntity in ownedEntities)
+            {
+                Assert.True(ownedEntity.IsMappedToJson());
+                var myEnum = ownedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
+                var typeMapping = myEnum.FindRelationalTypeMapping()!;
+                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Entity_mapped_to_json_and_unwound_afterwards_properly_cleans_up_its_state()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntityWithNesting>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReference1, bb =>
+                {
+                    bb.ToJson();
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                    bb.ToJson(null);
+                });
+
+                b.Ignore(x => x.OwnedReference2);
+                b.OwnsMany(x => x.OwnedCollection1, bb =>
+                {
+                    bb.OwnsOne(x => x.Reference1);
+                    bb.OwnsOne(x => x.Reference2);
+                    bb.OwnsMany(x => x.Collection1);
+                    bb.OwnsMany(x => x.Collection2);
+                    bb.ToJson();
+                    bb.ToJson(null);
+                });
+
+                b.Ignore(x => x.OwnedCollection2);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
+            Assert.Equal(2, outerOwnedEntities.Count());
+
+            foreach (var outerOwnedEntity in outerOwnedEntities)
+            {
+                Assert.False(outerOwnedEntity.IsMappedToJson());
+                Assert.Null(outerOwnedEntity.GetJsonColumnTypeMapping());
+                var myEnum = outerOwnedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
+                var typeMapping = myEnum.FindRelationalTypeMapping()!;
+
+                Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);
+            }
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(8, ownedEntities.Count());
+
+            foreach (var ownedEntity in ownedEntities)
+            {
+                Assert.False(ownedEntity.IsMappedToJson());
+                Assert.Null(ownedEntity.GetJsonColumnTypeMapping());
+                var myEnum = ownedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
+                var typeMapping = myEnum.FindRelationalTypeMapping()!;
+                Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Json_entity_mapped_to_view()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntity>(b =>
+            {
+                b.ToView("MyView");
+                b.OwnsOne(x => x.OwnedReference1, bb => bb.ToJson());
+                b.Ignore(x => x.OwnedReference2);
+                b.OwnsMany(x => x.OwnedCollection1, bb => bb.ToJson());
+                b.Ignore(x => x.OwnedCollection2);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(JsonEntity))!;
+            Assert.Equal("MyView", owner.GetViewName());
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(2, ownedEntities.Count());
+            Assert.Equal(2, ownedEntities.Where(e => e.IsMappedToJson()).Count());
+            Assert.True(ownedEntities.All(x => x.GetViewName() == "MyView"));
+        }
+
+        [ConditionalFact]
+        public virtual void Json_entity_with_custom_property_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<JsonEntityWithNesting>(b =>
+            {
+                b.OwnsOne(x => x.OwnedReference1, bb =>
+                {
+                    bb.ToJson();
+                    bb.Property(x => x.Date).HasJsonPropertyName("OuterDate");
+                    bb.Property(x => x.Fraction).HasJsonPropertyName("OuterFraction");
+                    bb.Property(x => x.Enum).HasJsonPropertyName("OuterEnum");
+                    bb.OwnsOne(x => x.Reference1, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedReference1");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                    bb.OwnsOne(x => x.Reference2, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedReference2");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                    bb.OwnsMany(x => x.Collection1, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedCollection1");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                    bb.OwnsMany(x => x.Collection2, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedCollection2");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                });
+
+                b.OwnsMany(x => x.OwnedCollection1, bb =>
+                {
+                    bb.Property(x => x.Date).HasJsonPropertyName("OuterDate");
+                    bb.Property(x => x.Fraction).HasJsonPropertyName("OuterFraction");
+                    bb.Property(x => x.Enum).HasJsonPropertyName("OuterEnum");
+                    bb.OwnsOne(x => x.Reference1, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedReference1");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                    bb.OwnsOne(x => x.Reference2, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedReference2");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                    bb.OwnsMany(x => x.Collection1, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedCollection1");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                    bb.OwnsMany(x => x.Collection2, bbb =>
+                    {
+                        bbb.HasJsonPropertyName("RenamedCollection2");
+                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                    });
+                    bb.ToJson();
+                });
+
+                b.Ignore(x => x.OwnedReference2);
+                b.Ignore(x => x.OwnedCollection2);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
+            Assert.Equal(2, outerOwnedEntities.Count());
+
+            foreach (var outerOwnedEntity in outerOwnedEntities)
+            {
+                Assert.Equal("OuterDate", outerOwnedEntity.GetProperty("Date").GetJsonPropertyName());
+                Assert.Equal("OuterFraction", outerOwnedEntity.GetProperty("Fraction").GetJsonPropertyName());
+                Assert.Equal("OuterEnum", outerOwnedEntity.GetProperty("Enum").GetJsonPropertyName());
+                Assert.Equal("RenamedReference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").GetJsonPropertyName());
+                Assert.Equal("RenamedReference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").GetJsonPropertyName());
+                Assert.Equal("RenamedCollection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").GetJsonPropertyName());
+                Assert.Equal("RenamedCollection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").GetJsonPropertyName());
+            }
+
+            var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
+            Assert.Equal(8, ownedEntities.Count());
+
+            foreach (var ownedEntity in ownedEntities)
+            {
+                Assert.Equal("InnerDate", ownedEntity.GetProperty("Date").GetJsonPropertyName());
+                Assert.Equal("InnerFraction", ownedEntity.GetProperty("Fraction").GetJsonPropertyName());
+                Assert.Equal("InnerEnum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
+            }
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)

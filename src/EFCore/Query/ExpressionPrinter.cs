@@ -321,6 +321,10 @@ public class ExpressionPrinter : ExpressionVisitor
                 VisitSwitch((SwitchExpression)expression);
                 break;
 
+            case ExpressionType.Invoke:
+                VisitInvocation((InvocationExpression)expression);
+                break;
+
             case ExpressionType.Extension:
                 VisitExtension(expression);
                 break;
@@ -395,7 +399,11 @@ public class ExpressionPrinter : ExpressionVisitor
 
             if (blockExpression.Result != null)
             {
-                Append("return ");
+                if (blockExpression.Result.Type != typeof(void))
+                {
+                    Append("return ");
+                }
+
                 Visit(blockExpression.Result);
                 AppendLine(";");
             }
@@ -999,6 +1007,23 @@ public class ExpressionPrinter : ExpressionVisitor
         _stringBuilder.AppendLine("}");
 
         return switchExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+    {
+        _stringBuilder.Append("Invoke(");
+        Visit(invocationExpression.Expression);
+
+        foreach (var argument in invocationExpression.Arguments)
+        {
+            _stringBuilder.Append(", ");
+            Visit(argument);
+        }
+
+        _stringBuilder.Append(")");
+
+        return invocationExpression;
     }
 
     /// <inheritdoc />

@@ -35,7 +35,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.InsertStoredProcedure,
         RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
-        RelationalAnnotationNames.RelationalOverrides
+        RelationalAnnotationNames.RelationalOverrides,
+        RelationalAnnotationNames.JsonColumnTypeMapping
     };
 
     #region MethodInfos
@@ -135,6 +136,10 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     private static readonly MethodInfo IndexHasFilterNameMethodInfo
         = typeof(RelationalIndexBuilderExtensions).GetRuntimeMethod(
             nameof(RelationalIndexBuilderExtensions.HasFilter), new[] { typeof(IndexBuilder), typeof(string) })!;
+
+    private static readonly MethodInfo ToJsonMethodInfo
+        = typeof(RelationalOwnedNavigationBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalOwnedNavigationBuilderExtensions.ToJson), new[] { typeof(OwnedNavigationBuilder), typeof(string) })!;
 
     #endregion MethodInfos
 
@@ -301,6 +306,19 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
                 annotations.Remove(mappingStrategyAnnotation.Name);
             }
+        }
+
+        if (annotations.TryGetValue(RelationalAnnotationNames.JsonColumnName, out var jsonColumnNameAnnotation)
+            && jsonColumnNameAnnotation != null && jsonColumnNameAnnotation.Value is string jsonColumnName
+            && entityType.IsOwned())
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    ToJsonMethodInfo,
+                    jsonColumnName));
+
+            annotations.Remove(RelationalAnnotationNames.JsonColumnName);
+            annotations.Remove(RelationalAnnotationNames.JsonColumnTypeMapping);
         }
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));

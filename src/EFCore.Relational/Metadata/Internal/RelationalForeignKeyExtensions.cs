@@ -202,7 +202,8 @@ public static class RelationalForeignKeyExtensions
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? logger)
     {
         if (storeObject.StoreObjectType != StoreObjectType.Table
-            || principalStoreObject.StoreObjectType != StoreObjectType.Table)
+            || principalStoreObject.StoreObjectType != StoreObjectType.Table
+            || foreignKey.DeclaringEntityType.IsMappedToJson())
         {
             return null;
         }

@@ -1086,4 +1086,46 @@
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
   </data>
+  <data name="JsonEntityOwnedByNonJsonOwnedType" xml:space="preserve">
+    <value>Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.</value>
+  </data>
+  <data name="JsonEntityWithTableSplittingIsNotSupported" xml:space="preserve">
+    <value>Table splitting is not supported for entities containing entities mapped to JSON.</value>
+  </data>
+  <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
+    <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
+  </data>
+  <data name="JsonEntityWithOwnerNotMappedToTableOrView" xml:space="preserve">
+    <value>Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view.This is not supported.</value>
+  </data>
+  <data name="JsonEntityMappedToDifferentViewThanOwner" xml:space="preserve">
+    <value>Entity '{jsonType}' is mapped to JSON and also mapped to a view '{viewName}', however it's owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as it's owner.</value>
+  </data>
+  <data name="JsonEntityWithNonTphInheritanceOnOwner" xml:space="preserve">
+    <value>Entity type '{rootType}' references entities mapped to JSON. Only '{tph}' inheritance is supported for those entities.</value>
+  </data>
+  <data name="JsonEntityReferencingRegularEntity" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' is mapped to JSON and has navigation to a regular entity which is not the owner.</value>
+  </data>
+  <data name="JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey" xml:space="preserve">
+    <value>Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have JSON property name configured explicitly.</value>
+  </data>
+  <data name="JsonEntityWithExplicitlyConfiguredOrdinalKey" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' is part of collection mapped to JSON and has it's ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.</value>
+  </data>
+  <data name="JsonEntityWithIncorrectNumberOfKeyProperties" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' has incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
+  </data>
+  <data name="JsonEntityWithDefaultValueSetOnItsProperty" xml:space="preserve">
+    <value>Setting default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.</value>
+  </data>
+  <data name="JsonEntityWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
+    <value>Entity '{jsonEntity}' is mapped to JSON and it contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.</value>
+  </data>
+  <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
+    <value>JSON property name should only be configured on nested owned navigations.</value>
+  </data>
+  <data name="MethodNeedsToBeImplementedInTheProvider" xml:space="preserve">
+    <value>This method needs to be implemented in the provider.</value>
+  </data>
 </root>

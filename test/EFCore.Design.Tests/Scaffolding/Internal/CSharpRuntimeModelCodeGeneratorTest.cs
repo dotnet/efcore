@@ -4590,7 +4590,7 @@ namespace TestNamespace
                     Assert.Equal(ValueGenerated.Never, id.ValueGenerated);
                     Assert.Equal(PropertySaveBehavior.Throw, id.GetAfterSaveBehavior());
                     Assert.Equal(PropertySaveBehavior.Save, id.GetBeforeSaveBehavior());
-                    Assert.Equal("Id", id.GetJsonPropertyName());
+                    Assert.Equal("Id", CosmosPropertyExtensions.GetJsonPropertyName(id));
                     Assert.Null(id.GetValueGeneratorFactory());
                     Assert.Null(id.GetValueConverter());
                     Assert.NotNull(id.GetValueComparer());
@@ -4605,7 +4605,7 @@ namespace TestNamespace
                     Assert.Equal(ValueGenerated.Never, storeId.ValueGenerated);
                     Assert.Equal(PropertySaveBehavior.Throw, storeId.GetAfterSaveBehavior());
                     Assert.Equal(PropertySaveBehavior.Save, storeId.GetBeforeSaveBehavior());
-                    Assert.Equal("id", storeId.GetJsonPropertyName());
+                    Assert.Equal("id", CosmosPropertyExtensions.GetJsonPropertyName(storeId));
                     Assert.IsType<IdValueGenerator>(storeId.GetValueGeneratorFactory()(storeId, dataEntity));
                     Assert.Null(storeId.GetValueConverter());
                     Assert.NotNull(storeId.GetValueComparer());
@@ -4620,7 +4620,7 @@ namespace TestNamespace
                     Assert.Equal(ValueGenerated.Never, partitionId.ValueGenerated);
                     Assert.Equal(PropertySaveBehavior.Throw, partitionId.GetAfterSaveBehavior());
                     Assert.Equal(PropertySaveBehavior.Save, partitionId.GetBeforeSaveBehavior());
-                    Assert.Equal("PartitionId", partitionId.GetJsonPropertyName());
+                    Assert.Equal("PartitionId", CosmosPropertyExtensions.GetJsonPropertyName(partitionId));
                     Assert.Null(partitionId.GetValueGeneratorFactory());
                     Assert.Null(partitionId.GetValueConverter());
                     Assert.IsType<NumberToStringConverter<long>>(partitionId.FindTypeMapping().Converter);
@@ -4636,7 +4636,7 @@ namespace TestNamespace
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, eTag.ValueGenerated);
                     Assert.Equal(PropertySaveBehavior.Ignore, eTag.GetAfterSaveBehavior());
                     Assert.Equal(PropertySaveBehavior.Ignore, eTag.GetBeforeSaveBehavior());
-                    Assert.Equal("_etag", eTag.GetJsonPropertyName());
+                    Assert.Equal("_etag", CosmosPropertyExtensions.GetJsonPropertyName(eTag));
                     Assert.Null(eTag.GetValueGeneratorFactory());
                     Assert.Null(eTag.GetValueConverter());
                     Assert.NotNull(eTag.GetValueComparer());
@@ -4653,7 +4653,7 @@ namespace TestNamespace
                     Assert.Equal(ValueGenerated.Never, blob.ValueGenerated);
                     Assert.Equal(PropertySaveBehavior.Save, blob.GetAfterSaveBehavior());
                     Assert.Equal(PropertySaveBehavior.Save, blob.GetBeforeSaveBehavior());
-                    Assert.Equal("JsonBlob", blob.GetJsonPropertyName());
+                    Assert.Equal("JsonBlob", CosmosPropertyExtensions.GetJsonPropertyName(blob));
                     Assert.Null(blob.GetValueGeneratorFactory());
                     Assert.Null(blob.GetValueConverter());
                     Assert.NotNull(blob.GetValueComparer());
@@ -4668,7 +4668,7 @@ namespace TestNamespace
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, jObject.ValueGenerated);
                     Assert.Equal(PropertySaveBehavior.Ignore, jObject.GetAfterSaveBehavior());
                     Assert.Equal(PropertySaveBehavior.Ignore, jObject.GetBeforeSaveBehavior());
-                    Assert.Equal("", jObject.GetJsonPropertyName());
+                    Assert.Equal("", CosmosPropertyExtensions.GetJsonPropertyName(jObject));
                     Assert.Null(jObject.GetValueGeneratorFactory());
                     Assert.Null(jObject.GetValueConverter());
                     Assert.NotNull(jObject.GetValueComparer());

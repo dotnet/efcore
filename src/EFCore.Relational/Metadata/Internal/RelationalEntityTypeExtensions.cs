@@ -29,6 +29,11 @@ public static class RelationalEntityTypeExtensions
         this IEntityType entityType,
         StoreObjectIdentifier storeObject)
     {
+        if (entityType.IsMappedToJson())
+        {
+            yield break;
+        }
+
         foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys())
         {
             var dependentPrimaryKey = foreignKey.DeclaringEntityType.FindPrimaryKey();

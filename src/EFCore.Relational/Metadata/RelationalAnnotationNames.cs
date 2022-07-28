@@ -318,4 +318,19 @@ public static class RelationalAnnotationNames
     ///     The name for the reader field value getter delegate annotation.
     /// </summary>
     public const string FieldValueGetter = Prefix + "FieldValueGetter";
+
+    /// <summary>
+    ///     The name for the annotation specifying JSON column name to which the object is mapped.
+    /// </summary>
+    public const string JsonColumnName = Prefix + "JsonColumnName";
+
+    /// <summary>
+    ///     The name for the annotation specifying JSON column type mapping.
+    /// </summary>
+    public const string JsonColumnTypeMapping = Prefix + "JsonColumnTypeMapping";
+
+    /// <summary>
+    ///     The JSON property name for the element that the property/navigation maps to.
+    /// </summary>
+    public const string JsonPropertyName = Prefix + "JsonPropertyName";
 }

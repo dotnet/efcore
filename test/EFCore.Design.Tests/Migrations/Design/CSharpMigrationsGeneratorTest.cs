@@ -88,7 +88,10 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
-            RelationalAnnotationNames.FieldValueGetter
+            RelationalAnnotationNames.FieldValueGetter,
+            RelationalAnnotationNames.JsonPropertyName,
+            RelationalAnnotationNames.JsonColumnName, // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
+            RelationalAnnotationNames.JsonColumnTypeMapping,
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -239,7 +242,10 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.Triggers,
-            RelationalAnnotationNames.FieldValueGetter
+            RelationalAnnotationNames.FieldValueGetter,
+            RelationalAnnotationNames.JsonColumnName,
+            RelationalAnnotationNames.JsonColumnTypeMapping,
+            RelationalAnnotationNames.JsonPropertyName,
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";
@@ -343,7 +349,6 @@ public class CSharpMigrationsGeneratorTest
                      typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
         {
             var annotationName = (string)field.GetValue(null);
-
             if (!invalidAnnotations.Contains(annotationName))
             {
                 var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();

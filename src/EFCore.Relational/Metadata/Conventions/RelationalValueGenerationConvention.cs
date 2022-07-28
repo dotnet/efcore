@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -181,9 +183,11 @@ public class RelationalValueGenerationConvention :
             ? null
             : table.Name != null
                 ? GetValueGenerated(property, table)
-                : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
-                    ? GetValueGenerated((IReadOnlyProperty)property)
-                    : null;
+                : property.DeclaringEntityType.IsMappedToJson() && !property.DeclaringEntityType.FindOwnership()!.IsUnique && property.IsOrdinalKeyProperty()
+                    ? ValueGenerated.OnAdd
+                    : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
+                        ? GetValueGenerated((IReadOnlyProperty)property)
+                        : null;
     }
     
     /// <summary>

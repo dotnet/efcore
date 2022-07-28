@@ -28,7 +28,6 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
         RelationalConventionSetBuilderDependencies relationalDependencies)
     {
         Dependencies = dependencies;
-        Dependencies = dependencies;
         RelationalDependencies = relationalDependencies;
     }
 

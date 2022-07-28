@@ -257,6 +257,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
+                    if (entry.EntityType.IsMappedToJson())
+                    {
+                        continue;
+                    }
+
                     entry.EntityState = EntityState.Modified;
 
                     command.AddEntry(entry, sharedCommandsMap.IsMainEntry(entry));

@@ -3,6 +3,7 @@
 
 using System.Globalization;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -234,10 +235,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
                 string.Format(CultureInfo.InvariantCulture, "{0}, {1}", seed ?? 1, increment ?? 1));
         }
 
-        // Model validation ensures that these facets are the same on all mapped properties
-        var property = column.PropertyMappings.First().Property;
-        if (property.IsSparse() is bool isSparse)
+        // JSON columns have no property mappings so all annotations that rely on property mappings should be skipped for them
+        if (column is not JsonColumn
+            && column.PropertyMappings.FirstOrDefault()?.Property.IsSparse() is bool isSparse)
         {
+            // Model validation ensures that these facets are the same on all mapped properties
             yield return new Annotation(SqlServerAnnotationNames.Sparse, isSparse);
         }
 
