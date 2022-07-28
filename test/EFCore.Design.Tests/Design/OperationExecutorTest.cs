@@ -20,10 +20,10 @@ public class OperationExecutorTest
         [ConditionalFact]
         public void Operations_have_design_time_flag_set()
         {
+            EF.IsDesignTime = false;
+
             var handler = new OperationResultHandler();
             var result = "Twilight Sparkle";
-
-            Assert.False(EF.IsDesignTime);
 
             new MockOperation<string>(handler, () =>
             {
