@@ -1393,7 +1393,6 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     [InlineData(true, true)]
     public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection(bool async, bool openWithEf)
     {
-        //using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
         var serviceProvider = new ServiceCollection()
             .AddDbContextPool<PooledContext>(
                 ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
