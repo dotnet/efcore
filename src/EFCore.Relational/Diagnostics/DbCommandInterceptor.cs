@@ -21,6 +21,10 @@ public abstract class DbCommandInterceptor : IDbCommandInterceptor
         => result;
 
     /// <inheritdoc />
+    public virtual DbCommand CommandInitialized(CommandEndEventData eventData, DbCommand result)
+        => result;
+
+    /// <inheritdoc />
     public virtual InterceptionResult<DbDataReader> ReaderExecuting(
         DbCommand command,
         CommandEventData eventData,
@@ -121,6 +125,14 @@ public abstract class DbCommandInterceptor : IDbCommandInterceptor
         CommandErrorEventData eventData,
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    /// <inheritdoc />
+    public virtual InterceptionResult DataReaderClosing(DbCommand command, DataReaderClosingEventData eventData, InterceptionResult result)
+        => result;
+
+    /// <inheritdoc />
+    public virtual ValueTask<InterceptionResult> DataReaderClosingAsync(DbCommand command, DataReaderClosingEventData eventData, InterceptionResult result)
+        => new(result);
 
     /// <inheritdoc />
     public virtual InterceptionResult DataReaderDisposing(

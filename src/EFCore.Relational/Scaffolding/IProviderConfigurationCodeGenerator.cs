@@ -49,6 +49,7 @@ public interface IProviderConfigurationCodeGenerator
     /// </summary>
     /// <param name="connectionString">The connection string to include in the code fragment.</param>
     /// <returns>The code fragment.</returns>
+    // Issue #28537. Remember to update both the class and the interface implementation.
     MethodCallCodeFragment GenerateUseProvider(string connectionString)
     {
         var useProviderCall = GenerateUseProvider(

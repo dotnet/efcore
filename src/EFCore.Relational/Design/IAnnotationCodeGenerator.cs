@@ -144,6 +144,7 @@ public interface IAnnotationCodeGenerator
     /// </summary>
     /// <param name="annotatable">The annotatable to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    // Issue #28537. Remember to update both the class and the interface implementation.
     void RemoveAnnotationsHandledByConventions(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
     {
         switch (annotatable)
@@ -354,6 +355,7 @@ public interface IAnnotationCodeGenerator
     /// </summary>
     /// <param name="annotatable">The annotatable to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    // Issue #28537. Remember to update both the class and the interface implementation.
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
         => annotatable switch
         {
@@ -391,6 +393,7 @@ public interface IAnnotationCodeGenerator
     /// </summary>
     /// <param name="property">The property to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
+    // Issue #28537. Remember to update both the class and the interface implementation.
     IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IProperty property,
         IDictionary<string, IAnnotation> annotations)

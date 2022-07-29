@@ -46,7 +46,7 @@ public interface IColumnBase : IAnnotatable
     /// </summary>
     /// <param name="entityType">An entity type.</param>
     /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
-    public virtual IColumnMappingBase? FindColumnMapping(IReadOnlyEntityType entityType)
+    IColumnMappingBase? FindColumnMapping(IReadOnlyEntityType entityType)
     {
         for (var i = 0; i < PropertyMappings.Count; i++)
         {

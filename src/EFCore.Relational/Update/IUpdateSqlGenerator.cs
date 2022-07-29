@@ -101,6 +101,7 @@ public interface IUpdateSqlGenerator
     /// <param name="command">The command that represents the delete operation.</param>
     /// <param name="commandPosition">The ordinal of this command in the batch.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    // Issue #28537. Remember to update both the class and the interface implementation.
     ResultSetMapping AppendDeleteOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
@@ -128,6 +129,7 @@ public interface IUpdateSqlGenerator
     /// <param name="command">The command that represents the delete operation.</param>
     /// <param name="commandPosition">The ordinal of this command in the batch.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    // Issue #28537. Remember to update both the class and the interface implementation.
     ResultSetMapping AppendInsertOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
@@ -155,6 +157,7 @@ public interface IUpdateSqlGenerator
     /// <param name="command">The command that represents the delete operation.</param>
     /// <param name="commandPosition">The ordinal of this command in the batch.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    // Issue #28537. Remember to update both the class and the interface implementation.
     ResultSetMapping AppendUpdateOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,

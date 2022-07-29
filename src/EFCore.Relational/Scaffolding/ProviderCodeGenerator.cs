@@ -87,4 +87,20 @@ public abstract class ProviderCodeGenerator : IProviderConfigurationCodeGenerato
 
         return contextOptions;
     }
+    
+    // Issue #28537. Remember to update both the class and the interface implementation.
+    /// <inheritdoc />
+    public virtual MethodCallCodeFragment GenerateUseProvider(string connectionString)
+    {
+        var useProviderCall = GenerateUseProvider(
+            connectionString,
+            GenerateProviderOptions());
+        var contextOptions = GenerateContextOptions();
+        if (contextOptions != null)
+        {
+            useProviderCall = useProviderCall.Chain(contextOptions);
+        }
+
+        return useProviderCall;
+    }
 }
