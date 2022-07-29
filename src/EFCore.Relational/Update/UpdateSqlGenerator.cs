@@ -62,7 +62,6 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         out bool requiresTransaction)
         => AppendInsertReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
 
-    // Issue #28537. Remember to update both the class and the interface implementation.
     /// <inheritdoc />
     public virtual ResultSetMapping AppendInsertOperation(
         StringBuilder commandStringBuilder,
@@ -114,7 +113,6 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         out bool requiresTransaction)
         => AppendUpdateReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
 
-    // Issue #28537. Remember to update both the class and the interface implementation.
     /// <inheritdoc />
     public virtual ResultSetMapping AppendUpdateOperation(
         StringBuilder commandStringBuilder,
@@ -169,7 +167,6 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         out bool requiresTransaction)
         => AppendDeleteReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
 
-    // Issue #28537. Remember to update both the class and the interface implementation.
     /// <inheritdoc />
     public virtual ResultSetMapping AppendDeleteOperation(
         StringBuilder commandStringBuilder,

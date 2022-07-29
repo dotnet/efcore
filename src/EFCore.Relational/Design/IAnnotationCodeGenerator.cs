@@ -144,8 +144,12 @@ public interface IAnnotationCodeGenerator
     /// </summary>
     /// <param name="annotatable">The annotatable to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
-    // Issue #28537. Remember to update both the class and the interface implementation.
     void RemoveAnnotationsHandledByConventions(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        => RemoveAnnotationsHandledByConventionsInternal(annotatable, annotations);
+
+    // Issue #28537.
+    internal sealed void RemoveAnnotationsHandledByConventionsInternal(
+        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
     {
         switch (annotatable)
         {
@@ -160,7 +164,7 @@ public interface IAnnotationCodeGenerator
             case IEntityTypeMappingFragment fragment:
                 RemoveAnnotationsHandledByConventions(fragment, annotations);
                 return;
-            
+
             case IProperty property:
                 RemoveAnnotationsHandledByConventions(property, annotations);
                 return;
@@ -355,8 +359,12 @@ public interface IAnnotationCodeGenerator
     /// </summary>
     /// <param name="annotatable">The annotatable to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
-    // Issue #28537. Remember to update both the class and the interface implementation.
     IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        => GenerateFluentApiCallsInternal(annotatable, annotations);
+
+    // Issue #28537.
+    internal sealed IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCallsInternal(
+        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
         => annotatable switch
         {
             IModel model => GenerateFluentApiCalls(model, annotations),
@@ -393,7 +401,6 @@ public interface IAnnotationCodeGenerator
     /// </summary>
     /// <param name="property">The property to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
-    // Issue #28537. Remember to update both the class and the interface implementation.
     IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IProperty property,
         IDictionary<string, IAnnotation> annotations)
@@ -408,6 +415,11 @@ public interface IAnnotationCodeGenerator
     IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IAnnotatable annotatable,
         IDictionary<string, IAnnotation> annotations)
+        => GenerateDataAnnotationAttributesInternal(annotatable, annotations);
+
+    // Issue #28537.
+    internal sealed IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributesInternal(
+        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
         => annotatable switch
         {
             IEntityType entityType => GenerateDataAnnotationAttributes(entityType, annotations),

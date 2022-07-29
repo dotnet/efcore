@@ -246,68 +246,9 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         ISequence sequence, IDictionary<string, IAnnotation> annotations)
         => RemoveConventionalAnnotationsHelper(sequence, annotations, IsHandledByConvention);
 
-    // Issue #28537. Remember to update both the class and the interface implementation.
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
-    {
-        switch (annotatable)
-        {
-            case IModel model:
-                RemoveAnnotationsHandledByConventions(model, annotations);
-                return;
-
-            case IEntityType entityType:
-                RemoveAnnotationsHandledByConventions(entityType, annotations);
-                return;
-
-            case IEntityTypeMappingFragment fragment:
-                RemoveAnnotationsHandledByConventions(fragment, annotations);
-                return;
-            
-            case IProperty property:
-                RemoveAnnotationsHandledByConventions(property, annotations);
-                return;
-
-            case IKey key:
-                RemoveAnnotationsHandledByConventions(key, annotations);
-                return;
-
-            case IForeignKey foreignKey:
-                RemoveAnnotationsHandledByConventions(foreignKey, annotations);
-                return;
-
-            case INavigation navigation:
-                RemoveAnnotationsHandledByConventions(navigation, annotations);
-                return;
-
-            case ISkipNavigation skipNavigation:
-                RemoveAnnotationsHandledByConventions(skipNavigation, annotations);
-                return;
-
-            case ICheckConstraint checkConstraint:
-                RemoveAnnotationsHandledByConventions(checkConstraint, annotations);
-                return;
-
-            case IIndex index:
-                RemoveAnnotationsHandledByConventions(index, annotations);
-                return;
-
-            case ITrigger trigger:
-                RemoveAnnotationsHandledByConventions(trigger, annotations);
-                return;
-
-            case IRelationalPropertyOverrides overrides:
-                RemoveAnnotationsHandledByConventions(overrides, annotations);
-                return;
-
-            case ISequence sequence:
-                RemoveAnnotationsHandledByConventions(sequence, annotations);
-                return;
-
-            default:
-                throw new ArgumentException(RelationalStrings.UnhandledAnnotatableType(annotatable.GetType()));
-        }
-    }
+        => ((IAnnotationCodeGenerator)this).RemoveAnnotationsHandledByConventionsInternal(annotatable, annotations);
 
     /// <inheritdoc />
     public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
@@ -567,28 +508,10 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         return methodCallCodeFragments;
     }
 
-    // Issue #28537. Remember to update both the class and the interface implementation.
     /// <inheritdoc />
     public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
-        => annotatable switch
-        {
-            IModel model => GenerateFluentApiCalls(model, annotations),
-            IEntityType entityType => GenerateFluentApiCalls(entityType, annotations),
-            IEntityTypeMappingFragment fragment => GenerateFluentApiCalls(fragment, annotations),
-            IProperty property => GenerateFluentApiCalls(property, annotations),
-            IRelationalPropertyOverrides overrides => GenerateFluentApiCalls(overrides, annotations),
-            IKey key => GenerateFluentApiCalls(key, annotations),
-            IForeignKey foreignKey => GenerateFluentApiCalls(foreignKey, annotations),
-            INavigation navigation => GenerateFluentApiCalls(navigation, annotations),
-            ISkipNavigation skipNavigation => GenerateFluentApiCalls(skipNavigation, annotations),
-            IIndex index => GenerateFluentApiCalls(index, annotations),
-            ICheckConstraint checkConstraint => GenerateFluentApiCalls(checkConstraint, annotations),
-            ITrigger trigger => GenerateFluentApiCalls(trigger, annotations),
-            ISequence sequence => GenerateFluentApiCalls(sequence, annotations),
-
-            _ => throw new ArgumentException(RelationalStrings.UnhandledAnnotatableType(annotatable.GetType()))
-        };
+        => ((IAnnotationCodeGenerator)this).GenerateFluentApiCallsInternal(annotatable, annotations);
 
     /// <inheritdoc />
     public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
@@ -624,18 +547,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         return attributeCodeFragments;
     }
 
-    
-    // Issue #28537. Remember to update both the class and the interface implementation.
     /// <inheritdoc />
     public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IAnnotatable annotatable,
         IDictionary<string, IAnnotation> annotations)
-        => annotatable switch
-        {
-            IEntityType entityType => GenerateDataAnnotationAttributes(entityType, annotations),
-            IProperty property => GenerateDataAnnotationAttributes(property, annotations),
-            _ => throw new ArgumentException(RelationalStrings.UnhandledAnnotatableType(annotatable.GetType()))
-        };
+        => ((IAnnotationCodeGenerator)this).GenerateDataAnnotationAttributesInternal(annotatable, annotations);
 
     /// <summary>
     ///     Checks if the given <paramref name="annotation" /> is handled by convention when
