@@ -34,8 +34,10 @@ public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValue
         IProperty property,
         IRelationalConnection connection)
     {
-        var sequence = property.FindHiLoSequence(
-            StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table)!.Value);
+        var tableIdentifier = StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table);
+        var sequence = tableIdentifier != null
+            ? property.FindHiLoSequence(tableIdentifier.Value)
+            : property.FindHiLoSequence();
 
         Check.DebugAssert(sequence != null, "sequence is null");
 
