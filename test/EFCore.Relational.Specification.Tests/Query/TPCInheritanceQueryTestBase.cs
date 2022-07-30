@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class TPCInheritanceQueryTestBase<TFixture> : InheritanceQueryTestBase<TFixture>
     where TFixture : TPCInheritanceQueryFixture, new()
 {
-    public TPCInheritanceQueryTestBase(TFixture fixture)
+    protected TPCInheritanceQueryTestBase(TFixture fixture)
         : base(fixture)
     {
     }

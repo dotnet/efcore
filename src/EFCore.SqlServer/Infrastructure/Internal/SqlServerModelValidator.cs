@@ -156,7 +156,7 @@ public class SqlServerModelValidator : RelationalModelValidator
         {
             foreach (var storeGeneratedProperty in key.Properties.Where(
                          p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
-                             && p.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.Sequence))
+                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
             }
