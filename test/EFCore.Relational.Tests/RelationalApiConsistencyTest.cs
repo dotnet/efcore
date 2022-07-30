@@ -19,6 +19,16 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
     protected override Assembly TargetAssembly
         => typeof(RelationalDatabase).Assembly;
 
+    protected override HashSet<MethodInfo> NonCancellableAsyncMethods
+    {
+        get
+        {
+            var methods = base.NonCancellableAsyncMethods;
+            methods.Add(typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionDisposedAsync)));
+            return methods;
+        }
+    }
+
     [ConditionalFact]
     public void Readonly_relational_metadata_methods_have_expected_name()
     {
@@ -319,7 +329,7 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync))
         };
-        
+
         public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new()
         {
             typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddParameter)),

@@ -62,6 +62,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         out bool requiresTransaction)
         => AppendInsertReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
 
+    /// <inheritdoc />
+    public virtual ResultSetMapping AppendInsertOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition)
+        => AppendInsertOperation(commandStringBuilder, command, commandPosition, out _);
+
     /// <summary>
     ///     Appends SQL for inserting a row to the commands being built, via an INSERT containing an optional RETURNING clause to retrieve
     ///     any database-generated values.
@@ -105,6 +112,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         int commandPosition,
         out bool requiresTransaction)
         => AppendUpdateReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+
+    /// <inheritdoc />
+    public virtual ResultSetMapping AppendUpdateOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition)
+        => AppendUpdateOperation(commandStringBuilder, command, commandPosition, out _);
 
     /// <summary>
     ///     Appends SQL for updating a row to the commands being built, via an UPDATE containing an RETURNING clause to retrieve any
@@ -152,6 +166,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         int commandPosition,
         out bool requiresTransaction)
         => AppendDeleteReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+
+    /// <inheritdoc />
+    public virtual ResultSetMapping AppendDeleteOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition)
+        => AppendDeleteOperation(commandStringBuilder, command, commandPosition, out _);
 
     /// <summary>
     ///     Appends SQL for deleting a row to the commands being built, via a DELETE containing a RETURNING clause for concurrency checking.

@@ -247,6 +247,10 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         => RemoveConventionalAnnotationsHelper(sequence, annotations, IsHandledByConvention);
 
     /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        => ((IAnnotationCodeGenerator)this).RemoveAnnotationsHandledByConventionsInternal(annotatable, annotations);
+
+    /// <inheritdoc />
     public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IModel model,
         IDictionary<string, IAnnotation> annotations)
@@ -505,6 +509,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     }
 
     /// <inheritdoc />
+    public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        => ((IAnnotationCodeGenerator)this).GenerateFluentApiCallsInternal(annotatable, annotations);
+
+    /// <inheritdoc />
     public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IEntityType entityType,
         IDictionary<string, IAnnotation> annotations)
@@ -537,6 +546,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
         return attributeCodeFragments;
     }
+
+    /// <inheritdoc />
+    public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
+        => ((IAnnotationCodeGenerator)this).GenerateDataAnnotationAttributesInternal(annotatable, annotations);
 
     /// <summary>
     ///     Checks if the given <paramref name="annotation" /> is handled by convention when

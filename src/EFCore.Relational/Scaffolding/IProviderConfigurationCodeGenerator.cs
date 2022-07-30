@@ -50,6 +50,10 @@ public interface IProviderConfigurationCodeGenerator
     /// <param name="connectionString">The connection string to include in the code fragment.</param>
     /// <returns>The code fragment.</returns>
     MethodCallCodeFragment GenerateUseProvider(string connectionString)
+        => GenerateUseProviderInternal(connectionString);
+
+    // Issue #28537.
+    internal sealed MethodCallCodeFragment GenerateUseProviderInternal(string connectionString)
     {
         var useProviderCall = GenerateUseProvider(
             connectionString,

@@ -68,13 +68,13 @@ public interface IColumn : IColumnBase
     ///     Gets the column order.
     /// </summary>
     /// <value> The column order. </value>
-    public virtual int? Order
+    int? Order
         => PropertyMappings.First().Property.GetColumnOrder(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Returns the object that is used as the default value for this column.
     /// </summary>
-    public virtual object? DefaultValue
+    object? DefaultValue
     {
         get
         {
@@ -88,7 +88,7 @@ public interface IColumn : IColumnBase
     /// </summary>
     /// <param name="defaultValue">The default value.</param>
     /// <returns>True if the default value was explicitly set; false otherwise.</returns>
-    public virtual bool TryGetDefaultValue(out object? defaultValue)
+    bool TryGetDefaultValue(out object? defaultValue)
     {
         foreach (var mapping in PropertyMappings)
         {
@@ -114,14 +114,14 @@ public interface IColumn : IColumnBase
     /// <summary>
     ///     Returns the SQL expression that is used as the default value for this column.
     /// </summary>
-    public virtual string? DefaultValueSql
+    string? DefaultValueSql
         => PropertyMappings.First().Property
             .GetDefaultValueSql(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Returns the SQL expression that is used as the computed value for this column.
     /// </summary>
-    public virtual string? ComputedColumnSql
+    string? ComputedColumnSql
         => PropertyMappings.First().Property
             .GetComputedColumnSql(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
@@ -129,21 +129,21 @@ public interface IColumn : IColumnBase
     ///     Returns whether the value of the computed column this property is mapped to is stored in the database, or calculated when
     ///     it is read.
     /// </summary>
-    public virtual bool? IsStored
+    bool? IsStored
         => PropertyMappings.First().Property
             .GetIsStored(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Comment for this column
     /// </summary>
-    public virtual string? Comment
+    string? Comment
         => PropertyMappings.First().Property
             .GetComment(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Collation for this column
     /// </summary>
-    public virtual string? Collation
+    string? Collation
         => PropertyMappings.First().Property
             .GetCollation(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
@@ -151,7 +151,7 @@ public interface IColumn : IColumnBase
     ///     Gets the <see cref="ValueComparer" /> for this column.
     /// </summary>
     /// <returns>The comparer.</returns>
-    public virtual ValueComparer ProviderValueComparer
+    ValueComparer ProviderValueComparer
         => PropertyMappings.First().Property
             .GetProviderValueComparer();
 

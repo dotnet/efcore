@@ -27,8 +27,6 @@ public class ModelCodeGeneratorSelector : LanguageBasedSelector<IModelCodeGenera
 
     /// <inheritdoc />
     public virtual IModelCodeGenerator Select(ModelCodeGenerationOptions options)
-        => _templatedModelGenerators
-                .Where(g => options.ProjectDir != null && g.HasTemplates(options.ProjectDir))
-                .LastOrDefault()
+        => _templatedModelGenerators.LastOrDefault(g => options.ProjectDir != null && g.HasTemplates(options.ProjectDir))
             ?? Select(options.Language);
 }
