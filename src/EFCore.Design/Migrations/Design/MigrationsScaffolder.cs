@@ -68,6 +68,11 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         string? subNamespace = null,
         string? language = null)
     {
+        if (string.Equals(migrationName, "migration", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new OperationException(DesignStrings.CircularBaseClassDependency);
+        }
+    
         if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
         {
             throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
@@ -79,16 +84,6 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         {
             subNamespaceDefaulted = true;
             subNamespace = "Migrations";
-        }
-
-        if (string.Equals(migrationName, "migration", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new OperationException(DesignStrings.CircularBaseClassDependency);
-        }
-
-        if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
-        {
-            throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
         }
         
         var (key, typeInfo) = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
