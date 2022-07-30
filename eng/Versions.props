@@ -25,6 +25,9 @@
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>7.0.0-rc.1.22374.4</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>7.0.0-rc.1.22374.4</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
+  <PropertyGroup Label="Dependencies from dotnet/arcade">
+    <MicrosoftDotNetBuildTasksTemplatingVersion>7.0.0-beta.22372.1</MicrosoftDotNetBuildTasksTemplatingVersion>
+  </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftCodeAnalysisVersion>4.2.0</MicrosoftCodeAnalysisVersion>
   </PropertyGroup>
