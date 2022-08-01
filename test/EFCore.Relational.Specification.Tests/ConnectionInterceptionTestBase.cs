@@ -237,6 +237,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         Assert.False(interceptor.DisposedCalled);
         Assert.Same(context, interceptor.Context);
         Assert.Same(connection, interceptor.Connection);
+        Assert.Equal(connection.ConnectionString, interceptor.ConnectionString ?? "");
 
         if (async)
         {
@@ -284,6 +285,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         Assert.False(interceptor.DisposedCalled);
         Assert.Same(context, interceptor.Context);
         Assert.Same(connection, interceptor.Connection);
+        Assert.Equal(connection.ConnectionString, interceptor.ConnectionString ?? "");
 
         if (async)
         {
@@ -331,6 +333,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         Assert.False(interceptor.DisposedCalled);
         Assert.Same(context, interceptor.Context);
         Assert.Same(connection, interceptor.Connection);
+        Assert.Equal(connection.ConnectionString, interceptor.ConnectionString ?? "");
 
         if (async)
         {
@@ -374,6 +377,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         Assert.False(interceptor.DisposedCalled);
         Assert.Same(context, interceptor.Context);
         Assert.Same(connection, interceptor.Connection);
+        Assert.Equal(connection.ConnectionString, interceptor.ConnectionString ?? "");
 
         if (async)
         {
@@ -455,6 +459,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
     protected class ConnectionCreationInterceptor : IDbConnectionInterceptor
     {
         public DbContext? Context { get; set; }
+        public string? ConnectionString { get; set; }
         public DbConnection? Connection { get; set; }
         public Guid ConnectionId { get; set; }
         public DateTimeOffset StartTime { get; set; }
@@ -474,6 +479,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
             Assert.NotEqual(default, eventData.StartTime);
 
             Context = eventData.Context;
+            ConnectionString = eventData.ConnectionString;
             ConnectionId = eventData.ConnectionId;
             StartTime = eventData.StartTime;
             CreatingCalled = true;
@@ -618,7 +624,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
             _configureProvider = configureProvider;
         }
 
-        public List<ConnectionCreationInterceptor> Interceptors { get; } = new List<ConnectionCreationInterceptor>();
+        public List<ConnectionCreationInterceptor> Interceptors { get; } = new();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => _configureProvider(optionsBuilder).AddInterceptors(Interceptors);

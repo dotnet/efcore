@@ -922,6 +922,7 @@ public class RelationalConnectionDiagnosticsLogger
 
             var eventData = BroadcastConnectionCreating(
                 connection.Context,
+                connection.ConnectionString,
                 connection.ConnectionId,
                 startTime,
                 definition,
@@ -939,6 +940,7 @@ public class RelationalConnectionDiagnosticsLogger
 
     private ConnectionCreatingEventData BroadcastConnectionCreating(
         DbContext? context,
+        string? connectionString,
         Guid connectionId,
         DateTimeOffset startTime,
         EventDefinition definition,
@@ -949,6 +951,7 @@ public class RelationalConnectionDiagnosticsLogger
             definition,
             ConnectionCreating,
             context,
+            connectionString,
             connectionId,
             startTime);
 
