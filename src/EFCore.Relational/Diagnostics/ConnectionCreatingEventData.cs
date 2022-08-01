@@ -17,19 +17,27 @@ public class ConnectionCreatingEventData : DbContextEventData
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
+    /// <param name="connectionString">The connection string for the new connection, if known.</param>
     /// <param name="connectionId">A correlation ID that identifies the <see cref="DbConnection" /> instance being used.</param>
     /// <param name="startTime">The start time of this event.</param>
     public ConnectionCreatingEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbContext? context,
+        string? connectionString,
         Guid connectionId,
         DateTimeOffset startTime)
         : base(eventDefinition, messageGenerator, context)
     {
+        ConnectionString = connectionString;
         ConnectionId = connectionId;
         StartTime = startTime;
     }
+
+    /// <summary>
+    ///     The connection string for the new connection, if known.
+    /// </summary>
+    public virtual string? ConnectionString { get; }
 
     /// <summary>
     ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
