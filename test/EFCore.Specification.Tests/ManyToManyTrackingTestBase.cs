@@ -5768,9 +5768,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixtu
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual async Task Can_replace_dependent_with_many_to_many(bool async)
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual async Task Can_replace_dependent_with_many_to_many(bool createNewCollection, bool async)
     {
         var principalKey = 0;
         var newRightKey = 0;
@@ -5784,7 +5786,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixtu
 
                 principal.Reference = leftEntity;
 
-                leftEntity.ThreeSkipFull ??= CreateCollection<EntityThree>();
+                if (leftEntity.ThreeSkipFull == null || createNewCollection)
+                {
+                    leftEntity.ThreeSkipFull = CreateCollection<EntityThree>();
+                }
+
                 leftEntity.ThreeSkipFull.Add(rightEntity);
 
                 _ = async
@@ -5816,7 +5822,11 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixtu
 
                 principal.Reference = newLeftEntity;
 
-                newLeftEntity.ThreeSkipFull ??= CreateCollection<EntityThree>();
+                if (newLeftEntity.ThreeSkipFull == null || createNewCollection)
+                {
+                    newLeftEntity.ThreeSkipFull = CreateCollection<EntityThree>();
+                }
+
                 newLeftEntity.ThreeSkipFull.Add(newRightEntity);
 
                 if (RequiresDetectChanges)
