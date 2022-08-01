@@ -3167,7 +3167,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     static logger => new EventDefinition<string, string, string?, string?, string>(
                         logger.Options,
                         CoreEventId.ContextInitialized,
-                        LogLevel.Information,
+                        LogLevel.Debug,
                         "CoreEventId.ContextInitialized",
                         level => LoggerMessage.Define<string, string, string?, string?, string>(
                             level,
