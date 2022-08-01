@@ -1810,6 +1810,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
         {
             StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
+
+            if (propertyBase is INavigationBase navigation
+                && navigation.IsCollection
+                && GetCurrentValue(propertyBase) != null)
+            {
+                StateManager.Dependencies.InternalEntityEntrySubscriber.UnsubscribeCollectionChanged(this, navigation);
+            }
         }
     }
 
@@ -1826,6 +1833,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
         {
             StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified: true);
+
+            if (propertyBase is INavigationBase navigation
+                && navigation.IsCollection
+                && GetCurrentValue(propertyBase) != null)
+            {
+                StateManager.Dependencies.InternalEntityEntrySubscriber.SubscribeCollectionChanged(this, navigation);
+            }
         }
     }
 
