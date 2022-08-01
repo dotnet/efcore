@@ -9,7 +9,7 @@ using Engine = Mono.TextTemplating.TemplatingEngine;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestPlatform.Linux, SkipReason = "CI time out")]
+[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux, SkipReason = "CI time out")]
 public class TextTemplatingEngineHostTest
 {
     public static readonly Engine _engine = new Engine();

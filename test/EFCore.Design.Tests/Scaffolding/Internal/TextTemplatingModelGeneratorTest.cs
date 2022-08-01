@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestPlatform.Linux, SkipReason = "CI time out")]
+[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux, SkipReason = "CI time out")]
 public class TextTemplatingModelGeneratorTest
 {
     [ConditionalFact]
