@@ -77,55 +77,57 @@ public class RelationalValueGenerationConvention :
         IConventionContext<IConventionAnnotation> context)
     {
         var entityType = entityTypeBuilder.Metadata;
-        if (name == RelationalAnnotationNames.ViewName
-            || name == RelationalAnnotationNames.FunctionName
-            || name == RelationalAnnotationNames.SqlQuery
-            || name == RelationalAnnotationNames.InsertStoredProcedure)
+        switch (name)
         {
-            if (annotation?.Value != null
-                && oldAnnotation?.Value == null
-                && entityType.GetTableName() == null)
-            {
+            case RelationalAnnotationNames.ViewName:
+            case RelationalAnnotationNames.FunctionName:
+            case RelationalAnnotationNames.SqlQuery:
+            case RelationalAnnotationNames.InsertStoredProcedure:
+                if (annotation?.Value != null
+                    && oldAnnotation?.Value == null
+                    && entityType.GetTableName() == null)
+                {
+                    ProcessTableChanged(
+                        entityTypeBuilder,
+                        entityType.GetDefaultTableName(),
+                        entityType.GetDefaultSchema(),
+                        null,
+                        null);
+                }
+                break;
+            
+            case RelationalAnnotationNames.TableName:
+                var schema = entityType.GetSchema();
                 ProcessTableChanged(
                     entityTypeBuilder,
-                    entityType.GetDefaultTableName(),
-                    entityType.GetDefaultSchema(),
-                    null,
-                    null);
-            }
-        }
-        else if (name == RelationalAnnotationNames.TableName)
-        {
-            var schema = entityType.GetSchema();
-            ProcessTableChanged(
-                entityTypeBuilder,
-                (string?)oldAnnotation?.Value ?? entityType.GetDefaultTableName(),
-                schema,
-                entityType.GetTableName(),
-                schema);
-        }
-        else if (name == RelationalAnnotationNames.Schema)
-        {
-            var tableName = entityType.GetTableName();
-            ProcessTableChanged(
-                entityTypeBuilder,
-                tableName,
-                (string?)oldAnnotation?.Value ?? entityType.GetDefaultSchema(),
-                tableName,
-                entityTypeBuilder.Metadata.GetSchema());
-        }
-        else if (name == RelationalAnnotationNames.MappingStrategy)
-        {
-            var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
-            if (primaryKey == null)
-            {
-                return;
-            }
+                    (string?)oldAnnotation?.Value ?? entityType.GetDefaultTableName(),
+                    schema,
+                    entityType.GetTableName(),
+                    schema);
+                break;
+                
+            case RelationalAnnotationNames.Schema:
+                var tableName = entityType.GetTableName();
+                ProcessTableChanged(
+                    entityTypeBuilder,
+                    tableName,
+                    (string?)oldAnnotation?.Value ?? entityType.GetDefaultSchema(),
+                    tableName,
+                    entityTypeBuilder.Metadata.GetSchema());
+                break;
+            
+            case RelationalAnnotationNames.MappingStrategy:
+                var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
+                if (primaryKey == null)
+                {
+                    return;
+                }
 
-            foreach (var property in primaryKey.Properties)
-            {
-                property.Builder.ValueGenerated(GetValueGenerated(property));
-            }
+                foreach (var property in primaryKey.Properties)
+                {
+                    property.Builder.ValueGenerated(GetValueGenerated(property));
+                }
+                break;
         }
     }
 
@@ -182,6 +184,30 @@ public class RelationalValueGenerationConvention :
                 : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
                     ? GetValueGenerated((IReadOnlyProperty)property)
                     : null;
+    }
+    
+    /// <summary>
+    ///     Checks whether or not the mapping strategy and property allow value generation by convention.
+    /// </summary>
+    /// <param name="property">The property for which value generation is being considered.</param>
+    /// <param name="mappingStrategy">The current mapping strategy.</param>
+    /// <returns><see langword="true" /> if value generation is allowed; <see langword="false" /> otherwise.</returns>
+    protected virtual bool MappingStrategyAllowsValueGeneration(
+        IConventionProperty property,
+        string? mappingStrategy)
+    {
+        if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            var propertyType = property.ClrType.UnwrapNullableType();
+            if (property.IsPrimaryKey()
+                && propertyType.IsInteger()
+                && propertyType != typeof(byte))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>

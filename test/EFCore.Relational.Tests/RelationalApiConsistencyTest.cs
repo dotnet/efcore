@@ -265,10 +265,7 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                     .GetRuntimeMethods()
                     .Single(
                         m => m.Name == "GenerateCacheKeyCore"
-                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator)),
-                typeof(IAnnotationCodeGenerator).GetMethod(
-                    "RemoveAnnotationsHandledByConventions", AnyInstance,
-                    new[] { typeof(IAnnotatable), typeof(IDictionary<string, IAnnotation>) })
+                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
             };
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()

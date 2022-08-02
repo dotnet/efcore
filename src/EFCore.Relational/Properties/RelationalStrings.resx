@@ -865,7 +865,7 @@
     <value>The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.</value>
   </data>
   <data name="StoredProcedureDuplicateOriginalValueParameter" xml:space="preserve">
-    <value>The original value parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because original value another parameter for this property already exists.</value>
+    <value>The original value parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because another original value parameter for this property already exists.</value>
   </data>
   <data name="StoredProcedureDuplicateParameter" xml:space="preserve">
     <value>The parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because another parameter for this property already exists.</value>
@@ -874,10 +874,10 @@
     <value>The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because another result column for this property already exists.</value>
   </data>
   <data name="StoredProcedureDuplicateRowsAffectedParameter" xml:space="preserve">
-    <value>The rows affected parameter cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property already exists or the rows affected are being returned.</value>
+    <value>The rows affected parameter cannot be added to the stored procedure '{sproc}' because the rows affected are already returned via another parameter, via the stored procedure return value or via a result column.</value>
   </data>
   <data name="StoredProcedureDuplicateRowsAffectedResultColumn" xml:space="preserve">
-    <value>The rows affected result column cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property exists or the rows affected are already being returned.</value>
+    <value>The rows affected result column cannot be added to the stored procedure '{sproc}' because the rows affected are already returned via another column, via a parameter or via the stored procedure return value.</value>
   </data>
   <data name="StoredProcedureGeneratedPropertiesNotMapped" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.</value>
@@ -916,7 +916,7 @@
     <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is not configured as store-generated.</value>
   </data>
   <data name="StoredProcedureRowsAffectedReturnConflictingParameter" xml:space="preserve">
-    <value>TThe stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.</value>
+    <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.</value>
   </data>
   <data name="StoredProcedureRowsAffectedReturnConflictingResultColumn" xml:space="preserve">
     <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because at least one result column was already added.</value>

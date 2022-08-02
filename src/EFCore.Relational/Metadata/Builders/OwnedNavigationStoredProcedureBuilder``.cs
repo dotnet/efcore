@@ -228,8 +228,8 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
     ///     A value indicating whether this stored procedure returns the number of rows affected.
     /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturn(bool rowsAffectedReturned = true)
-        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedReturn(rowsAffectedReturned);
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned = true)
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedReturnValue(rowsAffectedReturned);
 
     /// <summary>
     ///     Prevents automatically creating a transaction when executing this stored procedure.

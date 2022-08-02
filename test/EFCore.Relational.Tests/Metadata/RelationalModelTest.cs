@@ -1975,7 +1975,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             cb
                                 .InsertUsingStoredProcedure(
                                     s => s
-                                        .HasParameter(c => c.Id, p => p.HasName("InsertId").IsOutput())
+                                        .HasParameter(c => c.Id, p => p.HasName("InsertId"))
                                         .HasParameter(c => c.EnumValue)
                                         .HasParameter(c => c.Name)
                                         .HasParameter(c => c.SomeShort))
@@ -1991,6 +1991,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             if (mapping == Mapping.TPC)
                             {
                                 cb.InsertUsingStoredProcedure(s => s.HasParameter("SpecialtyAk"));
+                            }
+                            else
+                            {
+                                cb.InsertUsingStoredProcedure(
+                                    s => s.HasParameter(c => c.Id, p => p.IsOutput()));
                             }
                         }
                     }
@@ -2029,7 +2034,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             cb
                                 .InsertUsingStoredProcedure(
                                     s => s
-                                        .HasParameter(b => b.Id, p => p.HasName("InsertId").IsOutput())
+                                        .HasParameter(b => b.Id, p => p.HasName("InsertId"))
                                         .HasParameter(c => c.Specialty)
                                         .HasParameter(c => c.RelatedCustomerSpecialty)
                                         .HasParameter("AnotherRelatedCustomerId")
@@ -2054,7 +2059,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         {
                             cb
                                 .InsertUsingStoredProcedure(
-                                     s => s
+                                    s => s
                                         .HasResultColumn(b => b.Id, p => p.HasName("InsertId"))
                                         .HasParameter(c => c.Specialty)
                                         .HasParameter(c => c.RelatedCustomerSpecialty)
@@ -2144,7 +2149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                 cb
                                     .InsertUsingStoredProcedure(
                                         s => s
-                                            .HasParameter(b => b.Id, p => p.HasName("InsertId").IsOutput())
+                                            .HasParameter(b => b.Id, p => p.HasName("InsertId"))
                                             .HasParameter(c => c.Specialty)
                                             .HasParameter(c => c.RelatedCustomerSpecialty)
                                             .HasParameter("AnotherRelatedCustomerId")

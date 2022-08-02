@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
-        ///     The original value parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because original value another parameter for this property already exists.
+        ///     The original value parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because another original value parameter for this property already exists.
         /// </summary>
         public static string StoredProcedureDuplicateOriginalValueParameter(object? property, object? sproc)
             => string.Format(
@@ -1262,7 +1262,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, sproc);
 
         /// <summary>
-        ///     The rows affected parameter cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property already exists or the rows affected are being returned.
+        ///     The rows affected parameter cannot be added to the stored procedure '{sproc}' because the rows affected are already returned via another parameter, via the stored procedure return value or via a result column.
         /// </summary>
         public static string StoredProcedureDuplicateRowsAffectedParameter(object? sproc)
             => string.Format(
@@ -1270,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sproc);
 
         /// <summary>
-        ///     The rows affected result column cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property exists or the rows affected are already being returned.
+        ///     The rows affected result column cannot be added to the stored procedure '{sproc}' because the rows affected are already returned via another column, via a parameter or via the stored procedure return value.
         /// </summary>
         public static string StoredProcedureDuplicateRowsAffectedResultColumn(object? sproc)
             => string.Format(
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
-        ///     TThe stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.
+        ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.
         /// </summary>
         public static string StoredProcedureRowsAffectedReturnConflictingParameter(object? sproc)
             => string.Format(

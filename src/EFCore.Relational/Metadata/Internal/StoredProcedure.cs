@@ -484,11 +484,11 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool SetAreRowsAffectedReturned(bool areTransactionsSuppressed)
+    public virtual bool SetAreRowsAffectedReturned(bool areRowsAffectedReturned)
     {
         EnsureMutable();
 
-        if (ResultColumns.Any())
+        if (ResultColumns.Any() || _rowsAffectedResultColumn != null)
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureRowsAffectedReturnConflictingResultColumn(
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
@@ -500,9 +500,9 @@ public class StoredProcedure :
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
-        _areRowsAffectedReturned = areTransactionsSuppressed;
+        _areRowsAffectedReturned = areRowsAffectedReturned;
         
-        return areTransactionsSuppressed;
+        return areRowsAffectedReturned;
     }
     
     /// <summary>
@@ -634,6 +634,7 @@ public class StoredProcedure :
     public virtual RowsAffectedStoredProcedureParameter AddRowsAffectedParameter()
     {
         if (_rowsAffectedParameter != null
+            || _rowsAffectedResultColumn != null
             || _areRowsAffectedReturned)
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter(
@@ -715,6 +716,7 @@ public class StoredProcedure :
     public virtual RowsAffectedStoredProcedureResultColumn AddRowsAffectedResultColumn()
     {
         if (_rowsAffectedResultColumn != null
+            || _rowsAffectedParameter != null
             || _areRowsAffectedReturned)
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn(

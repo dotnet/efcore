@@ -311,8 +311,8 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
     ///     A value indicating whether this stored procedure returns the number of rows affected.
     /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedReturn(bool rowsAffectedReturned = true)
-        => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedReturn(rowsAffectedReturned);
+    public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned = true)
+        => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedReturnValue(rowsAffectedReturned);
 
     /// <summary>
     ///     Prevents automatically creating a transaction when executing this stored procedure.

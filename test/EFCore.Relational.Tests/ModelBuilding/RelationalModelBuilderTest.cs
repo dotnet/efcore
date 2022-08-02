@@ -1481,7 +1481,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn(
             Action<TestStoredProcedureResultColumnBuilder> buildAction);
 
-        public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturn(bool rowsAffectedReturned = true);
+        public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
 
         public abstract TestStoredProcedureBuilder<TEntity> SuppressTransactions(bool suppress = true);
 
@@ -1600,8 +1600,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
 
-        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturn(bool rowsAffectedReturned)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturn(rowsAffectedReturned));
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
 
         public override TestStoredProcedureBuilder<TEntity> SuppressTransactions(bool suppress)
             => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));
@@ -1734,8 +1734,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
 
-        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturn(bool rowsAffectedReturned)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturn(rowsAffectedReturned));
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
 
         public override TestStoredProcedureBuilder<TEntity> SuppressTransactions(bool suppress)
             => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));
@@ -1801,7 +1801,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction);
         
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
-            HasRowsAffectedReturn(bool rowsAffectedReturned = true);
+            HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
         
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
             SuppressTransactions(bool suppress = true);
@@ -1901,8 +1901,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
 
-        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturn(bool rowsAffectedReturned)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturn(rowsAffectedReturned));
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> SuppressTransactions(bool suppress)
             => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));
@@ -2007,8 +2007,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
 
-        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturn(bool rowsAffectedReturned)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturn(rowsAffectedReturned));
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> SuppressTransactions(bool suppress)
             => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));

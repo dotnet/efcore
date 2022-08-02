@@ -213,7 +213,7 @@ public class OwnedNavigationStoredProcedureBuilder :
     ///     A value indicating whether this stored procedure returns the number of rows affected.
     /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual OwnedNavigationStoredProcedureBuilder HasRowsAffectedReturn(bool rowsAffectedReturned = true)
+    public virtual OwnedNavigationStoredProcedureBuilder HasRowsAffectedReturnValue(bool rowsAffectedReturned = true)
     {
         Builder.HasRowsAffectedReturn(rowsAffectedReturned, ConfigurationSource.Explicit);
         return this;
