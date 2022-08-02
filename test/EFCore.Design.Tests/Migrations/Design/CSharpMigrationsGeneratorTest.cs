@@ -83,7 +83,6 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.IsFixedLength,
             RelationalAnnotationNames.Collation,
             RelationalAnnotationNames.IsStored,
-            RelationalAnnotationNames.ParameterDirection,
             RelationalAnnotationNames.TpcMappingStrategy,
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,

@@ -2879,8 +2879,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     public virtual void Detects_InsertUsingStoredProcedure_without_a_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Abstract>().InsertUsingStoredProcedure(s => { }).UseTpcMappingStrategy();
+        var entityType = (IConventionEntityType)modelBuilder.Entity<Abstract>().UseTpcMappingStrategy().Metadata;
         modelBuilder.Entity<Generic<string>>();
+        entityType.SetInsertStoredProcedure();
 
         VerifyError(
             RelationalStrings.StoredProcedureNoName(nameof(Abstract), "InsertStoredProcedure"),

@@ -103,10 +103,107 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         Action<StoredProcedureParameterBuilder> buildAction)
         where TDerivedEntity : class, TEntity
     {
-        Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        var parameterBuilder = Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit)!;
+        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <param name="propertyName">The property name.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual StoredProcedureBuilder<TEntity> HasOriginalValueParameter(string propertyName)
+        => (StoredProcedureBuilder<TEntity>)base.HasOriginalValueParameter(propertyName);
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <param name="propertyName">The parameter name.</param>
+    /// <param name="buildAction">An action that performs configuration of the parameter.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual StoredProcedureBuilder<TEntity> HasOriginalValueParameter(
+        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        => (StoredProcedureBuilder<TEntity>)base.HasOriginalValueParameter(propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <genericparam name="TProperty">The property type.</genericparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (<c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression)
+        => HasOriginalValueParameter<TEntity, TProperty>(propertyExpression);
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <genericparam name="TDerivedEntity">The same or a derived entity type.</genericparam>
+    /// <genericparam name="TProperty">The property type.</genericparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (<c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+        Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+        where TDerivedEntity : class, TEntity
+    {
+        Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit);
+        return this;
+    }
+    
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <genericparam name="TProperty">The property type.</genericparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (<c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the parameter.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression,
+        Action<StoredProcedureParameterBuilder> buildAction)
+        => HasOriginalValueParameter<TEntity, TProperty>(propertyExpression, buildAction);
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <genericparam name="TDerivedEntity">The same or a derived entity type.</genericparam>
+    /// <genericparam name="TProperty">The property type.</genericparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (<c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the parameter.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual StoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+        Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+        Action<StoredProcedureParameterBuilder> buildAction)
+        where TDerivedEntity : class, TEntity
+    {
+        var parameterBuilder = Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit)!;
+        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a new parameter that returns the rows affected if no such parameter exists.
+    /// </summary>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedParameter()
+        => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedParameter();
+
+    /// <summary>
+    ///     Configures a new parameter that returns the rows affected if no such parameter exists.
+    /// </summary>
+    /// <param name="buildAction">An action that performs configuration of the parameter.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedParameter(
+        Action<StoredProcedureParameterBuilder> buildAction)
+        => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedParameter(buildAction);
 
     /// <summary>
     ///     Configures a new column of the result for this stored procedure. This is used for database generated columns.
@@ -184,10 +281,38 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         Action<StoredProcedureResultColumnBuilder> buildAction)
         where TDerivedEntity : class, TEntity
     {
-        Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        var resultColumnBuilder = Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit)!;
+        buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
+    
+    /// <summary>
+    ///     Configures a new column of the result that returns the rows affected for this stored procedure
+    ///     if no such column exists.
+    /// </summary>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn()
+        => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedResultColumn();
+    
+    /// <summary>
+    ///     Configures a new column of the result that returns the rows affected for this stored procedure
+    ///     if no such column exists.
+    /// </summary>
+    /// <param name="buildAction">An action that performs configuration of the column.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn(
+        Action<StoredProcedureResultColumnBuilder> buildAction)
+        => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedResultColumn(buildAction);
+
+    /// <summary>
+    ///     Configures the result of this stored procedure to be the number of rows affected.
+    /// </summary>
+    /// <param name="rowsAffectedReturned">
+    ///     A value indicating whether this stored procedure returns the number of rows affected.
+    /// </param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedReturn(bool rowsAffectedReturned = true)
+        => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedReturn(rowsAffectedReturned);
 
     /// <summary>
     ///     Prevents automatically creating a transaction when executing this stored procedure.

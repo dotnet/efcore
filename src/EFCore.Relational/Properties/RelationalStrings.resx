@@ -864,6 +864,21 @@
   <data name="StoredProcedureDeleteNonKeyProperty" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.</value>
   </data>
+  <data name="StoredProcedureDuplicateOriginalValueParameter" xml:space="preserve">
+    <value>The original value parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because original value another parameter for this property already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateParameter" xml:space="preserve">
+    <value>The parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because another parameter for this property already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateResultColumn" xml:space="preserve">
+    <value>The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because another result column for this property already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateRowsAffectedParameter" xml:space="preserve">
+    <value>The rows affected parameter cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property already exists or the rows affected are being returned.</value>
+  </data>
+  <data name="StoredProcedureDuplicateRowsAffectedResultColumn" xml:space="preserve">
+    <value>The rows affected result column cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property exists or the rows affected are already being returned.</value>
+  </data>
   <data name="StoredProcedureGeneratedPropertiesNotMapped" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.</value>
   </data>
@@ -879,6 +894,12 @@
   <data name="StoredProcedureOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.</value>
   </data>
+  <data name="StoredProcedureParameterInvalidConfiguration" xml:space="preserve">
+    <value>'{facet}' cannot be configured for the parameter '{parameter}' of the stored procedure '{sproc}'.</value>
+  </data>
+  <data name="StoredProcedureParameterInvalidDirection" xml:space="preserve">
+    <value>Unsupported direction '{direction}' was specified for the parameter '{parameter}' of the stored procedure '{sproc}'.</value>
+  </data>
   <data name="StoredProcedureParameterNotFound" xml:space="preserve">
     <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'</value>
   </data>
@@ -893,6 +914,15 @@
   </data>
   <data name="StoredProcedureResultColumnNotGenerated" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is not configured as store-generated.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedReturnConflictingParameter" xml:space="preserve">
+    <value>TThe stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedReturnConflictingResultColumn" xml:space="preserve">
+    <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because at least one result column was already added.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedReturnResultColumn" xml:space="preserve">
+    <value>The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because rows affected are being returned.</value>
   </data>
   <data name="StoredProcedureTableSharing" xml:space="preserve">
     <value>Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.</value>

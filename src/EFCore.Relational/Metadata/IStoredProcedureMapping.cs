@@ -26,6 +26,11 @@ public interface IStoredProcedureMapping : ITableMappingBase
     StoreObjectIdentifier StoredProcedureIdentifier { get; }
 
     /// <summary>
+    ///     Gets the corresponding table mapping if it exists.
+    /// </summary>
+    ITableMapping? TableMapping { get; }
+
+    /// <summary>
     ///     Gets the parameter mappings corresponding to the target stored procedure.
     /// </summary>
     IEnumerable<IStoredProcedureParameterMapping> ParameterMappings { get; }

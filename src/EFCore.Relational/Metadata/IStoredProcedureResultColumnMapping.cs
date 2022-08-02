@@ -13,7 +13,12 @@ public interface IStoredProcedureResultColumnMapping : IColumnMappingBase
     /// <summary>
     ///     Gets the target column.
     /// </summary>
-    new IStoreStoredProcedureResultColumn Column { get; }
+    IStoreStoredProcedureResultColumn StoreResultColumn { get; }
+
+    /// <summary>
+    ///     Gets the associated stored procedure result column.
+    /// </summary>
+    IStoredProcedureResultColumn ResultColumn { get; }
 
     /// <summary>
     ///     Gets the containing stored procedure mapping.

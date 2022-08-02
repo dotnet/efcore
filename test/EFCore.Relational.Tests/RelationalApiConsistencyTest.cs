@@ -70,6 +70,20 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                         typeof(IStoredProcedure))
                 },
                 {
+                    typeof(IReadOnlyStoredProcedureParameter),
+                    (typeof(IMutableStoredProcedureParameter),
+                        typeof(IConventionStoredProcedureParameter),
+                        typeof(IConventionStoredProcedureParameterBuilder),
+                        typeof(IStoredProcedureParameter))
+                },
+                {
+                    typeof(IReadOnlyStoredProcedureResultColumn),
+                    (typeof(IMutableStoredProcedureResultColumn),
+                        typeof(IConventionStoredProcedureResultColumn),
+                        typeof(IConventionStoredProcedureResultColumnBuilder),
+                        typeof(IStoredProcedureResultColumn))
+                },
+                {
                     typeof(IReadOnlySequence),
                     (typeof(IMutableSequence),
                         typeof(IConventionSequence),
@@ -113,15 +127,19 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(ITable),
             typeof(IView),
             typeof(IStoreFunction),
+            typeof(IStoreStoredProcedure),
             typeof(ITableMappingBase),
             typeof(ITableMapping),
             typeof(IViewMapping),
             typeof(IFunctionMapping),
+            typeof(IStoredProcedureMapping),
             typeof(IColumnBase),
             typeof(IColumn),
             typeof(IViewColumn),
             typeof(IFunctionColumn),
             typeof(IStoreFunctionParameter),
+            typeof(IStoreStoredProcedureParameter),
+            typeof(IStoreStoredProcedureResultColumn),
             typeof(IFunctionColumnMapping),
             typeof(IColumnMappingBase),
             typeof(IColumnMapping),
@@ -130,7 +148,6 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(IForeignKeyConstraint),
             typeof(IUniqueConstraint),
             typeof(ITrigger),
-            typeof(IEntityTypeMappingFragment),
             typeof(IRelationalPropertyOverrides)
         };
 
@@ -248,7 +265,10 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                     .GetRuntimeMethods()
                     .Single(
                         m => m.Name == "GenerateCacheKeyCore"
-                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
+                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator)),
+                typeof(IAnnotationCodeGenerator).GetMethod(
+                    "RemoveAnnotationsHandledByConventions", AnyInstance,
+                    new[] { typeof(IAnnotatable), typeof(IDictionary<string, IAnnotation>) })
             };
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
@@ -283,6 +303,23 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 }),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasOriginalValueParameter),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
+                }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasOriginalValueParameter),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
+                    typeof(Action<StoredProcedureParameterBuilder>)
+                }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasResultColumn),
                 genericParameterCount: 2,
                 (typeTypes, methodTypes) => new[]
@@ -297,7 +334,10 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 {
                     typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
                     typeof(Action<StoredProcedureResultColumnBuilder>)
-                })
+                }),
+            typeof(IConventionStoredProcedure).GetMethod(
+                nameof(IConventionStoredProcedure.SetAreRowsAffectedReturned),
+                new[] { typeof(bool), typeof(bool) })
         };
 
         public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()

@@ -99,6 +99,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(model.Model.GetEntityTypes().All(et => !et.GetViewMappings().Any()));
 
             AssertDefaultMappings(model, mapping);
+            AssertTables(model, mapping);
+            AssertSprocs(model, mapping, mappedToTables: true);
+        }
+
+        [ConditionalTheory]
+        [InlineData(Mapping.TPH)]
+        [InlineData(Mapping.TPT)]
+        [InlineData(Mapping.TPC)]
+        public void Can_use_relational_model_with_sprocs_and_views(Mapping mapping)
+        {
+            var model = CreateTestModel(mapToViews: true, mapToSprocs: true, mapping: mapping);
+
+            Assert.Equal(11, model.Model.GetEntityTypes().Count());
+
+            Assert.Equal(
+                mapping switch
+                {
+                    Mapping.TPC => 5,
+                    Mapping.TPH => 3,
+                    _ => 6
+                }, model.Views.Count());
+
+            Assert.Equal(mapping switch
+            {
+                Mapping.TPC => 24,
+                Mapping.TPH => 18,
+                _ => 27
+            }, model.StoredProcedures.Count());
+
+            AssertDefaultMappings(model, mapping);
+            AssertViews(model, mapping);
             AssertSprocs(model, mapping);
         }
 
@@ -1019,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        private static void AssertSprocs(IRelationalModel model, Mapping mapping)
+        private static void AssertSprocs(IRelationalModel model, Mapping mapping, bool mappedToTables = false)
         {
             var orderType = model.Model.FindEntityType(typeof(Order));
             var orderInsertMapping = orderType.GetInsertStoredProcedureMappings().Single();
@@ -1061,17 +1092,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("default_datetime_mapping", orderDateInsertMapping.TypeMapping.StoreType);
             Assert.Same(orderInsertMapping, orderDateInsertMapping.TableMapping);
 
-            var orderDateColumn = orderDateInsertMapping.Parameter;
-            Assert.Same(orderDateInsertMapping.Parameter, orderDateInsertMapping.Column);
-            Assert.Same(orderDateColumn, ordersInsertSproc.FindParameter("OrderDate"));
-            Assert.Same(orderDateColumn, ordersInsertSproc.FindParameter(orderDate));
-            Assert.Equal("OrderDate", orderDateColumn.Name);
-            Assert.Equal("default_datetime_mapping", orderDateColumn.StoreType);
-            Assert.False(orderDateColumn.IsNullable);
-            Assert.Equal(ParameterDirection.Input, orderDateColumn.Direction);
-            Assert.Same(ordersInsertSproc, orderDateColumn.StoredProcedure);
-            Assert.Same(orderDateColumn.StoredProcedure, orderDateColumn.Table);
-            Assert.Same(orderDateInsertMapping, orderDateColumn.FindParameterMapping(orderType));
+            var orderDateParameter = orderDateInsertMapping.StoreParameter;
+            Assert.Same(orderDateInsertMapping.StoreParameter, orderDateInsertMapping.Column);
+            Assert.Same(orderDateParameter, ordersInsertSproc.FindParameter("OrderDate"));
+            Assert.Same(orderDateParameter, ordersInsertSproc.FindParameter(orderDate));
+            Assert.Equal("OrderDate", orderDateParameter.Name);
+            Assert.Equal("default_datetime_mapping", orderDateParameter.StoreType);
+            Assert.False(orderDateParameter.IsNullable);
+            Assert.Equal(ParameterDirection.Input, orderDateParameter.Direction);
+            Assert.Same(ordersInsertSproc, orderDateParameter.StoredProcedure);
+            Assert.Same(orderDateParameter.StoredProcedure, orderDateParameter.Table);
+            Assert.Same(orderDateInsertMapping, orderDateParameter.FindParameterMapping(orderType));
 
             var abstractBaseType = model.Model.FindEntityType(typeof(AbstractBase));
             var abstractCustomerType = model.Model.FindEntityType(typeof(AbstractCustomer));
@@ -1159,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Empty(billingAddressDeleteSproc.ResultColumns.Select(m => m.Name));
 
-            Assert.Equal(new[] { orderDate }, orderDateColumn.PropertyMappings.Select(m => m.Property));
+            Assert.Equal(new[] { orderDate }, orderDateParameter.PropertyMappings.Select(m => m.Property));
 
             var specialCustomerInsertSproc =
                 specialCustomerType.GetInsertStoredProcedureMappings().Last().StoreStoredProcedure;
@@ -1316,7 +1347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Null(specialCustomerType.GetInsertStoredProcedureMappings().First().IsSplitEntityTypePrincipal);
                 Assert.False(specialCustomerType.GetInsertStoredProcedureMappings().First().IncludesDerivedTypes);
                 Assert.Null(specialCustomerType.GetInsertStoredProcedureMappings().Last().IsSplitEntityTypePrincipal);
-                Assert.True(specialCustomerType.GetTableMappings().Last().IncludesDerivedTypes);
+                Assert.True(specialCustomerType.GetInsertStoredProcedureMappings().Last().IncludesDerivedTypes);
 
                 Assert.Equal("SpecialCustomer_Insert", specialCustomerInsertSproc.Name);
                 Assert.Single(specialCustomerInsertSproc.ResultColumns);
@@ -1390,7 +1421,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var idPropertyUpdateParameter = baseUpdateSproc.FindParameter(idProperty)!;
                 var idPropertyUpdateParameterMapping = idProperty.GetUpdateStoredProcedureParameterMappings().First();
                 Assert.Same(idPropertyUpdateParameter, baseUpdateSproc.FindParameter("UpdateId"));
-                Assert.Same(idPropertyUpdateParameter, idPropertyUpdateParameterMapping.Parameter);
+                Assert.Same(idPropertyUpdateParameter, idPropertyUpdateParameterMapping.StoreParameter);
                 Assert.Equal("UpdateId", idPropertyUpdateParameter.Name);
                 Assert.Equal("default_int_mapping", idPropertyUpdateParameter.StoreType);
                 Assert.Equal(ParameterDirection.Input, idPropertyUpdateParameter.Direction);
@@ -1419,7 +1450,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var idPropertyDeleteParameter = baseDeleteSproc.FindParameter(idProperty)!;
                 var idPropertyDeleteParameterMapping = idProperty.GetDeleteStoredProcedureParameterMappings().First();
                 Assert.Same(idPropertyDeleteParameter, baseDeleteSproc.FindParameter("DeleteId"));
-                Assert.Same(idPropertyDeleteParameter, idPropertyDeleteParameterMapping.Parameter);
+                Assert.Same(idPropertyDeleteParameter, idPropertyDeleteParameterMapping.StoreParameter);
                 Assert.Equal("DeleteId", idPropertyDeleteParameter.Name);
                 Assert.Equal("default_int_mapping", idPropertyDeleteParameter.StoreType);
                 Assert.Equal(ParameterDirection.Input, idPropertyDeleteParameter.Direction);
@@ -1638,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     var idPropertyUpdateParameter = baseUpdateSproc.FindParameter(idProperty)!;
                     var idPropertyUpdateParameterMapping = idProperty.GetUpdateStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyUpdateParameter, baseUpdateSproc.FindParameter("UpdateId"));
-                    Assert.Same(idPropertyUpdateParameter, idPropertyUpdateParameterMapping.Parameter);
+                    Assert.Same(idPropertyUpdateParameter, idPropertyUpdateParameterMapping.StoreParameter);
                     Assert.Equal("UpdateId", idPropertyUpdateParameter.Name);
                     Assert.Equal("default_int_mapping", idPropertyUpdateParameter.StoreType);
                     Assert.Equal(ParameterDirection.Input, idPropertyUpdateParameter.Direction);
@@ -1656,7 +1687,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     var idPropertyDeleteParameter = baseDeleteSproc.FindParameter(idProperty)!;
                     var idPropertyDeleteParameterMapping = idProperty.GetDeleteStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyDeleteParameter, baseDeleteSproc.FindParameter("DeleteId"));
-                    Assert.Same(idPropertyDeleteParameter, idPropertyDeleteParameterMapping.Parameter);
+                    Assert.Same(idPropertyDeleteParameter, idPropertyDeleteParameterMapping.StoreParameter);
                     Assert.Equal("DeleteId", idPropertyDeleteParameter.Name);
                     Assert.Equal("default_int_mapping", idPropertyDeleteParameter.StoreType);
                     Assert.Equal(ParameterDirection.Input, idPropertyDeleteParameter.Direction);
@@ -1786,7 +1817,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     var idPropertyUpdateParameter = customerUpdateSproc.FindParameter(idProperty)!;
                     var idPropertyUpdateParameterMapping = idProperty.GetUpdateStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyUpdateParameter, customerUpdateSproc.FindParameter("UpdateId"));
-                    Assert.Same(idPropertyUpdateParameter, idPropertyUpdateParameterMapping.Parameter);
+                    Assert.Same(idPropertyUpdateParameter, idPropertyUpdateParameterMapping.StoreParameter);
                     Assert.Equal("UpdateId", idPropertyUpdateParameter.Name);
                     Assert.Equal("default_int_mapping", idPropertyUpdateParameter.StoreType);
                     Assert.Equal(ParameterDirection.Input, idPropertyUpdateParameter.Direction);
@@ -1817,7 +1848,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     var idPropertyDeleteParameter = customerDeleteSproc.FindParameter(idProperty)!;
                     var idPropertyDeleteParameterMapping = idProperty.GetDeleteStoredProcedureParameterMappings().First();
                     Assert.Same(idPropertyDeleteParameter, customerDeleteSproc.FindParameter("DeleteId"));
-                    Assert.Same(idPropertyDeleteParameter, idPropertyDeleteParameterMapping.Parameter);
+                    Assert.Same(idPropertyDeleteParameter, idPropertyDeleteParameterMapping.StoreParameter);
                     Assert.Equal("DeleteId", idPropertyDeleteParameter.Name);
                     Assert.Equal("default_int_mapping", idPropertyDeleteParameter.StoreType);
                     Assert.Equal(ParameterDirection.Input, idPropertyDeleteParameter.Direction);
@@ -1944,7 +1975,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             cb
                                 .InsertUsingStoredProcedure(
                                     s => s
-                                        .HasParameter(c => c.Id, p => p.HasName("InsertId"))
+                                        .HasParameter(c => c.Id, p => p.HasName("InsertId").IsOutput())
                                         .HasParameter(c => c.EnumValue)
                                         .HasParameter(c => c.Name)
                                         .HasParameter(c => c.SomeShort))
@@ -1960,11 +1991,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             if (mapping == Mapping.TPC)
                             {
                                 cb.InsertUsingStoredProcedure(s => s.HasParameter("SpecialtyAk"));
-                            }
-                            else
-                            {
-                                cb.InsertUsingStoredProcedure(
-                                    s => s.HasParameter(c => c.Id, p => p.IsOutput()));
                             }
                         }
                     }
@@ -2003,7 +2029,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             cb
                                 .InsertUsingStoredProcedure(
                                     s => s
-                                        .HasParameter(b => b.Id, p => p.HasName("InsertId"))
+                                        .HasParameter(b => b.Id, p => p.HasName("InsertId").IsOutput())
                                         .HasParameter(c => c.Specialty)
                                         .HasParameter(c => c.RelatedCustomerSpecialty)
                                         .HasParameter("AnotherRelatedCustomerId")
@@ -2028,7 +2054,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         {
                             cb
                                 .InsertUsingStoredProcedure(
-                                    s => s
+                                     s => s
                                         .HasResultColumn(b => b.Id, p => p.HasName("InsertId"))
                                         .HasParameter(c => c.Specialty)
                                         .HasParameter(c => c.RelatedCustomerSpecialty)
@@ -2118,7 +2144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                 cb
                                     .InsertUsingStoredProcedure(
                                         s => s
-                                            .HasParameter(b => b.Id, p => p.HasName("InsertId"))
+                                            .HasParameter(b => b.Id, p => p.HasName("InsertId").IsOutput())
                                             .HasParameter(c => c.Specialty)
                                             .HasParameter(c => c.RelatedCustomerSpecialty)
                                             .HasParameter("AnotherRelatedCustomerId")

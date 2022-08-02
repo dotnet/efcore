@@ -348,11 +348,16 @@ public class RelationalModelValidator : ModelValidator
 
         foreach (var resultColumn in sproc.ResultColumns)
         {
-            if (!properties.TryGetValue(resultColumn, out var property))
+            if (resultColumn.PropertyName == null)
+            {
+                continue;
+            }
+            
+            if (!properties.TryGetValue(resultColumn.PropertyName, out var property))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureResultColumnNotFound(
-                        resultColumn, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                        resultColumn.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
             }
 
             switch (storeObjectIdentifier.StoreObjectType)
@@ -363,14 +368,14 @@ public class RelationalModelValidator : ModelValidator
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureResultColumnNotGenerated(
-                                entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
 
                     break;
                 case StoreObjectType.DeleteStoredProcedure:
                     throw new InvalidOperationException(
                         RelationalStrings.StoredProcedureResultColumnDelete(
-                            entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                            entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
                 default:
                     Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
                     break;
@@ -379,23 +384,28 @@ public class RelationalModelValidator : ModelValidator
 
         foreach (var parameter in sproc.Parameters)
         {
-            if (!properties.TryGetAndRemove(parameter, out IProperty property))
+            if (parameter.PropertyName == null)
+            {
+                continue;
+            }
+            
+            if (!properties.TryGetAndRemove(parameter.PropertyName, out IProperty property))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureParameterNotFound(
-                        parameter, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                        parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
             }
 
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
                 case StoreObjectType.UpdateStoredProcedure:
-                    if (property.GetDirection(storeObjectIdentifier) != ParameterDirection.Input
+                    if (parameter.Direction != ParameterDirection.Input
                         && !storeGeneratedProperties.Remove(property.Name))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureOutputParameterNotGenerated(
-                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
 
                     break;
@@ -405,7 +415,7 @@ public class RelationalModelValidator : ModelValidator
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureDeleteNonKeyProperty(
-                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
                     
                     break;
@@ -426,7 +436,12 @@ public class RelationalModelValidator : ModelValidator
 
         foreach (var resultColumn in sproc.ResultColumns)
         {
-            properties.Remove(resultColumn);
+            if (resultColumn.PropertyName == null)
+            {
+                continue;
+            }
+            
+            properties.Remove(resultColumn.PropertyName);
         }
 
         if (properties.Count > 0)

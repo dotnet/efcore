@@ -1238,6 +1238,46 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
+        ///     The original value parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because original value another parameter for this property already exists.
+        /// </summary>
+        public static string StoredProcedureDuplicateOriginalValueParameter(object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDuplicateOriginalValueParameter", nameof(property), nameof(sproc)),
+                property, sproc);
+
+        /// <summary>
+        ///     The parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because another parameter for this property already exists.
+        /// </summary>
+        public static string StoredProcedureDuplicateParameter(object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDuplicateParameter", nameof(property), nameof(sproc)),
+                property, sproc);
+
+        /// <summary>
+        ///     The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because another result column for this property already exists.
+        /// </summary>
+        public static string StoredProcedureDuplicateResultColumn(object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDuplicateResultColumn", nameof(property), nameof(sproc)),
+                property, sproc);
+
+        /// <summary>
+        ///     The rows affected parameter cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property already exists or the rows affected are being returned.
+        /// </summary>
+        public static string StoredProcedureDuplicateRowsAffectedParameter(object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDuplicateRowsAffectedParameter", nameof(sproc)),
+                sproc);
+
+        /// <summary>
+        ///     The rows affected result column cannot be added to the stored procedure '{sproc}' because a rows affected parameter for this property exists or the rows affected are already being returned.
+        /// </summary>
+        public static string StoredProcedureDuplicateRowsAffectedResultColumn(object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDuplicateRowsAffectedResultColumn", nameof(sproc)),
+                sproc);
+
+        /// <summary>
         ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.
         /// </summary>
         public static string StoredProcedureGeneratedPropertiesNotMapped(object? entityType, object? sproc, object? properties)
@@ -1278,6 +1318,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, sproc);
 
         /// <summary>
+        ///     '{facet}' cannot be configured for the parameter '{parameter}' of the stored procedure '{sproc}'.
+        /// </summary>
+        public static string StoredProcedureParameterInvalidConfiguration(object? facet, object? parameter, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureParameterInvalidConfiguration", nameof(facet), nameof(parameter), nameof(sproc)),
+                facet, parameter, sproc);
+
+        /// <summary>
+        ///     Unsupported direction '{direction}' was specified for the parameter '{parameter}' of the stored procedure '{sproc}'.
+        /// </summary>
+        public static string StoredProcedureParameterInvalidDirection(object? direction, object? parameter, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureParameterInvalidDirection", nameof(direction), nameof(parameter), nameof(sproc)),
+                direction, parameter, sproc);
+
+        /// <summary>
         ///     No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'
         /// </summary>
         public static string StoredProcedureParameterNotFound(object? property, object? entityType, object? sproc)
@@ -1316,6 +1372,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("StoredProcedureResultColumnNotGenerated", nameof(entityType), nameof(property), nameof(sproc)),
                 entityType, property, sproc);
+
+        /// <summary>
+        ///     TThe stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedReturnConflictingParameter(object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedReturnConflictingParameter", nameof(sproc)),
+                sproc);
+
+        /// <summary>
+        ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because at least one result column was already added.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedReturnConflictingResultColumn(object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedReturnConflictingResultColumn", nameof(sproc)),
+                sproc);
+
+        /// <summary>
+        ///     The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because rows affected are being returned.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedReturnResultColumn(object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedReturnResultColumn", nameof(property), nameof(sproc)),
+                property, sproc);
 
         /// <summary>
         ///     Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.

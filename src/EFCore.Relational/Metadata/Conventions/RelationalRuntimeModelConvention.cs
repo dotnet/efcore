@@ -52,7 +52,11 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         if (runtime)
         {
             annotations[RelationalAnnotationNames.RelationalModel] =
-                RelationalModel.Create(runtimeModel, RelationalDependencies.RelationalAnnotationProvider, designTime: false);
+                RelationalModel.Create(
+                    runtimeModel,
+                    RelationalDependencies.RelationalAnnotationProvider,
+                    (IRelationalTypeMappingSource)Dependencies.TypeMappingSource,
+                    designTime: false);
         }
         else
         {
@@ -488,11 +492,49 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
     {
     }
 
-    private static RuntimeStoredProcedure Create(IStoredProcedure storedProcedure, RuntimeEntityType runtimeEntityType)
-        => new(runtimeEntityType,
+    private RuntimeStoredProcedure Create(IStoredProcedure storedProcedure, RuntimeEntityType runtimeEntityType)
+    {
+        var runtimeStoredProcedure = new RuntimeStoredProcedure(
+            runtimeEntityType,
             storedProcedure.Name,
             storedProcedure.Schema,
+            storedProcedure.AreRowsAffectedReturned,
             storedProcedure.AreTransactionsSuppressed);
+
+        foreach (var parameter in storedProcedure.Parameters)
+        {
+            var runtimeParameter = Create(parameter, runtimeStoredProcedure);
+            CreateAnnotations(
+                parameter, runtimeParameter, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessStoredProcedureParameterAnnotations(annotations, source, target, runtime));
+        }
+
+        foreach (var resultColumn in storedProcedure.ResultColumns)
+        {
+            var runtimeResultColumn = Create(resultColumn, runtimeStoredProcedure);
+            CreateAnnotations(
+                resultColumn, runtimeResultColumn, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessStoredProcedureResultColumnAnnotations(annotations, source, target, runtime));
+        }
+
+        return runtimeStoredProcedure;
+    }
+
+    private RuntimeStoredProcedureParameter Create(
+        IStoredProcedureParameter parameter, RuntimeStoredProcedure runtimeStoredProcedure)
+        => runtimeStoredProcedure.AddParameter(
+            parameter.Name,
+            parameter.Direction,
+            parameter.ForRowsAffected,
+            parameter.PropertyName,
+            parameter.ForOriginalValue);
+
+    private RuntimeStoredProcedureResultColumn Create(
+        IStoredProcedureResultColumn resultColumn, RuntimeStoredProcedure runtimeStoredProcedure)
+        => runtimeStoredProcedure.AddResultColumn(
+            resultColumn.Name,
+            resultColumn.ForRowsAffected,
+            resultColumn.PropertyName);
 
     /// <summary>
     ///     Updates the stored procedure annotations that will be set on the read-only object.
@@ -505,6 +547,36 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         Dictionary<string, object?> annotations,
         IStoredProcedure storedProcedure,
         RuntimeStoredProcedure runtimeStoredProcedure,
+        bool runtime)
+    {
+    }
+
+    /// <summary>
+    ///     Updates the stored procedure parameter annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="parameter">The source stored procedure parameter.</param>
+    /// <param name="runtimeParameter">The target stored procedure parameter that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessStoredProcedureParameterAnnotations(
+        Dictionary<string, object?> annotations,
+        IStoredProcedureParameter parameter,
+        RuntimeStoredProcedureParameter runtimeParameter,
+        bool runtime)
+    {
+    }
+
+    /// <summary>
+    ///     Updates the stored procedure result column annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="resultColumn">The source fstored procedure result column.</param>
+    /// <param name="runtimeResultColumn">The target stored procedure result column that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessStoredProcedureResultColumnAnnotations(
+        Dictionary<string, object?> annotations,
+        IStoredProcedureResultColumn resultColumn,
+        RuntimeStoredProcedureResultColumn runtimeResultColumn,
         bool runtime)
     {
     }

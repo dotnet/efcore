@@ -19,11 +19,18 @@ public class StoredProcedureResultColumnMapping : ColumnMappingBase, IStoredProc
     /// </summary>
     public StoredProcedureResultColumnMapping(
         IProperty property,
-        StoreStoredProcedureResultColumn column,
+        IStoredProcedureResultColumn resultColumn,
+        StoreStoredProcedureResultColumn storeResultColumn,
         StoredProcedureMapping storedProcedureMapping)
-        : base(property, column, storedProcedureMapping)
+        : base(property, storeResultColumn, storedProcedureMapping)
     {
+        ResultColumn = resultColumn;
     }
+
+    /// <summary>
+    ///     Gets the associated stored procedure result column.
+    /// </summary>
+    public virtual IStoredProcedureResultColumn ResultColumn { get; }
 
     /// <inheritdoc />
     public virtual IStoredProcedureMapping StoredProcedureMapping
@@ -47,8 +54,20 @@ public class StoredProcedureResultColumnMapping : ColumnMappingBase, IStoredProc
     public override string ToString()
         => ((IStoredProcedureResultColumnMapping)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DebugView DebugView
+        => new(
+            () => ((IStoredProcedureResultColumnMapping)this).ToDebugString(),
+            () => ((IStoredProcedureResultColumnMapping)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+
     /// <inheritdoc />
-    IStoreStoredProcedureResultColumn IStoredProcedureResultColumnMapping.Column
+    IStoreStoredProcedureResultColumn IStoredProcedureResultColumnMapping.StoreResultColumn
     {
         [DebuggerStepThrough]
         get => (IStoreStoredProcedureResultColumn)Column;
