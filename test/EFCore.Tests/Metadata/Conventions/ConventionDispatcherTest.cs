@@ -3008,11 +3008,11 @@ public class ConventionDispatcherTest
 
         if (useBuilder)
         {
-            index.Builder.IsDescending(new[] { true }, ConfigurationSource.Convention);
+            index.Builder.IsDescending(Array.Empty<bool>(), ConfigurationSource.Convention);
         }
         else
         {
-            index.IsDescending = new[] { true };
+            index.IsDescending = Array.Empty<bool>();
         }
 
         if (useScope)
@@ -3022,34 +3022,34 @@ public class ConventionDispatcherTest
             scope!.Dispose();
         }
 
-        Assert.Equal(new[] { new[] { true } }, convention1.Calls);
-        Assert.Equal(new[] { new[] { true } }, convention2.Calls);
+        Assert.Equal(new[] { Array.Empty<bool>() }, convention1.Calls);
+        Assert.Equal(new[] { Array.Empty<bool>() }, convention2.Calls);
         Assert.Empty(convention3.Calls);
 
         if (useBuilder)
         {
-            index.Builder.IsDescending(new[] { true }, ConfigurationSource.Convention);
+            index.Builder.IsDescending(Array.Empty<bool>(), ConfigurationSource.Convention);
         }
         else
         {
-            index.IsDescending = new[] { true };
+            index.IsDescending = Array.Empty<bool>();
         }
 
-        Assert.Equal(new[] { new[] { true } }, convention1.Calls);
-        Assert.Equal(new[] { new[] { true } }, convention2.Calls);
+        Assert.Equal(new[] { Array.Empty<bool>() }, convention1.Calls);
+        Assert.Equal(new[] { Array.Empty<bool>() }, convention2.Calls);
         Assert.Empty(convention3.Calls);
 
         if (useBuilder)
         {
-            index.Builder.IsDescending(new[] { false }, ConfigurationSource.Convention);
+            index.Builder.IsDescending(null, ConfigurationSource.Convention);
         }
         else
         {
-            index.IsDescending = new[] { false };
+            index.IsDescending = null;
         }
 
-        Assert.Equal(new[] { new[] { true }, new[] { false } }, convention1.Calls);
-        Assert.Equal(new[] { new[] { true }, new[] { false } }, convention2.Calls);
+        Assert.Equal(new[] { Array.Empty<bool>(), null }, convention1.Calls);
+        Assert.Equal(new[] { Array.Empty<bool>(), null }, convention2.Calls);
         Assert.Empty(convention3.Calls);
 
         Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));

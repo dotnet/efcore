@@ -59,7 +59,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> BatchCommands(
+    public virtual IEnumerable<ModificationCommandBatch> BatchCommands(
         IList<IUpdateEntry> entries,
         IUpdateAdapter updateAdapter)
     {
@@ -92,9 +92,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                                 batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
                         }
 
-                        batch.Complete();
+                        batch.Complete(moreBatchesExpected: true);
 
-                        yield return (batch, true);
+                        yield return batch;
                     }
                     else
                     {
@@ -104,9 +104,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         foreach (var command in batch.ModificationCommands)
                         {
                             batch = StartNewBatch(parameterNameGenerator, command);
-                            batch.Complete();
+                            batch.Complete(moreBatchesExpected: true);
 
-                            yield return (batch, true);
+                            yield return batch;
                         }
                     }
 
@@ -125,9 +125,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
                 }
 
-                batch.Complete();
+                batch.Complete(moreBatchesExpected: hasMoreCommandSets);
 
-                yield return (batch, hasMoreCommandSets);
+                yield return batch;
             }
             else
             {
@@ -137,9 +137,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 for (var commandIndex = 0; commandIndex < batch.ModificationCommands.Count; commandIndex++)
                 {
                     var singleCommandBatch = StartNewBatch(parameterNameGenerator, batch.ModificationCommands[commandIndex]);
-                    singleCommandBatch.Complete();
+                    singleCommandBatch.Complete(
+                        moreBatchesExpected: hasMoreCommandSets || commandIndex < batch.ModificationCommands.Count - 1);
 
-                    yield return (singleCommandBatch, hasMoreCommandSets || commandIndex < batch.ModificationCommands.Count - 1);
+                    yield return singleCommandBatch;
                 }
             }
         }

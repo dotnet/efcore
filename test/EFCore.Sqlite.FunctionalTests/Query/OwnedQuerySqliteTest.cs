@@ -12,6 +12,9 @@ public class OwnedQuerySqliteTest : OwnedQueryRelationalTestBase<OwnedQuerySqlit
 
     public class OwnedQuerySqliteFixture : RelationalOwnedQueryFixture
     {
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
+
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
     }

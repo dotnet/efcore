@@ -44,8 +44,7 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
                      .Concat<INavigationBase>(entityType.GetSkipNavigations())
                      .Where(n => n.IsCollection))
         {
-            AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
-                += entry.HandleINotifyCollectionChanged;
+            SubscribeCollectionChanged(entry, navigation);
         }
 
         if (changeTrackingStrategy != ChangeTrackingStrategy.ChangedNotifications)
@@ -66,6 +65,16 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual void SubscribeCollectionChanged(InternalEntityEntry entry, INavigationBase navigation)
+        => AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy()).CollectionChanged
+            += entry.HandleINotifyCollectionChanged;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual void Unsubscribe(InternalEntityEntry entry)
     {
         var entityType = entry.EntityType;
@@ -77,8 +86,7 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
                          .Concat<INavigationBase>(entityType.GetSkipNavigations())
                          .Where(n => n.IsCollection))
             {
-                AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
-                    -= entry.HandleINotifyCollectionChanged;
+                UnsubscribeCollectionChanged(entry, navigation);
             }
 
             if (changeTrackingStrategy != ChangeTrackingStrategy.ChangedNotifications)
@@ -91,6 +99,18 @@ public class InternalEntityEntrySubscriber : IInternalEntityEntrySubscriber
                 -= entry.HandleINotifyPropertyChanged;
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void UnsubscribeCollectionChanged(
+        InternalEntityEntry entry,
+        INavigationBase navigation)
+        => AsINotifyCollectionChanged(entry, navigation, entry.EntityType, entry.EntityType.GetChangeTrackingStrategy()).CollectionChanged
+            -= entry.HandleINotifyCollectionChanged;
 
     private static INotifyCollectionChanged AsINotifyCollectionChanged(
         InternalEntityEntry entry,

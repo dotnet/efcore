@@ -90,8 +90,8 @@ public abstract class FiltersInheritanceQueryTestBase<TFixture> : FilteredQueryT
             async,
             ss => ss.Set<Animal>()
                 .OfType<Bird>()
-                .Select(b => new { b.EagleId }),
-            elementSorter: e => e.EagleId);
+                .Select(b => new { b.Name }),
+            elementSorter: e => e.Name);
     }
 
     [ConditionalTheory]

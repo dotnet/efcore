@@ -1036,14 +1036,18 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         _openedCount = 0;
         _openedInternally = false;
 
-        if (disposeDbConnection
-            && _connectionOwned
+        if (_connectionOwned 
             && _connection is not null)
         {
-            DisposeDbConnection();
-            _connection = null;
-            _openedCount = 0;
-            _openedInternally = false;
+            CloseDbConnection();
+
+            if (disposeDbConnection)
+            {
+                DisposeDbConnection();
+                _connection = null;
+                _openedCount = 0;
+                _openedInternally = false;
+            }
         }
     }
 
@@ -1065,14 +1069,18 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
 
         _commandTimeout = _defaultCommandTimeout;
 
-        if (disposeDbConnection
-            && _connectionOwned
+        if (_connectionOwned
             && _connection is not null)
         {
-            await DisposeDbConnectionAsync().ConfigureAwait(false);
-            _connection = null;
-            _openedCount = 0;
-            _openedInternally = false;
+            await CloseDbConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+            if (disposeDbConnection)
+            {
+                await DisposeDbConnectionAsync().ConfigureAwait(false);
+                _connection = null;
+                _openedCount = 0;
+                _openedInternally = false;
+            }
         }
     }
 

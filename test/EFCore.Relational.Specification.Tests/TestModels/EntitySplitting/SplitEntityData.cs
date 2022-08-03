@@ -5,9 +5,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
 public class SplitEntityData : ISetSource
 {
+    public static readonly SplitEntityData Instance = new();
+
     private readonly SplitEntityOne[] _splitEntityOnes;
 
-    public SplitEntityData()
+    private SplitEntityData()
     {
         _splitEntityOnes = CreateSplitEntityOnes();
     }

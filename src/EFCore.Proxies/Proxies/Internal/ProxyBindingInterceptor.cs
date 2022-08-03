@@ -36,8 +36,9 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InstantiationBinding ModifyBinding(IEntityType entityType, string entityInstanceName, InstantiationBinding binding)
+    public virtual InstantiationBinding ModifyBinding(InstantiationBindingInterceptionData interceptionData, InstantiationBinding binding)
     {
+        var entityType = interceptionData.EntityType;
         var proxyType = _proxyFactory.CreateProxyType(entityType);
 
         if ((bool?)entityType.Model[ProxyAnnotationNames.LazyLoading] == true)

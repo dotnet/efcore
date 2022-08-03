@@ -23,6 +23,88 @@ public abstract class TrackGraphTestBase
 
             return traversal;
         }
+
+        [ConditionalTheory] // Issue #26461
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Can_iterate_over_graph_using_public_surface(bool async)
+        {
+            using var context = new EarlyLearningCenter(GetType().Name);
+            var category = new Category
+            {
+                Id = 1,
+                Products = new List<Product>
+                {
+                    new()
+                    {
+                        Id = 1,
+                        CategoryId = 1,
+                        Details = new ProductDetails { Id = 1 }
+                    },
+                    new()
+                    {
+                        Id = 2,
+                        CategoryId = 1,
+                        Details = new ProductDetails { Id = 2 }
+                    },
+                    new()
+                    {
+                        Id = 3,
+                        CategoryId = 1,
+                        Details = new ProductDetails { Id = 3 }
+                    }
+                }
+            };
+
+            var rootEntry = context.Attach(category);
+
+            var graphIterator = context.GetService<IEntityEntryGraphIterator>();
+
+            var visited = new HashSet<object>();
+            var traversal = new List<string>();
+
+            bool Callback(EntityEntryGraphNode<HashSet<object>> node)
+            {
+                if (node.NodeState.Contains(node.Entry.Entity))
+                {
+                    return false;
+                }
+
+                node.NodeState.Add(node.Entry.Entity);
+
+                traversal.Add(NodeString(node));
+
+                return true;
+            }
+
+            if (async)
+            {
+                await graphIterator.TraverseGraphAsync(
+                    new EntityEntryGraphNode<HashSet<object>>(rootEntry, visited, null, null),
+                    (node, _) => Task.FromResult(Callback(node)));
+            }
+            else
+            {
+                graphIterator.TraverseGraph(
+                    new EntityEntryGraphNode<HashSet<object>>(rootEntry, visited, null, null),
+                    Callback);
+            }
+
+            Assert.Equal(
+                new List<string>
+                {
+                    "<None> -----> Category:1",
+                    "Category:1 ---Products--> Product:1",
+                    "Product:1 ---Details--> ProductDetails:1",
+                    "Category:1 ---Products--> Product:2",
+                    "Product:2 ---Details--> ProductDetails:2",
+                    "Category:1 ---Products--> Product:3",
+                    "Product:3 ---Details--> ProductDetails:3"
+                },
+                traversal);
+
+            Assert.Equal(7, visited.Count);
+        }
     }
 
     public class TrackGraphTestWithState : TrackGraphTestBase
@@ -1150,16 +1232,6 @@ public abstract class TrackGraphTestBase
             traversal);
 
         Assert.Equal(7, visited.Count);
-    }
-
-    private static void AssertValuesSaved(int id, int someInt, string someString)
-    {
-        using var context = new TheShadows();
-        var entry = context.Entry(context.Set<Dark>().Single(e => EF.Property<int>(e, "Id") == id));
-
-        Assert.Equal(id, entry.Property<int>("Id").CurrentValue);
-        Assert.Equal(someInt, entry.Property<int>("SomeInt").CurrentValue);
-        Assert.Equal(someString, entry.Property<string>("SomeString").CurrentValue);
     }
 
     private class TheShadows : DbContext

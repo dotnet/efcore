@@ -1688,7 +1688,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
             builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[i]));
 
-            if (operation.IsDescending is not null && i < operation.IsDescending.Length && operation.IsDescending[i])
+            if (operation.IsDescending is not null && (operation.IsDescending.Length == 0 || operation.IsDescending[i]))
             {
                 builder.Append(" DESC");
             }

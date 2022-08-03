@@ -62,6 +62,23 @@ public class ViewColumnBuilder : IInfrastructure<PropertyBuilder>
         return this;
     }
 
+    /// <summary>
+    ///     Adds or updates an annotation on the property for a specific view.
+    ///     If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ViewColumnBuilder HasAnnotation(string annotation, object? value)
+    {
+        Check.NotEmpty(annotation, nameof(annotation));
+
+        InternalOverrides.Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
     PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
 
     #region Hidden System.Object members

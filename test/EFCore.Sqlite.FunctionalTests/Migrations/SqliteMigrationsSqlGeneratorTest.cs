@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
+using NetTopologySuite.Geometries;
 
 public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
 {
@@ -965,6 +966,51 @@ PRAGMA foreign_keys = 1;
 GO
 
 CREATE INDEX ""IX_Blog_Name"" ON ""Blog"" (""Name"");
+");
+    }
+
+    [ConditionalFact]
+    public virtual void DropColumn_in_table_which_has_another_spatial_column()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Blog",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
+                    x.Property<Geometry>("Position").HasColumnType("GEOMETRY").HasSrid(4326);
+                }),
+            migrationBuilder =>
+            {
+                migrationBuilder.DropColumn(
+                    name: "Name",
+                    table: "Blog");
+            });
+
+        AssertSql(
+            @"CREATE TABLE ""ef_temp_Blog"" (
+    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Blog"" PRIMARY KEY AUTOINCREMENT,
+    ""Name"" TEXT NULL
+);
+SELECT AddGeometryColumn('ef_temp_Blog', 'Position', 4326, 'GEOMETRY', -1, 0);
+GO
+
+INSERT INTO ""ef_temp_Blog"" (""Id"", ""Name"", ""Position"")
+SELECT ""Id"", ""Name"", ""Position""
+FROM ""Blog"";
+GO
+
+PRAGMA foreign_keys = 0;
+GO
+
+DROP TABLE ""Blog"";
+GO
+
+ALTER TABLE ""ef_temp_Blog"" RENAME TO ""Blog"";
+GO
+
+PRAGMA foreign_keys = 1;
 ");
     }
 

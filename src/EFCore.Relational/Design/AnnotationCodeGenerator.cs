@@ -31,8 +31,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.Triggers,
         RelationalAnnotationNames.Sequences,
         RelationalAnnotationNames.DbFunctions,
+        RelationalAnnotationNames.DeleteStoredProcedure,
+        RelationalAnnotationNames.InsertStoredProcedure,
+        RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
-        RelationalAnnotationNames.RelationalOverrides
+        RelationalAnnotationNames.RelationalOverrides,
+        RelationalAnnotationNames.ParameterDirection
     };
 
     #region MethodInfos
@@ -241,6 +245,10 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     public virtual void RemoveAnnotationsHandledByConventions(
         ISequence sequence, IDictionary<string, IAnnotation> annotations)
         => RemoveConventionalAnnotationsHelper(sequence, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        => ((IAnnotationCodeGenerator)this).RemoveAnnotationsHandledByConventionsInternal(annotatable, annotations);
 
     /// <inheritdoc />
     public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
@@ -501,6 +509,11 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     }
 
     /// <inheritdoc />
+    public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        => ((IAnnotationCodeGenerator)this).GenerateFluentApiCallsInternal(annotatable, annotations);
+
+    /// <inheritdoc />
     public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
         IEntityType entityType,
         IDictionary<string, IAnnotation> annotations)
@@ -533,6 +546,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
         return attributeCodeFragments;
     }
+
+    /// <inheritdoc />
+    public virtual IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
+        => ((IAnnotationCodeGenerator)this).GenerateDataAnnotationAttributesInternal(annotatable, annotations);
 
     /// <summary>
     ///     Checks if the given <paramref name="annotation" /> is handled by convention when

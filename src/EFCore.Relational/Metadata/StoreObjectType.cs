@@ -29,5 +29,20 @@ public enum StoreObjectType
     /// <summary>
     ///     A table-valued function.
     /// </summary>
-    Function
+    Function,
+
+    /// <summary>
+    ///     An insert stored procedure.
+    /// </summary>
+    InsertStoredProcedure,
+
+    /// <summary>
+    ///     A delete stored procedure.
+    /// </summary>
+    DeleteStoredProcedure,
+
+    /// <summary>
+    ///     An update stored procedure.
+    /// </summary>
+    UpdateStoredProcedure,
 }

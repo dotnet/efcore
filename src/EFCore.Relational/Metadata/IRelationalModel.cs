@@ -47,6 +47,11 @@ public interface IRelationalModel : IAnnotatable
     IEnumerable<IStoreFunction> Functions { get; }
 
     /// <summary>
+    ///     Returns all stored procedures contained in the model.
+    /// </summary>
+    IEnumerable<IStoreStoredProcedure> StoredProcedures { get; }
+
+    /// <summary>
     ///     Returns the database collation.
     /// </summary>
     string? Collation
@@ -93,9 +98,17 @@ public interface IRelationalModel : IAnnotatable
     /// <param name="name">The name of the function.</param>
     /// <param name="schema">The schema of the function.</param>
     /// <param name="parameters">A list of parameter types.</param>
-    /// <returns>The <see cref="IStoreFunction" /> or <see langword="null" /> if no function with the given name was defined.</returns>
+    /// <returns>The <see cref="IStoreFunction" /> or <see langword="null" /> if no function with the given name was found.</returns>
     IStoreFunction? FindFunction(string name, string? schema, IReadOnlyList<string> parameters);
 
+    /// <summary>
+    ///     Finds a <see cref="IStoreStoredProcedure" /> with the name.
+    /// </summary>
+    /// <param name="name">The name of the stored procedure.</param>
+    /// <param name="schema">The schema of the stored procedure.</param>
+    /// <returns>The <see cref="IStoreStoredProcedure" /> or <see langword="null" /> if no stored procedure with the given name was found.</returns>
+    IStoreStoredProcedure? FindStoredProcedure(string name, string? schema);
+    
     /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.

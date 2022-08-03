@@ -291,7 +291,7 @@ public class InternalEntryEntrySubscriberTest
         Assert.Empty(testListener.Changing);
         Assert.Empty(testListener.Changed);
 
-        entity.RelatedCollection = new List<ChangedOnlyNotificationEntity>();
+        entity.RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>();
 
         var property = entry.EntityType.FindNavigation("RelatedCollection");
         Assert.Same(property, testListener.Changing.Single().Item2);
@@ -419,6 +419,56 @@ public class InternalEntryEntrySubscriberTest
         Assert.Equal(3, testListener.CollectionChanged.Count);
         Assert.All(testListener.CollectionChanged, e => Assert.Same(e.Item2, navigation));
         Assert.Same(entries[2], testListener.CollectionChanged.Skip(2).Single().Item1);
+    }
+
+    [ConditionalFact] // Issue #26023
+    public void Entry_re_subscribes_to_INotifyCollectionChanged_when_collection_instance_changes()
+    {
+        var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(
+            new ServiceCollection().AddScoped<INavigationFixer, TestNavigationListener>(),
+            BuildModel());
+
+        var testListener = contextServices
+            .GetRequiredService<IEnumerable<INavigationFixer>>()
+            .OfType<TestNavigationListener>()
+            .Single();
+
+        var entities = new List<FullNotificationEntity>();
+        var entries = new List<InternalEntityEntry>();
+        for (var i = 0; i < 10; i++)
+        {
+            entities.Add(
+                new FullNotificationEntity { Id = i + 1, RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>() });
+            entries.Add(contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entities[i]));
+            entries[i].SetEntityState(EntityState.Unchanged);
+        }
+
+        var navigation = entries[0].EntityType.FindNavigation("RelatedCollection");
+
+        Assert.Empty(testListener.CollectionChanged);
+
+        entities[2].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+        entities[5].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+
+        Assert.Equal(2, testListener.CollectionChanged.Count);
+        Assert.All(testListener.CollectionChanged, e => Assert.Same(e.Item2, navigation));
+        Assert.Same(entries[2], testListener.CollectionChanged.First().Item1);
+        Assert.Same(entries[5], testListener.CollectionChanged.Skip(1).Single().Item1);
+
+        foreach (var entity in entities)
+        {
+            entity.RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>();
+        }
+
+        entities[2].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+        entities[5].RelatedCollection.Add(new ChangedOnlyNotificationEntity());
+
+        Assert.Equal(4, testListener.CollectionChanged.Count);
+        Assert.All(testListener.CollectionChanged, e => Assert.Same(e.Item2, navigation));
+        Assert.Same(entries[2], testListener.CollectionChanged.First().Item1);
+        Assert.Same(entries[5], testListener.CollectionChanged.Skip(1).First().Item1);
+        Assert.Same(entries[2], testListener.CollectionChanged.Skip(2).First().Item1);
+        Assert.Same(entries[5], testListener.CollectionChanged.Skip(3).Single().Item1);
     }
 
     [ConditionalTheory]

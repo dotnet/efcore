@@ -83,6 +83,24 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
         }
     }
 
+    public class ConnectionInterceptionWithConnectionStringSqlServerTest
+        : ConnectionInterceptionSqlServerTestBase, IClassFixture<ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture>
+    {
+        public ConnectionInterceptionWithConnectionStringSqlServerTest(InterceptionSqlServerFixture fixture)
+            : base(fixture)
+        {
+        }
+
+        public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
+        {
+            protected override bool ShouldSubscribeToDiagnosticListener
+                => false;
+        }
+
+        protected override DbContextOptionsBuilder ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlServer("Database=Dummy");
+    }
+
     public class ConnectionInterceptionWithDiagnosticsSqlServerTest
         : ConnectionInterceptionSqlServerTestBase,
             IClassFixture<ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>

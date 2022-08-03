@@ -28,12 +28,32 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public interface IUpdateSqlGenerator
 {
     /// <summary>
-    ///     Generates SQL that will obtain the next value in the given sequence.
+    ///     Generates SQL that will query for the next value in the given sequence.
     /// </summary>
     /// <param name="name">The name of the sequence.</param>
     /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
     /// <returns>The SQL.</returns>
     string GenerateNextSequenceValueOperation(string name, string? schema);
+
+    /// <summary>
+    ///     Generates a SQL fragment that will query for the next value from the given sequence and appends it to
+    ///     the full command being built by the given <see cref="StringBuilder" />.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL fragment should be appended.</param>
+    /// <param name="name">The name of the sequence.</param>
+    /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
+    void AppendNextSequenceValueOperation(
+        StringBuilder commandStringBuilder,
+        string name,
+        string? schema);
+
+    /// <summary>
+    ///     Generates SQL that will obtain the next value in the given sequence.
+    /// </summary>
+    /// <param name="name">The name of the sequence.</param>
+    /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
+    /// <returns>The SQL.</returns>
+    string GenerateObtainNextSequenceValueOperation(string name, string? schema);
 
     /// <summary>
     ///     Generates a SQL fragment that will get the next value from the given sequence and appends it to
@@ -42,7 +62,7 @@ public interface IUpdateSqlGenerator
     /// <param name="commandStringBuilder">The builder to which the SQL fragment should be appended.</param>
     /// <param name="name">The name of the sequence.</param>
     /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
-    void AppendNextSequenceValueOperation(
+    void AppendObtainNextSequenceValueOperation(
         StringBuilder commandStringBuilder,
         string name,
         string? schema);

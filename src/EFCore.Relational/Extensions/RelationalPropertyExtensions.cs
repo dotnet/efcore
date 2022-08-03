@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -52,7 +53,7 @@ public static class RelationalPropertyExtensions
     public static string? GetColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var overrides = property.FindOverrides(storeObject);
-        if (overrides?.ColumnNameOverridden == true)
+        if (overrides?.IsColumnNameOverridden == true)
         {
             return overrides.ColumnName;
         }
@@ -509,6 +510,56 @@ public static class RelationalPropertyExtensions
             ?? Enumerable.Empty<IFunctionColumnMapping>();
 
     /// <summary>
+    ///     Returns the insert stored procedure result columns to which the property is mapped.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The insert stored procedure result columns to which the property is mapped.</returns>
+    public static IEnumerable<IStoredProcedureResultColumnMapping> GetInsertStoredProcedureResultColumnMappings(this IProperty property)
+        => (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings)
+            ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+
+    /// <summary>
+    ///     Returns the insert stored procedure parameters to which the property is mapped.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The insert stored procedure parameters to which the property is mapped.</returns>
+    public static IEnumerable<IStoredProcedureParameterMapping> GetInsertStoredProcedureParameterMappings(this IProperty property)
+        => (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.InsertStoredProcedureParameterMappings)
+            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+
+    /// <summary>
+    ///     Returns the delete stored procedure parameters to which the property is mapped.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The delete stored procedure parameters to which the property is mapped.</returns>
+    public static IEnumerable<IStoredProcedureParameterMapping> GetDeleteStoredProcedureParameterMappings(this IProperty property)
+        => (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.DeleteStoredProcedureParameterMappings)
+            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+
+    /// <summary>
+    ///     Returns the update stored procedure result columns to which the property is mapped.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The update stored procedure result columns to which the property is mapped.</returns>
+    public static IEnumerable<IStoredProcedureResultColumnMapping> GetUpdateStoredProcedureResultColumnMappings(this IProperty property)
+        => (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings)
+            ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+
+    /// <summary>
+    ///     Returns the update stored procedure parameters to which the property is mapped.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The update stored procedure parameters to which the property is mapped.</returns>
+    public static IEnumerable<IStoredProcedureParameterMapping> GetUpdateStoredProcedureParameterMappings(this IProperty property)
+        => (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.UpdateStoredProcedureParameterMappings)
+            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+
+    /// <summary>
     ///     Returns the column corresponding to this property if it's mapped to the given table-like store object.
     /// </summary>
     /// <param name="property">The property.</param>
@@ -552,6 +603,26 @@ public static class RelationalPropertyExtensions
                 foreach (var mapping in property.GetFunctionColumnMappings())
                 {
                     if (mapping.TableMapping.Table.Name == storeObject.Name)
+                    {
+                        return mapping.Column;
+                    }
+                }
+
+                return null;
+            case StoreObjectType.InsertStoredProcedure:
+                foreach (var mapping in property.GetInsertStoredProcedureResultColumnMappings())
+                {
+                    if (mapping.TableMapping.Table.Name == storeObject.Name && mapping.TableMapping.Table.Schema == storeObject.Schema)
+                    {
+                        return mapping.Column;
+                    }
+                }
+
+                return null;
+            case StoreObjectType.UpdateStoredProcedure:
+                foreach (var mapping in property.GetUpdateStoredProcedureResultColumnMappings())
+                {
+                    if (mapping.TableMapping.Table.Name == storeObject.Name && mapping.TableMapping.Table.Schema == storeObject.Schema)
                     {
                         return mapping.Column;
                     }
@@ -1100,6 +1171,53 @@ public static class RelationalPropertyExtensions
         return optional ?? (entityType.BaseType != null && entityType.FindDiscriminatorProperty() != null);
     }
 
+    /// <summary>
+    ///     Gets the direction of the corresponding stored procedure parameter.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
+    /// <returns>
+    ///     The direction of the corresponding stored procedure parameter.
+    /// </returns>
+    public static System.Data.ParameterDirection GetDirection(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        => property.FindOverrides(storeObject)?.Direction ?? System.Data.ParameterDirection.Input;
+
+    /// <summary>
+    ///     Sets the direction of the corresponding stored procedure parameter.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="direction">The direction to set.</param>
+    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
+    public static void SetDirection(
+        this IMutableProperty property,
+        System.Data.ParameterDirection? direction,
+        in StoreObjectIdentifier storeObject)
+        => property.GetOrCreateOverrides(storeObject).Direction = direction;
+
+    /// <summary>
+    ///     Sets the direction of the corresponding stored procedure parameter.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="direction">The direction to set.</param>
+    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static System.Data.ParameterDirection? SetDirection(
+        this IConventionProperty property,
+        System.Data.ParameterDirection? direction,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => property.GetOrCreateOverrides(storeObject, fromDataAnnotation).SetDirection(direction, fromDataAnnotation);
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the stored procedure parameter direction.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the stored procedure parameter direction.</returns>
+    public static ConfigurationSource? GetDirectionConfigurationSource(this IConventionProperty property, in StoreObjectIdentifier storeObject)
+        => property.FindOverrides(storeObject)?.GetDirectionConfigurationSource();
+    
     /// <summary>
     ///     Returns the comment for the column this property is mapped to.
     /// </summary>
@@ -1700,15 +1818,15 @@ public static class RelationalPropertyExtensions
         Check.DebugAssert(previousDetailedErrorsEnabled == detailedErrorsEnabled, "Differing values of DetailedErrorsEnabled");
 #endif
 
-        var getReadFieldValue = property.GetOrAddRuntimeAnnotationValue(
-            RelationalAnnotationNames.GetReaderFieldValue,
-            static x => CreateGetValueDelegate(x.property, x.detailedErrorsEnabled),
+        var fieldValueGetter = property.GetOrAddRuntimeAnnotationValue(
+            RelationalAnnotationNames.FieldValueGetter,
+            static x => CreateFieldValueGetter(x.property, x.detailedErrorsEnabled),
             (property, detailedErrorsEnabled));
 
-        return getReadFieldValue(relationalReader.DbDataReader, ordinal);
+        return fieldValueGetter(relationalReader.DbDataReader, ordinal);
     }
 
-    private static Func<DbDataReader, int, object?> CreateGetValueDelegate(IProperty property, bool detailedErrorsEnabled)
+    private static Func<DbDataReader, int, object?> CreateFieldValueGetter(IProperty property, bool detailedErrorsEnabled)
     {
         var readerParameter = Expression.Parameter(typeof(DbDataReader), "reader");
         var indexParameter = Expression.Parameter(typeof(int), "index");

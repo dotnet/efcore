@@ -38,8 +38,8 @@ public class QueryAsserter
         QueryFixture = queryFixture;
         _contextCreator = queryFixture.GetContextCreator();
         _expectedData = queryFixture.GetExpectedData();
-        _entitySorters = queryFixture.GetEntitySorters() ?? new Dictionary<Type, object>();
-        _entityAsserters = queryFixture.GetEntityAsserters() ?? new Dictionary<Type, object>();
+        _entitySorters = queryFixture.EntitySorters ?? new Dictionary<Type, object>();
+        _entityAsserters = queryFixture.EntityAsserters ?? new Dictionary<Type, object>();
         SetSourceCreator = queryFixture.GetSetSourceCreator();
 
         _rewriteExpectedQueryExpression = rewriteExpectedQueryExpression;

@@ -42,6 +42,21 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
             case StoreObjectType.Function:
                 var functionName = entityType.GetFunctionName();
                 return functionName == null ? null : DbFunction(functionName);
+            case StoreObjectType.InsertStoredProcedure:
+                var insertStoredProcedure = entityType.GetInsertStoredProcedure();
+                return insertStoredProcedure == null || insertStoredProcedure.Name == null
+                    ? null
+                    : InsertStoredProcedure(insertStoredProcedure.Name, insertStoredProcedure.Schema);
+            case StoreObjectType.DeleteStoredProcedure:
+                var deleteStoredProcedure = entityType.GetDeleteStoredProcedure();
+                return deleteStoredProcedure == null || deleteStoredProcedure.Name == null
+                    ? null
+                    : DeleteStoredProcedure(deleteStoredProcedure.Name, deleteStoredProcedure.Schema);
+            case StoreObjectType.UpdateStoredProcedure:
+                var updateStoredProcedure = entityType.GetUpdateStoredProcedure();
+                return updateStoredProcedure == null || updateStoredProcedure.Name == null
+                    ? null
+                    : UpdateStoredProcedure(updateStoredProcedure.Name, updateStoredProcedure.Schema);
             default:
                 return null;
         }
@@ -107,6 +122,45 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
         Check.NotNull(modelName, nameof(modelName));
 
         return new StoreObjectIdentifier(StoreObjectType.Function, modelName);
+    }
+
+    /// <summary>
+    ///     Creates an insert stored procedure id.
+    /// </summary>
+    /// <param name="name">The stored procedure name.</param>
+    /// <param name="schema">The stored procedure schema.</param>
+    /// <returns>The stored procedure id.</returns>
+    public static StoreObjectIdentifier InsertStoredProcedure(string name, string? schema = null)
+    {
+        Check.NotNull(name, nameof(name));
+
+        return new StoreObjectIdentifier(StoreObjectType.InsertStoredProcedure, name, schema);
+    }
+
+    /// <summary>
+    ///     Creates a delete stored procedure id.
+    /// </summary>
+    /// <param name="name">The stored procedure name.</param>
+    /// <param name="schema">The stored procedure schema.</param>
+    /// <returns>The stored procedure id.</returns>
+    public static StoreObjectIdentifier DeleteStoredProcedure(string name, string? schema = null)
+    {
+        Check.NotNull(name, nameof(name));
+
+        return new StoreObjectIdentifier(StoreObjectType.DeleteStoredProcedure, name, schema);
+    }
+
+    /// <summary>
+    ///     Creates an update stored procedure id.
+    /// </summary>
+    /// <param name="name">The stored procedure name.</param>
+    /// <param name="schema">The stored procedure  schema.</param>
+    /// <returns>The stored procedure id.</returns>
+    public static StoreObjectIdentifier UpdateStoredProcedure(string name, string? schema = null)
+    {
+        Check.NotNull(name, nameof(name));
+
+        return new StoreObjectIdentifier(StoreObjectType.UpdateStoredProcedure, name, schema);
     }
 
     /// <summary>

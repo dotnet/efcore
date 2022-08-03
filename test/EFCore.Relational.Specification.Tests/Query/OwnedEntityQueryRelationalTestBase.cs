@@ -55,6 +55,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
                                 {
                                     oob.ToTable(nameof(Leaf24777));
                                     oob.HasKey(x => new { ProductCommissionRulesetId = x.ModdleAId, x.UnitThreshold });
+                                    oob.Property(x => x.ModdleAId).ValueGeneratedNever();
+                                    oob.Property(x => x.UnitThreshold).ValueGeneratedNever();
                                     oob.WithOwner().HasForeignKey(e => e.ModdleAId);
                                     oob.HasData(
                                         new Leaf24777 { ModdleAId = 1, UnitThreshold = 1 },
@@ -226,5 +228,13 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
                         });
                 });
         }
+    }
+
+    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    {
+        return base.AddOptions(builder).ConfigureWarnings(
+            c => c
+                .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
+                .Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning));
     }
 }

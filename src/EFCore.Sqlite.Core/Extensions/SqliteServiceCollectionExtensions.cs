@@ -55,20 +55,16 @@ public static class SqliteServiceCollectionExtensions
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
     public static IServiceCollection AddSqlite<TContext>(
         this IServiceCollection serviceCollection,
-        string connectionString,
+        string? connectionString,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
-    {
-        Check.NotEmpty(connectionString, nameof(connectionString));
-
-        return serviceCollection.AddDbContext<TContext>(
+        => serviceCollection.AddDbContext<TContext>(
             (_, options) =>
             {
                 optionsAction?.Invoke(options);
                 options.UseSqlite(connectionString, sqliteOptionsAction);
             });
-    }
 
     /// <summary>
     ///     <para>

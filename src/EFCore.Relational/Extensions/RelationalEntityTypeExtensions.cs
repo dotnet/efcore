@@ -54,7 +54,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The default name of the table to which the entity type would be mapped.</returns>
     public static string? GetDefaultTableName(this IReadOnlyEntityType entityType, bool truncate = true)
     {
-        if (entityType.GetDiscriminatorPropertyName() != null
+        if ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy) == RelationalAnnotationNames.TphMappingStrategy
             && entityType.BaseType != null)
         {
             return entityType.GetRootType().GetTableName();
@@ -67,7 +67,7 @@ public static class RelationalEntityTypeExtensions
             return ownership.PrincipalEntityType.GetTableName();
         }
 
-        var name = entityType.ShortName();
+        var name = entityType.HasSharedClrType ? entityType.ShortName() : entityType.ClrType.ShortDisplayName();
         if (entityType.HasSharedClrType
             && ownership != null
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -241,8 +241,8 @@ public static class RelationalEntityTypeExtensions
     ///     Returns the name of the view to which the entity type is mapped prepended by the schema
     ///     or <see langword="null" /> if not mapped to a view.
     /// </summary>
-    /// <param name="entityType">The entity type to get the table name for.</param>
-    /// <returns>The name of the table to which the entity type is mapped prepended by the schema.</returns>
+    /// <param name="entityType">The entity type to get the view name for.</param>
+    /// <returns>The name of the view to which the entity type is mapped prepended by the schema.</returns>
     public static string? GetSchemaQualifiedViewName(this IReadOnlyEntityType entityType)
     {
         var viewName = entityType.GetViewName();
@@ -506,8 +506,8 @@ public static class RelationalEntityTypeExtensions
     /// <summary>
     ///     Returns the SQL string mappings.
     /// </summary>
-    /// <param name="entityType">The entity type to get the function mappings for.</param>
-    /// <returns>The functions to which the entity type is mapped.</returns>
+    /// <param name="entityType">The entity type to get the SQL string mappings for.</param>
+    /// <returns>The SQL string to which the entity type is mapped.</returns>
     public static IEnumerable<ISqlQueryMapping> GetSqlQueryMappings(this IEntityType entityType)
         => (IEnumerable<ISqlQueryMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.SqlQueryMappings)
@@ -573,7 +573,278 @@ public static class RelationalEntityTypeExtensions
                 RelationalAnnotationNames.FunctionMappings)
             ?? Enumerable.Empty<IFunctionMapping>();
 
-    #endregion Function mapping
+    #endregion
+
+    #region SProc mapping
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for deletes
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IReadOnlyStoredProcedure? GetDeleteStoredProcedure(this IReadOnlyEntityType entityType)
+        => StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for deletes
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IMutableStoredProcedure? GetDeleteStoredProcedure(this IMutableEntityType entityType)
+        => (IMutableStoredProcedure?)StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for deletes
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IConventionStoredProcedure? GetDeleteStoredProcedure(this IConventionEntityType entityType)
+        => (IConventionStoredProcedure?)StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for deletes
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IStoredProcedure? GetDeleteStoredProcedure(this IEntityType entityType)
+        => StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Maps the entity type to a stored procedure for deletes.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The new stored procedure.</returns>
+    public static IMutableStoredProcedure SetDeleteStoredProcedure(this IMutableEntityType entityType)
+        => StoredProcedure.SetStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Maps the entity type to a stored procedure for deletes.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The new stored procedure.</returns>
+    public static IConventionStoredProcedure? SetDeleteStoredProcedure(
+        this IConventionEntityType entityType,
+        bool fromDataAnnotation = false)
+        => StoredProcedure.SetStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure, fromDataAnnotation);
+
+    /// <summary>
+    ///     Removes the mapped delete stored procedure for this entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The removed stored procedure.</returns>
+    public static IMutableStoredProcedure? RemoveDeleteStoredProcedure(this IMutableEntityType entityType)
+        => StoredProcedure.RemoveStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Removes the mapped delete stored procedure for this entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The removed stored procedure.</returns>
+    public static IConventionStoredProcedure? RemoveDeleteStoredProcedure(this IConventionEntityType entityType)
+        => StoredProcedure.RemoveStoredProcedure(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the delete stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the delete stored procedure.</returns>
+    public static ConfigurationSource? GetDeleteStoredProcedureConfigurationSource(this IConventionEntityType entityType)
+        => StoredProcedure.GetStoredProcedureConfigurationSource(entityType, StoreObjectType.DeleteStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for inserts
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IReadOnlyStoredProcedure? GetInsertStoredProcedure(this IReadOnlyEntityType entityType)
+        => StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for inserts
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IMutableStoredProcedure? GetInsertStoredProcedure(this IMutableEntityType entityType)
+        => (IMutableStoredProcedure?)StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for inserts
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IConventionStoredProcedure? GetInsertStoredProcedure(this IConventionEntityType entityType)
+        => (IConventionStoredProcedure?)StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for inserts
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IStoredProcedure? GetInsertStoredProcedure(this IEntityType entityType)
+        => StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Maps the entity type to a stored procedure for inserts.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The new stored procedure.</returns>
+    public static IMutableStoredProcedure SetInsertStoredProcedure(this IMutableEntityType entityType)
+        => StoredProcedure.SetStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Maps the entity type to a stored procedure for inserts.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The new stored procedure.</returns>
+    public static IConventionStoredProcedure? SetInsertStoredProcedure(
+        this IConventionEntityType entityType,
+        bool fromDataAnnotation = false)
+        => StoredProcedure.SetStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure, fromDataAnnotation);
+
+    /// <summary>
+    ///     Removes the mapped insert stored procedure for this entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The removed stored procedure.</returns>
+    public static IMutableStoredProcedure? RemoveInsertStoredProcedure(this IMutableEntityType entityType)
+        => StoredProcedure.RemoveStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Removes the mapped insert stored procedure for this entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The removed stored procedure.</returns>
+    public static IConventionStoredProcedure? RemoveInsertStoredProcedure(this IConventionEntityType entityType)
+        => StoredProcedure.RemoveStoredProcedure(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the insert stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the insert stored procedure.</returns>
+    public static ConfigurationSource? GetInsertStoredProcedureConfigurationSource(this IConventionEntityType entityType)
+        => StoredProcedure.GetStoredProcedureConfigurationSource(entityType, StoreObjectType.InsertStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for updates
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IReadOnlyStoredProcedure? GetUpdateStoredProcedure(this IReadOnlyEntityType entityType)
+        => StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for updates
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IMutableStoredProcedure? GetUpdateStoredProcedure(this IMutableEntityType entityType)
+        => (IMutableStoredProcedure?)StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for updates
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IConventionStoredProcedure? GetUpdateStoredProcedure(this IConventionEntityType entityType)
+        => (IConventionStoredProcedure?)StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Returns the stored procedure to which the entity type is mapped for updates
+    ///     or <see langword="null" /> if not mapped to a stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The stored procedure to which the entity type is mapped.</returns>
+    public static IStoredProcedure? GetUpdateStoredProcedure(this IEntityType entityType)
+        => StoredProcedure.FindStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Maps the entity type to a stored procedure for updates.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The new stored procedure.</returns>
+    public static IMutableStoredProcedure SetUpdateStoredProcedure(this IMutableEntityType entityType)
+        => StoredProcedure.SetStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Maps the entity type to a stored procedure for updates.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The new stored procedure.</returns>
+    public static IConventionStoredProcedure? SetUpdateStoredProcedure(
+        this IConventionEntityType entityType,
+        bool fromDataAnnotation = false)
+        => StoredProcedure.SetStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure, fromDataAnnotation);
+
+    /// <summary>
+    ///     Removes the mapped update stored procedure for this entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The removed stored procedure.</returns>
+    public static IMutableStoredProcedure? RemoveUpdateStoredProcedure(this IMutableEntityType entityType)
+        => StoredProcedure.RemoveStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Removes the mapped update stored procedure for this entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The removed stored procedure.</returns>
+    public static IConventionStoredProcedure? RemoveUpdateStoredProcedure(this IConventionEntityType entityType)
+        => StoredProcedure.RemoveStoredProcedure(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the update stored procedure.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the update stored procedure.</returns>
+    public static ConfigurationSource? GetUpdateStoredProcedureConfigurationSource(this IConventionEntityType entityType)
+        => StoredProcedure.GetStoredProcedureConfigurationSource(entityType, StoreObjectType.UpdateStoredProcedure);
+
+    /// <summary>
+    ///     Returns the insert stored procedures to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The insert stored procedures to which the entity type is mapped.</returns>
+    public static IEnumerable<IStoredProcedureMapping> GetInsertStoredProcedureMappings(this IEntityType entityType)
+        => (IEnumerable<IStoredProcedureMapping>?)entityType.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.InsertStoredProcedureMappings)
+            ?? Enumerable.Empty<IStoredProcedureMapping>();
+
+    /// <summary>
+    ///     Returns the delete stored procedures to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The delete stored procedures to which the entity type is mapped.</returns>
+    public static IEnumerable<IStoredProcedureMapping> GetDeleteStoredProcedureMappings(this IEntityType entityType)
+        => (IEnumerable<IStoredProcedureMapping>?)entityType.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.DeleteStoredProcedureMappings)
+            ?? Enumerable.Empty<IStoredProcedureMapping>();
+    
+    /// <summary>
+    ///     Returns the update stored procedures to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The update stored procedures to which the entity type is mapped.</returns>
+    public static IEnumerable<IStoredProcedureMapping> GetUpdateStoredProcedureMappings(this IEntityType entityType)
+        => (IEnumerable<IStoredProcedureMapping>?)entityType.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.UpdateStoredProcedureMappings)
+            ?? Enumerable.Empty<IStoredProcedureMapping>();
+
+    #endregion
 
     #region Check constraint
 
@@ -827,6 +1098,8 @@ public static class RelationalEntityTypeExtensions
             ?.GetConfigurationSource();
 
     #endregion Comment
+
+    #region Mapping Fragments
 
     /// <summary>
     ///     <para>
@@ -1097,6 +1370,10 @@ public static class RelationalEntityTypeExtensions
         in StoreObjectIdentifier storeObject)
         => EntityTypeMappingFragment.Remove((IMutableEntityType)entityType, storeObject);
 
+    #endregion
+
+    #region Table sharing
+
     /// <summary>
     ///     Gets the foreign keys for the given entity type that point to other entity types
     ///     sharing the same table-like store object.
@@ -1168,6 +1445,8 @@ public static class RelationalEntityTypeExtensions
             in StoreObjectIdentifier storeObject)
         // ReSharper disable once RedundantCast
         => ((IReadOnlyEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IForeignKey>();
+
+    #endregion
 
     #region IsTableExcludedFromMigrations
 

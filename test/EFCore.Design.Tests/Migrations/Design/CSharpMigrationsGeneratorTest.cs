@@ -49,10 +49,18 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ViewColumnMappings,
             RelationalAnnotationNames.SqlQueryColumnMappings,
             RelationalAnnotationNames.FunctionColumnMappings,
+            RelationalAnnotationNames.InsertStoredProcedureParameterMappings,
+            RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings,
             RelationalAnnotationNames.DefaultColumnMappings,
             RelationalAnnotationNames.TableMappings,
             RelationalAnnotationNames.ViewMappings,
             RelationalAnnotationNames.FunctionMappings,
+            RelationalAnnotationNames.InsertStoredProcedureMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureMappings,
             RelationalAnnotationNames.SqlQueryMappings,
             RelationalAnnotationNames.DefaultMappings,
             RelationalAnnotationNames.ForeignKeyMappings,
@@ -75,13 +83,13 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.IsFixedLength,
             RelationalAnnotationNames.Collation,
             RelationalAnnotationNames.IsStored,
+            RelationalAnnotationNames.ParameterDirection,
             RelationalAnnotationNames.TpcMappingStrategy,
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
-            RelationalAnnotationNames.Triggers, // Appears on entity but requires provider-specific support
-            RelationalAnnotationNames.GetReaderFieldValue
+            RelationalAnnotationNames.FieldValueGetter
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -199,10 +207,18 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ViewColumnMappings,
             RelationalAnnotationNames.SqlQueryColumnMappings,
             RelationalAnnotationNames.FunctionColumnMappings,
+            RelationalAnnotationNames.InsertStoredProcedureParameterMappings,
+            RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings,
             RelationalAnnotationNames.DefaultColumnMappings,
             RelationalAnnotationNames.TableMappings,
             RelationalAnnotationNames.ViewMappings,
             RelationalAnnotationNames.FunctionMappings,
+            RelationalAnnotationNames.InsertStoredProcedureMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureMappings,
             RelationalAnnotationNames.SqlQueryMappings,
             RelationalAnnotationNames.ForeignKeyMappings,
             RelationalAnnotationNames.TableIndexMappings,
@@ -224,7 +240,7 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.Triggers,
-            RelationalAnnotationNames.GetReaderFieldValue
+            RelationalAnnotationNames.FieldValueGetter
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";

@@ -43,6 +43,8 @@ public static class DbContextActivator
     {
         Check.NotNull(contextType, nameof(contextType));
 
+        EF.IsDesignTime = true;
+
         return new DbContextOperations(
                 new OperationReporter(reportHandler),
                 contextType.Assembly,

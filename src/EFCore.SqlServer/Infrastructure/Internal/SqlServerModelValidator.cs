@@ -126,7 +126,8 @@ public class SqlServerModelValidator : RelationalModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties()
                          .Where(
-                             p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
+                             p => (p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
+                                     || p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.Sequence)
                                  && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
                                  && !p.IsKey()
                                  && p.ValueGenerated != ValueGenerated.Never
@@ -135,6 +136,29 @@ public class SqlServerModelValidator : RelationalModelValidator
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void ValidateValueGeneration(
+        IEntityType entityType,
+        IKey key,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (entityType.GetTableName() != null
+            && (string?)entityType[RelationalAnnotationNames.MappingStrategy] == RelationalAnnotationNames.TpcMappingStrategy)
+        {
+            foreach (var storeGeneratedProperty in key.Properties.Where(
+                         p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
+                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+            {
+                logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
             }
         }
     }

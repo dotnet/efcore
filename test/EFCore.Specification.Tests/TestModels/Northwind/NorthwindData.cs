@@ -5,6 +5,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 public partial class NorthwindData : ISetSource
 {
+    public static readonly NorthwindData Instance = new();
+
     public Customer[] Customers { get; }
     public CustomerQuery[] CustomerQueries { get; }
     public CustomerQueryWithQueryFilter[] CustomerQueriesWithQueryFilter { get; }

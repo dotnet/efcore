@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IStoreFunction : ITableBase
 {
     /// <summary>
-    ///     Gets the associated <see cref="IDbFunction" />s.
+    ///     Gets the associated model functions.
     /// </summary>
     IEnumerable<IDbFunction> DbFunctions { get; }
 

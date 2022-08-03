@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     Represents a column in a SQL query.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public interface ISqlQueryColumn : IColumnBase
@@ -23,6 +23,14 @@ public interface ISqlQueryColumn : IColumnBase
     ///     Gets the property mappings.
     /// </summary>
     new IReadOnlyList<ISqlQueryColumnMapping> PropertyMappings { get; }
+
+    /// <summary>
+    ///     Returns the property mapping for the given entity type.
+    /// </summary>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
+    new ISqlQueryColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+        => (ISqlQueryColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
 
     /// <summary>
     ///     <para>

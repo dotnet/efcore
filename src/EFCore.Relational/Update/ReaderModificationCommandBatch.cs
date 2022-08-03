@@ -24,6 +24,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     private readonly List<IReadOnlyModificationCommand> _modificationCommands = new();
     private readonly int _batchHeaderLength;
     private bool _requiresTransaction = true;
+    private bool _areMoreBatchesExpected;
     private int _sqlBuilderPosition, _commandResultSetCount, _resultsPositionalMappingEnabledLength;
     private int _pendingParameters;
 
@@ -175,6 +176,10 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     public override bool RequiresTransaction
         => _requiresTransaction;
 
+    /// <inheritdoc />
+    public override bool AreMoreBatchesExpected
+        => _areMoreBatchesExpected;
+    
     /// <summary>
     ///     Sets whether the batch requires a transaction in order to execute correctly.
     /// </summary>
@@ -230,13 +235,15 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     }
 
     /// <inheritdoc />
-    public override void Complete()
+    public override void Complete(bool moreBatchesExpected)
     {
         if (StoreCommand is not null)
         {
             throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchAlreadyComplete);
         }
 
+        _areMoreBatchesExpected = moreBatchesExpected;
+        
         // Some database have a mode where autocommit is off, and so executing a command outside of an explicit transaction implicitly
         // creates a new transaction (which needs to be explicitly committed).
         // The below is a hook for allowing providers to turn autocommit on, in case it's off.

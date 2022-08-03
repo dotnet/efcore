@@ -28,21 +28,15 @@ public interface IBatchExecutor
     /// <summary>
     ///     Executes the commands in the batches against the given database connection.
     /// </summary>
-    /// <param name="commandBatches">
-    ///     A list of value tuples, each of which contains a batch to execute, and whether more batches are available.
-    /// </param>
+    /// <param name="commandBatches">The batches to execute.</param>
     /// <param name="connection">The database connection to use.</param>
     /// <returns>The total number of rows affected.</returns>
-    int Execute(
-        IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> commandBatches,
-        IRelationalConnection connection);
+    int Execute(IEnumerable<ModificationCommandBatch> commandBatches, IRelationalConnection connection);
 
     /// <summary>
     ///     Executes the commands in the batches against the given database connection.
     /// </summary>
-    /// <param name="commandBatches">
-    ///     A list of value tuples, each of which contains a batch to execute, and whether more batches are available.
-    /// </param>
+    /// <param name="commandBatches">The batches to execute.</param>
     /// <param name="connection">The database connection to use.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -51,7 +45,7 @@ public interface IBatchExecutor
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     Task<int> ExecuteAsync(
-        IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> commandBatches,
+        IEnumerable<ModificationCommandBatch> commandBatches,
         IRelationalConnection connection,
         CancellationToken cancellationToken = default);
 }

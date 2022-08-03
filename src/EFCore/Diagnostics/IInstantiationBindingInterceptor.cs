@@ -17,9 +17,8 @@ public interface IInstantiationBindingInterceptor : ISingletonInterceptor
     /// <summary>
     ///     Returns a new <see cref="InstantiationBinding" /> for the given entity type, potentially modified from the given binding.
     /// </summary>
-    /// <param name="entityType">The entity type for which the binding is being used.</param>
-    /// <param name="entityInstanceName">The name of the instance being materialized.</param>
+    /// <param name="interceptionData">Contextual information about the binding.</param>
     /// <param name="binding">The current binding.</param>
     /// <returns>A new binding.</returns>
-    InstantiationBinding ModifyBinding(IEntityType entityType, string entityInstanceName, InstantiationBinding binding);
+    InstantiationBinding ModifyBinding(InstantiationBindingInterceptionData interceptionData, InstantiationBinding binding);
 }

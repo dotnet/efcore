@@ -126,10 +126,9 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <summary>
     ///     Removes the discriminator value for this entity type.
     /// </summary>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The removed discriminator value.</returns>
-    object? RemoveDiscriminatorValue(bool fromDataAnnotation = false)
-        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue, fromDataAnnotation)?.Value;
+    object? RemoveDiscriminatorValue()
+        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.

@@ -113,7 +113,14 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     {
         if (!HasSharedClrType)
         {
-            return ClrType.ShortDisplayName();
+            var name = ClrType.ShortDisplayName();
+            var lessIndex = name.IndexOf("<", StringComparison.Ordinal);
+            if (lessIndex == -1)
+            {
+                return name;
+            }
+
+            return name[..lessIndex];
         }
 
         var hashIndex = Name.LastIndexOf("#", StringComparison.Ordinal);

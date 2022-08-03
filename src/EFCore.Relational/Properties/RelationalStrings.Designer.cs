@@ -1092,6 +1092,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 mappingStrategy, entityType);
 
         /// <summary>
+        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the stored procedure '{sproc}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different stored procedures. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string NonTphStoredProcedureClash(object? entityType, object? otherEntityType, object? sproc)
+            => string.Format(
+                GetString("NonTphStoredProcedureClash", nameof(entityType), nameof(otherEntityType), nameof(sproc)),
+                entityType, otherEntityType, sproc);
+
+        /// <summary>
         ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string NonTphTableClash(object? entityType, object? otherEntityType, object? table)
@@ -1222,6 +1230,110 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, query);
 
         /// <summary>
+        ///     The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.
+        /// </summary>
+        public static string StoredProcedureDeleteNonKeyProperty(object? entityType, object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDeleteNonKeyProperty", nameof(entityType), nameof(property), nameof(sproc)),
+                entityType, property, sproc);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.
+        /// </summary>
+        public static string StoredProcedureGeneratedPropertiesNotMapped(object? entityType, object? sproc, object? properties)
+            => string.Format(
+                GetString("StoredProcedureGeneratedPropertiesNotMapped", nameof(entityType), nameof(sproc), nameof(properties)),
+                entityType, sproc, properties);
+
+        /// <summary>
+        ///     The keyless entity type '{entityType}' was configured to use '{sproc}'. An entity type requires a primary key to be able to be mapped to a stored procedure.
+        /// </summary>
+        public static string StoredProcedureKeyless(object? entityType, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureKeyless", nameof(entityType), nameof(sproc)),
+                entityType, sproc);
+
+        /// <summary>
+        ///     The entity type '{entityType}' was configured to use '{sproc}', but the store name was not specified. Configure the stored procedure name explicitly.
+        /// </summary>
+        public static string StoredProcedureNoName(object? entityType, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureNoName", nameof(entityType), nameof(sproc)),
+                entityType, sproc);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.
+        /// </summary>
+        public static string StoredProcedureOutputParameterNotGenerated(object? entityType, object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureOutputParameterNotGenerated", nameof(entityType), nameof(property), nameof(sproc)),
+                entityType, property, sproc);
+
+        /// <summary>
+        ///     The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.
+        /// </summary>
+        public static string StoredProcedureOverrideMismatch(object? propertySpecification, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureOverrideMismatch", nameof(propertySpecification), nameof(sproc)),
+                propertySpecification, sproc);
+
+        /// <summary>
+        ///     No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'
+        /// </summary>
+        public static string StoredProcedureParameterNotFound(object? property, object? entityType, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureParameterNotFound", nameof(property), nameof(entityType), nameof(sproc)),
+                property, entityType, sproc);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the properties {properties} are not mapped to any parameter or result column.
+        /// </summary>
+        public static string StoredProcedurePropertiesNotMapped(object? entityType, object? sproc, object? properties)
+            => string.Format(
+                GetString("StoredProcedurePropertiesNotMapped", nameof(entityType), nameof(sproc), nameof(properties)),
+                entityType, sproc, properties);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but store-generated values are not supported for Delete stored procedures.
+        /// </summary>
+        public static string StoredProcedureResultColumnDelete(object? entityType, object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureResultColumnDelete", nameof(entityType), nameof(property), nameof(sproc)),
+                entityType, property, sproc);
+
+        /// <summary>
+        ///     No property named '{property}' found on the entity type '{entityType}' corresponding to the result column on the stored procedure '{sproc}'
+        /// </summary>
+        public static string StoredProcedureResultColumnNotFound(object? property, object? entityType, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureResultColumnNotFound", nameof(property), nameof(entityType), nameof(sproc)),
+                property, entityType, sproc);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is not configured as store-generated.
+        /// </summary>
+        public static string StoredProcedureResultColumnNotGenerated(object? entityType, object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureResultColumnNotGenerated", nameof(entityType), nameof(property), nameof(sproc)),
+                entityType, property, sproc);
+
+        /// <summary>
+        ///     Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.
+        /// </summary>
+        public static string StoredProcedureTableSharing(object? entityType1, object? entityType2, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureTableSharing", nameof(entityType1), nameof(entityType2), nameof(sproc)),
+                entityType1, entityType2, sproc);
+
+        /// <summary>
+        ///     Both '{entityType}' and  '{otherEntityType}' are explicitly mapped to the stored procedure '{sproc}' using the 'TPH' mapping strategy. Configure the stored procedure mapping on the root entity type, including all parameters for the derived types. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string StoredProcedureTphDuplicate(object? entityType, object? otherEntityType, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureTphDuplicate", nameof(entityType), nameof(otherEntityType), nameof(sproc)),
+                entityType, otherEntityType, sproc);
+
+        /// <summary>
         ///     The entity type '{entityType}' is not mapped to the store object '{table}'.
         /// </summary>
         public static string TableNotMappedEntityType(object? entityType, object? table)
@@ -1238,7 +1350,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, table);
 
         /// <summary>
-        ///     The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.
+        ///     The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy but does not contain a discriminator property. Only TPH hierarchies can be mapped to a TVF.
         /// </summary>
         public static string TableValuedFunctionNonTph(object? dbFunction, object? entityType)
             => string.Format(
@@ -1270,7 +1382,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expected, actual);
 
         /// <summary>
-        ///     The entity type '{dependentType}' is mapped to '{storeObject}'. However the principal entity type '{principalEntityType}' is also mapped to '{storeObject}' and it's using the TPC mapping strategy. Only leaf entity types in a TPC hierarchy can use table-sharing.
+        ///     The entity type '{dependentType}' is mapped to '{storeObject}'. However the principal entity type '{principalEntityType}' is also mapped to '{storeObject}' and it's using the TPC mapping strategy. Entity types in a TPC hierarchy can use table-sharing only if they have no derived types.
         /// </summary>
         public static string TpcTableSharing(object? dependentType, object? storeObject, object? principalEntityType)
             => string.Format(
@@ -1284,6 +1396,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("TpcTableSharingDependent", nameof(dependentType), nameof(storeObject), nameof(derivedType), nameof(otherStoreObject)),
                 dependentType, storeObject, derivedType, otherStoreObject);
+
+        /// <summary>
+        ///     '{entityType}' is mapped to the database function '{function}' while '{otherEntityType}' is mapped to the database function '{otherFunction}'. Map all the entity types in the hierarchy to the same database function. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string TphDbFunctionMismatch(object? entityType, object? function, object? otherEntityType, object? otherFunction)
+            => string.Format(
+                GetString("TphDbFunctionMismatch", nameof(entityType), nameof(function), nameof(otherEntityType), nameof(otherFunction)),
+                entityType, function, otherEntityType, otherFunction);
+
+        /// <summary>
+        ///     '{entityType}' is mapped to the stored procedure '{sproc}' while '{otherEntityType}' is mapped to the stored procedure '{otherSproc}'. Map all the entity types in the hierarchy to the same stored procedure, or remove the discriminator and map them all to different stored procedures. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
+        /// </summary>
+        public static string TphStoredProcedureMismatch(object? entityType, object? sproc, object? otherEntityType, object? otherSproc)
+            => string.Format(
+                GetString("TphStoredProcedureMismatch", nameof(entityType), nameof(sproc), nameof(otherEntityType), nameof(otherSproc)),
+                entityType, sproc, otherEntityType, otherSproc);
 
         /// <summary>
         ///     '{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
@@ -2506,23 +2634,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Either all or some of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.
         /// </summary>
-        public static EventDefinition<string, string, string> LogKeyUnmappedProperties(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string> LogKeyPropertiesNotMappedToTable(IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogKeyUnmappedProperties;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogKeyPropertiesNotMappedToTable;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogKeyUnmappedProperties,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogKeyPropertiesNotMappedToTable,
                     logger,
                     static logger => new EventDefinition<string, string, string>(
                         logger.Options,
-                        RelationalEventId.KeyUnmappedProperties,
+                        RelationalEventId.KeyPropertiesNotMappedToTable,
                         LogLevel.Error,
-                        "RelationalEventId.KeyUnmappedProperties",
+                        "RelationalEventId.KeyPropertiesNotMappedToTable",
                         level => LoggerMessage.Define<string, string, string>(
                             level,
-                            RelationalEventId.KeyUnmappedProperties,
-                            _resourceManager.GetString("LogKeyUnmappedProperties")!)));
+                            RelationalEventId.KeyPropertiesNotMappedToTable,
+                            _resourceManager.GetString("LogKeyPropertiesNotMappedToTable")!)));
             }
 
             return (EventDefinition<string, string, string>)definition;
@@ -3051,7 +3179,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is configured with a database-generated default, however the entity type is mapped to the database using table per concrete class strategy. Make sure that the generated values are unique across all the tables, duplicated values could result in errors or data corruption.
+        ///     The entity type '{entityType}' is using the table per concrete type mapping strategy, but property '{property}' is configured with an incompatible database-generated default. Configure a compatible value generation strategy if available, or use non-generated key values.
         /// </summary>
         public static EventDefinition<string, string> LogTpcStoreGeneratedIdentity(IDiagnosticsLogger logger)
         {

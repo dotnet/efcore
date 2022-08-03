@@ -219,7 +219,7 @@ public class ModelSnapshotSqlServerTest
     {
         public int Id { get; set; }
     }
-    
+
     private class BaseEntity : AbstractBase
     {
         public string Discriminator { get; set; }
@@ -374,6 +374,44 @@ public class ModelSnapshotSqlServerTest
                 Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, o.GetValueGenerationStrategy());
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.SequenceHiLo,
+                    o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
+            });
+
+    [ConditionalFact]
+    public virtual void Model_fluent_APIs_for_sequence_key_are_properly_generated()
+        => Test(
+            builder =>
+            {
+                builder.UseKeySequences();
+                builder.Entity<EntityWithOneProperty>();
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                @"
+            modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, ""Sequence"");
+
+            modelBuilder.HasSequence(""EntityWithOnePropertySequence"");
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasDefaultValueSql(""NEXT VALUE FOR [EntityWithOnePropertySequence]"");
+
+                    SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>(""Id""));
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithOneProperty"");
+                });"),
+            o =>
+            {
+                Assert.Equal(SqlServerValueGenerationStrategy.Sequence, o.GetValueGenerationStrategy());
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.Sequence,
                     o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
             });
 
@@ -641,13 +679,16 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 GetHeading()
                 + @"
+            modelBuilder.HasSequence(""AbstractBaseSequence"");
+
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType(""int"");
+                        .HasColumnType(""int"")
+                        .HasDefaultValueSql(""NEXT VALUE FOR [AbstractBaseSequence]"");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
+                    SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>(""Id""));
 
                     b.HasKey(""Id"");
 
@@ -676,7 +717,7 @@ public class ModelSnapshotSqlServerTest
                 });"),
             model =>
             {
-                Assert.Equal(4, model.GetAnnotations().Count());
+                Assert.Equal(5, model.GetAnnotations().Count());
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
                 var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
@@ -1094,7 +1135,8 @@ public class ModelSnapshotSqlServerTest
             builder =>
             {
                 builder.HasDefaultSchema("default");
-                builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null);
+                builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null)
+                    .UpdateUsingStoredProcedure("Update", "sproc", p => p.HasParameter(e => e.Id));
             },
             AddBoilerPlate(
                 @"
@@ -1226,7 +1268,7 @@ public class ModelSnapshotSqlServerTest
             model =>
             {
                 Assert.Equal(5, model.GetAnnotations().Count());
-                
+
                 var sequence = model.GetSequences().Single();
                 Assert.Equal(2, sequence.StartValue);
                 Assert.Equal(1, sequence.MinValue);
@@ -4880,7 +4922,9 @@ namespace RootNamespace
                 builder.Entity<EntityWithThreeProperties>(
                     e =>
                     {
-                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_empty");
+                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_unspecified");
+                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_empty")
+                            .IsDescending();
                         e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_all_ascending")
                             .IsDescending(false, false, false);
                         e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_all_descending")
@@ -4911,32 +4955,37 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_ascending"")
-                        .IsDescending(false, false, false);
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_ascending"");
 
                     b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_descending"")
-                        .IsDescending(true, true, true);
+                        .IsDescending();
 
-                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_empty"");
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_empty"")
+                        .IsDescending();
 
                     b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_mixed"")
                         .IsDescending(false, true, false);
+
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_unspecified"");
 
                     b.ToTable(""EntityWithThreeProperties"");
                 });"),
             o =>
             {
                 var entityType = o.GetEntityTypes().Single();
-                Assert.Equal(4, entityType.GetIndexes().Count());
+                Assert.Equal(5, entityType.GetIndexes().Count());
+
+                var unspecifiedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_unspecified");
+                Assert.Null(unspecifiedIndex.IsDescending);
 
                 var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-                Assert.Null(emptyIndex.IsDescending);
+                Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
 
                 var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
-                Assert.Equal(new[] { false, false, false}, allAscendingIndex.IsDescending);
+                Assert.Null(allAscendingIndex.IsDescending);
 
                 var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
-                Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);
+                Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
 
                 var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
                 Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);

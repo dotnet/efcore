@@ -15,420 +15,418 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : SharedStoreFixt
         => () => CreateContext();
 
     public virtual ISetSource GetExpectedData()
-        => new InheritanceRelationshipsData();
+        => InheritanceRelationshipsData.Instance;
 
-    public IReadOnlyDictionary<Type, object> GetEntitySorters()
-        => new Dictionary<Type, Func<object, object>>
+    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    {
+        { typeof(BaseCollectionOnBase), e => ((BaseCollectionOnBase)e)?.Id },
+        { typeof(DerivedCollectionOnBase), e => ((DerivedCollectionOnBase)e)?.Id },
+        { typeof(BaseCollectionOnDerived), e => ((BaseCollectionOnDerived)e)?.Id },
+        { typeof(DerivedCollectionOnDerived), e => ((DerivedCollectionOnDerived)e)?.Id },
+        { typeof(BaseInheritanceRelationshipEntity), e => ((BaseInheritanceRelationshipEntity)e)?.Id },
+        { typeof(DerivedInheritanceRelationshipEntity), e => ((DerivedInheritanceRelationshipEntity)e)?.Id },
+        { typeof(BaseReferenceOnBase), e => ((BaseReferenceOnBase)e)?.Id },
+        { typeof(DerivedReferenceOnBase), e => ((DerivedReferenceOnBase)e)?.Id },
+        { typeof(BaseReferenceOnDerived), e => ((BaseReferenceOnDerived)e)?.Id },
+        { typeof(DerivedReferenceOnDerived), e => ((DerivedReferenceOnDerived)e)?.Id },
+        { typeof(CollectionOnBase), e => ((CollectionOnBase)e)?.Id },
+        { typeof(CollectionOnDerived), e => ((CollectionOnDerived)e)?.Id },
+        { typeof(NestedCollectionBase), e => ((NestedCollectionBase)e)?.Id },
+        { typeof(NestedCollectionDerived), e => ((NestedCollectionDerived)e)?.Id },
+        { typeof(NestedReferenceBase), e => ((NestedReferenceBase)e)?.Id },
+        { typeof(NonEntityBase), e => ((NonEntityBase)e)?.Id },
+        { typeof(PrincipalEntity), e => ((PrincipalEntity)e)?.Id },
+        { typeof(OwnedEntity), e => ((OwnedEntity)e)?.Id },
+        { typeof(ReferencedEntity), e => ((ReferencedEntity)e)?.Id },
+        { typeof(ReferenceOnBase), e => ((ReferenceOnBase)e)?.Id },
+        { typeof(ReferenceOnDerived), e => ((ReferenceOnDerived)e)?.Id },
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    {
         {
-            { typeof(BaseCollectionOnBase), e => ((BaseCollectionOnBase)e)?.Id },
-            { typeof(DerivedCollectionOnBase), e => ((DerivedCollectionOnBase)e)?.Id },
-            { typeof(BaseCollectionOnDerived), e => ((BaseCollectionOnDerived)e)?.Id },
-            { typeof(DerivedCollectionOnDerived), e => ((DerivedCollectionOnDerived)e)?.Id },
-            { typeof(BaseInheritanceRelationshipEntity), e => ((BaseInheritanceRelationshipEntity)e)?.Id },
-            { typeof(DerivedInheritanceRelationshipEntity), e => ((DerivedInheritanceRelationshipEntity)e)?.Id },
-            { typeof(BaseReferenceOnBase), e => ((BaseReferenceOnBase)e)?.Id },
-            { typeof(DerivedReferenceOnBase), e => ((DerivedReferenceOnBase)e)?.Id },
-            { typeof(BaseReferenceOnDerived), e => ((BaseReferenceOnDerived)e)?.Id },
-            { typeof(DerivedReferenceOnDerived), e => ((DerivedReferenceOnDerived)e)?.Id },
-            { typeof(CollectionOnBase), e => ((CollectionOnBase)e)?.Id },
-            { typeof(CollectionOnDerived), e => ((CollectionOnDerived)e)?.Id },
-            { typeof(NestedCollectionBase), e => ((NestedCollectionBase)e)?.Id },
-            { typeof(NestedCollectionDerived), e => ((NestedCollectionDerived)e)?.Id },
-            { typeof(NestedReferenceBase), e => ((NestedReferenceBase)e)?.Id },
-            { typeof(NonEntityBase), e => ((NonEntityBase)e)?.Id },
-            { typeof(PrincipalEntity), e => ((PrincipalEntity)e)?.Id },
-            { typeof(OwnedEntity), e => ((OwnedEntity)e)?.Id },
-            { typeof(ReferencedEntity), e => ((ReferencedEntity)e)?.Id },
-            { typeof(ReferenceOnBase), e => ((ReferenceOnBase)e)?.Id },
-            { typeof(ReferenceOnDerived), e => ((ReferenceOnDerived)e)?.Id },
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+            typeof(BaseCollectionOnBase), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
 
-    public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-        => new Dictionary<Type, Action<object, object>>
+                if (a != null)
+                {
+                    var ee = (BaseCollectionOnBase)e;
+                    var aa = (BaseCollectionOnBase)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.BaseParentId, aa.BaseParentId);
+                }
+            }
+        },
         {
+            typeof(DerivedCollectionOnBase), (e, a) =>
             {
-                typeof(BaseCollectionOnBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (DerivedCollectionOnBase)e;
+                    var aa = (DerivedCollectionOnBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (BaseCollectionOnBase)e;
-                        var aa = (BaseCollectionOnBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.BaseParentId, aa.BaseParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.BaseParentId, aa.BaseParentId);
+                    Assert.Equal(ee.DerivedProperty, aa.DerivedProperty);
                 }
-            },
+            }
+        },
+        {
+            typeof(BaseCollectionOnDerived), (e, a) =>
             {
-                typeof(DerivedCollectionOnBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (BaseCollectionOnDerived)e;
+                    var aa = (BaseCollectionOnDerived)a;
 
-                    if (a != null)
-                    {
-                        var ee = (DerivedCollectionOnBase)e;
-                        var aa = (DerivedCollectionOnBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.BaseParentId, aa.BaseParentId);
-                        Assert.Equal(ee.DerivedProperty, aa.DerivedProperty);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(DerivedCollectionOnDerived), (e, a) =>
             {
-                typeof(BaseCollectionOnDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (DerivedCollectionOnDerived)e;
+                    var aa = (DerivedCollectionOnDerived)a;
 
-                    if (a != null)
-                    {
-                        var ee = (BaseCollectionOnDerived)e;
-                        var aa = (BaseCollectionOnDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentId, aa.ParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(BaseInheritanceRelationshipEntity), (e, a) =>
             {
-                typeof(DerivedCollectionOnDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (BaseInheritanceRelationshipEntity)e;
+                    var aa = (BaseInheritanceRelationshipEntity)a;
 
-                    if (a != null)
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+
+                    Assert.Equal(ee.OwnedReferenceOnBase?.Id, aa.OwnedReferenceOnBase?.Id);
+                    Assert.Equal(ee.OwnedReferenceOnBase?.Name, aa.OwnedReferenceOnBase?.Name);
+
+                    Assert.Equal(ee.OwnedCollectionOnBase?.Count, aa.OwnedCollectionOnBase?.Count);
+                    if (ee.OwnedCollectionOnBase?.Count > 0)
                     {
-                        var ee = (DerivedCollectionOnDerived)e;
-                        var aa = (DerivedCollectionOnDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentId, aa.ParentId);
-                    }
-                }
-            },
-            {
-                typeof(BaseInheritanceRelationshipEntity), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (BaseInheritanceRelationshipEntity)e;
-                        var aa = (BaseInheritanceRelationshipEntity)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-
-                        Assert.Equal(ee.OwnedReferenceOnBase?.Id, aa.OwnedReferenceOnBase?.Id);
-                        Assert.Equal(ee.OwnedReferenceOnBase?.Name, aa.OwnedReferenceOnBase?.Name);
-
-                        Assert.Equal(ee.OwnedCollectionOnBase?.Count, aa.OwnedCollectionOnBase?.Count);
-                        if (ee.OwnedCollectionOnBase?.Count > 0)
+                        var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                        var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                        for (var i = 0; i < orderedExpected.Count; i++)
                         {
-                            var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
-                            var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
-                            for (var i = 0; i < orderedExpected.Count; i++)
-                            {
-                                Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
-                                Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
-                            }
+                            Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
+                            Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
                         }
                     }
                 }
-            },
+            }
+        },
+        {
+            typeof(DerivedInheritanceRelationshipEntity), (e, a) =>
             {
-                typeof(DerivedInheritanceRelationshipEntity), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (DerivedInheritanceRelationshipEntity)e;
+                    var aa = (DerivedInheritanceRelationshipEntity)a;
 
-                    if (a != null)
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.BaseId, aa.BaseId);
+
+                    Assert.Equal(ee.OwnedReferenceOnBase?.Id, aa.OwnedReferenceOnBase?.Id);
+                    Assert.Equal(ee.OwnedReferenceOnBase?.Name, aa.OwnedReferenceOnBase?.Name);
+
+                    Assert.Equal(ee.OwnedReferenceOnDerived?.Id, aa.OwnedReferenceOnDerived?.Id);
+                    Assert.Equal(ee.OwnedReferenceOnDerived?.Name, aa.OwnedReferenceOnDerived?.Name);
+
+                    Assert.Equal(ee.OwnedCollectionOnBase?.Count, aa.OwnedCollectionOnBase?.Count);
+                    if (ee.OwnedCollectionOnBase?.Count > 0)
                     {
-                        var ee = (DerivedInheritanceRelationshipEntity)e;
-                        var aa = (DerivedInheritanceRelationshipEntity)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.BaseId, aa.BaseId);
-
-                        Assert.Equal(ee.OwnedReferenceOnBase?.Id, aa.OwnedReferenceOnBase?.Id);
-                        Assert.Equal(ee.OwnedReferenceOnBase?.Name, aa.OwnedReferenceOnBase?.Name);
-
-                        Assert.Equal(ee.OwnedReferenceOnDerived?.Id, aa.OwnedReferenceOnDerived?.Id);
-                        Assert.Equal(ee.OwnedReferenceOnDerived?.Name, aa.OwnedReferenceOnDerived?.Name);
-
-                        Assert.Equal(ee.OwnedCollectionOnBase?.Count, aa.OwnedCollectionOnBase?.Count);
-                        if (ee.OwnedCollectionOnBase?.Count > 0)
+                        var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                        var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                        for (var i = 0; i < orderedExpected.Count; i++)
                         {
-                            var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
-                            var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
-                            for (var i = 0; i < orderedExpected.Count; i++)
-                            {
-                                Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
-                                Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
-                            }
-                        }
-
-                        Assert.Equal(ee.OwnedCollectionOnDerived?.Count, aa.OwnedCollectionOnDerived?.Count);
-                        if (ee.OwnedCollectionOnDerived?.Count > 0)
-                        {
-                            var orderedExpected = ee.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
-                            var orderedActual = aa.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
-                            for (var i = 0; i < orderedExpected.Count; i++)
-                            {
-                                Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
-                                Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
-                            }
+                            Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
+                            Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
                         }
                     }
-                }
-            },
-            {
-                typeof(BaseReferenceOnBase), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
 
-                    if (a != null)
+                    Assert.Equal(ee.OwnedCollectionOnDerived?.Count, aa.OwnedCollectionOnDerived?.Count);
+                    if (ee.OwnedCollectionOnDerived?.Count > 0)
                     {
-                        var ee = (BaseReferenceOnBase)e;
-                        var aa = (BaseReferenceOnBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.BaseParentId, aa.BaseParentId);
+                        var orderedExpected = ee.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
+                        var orderedActual = aa.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
+                        for (var i = 0; i < orderedExpected.Count; i++)
+                        {
+                            Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
+                            Assert.Equal(orderedExpected[i].Name, orderedActual[i].Name);
+                        }
                     }
                 }
-            },
+            }
+        },
+        {
+            typeof(BaseReferenceOnBase), (e, a) =>
             {
-                typeof(DerivedReferenceOnBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (BaseReferenceOnBase)e;
+                    var aa = (BaseReferenceOnBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (DerivedReferenceOnBase)e;
-                        var aa = (DerivedReferenceOnBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.BaseParentId, aa.BaseParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.BaseParentId, aa.BaseParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(DerivedReferenceOnBase), (e, a) =>
             {
-                typeof(BaseReferenceOnDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (DerivedReferenceOnBase)e;
+                    var aa = (DerivedReferenceOnBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (BaseReferenceOnDerived)e;
-                        var aa = (BaseReferenceOnDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.BaseParentId, aa.BaseParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.BaseParentId, aa.BaseParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(BaseReferenceOnDerived), (e, a) =>
             {
-                typeof(DerivedReferenceOnDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (BaseReferenceOnDerived)e;
+                    var aa = (BaseReferenceOnDerived)a;
 
-                    if (a != null)
-                    {
-                        var ee = (DerivedReferenceOnDerived)e;
-                        var aa = (DerivedReferenceOnDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.BaseParentId, aa.BaseParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.BaseParentId, aa.BaseParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(DerivedReferenceOnDerived), (e, a) =>
             {
-                typeof(CollectionOnBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (DerivedReferenceOnDerived)e;
+                    var aa = (DerivedReferenceOnDerived)a;
 
-                    if (a != null)
-                    {
-                        var ee = (CollectionOnBase)e;
-                        var aa = (CollectionOnBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentId, aa.ParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.BaseParentId, aa.BaseParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(CollectionOnBase), (e, a) =>
             {
-                typeof(CollectionOnDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (CollectionOnBase)e;
+                    var aa = (CollectionOnBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (CollectionOnDerived)e;
-                        var aa = (CollectionOnDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentId, aa.ParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(CollectionOnDerived), (e, a) =>
             {
-                typeof(NestedCollectionBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (CollectionOnDerived)e;
+                    var aa = (CollectionOnDerived)a;
 
-                    if (a != null)
-                    {
-                        var ee = (NestedCollectionBase)e;
-                        var aa = (NestedCollectionBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
-                        Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
                 }
-            },
+            }
+        },
+        {
+            typeof(NestedCollectionBase), (e, a) =>
             {
-                typeof(NestedCollectionDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (NestedCollectionBase)e;
+                    var aa = (NestedCollectionBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (NestedCollectionDerived)e;
-                        var aa = (NestedCollectionDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
-                        Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
+                    Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
                 }
-            },
+            }
+        },
+        {
+            typeof(NestedCollectionDerived), (e, a) =>
             {
-                typeof(NestedReferenceBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (NestedCollectionDerived)e;
+                    var aa = (NestedCollectionDerived)a;
 
-                    if (a != null)
-                    {
-                        var ee = (NestedReferenceBase)e;
-                        var aa = (NestedReferenceBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
-                        Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
+                    Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
                 }
-            },
+            }
+        },
+        {
+            typeof(NestedReferenceBase), (e, a) =>
             {
-                typeof(NestedReferenceDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (NestedReferenceBase)e;
+                    var aa = (NestedReferenceBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (NestedReferenceDerived)e;
-                        var aa = (NestedReferenceDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
-                        Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
+                    Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
                 }
-            },
+            }
+        },
+        {
+            typeof(NestedReferenceDerived), (e, a) =>
             {
-                typeof(NonEntityBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (NestedReferenceDerived)e;
+                    var aa = (NestedReferenceDerived)a;
 
-                    if (a != null)
-                    {
-                        var ee = (NonEntityBase)e;
-                        var aa = (NonEntityBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
+                    Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
                 }
-            },
+            }
+        },
+        {
+            typeof(NonEntityBase), (e, a) =>
             {
-                typeof(PrincipalEntity), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (NonEntityBase)e;
+                    var aa = (NonEntityBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (PrincipalEntity)e;
-                        var aa = (PrincipalEntity)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(PrincipalEntity), (e, a) =>
             {
-                typeof(ReferencedEntity), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (PrincipalEntity)e;
+                    var aa = (PrincipalEntity)a;
 
-                    if (a != null)
-                    {
-                        var ee = (ReferencedEntity)e;
-                        var aa = (ReferencedEntity)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(ReferencedEntity), (e, a) =>
             {
-                typeof(ReferenceOnBase), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (ReferencedEntity)e;
+                    var aa = (ReferencedEntity)a;
 
-                    if (a != null)
-                    {
-                        var ee = (ReferenceOnBase)e;
-                        var aa = (ReferenceOnBase)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentId, aa.ParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(ReferenceOnBase), (e, a) =>
             {
-                typeof(ReferenceOnDerived), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (ReferenceOnBase)e;
+                    var aa = (ReferenceOnBase)a;
 
-                    if (a != null)
-                    {
-                        var ee = (ReferenceOnDerived)e;
-                        var aa = (ReferenceOnDerived)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.ParentId, aa.ParentId);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
                 }
-            },
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+            }
+        },
+        {
+            typeof(ReferenceOnDerived), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (ReferenceOnDerived)e;
+                    var aa = (ReferenceOnDerived)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
+                }
+            }
+        },
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

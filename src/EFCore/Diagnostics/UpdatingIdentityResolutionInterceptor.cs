@@ -36,12 +36,12 @@ public class UpdatingIdentityResolutionInterceptor : IIdentityResolutionIntercep
     ///     an already tracked instance. This implementation copies property values from the new entity instance into the
     ///     tracked entity instance.
     /// </summary>
-    /// <param name="context">The <see cref="DbContext" /> is use.</param>
+    /// <param name="interceptionData">Contextual information about the identity resolution.</param>
     /// <param name="existingEntry">The entry for the existing tracked entity instance.</param>
-    /// <param name="newInstance">The new entity instance, which will be discarded after this call.</param>
-    public virtual void UpdateTrackedInstance(DbContext context, EntityEntry existingEntry, object newInstance)
+    /// <param name="newEntity">The new entity instance, which will be discarded after this call.</param>
+    public virtual void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity)
     {
-        var tempEntry = context.Entry(newInstance);
+        var tempEntry = interceptionData.Context.Entry(newEntity);
 
         if (existingEntry.State == EntityState.Added)
         {

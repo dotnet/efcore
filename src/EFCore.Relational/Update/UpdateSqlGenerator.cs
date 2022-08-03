@@ -62,6 +62,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         out bool requiresTransaction)
         => AppendInsertReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
 
+    /// <inheritdoc />
+    public virtual ResultSetMapping AppendInsertOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition)
+        => AppendInsertOperation(commandStringBuilder, command, commandPosition, out _);
+
     /// <summary>
     ///     Appends SQL for inserting a row to the commands being built, via an INSERT containing an optional RETURNING clause to retrieve
     ///     any database-generated values.
@@ -105,6 +112,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         int commandPosition,
         out bool requiresTransaction)
         => AppendUpdateReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+
+    /// <inheritdoc />
+    public virtual ResultSetMapping AppendUpdateOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition)
+        => AppendUpdateOperation(commandStringBuilder, command, commandPosition, out _);
 
     /// <summary>
     ///     Appends SQL for updating a row to the commands being built, via an UPDATE containing an RETURNING clause to retrieve any
@@ -152,6 +166,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         int commandPosition,
         out bool requiresTransaction)
         => AppendDeleteReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+
+    /// <inheritdoc />
+    public virtual ResultSetMapping AppendDeleteOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition)
+        => AppendDeleteOperation(commandStringBuilder, command, commandPosition, out _);
 
     /// <summary>
     ///     Appends SQL for deleting a row to the commands being built, via a DELETE containing a RETURNING clause for concurrency checking.
@@ -490,12 +511,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
     }
 
-    /// <summary>
-    ///     Generates SQL that will obtain the next value in the given sequence.
-    /// </summary>
-    /// <param name="name">The name of the sequence.</param>
-    /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
-    /// <returns>The SQL.</returns>
+    /// <inheritdoc />
     public virtual string GenerateNextSequenceValueOperation(string name, string? schema)
     {
         var commandStringBuilder = new StringBuilder();
@@ -503,16 +519,25 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         return commandStringBuilder.ToString();
     }
 
-    /// <summary>
-    ///     Generates a SQL fragment that will get the next value from the given sequence and appends it to
-    ///     the full command being built by the given <see cref="StringBuilder" />.
-    /// </summary>
-    /// <param name="commandStringBuilder">The builder to which the SQL fragment should be appended.</param>
-    /// <param name="name">The name of the sequence.</param>
-    /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
+    /// <inheritdoc />
     public virtual void AppendNextSequenceValueOperation(StringBuilder commandStringBuilder, string name, string? schema)
     {
-        commandStringBuilder.Append("SELECT NEXT VALUE FOR ");
+        commandStringBuilder.Append("SELECT ");
+        AppendObtainNextSequenceValueOperation(commandStringBuilder, name, schema);
+    }
+
+    /// <inheritdoc />
+    public virtual string GenerateObtainNextSequenceValueOperation(string name, string? schema)
+    {
+        var commandStringBuilder = new StringBuilder();
+        AppendObtainNextSequenceValueOperation(commandStringBuilder, name, schema);
+        return commandStringBuilder.ToString();
+    }
+
+    /// <inheritdoc />
+    public virtual void AppendObtainNextSequenceValueOperation(StringBuilder commandStringBuilder, string name, string? schema)
+    {
+        commandStringBuilder.Append("NEXT VALUE FOR ");
         SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
     }
 

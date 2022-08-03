@@ -28,257 +28,254 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         return _data;
     }
 
-    public IReadOnlyDictionary<Type, object> GetEntitySorters()
-        => new Dictionary<Type, Func<object, object>>
+    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    {
+        { typeof(EntityOne), e => ((EntityOne)e)?.Id },
+        { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
+        { typeof(EntityThree), e => ((EntityThree)e)?.Id },
         {
-            { typeof(EntityOne), e => ((EntityOne)e)?.Id },
-            { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
-            { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-            {
-                typeof(EntityCompositeKey),
-                e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3)
-            },
-            { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
-            { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
-            { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
-            { typeof(UnidirectionalEntityOne), e => ((UnidirectionalEntityOne)e)?.Id },
-            { typeof(UnidirectionalEntityTwo), e => ((UnidirectionalEntityTwo)e)?.Id },
-            { typeof(UnidirectionalEntityThree), e => ((UnidirectionalEntityThree)e)?.Id },
-            {
-                typeof(UnidirectionalEntityCompositeKey),
-                e => (((UnidirectionalEntityCompositeKey)e)?.Key1,
-                    ((UnidirectionalEntityCompositeKey)e)?.Key2,
-                    ((UnidirectionalEntityCompositeKey)e)?.Key3)
-            },
-            { typeof(UnidirectionalEntityRoot), e => ((UnidirectionalEntityRoot)e)?.Id },
-            { typeof(UnidirectionalEntityBranch), e => ((UnidirectionalEntityBranch)e)?.Id },
-            { typeof(UnidirectionalEntityLeaf), e => ((UnidirectionalEntityLeaf)e)?.Id },
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
-
-    public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-        => new Dictionary<Type, Action<object, object>>
+            typeof(EntityCompositeKey),
+            e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3)
+        },
+        { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
+        { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
+        { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
+        { typeof(UnidirectionalEntityOne), e => ((UnidirectionalEntityOne)e)?.Id },
+        { typeof(UnidirectionalEntityTwo), e => ((UnidirectionalEntityTwo)e)?.Id },
+        { typeof(UnidirectionalEntityThree), e => ((UnidirectionalEntityThree)e)?.Id },
         {
+            typeof(UnidirectionalEntityCompositeKey), e => (((UnidirectionalEntityCompositeKey)e)?.Key1,
+                ((UnidirectionalEntityCompositeKey)e)?.Key2,
+                ((UnidirectionalEntityCompositeKey)e)?.Key3)
+        },
+        { typeof(UnidirectionalEntityRoot), e => ((UnidirectionalEntityRoot)e)?.Id },
+        { typeof(UnidirectionalEntityBranch), e => ((UnidirectionalEntityBranch)e)?.Id },
+        { typeof(UnidirectionalEntityLeaf), e => ((UnidirectionalEntityLeaf)e)?.Id },
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    {
+        {
+            typeof(EntityOne), (e, a) =>
             {
-                typeof(EntityOne), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (EntityOne)e;
+                    var aa = (EntityOne)a;
 
-                    if (a != null)
-                    {
-                        var ee = (EntityOne)e;
-                        var aa = (EntityOne)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(EntityTwo), (e, a) =>
             {
-                typeof(EntityTwo), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (EntityTwo)e;
+                    var aa = (EntityTwo)a;
 
-                    if (a != null)
-                    {
-                        var ee = (EntityTwo)e;
-                        var aa = (EntityTwo)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(EntityThree), (e, a) =>
             {
-                typeof(EntityThree), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (EntityThree)e;
+                    var aa = (EntityThree)a;
 
-                    if (a != null)
-                    {
-                        var ee = (EntityThree)e;
-                        var aa = (EntityThree)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(EntityCompositeKey), (e, a) =>
             {
-                typeof(EntityCompositeKey), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (EntityCompositeKey)e;
+                    var aa = (EntityCompositeKey)a;
 
-                    if (a != null)
-                    {
-                        var ee = (EntityCompositeKey)e;
-                        var aa = (EntityCompositeKey)a;
-
-                        Assert.Equal(ee.Key1, aa.Key1);
-                        Assert.Equal(ee.Key2, aa.Key2);
-                        Assert.Equal(ee.Key3, aa.Key3);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Key1, aa.Key1);
+                    Assert.Equal(ee.Key2, aa.Key2);
+                    Assert.Equal(ee.Key3, aa.Key3);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(EntityRoot), (e, a) =>
             {
-                typeof(EntityRoot), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (EntityRoot)e;
+                    var aa = (EntityRoot)a;
 
-                    if (a != null)
-                    {
-                        var ee = (EntityRoot)e;
-                        var aa = (EntityRoot)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(EntityBranch), (e, a) =>
             {
-                typeof(EntityBranch), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (EntityBranch)e;
+                    var aa = (EntityBranch)a;
 
-                    if (a != null)
-                    {
-                        var ee = (EntityBranch)e;
-                        var aa = (EntityBranch)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Number, aa.Number);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Number, aa.Number);
                 }
-            },
+            }
+        },
+        {
+            typeof(EntityLeaf), (e, a) =>
             {
-                typeof(EntityLeaf), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (EntityLeaf)e;
+                    var aa = (EntityLeaf)a;
 
-                    if (a != null)
-                    {
-                        var ee = (EntityLeaf)e;
-                        var aa = (EntityLeaf)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Number, aa.Number);
-                        Assert.Equal(ee.IsGreen, aa.IsGreen);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Number, aa.Number);
+                    Assert.Equal(ee.IsGreen, aa.IsGreen);
                 }
-            },
+            }
+        },
+        {
+            typeof(UnidirectionalEntityOne), (e, a) =>
             {
-                typeof(UnidirectionalEntityOne), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (UnidirectionalEntityOne)e;
+                    var aa = (UnidirectionalEntityOne)a;
 
-                    if (a != null)
-                    {
-                        var ee = (UnidirectionalEntityOne)e;
-                        var aa = (UnidirectionalEntityOne)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(UnidirectionalEntityTwo), (e, a) =>
             {
-                typeof(UnidirectionalEntityTwo), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (UnidirectionalEntityTwo)e;
+                    var aa = (UnidirectionalEntityTwo)a;
 
-                    if (a != null)
-                    {
-                        var ee = (UnidirectionalEntityTwo)e;
-                        var aa = (UnidirectionalEntityTwo)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(UnidirectionalEntityThree), (e, a) =>
             {
-                typeof(UnidirectionalEntityThree), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (UnidirectionalEntityThree)e;
+                    var aa = (UnidirectionalEntityThree)a;
 
-                    if (a != null)
-                    {
-                        var ee = (UnidirectionalEntityThree)e;
-                        var aa = (UnidirectionalEntityThree)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(UnidirectionalEntityCompositeKey), (e, a) =>
             {
-                typeof(UnidirectionalEntityCompositeKey), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (UnidirectionalEntityCompositeKey)e;
+                    var aa = (UnidirectionalEntityCompositeKey)a;
 
-                    if (a != null)
-                    {
-                        var ee = (UnidirectionalEntityCompositeKey)e;
-                        var aa = (UnidirectionalEntityCompositeKey)a;
-
-                        Assert.Equal(ee.Key1, aa.Key1);
-                        Assert.Equal(ee.Key2, aa.Key2);
-                        Assert.Equal(ee.Key3, aa.Key3);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Key1, aa.Key1);
+                    Assert.Equal(ee.Key2, aa.Key2);
+                    Assert.Equal(ee.Key3, aa.Key3);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(UnidirectionalEntityRoot), (e, a) =>
             {
-                typeof(UnidirectionalEntityRoot), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (UnidirectionalEntityRoot)e;
+                    var aa = (UnidirectionalEntityRoot)a;
 
-                    if (a != null)
-                    {
-                        var ee = (UnidirectionalEntityRoot)e;
-                        var aa = (UnidirectionalEntityRoot)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
                 }
-            },
+            }
+        },
+        {
+            typeof(UnidirectionalEntityBranch), (e, a) =>
             {
-                typeof(UnidirectionalEntityBranch), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (UnidirectionalEntityBranch)e;
+                    var aa = (UnidirectionalEntityBranch)a;
 
-                    if (a != null)
-                    {
-                        var ee = (UnidirectionalEntityBranch)e;
-                        var aa = (UnidirectionalEntityBranch)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Number, aa.Number);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Number, aa.Number);
                 }
-            },
+            }
+        },
+        {
+            typeof(UnidirectionalEntityLeaf), (e, a) =>
             {
-                typeof(UnidirectionalEntityLeaf), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (UnidirectionalEntityLeaf)e;
+                    var aa = (UnidirectionalEntityLeaf)a;
 
-                    if (a != null)
-                    {
-                        var ee = (UnidirectionalEntityLeaf)e;
-                        var aa = (UnidirectionalEntityLeaf)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Number, aa.Number);
-                        Assert.Equal(ee.IsGreen, aa.IsGreen);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Number, aa.Number);
+                    Assert.Equal(ee.IsGreen, aa.IsGreen);
                 }
-            },
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+            }
+        },
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

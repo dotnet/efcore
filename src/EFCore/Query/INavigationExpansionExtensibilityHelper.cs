@@ -20,23 +20,23 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public interface INavigationExpansionExtensibilityHelper
 {
     /// <summary>
-    ///     Creates a new <see cref="QueryRootExpression" />.
+    ///     Creates a new <see cref="EntityQueryRootExpression" />.
     /// </summary>
-    /// <param name="entityType">Entity type of the new <see cref="QueryRootExpression" />.</param>
+    /// <param name="entityType">Entity type of the new <see cref="EntityQueryRootExpression" />.</param>
     /// <param name="source">Source expression.</param>
-    QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source);
+    EntityQueryRootExpression CreateQueryRoot(IEntityType entityType, EntityQueryRootExpression? source);
 
     /// <summary>
-    ///     Validates whether a new <see cref="QueryRootExpression" /> can be created.
+    ///     Validates whether a new <see cref="EntityQueryRootExpression" /> can be created.
     /// </summary>
-    /// <param name="entityType">Entity type of the new <see cref="QueryRootExpression" />.</param>
+    /// <param name="entityType">Entity type of the new <see cref="EntityQueryRootExpression" />.</param>
     /// <param name="source">Source expression.</param>
-    void ValidateQueryRootCreation(IEntityType entityType, QueryRootExpression? source);
+    void ValidateQueryRootCreation(IEntityType entityType, EntityQueryRootExpression? source);
 
     /// <summary>
     ///     Checks whether two query roots are compatible for a set operation to combine them.
     /// </summary>
     /// <param name="first">The first query root.</param>
     /// <param name="second">The second query root.</param>
-    bool AreQueryRootsCompatible(QueryRootExpression? first, QueryRootExpression? second);
+    bool AreQueryRootsCompatible(EntityQueryRootExpression? first, EntityQueryRootExpression? second);
 }

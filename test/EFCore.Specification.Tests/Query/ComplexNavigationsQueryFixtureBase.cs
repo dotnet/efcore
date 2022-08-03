@@ -7,8 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBase<ComplexNavigationsContext>, IQueryFixtureBase
 {
-    private ComplexNavigationsDefaultData _expectedData;
-
     protected override string StoreName
         => "ComplexNavigations";
 
@@ -16,14 +14,7 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
         => () => CreateContext();
 
     public virtual ISetSource GetExpectedData()
-    {
-        if (_expectedData == null)
-        {
-            _expectedData = new ComplexNavigationsDefaultData();
-        }
-
-        return _expectedData;
-    }
+        => ComplexNavigationsDefaultData.Instance;
 
     public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
     {
@@ -191,183 +182,181 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
         };
     }
 
-    public IReadOnlyDictionary<Type, object> GetEntitySorters()
-        => new Dictionary<Type, Func<object, object>>
+    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    {
+        { typeof(Level1), e => ((Level1)e)?.Id },
+        { typeof(Level2), e => ((Level2)e)?.Id },
+        { typeof(Level3), e => ((Level3)e)?.Id },
+        { typeof(Level4), e => ((Level4)e)?.Id },
+        { typeof(InheritanceBase1), e => ((InheritanceBase1)e)?.Id },
+        { typeof(InheritanceBase2), e => ((InheritanceBase2)e)?.Id },
+        { typeof(InheritanceDerived1), e => ((InheritanceDerived1)e)?.Id },
+        { typeof(InheritanceDerived2), e => ((InheritanceDerived2)e)?.Id },
+        { typeof(InheritanceLeaf1), e => ((InheritanceLeaf1)e)?.Id },
+        { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2)e)?.Id }
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    {
         {
-            { typeof(Level1), e => ((Level1)e)?.Id },
-            { typeof(Level2), e => ((Level2)e)?.Id },
-            { typeof(Level3), e => ((Level3)e)?.Id },
-            { typeof(Level4), e => ((Level4)e)?.Id },
-            { typeof(InheritanceBase1), e => ((InheritanceBase1)e)?.Id },
-            { typeof(InheritanceBase2), e => ((InheritanceBase2)e)?.Id },
-            { typeof(InheritanceDerived1), e => ((InheritanceDerived1)e)?.Id },
-            { typeof(InheritanceDerived2), e => ((InheritanceDerived2)e)?.Id },
-            { typeof(InheritanceLeaf1), e => ((InheritanceLeaf1)e)?.Id },
-            { typeof(InheritanceLeaf2), e => ((InheritanceLeaf2)e)?.Id }
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
-
-    public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-        => new Dictionary<Type, Action<object, object>>
-        {
+            typeof(Level1), (e, a) =>
             {
-                typeof(Level1), (e, a) =>
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
+                    var ee = (Level1)e;
+                    var aa = (Level1)a;
 
-                    if (a != null)
-                    {
-                        var ee = (Level1)e;
-                        var aa = (Level1)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Date, aa.Date);
-                    }
-                }
-            },
-            {
-                typeof(Level2), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (Level2)e;
-                        var aa = (Level2)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Date, aa.Date);
-                        Assert.Equal(ee.Level1_Optional_Id, aa.Level1_Optional_Id);
-                        Assert.Equal(ee.Level1_Required_Id, aa.Level1_Required_Id);
-                    }
-                }
-            },
-            {
-                typeof(Level3), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (Level3)e;
-                        var aa = (Level3)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Level2_Optional_Id, aa.Level2_Optional_Id);
-                        Assert.Equal(ee.Level2_Required_Id, aa.Level2_Required_Id);
-                    }
-                }
-            },
-            {
-                typeof(Level4), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (Level4)e;
-                        var aa = (Level4)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                        Assert.Equal(ee.Level3_Optional_Id, aa.Level3_Optional_Id);
-                        Assert.Equal(ee.Level3_Required_Id, aa.Level3_Required_Id);
-                    }
-                }
-            },
-            {
-                typeof(InheritanceBase1), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (InheritanceBase1)e;
-                        var aa = (InheritanceBase1)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
-                }
-            },
-            {
-                typeof(InheritanceBase2), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (InheritanceBase2)e;
-                        var aa = (InheritanceBase2)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
-                }
-            },
-            {
-                typeof(InheritanceDerived1), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (InheritanceDerived1)e;
-                        var aa = (InheritanceDerived1)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
-                }
-            },
-            {
-                typeof(InheritanceDerived2), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (InheritanceDerived2)e;
-                        var aa = (InheritanceDerived2)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
-                }
-            },
-            {
-                typeof(InheritanceLeaf1), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (InheritanceLeaf1)e;
-                        var aa = (InheritanceLeaf1)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
-                }
-            },
-            {
-                typeof(InheritanceLeaf2), (e, a) =>
-                {
-                    Assert.Equal(e == null, a == null);
-
-                    if (a != null)
-                    {
-                        var ee = (InheritanceLeaf2)e;
-                        var aa = (InheritanceLeaf2)a;
-
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Name, aa.Name);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Date, aa.Date);
                 }
             }
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+        },
+        {
+            typeof(Level2), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (Level2)e;
+                    var aa = (Level2)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Date, aa.Date);
+                    Assert.Equal(ee.Level1_Optional_Id, aa.Level1_Optional_Id);
+                    Assert.Equal(ee.Level1_Required_Id, aa.Level1_Required_Id);
+                }
+            }
+        },
+        {
+            typeof(Level3), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (Level3)e;
+                    var aa = (Level3)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Level2_Optional_Id, aa.Level2_Optional_Id);
+                    Assert.Equal(ee.Level2_Required_Id, aa.Level2_Required_Id);
+                }
+            }
+        },
+        {
+            typeof(Level4), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (Level4)e;
+                    var aa = (Level4)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Level3_Optional_Id, aa.Level3_Optional_Id);
+                    Assert.Equal(ee.Level3_Required_Id, aa.Level3_Required_Id);
+                }
+            }
+        },
+        {
+            typeof(InheritanceBase1), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (InheritanceBase1)e;
+                    var aa = (InheritanceBase1)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        },
+        {
+            typeof(InheritanceBase2), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (InheritanceBase2)e;
+                    var aa = (InheritanceBase2)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        },
+        {
+            typeof(InheritanceDerived1), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (InheritanceDerived1)e;
+                    var aa = (InheritanceDerived1)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        },
+        {
+            typeof(InheritanceDerived2), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (InheritanceDerived2)e;
+                    var aa = (InheritanceDerived2)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        },
+        {
+            typeof(InheritanceLeaf1), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (InheritanceLeaf1)e;
+                    var aa = (InheritanceLeaf1)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        },
+        {
+            typeof(InheritanceLeaf2), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (InheritanceLeaf2)e;
+                    var aa = (InheritanceLeaf2)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        }
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -497,6 +486,12 @@ public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBas
 
     protected class ComplexNavigationsDefaultData : ComplexNavigationsData
     {
+        public static readonly ComplexNavigationsDefaultData Instance = new();
+
+        private ComplexNavigationsDefaultData()
+        {
+        }
+
         public override IQueryable<TEntity> Set<TEntity>()
         {
             if (typeof(TEntity) == typeof(Level1))

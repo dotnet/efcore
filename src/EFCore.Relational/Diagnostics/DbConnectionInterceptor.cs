@@ -13,6 +13,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public abstract class DbConnectionInterceptor : IDbConnectionInterceptor
 {
     /// <inheritdoc />
+    public virtual InterceptionResult<DbConnection> ConnectionCreating(
+        ConnectionCreatingEventData eventData,
+        InterceptionResult<DbConnection> result)
+        => result;
+
+    /// <inheritdoc />
+    public virtual DbConnection ConnectionCreated(ConnectionCreatedEventData eventData, DbConnection result)
+        => result;
+
+    /// <inheritdoc />
     public virtual InterceptionResult ConnectionOpening(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
         => result;
 
@@ -54,6 +64,26 @@ public abstract class DbConnectionInterceptor : IDbConnectionInterceptor
 
     /// <inheritdoc />
     public virtual Task ConnectionClosedAsync(DbConnection connection, ConnectionEndEventData eventData)
+        => Task.CompletedTask;
+
+    /// <inheritdoc />
+    public virtual InterceptionResult ConnectionDisposing(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+        => result;
+
+    /// <inheritdoc />
+    public virtual ValueTask<InterceptionResult> ConnectionDisposingAsync(
+        DbConnection connection,
+        ConnectionEventData eventData,
+        InterceptionResult result)
+        => new(result);
+
+    /// <inheritdoc />
+    public virtual void ConnectionDisposed(DbConnection connection, ConnectionEndEventData eventData)
+    {
+    }
+
+    /// <inheritdoc />
+    public virtual Task ConnectionDisposedAsync(DbConnection connection, ConnectionEndEventData eventData)
         => Task.CompletedTask;
 
     /// <inheritdoc />

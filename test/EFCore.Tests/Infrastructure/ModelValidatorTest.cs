@@ -970,7 +970,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Abstract>().Property<int>("SomeId").ValueGeneratedOnAdd();
         modelBuilder.Entity<Abstract>().HasAlternateKey("SomeId");
         modelBuilder.Entity<Generic<int>>().HasOne<Abstract>().WithOne().HasForeignKey<Generic<int>>("SomeId");
-        modelBuilder.Entity<Generic<string>>();
+        modelBuilder.Entity<Generic<string>>().Metadata.SetDiscriminatorValue("GenericString");
 
         VerifyError(
             CoreStrings.ForeignKeyPropertyInKey(
@@ -1377,6 +1377,27 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_incompatible_discriminator_value()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityA = model.AddEntityType(typeof(A));
+        SetPrimaryKey(entityA);
+        AddProperties(entityA);
+
+        var entityC = model.AddEntityType(typeof(C));
+        SetBaseType(entityC, entityA);
+
+        entityA.SetDiscriminatorProperty(entityA.AddProperty("D", typeof(int)));
+        entityA.SetDiscriminatorValue("1");
+
+        entityC.SetDiscriminatorValue(1);
+
+        VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", nameof(A), "int"), modelBuilder);
+    }
+    
+    [ConditionalFact]
     public virtual void Detects_missing_discriminator_value_on_base()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -1390,6 +1411,8 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         SetBaseType(entityC, entityA);
 
         entityA.SetDiscriminatorProperty(entityA.AddProperty("D", typeof(int)));
+        entityA.RemoveDiscriminatorValue();
+        
         entityC.SetDiscriminatorValue(1);
 
         VerifyError(CoreStrings.NoDiscriminatorValue(entityA.DisplayName()), modelBuilder);
@@ -1410,6 +1433,8 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         entityAbstract.SetDiscriminatorProperty(entityAbstract.AddProperty("D", typeof(int)));
         entityAbstract.SetDiscriminatorValue(0);
+        
+        entityGeneric.RemoveDiscriminatorValue();
 
         VerifyError(CoreStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), modelBuilder);
     }

@@ -26,7 +26,7 @@ public class TemporalPointInTimeQueryRewriter : ExpressionVisitor
 
     protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is QueryRootExpression queryRootExpression
+        if (extensionExpression is EntityQueryRootExpression queryRootExpression
             && queryRootExpression.EntityType.GetRootType().IsTemporal())
         {
             return new TemporalAsOfQueryRootExpression(

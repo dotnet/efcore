@@ -93,6 +93,30 @@ public interface IRelationalAnnotationProvider
     IEnumerable<IAnnotation> For(IFunctionColumn column, bool designTime);
 
     /// <summary>
+    ///     Gets provider-specific annotations for the given <see cref="IStoreStoredProcedure" />.
+    /// </summary>
+    /// <param name="storedProcedure">The stored procedure.</param>
+    /// <returns>The annotations.</returns>
+    /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+    IEnumerable<IAnnotation> For(IStoreStoredProcedure storedProcedure, bool designTime);
+
+    /// <summary>
+    ///     Gets provider-specific annotations for the given <see cref="IStoreStoredProcedureParameter" />.
+    /// </summary>
+    /// <param name="parameter">The parameter.</param>
+    /// <returns>The annotations.</returns>
+    /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+    IEnumerable<IAnnotation> For(IStoreStoredProcedureParameter parameter, bool designTime);
+
+    /// <summary>
+    ///     Gets provider-specific annotations for the given <see cref="IStoreStoredProcedureResultColumn" />.
+    /// </summary>
+    /// <param name="column">The result column.</param>
+    /// <returns>The annotations.</returns>
+    /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+    IEnumerable<IAnnotation> For(IStoreStoredProcedureResultColumn column, bool designTime);
+
+    /// <summary>
     ///     Gets provider-specific annotations for the given <see cref="IUniqueConstraint" />.
     /// </summary>
     /// <param name="constraint">The unique constraint.</param>

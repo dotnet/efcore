@@ -26,7 +26,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         var query = context.Set<Singularity>().Where(e => e.Type == "Black Hole");
         var results = async ? await query.ToListAsync() : query.ToList();
 
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         Assert.Equal("Black Hole", results[0].Type);
 
         AssertNormalOutcome(context, interceptor);
@@ -43,8 +43,8 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
     {
         var interceptor1 = new TestQueryExpressionInterceptor();
         var interceptor2 = new QueryChangingExpressionInterceptor();
-        var interceptor3 = new QueryCompilationChangingExpressionInterceptor();
-        var interceptor4 = new QueryCompilationDelegateChangingInterceptor();
+        var interceptor3 = new TestQueryExpressionInterceptor();
+        var interceptor4 = new TestQueryExpressionInterceptor();
 
         using var context = CreateContext(
             new IInterceptor[] { new TestQueryExpressionInterceptor(), interceptor1, interceptor2 },
@@ -55,7 +55,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         var query = context.Set<Singularity>().Where(e => e.Type == "Bing Bang");
         var results = async ? await query.ToListAsync() : query.ToList();
 
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         Assert.Equal("Bing Bang", results[0].Type);
 
         AssertNormalOutcome(context, interceptor1);
@@ -67,13 +67,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
             CoreEventId.QueryCompilationStarting.Name,
             CoreEventId.QueryExecutionPlanned.Name);
 
-        Assert.Equal(1, interceptor3.ExecutionCount);
-        Assert.Equal(1, interceptor4.ExecutionCount);
-
         _ = async ? await query.ToListAsync() : query.ToList();
-
-        Assert.Equal(2, interceptor3.ExecutionCount);
-        Assert.Equal(2, interceptor4.ExecutionCount);
     }
 
     [ConditionalTheory]
@@ -90,7 +84,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         var query = context.Set<Singularity>().Where(e => e.Type == "Black Hole");
         var results = async ? await query.ToListAsync() : query.ToList();
 
-        Assert.Equal(1, results.Count);
+        Assert.Single(results);
         Assert.Equal("Bing Bang", results[0].Type);
 
         AssertNormalOutcome(context, interceptor);
@@ -100,10 +94,10 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
 
     protected class QueryChangingExpressionInterceptor : TestQueryExpressionInterceptor
     {
-        public override Expression ProcessingQuery(
+        public override Expression QueryCompilationStarting(
             Expression queryExpression,
             QueryExpressionEventData eventData)
-            => base.ProcessingQuery(new SingularityTypeExpressionVisitor().Visit(queryExpression), eventData);
+            => base.QueryCompilationStarting(new SingularityTypeExpressionVisitor().Visit(queryExpression), eventData);
 
         private class SingularityTypeExpressionVisitor : ExpressionVisitor
         {
@@ -114,151 +108,28 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public virtual async Task Intercept_to_change_query_compilation_expression(bool async, bool inject)
-    {
-        var (context, interceptor) = CreateContext<QueryCompilationChangingExpressionInterceptor>(inject);
-
-        using var __ = context;
-
-        var query = context.Set<Singularity>().OrderBy(e => e.Type);
-        var results = async ? await query.ToListAsync() : query.ToList();
-
-        Assert.Equal(2, results.Count);
-        Assert.Equal("Bing Bang", results[0].Type);
-        Assert.Equal("Black Hole", results[1].Type);
-
-        AssertNormalOutcome(context, interceptor);
-        Assert.Equal(1, interceptor.ExecutionCount);
-
-        _ = async ? await query.ToListAsync() : query.ToList();
-
-        AssertNormalOutcome(context, interceptor);
-        Assert.Equal(2, interceptor.ExecutionCount);
-    }
-
-    protected class QueryCompilationChangingExpressionInterceptor : TestQueryExpressionInterceptor
-    {
-        public int ExecutionCount { get; set; }
-
-        public override Expression<Func<QueryContext, TResult>> CompilingQuery<TResult>(
-            Expression queryExpression,
-            Expression<Func<QueryContext, TResult>> queryExecutorExpression,
-            QueryExpressionEventData eventData)
-            => base.CompilingQuery(
-                queryExpression, Expression.Lambda<Func<QueryContext, TResult>>(
-                    Expression.Block(
-                        Expression.Assign(
-                            Expression.Property(
-                                Expression.Constant(this),
-                                nameof(ExecutionCount)),
-                            Expression.Add(
-                                Expression.Property(
-                                    Expression.Constant(this),
-                                    nameof(ExecutionCount)),
-                                Expression.Constant(1))),
-                        queryExecutorExpression.Body),
-                    queryExecutorExpression.Parameters),
-                eventData);
-    }
-
-    [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public virtual async Task Intercept_to_change_query_compilation_delegate(bool async, bool inject)
-    {
-        var (context, interceptor) = CreateContext<QueryCompilationDelegateChangingInterceptor>(inject);
-
-        using var __ = context;
-
-        var query = context.Set<Singularity>().OrderBy(e => e.Type);
-        var results = async ? await query.ToListAsync() : query.ToList();
-
-        Assert.Equal(2, results.Count);
-        Assert.Equal("Bing Bang", results[0].Type);
-        Assert.Equal("Black Hole", results[1].Type);
-
-        AssertNormalOutcome(context, interceptor);
-        Assert.Equal(1, interceptor.ExecutionCount);
-
-        _ = async ? await query.ToListAsync() : query.ToList();
-
-        AssertNormalOutcome(context, interceptor);
-        Assert.Equal(2, interceptor.ExecutionCount);
-    }
-
-    protected class QueryCompilationDelegateChangingInterceptor : TestQueryExpressionInterceptor
-    {
-        public int ExecutionCount { get; set; }
-
-        public override Func<QueryContext, TResult> CompiledQuery<TResult>(
-            Expression queryExpression,
-            QueryExpressionEventData eventData,
-            Func<QueryContext, TResult> queryExecutor)
-            => base.CompiledQuery(
-                queryExpression, eventData, queryContext =>
-                {
-                    ExecutionCount++;
-                    return queryExecutor(queryContext);
-                });
-    }
-
     protected static void AssertNormalOutcome(DbContext context,TestQueryExpressionInterceptor interceptor)
     {
         Assert.Same(context, interceptor.Context);
-        Assert.True(interceptor.ProcessingQueryCalled);
-        Assert.True(interceptor.ProcessingQueryCalled);
-        Assert.True(interceptor.CompilingQueryCalled);
-        Assert.True(interceptor.CompiledQueryCalled);
+        Assert.True(interceptor.QueryCompilationStartingCalled);
+        Assert.True(interceptor.QueryCompilationStartingCalled);
     }
 
     protected class TestQueryExpressionInterceptor : IQueryExpressionInterceptor
     {
-        public bool ProcessingQueryCalled { get; set; }
-        public bool CompilingQueryCalled { get; set; }
-        public bool CompiledQueryCalled { get; set; }
+        public bool QueryCompilationStartingCalled { get; set; }
         public string QueryExpression { get; set; }
         public DbContext Context { get; set; }
 
-        public virtual Expression ProcessingQuery(
+        public virtual Expression QueryCompilationStarting(
             Expression queryExpression,
             QueryExpressionEventData eventData)
         {
-            ProcessingQueryCalled = true;
+            QueryCompilationStartingCalled = true;
             Context = eventData.Context;
             QueryExpression = eventData.ExpressionPrinter.Print(queryExpression);
 
             return queryExpression;
-        }
-
-        public virtual Expression<Func<QueryContext, TResult>> CompilingQuery<TResult>(
-            Expression queryExpression,
-            Expression<Func<QueryContext, TResult>> queryExecutorExpression,
-            QueryExpressionEventData eventData)
-        {
-            CompilingQueryCalled = true;
-            Assert.Equal(QueryExpression, eventData.ExpressionPrinter.Print(queryExpression));
-            Assert.Same(Context, eventData.Context);
-
-            return queryExecutorExpression;
-        }
-
-        public virtual Func<QueryContext, TResult> CompiledQuery<TResult>(
-            Expression queryExpression,
-            QueryExpressionEventData eventData,
-            Func<QueryContext, TResult> queryExecutor)
-        {
-            CompiledQueryCalled = true;
-            Assert.Equal(QueryExpression, eventData.ExpressionPrinter.Print(queryExpression));
-            Assert.Same(Context, eventData.Context);
-
-            return queryExecutor;
         }
     }
 }

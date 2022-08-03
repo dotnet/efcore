@@ -623,9 +623,9 @@
     <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key, but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unique values.</value>
     <comment>Warning RelationalEventId.ModelValidationKeyDefaultValueWarning string string</comment>
   </data>
-  <data name="LogKeyUnmappedProperties" xml:space="preserve">
+  <data name="LogKeyPropertiesNotMappedToTable" xml:space="preserve">
     <value>The key {keyProperties} on the entity type '{entityType}' cannot be represented in the database. Either all or some of the properties aren't mapped to table '{table}'. All key properties must be mapped to a single table for the unique constraint to be created.</value>
-    <comment>Error RelationalEventId.KeyUnmappedProperties string string string</comment>
+    <comment>Error RelationalEventId.KeyPropertiesNotMappedToTable string string string</comment>
   </data>
   <data name="LogMigrating" xml:space="preserve">
     <value>Migrating using database '{database}' on server '{dataSource}'.</value>
@@ -712,7 +712,7 @@
     <comment>Debug RelationalEventId.TransactionRollingBack</comment>
   </data>
   <data name="LogTpcStoreGeneratedIdentity" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is configured with a database-generated default, however the entity type is mapped to the database using table per concrete class strategy. Make sure that the generated values are unique across all the tables, duplicated values could result in errors or data corruption.</value>
+    <value>The entity type '{entityType}' is using the table per concrete type mapping strategy, but property '{property}' is configured with an incompatible database-generated default. Configure a compatible value generation strategy if available, or use non-generated key values.</value>
     <comment>Warning RelationalEventId.TpcStoreGeneratedIdentityWarning string string</comment>
   </data>
   <data name="LogTransactionError" xml:space="preserve">
@@ -804,6 +804,9 @@
   <data name="NonTphMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' specified on '{entityType}' is not supported for entity types with a discriminator.</value>
   </data>
+  <data name="NonTphStoredProcedureClash" xml:space="preserve">
+    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the stored procedure '{sproc}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different stored procedures. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
   <data name="NonTphTableClash" xml:space="preserve">
     <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a non-TPH hierarchy (one that doesn't have a discriminator) must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
@@ -858,6 +861,45 @@
   <data name="SqlQueryOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the SQL query '{query}', but isn't mapped to a column on that query. Remove the specific configuration, or map an entity type that contains this property to '{query}'.</value>
   </data>
+  <data name="StoredProcedureDeleteNonKeyProperty" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.</value>
+  </data>
+  <data name="StoredProcedureGeneratedPropertiesNotMapped" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.</value>
+  </data>
+  <data name="StoredProcedureKeyless" xml:space="preserve">
+    <value>The keyless entity type '{entityType}' was configured to use '{sproc}'. An entity type requires a primary key to be able to be mapped to a stored procedure.</value>
+  </data>
+  <data name="StoredProcedureNoName" xml:space="preserve">
+    <value>The entity type '{entityType}' was configured to use '{sproc}', but the store name was not specified. Configure the stored procedure name explicitly.</value>
+  </data>
+  <data name="StoredProcedureOutputParameterNotGenerated" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.</value>
+  </data>
+  <data name="StoredProcedureOverrideMismatch" xml:space="preserve">
+    <value>The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.</value>
+  </data>
+  <data name="StoredProcedureParameterNotFound" xml:space="preserve">
+    <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'</value>
+  </data>
+  <data name="StoredProcedurePropertiesNotMapped" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the properties {properties} are not mapped to any parameter or result column.</value>
+  </data>
+  <data name="StoredProcedureResultColumnDelete" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but store-generated values are not supported for Delete stored procedures.</value>
+  </data>
+  <data name="StoredProcedureResultColumnNotFound" xml:space="preserve">
+    <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the result column on the stored procedure '{sproc}'</value>
+  </data>
+  <data name="StoredProcedureResultColumnNotGenerated" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is not configured as store-generated.</value>
+  </data>
+  <data name="StoredProcedureTableSharing" xml:space="preserve">
+    <value>Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.</value>
+  </data>
+  <data name="StoredProcedureTphDuplicate" xml:space="preserve">
+    <value>Both '{entityType}' and  '{otherEntityType}' are explicitly mapped to the stored procedure '{sproc}' using the 'TPH' mapping strategy. Configure the stored procedure mapping on the root entity type, including all parameters for the derived types. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
   </data>
@@ -865,7 +907,7 @@
     <value>The property '{propertySpecification}' has specific configuration for the table '{table}', but isn't mapped to a column on that table. Remove the specific configuration, or map an entity type that contains this property to '{table}'.</value>
   </data>
   <data name="TableValuedFunctionNonTph" xml:space="preserve">
-    <value>The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
+    <value>The element type of the result of '{dbFunction}' is mapped to '{entityType}'. This is not supported since '{entityType}' is part of hierarchy but does not contain a discriminator property. Only TPH hierarchies can be mapped to a TVF.</value>
   </data>
   <data name="TimeoutTooBig" xml:space="preserve">
     <value>Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds. Provided timeout: {seconds} seconds.</value>
@@ -877,10 +919,16 @@
     <value>The underlying reader doesn't have as many fields as expected. Expected: {expected}, actual: {actual}.</value>
   </data>
   <data name="TpcTableSharing" xml:space="preserve">
-    <value>The entity type '{dependentType}' is mapped to '{storeObject}'. However the principal entity type '{principalEntityType}' is also mapped to '{storeObject}' and it's using the TPC mapping strategy. Only leaf entity types in a TPC hierarchy can use table-sharing.</value>
+    <value>The entity type '{dependentType}' is mapped to '{storeObject}'. However the principal entity type '{principalEntityType}' is also mapped to '{storeObject}' and it's using the TPC mapping strategy. Entity types in a TPC hierarchy can use table-sharing only if they have no derived types.</value>
   </data>
   <data name="TpcTableSharingDependent" xml:space="preserve">
     <value>The entity type '{dependentType}' is mapped to '{storeObject}'. However one of its derived types '{derivedType}' is mapped to '{otherStoreObject}'. Hierarchies using table-sharing cannot be mapped using the TPC mapping strategy.</value>
+  </data>
+  <data name="TphDbFunctionMismatch" xml:space="preserve">
+    <value>'{entityType}' is mapped to the database function '{function}' while '{otherEntityType}' is mapped to the database function '{otherFunction}'. Map all the entity types in the hierarchy to the same database function. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
+  <data name="TphStoredProcedureMismatch" xml:space="preserve">
+    <value>'{entityType}' is mapped to the stored procedure '{sproc}' while '{otherEntityType}' is mapped to the stored procedure '{otherSproc}'. Map all the entity types in the hierarchy to the same stored procedure, or remove the discriminator and map them all to different stored procedures. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="TphTableMismatch" xml:space="preserve">
     <value>'{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>

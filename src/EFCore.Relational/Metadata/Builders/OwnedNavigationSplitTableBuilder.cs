@@ -73,15 +73,15 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
     /// <summary>
     ///     Configures a database trigger on the table.
     /// </summary>
-    /// <param name="name">The name of the trigger.</param>
+    /// <param name="modelName">The name of the trigger.</param>
     /// <returns>A builder that can be used to configure the database trigger.</returns>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
     /// </remarks>
-    public virtual TriggerBuilder HasTrigger(string name)
+    public virtual TriggerBuilder HasTrigger(string modelName)
         => new((Trigger)InternalTriggerBuilder.HasTrigger(
             (IConventionEntityType)MappingFragment.EntityType,
-            name,
+            modelName,
             Name,
             Schema,
             ConfigurationSource.Explicit)!);

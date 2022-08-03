@@ -781,6 +781,7 @@ public class StateManager : IStateManager
     {
         if (_resolutionInterceptor != null)
         {
+            var interceptionData = new IdentityResolutionInterceptionData(Context);
             var needsTracking = false;
             foreach (var key in newEntry.EntityType.GetKeys())
             {
@@ -788,7 +789,7 @@ public class StateManager : IStateManager
                 if (existingEntry != null)
                 {
                     _resolutionInterceptor.UpdateTrackedInstance(
-                        Context,
+                        interceptionData,
                         new EntityEntry(existingEntry),
                         newEntry.Entity);
 

@@ -102,7 +102,7 @@ public abstract partial class ModelBuilderTest
             Action<ModelConfigurationBuilder>? configure);
     }
 
-    public abstract class TestModelBuilder
+    public abstract class TestModelBuilder : IInfrastructure<ModelBuilder>
     {
         protected TestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
         {
@@ -133,7 +133,7 @@ public abstract partial class ModelBuilderTest
         public virtual IMutableModel Model
             => ModelBuilder.Model;
 
-        public TestHelpers.TestModelBuilder ModelBuilder { get; }
+        protected TestHelpers.TestModelBuilder ModelBuilder { get; }
         public ListLoggerFactory ValidationLoggerFactory { get; }
         public ListLoggerFactory ModelLoggerFactory { get; }
         protected virtual DiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; }
@@ -174,6 +174,9 @@ public abstract partial class ModelBuilderTest
 
             return this;
         }
+
+        ModelBuilder IInfrastructure<ModelBuilder>.Instance
+            => ModelBuilder;
     }
 
     public abstract class TestEntityTypeBuilder<TEntity>

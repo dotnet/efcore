@@ -7,8 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class EntitySplittingQueryFixtureBase : SharedStoreFixtureBase<EntitySplittingContext>, IQueryFixtureBase
 {
-    private SplitEntityData _expectedData;
-
     protected EntitySplittingQueryFixtureBase()
     {
     }
@@ -21,42 +19,32 @@ public abstract class EntitySplittingQueryFixtureBase : SharedStoreFixtureBase<E
 
     public Func<DbContext> GetContextCreator() => () => CreateContext();
 
-    public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-        => new Dictionary<Type, Action<object, object>>
+    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    {
         {
+            typeof(SplitEntityOne), (e, a) =>
             {
-                typeof(SplitEntityOne), (e, a) =>
+                Assert.Equal(e == null, a == null);
+                if (a != null)
                 {
-                    Assert.Equal(e == null, a == null);
-                    if (a != null)
-                    {
-                        var ee =(SplitEntityOne)e;
-                        var aa =(SplitEntityOne)a;
+                    var ee = (SplitEntityOne)e;
+                    var aa = (SplitEntityOne)a;
 
-                        Assert.Equal(ee.Id, aa.Id);
-                        Assert.Equal(ee.Value, aa.Value);
-                        Assert.Equal(ee.SharedValue, aa.SharedValue);
-                        Assert.Equal(ee.SplitValue, aa.SplitValue);
-                    }
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Value, aa.Value);
+                    Assert.Equal(ee.SharedValue, aa.SharedValue);
+                    Assert.Equal(ee.SplitValue, aa.SplitValue);
                 }
             }
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+        }
+    }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> GetEntitySorters()
-        => new Dictionary<Type, Func<object, object>>
-        {
-            { typeof(SplitEntityOne), e => ((SplitEntityOne)e)?.Id },
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+    public IReadOnlyDictionary<Type, object> EntitySorters { get; } =
+        new Dictionary<Type, Func<object, object>> { { typeof(SplitEntityOne), e => ((SplitEntityOne)e)?.Id }, }.ToDictionary(
+            e => e.Key, e => (object)e.Value);
 
     public ISetSource GetExpectedData()
-    {
-        if (_expectedData == null)
-        {
-            _expectedData = new SplitEntityData();
-        }
-
-        return _expectedData;
-    }
+        => SplitEntityData.Instance;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -78,8 +66,5 @@ public abstract class EntitySplittingQueryFixtureBase : SharedStoreFixtureBase<E
     }
 
     protected override void Seed(EntitySplittingContext context)
-    {
-        var _ = GetExpectedData();
-        _expectedData.Seed(context);
-    }
+        => SplitEntityData.Instance.Seed(context);
 }

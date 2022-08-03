@@ -57,7 +57,7 @@ public class ReaderModificationCommandBatchTest
         batch.ShouldBeValid = true;
         Assert.True(batch.TryAddCommand(command1));
         Assert.True(batch.TryAddCommand(command2));
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         Assert.Collection(batch.ModificationCommands,
             m => Assert.Same(command1, m),
@@ -116,7 +116,7 @@ RETURNING 1;
         batch.ShouldBeValid = false;
 
         Assert.False(batch.TryAddCommand(command2));
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         Assert.Same(command1, Assert.Single(batch.ModificationCommands));
 
@@ -140,7 +140,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         Assert.Equal(1, batch.FakeSqlGenerator.AppendBatchHeaderCalls);
         Assert.Equal(1, batch.FakeSqlGenerator.AppendInsertOperationCalls);
@@ -156,7 +156,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         Assert.Equal(1, batch.FakeSqlGenerator.AppendBatchHeaderCalls);
         Assert.Equal(1, batch.FakeSqlGenerator.AppendUpdateOperationCalls);
@@ -172,7 +172,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         Assert.Equal(1, batch.FakeSqlGenerator.AppendBatchHeaderCalls);
         Assert.Equal(1, batch.FakeSqlGenerator.AppendDeleteOperationCalls);
@@ -192,7 +192,7 @@ RETURNING 1;
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command1);
         batch.TryAddCommand(command2);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         Assert.Equal(1, batch.FakeSqlGenerator.AppendBatchHeaderCalls);
         Assert.Equal(2, batch.FakeSqlGenerator.AppendInsertOperationCalls);
@@ -212,7 +212,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         await batch.ExecuteAsync(connection);
 
@@ -235,7 +235,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         await batch.ExecuteAsync(connection);
 
@@ -259,7 +259,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         await batch.ExecuteAsync(connection);
 
@@ -282,7 +282,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         await batch.ExecuteAsync(connection);
 
@@ -306,7 +306,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         await batch.ExecuteAsync(connection);
 
@@ -329,7 +329,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var exception = async
             ? await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => batch.ExecuteAsync(connection))
@@ -354,7 +354,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var exception = async
             ? await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => batch.ExecuteAsync(connection))
@@ -382,7 +382,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var actualException = async
             ? await Assert.ThrowsAsync<DbUpdateException>(() => batch.ExecuteAsync(connection))
@@ -410,7 +410,7 @@ RETURNING 1;
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var actualException = async
             ? await Assert.ThrowsAsync<OperationCanceledException>(() => batch.ExecuteAsync(connection))
@@ -461,7 +461,7 @@ RETURNING 1;
                         false, true, false, false, true)
                 }));
 
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var storeCommand = batch.StoreCommand;
 
@@ -500,7 +500,7 @@ RETURNING 1;
                         sensitiveLoggingEnabled: true)
                 }));
 
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var storeCommand = batch.StoreCommand;
 
@@ -537,7 +537,7 @@ RETURNING 1;
                         sensitiveLoggingEnabled: true)
                 }));
 
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var storeCommand = batch.StoreCommand;
 
@@ -574,7 +574,7 @@ RETURNING 1;
                         sensitiveLoggingEnabled: true)
                 }));
 
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var storeCommand = batch.StoreCommand;
 
@@ -613,7 +613,7 @@ RETURNING 1;
                         sensitiveLoggingEnabled: true)
                 }));
 
-        batch.Complete();
+        batch.Complete(moreBatchesExpected: false);
 
         var storeCommand = batch.StoreCommand;
 

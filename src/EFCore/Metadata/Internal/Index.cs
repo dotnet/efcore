@@ -218,17 +218,30 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     {
         EnsureMutable();
 
-        if (descending is not null && descending.Count != Properties.Count)
+        if (descending is not null)
         {
-            throw new ArgumentException(
-                CoreStrings.InvalidNumberOfIndexSortOrderValues(DisplayName(), descending.Count, Properties.Count), nameof(descending));
+            if (descending.Count == Properties.Count)
+            {
+                // Normalize all-ascending/descending to null/empty respectively.
+                if (descending.All(desc => desc))
+                {
+                    descending = Array.Empty<bool>();
+                }
+                else if (descending.All(desc => !desc))
+                {
+                    descending = null;
+                }
+            }
+            else if (descending.Count > 0)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidNumberOfIndexSortOrderValues(DisplayName(), descending.Count, Properties.Count), nameof(descending));
+            }
         }
 
         var oldIsDescending = IsDescending;
-        var isChanging =
-            (_isDescending is null && descending is not null && descending.Any(desc => desc))
-            || (descending is null && _isDescending is not null && _isDescending.Any(desc => desc))
-            || (descending is not null && oldIsDescending is not null && !oldIsDescending.SequenceEqual(descending));
+        var isChanging = descending is null != _isDescending is null
+            || (descending is not null && _isDescending is not null && !descending.SequenceEqual(_isDescending));
         _isDescending = descending;
 
         if (descending == null)

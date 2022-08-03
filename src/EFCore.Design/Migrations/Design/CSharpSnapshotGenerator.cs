@@ -923,7 +923,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                     if (hasOverrides)
                     {
-                        GenerateOverrides("t", entityType, table!.Value, stringBuilder);
+                        GeneratePropertyOverrides("t", entityType, table!.Value, stringBuilder);
                     }
                 }
 
@@ -959,7 +959,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 using (stringBuilder.Indent())
                 {
                     GenerateTriggers("t", entityType, table.Name, table.Schema, stringBuilder);
-                    GenerateOverrides("t", entityType, table, stringBuilder);
+                    GeneratePropertyOverrides("t", entityType, table, stringBuilder);
                     GenerateEntityTypeMappingFragmentAnnotations("t", fragment, stringBuilder);
                 }
 
@@ -1023,7 +1023,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateOverrides("v", entityType, view!.Value, stringBuilder);
+                    GeneratePropertyOverrides("v", entityType, view!.Value, stringBuilder);
                 }
 
                 stringBuilder.Append("}");
@@ -1055,7 +1055,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateOverrides("v", entityType, fragment.StoreObject, stringBuilder);
+                    GeneratePropertyOverrides("v", entityType, fragment.StoreObject, stringBuilder);
                     GenerateEntityTypeMappingFragmentAnnotations("v", fragment, stringBuilder);
                 }
 
@@ -1266,7 +1266,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// <param name="entityType">The entity type.</param>
     /// <param name="storeObject">The store object identifier.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
-    protected virtual void GenerateOverrides(
+    protected virtual void GeneratePropertyOverrides(
         string tableBuilderName,
         IEntityType entityType,
         StoreObjectIdentifier storeObject,
@@ -1277,7 +1277,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             var overrides = property.FindOverrides(storeObject);
             if (overrides != null)
             {
-                GenerateOverride(tableBuilderName, overrides, stringBuilder);
+                GeneratePropertyOverride(tableBuilderName, overrides, stringBuilder);
             }
         }
     }
@@ -1288,7 +1288,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// <param name="tableBuilderName">The name of the table builder variable.</param>
     /// <param name="overrides">The overrides.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
-    protected virtual void GenerateOverride(
+    protected virtual void GeneratePropertyOverride(
         string tableBuilderName,
         IRelationalPropertyOverrides overrides,
         IndentedStringBuilder stringBuilder)
@@ -1301,7 +1301,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (overrides.ColumnNameOverridden)
+        if (overrides.IsColumnNameOverridden)
         {
             stringBuilder
                 .AppendLine()

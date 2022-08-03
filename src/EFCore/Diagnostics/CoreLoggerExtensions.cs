@@ -479,7 +479,7 @@ public static class CoreLoggerExtensions
 
             if (interceptor != null)
             {
-                return (interceptor.ProcessingQuery(queryExpression, eventData), eventData);
+                return (interceptor.QueryCompilationStarting(queryExpression, eventData), eventData);
             }
         }
 
