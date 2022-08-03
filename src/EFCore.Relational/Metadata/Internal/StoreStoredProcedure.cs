@@ -156,7 +156,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     }
 
     /// <inheritdoc />
-    IEnumerable<IStoreStoredProcedureParameter> IStoreStoredProcedure.Parameters
+    IReadOnlyList<IStoreStoredProcedureParameter> IStoreStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;

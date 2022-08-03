@@ -1038,14 +1038,17 @@ public class RelationalModel : Annotatable, IRelationalModel
                     RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings),
             _ => throw new Exception("Unexpected stored procedure type: " + identifier.StoreObjectType)
         };
-
+        
+        var position = -1;
         foreach (var parameter in storedProcedure.Parameters)
         {
+            position++;
             if (parameter.PropertyName == null)
             {
                 GetOrCreateStoreStoredProcedureParameter(
                     parameter,
                     null,
+                    position,
                     storeStoredProcedure,
                     identifier,
                     relationalTypeMappingSource);
@@ -1069,6 +1072,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                             GetOrCreateStoreStoredProcedureParameter(
                                 parameter,
                                 derivedProperty,
+                                position,
                                 storeStoredProcedure,
                                 identifier,
                                 relationalTypeMappingSource);
@@ -1083,6 +1087,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             var storeParameter = GetOrCreateStoreStoredProcedureParameter(
                 parameter,
                 property,
+                position,
                 storeStoredProcedure,
                 identifier,
                 relationalTypeMappingSource);
@@ -1196,6 +1201,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         static StoreStoredProcedureParameter GetOrCreateStoreStoredProcedureParameter(
             IStoredProcedureParameter parameter,
             IProperty? property,
+            int position,
             StoreStoredProcedure storeStoredProcedure,
             StoreObjectIdentifier identifier,
             IRelationalTypeMappingSource relationalTypeMappingSource)
@@ -1208,6 +1214,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     name,
                     property?.GetColumnType(identifier)
                         ?? relationalTypeMappingSource.FindMapping(typeof(int))!.StoreType,
+                    position,
                     storeStoredProcedure,
                     parameter.Direction)
                 {

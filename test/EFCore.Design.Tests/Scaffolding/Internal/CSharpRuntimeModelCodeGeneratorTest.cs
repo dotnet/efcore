@@ -2596,11 +2596,11 @@ namespace TestNamespace
                 true);
 
             var principalBaseId = insertSproc.AddParameter(
-                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", true);
+                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId = insertSproc.AddParameter(
-                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", true);
+                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
             var baseId = insertSproc.AddParameter(
-                ""BaseId"", ParameterDirection.Output, false, ""Id"", true);
+                ""BaseId"", ParameterDirection.Output, false, ""Id"", false);
             baseId.AddAnnotation(""foo"", ""bar"");
             insertSproc.AddAnnotation(""foo"", ""bar1"");
             runtimeEntityType.AddAnnotation(""Relational:InsertStoredProcedure"", insertSproc);
@@ -2613,7 +2613,7 @@ namespace TestNamespace
                 false);
 
             var id = deleteSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", true);
+                ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:DeleteStoredProcedure"", deleteSproc);
 
             var updateSproc = new RuntimeStoredProcedure(
@@ -2624,11 +2624,11 @@ namespace TestNamespace
                 false);
 
             var principalBaseId0 = updateSproc.AddParameter(
-                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", true);
+                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId0 = updateSproc.AddParameter(
-                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", true);
+                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
             var id0 = updateSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", true);
+                ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:UpdateStoredProcedure"", updateSproc);
 
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
@@ -2683,9 +2683,9 @@ namespace TestNamespace
                 false);
 
             var principalBaseId = insertSproc.AddParameter(
-                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", true);
+                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId = insertSproc.AddParameter(
-                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", true);
+                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
             var derivedId = insertSproc.AddResultColumn(
                 ""DerivedId"", false, ""Id"");
             derivedId.AddAnnotation(""foo"", ""bar3"");
@@ -2699,7 +2699,7 @@ namespace TestNamespace
                 false);
 
             var id = deleteSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", true);
+                ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:DeleteStoredProcedure"", deleteSproc);
 
             var updateSproc = new RuntimeStoredProcedure(
@@ -2710,11 +2710,11 @@ namespace TestNamespace
                 false);
 
             var principalBaseId0 = updateSproc.AddParameter(
-                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", true);
+                ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId0 = updateSproc.AddParameter(
-                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", true);
+                ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
             var id0 = updateSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", true);
+                ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:UpdateStoredProcedure"", updateSproc);
 
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);

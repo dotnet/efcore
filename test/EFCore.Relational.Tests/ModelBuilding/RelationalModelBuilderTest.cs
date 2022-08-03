@@ -252,7 +252,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("mySchema", insertSproc.Schema);
             Assert.Equal(new[] { "BookId", "Discriminator" }, insertSproc.Parameters.Select(p => p.PropertyName));
             Assert.Equal(new[] { "Id" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
-            Assert.True(insertSproc.FindParameter("Discriminator")!.ForOriginalValue);
+            Assert.False(insertSproc.FindParameter("Discriminator")!.ForOriginalValue);
             Assert.Null(insertSproc.FindParameter("Id"));
             Assert.Null(insertSproc.FindResultColumn("Discriminator"));
             Assert.False(insertSproc.FindResultColumn("Id")!.ForRowsAffected);

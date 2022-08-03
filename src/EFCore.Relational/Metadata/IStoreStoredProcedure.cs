@@ -23,7 +23,7 @@ public interface IStoreStoredProcedure : ITableBase
     /// <summary>
     ///     Gets the parameters for this stored procedures.
     /// </summary>
-    IEnumerable<IStoreStoredProcedureParameter> Parameters { get; }
+    IReadOnlyList<IStoreStoredProcedureParameter> Parameters { get; }
 
     /// <summary>
     ///     Gets the parameter with the given name. Returns <see langword="null" />
