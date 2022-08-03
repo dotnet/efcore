@@ -17,6 +17,10 @@ public abstract class TPTTableSplittingTestBase : TableSplittingTestBase
         // TODO: Issue #22060
         => Task.CompletedTask;
 
+    // This fails in TPT rather than table sharing. We have coverage for it elsewhere
+    public override Task ExecuteDelete_throws_for_table_sharing(bool async)
+        => Task.CompletedTask;
+
     protected override string StoreName
         => "TPTTableSplittingTest";
 

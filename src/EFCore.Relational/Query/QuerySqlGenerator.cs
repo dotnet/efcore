@@ -71,7 +71,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         switch (queryExpression)
         {
             case SelectExpression selectExpression:
-            {
                 GenerateTagsHeaderComment(selectExpression);
 
                 if (selectExpression.IsNonComposedFromSql())
@@ -82,8 +81,11 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 {
                     VisitSelect(selectExpression);
                 }
-            }
-            break;
+                break;
+
+            case DeleteExpression deleteExpression:
+                VisitDelete(deleteExpression);
+                break;
 
             default:
                 throw new InvalidOperationException();
@@ -146,6 +148,37 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                         && string.Equals(
                             column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.Ordinal))
                 .All(e => e);
+
+
+    /// <inheritdoc />
+    protected override Expression VisitDelete(DeleteExpression deleteExpression)
+    {
+        var selectExpression = deleteExpression.SelectExpression;
+
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] == deleteExpression.Table
+            && selectExpression.Projection.Count == 0)
+        {
+            _relationalCommandBuilder.Append("DELETE FROM ");
+            Visit(deleteExpression.Table);
+
+            if (selectExpression.Predicate != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("WHERE ");
+                Visit(selectExpression.Predicate);
+            }
+
+            return deleteExpression;
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+    }
 
     /// <inheritdoc />
     protected override Expression VisitSelect(SelectExpression selectExpression)

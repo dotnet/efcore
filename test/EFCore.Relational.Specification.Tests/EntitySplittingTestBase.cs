@@ -38,6 +38,37 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         }
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task ExecuteDelete_throws_for_entity_splitting(bool async)
+    {
+        await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
+
+        if (async)
+        {
+            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+                CreateContext,
+                UseTransaction,
+                async context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.MeterReadings.ExecuteDeleteAsync())).Message));
+        }
+        else
+        {
+            TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext,
+                UseTransaction,
+                context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
+                    Assert.Throws<InvalidOperationException>(() => context.MeterReadings.ExecuteDelete()).Message));
+        }
+    }
+
+    public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override string StoreName
         => "EntitySplittingTest";
 

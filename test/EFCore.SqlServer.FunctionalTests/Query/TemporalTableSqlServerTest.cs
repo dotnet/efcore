@@ -19,8 +19,7 @@ public class TemporalTableSqlServerTest : NonSharedModelTestBase
     protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_basic(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -39,8 +38,7 @@ LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_join(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -64,8 +62,7 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o0] ON [m0].[Id] = [o0].[MainEntityDif
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_set_operation(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -93,8 +90,7 @@ LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_FromSql(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -121,8 +117,7 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o] ON [m].[Id] = [o].[MainEntityDiffer
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_subquery(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -156,8 +151,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_complex(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -194,8 +188,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_complex_with_nontrivial_alias(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -232,8 +225,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_range_operation_negative(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -251,8 +243,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_mapped_to_same_table(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -270,8 +261,7 @@ FROM [MainEntitiesSameTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000'
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_many(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -291,8 +281,7 @@ ORDER BY [m].[Id], [o].[MainEntityManyId]");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_with_union(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();

@@ -708,6 +708,62 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expectedType);
 
         /// <summary>
+        ///     The operation '{operation}' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.
+        /// </summary>
+        public static string ExecuteDeleteOnTableSplitting(object? operation, object? tableName)
+            => string.Format(
+                GetString("ExecuteDeleteOnTableSplitting", nameof(operation), nameof(tableName)),
+                operation, tableName);
+
+        /// <summary>
+        ///     The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting is not supported.
+        /// </summary>
+        public static string ExecuteOperationOnEntitySplitting(object? operation, object? entityType)
+            => string.Format(
+                GetString("ExecuteOperationOnEntitySplitting", nameof(operation), nameof(entityType)),
+                operation, entityType);
+
+        /// <summary>
+        ///     The operation '{operation}' cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.
+        /// </summary>
+        public static string ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator(object? operation, object? entityType)
+            => string.Format(
+                GetString("ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator", nameof(operation), nameof(entityType)),
+                operation, entityType);
+
+        /// <summary>
+        ///     The operation '{operation}' requires an entity type which corresponds to the database table to be modified. The current operation is being applied on a non-entity projection. Remove any projection to non-entity types.
+        /// </summary>
+        public static string ExecuteOperationOnNonEntityType(object? operation)
+            => string.Format(
+                GetString("ExecuteOperationOnNonEntityType", nameof(operation)),
+                operation);
+
+        /// <summary>
+        ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.
+        /// </summary>
+        public static string ExecuteOperationOnTPC(object? operation, object? entityType)
+            => string.Format(
+                GetString("ExecuteOperationOnTPC", nameof(operation), nameof(entityType)),
+                operation, entityType);
+
+        /// <summary>
+        ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT is not supported.
+        /// </summary>
+        public static string ExecuteOperationOnTPT(object? operation, object? entityType)
+            => string.Format(
+                GetString("ExecuteOperationOnTPT", nameof(operation), nameof(entityType)),
+                operation, entityType);
+
+        /// <summary>
+        ///     The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, please file an issue.
+        /// </summary>
+        public static string ExecuteOperationWithUnsupportedOperatorInSqlGeneration(object? operation)
+            => string.Format(
+                GetString("ExecuteOperationWithUnsupportedOperatorInSqlGeneration", nameof(operation)),
+                operation);
+
+        /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
         /// </summary>
         public static string FromSqlMissingColumn(object? column)
@@ -1058,6 +1114,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string NoneRelationalTypeMappingOnARelationalTypeMappingSource
             => GetString("NoneRelationalTypeMappingOnARelationalTypeMappingSource");
+
+        /// <summary>
+        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        /// </summary>
+        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
+            => string.Format(
+                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
+                expression, details);
 
         /// <summary>
         ///     Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.
@@ -2435,6 +2499,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     An exception occurred while executing a bulk operation for context type '{contextType}'.{newline}{error}
+        /// </summary>
+        public static EventDefinition<Type, string, Exception> LogExceptionDuringBulkOperation(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringBulkOperation;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringBulkOperation,
+                    logger,
+                    static logger => new EventDefinition<Type, string, Exception>(
+                        logger.Options,
+                        RelationalEventId.BulkOperationFailed,
+                        LogLevel.Error,
+                        "RelationalEventId.BulkOperationFailed",
+                        level => LoggerMessage.Define<Type, string, Exception>(
+                            level,
+                            RelationalEventId.BulkOperationFailed,
+                            _resourceManager.GetString("LogExceptionDuringBulkOperation")!)));
+            }
+
+            return (EventDefinition<Type, string, Exception>)definition;
         }
 
         /// <summary>

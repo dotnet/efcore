@@ -157,6 +157,30 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <inheritdoc />
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        var method = methodCallExpression.Method;
+        if (method.DeclaringType == typeof(RelationalQueryableExtensions))
+        {
+            var source = Visit(methodCallExpression.Arguments[0]);
+            if (source is ShapedQueryExpression shapedQueryExpression)
+            {
+                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
+                switch (method.Name)
+                {
+                    case nameof(RelationalQueryableExtensions.ExecuteDelete)
+                        when genericMethod == RelationalQueryableExtensions.ExecuteDeleteMethodInfo:
+                        return TranslateExecuteDelete(shapedQueryExpression)
+                            ?? throw new InvalidOperationException(
+                                RelationalStrings.NonQueryTranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+                }
+            }
+        }
+
+        return base.VisitMethodCall(methodCallExpression);
+    }
+
+    /// <inheritdoc />
     protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
         => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
 
@@ -944,6 +968,143 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
 
         return source;
+    }
+
+    /// <summary>
+    ///     Translates <see cref="RelationalQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" />  method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual NonQueryExpression? TranslateExecuteDelete(ShapedQueryExpression source)
+    {
+        if (source.ShaperExpression is not EntityShaperExpression entityShaperExpression)
+        {
+            AddTranslationErrorDetails(RelationalStrings.ExecuteOperationOnNonEntityType(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            return null;
+        }
+
+        var entityType = entityShaperExpression.EntityType;
+        var mappingStrategy = entityType.GetMappingStrategy();
+        if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
+        {
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnTPT(nameof(RelationalQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+            return null;
+        }
+
+        if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
+            && entityType.GetDirectlyDerivedTypes().Any())
+        {
+            // We allow TPC is it is leaf type
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnTPC(nameof(RelationalQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+            return null;
+        }
+
+        if (entityType.GetViewOrTableMappings().Count() != 1)
+        {
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnEntitySplitting(
+                    nameof(RelationalQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+            return null;
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (IsValidSelectExpressionForExecuteDelete(selectExpression, entityShaperExpression, out var tableExpression))
+        {
+            if ((mappingStrategy == null && tableExpression.Table.EntityTypeMappings.Count() != 1)
+                || (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy
+                    && tableExpression.Table.EntityTypeMappings.Any(e => e.EntityType.GetRootType() != entityType.GetRootType())))
+            {
+                AddTranslationErrorDetails(
+                    RelationalStrings.ExecuteDeleteOnTableSplitting(
+                        nameof(RelationalQueryableExtensions.ExecuteDelete), tableExpression.Table.SchemaQualifiedName));
+
+                return null;
+            }
+
+            selectExpression.ReplaceProjection(new List<Expression>());
+            selectExpression.ApplyProjection();
+
+            return new NonQueryExpression(new DeleteExpression(tableExpression, selectExpression));
+        }
+
+        // We need to convert to PK predicate
+        var pk = entityType.FindPrimaryKey();
+        if (pk == null)
+        {
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator(
+                    nameof(RelationalQueryableExtensions.ExecuteDelete),
+                    entityType.DisplayName()));
+            return null;
+        }
+
+        var clrType = entityType.ClrType;
+        var entityParameter = Expression.Parameter(clrType);
+        Expression predicateBody;
+        if (pk.Properties.Count == 1)
+        {
+            predicateBody = Expression.Call(
+                QueryableMethods.Contains.MakeGenericMethod(clrType), source, entityParameter);
+        }
+        else
+        {
+            var innerParameter = Expression.Parameter(clrType);
+            predicateBody = Expression.Call(
+                QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
+                source,
+                Expression.Quote(Expression.Lambda(Expression.Equal(innerParameter, entityParameter), innerParameter)));
+        }
+
+        var newSource = Expression.Call(
+            QueryableMethods.Where.MakeGenericMethod(clrType),
+            new EntityQueryRootExpression(entityType),
+            Expression.Quote(Expression.Lambda(predicateBody, entityParameter)));
+
+        return TranslateExecuteDelete((ShapedQueryExpression)Visit(newSource));
+    }
+
+    /// <summary>
+    ///     Validates if the current select expression can be used for execute delete operation or it requires to be pushed into a subquery.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         By default, only single-table select expressions are supported, and only with a predicate.
+    ///     </para>
+    ///     <para>
+    ///         Providers can override this to allow more select expression features to be supported without pushing down into a subquery.
+    ///         When doing this, VisitDelete must also be overridden in the provider's QuerySqlGenerator to add SQL generation support for
+    ///         the feature.
+    ///     </para>
+    /// </remarks>
+    /// <param name="selectExpression">The select expression to validate.</param>
+    /// <param name="entityShaperExpression">The entity shaper expression on which delete operation is being applied.</param>
+    /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
+    /// <returns> das </returns>
+    protected virtual bool IsValidSelectExpressionForExecuteDelete(
+        SelectExpression selectExpression,
+        EntityShaperExpression entityShaperExpression,
+        [NotNullWhen(true)] out TableExpression? tableExpression)
+    {
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            // If entity type has primary key then Distinct is no-op
+            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] is TableExpression)
+        {
+            tableExpression = (TableExpression)selectExpression.Tables[0];
+
+            return true;
+        }
+
+        tableExpression = null;
+        return false;
     }
 
     /// <summary>

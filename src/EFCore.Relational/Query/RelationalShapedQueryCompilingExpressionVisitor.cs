@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -40,6 +41,158 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
     protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
+
+    /// <inheritdoc />
+    protected override Expression VisitExtension(Expression extensionExpression)
+        => extensionExpression is NonQueryExpression nonQueryExpression
+            ? VisitNonQuery(nonQueryExpression)
+            : base.VisitExtension(extensionExpression);
+
+    /// <summary>
+    ///     Visits the given <paramref name="nonQueryExpression" />, returning an expression that when compiled, can execute the non-
+    ///     query operation against the database.
+    /// </summary>
+    /// <param name="nonQueryExpression">The expression to be compiled.</param>
+    /// <returns>An expression which executes a non-query operation.</returns>
+    protected virtual Expression VisitNonQuery(NonQueryExpression nonQueryExpression)
+    {
+        var relationalCommandCache = new RelationalCommandCache(
+            Dependencies.MemoryCache,
+            RelationalDependencies.QuerySqlGeneratorFactory,
+            RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+            nonQueryExpression.DeleteExpression,
+            _useRelationalNulls);
+
+        return Expression.Call(
+            QueryCompilationContext.IsAsync ? NonQueryAsyncMethodInfo : NonQueryMethodInfo,
+            Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
+            Expression.Constant(relationalCommandCache),
+            Expression.Constant(_contextType),
+            Expression.Constant(_threadSafetyChecksEnabled));
+    }
+
+    private static readonly MethodInfo NonQueryMethodInfo
+        = typeof(RelationalShapedQueryCompilingExpressionVisitor).GetTypeInfo()
+            .GetDeclaredMethods(nameof(NonQueryResult))
+            .Single(mi => mi.GetParameters().Length == 4);
+
+    private static readonly MethodInfo NonQueryAsyncMethodInfo
+        = typeof(RelationalShapedQueryCompilingExpressionVisitor).GetTypeInfo()
+            .GetDeclaredMethods(nameof(NonQueryResultAsync))
+            .Single(mi => mi.GetParameters().Length == 4);
+
+    private static int NonQueryResult(
+        RelationalQueryContext relationalQueryContext,
+        RelationalCommandCache relationalCommandCache,
+        Type contextType,
+        bool threadSafetyChecksEnabled)
+    {
+        try
+        {
+            if (threadSafetyChecksEnabled)
+            {
+                relationalQueryContext.ConcurrencyDetector.EnterCriticalSection();
+            }
+
+            try
+            {
+                return relationalQueryContext.ExecutionStrategy.Execute(
+                    (relationalQueryContext, relationalCommandCache),
+                    static (_, state) =>
+                    {
+                        EntityFrameworkEventSource.Log.QueryExecuting();
+
+                        var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                        return relationalCommand.ExecuteNonQuery(new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.ParameterValues,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            CommandSource.BulkUpdate));
+                    },
+                    null);
+            }
+            finally
+            {
+                if (threadSafetyChecksEnabled)
+                {
+                    relationalQueryContext.ConcurrencyDetector.ExitCriticalSection();
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            if (relationalQueryContext.ExceptionDetector.IsCancellation(exception))
+            {
+                relationalQueryContext.QueryLogger.QueryCanceled(contextType);
+            }
+            else
+            {
+                relationalQueryContext.QueryLogger.BulkOperationFailed(contextType, exception);
+            }
+
+            throw;
+        }
+    }
+
+    private static Task<int> NonQueryResultAsync(
+        RelationalQueryContext relationalQueryContext,
+        RelationalCommandCache relationalCommandCache,
+        Type contextType,
+        bool threadSafetyChecksEnabled)
+    {
+        try
+        {
+            if (threadSafetyChecksEnabled)
+            {
+                relationalQueryContext.ConcurrencyDetector.EnterCriticalSection();
+            }
+
+            try
+            {
+                return relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                    (relationalQueryContext, relationalCommandCache),
+                    static (_, state, cancellationToken) =>
+                    {
+                        EntityFrameworkEventSource.Log.QueryExecuting();
+
+                        var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                        return relationalCommand.ExecuteNonQueryAsync(new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.ParameterValues,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            CommandSource.BulkUpdate),
+                            cancellationToken);
+                    },
+                    null);
+            }
+            finally
+            {
+                if (threadSafetyChecksEnabled)
+                {
+                    relationalQueryContext.ConcurrencyDetector.ExitCriticalSection();
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            if (relationalQueryContext.ExceptionDetector.IsCancellation(exception))
+            {
+                relationalQueryContext.QueryLogger.QueryCanceled(contextType);
+            }
+            else
+            {
+                relationalQueryContext.QueryLogger.BulkOperationFailed(contextType, exception);
+            }
+
+            throw;
+        }
+    }
 
     /// <inheritdoc />
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
