@@ -72,6 +72,70 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             modelBuilder);
     }
 
+    [ConditionalFact]
+    public void Detects_insert_stored_procedures()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .InsertUsingStoredProcedure(
+                "Person_Insert",
+                spb => spb
+                    .HasParameter(w => w.Id, pb => pb.IsOutput())
+                    .HasParameter(w => w.Name)
+                    .HasParameter(w => w.FavoriteBreed));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_update_stored_procedures()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .UpdateUsingStoredProcedure(
+                "Person_Update",
+                spb => spb
+                    .HasParameter(w => w.Id)
+                    .HasParameter(w => w.Name)
+                    .HasParameter(w => w.FavoriteBreed));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_delete_stored_procedures()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .DeleteUsingStoredProcedure("Person_Delete", spb => spb.HasParameter(w => w.Id));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
+    }
+
+    public override void Passes_on_valid_UsingDeleteStoredProcedure_in_TPT()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Passes_on_valid_UsingDeleteStoredProcedure_in_TPT());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Cat)), exception.Message);
+    }
+
+    public override void Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
     public override void Store_generated_in_composite_key()
     {
         var modelBuilder = CreateConventionModelBuilder();

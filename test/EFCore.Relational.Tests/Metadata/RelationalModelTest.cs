@@ -1084,7 +1084,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
                 ordersInsertSproc.Parameters.Select(m => m.Name));
-            
+
             Assert.Equal(
                 new[] { 0, 1, 2 },
                 ordersInsertSproc.Parameters.Select(m => m.Position));
@@ -1139,7 +1139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 RelationalStrings.TableNotMappedEntityType(nameof(SpecialCustomer), ordersInsertSproc.Name),
                 Assert.Throws<InvalidOperationException>(
                     () => ordersInsertSproc.IsOptional(specialCustomerType)).Message);
-            
+
             var tableMapping = orderInsertMapping.TableMapping;
             if (mappedToTables)
             {
@@ -1289,7 +1289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     specialCustomerType.GetInsertStoredProcedureMappings().Single(m => m.IncludesDerivedTypes).StoreStoredProcedure.Name);
                 Assert.Null(baseInsertSproc.Schema);
                 Assert.Equal(
-                    new[] { nameof(AbstractBase), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
+                    new[] { nameof(AbstractBase), nameof(AbstractCustomer), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
                     baseInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
                 Assert.Equal(
@@ -1321,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Null(baseUpdateSproc.Schema);
                 Assert.Equal(
-                    new[] { nameof(AbstractBase), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
+                    new[] { nameof(AbstractBase), nameof(AbstractCustomer), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
                     baseUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
                 Assert.Equal(
@@ -1353,7 +1353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 Assert.Null(baseDeleteSproc.Schema);
                 Assert.Equal(
-                    new[] { nameof(AbstractBase), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
+                    new[] { nameof(AbstractBase), nameof(AbstractCustomer), nameof(Customer), nameof(ExtraSpecialCustomer), nameof(SpecialCustomer) },
                     baseDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
                 Assert.Equal(
@@ -1421,8 +1421,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Same(idPropertyInsertParameter.StoredProcedure, idPropertyInsertParameter.Table);
                 Assert.Same(idPropertyInsertParameterMapping, idPropertyInsertParameter.FindParameterMapping(abstractBaseType));
 
-                Assert.Equal(3, idProperty.GetInsertStoredProcedureResultColumnMappings().Count());
-                Assert.Equal(7, idProperty.GetInsertStoredProcedureParameterMappings().Count());
+                Assert.Equal(2, idProperty.GetInsertStoredProcedureResultColumnMappings().Count());
+                Assert.Equal(10, idProperty.GetInsertStoredProcedureParameterMappings().Count());
                 Assert.Equal(
                     new[]
                     {
@@ -1451,7 +1451,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Same(idPropertyUpdateParameterMapping, idPropertyUpdateParameter.FindParameterMapping(abstractBaseType));
 
                 Assert.Empty(idProperty.GetUpdateStoredProcedureResultColumnMappings());
-                Assert.Equal(10, idProperty.GetUpdateStoredProcedureParameterMappings().Count());
+                Assert.Equal(12, idProperty.GetUpdateStoredProcedureParameterMappings().Count());
                 Assert.Equal(
                     new[]
                     {
@@ -1479,7 +1479,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Same(idPropertyDeleteParameter.StoredProcedure, idPropertyDeleteParameter.Table);
                 Assert.Same(idPropertyDeleteParameterMapping, idPropertyDeleteParameter.FindParameterMapping(abstractBaseType));
 
-                Assert.Equal(10, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
+                Assert.Equal(12, idProperty.GetDeleteStoredProcedureParameterMappings().Count());
                 Assert.Equal(
                     new[]
                     {
@@ -1491,7 +1491,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     },
                     idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
             }
-            else
+            else // Non-TPT
             {
                 var specialCustomerInsertMapping = specialCustomerType.GetInsertStoredProcedureMappings().Single();
                 Assert.Null(specialCustomerInsertMapping.IsSplitEntityTypePrincipal);
@@ -1721,7 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         new[] { StoreObjectIdentifier.DeleteStoredProcedure(customerDeleteSproc.Name, customerDeleteSproc.Schema) },
                         idProperty.GetMappedStoreObjects(StoreObjectType.DeleteStoredProcedure));
                 }
-                else
+                else // TPC
                 {
                     Assert.Null(abstractBaseType.GetInsertStoredProcedure());
                     Assert.Null(abstractBaseType.GetUpdateStoredProcedure());
@@ -2012,11 +2012,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             {
                                 cb.InsertUsingStoredProcedure(s => s.HasParameter("SpecialtyAk"));
                             }
-                            else
-                            {
-                                cb.InsertUsingStoredProcedure(
-                                    s => s.HasParameter(c => c.Id, p => p.IsOutput()));
-                            }
                         }
                     }
                 });
@@ -2196,7 +2191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             else if (mapping == Mapping.TPT)
                             {
                                 cb
-                                    .InsertUsingStoredProcedure(s => s.HasResultColumn(b => b.Id))
+                                    .InsertUsingStoredProcedure(s => s.HasParameter(b => b.Id))
                                     .UpdateUsingStoredProcedure(s => s.HasParameter(b => b.Id))
                                     .DeleteUsingStoredProcedure(s => s.HasParameter(b => b.Id));
                             }

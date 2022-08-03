@@ -1693,7 +1693,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     || HasTemporaryValue(property)
                     || HasDefaultValue(property)))
             || (property.ValueGenerated.ForUpdate()
-                && (EntityState == EntityState.Modified || EntityState == EntityState.Deleted)
+                && (EntityState is EntityState.Modified or EntityState.Deleted)
                 && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
                     || !IsModified(property)));
 

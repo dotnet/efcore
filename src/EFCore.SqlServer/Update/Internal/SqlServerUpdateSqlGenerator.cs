@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Globalization;
 using System.Text;
 
@@ -184,11 +185,8 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         int commandPosition,
-        out bool resultsContainPositionMapping,
         out bool requiresTransaction)
     {
-        resultsContainPositionMapping = false;
-
         var firstCommand = modificationCommands[0];
 
         if (modificationCommands.Count == 1)
@@ -239,7 +237,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
             }
 
             return readOperations.Count == 0
-                ? ResultSetMapping.NoResultSet
+                ? ResultSetMapping.NoResults
                 : ResultSetMapping.LastInResultSet;
         }
 
@@ -284,8 +282,6 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         {
             // MERGE ... OUTPUT returns rows whose ordering isn't guaranteed. So this technique projects back a position int with each row,
             // to allow mapping the rows back for value propagation.
-            resultsContainPositionMapping = true;
-
             return AppendMergeWithOutput(
                 commandStringBuilder, modificationCommands, writeOperations, readOperations, out requiresTransaction);
         }
@@ -339,7 +335,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
         requiresTransaction = false;
 
-        return ResultSetMapping.NoResultSet;
+        return ResultSetMapping.NoResults;
     }
 
     private const string InsertedTableBaseName = "@inserted";
@@ -374,7 +370,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
         requiresTransaction = false;
 
-        return ResultSetMapping.NotLastInResultSet;
+        return ResultSetMapping.NotLastInResultSet | ResultSetMapping.IsPositionalResultMappingEnabled;
     }
 
     private ResultSetMapping AppendMergeWithOutputInto(
@@ -445,7 +441,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
         requiresTransaction = false;
 
-        return ResultSetMapping.NoResultSet;
+        return ResultSetMapping.NoResults;
     }
 
     private ResultSetMapping AppendInsertMultipleDefaultRowsWithOutputInto(
@@ -545,6 +541,94 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
                     helper.DelimitIdentifier(sb, o.ColumnName);
                 })
             .Append(')');
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override ResultSetMapping AppendStoredProcedureCall(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+    {
+        Check.DebugAssert(command.StoreStoredProcedure is not null, "command.StoredProcedure is not null");
+
+        var storedProcedure = command.StoreStoredProcedure;
+        var resultSetMapping = storedProcedure.ResultColumns.Any()
+            ? ResultSetMapping.LastInResultSet
+            : ResultSetMapping.NoResults;
+
+        Check.DebugAssert(storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
+            "Stored procedure call with neither parameters nor result columns");
+
+        commandStringBuilder.Append("EXEC ");
+
+        if (storedProcedure.ReturnValue is not null)
+        {
+            var returnValueModification = command.ColumnModifications.First(c => c.Column is IStoreStoredProcedureReturnValue);
+
+            Check.DebugAssert(returnValueModification.UseCurrentValueParameter, "returnValueModification.UseCurrentValueParameter");
+            Check.DebugAssert(!returnValueModification.UseOriginalValueParameter, "!returnValueModification.UseOriginalValueParameter");
+
+            SqlGenerationHelper.GenerateParameterNamePlaceholder(commandStringBuilder, returnValueModification.ParameterName!);
+
+            commandStringBuilder.Append(" = ");
+
+            resultSetMapping |= ResultSetMapping.HasOutputParameters;
+        }
+
+        SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, storedProcedure.Name, storedProcedure.Schema);
+
+        if (storedProcedure.Parameters.Any())
+        {
+            commandStringBuilder.Append(' ');
+
+            var first = true;
+
+            // Only positional parameter style supported for now, see #28439
+
+            var orderedParameterModifications = command.ColumnModifications
+                .Where(c => c.Column is IStoreStoredProcedureParameter)
+                .OrderBy(c => ((IStoreStoredProcedureParameter)c.Column!).Position);
+
+            foreach (var columnModification in orderedParameterModifications)
+            {
+                var parameter = (IStoreStoredProcedureParameter)columnModification.Column!;
+
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    commandStringBuilder.Append(", ");
+                }
+
+                Check.DebugAssert(columnModification.UseParameter, "Column modification matched a parameter, but UseParameter is false");
+
+                SqlGenerationHelper.GenerateParameterNamePlaceholder(
+                    commandStringBuilder, columnModification.UseOriginalValueParameter
+                        ? columnModification.OriginalParameterName!
+                        : columnModification.ParameterName!);
+
+                // Note that in/out parameters also get suffixed with OUTPUT in SQL Server
+                if (parameter.Direction.HasFlag(ParameterDirection.Output))
+                {
+                    commandStringBuilder.Append(" OUTPUT");
+                    resultSetMapping |= ResultSetMapping.HasOutputParameters;
+                }
+            }
+        }
+
+        commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+
+        requiresTransaction = true;
+
+        return resultSetMapping;
     }
 
     private void AppendValues(

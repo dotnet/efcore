@@ -1546,6 +1546,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
+        ///     Stored procedure '{sproc]' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedNotPopulated(object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedNotPopulated", nameof(sproc)),
+                sproc);
+
+        /// <summary>
         ///     The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.
         /// </summary>
         public static string StoredProcedureOverrideMismatch(object? propertySpecification, object? sproc)

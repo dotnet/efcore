@@ -960,7 +960,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         var updateStoredProcedureMappings = new List<StoredProcedureMapping>();
 
         var mappingStrategy = entityType.GetMappingStrategy();
+        var isTpt = mappingStrategy == RelationalAnnotationNames.TptMappingStrategy;
         var isTpc = mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy;
+        var isTph = mappingStrategy == RelationalAnnotationNames.TphMappingStrategy;
         while (mappedType != null)
         {
             var includesDerivedTypes = !isTpc && mappedType == entityType;
@@ -990,10 +992,12 @@ public class RelationalModel : Annotatable, IRelationalModel
                 
                 if (tableMapping != null)
                 {
+                    Check.DebugAssert(tableMapping.InsertStoredProcedureMapping == null,
+                        "Expected sproc mapping to be unique");
                     tableMapping.InsertStoredProcedureMapping = insertProcedureMapping;
                 }
             }
-            else if (entityType == mappedType)
+            else if (entityType == mappedType && !isTpt)
             {
                 insertStoredProcedureMappings = null;
             }
@@ -1014,10 +1018,12 @@ public class RelationalModel : Annotatable, IRelationalModel
                 
                 if (tableMapping != null)
                 {
+                    Check.DebugAssert(tableMapping.DeleteStoredProcedureMapping == null,
+                        "Expected sproc mapping to be unique");
                     tableMapping.DeleteStoredProcedureMapping = deleteProcedureMapping;
                 }
             }
-            else if (entityType == mappedType)
+            else if (entityType == mappedType && !isTpt)
             {
                 deleteStoredProcedureMappings = null;
             }
@@ -1038,15 +1044,17 @@ public class RelationalModel : Annotatable, IRelationalModel
                 
                 if (tableMapping != null)
                 {
+                    Check.DebugAssert(tableMapping.UpdateStoredProcedureMapping == null,
+                        "Expected sproc mapping to be unique");
                     tableMapping.UpdateStoredProcedureMapping = updateProcedureMapping;
                 }
             }
-            else if (entityType == mappedType)
+            else if (entityType == mappedType && !isTpt)
             {
                 updateStoredProcedureMappings = null;
             }
 
-            if (isTpc || mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
+            if (isTpc || isTph)
             {
                 break;
             }
@@ -1169,13 +1177,16 @@ public class RelationalModel : Annotatable, IRelationalModel
             columnMappings.Add(columnMapping);
         }
 
+        position = -1;
         foreach (var resultColumn in storedProcedure.ResultColumns)
         {
+            position++;
             if (resultColumn.PropertyName == null)
             {
                 GetOrCreateStoreStoredProcedureResultColumn(
                     resultColumn,
                     null,
+                    position,
                     storeStoredProcedure,
                     identifier,
                     relationalTypeMappingSource);
@@ -1199,6 +1210,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                             GetOrCreateStoreStoredProcedureResultColumn(
                                 resultColumn,
                                 derivedProperty,
+                                position,
                                 storeStoredProcedure,
                                 identifier,
                                 relationalTypeMappingSource);
@@ -1213,6 +1225,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             var column = GetOrCreateStoreStoredProcedureResultColumn(
                 resultColumn,
                 property,
+                position,
                 storeStoredProcedure,
                 identifier,
                 relationalTypeMappingSource);
@@ -1320,6 +1333,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         static StoreStoredProcedureResultColumn GetOrCreateStoreStoredProcedureResultColumn(
             IStoredProcedureResultColumn resultColumn,
             IProperty? property,
+            int position,
             StoreStoredProcedure storeStoredProcedure,
             StoreObjectIdentifier identifier,
             IRelationalTypeMappingSource relationalTypeMappingSource)
@@ -1334,13 +1348,16 @@ public class RelationalModel : Annotatable, IRelationalModel
                     column = new StoreStoredProcedureResultColumn(
                         name,
                         typeMapping.StoreType,
-                        storeStoredProcedure);
+                        position,
+                        storeStoredProcedure,
+                        typeMapping);
                 }
                 else
                 {
                     column = new StoreStoredProcedureResultColumn(
                         name,
                         property.GetColumnType(identifier),
+                        position,
                         storeStoredProcedure)
                     {
                         IsNullable = property.IsColumnNullable(identifier)

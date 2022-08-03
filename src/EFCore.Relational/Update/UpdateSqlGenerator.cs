@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -47,14 +48,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     protected virtual ISqlGenerationHelper SqlGenerationHelper
         => Dependencies.SqlGenerationHelper;
 
-    /// <summary>
-    ///     Appends a SQL command for inserting a row to the commands being built.
-    /// </summary>
-    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
-    /// <param name="command">The command that represents the delete operation.</param>
-    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
-    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
-    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    /// <inheritdoc />
     public virtual ResultSetMapping AppendInsertOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
@@ -95,17 +89,10 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
 
         requiresTransaction = false;
 
-        return readOperations.Count > 0 ? ResultSetMapping.LastInResultSet : ResultSetMapping.NoResultSet;
+        return readOperations.Count > 0 ? ResultSetMapping.LastInResultSet : ResultSetMapping.NoResults;
     }
 
-    /// <summary>
-    ///     Appends a SQL command for updating a row to the commands being built.
-    /// </summary>
-    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
-    /// <param name="command">The command that represents the delete operation.</param>
-    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
-    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
-    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    /// <inheritdoc />
     public virtual ResultSetMapping AppendUpdateOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
@@ -152,14 +139,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         return ResultSetMapping.LastInResultSet;
     }
 
-    /// <summary>
-    ///     Appends a SQL command for deleting a row to the commands being built.
-    /// </summary>
-    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
-    /// <param name="command">The command that represents the delete operation.</param>
-    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
-    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
-    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    /// <inheritdoc />
     public virtual ResultSetMapping AppendDeleteOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
@@ -346,6 +326,72 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                         g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
                     }
                 });
+    }
+
+    /// <inheritdoc />
+    public virtual ResultSetMapping AppendStoredProcedureCall(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+    {
+        Check.DebugAssert(command.StoreStoredProcedure is not null, "command.StoredProcedure is not null");
+
+        var storedProcedure = command.StoreStoredProcedure;
+        var resultSetMapping = storedProcedure.ResultColumns.Any()
+            ? ResultSetMapping.LastInResultSet
+            : ResultSetMapping.NoResults;
+
+        Check.DebugAssert(storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
+            "Stored procedure call with neither parameters nor result columns");
+
+        commandStringBuilder.Append("CALL ");
+
+        SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, storedProcedure.Name, storedProcedure.Schema);
+
+        commandStringBuilder.Append('(');
+
+        var first = true;
+
+        // Only positional parameter style supported for now, see #28439
+
+        var orderedParameterModifications = command.ColumnModifications
+            .Where(c => c.Column is IStoreStoredProcedureParameter)
+            .OrderBy(c => ((IStoreStoredProcedureParameter)c.Column!).Position);
+
+        foreach (var columnModification in orderedParameterModifications)
+        {
+            var parameter = (IStoreStoredProcedureParameter)columnModification.Column!;
+
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                commandStringBuilder.Append(", ");
+            }
+
+            Check.DebugAssert(columnModification.UseParameter, "Column modification matched a parameter, but UseParameter is false");
+
+            SqlGenerationHelper.GenerateParameterNamePlaceholder(
+                commandStringBuilder, columnModification.UseOriginalValueParameter
+                    ? columnModification.OriginalParameterName!
+                    : columnModification.ParameterName!);
+
+            if (parameter.Direction.HasFlag(ParameterDirection.Output))
+            {
+                resultSetMapping |= ResultSetMapping.HasOutputParameters;
+            }
+        }
+
+        commandStringBuilder.Append(')');
+
+        commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+
+        requiresTransaction = true;
+
+        return resultSetMapping;
     }
 
     /// <summary>

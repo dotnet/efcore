@@ -70,15 +70,13 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     /// </summary>
     protected virtual ValueConverter<TGeometry, TProvider>? SpatialConverter { get; }
 
-    /// <summary>
-    ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
-    /// </summary>
-    /// <param name="command">The command the parameter should be created on.</param>
-    /// <param name="name">The name of the parameter.</param>
-    /// <param name="value">The value to be assigned to the parameter.</param>
-    /// <param name="nullable">A value indicating whether the parameter should be a nullable type.</param>
-    /// <returns>The newly created parameter.</returns>
-    public override DbParameter CreateParameter(DbCommand command, string name, object? value, bool? nullable = null)
+    /// <inheritdoc />
+    public override DbParameter CreateParameter(
+        DbCommand command,
+        string name,
+        object? value,
+        bool? nullable = null,
+        ParameterDirection direction = ParameterDirection.Input)
     {
         var parameter = command.CreateParameter();
         parameter.Direction = ParameterDirection.Input;

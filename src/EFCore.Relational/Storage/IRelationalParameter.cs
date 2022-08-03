@@ -37,5 +37,5 @@ public interface IRelationalParameter
     /// </summary>
     /// <param name="command">The command to add the parameter to.</param>
     /// <param name="parameterValues">The map of parameter values</param>
-    void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object?> parameterValues);
+    void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object?>? parameterValues);
 }

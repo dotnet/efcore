@@ -996,6 +996,9 @@
   <data name="StoredProcedureOutputParameterNotGenerated" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.</value>
   </data>
+  <data name="StoredProcedureRowsAffectedNotPopulated" xml:space="preserve">
+    <value>Stored procedure '{sproc}' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.</value>
+  </data>
   <data name="StoredProcedureOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.</value>
   </data>

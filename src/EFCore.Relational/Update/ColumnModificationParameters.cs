@@ -80,7 +80,7 @@ public readonly record struct ColumnModificationParameters
     /// <summary>
     ///     The column.
     /// </summary>
-    public IColumn? Column { get; init; }
+    public IColumnBase? Column { get; init; }
 
     /// <summary>
     ///     The name of the column.
@@ -199,8 +199,8 @@ public readonly record struct ColumnModificationParameters
     /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
     public ColumnModificationParameters(
         IUpdateEntry entry,
-        IProperty property,
-        IColumn column,
+        IProperty? property,
+        IColumnBase column,
         Func<string> generateParameterName,
         RelationalTypeMapping typeMapping,
         bool valueIsRead,

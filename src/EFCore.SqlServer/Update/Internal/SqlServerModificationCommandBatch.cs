@@ -89,27 +89,9 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         var wasCachedCommandTextEmpty = IsCommandTextEmpty;
 
         var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
-            SqlBuilder, _pendingBulkInsertCommands, commandPosition, out var resultsContainPositionMapping,
-            out var requiresTransaction);
+            SqlBuilder, _pendingBulkInsertCommands, commandPosition, out var requiresTransaction);
 
         SetRequiresTransaction(!wasCachedCommandTextEmpty || requiresTransaction);
-
-        if (resultsContainPositionMapping)
-        {
-            if (ResultsPositionalMappingEnabled is null)
-            {
-                ResultsPositionalMappingEnabled = new BitArray(CommandResultSet.Count + _pendingBulkInsertCommands.Count);
-            }
-            else
-            {
-                ResultsPositionalMappingEnabled.Length = CommandResultSet.Count + _pendingBulkInsertCommands.Count;
-            }
-
-            for (var i = commandPosition; i < commandPosition + _pendingBulkInsertCommands.Count; i++)
-            {
-                ResultsPositionalMappingEnabled![i] = true;
-            }
-        }
 
         foreach (var pendingCommand in _pendingBulkInsertCommands)
         {
@@ -118,7 +100,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             CommandResultSet.Add(resultSetMapping);
         }
 
-        if (resultSetMapping != ResultSetMapping.NoResultSet)
+        if (resultSetMapping != ResultSetMapping.NoResults)
         {
             CommandResultSet[^1] = ResultSetMapping.LastInResultSet;
         }
@@ -132,7 +114,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// </summary>
     protected override void AddCommand(IReadOnlyModificationCommand modificationCommand)
     {
-        if (modificationCommand.EntityState == EntityState.Added)
+        if (modificationCommand.EntityState == EntityState.Added && modificationCommand.StoreStoredProcedure is null)
         {
             if (_pendingBulkInsertCommands.Count > 0
                 && !CanBeInsertedInSameStatement(_pendingBulkInsertCommands[0], modificationCommand))

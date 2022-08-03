@@ -47,6 +47,14 @@ public interface IColumnBase : IAnnotatable
     IReadOnlyList<IColumnMappingBase> PropertyMappings { get; }
 
     /// <summary>
+    ///     Gets the <see cref="ValueComparer" /> for this column.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    ValueComparer ProviderValueComparer
+        => PropertyMappings.First().Property
+            .GetProviderValueComparer();
+
+    /// <summary>
     ///     Returns the property mapping for the given entity type.
     /// </summary>
     /// <param name="entityType">An entity type.</param>

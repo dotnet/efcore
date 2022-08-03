@@ -322,6 +322,8 @@ public abstract class RelationalTypeMappingTest
         Assert.True(parameter.IsNullable);
     }
 
+    // TODO: Add tests for parameter directions
+
     [ConditionalFact]
     public void Can_create_required_string_parameter()
     {

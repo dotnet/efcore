@@ -1153,7 +1153,7 @@ public static class RelationalPropertyExtensions
 
         return optional ?? (entityType.BaseType != null && entityType.FindDiscriminatorProperty() != null);
     }
-    
+
     /// <summary>
     ///     Returns the comment for the column this property is mapped to.
     /// </summary>

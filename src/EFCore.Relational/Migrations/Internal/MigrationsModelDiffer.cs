@@ -2073,7 +2073,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 var anyColumnsModified = false;
                 foreach (var targetColumnModification in targetRow.ColumnModifications)
                 {
-                    var targetColumn = targetColumnModification.Column!;
+                    var targetColumnBase = targetColumnModification.Column!;
+                    Check.DebugAssert(targetColumnBase is IColumn, "Non-IColumn columns not allowed");
+                    var targetColumn = (IColumn)targetColumnBase;
                     var targetMapping = targetColumn.PropertyMappings.First();
                     var targetProperty = targetMapping.Property;
 
@@ -2281,7 +2283,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         Check.DebugAssert(forSource, "Delete using the target model");
 
                         var keyColumns = command.ColumnModifications.Where(col => col.IsKey)
-                            .Select(c => c.Column!);
+                            .Select(c => (IColumn)c.Column!);
                         var anyKeyColumnDropped = keyColumns.Any(c => diffContext.FindDrop(c) != null);
 
                         yield return new DeleteDataOperation
