@@ -1220,6 +1220,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 {
                     IsNullable = property?.IsColumnNullable(identifier) ?? false
                 };
+                
+                ((IRuntimeStoredProcedureParameter)parameter).StoreParameter = storeParameter;
                 storeStoredProcedure.AddParameter(storeParameter);
             }
             else if (property?.IsColumnNullable(identifier) == false)
