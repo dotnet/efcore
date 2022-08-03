@@ -1,386 +1,511 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+/// <summary>
+///     A convention that creates an optimized copy of the mutable model. This convention is typically
+///     implemented by database providers to update provider annotations when creating a read-only model.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
+/// </remarks>
+public class RelationalRuntimeModelConvention : RuntimeModelConvention
 {
     /// <summary>
-    ///     A convention that creates an optimized copy of the mutable model. This convention is typically
-    ///     implemented by database providers to update provider annotations when creating a read-only model.
+    ///     Creates a new instance of <see cref="RelationalRuntimeModelConvention" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
-    /// </remarks>
-    public class RelationalRuntimeModelConvention : RuntimeModelConvention
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
+    public RelationalRuntimeModelConvention(
+        ProviderConventionSetBuilderDependencies dependencies,
+        RelationalConventionSetBuilderDependencies relationalDependencies)
+        : base(dependencies)
     {
-        /// <summary>
-        ///     Creates a new instance of <see cref="RelationalModelConvention" />.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
-        public RelationalRuntimeModelConvention(
-            ProviderConventionSetBuilderDependencies dependencies,
-            RelationalConventionSetBuilderDependencies relationalDependencies)
-            : base(dependencies)
-        {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+        RelationalDependencies = relationalDependencies;
+    }
 
-            RelationalDependencies = relationalDependencies;
+    /// <summary>
+    ///     Relational provider-specific dependencies for this service.
+    /// </summary>
+    protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
+
+    /// <summary>
+    ///     Updates the model annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="model">The source model.</param>
+    /// <param name="runtimeModel">The target model that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessModelAnnotations(
+        Dictionary<string, object?> annotations,
+        IModel model,
+        RuntimeModel runtimeModel,
+        bool runtime)
+    {
+        base.ProcessModelAnnotations(annotations, model, runtimeModel, runtime);
+
+        if (runtime)
+        {
+            annotations[RelationalAnnotationNames.RelationalModel] =
+                RelationalModel.Create(runtimeModel, RelationalDependencies.RelationalAnnotationProvider, designTime: false);
         }
-
-        /// <summary>
-        ///     Relational provider-specific dependencies for this service.
-        /// </summary>
-        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
-
-        /// <summary>
-        ///     Updates the model annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="model">The source model.</param>
-        /// <param name="runtimeModel">The target model that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected override void ProcessModelAnnotations(
-            Dictionary<string, object?> annotations,
-            IModel model,
-            RuntimeModel runtimeModel,
-            bool runtime)
+        else
         {
-            base.ProcessModelAnnotations(annotations, model, runtimeModel, runtime);
+            annotations.Remove(RelationalAnnotationNames.Collation);
 
-            if (runtime)
+            if (annotations.TryGetValue(RelationalAnnotationNames.DbFunctions, out var functions))
             {
-                annotations[RelationalAnnotationNames.RelationalModel] =
-                    RelationalModel.Create(runtimeModel, RelationalDependencies.RelationalAnnotationProvider, designTime: false);
-            }
-            else
-            {
-                annotations.Remove(RelationalAnnotationNames.Collation);
-
-                if (annotations.TryGetValue(RelationalAnnotationNames.DbFunctions, out var functions))
+                var runtimeFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal);
+                foreach (var (key, dbFunction) in (SortedDictionary<string, IDbFunction>)functions!)
                 {
-                    var runtimeFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal);
-                    foreach (var functionPair in (SortedDictionary<string, IDbFunction>)functions!)
+                    var runtimeFunction = Create(dbFunction, runtimeModel);
+                    runtimeFunctions[key] = runtimeFunction;
+
+                    foreach (var parameter in dbFunction.Parameters)
                     {
-                        var runtimeFunction = Create(functionPair.Value, runtimeModel);
-                        runtimeFunctions[functionPair.Key] = runtimeFunction;
-
-                        foreach (var parameter in functionPair.Value.Parameters)
-                        {
-                            var runtimeParameter = Create(parameter, runtimeFunction);
-
-                            CreateAnnotations(
-                                parameter, runtimeParameter, static (convention, annotations, source, target, runtime) =>
-                                    convention.ProcessFunctionParameterAnnotations(annotations, source, target, runtime));
-                        }
+                        var runtimeParameter = Create(parameter, runtimeFunction);
 
                         CreateAnnotations(
-                            functionPair.Value, runtimeFunction, static (convention, annotations, source, target, runtime) =>
-                                convention.ProcessFunctionAnnotations(annotations, source, target, runtime));
+                            parameter, runtimeParameter, static (convention, annotations, source, target, runtime) =>
+                                convention.ProcessFunctionParameterAnnotations(annotations, source, target, runtime));
                     }
 
-                    annotations[RelationalAnnotationNames.DbFunctions] = runtimeFunctions;
+                    CreateAnnotations(
+                        dbFunction, runtimeFunction, static (convention, annotations, source, target, runtime) =>
+                            convention.ProcessFunctionAnnotations(annotations, source, target, runtime));
                 }
 
-                if (annotations.TryGetValue(RelationalAnnotationNames.Sequences, out var sequences))
+                annotations[RelationalAnnotationNames.DbFunctions] = runtimeFunctions;
+            }
+
+            if (annotations.TryGetValue(RelationalAnnotationNames.Sequences, out var sequences))
+            {
+                var runtimeSequences = new SortedDictionary<(string, string?), ISequence>();
+                foreach (var (key, value) in (SortedDictionary<(string, string?), ISequence>)sequences!)
                 {
-                    var runtimeSequences = new SortedDictionary<(string, string?), ISequence>();
-                    foreach (var sequencePair in (SortedDictionary<(string, string?), ISequence>)sequences!)
-                    {
-                        var runtimeSequence = Create(sequencePair.Value, runtimeModel);
-                        runtimeSequences[sequencePair.Key] = runtimeSequence;
+                    var runtimeSequence = Create(value, runtimeModel);
+                    runtimeSequences[key] = runtimeSequence;
 
-                        CreateAnnotations(
-                            sequencePair.Value, runtimeSequence, static (convention, annotations, source, target, runtime) =>
-                                convention.ProcessSequenceAnnotations(annotations, source, target, runtime));
-                    }
-
-                    annotations[RelationalAnnotationNames.Sequences] = runtimeSequences;
+                    CreateAnnotations(
+                        value, runtimeSequence, static (convention, annotations, source, target, runtime) =>
+                            convention.ProcessSequenceAnnotations(annotations, source, target, runtime));
                 }
+
+                annotations[RelationalAnnotationNames.Sequences] = runtimeSequences;
             }
         }
+    }
 
-        /// <summary>
-        ///     Updates the entity type annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="entityType">The source entity type.</param>
-        /// <param name="runtimeEntityType">The target entity type that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected override void ProcessEntityTypeAnnotations(
-            IDictionary<string, object?> annotations,
-            IEntityType entityType,
-            RuntimeEntityType runtimeEntityType,
-            bool runtime)
+    /// <summary>
+    ///     Updates the entity type annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="entityType">The source entity type.</param>
+    /// <param name="runtimeEntityType">The target entity type that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessEntityTypeAnnotations(
+        IDictionary<string, object?> annotations,
+        IEntityType entityType,
+        RuntimeEntityType runtimeEntityType,
+        bool runtime)
+    {
+        base.ProcessEntityTypeAnnotations(annotations, entityType, runtimeEntityType, runtime);
+
+        if (runtime)
         {
-            base.ProcessEntityTypeAnnotations(annotations, entityType, runtimeEntityType, runtime);
+            annotations.Remove(RelationalAnnotationNames.TableMappings);
+            annotations.Remove(RelationalAnnotationNames.ViewMappings);
+            annotations.Remove(RelationalAnnotationNames.SqlQueryMappings);
+            annotations.Remove(RelationalAnnotationNames.FunctionMappings);
+            annotations.Remove(RelationalAnnotationNames.InsertStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.DeleteStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.UpdateStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.DefaultMappings);
+        }
+        else
+        {
+            annotations.Remove(RelationalAnnotationNames.CheckConstraints);
+            annotations.Remove(RelationalAnnotationNames.Comment);
+            annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
+                
+            // These need to be set explicitly to prevent default values from being generated
+            annotations[RelationalAnnotationNames.TableName] = entityType.GetTableName();
+            annotations[RelationalAnnotationNames.Schema] = entityType.GetSchema();
+            annotations[RelationalAnnotationNames.ViewName] = entityType.GetViewName();
+            annotations[RelationalAnnotationNames.ViewSchema] = entityType.GetViewSchema();
+            annotations[RelationalAnnotationNames.SqlQuery] = entityType.GetSqlQuery();
+            annotations[RelationalAnnotationNames.FunctionName] = entityType.GetFunctionName();
 
-            if (runtime)
+            if (annotations.TryGetValue(RelationalAnnotationNames.MappingFragments, out var mappingFragments))
             {
-                annotations.Remove(RelationalAnnotationNames.TableMappings);
-                annotations.Remove(RelationalAnnotationNames.ViewMappings);
-                annotations.Remove(RelationalAnnotationNames.SqlQueryMappings);
-                annotations.Remove(RelationalAnnotationNames.FunctionMappings);
-                annotations.Remove(RelationalAnnotationNames.DefaultMappings);
-            }
-            else
-            {
-                annotations.Remove(RelationalAnnotationNames.CheckConstraints);
-                annotations.Remove(RelationalAnnotationNames.Comment);
-                annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
-
-                // These need to be set explicitly to prevent default values from being generated
-                annotations[RelationalAnnotationNames.TableName] = entityType.GetTableName();
-                annotations[RelationalAnnotationNames.Schema] = entityType.GetSchema();
-                annotations[RelationalAnnotationNames.ViewName] = entityType.GetViewName();
-                annotations[RelationalAnnotationNames.ViewSchema] = entityType.GetViewSchema();
-                annotations[RelationalAnnotationNames.SqlQuery] = entityType.GetSqlQuery();
-                annotations[RelationalAnnotationNames.FunctionName] = entityType.GetFunctionName();
-            }
-        }
-
-        private void CreateAnnotations<TSource, TTarget>(
-            TSource source,
-            TTarget target,
-            Action<RelationalRuntimeModelConvention, Dictionary<string, object?>, TSource, TTarget, bool> process)
-            where TSource : IAnnotatable
-            where TTarget : AnnotatableBase
-        {
-            var annotations = source.GetAnnotations().ToDictionary(a => a.Name, a => a.Value);
-            process(this, annotations, source, target, false);
-            target.AddAnnotations(annotations);
-
-            annotations = source.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value);
-            process(this, annotations, source, target, true);
-            target.AddRuntimeAnnotations(annotations);
-        }
-
-        private RuntimeDbFunction Create(IDbFunction function, RuntimeModel runtimeModel)
-            => new RuntimeDbFunction(
-                function.ModelName,
-                runtimeModel,
-                function.ReturnType,
-                function.Name,
-                function.Schema,
-                function.StoreType,
-                function.MethodInfo,
-                function.IsScalar,
-                function.IsAggregate,
-                function.IsNullable,
-                function.IsBuiltIn,
-                function.TypeMapping,
-                function.Translation);
-
-        /// <summary>
-        ///     Updates the function annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="function">The source function.</param>
-        /// <param name="runtimeFunction">The target function that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected virtual void ProcessFunctionAnnotations(
-            Dictionary<string, object?> annotations,
-            IDbFunction function,
-            RuntimeDbFunction runtimeFunction,
-            bool runtime)
-        {
-        }
-
-        private RuntimeDbFunctionParameter Create(IDbFunctionParameter parameter, RuntimeDbFunction runtimeFunction)
-            => runtimeFunction.AddParameter(
-                parameter.Name,
-                parameter.ClrType,
-                parameter.PropagatesNullability,
-                parameter.StoreType,
-                parameter.TypeMapping);
-
-        /// <summary>
-        ///     Updates the function parameter annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="parameter">The source function parameter.</param>
-        /// <param name="runtimeParameter">The target function parameter that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected virtual void ProcessFunctionParameterAnnotations(
-            Dictionary<string, object?> annotations,
-            IDbFunctionParameter parameter,
-            RuntimeDbFunctionParameter runtimeParameter,
-            bool runtime)
-        {
-        }
-
-        private RuntimeSequence Create(ISequence sequence, RuntimeModel runtimeModel)
-            => new RuntimeSequence(
-                sequence.Name,
-                runtimeModel,
-                sequence.Type,
-                sequence.Schema,
-                sequence.StartValue,
-                sequence.IncrementBy,
-                sequence.IsCyclic,
-                sequence.MinValue,
-                sequence.MaxValue);
-
-        /// <summary>
-        ///     Updates the sequence annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="sequence">The source sequence.</param>
-        /// <param name="runtimeSequence">The target sequence that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected virtual void ProcessSequenceAnnotations(
-            Dictionary<string, object?> annotations,
-            ISequence sequence,
-            RuntimeSequence runtimeSequence,
-            bool runtime)
-        {
-        }
-
-        /// <summary>
-        ///     Updates the property annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="property">The source property.</param>
-        /// <param name="runtimeProperty">The target property that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected override void ProcessPropertyAnnotations(
-            Dictionary<string, object?> annotations,
-            IProperty property,
-            RuntimeProperty runtimeProperty,
-            bool runtime)
-        {
-            base.ProcessPropertyAnnotations(annotations, property, runtimeProperty, runtime);
-
-            if (runtime)
-            {
-                annotations.Remove(RelationalAnnotationNames.TableColumnMappings);
-                annotations.Remove(RelationalAnnotationNames.ViewColumnMappings);
-                annotations.Remove(RelationalAnnotationNames.SqlQueryColumnMappings);
-                annotations.Remove(RelationalAnnotationNames.FunctionColumnMappings);
-                annotations.Remove(RelationalAnnotationNames.DefaultColumnMappings);
-            }
-            else
-            {
-                annotations.Remove(RelationalAnnotationNames.ColumnOrder);
-                annotations.Remove(RelationalAnnotationNames.Comment);
-                annotations.Remove(RelationalAnnotationNames.Collation);
-
-                if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var overrides))
+                var entityTypeMappingFragment = (IReadOnlyStoreObjectDictionary<IEntityTypeMappingFragment>)mappingFragments!;
+                var runtimeEntityTypeMappingFragment = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();
+                foreach (var fragment in entityTypeMappingFragment.GetValues())
                 {
-                    var runtimePropertyOverrides = new SortedDictionary<StoreObjectIdentifier, object>();
-                    foreach (var overridesPair in (SortedDictionary<StoreObjectIdentifier, object>?)overrides!)
-                    {
-                        var runtimeOverrides = Create((IRelationalPropertyOverrides)overridesPair.Value, runtimeProperty);
-                        runtimePropertyOverrides[overridesPair.Key] = runtimeOverrides;
+                    var runtimeMappingFragment = Create(fragment, runtimeEntityType);
+                    runtimeEntityTypeMappingFragment.Add(fragment.StoreObject, runtimeMappingFragment);
 
-                        CreateAnnotations(
-                            (IRelationalPropertyOverrides)overridesPair.Value, runtimeOverrides,
-                            static (convention, annotations, source, target, runtime) =>
-                                convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
-                    }
-
-                    annotations[RelationalAnnotationNames.RelationalOverrides] = runtimePropertyOverrides;
+                    CreateAnnotations(fragment, runtimeMappingFragment,
+                        static (convention, annotations, source, target, runtime) =>
+                            convention.ProcessEntityTypeMappingFragmentAnnotations(annotations, source, target, runtime));
                 }
+
+                annotations[RelationalAnnotationNames.MappingFragments] = runtimeEntityTypeMappingFragment;
             }
-        }
 
-        private RuntimeRelationalPropertyOverrides Create(
-            IRelationalPropertyOverrides propertyOverrides,
-            RuntimeProperty runtimeProperty)
-            => new RuntimeRelationalPropertyOverrides(
-                runtimeProperty,
-                propertyOverrides.ColumnNameOverriden,
-                propertyOverrides.ColumnName);
-
-        /// <summary>
-        ///     Updates the relational property overrides annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="propertyOverrides">The source relational property overrides.</param>
-        /// <param name="runtimePropertyOverrides">The target relational property overrides that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected virtual void ProcessPropertyOverridesAnnotations(
-            Dictionary<string, object?> annotations,
-            IRelationalPropertyOverrides propertyOverrides,
-            RuntimeRelationalPropertyOverrides runtimePropertyOverrides,
-            bool runtime)
-        {
-        }
-
-        /// <summary>
-        ///     Updates the key annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="key">The source key.</param>
-        /// <param name="runtimeKey">The target key that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected override void ProcessKeyAnnotations(
-            IDictionary<string, object?> annotations,
-            IKey key,
-            RuntimeKey runtimeKey,
-            bool runtime)
-        {
-            base.ProcessKeyAnnotations(annotations, key, runtimeKey, runtime);
-
-            if (runtime)
+            if (annotations.TryGetValue(RelationalAnnotationNames.Triggers, out var triggers))
             {
-                annotations.Remove(RelationalAnnotationNames.UniqueConstraintMappings);
+                var runtimeTriggers = new SortedDictionary<string, ITrigger>(StringComparer.Ordinal);
+                foreach (var (key, trigger) in (SortedDictionary<string, ITrigger>)triggers!)
+                {
+                    var runtimeTrigger = Create(trigger, runtimeEntityType);
+                    runtimeTriggers[key] = runtimeTrigger;
+
+                    CreateAnnotations(
+                        trigger, runtimeTrigger,
+                        static (convention, annotations, source, target, runtime)
+                            => convention.ProcessTriggerAnnotations(annotations, source, target, runtime));
+                }
+
+                annotations[RelationalAnnotationNames.Triggers] = runtimeTriggers;
+            }
+
+            if (annotations.TryGetValue(RelationalAnnotationNames.InsertStoredProcedure, out var insertStoredProcedure))
+            {
+                var runtimeSproc = Create((IStoredProcedure)insertStoredProcedure!, runtimeEntityType);
+                
+                CreateAnnotations(
+                    (IStoredProcedure)insertStoredProcedure!, runtimeSproc,
+                    static (convention, annotations, source, target, runtime)
+                        => convention.ProcessStoredProcedureAnnotations(annotations, source, target, runtime));
+                
+                annotations[RelationalAnnotationNames.InsertStoredProcedure] = runtimeSproc;
+            }
+
+            if (annotations.TryGetValue(RelationalAnnotationNames.DeleteStoredProcedure, out var deleteStoredProcedure))
+            {
+                var runtimeSproc = Create((IStoredProcedure)deleteStoredProcedure!, runtimeEntityType);
+                
+                CreateAnnotations(
+                    (IStoredProcedure)deleteStoredProcedure!, runtimeSproc,
+                    static (convention, annotations, source, target, runtime)
+                        => convention.ProcessStoredProcedureAnnotations(annotations, source, target, runtime));
+                
+                annotations[RelationalAnnotationNames.DeleteStoredProcedure] = runtimeSproc;
+            }
+
+            if (annotations.TryGetValue(RelationalAnnotationNames.UpdateStoredProcedure, out var updateStoredProcedure))
+            {
+                var runtimeSproc = Create((IStoredProcedure)updateStoredProcedure!, runtimeEntityType);
+                
+                CreateAnnotations(
+                    (IStoredProcedure)updateStoredProcedure!, runtimeSproc,
+                    static (convention, annotations, source, target, runtime)
+                        => convention.ProcessStoredProcedureAnnotations(annotations, source, target, runtime));
+                
+                annotations[RelationalAnnotationNames.UpdateStoredProcedure] = runtimeSproc;
             }
         }
+    }
 
-        /// <summary>
-        ///     Updates the index annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="index">The source index.</param>
-        /// <param name="runtimeIndex">The target index that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected override void ProcessIndexAnnotations(
-            Dictionary<string, object?> annotations,
-            IIndex index,
-            RuntimeIndex runtimeIndex,
-            bool runtime)
+    private static RuntimeEntityTypeMappingFragment Create(
+        IEntityTypeMappingFragment entityTypeMappingFragment,
+        RuntimeEntityType runtimeEntityType)
+        => new(
+            runtimeEntityType,
+            entityTypeMappingFragment.StoreObject,
+            entityTypeMappingFragment.IsTableExcludedFromMigrations);
+
+    /// <summary>
+    ///     Updates the relational property overrides annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="entityTypeMappingFragment">The source relational property overrides.</param>
+    /// <param name="runtimeEntityTypeMappingFragment">The target relational property overrides that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessEntityTypeMappingFragmentAnnotations(
+        Dictionary<string, object?> annotations,
+        IEntityTypeMappingFragment entityTypeMappingFragment,
+        RuntimeEntityTypeMappingFragment runtimeEntityTypeMappingFragment,
+        bool runtime)
+    {
+    }
+
+    private void CreateAnnotations<TSource, TTarget>(
+        TSource source,
+        TTarget target,
+        Action<RelationalRuntimeModelConvention, Dictionary<string, object?>, TSource, TTarget, bool> process)
+        where TSource : IAnnotatable
+        where TTarget : AnnotatableBase
+    {
+        var annotations = source.GetAnnotations().ToDictionary(a => a.Name, a => a.Value);
+        process(this, annotations, source, target, false);
+        target.AddAnnotations(annotations);
+
+        annotations = source.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value);
+        process(this, annotations, source, target, true);
+        target.AddRuntimeAnnotations(annotations);
+    }
+
+    private static RuntimeDbFunction Create(IDbFunction function, RuntimeModel runtimeModel)
+        => new(
+            function.ModelName,
+            runtimeModel,
+            function.ReturnType,
+            function.Name,
+            function.Schema,
+            function.StoreType,
+            function.MethodInfo,
+            function.IsScalar,
+            function.IsAggregate,
+            function.IsNullable,
+            function.IsBuiltIn,
+            function.TypeMapping,
+            function.Translation);
+
+    /// <summary>
+    ///     Updates the function annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="function">The source function.</param>
+    /// <param name="runtimeFunction">The target function that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessFunctionAnnotations(
+        Dictionary<string, object?> annotations,
+        IDbFunction function,
+        RuntimeDbFunction runtimeFunction,
+        bool runtime)
+    {
+    }
+
+    private static RuntimeDbFunctionParameter Create(IDbFunctionParameter parameter, RuntimeDbFunction runtimeFunction)
+        => runtimeFunction.AddParameter(
+            parameter.Name,
+            parameter.ClrType,
+            parameter.PropagatesNullability,
+            parameter.StoreType,
+            parameter.TypeMapping);
+
+    /// <summary>
+    ///     Updates the function parameter annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="parameter">The source function parameter.</param>
+    /// <param name="runtimeParameter">The target function parameter that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessFunctionParameterAnnotations(
+        Dictionary<string, object?> annotations,
+        IDbFunctionParameter parameter,
+        RuntimeDbFunctionParameter runtimeParameter,
+        bool runtime)
+    {
+    }
+
+    private static RuntimeSequence Create(ISequence sequence, RuntimeModel runtimeModel)
+        => new(
+            sequence.Name,
+            runtimeModel,
+            sequence.Type,
+            sequence.Schema,
+            sequence.StartValue,
+            sequence.IncrementBy,
+            sequence.IsCyclic,
+            sequence.MinValue,
+            sequence.MaxValue);
+
+    /// <summary>
+    ///     Updates the sequence annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="sequence">The source sequence.</param>
+    /// <param name="runtimeSequence">The target sequence that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessSequenceAnnotations(
+        Dictionary<string, object?> annotations,
+        ISequence sequence,
+        RuntimeSequence runtimeSequence,
+        bool runtime)
+    {
+    }
+
+    /// <summary>
+    ///     Updates the property annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="property">The source property.</param>
+    /// <param name="runtimeProperty">The target property that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessPropertyAnnotations(
+        Dictionary<string, object?> annotations,
+        IProperty property,
+        RuntimeProperty runtimeProperty,
+        bool runtime)
+    {
+        base.ProcessPropertyAnnotations(annotations, property, runtimeProperty, runtime);
+
+        if (runtime)
         {
-            base.ProcessIndexAnnotations(annotations, index, runtimeIndex, runtime);
-
-            if (runtime)
-            {
-                annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
-            }
-            else
-            {
-                annotations.Remove(RelationalAnnotationNames.Filter);
-            }
+            annotations.Remove(RelationalAnnotationNames.TableColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.ViewColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.SqlQueryColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.FunctionColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.InsertStoredProcedureParameterMappings);
+            annotations.Remove(RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.DeleteStoredProcedureParameterMappings);
+            annotations.Remove(RelationalAnnotationNames.UpdateStoredProcedureParameterMappings);
+            annotations.Remove(RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings);
+            annotations.Remove(RelationalAnnotationNames.DefaultColumnMappings);
         }
-
-        /// <summary>
-        ///     Updates the foreign key annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations">The annotations to be processed.</param>
-        /// <param name="foreignKey">The source foreign key.</param>
-        /// <param name="runtimeForeignKey">The target foreign key that will contain the annotations.</param>
-        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
-        protected override void ProcessForeignKeyAnnotations(
-            Dictionary<string, object?> annotations,
-            IForeignKey foreignKey,
-            RuntimeForeignKey runtimeForeignKey,
-            bool runtime)
+        else
         {
-            base.ProcessForeignKeyAnnotations(annotations, foreignKey, runtimeForeignKey, runtime);
+            annotations.Remove(RelationalAnnotationNames.ColumnOrder);
+            annotations.Remove(RelationalAnnotationNames.Comment);
+            annotations.Remove(RelationalAnnotationNames.Collation);
 
-            if (runtime)
+            if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var relationalOverrides))
             {
-                annotations.Remove(RelationalAnnotationNames.ForeignKeyMappings);
+                var tableOverrides = (IReadOnlyStoreObjectDictionary<IRelationalPropertyOverrides>)relationalOverrides!;
+                var runtimeTableOverrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
+                foreach (var overrides in tableOverrides.GetValues())
+                {
+                    var runtimeOverrides = Create(overrides, runtimeProperty);
+                    runtimeTableOverrides.Add(overrides.StoreObject, runtimeOverrides);
+
+                    CreateAnnotations(overrides, runtimeOverrides,
+                        static (convention, annotations, source, target, runtime) =>
+                            convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
+                }
+
+                annotations[RelationalAnnotationNames.RelationalOverrides] = runtimeTableOverrides;
             }
         }
+    }
+
+    private static RuntimeRelationalPropertyOverrides Create(
+        IRelationalPropertyOverrides propertyOverrides,
+        RuntimeProperty runtimeProperty)
+        => new(
+            runtimeProperty,
+            propertyOverrides.StoreObject,
+            propertyOverrides.IsColumnNameOverridden,
+            propertyOverrides.ColumnName);
+
+    /// <summary>
+    ///     Updates the relational property overrides annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="propertyOverrides">The source relational property overrides.</param>
+    /// <param name="runtimePropertyOverrides">The target relational property overrides that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessPropertyOverridesAnnotations(
+        Dictionary<string, object?> annotations,
+        IRelationalPropertyOverrides propertyOverrides,
+        RuntimeRelationalPropertyOverrides runtimePropertyOverrides,
+        bool runtime)
+    {
+    }
+
+    /// <summary>
+    ///     Updates the key annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="key">The source key.</param>
+    /// <param name="runtimeKey">The target key that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessKeyAnnotations(
+        IDictionary<string, object?> annotations,
+        IKey key,
+        RuntimeKey runtimeKey,
+        bool runtime)
+    {
+        base.ProcessKeyAnnotations(annotations, key, runtimeKey, runtime);
+
+        if (runtime)
+        {
+            annotations.Remove(RelationalAnnotationNames.UniqueConstraintMappings);
+        }
+    }
+
+    /// <summary>
+    ///     Updates the index annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="index">The source index.</param>
+    /// <param name="runtimeIndex">The target index that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessIndexAnnotations(
+        Dictionary<string, object?> annotations,
+        IIndex index,
+        RuntimeIndex runtimeIndex,
+        bool runtime)
+    {
+        base.ProcessIndexAnnotations(annotations, index, runtimeIndex, runtime);
+
+        annotations.Remove(runtime ? RelationalAnnotationNames.TableIndexMappings : RelationalAnnotationNames.Filter);
+    }
+
+    /// <summary>
+    ///     Updates the foreign key annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="foreignKey">The source foreign key.</param>
+    /// <param name="runtimeForeignKey">The target foreign key that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessForeignKeyAnnotations(
+        Dictionary<string, object?> annotations,
+        IForeignKey foreignKey,
+        RuntimeForeignKey runtimeForeignKey,
+        bool runtime)
+    {
+        base.ProcessForeignKeyAnnotations(annotations, foreignKey, runtimeForeignKey, runtime);
+
+        if (runtime)
+        {
+            annotations.Remove(RelationalAnnotationNames.ForeignKeyMappings);
+        }
+    }
+
+    private static RuntimeTrigger Create(ITrigger trigger, RuntimeEntityType runtimeEntityType)
+        => new(runtimeEntityType, trigger.ModelName, trigger.Name, trigger.TableName, trigger.TableSchema);
+
+    /// <summary>
+    ///     Updates the trigger annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="trigger">The source trigger.</param>
+    /// <param name="runtimeTrigger">The target trigger that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessTriggerAnnotations(
+        Dictionary<string, object?> annotations,
+        ITrigger trigger,
+        RuntimeTrigger runtimeTrigger,
+        bool runtime)
+    {
+    }
+
+    private static RuntimeStoredProcedure Create(IStoredProcedure storedProcedure, RuntimeEntityType runtimeEntityType)
+        => new(runtimeEntityType,
+            storedProcedure.Name,
+            storedProcedure.Schema,
+            storedProcedure.AreTransactionsSuppressed);
+
+    /// <summary>
+    ///     Updates the stored procedure annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="storedProcedure">The source stored procedure.</param>
+    /// <param name="runtimeStoredProcedure">The target stored procedure that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessStoredProcedureAnnotations(
+        Dictionary<string, object?> annotations,
+        IStoredProcedure storedProcedure,
+        RuntimeStoredProcedure runtimeStoredProcedure,
+        bool runtime)
+    {
     }
 }

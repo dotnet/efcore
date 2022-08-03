@@ -1,5 +1,6 @@
 <#
     Session["ResourceFile"] = "InMemoryStrings.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.InMemory.Properties";
     Session["LoggingDefinitionsClass"] = "Diagnostics.Internal.InMemoryLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

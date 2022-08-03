@@ -160,7 +160,7 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Same(db, connection2.Handle);
             var functions = connection2.ExecuteScalar<string>("SELECT group_concat(name) FROM pragma_function_list;")
-                .Split(",");
+                .Split(',');
             Assert.DoesNotContain("function1", functions);
             Assert.DoesNotContain("aggregate1", functions);
         }
@@ -181,7 +181,7 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Same(db, connection2.Handle);
             var collations = connection2.ExecuteScalar<string>("SELECT group_concat(name) FROM pragma_collation_list;")
-                .Split(",");
+                .Split(',');
             Assert.DoesNotContain("COLLATION1", collations);
         }
 

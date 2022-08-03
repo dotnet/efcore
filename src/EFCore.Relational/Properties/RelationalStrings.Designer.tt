@@ -1,5 +1,6 @@
 <#
     Session["ResourceFile"] = "RelationalStrings.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Properties";
     Session["LoggingDefinitionsClass"] = "RelationalLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

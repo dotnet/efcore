@@ -183,7 +183,7 @@ namespace Microsoft.Data.Sqlite
         ///     the buffer if that many bytes are not currently available, or zero (0) if the end of the stream has been
         ///     reached.
         /// </returns>
-#if NET
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
         public override int Read(Span<byte> buffer)
 #else
         public virtual int Read(Span<byte> buffer)
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="buffer">
         ///     A region of memory. This method copies the contents of this region to the current stream.
         /// </param>
-#if NET
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
         public override void Write(ReadOnlySpan<byte> buffer)
 #else
         public virtual void Write(ReadOnlySpan<byte> buffer)
