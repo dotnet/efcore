@@ -85,7 +85,9 @@ public static class RelationalEventId
         Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning,
         Obsolete_ValueConversionSqlLiteralWarning,
         MultipleCollectionIncludeWarning,
-        BulkOperationFailed,
+        NonQueryOperationFailed,
+        ExecuteDeleteFailed,
+        ExecuteUpdateFailed,
 
         // Model validation events
         ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
@@ -743,7 +745,7 @@ public static class RelationalEventId
     public static readonly EventId MultipleCollectionIncludeWarning = MakeQueryId(Id.MultipleCollectionIncludeWarning);
 
     /// <summary>
-    ///     An error occurred while executing a bulk operation.
+    ///     An error occurred while executing a non-query operation.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -753,7 +755,33 @@ public static class RelationalEventId
     ///         This event uses the <see cref="DbContextTypeErrorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
     ///     </para>
     /// </remarks>
-    public static readonly EventId BulkOperationFailed = MakeQueryId(Id.BulkOperationFailed);
+    public static readonly EventId NonQueryOperationFailed = MakeQueryId(Id.NonQueryOperationFailed);
+
+    /// <summary>
+    ///     An error occurred while executing an 'ExecuteDelete' operation.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="DbContextTypeErrorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ExecuteDeleteFailed = MakeQueryId(Id.ExecuteDeleteFailed);
+
+    /// <summary>
+    ///     An error occurred while executing an 'ExecuteUpdate' operation.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="DbContextTypeErrorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ExecuteUpdateFailed = MakeQueryId(Id.ExecuteUpdateFailed);
 
     private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 

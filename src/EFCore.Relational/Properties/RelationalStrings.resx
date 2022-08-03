@@ -612,9 +612,17 @@
     <value>The configured column orders for the table '{table}' contains duplicates. Ensure the specified column order values are distinct. Conflicting columns: {columns}</value>
     <comment>Error RelationalEventId.DuplicateColumnOrders string string</comment>
   </data>
-  <data name="LogExceptionDuringBulkOperation" xml:space="preserve">
-    <value>An exception occurred while executing a bulk operation for context type '{contextType}'.{newline}{error}</value>
-    <comment>Error RelationalEventId.BulkOperationFailed Type string Exception</comment>
+  <data name="LogExceptionDuringExecuteDelete" xml:space="preserve">
+    <value>An exception occurred while executing an 'ExecuteDelete' operation for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error RelationalEventId.ExecuteDeleteFailed Type string Exception</comment>
+  </data>
+  <data name="LogExceptionDuringExecuteUpdate" xml:space="preserve">
+    <value>An exception occurred while executing an 'ExecuteUpdate' operation for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error RelationalEventId.ExecuteUpdateFailed Type string Exception</comment>
+  </data>
+  <data name="LogExceptionDuringNonQueryOperation" xml:space="preserve">
+    <value>An exception occurred while executing a non-query operation for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error RelationalEventId.NonQueryOperationFailed Type string Exception</comment>
   </data>
   <data name="LogExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
