@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.IO;
 using System.Text;
@@ -10,24 +10,27 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     // ReSharper disable once ArrangeTypeModifiers
     internal partial class MigrationsScriptCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var sql = CreateExecutor().ScriptMigration(
-                _from.Value,
-                _to.Value,
-                _idempotent.HasValue(),
-                Context.Value());
+            using var executor = CreateExecutor(args);
 
-            if (!_output.HasValue())
+            var sql = executor.ScriptMigration(
+                _from!.Value,
+                _to!.Value,
+                _idempotent!.HasValue(),
+                _noTransactions!.HasValue(),
+                Context!.Value());
+
+            if (!_output!.HasValue())
             {
                 Reporter.WriteData(sql);
             }
             else
             {
-                var output = _output.Value();
-                if (WorkingDir.HasValue())
+                var output = _output.Value()!;
+                if (WorkingDir!.HasValue())
                 {
-                    output = Path.Combine(WorkingDir.Value(), output);
+                    output = Path.Combine(WorkingDir.Value()!, output);
                 }
 
                 var directory = Path.GetDirectoryName(output);
@@ -40,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 File.WriteAllText(output, sql, Encoding.UTF8);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

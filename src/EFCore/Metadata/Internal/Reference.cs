@@ -1,7 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
-using JetBrains.Annotations;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -13,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class Reference<T> : IMetadataReference<T>
     {
-        private readonly IReferenceRoot<T> _root;
+        private T _object;
+        private readonly IReferenceRoot<T>? _root;
         private int _referenceCount = 1;
 
         /// <summary>
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Reference([CanBeNull] T @object)
+        public Reference(T @object)
             : this(@object, null)
         {
         }
@@ -33,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Reference([CanBeNull] T @object, [CanBeNull] IReferenceRoot<T> root)
+        public Reference(T @object, IReferenceRoot<T>? root)
         {
-            Object = @object;
+            _object = @object;
             _root = root;
         }
 
@@ -45,7 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Object { get; [param: NotNull]set; }
+        public virtual T Object
+        {
+            get => _object;
+            set => _object = value;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (_referenceCount-- == 1)
             {
                 _root?.Release(this);
-                Object = default;
+                _object = default!;
             }
         }
 

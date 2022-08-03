@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.DotNet.Helix.Sdk" DefaultTargets="Test">
+  <PropertyGroup>
+    <HelixType>test/product/</HelixType>
+    <HelixBuild>$(BUILD_BUILDNUMBER)</HelixBuild>
+    <HelixTargetQueues>$(HelixTargetQueues)</HelixTargetQueues>
+    <Creator Condition = "'$(HelixAccessToken)' == ''">efcore</Creator>
+    <HelixAccessToken>$(HelixAccessToken)</HelixAccessToken>
+
+    <IncludeDotNetCli>true</IncludeDotNetCli>
+    <DotNetCliPackageType>sdk</DotNetCliPackageType>
+    <DotNetCliVersion>$(NETCoreSdkVersion)</DotNetCliVersion>
+
+    <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
+    <FailOnTestFailure>true</FailOnTestFailure>
+    <SqlServerTests>$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.AspNet.SqlServer.FunctionalTests/*.csproj</SqlServerTests>
+  </PropertyGroup>
+
+  <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
+    <!-- Local build outside of Azure Pipeline -->
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open;Ubuntu.1604.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967</HelixTargetQueues>
+    <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
+    <HelixSource>efcore/localbuild/</HelixSource>
+    <HelixBuild>t001</HelixBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
+  </ItemGroup>
+
+  <!-- Start LocalDb instance for test projects which uses SqlServer on windows -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`Windows`))'">
+    <XUnitProject Update="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); SqlLocalDB start</PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
+  <!-- Work-around for https://github.com/dotnet/runtime/issues/70758 -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))'">
+    <XUnitProject Update="$(RepoRoot)/test/EFCore.InMemory.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.Sqlite.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); export COMPlus_EnableWriteXorExecute=0</PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
+  <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Also remove other projects as they will be run outside of docker. -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`ubuntu-18.04-helix-sqlserver-amd64`))'">
+    <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
+    <XUnitProject Include="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); export MSSQL_SA_PASSWORD=$(MSSQL_SA_PASSWORD); export Test__SqlServer__DefaultConnection="Server=localhost;;Database=master;;User=sa;;Password=$(MSSQL_SA_PASSWORD);;Connect Timeout=60;;ConnectRetryCount=0;;TrustServerCertificate=True"; /opt/mssql/bin/sqlservr --accept-eula &amp;; sleep 120; </PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
+  <!-- Remove test projects which requires SqlServer from Ubuntu/OSX. -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))' OR '$(HelixTargetQueue)' == 'Ubuntu.1804.Amd64.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.1804.Amd64'">
+    <XUnitProject Remove="$(SqlServerTests)"/>
+  </ItemGroup>
+
+  <!-- The trimming test project is a console program -->
+  <ItemGroup>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Trimming.Tests/*.csproj"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <XUnitPublishTargetFramework>net7.0</XUnitPublishTargetFramework>
+    <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
+    <XUnitRunnerVersion>2.4.2-pre.9</XUnitRunnerVersion>
+    <XUnitArguments></XUnitArguments>
+    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
+  </PropertyGroup>
+</Project>

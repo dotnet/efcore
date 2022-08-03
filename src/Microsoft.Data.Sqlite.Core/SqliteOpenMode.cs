@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.Data.Sqlite
 {
@@ -26,6 +26,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Opens an in-memory database.
         /// </summary>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/in-memory-databases">In-Memory Databases</seealso>
         Memory
     }
 }

@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             command.Command("info", new DbContextInfoCommand().Configure);
             command.Command("list", new DbContextListCommand().Configure);
+            command.Command("optimize", new DbContextOptimizeCommand().Configure);
             command.Command("scaffold", new DbContextScaffoldCommand().Configure);
             command.Command("script", new DbContextScriptCommand().Configure);
 

@@ -1,37 +1,57 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using NetTopologySuite.Geometries;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SqlitePolygonMethodTranslator : IMethodCallTranslator
 {
-    public class SqlitePolygonMethodTranslator : IMethodCallTranslator
+    private static readonly MethodInfo GetInteriorRingN
+        = typeof(Polygon).GetRuntimeMethod(nameof(Polygon.GetInteriorRingN), new[] { typeof(int) })!;
+
+    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public SqlitePolygonMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
-        private static readonly MethodInfo _getInteriorRingN
-            = typeof(Polygon).GetRuntimeMethod(nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
+        _sqlExpressionFactory = sqlExpressionFactory;
+    }
 
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-        public SqlitePolygonMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression? Translate(
+        SqlExpression? instance,
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments,
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+    {
+        if (Equals(method, GetInteriorRingN))
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
+            return _sqlExpressionFactory.Function(
+                "InteriorRingN",
+                new[] { instance!, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)) },
+                nullable: true,
+                argumentsPropagateNullability: new[] { true, true },
+                method.ReturnType);
         }
 
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
-        {
-            if (Equals(method, _getInteriorRingN))
-            {
-                return _sqlExpressionFactory.Function(
-                    "InteriorRingN",
-                    new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)) },
-                    method.ReturnType);
-            }
-
-            return null;
-        }
+        return null;
     }
 }

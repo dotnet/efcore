@@ -1,0 +1,36 @@
+version: 2
+registries:
+  nuget.org:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    allow:
+      - dependency-name: Castle.Core
+      - dependency-name: Humanizer.Core
+      - dependency-name: IdentityServer4.EntityFramework
+      - dependency-name: Microsoft.AspNetCore.OData
+      - dependency-name: Microsoft.Azure.Cosmos
+      - dependency-name: Microsoft.CSharp
+      - dependency-name: Microsoft.Data.SqlClient
+      - dependency-name: Microsoft.DotNet.PlatformAbstractions
+      - dependency-name: mod_spatialite
+      - dependency-name: Mono.TextTemplating
+      - dependency-name: NetTopologySuite*
+      - dependency-name: Newtonsoft.Json
+      - dependency-name: SQLitePCLRaw*
+    ignore:
+      # Affects minimum required Visual Studio version
+      - dependency-name: Microsoft.CodeAnalysis.CSharp*
+      # New analyzer rules would need to be disabled
+      - dependency-name: DotNetAnalyzers.DocumentationAnalyzers
+      - dependency-name: StyleCop.Analyzers
+      # Testing infrastructure should be intentionally updated
+      - dependency-name: BenchmarkDotNet
+    labels:
+      - area-infrastructure
+      - 'type-dependency update :arrow_up_small:'
+    registries: '*'

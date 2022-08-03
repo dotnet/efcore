@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Data;
@@ -20,7 +20,6 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
-                connection.DefaultTimeout = 1;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -29,10 +28,28 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.Equal("SELECT 1;", command.CommandText);
                     Assert.Same(connection, command.Connection);
-                    Assert.Equal(1, command.CommandTimeout);
                     Assert.Same(transaction, command.Transaction);
                 }
             }
+        }
+
+        [Fact]
+        public void CommandText_defaults_to_empty()
+        {
+            var command = new SqliteCommand();
+
+            Assert.Empty(command.CommandText);
+        }
+
+        [Fact]
+        public void CommandText_coalesces_to_empty()
+        {
+            var command = new SqliteCommand
+            {
+                CommandText = null
+            };
+
+            Assert.Empty(command.CommandText);
         }
 
         [Fact]
@@ -54,6 +71,54 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(Resources.SetRequiresNoOpenReader("CommandText"), ex.Message);
                 }
             }
+        }
+
+        [Fact]
+        public void CommandTimeout_works()
+        {
+            var command = new SqliteCommand
+            {
+                Connection = new SqliteConnection("Command Timeout=1")
+                {
+                    DefaultTimeout = 2
+                },
+                CommandTimeout = 3
+            };
+
+            Assert.Equal(3, command.CommandTimeout);
+        }
+
+        [Fact]
+        public void CommandTimeout_defaults_to_connection()
+        {
+            var command = new SqliteCommand
+            {
+                Connection = new SqliteConnection("Default Timeout=1")
+                {
+                    DefaultTimeout = 2
+                }
+            };
+
+            Assert.Equal(2, command.CommandTimeout);
+        }
+
+        [Fact]
+        public void CommandTimeout_defaults_to_connection_string()
+        {
+            var command = new SqliteCommand
+            {
+                Connection = new SqliteConnection("Default Timeout=1")
+            };
+
+            Assert.Equal(1, command.CommandTimeout);
+        }
+
+        [Fact]
+        public void CommandTimeout_defaults_to_30()
+        {
+            var command = new SqliteCommand();
+
+            Assert.Equal(30, command.CommandTimeout);
         }
 
         [Fact]
@@ -146,15 +211,13 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Prepare_throws_when_no_command_text()
+        public void Prepare_works_when_no_command_text()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().Prepare());
-
-                Assert.Equal(Resources.CallRequiresSetCommandText("Prepare"), ex.Message);
+                connection.CreateCommand().Prepare();
             }
         }
 
@@ -236,15 +299,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ExecuteReader_throws_when_no_command_text()
+        public void ExecuteReader_works_when_no_command_text()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteReader());
+                using var reader = connection.CreateCommand().ExecuteReader();
 
-                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteReader"), ex.Message);
+                Assert.False(reader.HasRows);
+                Assert.Equal(-1, reader.RecordsAffected);
             }
         }
 
@@ -307,9 +371,9 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteScalar());
+                var result = connection.CreateCommand().ExecuteScalar();
 
-                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteScalar"), ex.Message);
+                Assert.Null(result);
             }
         }
 
@@ -522,15 +586,15 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void ExecuteNonQuery_throws_when_no_command_text()
+        public void ExecuteNonQuery_works_when_no_command_text()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().ExecuteNonQuery());
+                var result = connection.CreateCommand().ExecuteNonQuery();
 
-                Assert.Equal(Resources.CallRequiresSetCommandText("ExecuteNonQuery"), ex.Message);
+                Assert.Equal(-1, result);
             }
         }
 
@@ -587,6 +651,30 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 Assert.Equal(-1, command.ExecuteNonQuery());
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_works_on_EXPLAIN()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = " EXPLAIN SELECT 1 WHERE 1 = @a;";
+                connection.Open();
+
+                if (new Version(connection.ServerVersion) < new Version(3, 28, 0))
+                {
+                    command.Parameters.AddWithValue("@a", 1);
+                }
+
+                using (var reader = command.ExecuteReader())
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+                    Assert.Equal(8, reader.FieldCount);
+                    Assert.Equal("Init", reader.GetString(1));
+                }
             }
         }
 
@@ -838,6 +926,7 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
+                SqliteConnection.ClearPool(new SqliteConnection(connectionString));
                 File.Delete("busy.db");
             }
         }

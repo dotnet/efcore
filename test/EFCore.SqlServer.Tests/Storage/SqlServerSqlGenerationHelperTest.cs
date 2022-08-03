@@ -1,20 +1,16 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.Storage;
+
+public class SqlServerSqlGenerationHelperTest
 {
-    public class SqlServerSqlGenerationHelperTest : SqlGenerationHelperTestBase
-    {
-        public override void BatchSeparator_returns_separator()
-        {
-            Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
-        }
+    [ConditionalFact]
+    public void BatchSeparator_returns_separator()
+        => Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
 
-        protected override ISqlGenerationHelper CreateSqlGenerationHelper()
-            => new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
-    }
+    private ISqlGenerationHelper CreateSqlGenerationHelper()
+        => new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
 }

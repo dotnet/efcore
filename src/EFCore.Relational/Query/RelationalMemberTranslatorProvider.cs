@@ -1,35 +1,49 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+/// <inheritdoc />
+public class RelationalMemberTranslatorProvider : IMemberTranslatorProvider
 {
-    public class RelationalMemberTranslatorProvider : IMemberTranslatorProvider
+    private readonly List<IMemberTranslator> _plugins = new();
+    private readonly List<IMemberTranslator> _translators = new();
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="RelationalMemberTranslatorProvider" /> class.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+    public RelationalMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
     {
-        private readonly List<IMemberTranslator> _plugins = new List<IMemberTranslator>();
-        private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
+        Dependencies = dependencies;
 
-        public RelationalMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
-        {
-            _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
-            _translators
-                .AddRange(
-                    new[] { new NullableMemberTranslator(dependencies.SqlExpressionFactory) });
-        }
-
-        public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
-        {
-            return _plugins.Concat(_translators)
-                .Select(t => t.Translate(instance, member, returnType)).FirstOrDefault(t => t != null);
-        }
-
-        protected virtual void AddTranslators(IEnumerable<IMemberTranslator> translators)
-            => _translators.InsertRange(0, translators);
+        _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
+        _translators
+            .AddRange(
+                new[] { new NullableMemberTranslator(dependencies.SqlExpressionFactory) });
     }
+
+    /// <summary>
+    ///     Dependencies for this service.
+    /// </summary>
+    protected virtual RelationalMemberTranslatorProviderDependencies Dependencies { get; }
+
+    /// <inheritdoc />
+    public virtual SqlExpression? Translate(
+        SqlExpression? instance,
+        MemberInfo member,
+        Type returnType,
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        => _plugins.Concat(_translators)
+            .Select(t => t.Translate(instance, member, returnType, logger)).FirstOrDefault(t => t != null);
+
+    /// <summary>
+    ///     Adds additional translators which will take priority over existing registered translators.
+    /// </summary>
+    /// <param name="translators">Translators to add.</param>
+    protected virtual void AddTranslators(IEnumerable<IMemberTranslator> translators)
+        => _translators.InsertRange(0, translators);
 }

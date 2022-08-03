@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Diagnostics;
@@ -68,6 +68,25 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+#if NET6_0_OR_GREATER
+        public virtual DateOnly GetDateOnly(int ordinal)
+        {
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case SQLITE_FLOAT:
+                case SQLITE_INTEGER:
+                    return DateOnly.FromDateTime(FromJulianDate(GetDouble(ordinal)));
+
+                default:
+                    return DateOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+            }
+        }
+
+        public virtual TimeOnly GetTimeOnly(int ordinal)
+            => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+#endif
+
         public virtual decimal GetDecimal(int ordinal)
             => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
 
@@ -87,7 +106,7 @@ namespace Microsoft.Data.Sqlite
             switch (sqliteType)
             {
                 case SQLITE_BLOB:
-                    var bytes = GetBlob(ordinal);
+                    var bytes = GetBlob(ordinal)!;
                     return bytes.Length == 16
                         ? new Guid(bytes)
                         : new Guid(Encoding.UTF8.GetString(bytes, 0, bytes.Length));
@@ -130,7 +149,7 @@ namespace Microsoft.Data.Sqlite
 
         protected abstract string GetStringCore(int ordinal);
 
-        public virtual T GetFieldValue<T>(int ordinal)
+        public virtual T? GetFieldValue<T>(int ordinal)
         {
             if (IsDBNull(ordinal)
                 && typeof(T).IsNullable())
@@ -151,7 +170,7 @@ namespace Microsoft.Data.Sqlite
 
             if (type == typeof(byte[]))
             {
-                return (T)(object)GetBlob(ordinal);
+                return (T)(object)GetBlob(ordinal)!;
             }
 
             if (type == typeof(char))
@@ -168,6 +187,18 @@ namespace Microsoft.Data.Sqlite
             {
                 return (T)(object)GetDateTimeOffset(ordinal);
             }
+
+#if NET6_0_OR_GREATER
+            if (type == typeof(DateOnly))
+            {
+                return (T)(object)GetDateOnly(ordinal);
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return (T)(object)GetTimeOnly(ordinal);
+            }
+#endif
 
             if (type == typeof(DBNull))
             {
@@ -240,10 +271,10 @@ namespace Microsoft.Data.Sqlite
                 return (T)(object)checked((ushort)GetInt64(ordinal));
             }
 
-            return (T)GetValue(ordinal);
+            return (T)GetValue(ordinal)!;
         }
 
-        public virtual object GetValue(int ordinal)
+        public virtual object? GetValue(int ordinal)
         {
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
@@ -266,7 +297,7 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        public virtual int GetValues(object[] values)
+        public virtual int GetValues(object?[] values)
         {
             int i;
             for (i = 0; i < FieldCount; i++)
@@ -277,14 +308,14 @@ namespace Microsoft.Data.Sqlite
             return i;
         }
 
-        protected byte[] GetBlob(int ordinal)
+        protected virtual byte[]? GetBlob(int ordinal)
             => IsDBNull(ordinal)
                 ? GetNull<byte[]>(ordinal)
                 : GetBlobCore(ordinal) ?? Array.Empty<byte>();
 
         protected abstract byte[] GetBlobCore(int ordinal);
 
-        protected virtual T GetNull<T>(int ordinal)
+        protected virtual T? GetNull<T>(int ordinal)
             => typeof(T) == typeof(DBNull)
                 ? (T)(object)DBNull.Value
                 : default;

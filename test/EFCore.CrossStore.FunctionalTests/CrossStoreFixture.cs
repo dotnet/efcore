@@ -1,28 +1,24 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.TestModels;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class CrossStoreFixture : FixtureBase
 {
-    public class CrossStoreFixture : FixtureBase
-    {
-        public DbContextOptions CreateOptions(TestStore testStore)
-            => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
-                .UseInternalServiceProvider(testStore.ServiceProvider)
-                .Options;
+    public DbContextOptions CreateOptions(TestStore testStore)
+        => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+            .UseInternalServiceProvider(testStore.ServiceProvider)
+            .Options;
 
-        public CrossStoreContext CreateContext(TestStore testStore)
-            => new CrossStoreContext(CreateOptions(testStore));
+    public CrossStoreContext CreateContext(TestStore testStore)
+        => new(CreateOptions(testStore));
 
-        public TestStore CreateTestStore(ITestStoreFactory testStoreFactory, string storeName, Action<CrossStoreContext> seed = null)
-            => testStoreFactory.GetOrCreate(storeName)
-                .Initialize(
-                    AddServices(testStoreFactory.AddProviderServices(new ServiceCollection())).BuildServiceProvider(validateScopes: true),
-                    CreateContext,
-                    seed);
-    }
+    public TestStore CreateTestStore(ITestStoreFactory testStoreFactory, string storeName, Action<CrossStoreContext> seed = null)
+        => testStoreFactory.GetOrCreate(storeName)
+            .Initialize(
+                AddServices(testStoreFactory.AddProviderServices(new ServiceCollection())).BuildServiceProvider(validateScopes: true),
+                CreateContext,
+                seed);
 }

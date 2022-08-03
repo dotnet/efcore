@@ -3,20 +3,18 @@
   <PropertyGroup Condition="'$(IsUnitTestProject)' == ''">
     <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('.FunctionalTests'))">True</IsUnitTestProject>
     <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('.Specification.Tests'))">False</IsUnitTestProject>
+    <IsUnitTestProject Condition="$(MSBuildProjectName.EndsWith('.Trimming.Tests'))">False</IsUnitTestProject>
   </PropertyGroup>
 
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
+  <Import
+    Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))\AspNetCoreSettings.props"
+    Condition="'$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))' != '' " />
+
   <PropertyGroup Condition="'$(CopyrightMicrosoft)' != ''">
     <Copyright>$(CopyrightMicrosoft)</Copyright>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DefaultNetCoreTargetFramework>netcoreapp3.1</DefaultNetCoreTargetFramework>
-
-    <!-- Working around https://github.com/NuGet/Home/issues/8467 -->
-    <NoWarn>$(NoWarn);NU5131</NoWarn>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,12 +22,25 @@
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <DebugType>portable</DebugType>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <!-- HACK: Work around #15093 -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="**\*.rd.xml" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
   </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
+  </ItemGroup>
+
 </Project>

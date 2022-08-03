@@ -1,150 +1,143 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
+using System.Diagnostics.CodeAnalysis;
 
-namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class DependentsMap<TKey> : IDependentsMap
+    where TKey : notnull
 {
+    private readonly IForeignKey _foreignKey;
+    private readonly IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
+    private readonly IDependentKeyValueFactory<TKey> _dependentKeyValueFactory;
+    private readonly Dictionary<TKey, HashSet<IUpdateEntry>> _map;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DependentsMap<TKey> : IDependentsMap
+    public DependentsMap(
+        IForeignKey foreignKey,
+        IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
+        IDependentKeyValueFactory<TKey> dependentKeyValueFactory)
     {
-        private readonly IForeignKey _foreignKey;
-        private readonly IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
-        private readonly IDependentKeyValueFactory<TKey> _dependentKeyValueFactory;
-        private readonly Dictionary<TKey, HashSet<InternalEntityEntry>> _map;
+        _foreignKey = foreignKey;
+        _principalKeyValueFactory = principalKeyValueFactory;
+        _dependentKeyValueFactory = dependentKeyValueFactory;
+        _map = new Dictionary<TKey, HashSet<IUpdateEntry>>(principalKeyValueFactory.EqualityComparer);
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public DependentsMap(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
-            [NotNull] IDependentKeyValueFactory<TKey> dependentKeyValueFactory)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Add(IUpdateEntry entry)
+    {
+        if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
+            && TryCreateFromCurrentValues(entry, out var key))
         {
-            _foreignKey = foreignKey;
-            _principalKeyValueFactory = principalKeyValueFactory;
-            _dependentKeyValueFactory = dependentKeyValueFactory;
-            _map = new Dictionary<TKey, HashSet<InternalEntityEntry>>(principalKeyValueFactory.EqualityComparer);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Add(InternalEntityEntry entry)
-        {
-            if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
-                && TryCreateFromCurrentValues(entry, out var key))
+            if (!_map.TryGetValue(key, out var dependents))
             {
-                if (!_map.TryGetValue(key, out var dependents))
+                dependents = new HashSet<IUpdateEntry>();
+                _map[key] = dependents;
+            }
+
+            dependents.Add(entry);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Remove(IUpdateEntry entry)
+    {
+        if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
+            && TryCreateFromCurrentValues(entry, out var key))
+        {
+            if (_map.TryGetValue(key, out var dependents))
+            {
+                dependents.Remove(entry);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Update(IUpdateEntry entry)
+    {
+        if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType))
+        {
+            if (_dependentKeyValueFactory.TryCreateFromRelationshipSnapshot(entry, out var key)
+                && _map.TryGetValue(key, out var dependents))
+            {
+                dependents.Remove(entry);
+            }
+
+            if (TryCreateFromCurrentValues(entry, out key))
+            {
+                if (!_map.TryGetValue(key, out dependents))
                 {
-                    dependents = new HashSet<InternalEntityEntry>();
+                    dependents = new HashSet<IUpdateEntry>();
                     _map[key] = dependents;
                 }
 
                 dependents.Add(entry);
             }
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Remove(InternalEntityEntry entry)
-        {
-            if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
-                && TryCreateFromCurrentValues(entry, out var key))
-            {
-                if (_map.TryGetValue(key, out var dependents))
-                {
-                    dependents.Remove(entry);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Update(InternalEntityEntry entry)
-        {
-            if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType))
-            {
-                if (_dependentKeyValueFactory.TryCreateFromRelationshipSnapshot(entry, out var key)
-                    && _map.TryGetValue(key, out var dependents))
-                {
-                    dependents.Remove(entry);
-                }
-
-                if (TryCreateFromCurrentValues(entry, out key))
-                {
-                    if (!_map.TryGetValue(key, out dependents))
-                    {
-                        dependents = new HashSet<InternalEntityEntry>();
-                        _map[key] = dependents;
-                    }
-
-                    dependents.Add(entry);
-                }
-            }
-        }
-
-        private bool TryCreateFromCurrentValues(InternalEntityEntry entry, out TKey key)
-        {
-            // TODO: Move into delegate
-            foreach (var property in _foreignKey.Properties)
-            {
-                if (entry.IsConceptualNull(property))
-                {
-                    key = default;
-                    return false;
-                }
-            }
-
-            return _dependentKeyValueFactory.TryCreateFromCurrentValues(entry, out key);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry)
-        {
-            return _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry), out var dependents)
-                ? dependents
-                : Enumerable.Empty<InternalEntityEntry>();
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(InternalEntityEntry principalEntry)
-        {
-            return _map.TryGetValue(_principalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), out var dependents)
-                ? dependents
-                : Enumerable.Empty<InternalEntityEntry>();
-        }
     }
+
+    private bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
+    {
+        // TODO: Move into delegate
+        foreach (var property in _foreignKey.Properties)
+        {
+            if (entry.IsConceptualNull(property))
+            {
+                key = default;
+                return false;
+            }
+        }
+
+        return _dependentKeyValueFactory.TryCreateFromCurrentValues(entry, out key);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<IUpdateEntry> GetDependents(IUpdateEntry principalEntry)
+        => _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry)!, out var dependents)
+            ? dependents
+            : Enumerable.Empty<IUpdateEntry>();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(IUpdateEntry principalEntry)
+        => _map.TryGetValue(_principalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), out var dependents)
+            ? dependents
+            : Enumerable.Empty<IUpdateEntry>();
 }

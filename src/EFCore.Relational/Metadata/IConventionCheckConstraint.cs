@@ -1,22 +1,44 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+/// <summary>
+///     Represents a check constraint on the entity type.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information and examples.
+/// </remarks>
+public interface IConventionCheckConstraint : IReadOnlyCheckConstraint, IConventionAnnotatable
 {
     /// <summary>
-    ///     Represents a check constraint in the <see cref="IConventionEntityType" />.
+    ///     Gets the builder that can be used to configure this check constraint.
     /// </summary>
-    public interface IConventionCheckConstraint : ICheckConstraint
-    {
-        /// <summary>
-        ///     The <see cref="IConventionEntityType" /> in which this check constraint is defined.
-        /// </summary>
-        new IConventionEntityType EntityType { get; }
+    /// <exception cref="InvalidOperationException">If the check constraint has been removed from the model.</exception>
+    new IConventionCheckConstraintBuilder Builder { get; }
 
-        /// <summary>
-        ///     Returns the configuration source for this <see cref="IConventionCheckConstraint" />.
-        /// </summary>
-        /// <returns> The configuration source for <see cref="IConventionCheckConstraint" />. </returns>
-        ConfigurationSource GetConfigurationSource();
-    }
+    /// <summary>
+    ///     Gets the entity type on which this check constraint is defined.
+    /// </summary>
+    new IConventionEntityType EntityType { get; }
+
+    /// <summary>
+    ///     Gets the configuration source for this check constraint.
+    /// </summary>
+    /// <returns>The configuration source for this check constraint.</returns>
+    ConfigurationSource GetConfigurationSource();
+
+    /// <summary>
+    ///     Sets the name of the check constraint in the database.
+    /// </summary>
+    /// <param name="name">The name of the check constraint in the database.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    string? SetName(string? name, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Gets the configuration source for the database name.
+    /// </summary>
+    /// <returns>The configuration source for the database name.</returns>
+    ConfigurationSource? GetNameConfigurationSource();
 }

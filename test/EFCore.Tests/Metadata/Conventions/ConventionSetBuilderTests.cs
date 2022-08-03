@@ -1,41 +1,48 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+using Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+public class ConventionSetBuilderTests
 {
-    public class ConventionSetBuilderTests
+    [ConditionalFact]
+    public virtual IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI()
     {
-        [ConditionalFact]
-        public virtual IModel Can_build_a_model_with_default_conventions_without_DI()
-        {
-            var modelBuilder = new ModelBuilder(GetConventionSet());
-            modelBuilder.Entity<Product>();
+        var modelBuilder = new ModelBuilder(GetConventionSet());
+        modelBuilder.Entity<Product>();
 
-            var model = modelBuilder.Model;
-            Assert.Equal(2, model.GetEntityTypes().Single().GetProperties().Count());
-            return model;
-        }
+        var model = modelBuilder.Model;
+        Assert.NotNull(model.GetEntityTypes().Single());
 
-        protected virtual ConventionSet GetConventionSet()
-        {
-            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
+        return model;
+    }
 
-            return contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
-        }
+    [ConditionalFact]
+    public virtual IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI_new()
+    {
+        var modelBuilder = GetModelBuilder();
+        modelBuilder.Entity<Product>();
 
-        [Table("ProductTable")]
-        protected class Product
-        {
-            public virtual int Id { get; set; }
-            public virtual string Name { get; set; }
-        }
+        var model = modelBuilder.Model;
+        Assert.NotNull(model.GetEntityTypes().Single());
+
+        return model;
+    }
+
+    protected virtual ConventionSet GetConventionSet()
+        => InMemoryConventionSetBuilder.Build();
+
+    protected virtual ModelBuilder GetModelBuilder()
+        => InMemoryConventionSetBuilder.CreateModelBuilder();
+
+    [Table("ProductTable")]
+    protected class Product
+    {
+        public virtual int Id { get; set; }
+        public virtual string Name { get; set; }
     }
 }

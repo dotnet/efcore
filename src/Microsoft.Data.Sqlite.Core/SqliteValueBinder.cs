@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Collections.Generic;
@@ -11,15 +11,15 @@ namespace Microsoft.Data.Sqlite
     // TODO: Make generic
     internal abstract class SqliteValueBinder
     {
-        private readonly object _value;
+        private readonly object? _value;
         private readonly SqliteType? _sqliteType;
 
-        protected SqliteValueBinder(object value)
+        protected SqliteValueBinder(object? value)
             : this(value, null)
         {
         }
 
-        protected SqliteValueBinder(object value, SqliteType? sqliteType)
+        protected SqliteValueBinder(object? value, SqliteType? sqliteType)
         {
             _value = value;
             _sqliteType = sqliteType;
@@ -112,6 +112,38 @@ namespace Microsoft.Data.Sqlite
                     BindText(value);
                 }
             }
+#if NET6_0_OR_GREATER
+            else if (type == typeof(DateOnly))
+            {
+                var dateOnly = (DateOnly)_value;
+                if (_sqliteType == SqliteType.Real)
+                {
+                    var value = ToJulianDate(dateOnly.Year, dateOnly.Month, dateOnly.Day, 0, 0, 0, 0);
+                    BindDouble(value);
+                }
+                else
+                {
+                    var value = dateOnly.ToString(@"yyyy\-MM\-dd", CultureInfo.InvariantCulture);
+                    BindText(value);
+                }
+            }
+            else if (type == typeof(TimeOnly))
+            {
+                var timeOnly = (TimeOnly)_value;
+                if (_sqliteType == SqliteType.Real)
+                {
+                    var value = GetTotalDays(timeOnly.Hour, timeOnly.Minute, timeOnly.Second, timeOnly.Millisecond);
+                    BindDouble(value);
+                }
+                else
+                {
+                    var value = timeOnly.Ticks % 10000000 == 0
+                        ? timeOnly.ToString(@"HH:mm:ss", CultureInfo.InvariantCulture)
+                        : timeOnly.ToString(@"HH:mm:ss.fffffff", CultureInfo.InvariantCulture);
+                    BindText(value);
+                }
+            }
+#endif
             else if (type == typeof(DBNull))
             {
                 BindNull();
@@ -136,7 +168,7 @@ namespace Microsoft.Data.Sqlite
                 var guid = (Guid)_value;
                 if (_sqliteType != SqliteType.Blob)
                 {
-                    var value = guid.ToString().ToUpper();
+                    var value = guid.ToString().ToUpperInvariant();
                     BindText(value);
                 }
                 else
@@ -206,7 +238,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static readonly Dictionary<Type, SqliteType> _sqliteTypeMapping =
-            new Dictionary<Type, SqliteType>
+            new()
             {
                 { typeof(bool), SqliteType.Integer },
                 { typeof(byte), SqliteType.Integer },
@@ -214,6 +246,10 @@ namespace Microsoft.Data.Sqlite
                 { typeof(char), SqliteType.Text },
                 { typeof(DateTime), SqliteType.Text },
                 { typeof(DateTimeOffset), SqliteType.Text },
+#if NET6_0_OR_GREATER
+                { typeof(DateOnly), SqliteType.Text },
+                { typeof(TimeOnly), SqliteType.Text },
+#endif
                 { typeof(DBNull), SqliteType.Text },
                 { typeof(decimal), SqliteType.Text },
                 { typeof(double), SqliteType.Real },
@@ -223,14 +259,14 @@ namespace Microsoft.Data.Sqlite
                 { typeof(long), SqliteType.Integer },
                 { typeof(sbyte), SqliteType.Integer },
                 { typeof(short), SqliteType.Integer },
-                { typeof(string), SqliteType.Integer },
+                { typeof(string), SqliteType.Text },
                 { typeof(TimeSpan), SqliteType.Text },
                 { typeof(uint), SqliteType.Integer },
                 { typeof(ulong), SqliteType.Integer },
                 { typeof(ushort), SqliteType.Integer }
             };
 
-        internal static SqliteType GetSqliteType(object value)
+        internal static SqliteType GetSqliteType(object? value)
         {
             if (value == null)
             {
@@ -247,11 +283,15 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static double ToJulianDate(DateTime dateTime)
+            => ToJulianDate(
+                dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
+
+        private static double ToJulianDate(int year, int month, int day, int hour, int minute, int second, int millisecond)
         {
             // computeJD
-            var Y = dateTime.Year;
-            var M = dateTime.Month;
-            var D = dateTime.Day;
+            var Y = year;
+            var M = month;
+            var D = day;
 
             if (M <= 2)
             {
@@ -265,7 +305,14 @@ namespace Microsoft.Data.Sqlite
             var X2 = 306001 * (M + 1) / 10000;
             var iJD = (long)((X1 + X2 + D + B - 1524.5) * 86400000);
 
-            iJD += dateTime.Hour * 3600000 + dateTime.Minute * 60000 + (long)((dateTime.Second + dateTime.Millisecond / 1000.0) * 1000);
+            iJD += hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
+
+            return iJD / 86400000.0;
+        }
+
+        private static double GetTotalDays(int hour, int minute, int second, int millisecond)
+        {
+            var iJD = hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
 
             return iJD / 86400000.0;
         }
