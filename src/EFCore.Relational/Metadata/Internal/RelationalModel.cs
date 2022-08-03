@@ -1021,7 +1021,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         bool includesDerivedTypes,
         IRelationalTypeMappingSource relationalTypeMappingSource)
     {
-        var storeStoredProcedure = GetOrCreateStoreStoredProcedure(storedProcedure, model);
+        var storeStoredProcedure = GetOrCreateStoreStoredProcedure(storedProcedure, model, relationalTypeMappingSource);
 
         var identifier = storedProcedure.GetStoreIdentifier();
         var storedProcedureMapping = new StoredProcedureMapping(
@@ -1177,7 +1177,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         static StoreStoredProcedure GetOrCreateStoreStoredProcedure(
             IRuntimeStoredProcedure storedProcedure,
-            RelationalModel model)
+            RelationalModel model,
+            IRelationalTypeMappingSource relationalTypeMappingSource)
         {
             var storeStoredProcedure = (StoreStoredProcedure?)storedProcedure.StoreStoredProcedure;
             if (storeStoredProcedure == null)
@@ -1186,6 +1187,13 @@ public class RelationalModel : Annotatable, IRelationalModel
                 if (storeStoredProcedure == null)
                 {
                     storeStoredProcedure = new StoreStoredProcedure(storedProcedure, model);
+                    if (storedProcedure.AreRowsAffectedReturned)
+                    {
+                        storeStoredProcedure.Return = new StoreStoredProcedureReturn(
+                                "",
+                                relationalTypeMappingSource.FindMapping(typeof(int))!.StoreType,
+                                storeStoredProcedure);
+                    }
                     model.StoredProcedures.Add((storeStoredProcedure.Name, storeStoredProcedure.Schema), storeStoredProcedure);
                 }
                 else
