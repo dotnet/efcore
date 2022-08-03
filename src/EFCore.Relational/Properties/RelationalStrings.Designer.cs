@@ -1374,28 +1374,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
-        ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.
+        ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.
         /// </summary>
         public static string StoredProcedureRowsAffectedReturnConflictingParameter(object? sproc)
             => string.Format(
                 GetString("StoredProcedureRowsAffectedReturnConflictingParameter", nameof(sproc)),
                 sproc);
-
-        /// <summary>
-        ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because at least one result column was already added.
-        /// </summary>
-        public static string StoredProcedureRowsAffectedReturnConflictingResultColumn(object? sproc)
-            => string.Format(
-                GetString("StoredProcedureRowsAffectedReturnConflictingResultColumn", nameof(sproc)),
-                sproc);
-
-        /// <summary>
-        ///     The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because rows affected are being returned.
-        /// </summary>
-        public static string StoredProcedureRowsAffectedReturnResultColumn(object? property, object? sproc)
-            => string.Format(
-                GetString("StoredProcedureRowsAffectedReturnResultColumn", nameof(property), nameof(sproc)),
-                property, sproc);
 
         /// <summary>
         ///     Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.

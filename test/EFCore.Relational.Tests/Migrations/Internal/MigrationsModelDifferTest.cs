@@ -11986,5 +11986,5 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             skipSourceConventions: true);
 
     protected override TestHelpers TestHelpers
-        => RelationalTestHelpers.Instance;
+        => FakeRelationalTestHelpers.Instance;
 }

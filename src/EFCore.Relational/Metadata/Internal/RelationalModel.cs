@@ -908,7 +908,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 && m.Table.Schema == mappedType.GetSchema()
                 && m.IsSplitEntityTypePrincipal != false
                 && m.IncludesDerivedTypes == includesDerivedTypes);
-            var tableMapping = tableMappings.FirstOrDefault();
+            var tableMapping = (TableMapping?)tableMappings.FirstOrDefault();
 
             Check.DebugAssert(tableMapping == null || tableMappings.Count() == 1, "Expected table mapping to be unique");
 
@@ -916,7 +916,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             if (insertSproc != null
                 && insertStoredProcedureMappings != null)
             {
-                CreateStoredProcedureMapping(
+                var insertProcedureMapping = CreateStoredProcedureMapping(
                     entityType,
                     mappedType,
                     insertSproc,
@@ -925,6 +925,11 @@ public class RelationalModel : Annotatable, IRelationalModel
                     insertStoredProcedureMappings,
                     includesDerivedTypes,
                     relationalTypeMappingSource);
+                
+                if (tableMapping != null)
+                {
+                    tableMapping.InsertStoredProcedureMapping = insertProcedureMapping;
+                }
             }
             else if (entityType == mappedType)
             {
@@ -935,7 +940,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             if (deleteSproc != null
                 && deleteStoredProcedureMappings != null)
             {
-                CreateStoredProcedureMapping(
+                var deleteProcedureMapping = CreateStoredProcedureMapping(
                     entityType,
                     mappedType,
                     deleteSproc,
@@ -944,6 +949,11 @@ public class RelationalModel : Annotatable, IRelationalModel
                     deleteStoredProcedureMappings,
                     includesDerivedTypes,
                     relationalTypeMappingSource);
+                
+                if (tableMapping != null)
+                {
+                    tableMapping.InsertStoredProcedureMapping = deleteProcedureMapping;
+                }
             }
             else if (entityType == mappedType)
             {
@@ -954,7 +964,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             if (updateSproc != null
                 && updateStoredProcedureMappings != null)
             {
-                CreateStoredProcedureMapping(
+                var updateProcedureMapping = CreateStoredProcedureMapping(
                     entityType,
                     mappedType,
                     updateSproc,
@@ -963,6 +973,11 @@ public class RelationalModel : Annotatable, IRelationalModel
                     updateStoredProcedureMappings,
                     includesDerivedTypes,
                     relationalTypeMappingSource);
+                
+                if (tableMapping != null)
+                {
+                    tableMapping.InsertStoredProcedureMapping = updateProcedureMapping;
+                }
             }
             else if (entityType == mappedType)
             {
@@ -996,7 +1011,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         }
     }
 
-    private static void CreateStoredProcedureMapping(
+    private static StoredProcedureMapping CreateStoredProcedureMapping(
         IEntityType entityType,
         IEntityType mappedType,
         IRuntimeStoredProcedure storedProcedure,
@@ -1152,6 +1167,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         storedProcedureMappings.Add(storedProcedureMapping);
         storeStoredProcedure.EntityTypeMappings.Add(storedProcedureMapping);
+
+        return storedProcedureMapping;
 
         static StoreStoredProcedure GetOrCreateStoreStoredProcedure(
             IRuntimeStoredProcedure storedProcedure,

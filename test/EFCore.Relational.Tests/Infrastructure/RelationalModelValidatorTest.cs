@@ -3341,5 +3341,5 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 typeof(T)));
 
     protected override TestHelpers TestHelpers
-        => RelationalTestHelpers.Instance;
+        => FakeRelationalTestHelpers.Instance;
 }

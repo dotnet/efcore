@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class RelationalTestHelpers : TestHelpers
+public class FakeRelationalTestHelpers : TestHelpers
 {
-    protected RelationalTestHelpers()
+    protected FakeRelationalTestHelpers()
     {
     }
 
-    public static RelationalTestHelpers Instance { get; } = new();
+    public static FakeRelationalTestHelpers Instance { get; } = new();
 
-    protected override EntityFrameworkDesignServicesBuilder CreateEntityFrameworkDesignServicesBuilder(
+    protected virtual EntityFrameworkDesignServicesBuilder CreateEntityFrameworkDesignServicesBuilder(
         IServiceCollection services)
         => new EntityFrameworkRelationalDesignServicesBuilder(services);
 

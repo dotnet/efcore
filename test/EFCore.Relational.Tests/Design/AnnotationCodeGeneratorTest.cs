@@ -45,7 +45,7 @@ public class AnnotationCodeGeneratorTest
     }
 
     private ModelBuilder CreateModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private AnnotationCodeGenerator CreateGenerator()
         => new(

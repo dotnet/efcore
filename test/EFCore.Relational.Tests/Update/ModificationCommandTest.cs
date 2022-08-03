@@ -442,7 +442,7 @@ public class ModificationCommandTest
 
     private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var model = modelBuilder.Model;
         var entityType = model.AddEntityType(typeof(T1));
 
@@ -473,7 +473,7 @@ public class ModificationCommandTest
     {
         var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-        return RelationalTestHelpers.Instance.CreateInternalEntry(
+        return FakeRelationalTestHelpers.Instance.CreateInternalEntry(
             model,
             entityState,
             new

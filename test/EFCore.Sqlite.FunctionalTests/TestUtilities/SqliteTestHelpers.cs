@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class SqliteTestHelpers : TestHelpers
+public class SqliteTestHelpers : RelationalTestHelpers
 {
     protected SqliteTestHelpers()
     {

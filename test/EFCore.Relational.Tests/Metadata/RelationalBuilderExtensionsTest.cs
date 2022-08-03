@@ -1538,7 +1538,7 @@ public class RelationalBuilderExtensionsTest
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private InternalModelBuilder CreateBuilder()
         => (InternalModelBuilder)CreateConventionModelBuilder().GetInfrastructure();

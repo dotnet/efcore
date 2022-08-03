@@ -488,13 +488,7 @@ public class StoredProcedure :
     {
         EnsureMutable();
 
-        if (ResultColumns.Any() || _rowsAffectedResultColumn != null)
-        {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureRowsAffectedReturnConflictingResultColumn(
-                ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
-        }
-
-        if (_rowsAffectedParameter != null)
+        if (_rowsAffectedParameter != null || _rowsAffectedResultColumn != null)
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter(
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
@@ -682,12 +676,6 @@ public class StoredProcedure :
         if (_propertyResultColumns.ContainsKey(propertyName))
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateResultColumn(
-                propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
-        }
-
-        if (_areRowsAffectedReturned)
-        {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureRowsAffectedReturnResultColumn(
                 propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 

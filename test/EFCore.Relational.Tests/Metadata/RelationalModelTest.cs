@@ -3023,7 +3023,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
         protected virtual TestHelpers.TestModelBuilder CreateConventionModelBuilder()
-            => RelationalTestHelpers.Instance.CreateConventionBuilder(
+            => FakeRelationalTestHelpers.Instance.CreateConventionBuilder(
                 configureContext: b =>
                     b.ConfigureWarnings(w =>
                         w.Default(WarningBehavior.Throw)

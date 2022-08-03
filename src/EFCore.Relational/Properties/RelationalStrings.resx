@@ -916,13 +916,7 @@
     <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is not configured as store-generated.</value>
   </data>
   <data name="StoredProcedureRowsAffectedReturnConflictingParameter" xml:space="preserve">
-    <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter for this property already exists.</value>
-  </data>
-  <data name="StoredProcedureRowsAffectedReturnConflictingResultColumn" xml:space="preserve">
-    <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because at least one result column was already added.</value>
-  </data>
-  <data name="StoredProcedureRowsAffectedReturnResultColumn" xml:space="preserve">
-    <value>The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because rows affected are being returned.</value>
+    <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.</value>
   </data>
   <data name="StoredProcedureTableSharing" xml:space="preserve">
     <value>Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.</value>
