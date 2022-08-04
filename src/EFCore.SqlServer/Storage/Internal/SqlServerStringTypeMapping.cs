@@ -173,108 +173,278 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var lastConcatStartPoint = 0;
             var concatCount = 1;
             var concatStartList = new List<int>();
-            var castApplied = false;
-            for (i = 0; i < stringValue.Length; i++)
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27206", out var enabled)
+                && enabled)
             {
-                var lineFeed = stringValue[i] == '\n';
-                var carriageReturn = stringValue[i] == '\r';
-                var apostrophe = stringValue[i] == '\'';
-                if (lineFeed || carriageReturn || apostrophe)
+                var castApplied = false;
+                for (i = 0; i < stringValue.Length; i++)
                 {
-                    length = i - start;
-                    if (length != 0)
+                    var lineFeed = stringValue[i] == '\n';
+                    var carriageReturn = stringValue[i] == '\r';
+                    var apostrophe = stringValue[i] == '\'';
+                    if (lineFeed || carriageReturn || apostrophe)
                     {
-                        if (!openApostrophe)
+                        length = i - start;
+                        if (length != 0)
                         {
+                            if (!openApostrophe)
+                            {
+                                AddConcatOperatorIfNeeded();
+
+                                if (IsUnicode)
+                                {
+                                    builder.Append('N');
+                                }
+
+                                builder.Append('\'');
+                                openApostrophe = true;
+                            }
+
+                            builder.Append(stringValue.AsSpan().Slice(start, length));
+                        }
+
+                        if (lineFeed || carriageReturn)
+                        {
+                            if (openApostrophe)
+                            {
+                                builder.Append('\'');
+                                openApostrophe = false;
+                            }
+
                             AddConcatOperatorIfNeeded();
 
                             if (IsUnicode)
                             {
-                                builder.Append('N');
+                                builder.Append('n');
                             }
 
-                            builder.Append('\'');
-                            openApostrophe = true;
+                            builder
+                                .Append("char(")
+                                .Append(lineFeed ? "10" : "13")
+                                .Append(')');
                         }
-
-                        builder.Append(stringValue.AsSpan().Slice(start, length));
-                    }
-
-                    if (lineFeed || carriageReturn)
-                    {
-                        if (openApostrophe)
+                        else if (apostrophe)
                         {
-                            builder.Append('\'');
-                            openApostrophe = false;
+                            if (!openApostrophe)
+                            {
+                                AddConcatOperatorIfNeeded();
+
+                                if (IsUnicode)
+                                {
+                                    builder.Append('N');
+                                }
+
+                                builder.Append('\'');
+                                openApostrophe = true;
+                            }
+
+                            builder.Append("''");
                         }
 
+                        start = i + 1;
+                    }
+                }
+
+                length = i - start;
+                if (length != 0)
+                {
+                    if (!openApostrophe)
+                    {
                         AddConcatOperatorIfNeeded();
 
                         if (IsUnicode)
                         {
-                            builder.Append('n');
+                            builder.Append('N');
                         }
 
-                        builder
-                            .Append("char(")
-                            .Append(lineFeed ? "10" : "13")
-                            .Append(')');
+                        builder.Append('\'');
+                        openApostrophe = true;
                     }
-                    else if (apostrophe)
+
+                    builder.Append(stringValue.AsSpan().Slice(start, length));
+                }
+
+                if (openApostrophe)
+                {
+                    builder.Append('\'');
+                }
+
+                for (var j = concatStartList.Count - 1; j >= 0; j--)
+                {
+                    if (castApplied && j == 0)
                     {
-                        if (!openApostrophe)
+                        builder.Insert(concatStartList[j], "CAST(");
+                    }
+
+                    builder.Insert(concatStartList[j], "CONCAT(");
+                    builder.Append(')');
+                }
+
+                void AddConcatOperatorIfNeeded()
+                {
+                    if (builder.Length != 0)
+                    {
+                        if (!castApplied)
                         {
+                            builder.Append(" AS ");
+                            if (IsUnicode)
+                            {
+                                builder.Append("n");
+                            }
+
+                            builder.Append("varchar(max))");
+                            castApplied = true;
+                        }
+
+                        builder.Append(", ");
+                        concatCount++;
+
+                        if (concatCount == 2)
+                        {
+                            concatStartList.Add(lastConcatStartPoint);
+                        }
+
+                        if (concatCount == 254)
+                        {
+                            lastConcatStartPoint = builder.Length;
+                            concatCount = 1;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var insideConcat = false;
+                for (i = 0; i < stringValue.Length; i++)
+                {
+                    var lineFeed = stringValue[i] == '\n';
+                    var carriageReturn = stringValue[i] == '\r';
+                    var apostrophe = stringValue[i] == '\'';
+                    if (lineFeed || carriageReturn || apostrophe)
+                    {
+                        length = i - start;
+                        if (length != 0)
+                        {
+                            if (!openApostrophe)
+                            {
+                                AddConcatOperatorIfNeeded();
+
+                                if (IsUnicode)
+                                {
+                                    builder.Append('N');
+                                }
+
+                                builder.Append('\'');
+                                openApostrophe = true;
+                            }
+
+                            builder.Append(stringValue.AsSpan().Slice(start, length));
+                        }
+
+                        if (lineFeed || carriageReturn)
+                        {
+                            if (openApostrophe)
+                            {
+                                builder.Append('\'');
+                                openApostrophe = false;
+                            }
+
                             AddConcatOperatorIfNeeded();
 
                             if (IsUnicode)
                             {
-                                builder.Append('N');
+                                builder.Append('n');
                             }
 
-                            builder.Append('\'');
-                            openApostrophe = true;
+                            builder
+                                .Append("char(")
+                                .Append(lineFeed ? "10" : "13")
+                                .Append(')');
+                        }
+                        else if (apostrophe)
+                        {
+                            if (!openApostrophe)
+                            {
+                                AddConcatOperatorIfNeeded();
+
+                                if (IsUnicode)
+                                {
+                                    builder.Append('N');
+                                }
+
+                                builder.Append('\'');
+                                openApostrophe = true;
+                            }
+
+                            builder.Append("''");
                         }
 
-                        builder.Append("''");
+                        start = i + 1;
                     }
-
-                    start = i + 1;
                 }
-            }
 
-            length = i - start;
-            if (length != 0)
-            {
-                if (!openApostrophe)
+                length = i - start;
+                if (length != 0)
                 {
-                    AddConcatOperatorIfNeeded();
-
-                    if (IsUnicode)
+                    if (!openApostrophe)
                     {
-                        builder.Append('N');
+                        AddConcatOperatorIfNeeded();
+
+                        if (IsUnicode)
+                        {
+                            builder.Append('N');
+                        }
+
+                        builder.Append('\'');
+                        openApostrophe = true;
                     }
 
-                    builder.Append('\'');
-                    openApostrophe = true;
+                    builder.Append(stringValue.AsSpan().Slice(start, length));
                 }
 
-                builder.Append(stringValue.AsSpan().Slice(start, length));
-            }
-
-            if (openApostrophe)
-            {
-                builder.Append('\'');
-            }
-
-            for (var j = concatStartList.Count - 1; j >= 0; j--)
-            {
-                if (castApplied && j == 0)
+                if (openApostrophe)
                 {
-                    builder.Insert(concatStartList[j], "CAST(");
+                    builder.Append('\'');
                 }
 
-                builder.Insert(concatStartList[j], "CONCAT(");
-                builder.Append(')');
+                for (var j = concatStartList.Count - 1; j >= 0; j--)
+                {
+                    builder.Insert(concatStartList[j], "CONCAT(CAST(");
+                    builder.Append(')');
+                }
+
+                void AddConcatOperatorIfNeeded()
+                {
+                    if (builder.Length != 0)
+                    {
+                        if (!insideConcat)
+                        {
+                            builder.Append(" AS ");
+                            if (IsUnicode)
+                            {
+                                builder.Append('n');
+                            }
+
+                            builder.Append("varchar(max))");
+                            insideConcat = true;
+                        }
+
+                        builder.Append(", ");
+                        concatCount++;
+
+                        if (concatCount == 2)
+                        {
+                            concatStartList.Add(lastConcatStartPoint);
+                        }
+
+                        if (concatCount == 254)
+                        {
+                            lastConcatStartPoint = builder.Length;
+                            concatCount = 1;
+                            insideConcat = false;
+                        }
+                    }
+                }
             }
 
             if (builder.Length == 0)
@@ -288,38 +458,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             }
 
             return builder.ToString();
-
-            void AddConcatOperatorIfNeeded()
-            {
-                if (builder.Length != 0)
-                {
-                    if (!castApplied)
-                    {
-                        builder.Append(" AS ");
-                        if (IsUnicode)
-                        {
-                            builder.Append("n");
-                        }
-
-                        builder.Append("varchar(max))");
-                        castApplied = true;
-                    }
-
-                    builder.Append(", ");
-                    concatCount++;
-
-                    if (concatCount == 2)
-                    {
-                        concatStartList.Add(lastConcatStartPoint);
-                    }
-
-                    if (concatCount == 254)
-                    {
-                        lastConcatStartPoint = builder.Length;
-                        concatCount = 1;
-                    }
-                }
-            }
         }
     }
 }
