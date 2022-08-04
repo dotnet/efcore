@@ -1230,6 +1230,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, query);
 
         /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the concurrency token '{token}' are not mapped to any original value parameter.
+        /// </summary>
+        public static string StoredProcedureConcurrencyTokenNotMapped(object? entityType, object? sproc, object? token)
+            => string.Format(
+                GetString("StoredProcedureConcurrencyTokenNotMapped", nameof(entityType), nameof(sproc), nameof(token)),
+                entityType, sproc, token);
+
+        /// <summary>
         ///     The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.
         /// </summary>
         public static string StoredProcedureDeleteNonKeyProperty(object? entityType, object? property, object? sproc)
@@ -1254,12 +1262,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, sproc);
 
         /// <summary>
+        ///     The parameter '{parameter}' cannot be added to the stored procedure '{sproc}' because another parameter with this name already exists.
+        /// </summary>
+        public static string StoredProcedureDuplicateParameterName(object? parameter, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDuplicateParameterName", nameof(parameter), nameof(sproc)),
+                parameter, sproc);
+
+        /// <summary>
         ///     The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because another result column for this property already exists.
         /// </summary>
         public static string StoredProcedureDuplicateResultColumn(object? property, object? sproc)
             => string.Format(
                 GetString("StoredProcedureDuplicateResultColumn", nameof(property), nameof(sproc)),
                 property, sproc);
+
+        /// <summary>
+        ///     The result column '{column}' cannot be added to the stored procedure '{sproc}' because another result column with this name already exists.
+        /// </summary>
+        public static string StoredProcedureDuplicateResultColumnName(object? column, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureDuplicateResultColumnName", nameof(column), nameof(sproc)),
+                column, sproc);
 
         /// <summary>
         ///     The rows affected parameter cannot be added to the stored procedure '{sproc}' because the rows affected are already returned via another parameter, via the stored procedure return value or via a result column.
@@ -1300,6 +1324,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("StoredProcedureNoName", nameof(entityType), nameof(sproc)),
                 entityType, sproc);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value parameter. A store-generated property can only be mapped to one output parameter.
+        /// </summary>
+        public static string StoredProcedureOutputParameterConflict(object? entityType, object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureOutputParameterConflict", nameof(entityType), nameof(property), nameof(sproc)),
+                entityType, property, sproc);
 
         /// <summary>
         ///     The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.
@@ -1374,6 +1406,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
+        ///     The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is also mapped to an output parameter. A store-generated property can only be mapped to one of these.
+        /// </summary>
+        public static string StoredProcedureResultColumnParameterConflict(object? entityType, object? property, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureResultColumnParameterConflict", nameof(entityType), nameof(property), nameof(sproc)),
+                entityType, property, sproc);
+
+        /// <summary>
         ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.
         /// </summary>
         public static string StoredProcedureRowsAffectedReturnConflictingParameter(object? sproc)
@@ -1396,6 +1436,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("StoredProcedureTphDuplicate", nameof(entityType), nameof(otherEntityType), nameof(sproc)),
                 entityType, otherEntityType, sproc);
+
+        /// <summary>
+        ///     The entity type '{entityType}' was configured to use stored procedures and it's not mapped to any table. An unmapped entity type requires to be mapped to insert, update and delete stored procedures.
+        /// </summary>
+        public static string StoredProcedureUnmapped(object? entityType)
+            => string.Format(
+                GetString("StoredProcedureUnmapped", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     The entity type '{entityType}' is not mapped to the store object '{table}'.

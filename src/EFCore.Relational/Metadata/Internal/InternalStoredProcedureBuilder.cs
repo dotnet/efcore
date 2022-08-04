@@ -161,7 +161,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalCurrentValuePropertyStoredProcedureParameterBuilder? HasParameter(
+    public virtual InternalStoredProcedureParameterBuilder? HasParameter(
         string propertyName, ConfigurationSource configurationSource)
     {
         var parameter = Metadata.FindParameter(propertyName);
@@ -185,7 +185,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalCurrentValuePropertyStoredProcedureParameterBuilder? HasParameter<TDerivedEntity, TProperty>(
+    public virtual InternalStoredProcedureParameterBuilder? HasParameter<TDerivedEntity, TProperty>(
         Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
         ConfigurationSource configurationSource)
         where TDerivedEntity : class
@@ -207,7 +207,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalOriginalValuePropertyStoredProcedureParameterBuilder? HasOriginalValueParameter(
+    public virtual InternalStoredProcedureParameterBuilder? HasOriginalValueParameter(
         string propertyName, ConfigurationSource configurationSource)
     {
         var parameter = Metadata.FindOriginalValueParameter(propertyName);
@@ -231,7 +231,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalOriginalValuePropertyStoredProcedureParameterBuilder? HasOriginalValueParameter<TDerivedEntity, TProperty>(
+    public virtual InternalStoredProcedureParameterBuilder? HasOriginalValueParameter<TDerivedEntity, TProperty>(
         Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
         ConfigurationSource configurationSource)
         where TDerivedEntity : class
@@ -253,7 +253,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalRowsAffectedStoredProcedureParameterBuilder? HasRowsAffectedParameter(
+    public virtual InternalStoredProcedureParameterBuilder? HasRowsAffectedParameter(
         ConfigurationSource configurationSource)
     {
         var parameter = Metadata.FindRowsAffectedParameter();
@@ -277,7 +277,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalRowsAffectedStoredProcedureParameterBuilder? HasRowsAffectedParameter<TDerivedEntity, TProperty>(
+    public virtual InternalStoredProcedureParameterBuilder? HasRowsAffectedParameter<TDerivedEntity, TProperty>(
         ConfigurationSource configurationSource)
         where TDerivedEntity : class
         => HasRowsAffectedParameter(configurationSource);
@@ -344,7 +344,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalRowsAffectedStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn(
+    public virtual InternalStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn(
         ConfigurationSource configurationSource)
     {
         var resultColumn = Metadata.FindRowsAffectedResultColumn();
@@ -368,7 +368,7 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalRowsAffectedStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn<TDerivedEntity, TProperty>(
+    public virtual InternalStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn<TDerivedEntity, TProperty>(
         ConfigurationSource configurationSource)
         where TDerivedEntity : class
         => HasRowsAffectedResultColumn(configurationSource);

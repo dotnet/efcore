@@ -23,7 +23,7 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     /// </summary>
     [EntityFrameworkInternal]
     public StoredProcedureResultColumnBuilder(
-        IInternalStoredProcedureResultColumnBuilder builder, PropertyBuilder? propertyBuilder)
+        InternalStoredProcedureResultColumnBuilder builder, PropertyBuilder? propertyBuilder)
     {
         Builder = builder;
         PropertyBuilder = propertyBuilder;
@@ -42,7 +42,7 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual IInternalStoredProcedureResultColumnBuilder Builder { get; }
+    protected virtual InternalStoredProcedureResultColumnBuilder Builder { get; }
 
     private PropertyBuilder? PropertyBuilder { get; }
 

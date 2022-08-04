@@ -24,7 +24,7 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder?
     /// </summary>
     [EntityFrameworkInternal]
     public StoredProcedureParameterBuilder(
-        IInternalStoredProcedureParameterBuilder builder, PropertyBuilder? propertyBuilder)
+        InternalStoredProcedureParameterBuilder builder, PropertyBuilder? propertyBuilder)
     {
         Builder = builder;
         PropertyBuilder = propertyBuilder;
@@ -43,7 +43,7 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder?
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual IInternalStoredProcedureParameterBuilder Builder { get; }
+    protected virtual InternalStoredProcedureParameterBuilder Builder { get; }
 
     private PropertyBuilder? PropertyBuilder { get; }
 

@@ -11,10 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
-    AnnotatableBuilder<OriginalValuePropertyStoredProcedureParameter, IConventionModelBuilder>,
-    IConventionStoredProcedureParameterBuilder,
-    IInternalStoredProcedureParameterBuilder
+public class InternalStoredProcedureParameterBuilder :
+    AnnotatableBuilder<StoredProcedureParameter, IConventionModelBuilder>,
+    IConventionStoredProcedureParameterBuilder
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,8 +21,8 @@ public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InternalOriginalValuePropertyStoredProcedureParameterBuilder(
-        OriginalValuePropertyStoredProcedureParameter parameter, IConventionModelBuilder modelBuilder)
+    public InternalStoredProcedureParameterBuilder(
+        StoredProcedureParameter parameter, IConventionModelBuilder modelBuilder)
         : base(parameter, modelBuilder)
     {
     }
@@ -34,7 +33,7 @@ public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalOriginalValuePropertyStoredProcedureParameterBuilder? HasName(
+    public virtual InternalStoredProcedureParameterBuilder? HasName(
         string name,
         ConfigurationSource configurationSource)
     {
@@ -44,7 +43,7 @@ public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
         }
 
         Metadata.SetName(name, configurationSource);
-
+        
         return this;
     }
 
@@ -59,14 +58,14 @@ public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
         ConfigurationSource configurationSource)
         => configurationSource.Overrides(Metadata.GetNameConfigurationSource())
             || Metadata.Name == name;
-
+    
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalOriginalValuePropertyStoredProcedureParameterBuilder? HasDirection(
+    public virtual InternalStoredProcedureParameterBuilder? HasDirection(
         ParameterDirection direction,
         ConfigurationSource configurationSource)
     {
@@ -76,7 +75,7 @@ public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
         }
 
         Metadata.SetDirection(direction, configurationSource);
-
+        
         return this;
     }
 
@@ -99,24 +98,11 @@ public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
         [DebuggerStepThrough]
         get => Metadata;
     }
-    
-    /// <inheritdoc />
-    IMutableStoredProcedureParameter IInternalStoredProcedureParameterBuilder.Metadata
-    {
-        [DebuggerStepThrough]
-        get => Metadata;
-    }
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureParameterBuilder.HasName(string name, bool fromDataAnnotation)
         => HasName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IInternalStoredProcedureParameterBuilder? IInternalStoredProcedureParameterBuilder.HasName(
-        string name, ConfigurationSource configurationSource)
-        => HasName(name, configurationSource);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -128,21 +114,9 @@ public class InternalOriginalValuePropertyStoredProcedureParameterBuilder :
     IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureParameterBuilder.HasDirection(
         ParameterDirection direction, bool fromDataAnnotation)
         => HasDirection(direction, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IInternalStoredProcedureParameterBuilder? IInternalStoredProcedureParameterBuilder.HasDirection(
-        ParameterDirection direction, ConfigurationSource configurationSource)
-        => HasDirection(direction, configurationSource);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureParameterBuilder.CanSetDirection(ParameterDirection direction, bool fromDataAnnotation)
         => CanSetDirection(direction, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IInternalStoredProcedureParameterBuilder? IInternalStoredProcedureParameterBuilder.HasAnnotation(
-        string name, object? value, ConfigurationSource configurationSource)
-        => (IInternalStoredProcedureParameterBuilder?)HasAnnotation(name, value, configurationSource);
 }

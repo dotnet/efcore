@@ -40,7 +40,7 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     /// <summary>
     ///     Gets the parameters for this stored procedure.
     /// </summary>
-    new IEnumerable<IMutableStoredProcedureParameter> Parameters { get; }
+    new IReadOnlyList<IMutableStoredProcedureParameter> Parameters { get; }
 
     /// <summary>
     ///     Returns the parameter corresponding to the given property.
@@ -89,7 +89,7 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     /// <summary>
     ///     Gets the columns of the result for this stored procedure.
     /// </summary>
-    new IEnumerable<IMutableStoredProcedureResultColumn> ResultColumns { get; }
+    new IReadOnlyList<IMutableStoredProcedureResultColumn> ResultColumns { get; }
 
     /// <summary>
     ///    Returns the result column corresponding to the given property.

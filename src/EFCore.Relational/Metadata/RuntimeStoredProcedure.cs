@@ -166,14 +166,14 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     }
 
     /// <inheritdoc />
-    IEnumerable<IReadOnlyStoredProcedureParameter> IReadOnlyStoredProcedure.Parameters
+    IReadOnlyList<IReadOnlyStoredProcedureParameter> IReadOnlyStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => _parameters;
     }
     
     /// <inheritdoc />
-    IEnumerable<IStoredProcedureParameter> IStoredProcedure.Parameters
+    IReadOnlyList<IStoredProcedureParameter> IStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => _parameters;
@@ -208,14 +208,14 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
         => (IStoredProcedureParameter?)((IReadOnlyStoredProcedure)this).FindRowsAffectedParameter();
 
     /// <inheritdoc />
-    IEnumerable<IReadOnlyStoredProcedureResultColumn> IReadOnlyStoredProcedure.ResultColumns
+    IReadOnlyList<IReadOnlyStoredProcedureResultColumn> IReadOnlyStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
         get => _resultColumns;
     }
     
     /// <inheritdoc />
-    IEnumerable<IStoredProcedureResultColumn> IStoredProcedure.ResultColumns
+    IReadOnlyList<IStoredProcedureResultColumn> IStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
         get => _resultColumns;

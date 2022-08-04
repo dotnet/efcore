@@ -26,7 +26,7 @@ public interface IStoredProcedure : IReadOnlyStoredProcedure, IAnnotatable
     /// <summary>
     ///     Gets the parameters for this stored procedure.
     /// </summary>
-    new IEnumerable<IStoredProcedureParameter> Parameters { get; }
+    new IReadOnlyList<IStoredProcedureParameter> Parameters { get; }
 
     /// <summary>
     ///     Returns the parameter corresponding to the given property.
@@ -55,7 +55,7 @@ public interface IStoredProcedure : IReadOnlyStoredProcedure, IAnnotatable
     /// <summary>
     ///     Gets the columns of the result for this stored procedure.
     /// </summary>
-    new IEnumerable<IStoredProcedureResultColumn> ResultColumns { get; }
+    new IReadOnlyList<IStoredProcedureResultColumn> ResultColumns { get; }
 
     /// <summary>
     ///    Returns the result column corresponding to the given property.

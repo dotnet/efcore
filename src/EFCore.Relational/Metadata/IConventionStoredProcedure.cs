@@ -57,7 +57,7 @@ public interface IConventionStoredProcedure : IReadOnlyStoredProcedure, IConvent
     /// <summary>
     ///     Gets the parameters for this stored procedure.
     /// </summary>
-    new IEnumerable<IConventionStoredProcedureParameter> Parameters { get; }
+    new IReadOnlyList<IConventionStoredProcedureParameter> Parameters { get; }
 
     /// <summary>
     ///     Returns the parameter corresponding to the given property.
@@ -109,7 +109,7 @@ public interface IConventionStoredProcedure : IReadOnlyStoredProcedure, IConvent
     /// <summary>
     ///     Gets the columns of the result for this stored procedure.
     /// </summary>
-    new IEnumerable<IConventionStoredProcedureResultColumn> ResultColumns { get; }
+    new IReadOnlyList<IConventionStoredProcedureResultColumn> ResultColumns { get; }
 
     /// <summary>
     ///    Returns the result column corresponding to the given property.

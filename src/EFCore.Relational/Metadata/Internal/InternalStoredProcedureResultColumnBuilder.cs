@@ -10,9 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class InternalStoredProcedureResultColumnBuilder :
-    AnnotatableBuilder<PropertyStoredProcedureResultColumn, IConventionModelBuilder>,
-    IConventionStoredProcedureResultColumnBuilder,
-    IInternalStoredProcedureResultColumnBuilder
+    AnnotatableBuilder<StoredProcedureResultColumn, IConventionModelBuilder>,
+    IConventionStoredProcedureResultColumnBuilder
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,7 +20,7 @@ public class InternalStoredProcedureResultColumnBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public InternalStoredProcedureResultColumnBuilder(
-        PropertyStoredProcedureResultColumn resultColumn, IConventionModelBuilder modelBuilder)
+        StoredProcedureResultColumn resultColumn, IConventionModelBuilder modelBuilder)
         : base(resultColumn, modelBuilder)
     {
     }
@@ -64,33 +63,14 @@ public class InternalStoredProcedureResultColumnBuilder :
         [DebuggerStepThrough]
         get => Metadata;
     }
-    
-    /// <inheritdoc />
-    IMutableStoredProcedureResultColumn IInternalStoredProcedureResultColumnBuilder.Metadata
-    {
-        [DebuggerStepThrough]
-        get => Metadata;
-    }
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureResultColumnBuilder.HasName(string name, bool fromDataAnnotation)
         => HasName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IInternalStoredProcedureResultColumnBuilder? IInternalStoredProcedureResultColumnBuilder.HasName(
-        string name, ConfigurationSource configurationSource)
-        => HasName(name, configurationSource);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureResultColumnBuilder.CanSetName(string? name, bool fromDataAnnotation)
         => CanSetName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IInternalStoredProcedureResultColumnBuilder? IInternalStoredProcedureResultColumnBuilder.HasAnnotation(
-        string name, object? value, ConfigurationSource configurationSource)
-        => (IInternalStoredProcedureResultColumnBuilder?)HasAnnotation(name, value, configurationSource);
 }

@@ -12,13 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class StoredProcedure :
     ConventionAnnotatable, IRuntimeStoredProcedure, IMutableStoredProcedure, IConventionStoredProcedure
 {
-    private readonly List<IMutableStoredProcedureParameter> _parameters = new();
-    private readonly Dictionary<string, CurrentValuePropertyStoredProcedureParameter> _currentValueParameters = new();
-    private readonly Dictionary<string, OriginalValuePropertyStoredProcedureParameter> _originalValueParameters = new();
-    private RowsAffectedStoredProcedureParameter? _rowsAffectedParameter;
-    private readonly List<IMutableStoredProcedureResultColumn> _resultColumns = new();
-    private RowsAffectedStoredProcedureResultColumn? _rowsAffectedResultColumn;
-    private readonly Dictionary<string, PropertyStoredProcedureResultColumn> _propertyResultColumns = new();
+    private readonly List<StoredProcedureParameter> _parameters = new();
+    private readonly Dictionary<string, StoredProcedureParameter> _currentValueParameters = new();
+    private readonly Dictionary<string, StoredProcedureParameter> _originalValueParameters = new();
+    private StoredProcedureParameter? _rowsAffectedParameter;
+    private readonly List<StoredProcedureResultColumn> _resultColumns = new();
+    private StoredProcedureResultColumn? _rowsAffectedResultColumn;
+    private readonly Dictionary<string, StoredProcedureResultColumn> _propertyResultColumns = new();
     private string? _schema;
     private string? _name;
     private InternalStoredProcedureBuilder? _builder;
@@ -540,7 +540,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<IMutableStoredProcedureParameter> Parameters
+    public virtual IReadOnlyList<StoredProcedureParameter> Parameters
     {
         [DebuggerStepThrough]
         get => _parameters;
@@ -552,7 +552,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual CurrentValuePropertyStoredProcedureParameter? FindParameter(string propertyName)
+    public virtual StoredProcedureParameter? FindParameter(string propertyName)
         => _currentValueParameters.TryGetValue(propertyName, out var parameter)
             ? parameter
             : null;
@@ -563,7 +563,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual CurrentValuePropertyStoredProcedureParameter AddParameter(string propertyName)
+    public virtual StoredProcedureParameter AddParameter(string propertyName)
     {
         if (_currentValueParameters.ContainsKey(propertyName))
         {
@@ -571,7 +571,7 @@ public class StoredProcedure :
                 propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
-        var parameter = new CurrentValuePropertyStoredProcedureParameter(this, propertyName);
+        var parameter = new StoredProcedureParameter(this, rowsAffected: false, propertyName, originalValue: false);
         _parameters.Add(parameter);
         _currentValueParameters.Add(propertyName, parameter);
 
@@ -584,7 +584,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual OriginalValuePropertyStoredProcedureParameter? FindOriginalValueParameter(string propertyName)
+    public virtual StoredProcedureParameter? FindOriginalValueParameter(string propertyName)
         => _originalValueParameters.TryGetValue(propertyName, out var parameter)
             ? parameter
             : null;
@@ -595,15 +595,15 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual OriginalValuePropertyStoredProcedureParameter AddOriginalValueParameter(string propertyName)
+    public virtual StoredProcedureParameter AddOriginalValueParameter(string propertyName)
     {
         if (_originalValueParameters.ContainsKey(propertyName))
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateOriginalValueParameter(
                 propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
-
-        var parameter = new OriginalValuePropertyStoredProcedureParameter(this, propertyName);
+        
+        var parameter = new StoredProcedureParameter(this, rowsAffected: false, propertyName, originalValue: true);
         _parameters.Add(parameter);
         _originalValueParameters.Add(propertyName, parameter);
 
@@ -616,7 +616,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RowsAffectedStoredProcedureParameter? FindRowsAffectedParameter()
+    public virtual StoredProcedureParameter? FindRowsAffectedParameter()
         => _rowsAffectedParameter;
 
     /// <summary>
@@ -625,7 +625,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RowsAffectedStoredProcedureParameter AddRowsAffectedParameter()
+    public virtual StoredProcedureParameter AddRowsAffectedParameter()
     {
         if (_rowsAffectedParameter != null
             || _rowsAffectedResultColumn != null
@@ -634,8 +634,8 @@ public class StoredProcedure :
             throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter(
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
-
-        var parameter = new RowsAffectedStoredProcedureParameter(this);
+        
+        var parameter = new StoredProcedureParameter(this, rowsAffected: true, propertyName: null, originalValue: null);
         _parameters.Add(parameter);
         _rowsAffectedParameter = parameter;
 
@@ -648,7 +648,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<IMutableStoredProcedureResultColumn> ResultColumns
+    public virtual IReadOnlyList<StoredProcedureResultColumn> ResultColumns
     {
         [DebuggerStepThrough]
         get => _resultColumns;
@@ -660,7 +660,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual PropertyStoredProcedureResultColumn? FindResultColumn(string propertyName)
+    public virtual StoredProcedureResultColumn? FindResultColumn(string propertyName)
         => _propertyResultColumns.TryGetValue(propertyName, out var resultColumn)
             ? resultColumn
             : null;
@@ -671,7 +671,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual PropertyStoredProcedureResultColumn AddResultColumn(string propertyName)
+    public virtual StoredProcedureResultColumn AddResultColumn(string propertyName)
     {
         if (_propertyResultColumns.ContainsKey(propertyName))
         {
@@ -679,7 +679,7 @@ public class StoredProcedure :
                 propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
-        var resultColumn = new PropertyStoredProcedureResultColumn(this, propertyName);
+        var resultColumn = new StoredProcedureResultColumn(this, forRowsAffected: false, propertyName);
         _resultColumns.Add(resultColumn);
         _propertyResultColumns.Add(propertyName, resultColumn);
 
@@ -692,7 +692,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RowsAffectedStoredProcedureResultColumn? FindRowsAffectedResultColumn()
+    public virtual StoredProcedureResultColumn? FindRowsAffectedResultColumn()
         => _rowsAffectedResultColumn;
 
     /// <summary>
@@ -701,7 +701,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RowsAffectedStoredProcedureResultColumn AddRowsAffectedResultColumn()
+    public virtual StoredProcedureResultColumn AddRowsAffectedResultColumn()
     {
         if (_rowsAffectedResultColumn != null
             || _rowsAffectedParameter != null
@@ -711,7 +711,7 @@ public class StoredProcedure :
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
-        var resultColumn = new RowsAffectedStoredProcedureResultColumn(this);
+        var resultColumn = new StoredProcedureResultColumn(this, forRowsAffected: true, propertyName: null);
         _resultColumns.Add(resultColumn);
         _rowsAffectedResultColumn = resultColumn;
 
@@ -786,59 +786,59 @@ public class StoredProcedure :
     }
     
     /// <inheritdoc />
-    IEnumerable<IReadOnlyStoredProcedureParameter> IReadOnlyStoredProcedure.Parameters
+    IReadOnlyList<IReadOnlyStoredProcedureParameter> IReadOnlyStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;
     }
     
     /// <inheritdoc />
-    IEnumerable<IMutableStoredProcedureParameter> IMutableStoredProcedure.Parameters
+    IReadOnlyList<IMutableStoredProcedureParameter> IMutableStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;
     }
     
     /// <inheritdoc />
-    IEnumerable<IConventionStoredProcedureParameter> IConventionStoredProcedure.Parameters
+    IReadOnlyList<IConventionStoredProcedureParameter> IConventionStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
-        get => Parameters.Cast<IConventionStoredProcedureParameter>();
+        get => Parameters;
     }
     
     /// <inheritdoc />
-    IEnumerable<IStoredProcedureParameter> IStoredProcedure.Parameters
+    IReadOnlyList<IStoredProcedureParameter> IStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
-        get => Parameters.Cast<IStoredProcedureParameter>();
+        get => Parameters;
     }
     
     /// <inheritdoc />
-    IEnumerable<IReadOnlyStoredProcedureResultColumn> IReadOnlyStoredProcedure.ResultColumns
+    IReadOnlyList<IReadOnlyStoredProcedureResultColumn> IReadOnlyStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
         get => ResultColumns;
     }
 
     /// <inheritdoc />
-    IEnumerable<IMutableStoredProcedureResultColumn> IMutableStoredProcedure.ResultColumns
+    IReadOnlyList<IMutableStoredProcedureResultColumn> IMutableStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
         get => ResultColumns;
     }
     
     /// <inheritdoc />
-    IEnumerable<IConventionStoredProcedureResultColumn> IConventionStoredProcedure.ResultColumns
+    IReadOnlyList<IConventionStoredProcedureResultColumn> IConventionStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
-        get => ResultColumns.Cast<IConventionStoredProcedureResultColumn>();
+        get => ResultColumns;
     }
     
     /// <inheritdoc />
-    IEnumerable<IStoredProcedureResultColumn> IStoredProcedure.ResultColumns
+    IReadOnlyList<IStoredProcedureResultColumn> IStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
-        get => ResultColumns.Cast<IStoredProcedureResultColumn>();
+        get => ResultColumns;
     }
 
     /// <inheritdoc />

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 #nullable enable
 
 // ReSharper disable InconsistentNaming
@@ -154,6 +156,171 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.View("OrderDetails", "sch")));
             Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.View("Order")));
         }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_return_and_parameter_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedParameter()
+                                    .HasRowsAffectedReturnValue()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_return_and_result_column_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedResultColumn()
+                                    .HasRowsAffectedReturnValue()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_parameter_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedParameter()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_parameter_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedParameter()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_rows_affected_result_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .UpdateUsingStoredProcedure(
+                    s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedResultColumn())
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_parameter_and_result_column_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedResultColumn()
+                                    .HasRowsAffectedParameter()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_rows_affected_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .UpdateUsingStoredProcedure(
+                    s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedParameter())
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateParameter("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddParameter("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_original_value_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasOriginalValueParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateOriginalValueParameter("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddOriginalValueParameter("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_result_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasResultColumn(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateResultColumn("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddResultColumn("Id"))
+                    .Message);
+        }
     }
 
     public abstract class RelationalInheritanceTestBase : InheritanceTestBase
@@ -208,6 +375,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             modelBuilder.Ignore<AnotherBookLabel>();
             modelBuilder.Ignore<Book>();
 
+            modelBuilder.Entity<BookLabel>().Property<byte[]>("RowVersion").IsRowVersion();
             modelBuilder.Entity<BookLabel>()
                 .Ignore(s => s.SpecialBookLabel)
                 .InsertUsingStoredProcedure(
@@ -220,7 +388,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                                 var resultColumnBuilder = p.HasName("InsertId");
                                 var nonGenericBuilder = (IInfrastructure<StoredProcedureResultColumnBuilder>)resultColumnBuilder;
                                 Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
-                            }))
+                            })
+                        .HasResultColumn("RowVersion")
+                        .HasRowsAffectedReturnValue())
                 .UpdateUsingStoredProcedure(
                     s => s.SuppressTransactions().HasAnnotation("foo", "bar2")
                         .HasParameter(
@@ -230,10 +400,15 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                                 var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
                                 Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
                             })
-                        .HasParameter(b => b.BookId))
+                        .HasParameter(b => b.BookId)
+                        .HasRowsAffectedParameter()
+                        .HasOriginalValueParameter("RowVersion", p => p.HasName("OriginalRowVersion"))
+                        .HasParameter("RowVersion", p => p.IsOutput()))
                 .DeleteUsingStoredProcedure(
                     s => s.SuppressTransactions().HasAnnotation("foo", "bar3")
-                        .HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+                        .HasParameter(b => b.Id, p => p.HasName("DeleteId"))
+                        .HasRowsAffectedResultColumn()
+                        .HasOriginalValueParameter("RowVersion"));
 
             modelBuilder.Entity<SpecialBookLabel>()
                 .Ignore(s => s.BookLabel);
@@ -251,32 +426,57 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("Insert", insertSproc.Name);
             Assert.Equal("mySchema", insertSproc.Schema);
             Assert.Equal(new[] { "BookId", "Discriminator" }, insertSproc.Parameters.Select(p => p.PropertyName));
-            Assert.Equal(new[] { "Id" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "Id", "RowVersion" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
             Assert.False(insertSproc.FindParameter("Discriminator")!.ForOriginalValue);
             Assert.Null(insertSproc.FindParameter("Id"));
             Assert.Null(insertSproc.FindResultColumn("Discriminator"));
             Assert.False(insertSproc.FindResultColumn("Id")!.ForRowsAffected);
             Assert.True(insertSproc.AreTransactionsSuppressed);
+            Assert.True(insertSproc.AreRowsAffectedReturned);
             Assert.Equal("bar1", insertSproc["foo"]);
             Assert.Same(bookLabel, insertSproc.EntityType);
 
             var updateSproc = bookLabel.GetUpdateStoredProcedure()!;
             Assert.Equal("Update", updateSproc.Name);
             Assert.Equal("dbo", updateSproc.Schema);
-            Assert.Equal(new[] { "Id", "BookId" }, updateSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "Id", "BookId", null, "RowVersion", "RowVersion" }, updateSproc.Parameters.Select(p => p.PropertyName));
             Assert.Empty(updateSproc.ResultColumns);
             Assert.True(updateSproc.AreTransactionsSuppressed);
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookLabel, updateSproc.EntityType);
+            Assert.False(updateSproc.AreRowsAffectedReturned);
+
+            var rowsAffectedParameter = updateSproc.Parameters[2];
+            Assert.Null(rowsAffectedParameter.ForOriginalValue);
+            Assert.True(rowsAffectedParameter.ForRowsAffected);
+            Assert.Equal(ParameterDirection.Output, rowsAffectedParameter.Direction);
+            Assert.Same(updateSproc, rowsAffectedParameter.StoredProcedure);
+
+            var originalRowVersionParameter = updateSproc.Parameters[3];
+            Assert.True(originalRowVersionParameter.ForOriginalValue);
+            Assert.False(originalRowVersionParameter.ForRowsAffected);
+            Assert.Equal(ParameterDirection.Input, originalRowVersionParameter.Direction);
+            Assert.Same(updateSproc, originalRowVersionParameter.StoredProcedure);
+
+            var currentRowVersionParameter = updateSproc.Parameters[4];
+            Assert.False(currentRowVersionParameter.ForOriginalValue);
+            Assert.False(currentRowVersionParameter.ForRowsAffected);
+            Assert.Equal(ParameterDirection.Output, currentRowVersionParameter.Direction);
+            Assert.Same(updateSproc, currentRowVersionParameter.StoredProcedure);
 
             var deleteSproc = bookLabel.GetDeleteStoredProcedure()!;
             Assert.Equal("BookLabel_Delete", deleteSproc.Name);
             Assert.Equal("mySchema", deleteSproc.Schema);
-            Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.PropertyName));
-            Assert.Empty(deleteSproc.ResultColumns);
+            Assert.Equal(new[] { "Id", "RowVersion" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "RowsAffected" }, deleteSproc.ResultColumns.Select(p => p.Name));
             Assert.True(deleteSproc.AreTransactionsSuppressed);
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookLabel, deleteSproc.EntityType);
+            Assert.False(deleteSproc.AreRowsAffectedReturned);
+
+            var rowsAffectedResultColumn = deleteSproc.ResultColumns[0];
+            Assert.True(rowsAffectedResultColumn.ForRowsAffected);
+            Assert.Same(deleteSproc, rowsAffectedResultColumn.StoredProcedure);
 
             var id = bookLabel.FindProperty(nameof(BookLabel.Id))!;
             Assert.Single(id.GetOverrides());
