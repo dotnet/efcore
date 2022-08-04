@@ -195,7 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         };
 
         private static readonly MultiPoint _multiPoint = new(
-            new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) }) { SRID = 4326 };
+            new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+        { SRID = 4326 };
 
         private static readonly Polygon _polygon1 = new(
             new LinearRing(
@@ -214,10 +215,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private static readonly Point _point1 = new(1.1, 2.2, 3.3) { SRID = 4326 };
 
         private static readonly MultiLineString _multiLineString = new(
-            new[] { _lineString1, _lineString2 }) { SRID = 4326 };
+            new[] { _lineString1, _lineString2 })
+        { SRID = 4326 };
 
         private static readonly MultiPolygon _multiPolygon = new(
-            new[] { _polygon2, _polygon1 }) { SRID = 4326 };
+            new[] { _polygon2, _polygon1 })
+        { SRID = 4326 };
 
         private static readonly GeometryCollection _geometryCollection = new(
             new Geometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })
@@ -706,6 +709,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         }
                     }
                 });
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void DefaultValue_with_line_breaks_2(bool isUnicode)
+        {
+            var defaultValue = string.Join("", Enumerable.Range(0, 300).Select(e => e.ToString()).Select(e => e + "\r\n"));
+
+            Generate(
+                    new CreateTableOperation
+                    {
+                        Name = "TestLineBreaks",
+                        Schema = "dbo",
+                        Columns =
+                        {
+                    new AddColumnOperation
+                    {
+                        Name = "TestDefaultValue",
+                        Table = "TestLineBreaks",
+                        Schema = "dbo",
+                        ClrType = typeof(string),
+                        DefaultValue = defaultValue,
+                        IsUnicode = isUnicode
+                    }
+                        }
+                    });
+        }
 
         private static void CreateGotModel(ModelBuilder b)
         {
