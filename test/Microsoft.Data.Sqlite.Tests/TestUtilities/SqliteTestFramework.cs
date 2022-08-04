@@ -97,6 +97,10 @@ namespace Microsoft.Data.Sqlite.Tests.TestUtilities
             {
                 return SkipAll("SQLite " + version + " isn't supported. Upgrade to 3.16.0 or higher");
             }
+            if (sqlite3_compileoption_used("ENABLE_COLUMN_METADATA") == 0)
+            {
+                return SkipAll("SQLite compiled without -DSQLITE_ENABLE_COLUMN_METADATA");
+            }
 
             return new XunitTestCollectionRunner(
                     testCollection,
