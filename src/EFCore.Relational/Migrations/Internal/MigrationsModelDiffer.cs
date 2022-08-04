@@ -1011,8 +1011,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 IsDestructiveChange = isDestructiveChange
             };
 
-            var sourceTypeMapping = source.PropertyMappings.First().TypeMapping;
-            var targetTypeMapping = target.PropertyMappings.First().TypeMapping;
+            var sourceTypeMapping = source.StoreTypeMapping;
+            var targetTypeMapping = target.StoreTypeMapping;
 
             Initialize(
                 alterColumnOperation, target, targetTypeMapping,
@@ -1059,8 +1059,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Name = target.Name
         };
 
-        var targetMapping = target.PropertyMappings.First();
-        var targetTypeMapping = targetMapping.TypeMapping;
+        var targetTypeMapping = target.StoreTypeMapping;
 
         Initialize(
             operation, target, targetTypeMapping, target.IsNullable,

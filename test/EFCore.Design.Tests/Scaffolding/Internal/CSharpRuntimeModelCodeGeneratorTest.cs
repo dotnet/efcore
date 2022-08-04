@@ -2609,7 +2609,7 @@ namespace TestNamespace
                 runtimeEntityType,
                 ""PrincipalBase_Delete"",
                 ""TPC"",
-                false,
+                true,
                 false);
 
             var id = deleteSproc.AddParameter(
@@ -2782,7 +2782,7 @@ namespace TestNamespace
                     Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.Name));
                     Assert.Empty(deleteSproc.ResultColumns);
                     Assert.False(deleteSproc.AreTransactionsSuppressed);
-                    Assert.False(deleteSproc.AreRowsAffectedReturned);
+                    Assert.True(deleteSproc.AreRowsAffectedReturned);
                     Assert.Same(principalBase, deleteSproc.EntityType);
                     Assert.Equal("Id", deleteSproc.Parameters.Last().Name);
                     Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.DeleteStoredProcedure).Value));
@@ -2919,6 +2919,7 @@ namespace TestNamespace
                             .HasParameter("PrincipalDerivedId")
                             .HasParameter(p => p.Id));
                         eb.DeleteUsingStoredProcedure(s => s
+                            .HasRowsAffectedReturnValue()
                             .HasParameter(p => p.Id));
                     });
 

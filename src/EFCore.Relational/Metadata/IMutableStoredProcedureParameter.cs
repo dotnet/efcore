@@ -23,5 +23,5 @@ public interface IMutableStoredProcedureParameter : IReadOnlyStoredProcedurePara
     /// <summary>
     ///     Gets or sets the direction of the parameter.
     /// </summary>
-    new static ParameterDirection Direction { get; set; }
+    new ParameterDirection Direction { get; set; }
 }

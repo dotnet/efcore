@@ -862,7 +862,7 @@
     <value>The property '{propertySpecification}' has specific configuration for the SQL query '{query}', but isn't mapped to a column on that query. Remove the specific configuration, or map an entity type that contains this property to '{query}'.</value>
   </data>
   <data name="StoredProcedureConcurrencyTokenNotMapped" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the concurrency token '{token}' are not mapped to any original value parameter.</value>
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.</value>
   </data>
   <data name="StoredProcedureDeleteNonKeyProperty" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.</value>
@@ -898,7 +898,7 @@
     <value>The entity type '{entityType}' was configured to use '{sproc}', but the store name was not specified. Configure the stored procedure name explicitly.</value>
   </data>
   <data name="StoredProcedureOutputParameterConflict" xml:space="preserve">
-    <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value parameter. A store-generated property can only be mapped to one output parameter.</value>
+    <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value output parameter. A store-generated property can only be mapped to one output parameter.</value>
   </data>
   <data name="StoredProcedureOutputParameterNotGenerated" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.</value>
@@ -940,7 +940,7 @@
     <value>Both '{entityType}' and  '{otherEntityType}' are explicitly mapped to the stored procedure '{sproc}' using the 'TPH' mapping strategy. Configure the stored procedure mapping on the root entity type, including all parameters for the derived types. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="StoredProcedureUnmapped" xml:space="preserve">
-    <value>The entity type '{entityType}' was configured to use stored procedures and it's not mapped to any table. An unmapped entity type requires to be mapped to insert, update and delete stored procedures.</value>
+    <value>The entity type '{entityType}' was configured to use some stored procedures and is not mapped to any table. An entity type that isn't mapped to a table must be mapped to insert, update and delete stored procedures.</value>
   </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>

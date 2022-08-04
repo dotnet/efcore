@@ -952,7 +952,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 
                 if (tableMapping != null)
                 {
-                    tableMapping.InsertStoredProcedureMapping = deleteProcedureMapping;
+                    tableMapping.DeleteStoredProcedureMapping = deleteProcedureMapping;
                 }
             }
             else if (entityType == mappedType)
@@ -976,7 +976,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 
                 if (tableMapping != null)
                 {
-                    tableMapping.InsertStoredProcedureMapping = updateProcedureMapping;
+                    tableMapping.UpdateStoredProcedureMapping = updateProcedureMapping;
                 }
             }
             else if (entityType == mappedType)
@@ -1038,7 +1038,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings),
             _ => throw new Exception("Unexpected stored procedure type: " + identifier.StoreObjectType)
         };
-        
+
         var position = -1;
         foreach (var parameter in storedProcedure.Parameters)
         {
@@ -1055,7 +1055,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                 continue;
             }
-            
+
             var property = mappedType.FindProperty(parameter.PropertyName);
             if (property == null)
             {
@@ -1120,7 +1120,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                 continue;
             }
-            
+
             var property = mappedType.FindProperty(resultColumn.PropertyName);
             if (property == null)
             {
@@ -1189,10 +1189,12 @@ public class RelationalModel : Annotatable, IRelationalModel
                     storeStoredProcedure = new StoreStoredProcedure(storedProcedure, model);
                     if (storedProcedure.AreRowsAffectedReturned)
                     {
+                        var typeMapping = relationalTypeMappingSource.FindMapping(typeof(int))!;
                         storeStoredProcedure.Return = new StoreStoredProcedureReturn(
                                 "",
-                                relationalTypeMappingSource.FindMapping(typeof(int))!.StoreType,
-                                storeStoredProcedure);
+                                typeMapping.StoreType,
+                                storeStoredProcedure,
+                                typeMapping);
                     }
                     model.StoredProcedures.Add((storeStoredProcedure.Name, storeStoredProcedure.Schema), storeStoredProcedure);
                 }
@@ -1218,25 +1220,38 @@ public class RelationalModel : Annotatable, IRelationalModel
             var storeParameter = (StoreStoredProcedureParameter?)storeStoredProcedure.FindParameter(name);
             if (storeParameter == null)
             {
-                storeParameter = new StoreStoredProcedureParameter(
-                    name,
-                    property?.GetColumnType(identifier)
-                        ?? relationalTypeMappingSource.FindMapping(typeof(int))!.StoreType,
-                    position,
-                    storeStoredProcedure,
-                    parameter.Direction)
+                if (property == null)
                 {
-                    IsNullable = property?.IsColumnNullable(identifier) ?? false
-                };
+                    var typeMapping = relationalTypeMappingSource.FindMapping(typeof(int))!;
+                    storeParameter = new StoreStoredProcedureParameter(
+                        name,
+                        typeMapping.StoreType,
+                        position,
+                        storeStoredProcedure,
+                        parameter.Direction,
+                        typeMapping);
+                }
+                else
+                {
+                    storeParameter = new StoreStoredProcedureParameter(
+                        name,
+                        property.GetColumnType(identifier),
+                        position,
+                        storeStoredProcedure,
+                        parameter.Direction)
+                    {
+                        IsNullable = property.IsColumnNullable(identifier)
+                    };
+                }
 
-                ((IRuntimeStoredProcedureParameter)parameter).StoreParameter = storeParameter;
                 storeStoredProcedure.AddParameter(storeParameter);
             }
             else if (property?.IsColumnNullable(identifier) == false)
             {
                 storeParameter.IsNullable = false;
             }
-
+            
+            ((IRuntimeStoredProcedureParameter)parameter).StoreParameter = storeParameter;
             return storeParameter;
         }
 
@@ -1251,14 +1266,25 @@ public class RelationalModel : Annotatable, IRelationalModel
             var column = (StoreStoredProcedureResultColumn?)storeStoredProcedure.FindResultColumn(name);
             if (column == null)
             {
-                column = new StoreStoredProcedureResultColumn(
-                    name,
-                    property?.GetColumnType(identifier)
-                        ?? relationalTypeMappingSource.FindMapping(typeof(int))!.StoreType,
-                    storeStoredProcedure)
+                if (property == null)
                 {
-                    IsNullable = property?.IsColumnNullable(identifier) ?? false
-                };
+                    var typeMapping = relationalTypeMappingSource.FindMapping(typeof(int))!;
+                    column = new StoreStoredProcedureResultColumn(
+                        name,
+                        typeMapping.StoreType,
+                        storeStoredProcedure);
+                }
+                else
+                {
+                    column = new StoreStoredProcedureResultColumn(
+                        name,
+                        property.GetColumnType(identifier),
+                        storeStoredProcedure)
+                    {
+                        IsNullable = property.IsColumnNullable(identifier)
+                    };
+                }
+
                 storeStoredProcedure.AddResultColumn(column);
             }
             else if (property?.IsColumnNullable(identifier) == false)
@@ -1266,6 +1292,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 column.IsNullable = false;
             }
 
+            ((IRuntimeStoredProcedureResultColumn)resultColumn).StoreResultColumn = column;
             return column;
         }
     }

@@ -1230,7 +1230,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, query);
 
         /// <summary>
-        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the concurrency token '{token}' are not mapped to any original value parameter.
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.
         /// </summary>
         public static string StoredProcedureConcurrencyTokenNotMapped(object? entityType, object? sproc, object? token)
             => string.Format(
@@ -1326,7 +1326,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, sproc);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value parameter. A store-generated property can only be mapped to one output parameter.
+        ///     The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value output parameter. A store-generated property can only be mapped to one output parameter.
         /// </summary>
         public static string StoredProcedureOutputParameterConflict(object? entityType, object? property, object? sproc)
             => string.Format(
@@ -1438,7 +1438,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, otherEntityType, sproc);
 
         /// <summary>
-        ///     The entity type '{entityType}' was configured to use stored procedures and it's not mapped to any table. An unmapped entity type requires to be mapped to insert, update and delete stored procedures.
+        ///     The entity type '{entityType}' was configured to use some stored procedures and is not mapped to any table. An entity type that isn't mapped to a table must be mapped to insert, update and delete stored procedures.
         /// </summary>
         public static string StoredProcedureUnmapped(object? entityType)
             => string.Format(

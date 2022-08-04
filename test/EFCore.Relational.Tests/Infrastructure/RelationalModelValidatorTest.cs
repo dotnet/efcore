@@ -2627,8 +2627,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>()
             .Ignore(a => a.FavoritePerson)
             .ToTable((string)null)
-            .InsertUsingStoredProcedure(s => s.HasParameter(c => c.Id, p => p.IsOutput()).HasParameter(c => c.Name))
-            .UpdateUsingStoredProcedure(s => s.HasParameter(c => c.Id).HasParameter(c => c.Name));
+            .InsertUsingStoredProcedure(s => s.HasParameter(c => c.Id).HasParameter(c => c.Name))
+            .UpdateUsingStoredProcedure(s => s.HasParameter(c => c.Id).HasParameter(c => c.Name))
+            .Property(a => a.Id).ValueGeneratedNever();
 
         VerifyError(
             RelationalStrings.StoredProcedureUnmapped(nameof(Animal)),

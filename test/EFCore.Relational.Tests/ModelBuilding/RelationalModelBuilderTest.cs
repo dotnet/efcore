@@ -321,6 +321,21 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => sproc.AddResultColumn("Id"))
                     .Message);
         }
+
+        [ConditionalFact]
+        public virtual void Configuring_direction_on_RowsAffectedParameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var param = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasRowsAffectedParameter()).Metadata.GetInsertStoredProcedure()!.Parameters.Single();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureParameterInvalidConfiguration("Direction", "RowsAffected", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => param.Direction = ParameterDirection.Input)
+                    .Message);
+        }
     }
 
     public abstract class RelationalInheritanceTestBase : InheritanceTestBase
