@@ -23,7 +23,9 @@ public class TestModelSource : ModelSource
         IConventionSetBuilder conventionSetBuilder,
         ModelDependencies modelDependencies)
     {
-        var modelConfigurationBuilder = new ModelConfigurationBuilder(conventionSetBuilder.CreateConventionSet());
+        var modelConfigurationBuilder = new ModelConfigurationBuilder(
+            conventionSetBuilder.CreateConventionSet(),
+            context.GetInfrastructure());
         _configureConventions?.Invoke(modelConfigurationBuilder);
         var modelBuilder = modelConfigurationBuilder.CreateModelBuilder(modelDependencies);
 
