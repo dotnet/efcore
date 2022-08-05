@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -44,13 +42,8 @@ public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
     {
         var conventionSet = base.CreateConventionSet();
 
-        ReplaceConvention(
-            conventionSet.ModelFinalizingConventions,
-            (SharedTableConvention)new SqliteSharedTableConvention(Dependencies, RelationalDependencies));
-
-        ReplaceConvention(
-            conventionSet.ModelFinalizedConventions,
-            (RuntimeModelConvention)new SqliteRuntimeModelConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<SharedTableConvention>(new SqliteSharedTableConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<RuntimeModelConvention>(new SqliteRuntimeModelConvention(Dependencies, RelationalDependencies));
 
         return conventionSet;
     }

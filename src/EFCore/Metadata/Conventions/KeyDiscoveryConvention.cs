@@ -59,7 +59,7 @@ public class KeyDiscoveryConvention :
         var entityType = entityTypeBuilder.Metadata;
         if (entityType.BaseType != null
             || (entityType.IsKeyless && entityType.GetIsKeylessConfigurationSource() != ConfigurationSource.Convention)
-            || !entityTypeBuilder.CanSetPrimaryKey(null))
+            || !entityTypeBuilder.CanSetPrimaryKey((IReadOnlyList<IConventionProperty>?)null))
         {
             return;
         }
