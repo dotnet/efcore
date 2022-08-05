@@ -68,6 +68,18 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
+        GenerateRootCommand(queryExpression);
+
+        return _relationalCommandBuilder.Build();
+    }
+
+    /// <summary>
+    ///     Generates the command for the given top-level query expression. This allows providers to intercept if an expression
+    ///     requires different processing when it is at top-level.
+    /// </summary>
+    /// <param name="queryExpression">A query expression to print in command.</param>
+    protected virtual void GenerateRootCommand(Expression queryExpression)
+    {
         switch (queryExpression)
         {
             case SelectExpression selectExpression:
@@ -90,8 +102,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             default:
                 throw new InvalidOperationException();
         }
-
-        return _relationalCommandBuilder.Build();
     }
 
     /// <summary>
