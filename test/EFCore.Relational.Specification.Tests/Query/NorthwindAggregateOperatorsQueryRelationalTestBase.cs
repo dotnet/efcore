@@ -27,7 +27,7 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
 
     public override async Task Contains_over_keyless_entity_throws(bool async)
         => Assert.Equal(
-            CoreStrings.EntityEqualityOnKeylessEntityNotSupported("==", nameof(CustomerQuery)),
+            CoreStrings.EntityEqualityOnKeylessEntityNotSupported("Equals", nameof(CustomerQuery)),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Contains_over_keyless_entity_throws(async))).Message);
 

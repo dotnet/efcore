@@ -40,9 +40,6 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     internal static readonly MethodInfo EqualityComparerEqualsMethod
         = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.Equals), new[] { typeof(object), typeof(object) })!;
 
-    internal static readonly MethodInfo ObjectEqualsMethod
-        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
-
     internal static readonly MethodInfo ObjectGetHashCodeMethod
         = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes)!;
 

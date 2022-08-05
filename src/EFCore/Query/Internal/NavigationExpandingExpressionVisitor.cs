@@ -1598,11 +1598,26 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var outerKeyLambda = RemapLambdaExpression(outerSource, outerKeySelector);
         var innerKeyLambda = RemapLambdaExpression(innerSource, innerKeySelector);
 
-        var keyComparison = (BinaryExpression)_removeRedundantNavigationComparisonExpressionVisitor
-            .Visit(Expression.Equal(outerKeyLambda, innerKeyLambda));
+        var keyComparison = _removeRedundantNavigationComparisonExpressionVisitor
+            .Visit(Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKeyLambda, innerKeyLambda));
 
-        outerKeySelector = GenerateLambda(ExpandNavigationsForSource(outerSource, keyComparison.Left), outerSource.CurrentParameter);
-        innerKeySelector = GenerateLambda(ExpandNavigationsForSource(innerSource, keyComparison.Right), innerSource.CurrentParameter);
+        Expression left;
+        Expression right;
+        if (keyComparison is BinaryExpression binaryExpression)
+        {
+            left = binaryExpression.Left;
+            right = binaryExpression.Right;
+        }
+        else
+        {
+            // If the visitor didn't modify the tree into BinaryExpression then it is going to the same method call on top level
+            var methodCall = (MethodCallExpression)keyComparison;
+            left = methodCall.Arguments[0];
+            right = methodCall.Arguments[1];
+        }
+
+        outerKeySelector = GenerateLambda(ExpandNavigationsForSource(outerSource, left), outerSource.CurrentParameter);
+        innerKeySelector = GenerateLambda(ExpandNavigationsForSource(innerSource, right), innerSource.CurrentParameter);
 
         if (outerKeySelector.ReturnType != innerKeySelector.ReturnType)
         {

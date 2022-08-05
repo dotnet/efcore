@@ -159,10 +159,7 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
 
         return Expression.Lambda<Func<T?, T?, bool>>(
             typedEquals == null
-                ? Expression.Call(
-                    ObjectEqualsMethod,
-                    Expression.Convert(param1, typeof(object)),
-                    Expression.Convert(param2, typeof(object)))
+                ? Infrastructure.ExpressionExtensions.BuildEqualsExpression(param1, param2)
                 : Expression.Call(typedEquals, param1, param2),
             param1, param2);
     }

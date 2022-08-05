@@ -60,9 +60,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo StringEqualsWithStringComparisonStatic
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) })!;
 
-    private static readonly MethodInfo ObjectEqualsMethodInfo
-        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
-
     private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(object.GetType))!;
 
     private readonly QueryCompilationContext _queryCompilationContext;
@@ -1443,7 +1440,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         return leftExpressions.Zip(
                 rightExpressions,
-                (l, r) => (Expression)Expression.Call(ObjectEqualsMethodInfo, l, r))
+                (l, r) => Infrastructure.ExpressionExtensions.BuildEqualsExpression(l, r))
             .Aggregate((a, b) => Expression.AndAlso(a, b));
     }
 
@@ -1574,17 +1571,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     var condition = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table)
                         .Where(e => !e.IsNullable)
                         .Select(
-                            p =>
-                            {
-                                var comparison = Expression.Call(
-                                    ObjectEqualsMethodInfo,
-                                    Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                                    Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
-
-                                return nodeType == ExpressionType.Equal
-                                    ? (Expression)comparison
-                                    : Expression.Not(comparison);
-                            })
+                            p => Infrastructure.ExpressionExtensions.BuildEqualsExpression(
+                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                    Expression.Constant(null, p.ClrType.MakeNullable()),
+                                    nodeType != ExpressionType.Equal))
                         .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
 
                     result = Visit(condition);
@@ -1594,17 +1584,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
             result = Visit(
                 nullComparedEntityTypePrimaryKeyProperties.Select(
-                    p =>
-                    {
-                        var comparison = Expression.Call(
-                            ObjectEqualsMethodInfo,
-                            Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                            Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
-
-                        return nodeType == ExpressionType.Equal
-                            ? (Expression)comparison
-                            : Expression.Not(comparison);
-                    }).Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+                    p => Infrastructure.ExpressionExtensions.BuildEqualsExpression(
+                            CreatePropertyAccessExpression(nonNullEntityReference, p),
+                            Expression.Constant(null, p.ClrType.MakeNullable()),
+                            nodeType != ExpressionType.Equal))
+                .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
 
             return true;
         }
@@ -1652,17 +1636,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         result = Visit(
             primaryKeyProperties.Select(
-                p =>
-                {
-                    var comparison = Expression.Call(
-                        ObjectEqualsMethodInfo,
-                        Expression.Convert(CreatePropertyAccessExpression(left, p), typeof(object)),
-                        Expression.Convert(CreatePropertyAccessExpression(right, p), typeof(object)));
-
-                    return nodeType == ExpressionType.Equal
-                        ? (Expression)comparison
-                        : Expression.Not(comparison);
-                }).Aggregate(
+                p => Infrastructure.ExpressionExtensions.BuildEqualsExpression(
+                        CreatePropertyAccessExpression(left, p),
+                        CreatePropertyAccessExpression(right, p),
+                        nodeType != ExpressionType.Equal))
+            .Aggregate(
                 (l, r) => nodeType == ExpressionType.Equal
                     ? Expression.AndAlso(l, r)
                     : Expression.OrElse(l, r)));
