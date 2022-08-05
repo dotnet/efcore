@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.VisualBasic;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
@@ -330,6 +331,169 @@ WHERE [OrderID] < 10300"))
                   from o in ss.Set<Order>().Where(o => o.OrderID < od.OrderID).OrderBy(e => e.OrderID).Skip(0).Take(100).DefaultIfEmpty()
                   select od,
             rowsAffectedCount: 74);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_parameter(bool async)
+    {
+        var value = "Abc";
+        return AssertUpdate(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+                e => e,
+                s => s.SetProperty(c => c.ContactName, c => value),
+                rowsAffectedCount: 8,
+                (b, a) => a.ForEach(c => Assert.Equal("Abc", c.ContactName)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_using_property_plus_constant(bool async)
+        => AssertUpdate(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+                e => e,
+                s => s.SetProperty(c => c.ContactName, c => c.ContactName + "Abc"),
+                rowsAffectedCount: 8,
+                (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + "Abc", e.Second.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_using_property_plus_parameter(bool async)
+    {
+        var value = "Abc";
+        return AssertUpdate(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+                e => e,
+                s => s.SetProperty(c => c.ContactName, c => c.ContactName + value),
+                rowsAffectedCount: 8,
+                (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + "Abc", e.Second.ContactName)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_using_property_plus_property(bool async)
+        => AssertUpdate(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+                e => e,
+                s => s.SetProperty(c => c.ContactName, c => c.ContactName + c.CustomerID),
+                rowsAffectedCount: 8,
+                (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + e.First.CustomerID, e.Second.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_constant_using_ef_property(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => EF.Property<string>(c, "ContactName"), c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_null(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => null),
+            rowsAffectedCount: 8,
+            (b, a) => a.ForEach(c => Assert.Null(c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_without_property_to_set_throws(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.NoSetPropertyInvocation,
+            () => AssertUpdate(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
+                e => e,
+                s => s,
+                rowsAffectedCount: 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_invalid_lambda_throws(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.InvalidArgumentToExecuteUpdate,
+            () => AssertUpdate(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
+                e => e,
+                s => s.Maybe(e => e),
+                rowsAffectedCount: 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_multi_property_update(bool async)
+    {
+        var value = "Abc";
+        return AssertUpdate(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+                e => e,
+                s => s.SetProperty(c => c.ContactName, c => value).SetProperty(c => c.City, c => "Seattle"),
+                rowsAffectedCount: 8,
+                (b, a) => a.ForEach(c =>
+                {
+                    Assert.Equal("Abc", c.ContactName);
+                    Assert.Equal("Seattle", c.City);
+                }));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_invalid_lambda_in_set_property_throws(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.InvalidPropertyInSetProperty(new ExpressionPrinter().Print((OrderDetail e) => e.MaybeScalar(e => e.OrderID))),
+            () => AssertUpdate(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
+                e => e,
+                s => s.SetProperty(e => e.MaybeScalar(e => e.OrderID), e => 10300),
+                rowsAffectedCount: 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_multiple_entity_update(bool async)
+         => AssertTranslationFailed(
+            RelationalStrings.MultipleEntityPropertiesInSetProperty("Order", "Customer"),
+            () => AssertUpdate(
+                async,
+                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F"))
+                        .Select(e => new { e, Customer = e.Customer }),
+                e => e.Customer,
+                s => s.SetProperty(c => c.Customer.ContactName, c => "Name").SetProperty(c => c.e.OrderDate, e => new DateTime(2020, 1, 1)),
+                rowsAffectedCount: 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_unmapped_property(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.UnableToTranslateSetProperty("c => c.IsLondon", "c => True",
+                CoreStrings.QueryUnableToTranslateMember("IsLondon", "Customer")),
+            () => AssertUpdate(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+                e => e,
+                s => s.SetProperty(c => c.IsLondon, c => true),
+                rowsAffectedCount: 0));
 
     protected string NormalizeDelimitersInRawString(string sql)
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);

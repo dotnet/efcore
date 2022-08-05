@@ -162,6 +162,24 @@ WHERE [v].[Name] = N'AIM-9M Sidewinder'
 ORDER BY [v].[Name]");
     }
 
+    public override async Task ExecuteUpdate_works_for_table_sharing(bool async)
+    {
+        await base.ExecuteUpdate_works_for_table_sharing(async);
+
+        AssertSql(
+            @"UPDATE [v]
+    SET [v].[SeatingCapacity] = 1
+FROM [Vehicles] AS [v]",
+                //
+                @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Vehicles] AS [v]
+        WHERE [v].[SeatingCapacity] <> 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

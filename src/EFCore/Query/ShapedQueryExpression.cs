@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class ShapedQueryExpression : Expression, IPrintableExpression
 {
     /// <summary>
-    ///     Creates a new instance of the <see cref="ShapedQueryExpression" /> class with associated query provider.
+    ///     Creates a new instance of the <see cref="ShapedQueryExpression" /> class with associated query and shaper expressions.
     /// </summary>
     /// <param name="queryExpression">The query expression to get results from server.</param>
     /// <param name="shaperExpression">The shaper expression to create result objects from server results.</param>

@@ -27,6 +27,16 @@ public abstract class BulkUpdatesTestBase<TFixture> : IClassFixture<TFixture>
         int rowsAffectedCount)
         => BulkUpdatesAsserter.AssertDelete(async, query, rowsAffectedCount);
 
+    public Task AssertUpdate<TResult, TEntity>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> query,
+        Expression<Func<TResult, TEntity>> entitySelector,
+        Expression<Func<SetPropertyStatements<TResult>, SetPropertyStatements<TResult>>> setPropertyStatements,
+        int rowsAffectedCount,
+        Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter = null)
+        where TResult : class
+        => BulkUpdatesAsserter.AssertUpdate(async, query, entitySelector, setPropertyStatements, rowsAffectedCount, asserter);
+
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
         => Assert.Contains(
             RelationalStrings.NonQueryTranslationFailedWithDetails("", details)[21..],

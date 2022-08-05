@@ -75,6 +75,58 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitUpdate(UpdateExpression updateExpression)
+    {
+        var selectExpression = updateExpression.SelectExpression;
+
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] == updateExpression.Table
+            && selectExpression.Projection.Count == 0)
+        {
+            Sql.Append("UPDATE ");
+            Sql.AppendLine($"{Dependencies.SqlGenerationHelper.DelimitIdentifier(updateExpression.Table.Alias)}");
+            using (Sql.Indent())
+            {
+                Sql.Append("SET ");
+                GenerateList(updateExpression.SetColumnValues,
+                    e =>
+                    {
+                        Visit(e.Column);
+                        Sql.Append(" = ");
+                        Visit(e.Value);
+
+                    },
+                    joinAction: e => e.AppendLine(","));
+                Sql.AppendLine();
+            }
+
+            Sql.Append("FROM ");
+            GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+
+            if (selectExpression.Predicate != null)
+            {
+                Sql.AppendLine().Append("WHERE ");
+                Visit(selectExpression.Predicate);
+            }
+
+            return updateExpression;
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override void GenerateTop(SelectExpression selectExpression)
     {
         if (selectExpression.Limit != null

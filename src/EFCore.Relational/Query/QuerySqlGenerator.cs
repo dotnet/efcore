@@ -95,12 +95,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 }
                 break;
 
-            case DeleteExpression deleteExpression:
-                VisitDelete(deleteExpression);
-                break;
-
             default:
-                throw new InvalidOperationException();
+                base.Visit(queryExpression);
+                break;
         }
     }
 
@@ -1228,5 +1225,49 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         GenerateSetOperationHelper(unionExpression);
 
         return unionExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitUpdate(UpdateExpression updateExpression)
+    {
+        var selectExpression = updateExpression.SelectExpression;
+
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] == updateExpression.Table
+            && selectExpression.Projection.Count == 0)
+        {
+            _relationalCommandBuilder.Append("UPDATE ");
+            Visit(updateExpression.Table);
+            _relationalCommandBuilder.AppendLine();
+            using (_relationalCommandBuilder.Indent())
+            {
+                _relationalCommandBuilder.Append("SET ");
+                GenerateList(updateExpression.SetColumnValues,
+                    e =>
+                    {
+                        _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(e.Column.Name)} = ");
+                        Visit(e.Value);
+
+                    },
+                    joinAction: e => e.AppendLine(","));
+                _relationalCommandBuilder.AppendLine();
+            }
+
+            if (selectExpression.Predicate != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("WHERE ");
+                Visit(selectExpression.Predicate);
+            }
+
+            return updateExpression;
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
     }
 }

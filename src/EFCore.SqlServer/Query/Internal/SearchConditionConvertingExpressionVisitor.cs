@@ -720,4 +720,38 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         return unionExpression.Update(source1, source2);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitUpdate(UpdateExpression updateExpression)
+    {
+        var selectExpression = (SelectExpression)Visit(updateExpression.SelectExpression);
+        var parentSearchCondition = _isSearchCondition;
+        _isSearchCondition = false;
+        List<SetColumnValue>? setColumnValues = null;
+        for (var (i, n) = (0, updateExpression.SetColumnValues.Count); i < n; i++)
+        {
+            var setColumnValue = updateExpression.SetColumnValues[i];
+            var newValue = (SqlExpression)Visit(setColumnValue.Value);
+            if (setColumnValues != null)
+            {
+                setColumnValues.Add(new SetColumnValue(setColumnValue.Column, newValue));
+            }
+            else if (!ReferenceEquals(newValue, setColumnValue.Value))
+            {
+                setColumnValues = new();
+                for (var j = 0; j < i; j++)
+                {
+                    setColumnValues.Add(updateExpression.SetColumnValues[j]);
+                }
+                setColumnValues.Add(new SetColumnValue(setColumnValue.Column, newValue));
+            }
+        }
+        _isSearchCondition = parentSearchCondition;
+        return updateExpression.Update(selectExpression, setColumnValues ?? updateExpression.SetColumnValues);
+    }
 }

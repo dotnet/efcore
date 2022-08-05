@@ -445,6 +445,9 @@
   <data name="InsufficientInformationToIdentifyElementOfCollectionJoin" xml:space="preserve">
     <value>Unable to translate a collection subquery in a projection since either parent or the subquery doesn't project necessary information required to uniquely identify it and correctly generate results on the client side. This can happen when trying to correlate on keyless entity type. This can also happen for some cases of projection before 'Distinct' or some shapes of grouping key in case of 'GroupBy'. These should either contain all key properties of the entity that the operation is applied on, or only contain simple property access expressions.</value>
   </data>
+  <data name="InvalidArgumentToExecuteUpdate" xml:space="preserve">
+    <value>The 'setPropertyStatements' argument to 'ExecuteUpdate' may only contain a chain of 'SetProperty' expressing the properties to be updated.</value>
+  </data>
   <data name="InvalidCommandTimeout" xml:space="preserve">
     <value>The specified 'CommandTimeout' value '{value}' is not valid. It must be a positive number.</value>
   </data>
@@ -477,6 +480,48 @@
   </data>
   <data name="InvalidMinBatchSize" xml:space="preserve">
     <value>The specified 'MinBatchSize' value '{value}' is not valid. It must be a positive number.</value>
+  </data>
+  <data name="InvalidPropertyInSetProperty" xml:space="preserve">
+    <value>The following lambda argument to 'SetProperty' does not represent a valid property to be set: '{propertyExpression}'.</value>
+  </data>
+  <data name="JsonEntityMappedToDifferentViewThanOwner" xml:space="preserve">
+    <value>Entity '{jsonType}' is mapped to JSON and also mapped to a view '{viewName}', however it's owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as it's owner.</value>
+  </data>
+  <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
+    <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
+  </data>
+  <data name="JsonEntityOwnedByNonJsonOwnedType" xml:space="preserve">
+    <value>Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.</value>
+  </data>
+  <data name="JsonEntityReferencingRegularEntity" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' is mapped to JSON and has navigation to a regular entity which is not the owner.</value>
+  </data>
+  <data name="JsonEntityWithDefaultValueSetOnItsProperty" xml:space="preserve">
+    <value>Setting default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.</value>
+  </data>
+  <data name="JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey" xml:space="preserve">
+    <value>Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have JSON property name configured explicitly.</value>
+  </data>
+  <data name="JsonEntityWithExplicitlyConfiguredOrdinalKey" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' is part of collection mapped to JSON and has it's ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.</value>
+  </data>
+  <data name="JsonEntityWithIncorrectNumberOfKeyProperties" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' has incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
+  </data>
+  <data name="JsonEntityWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
+    <value>Entity '{jsonEntity}' is mapped to JSON and it contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.</value>
+  </data>
+  <data name="JsonEntityWithNonTphInheritanceOnOwner" xml:space="preserve">
+    <value>Entity type '{rootType}' references entities mapped to JSON. Only '{tph}' inheritance is supported for those entities.</value>
+  </data>
+  <data name="JsonEntityWithOwnerNotMappedToTableOrView" xml:space="preserve">
+    <value>Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view.This is not supported.</value>
+  </data>
+  <data name="JsonEntityWithTableSplittingIsNotSupported" xml:space="preserve">
+    <value>Table splitting is not supported for entities containing entities mapped to JSON.</value>
+  </data>
+  <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
+    <value>JSON property name should only be configured on nested owned navigations.</value>
   </data>
   <data name="KeylessMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
@@ -774,6 +819,9 @@
   <data name="MappingFragmentMissingName" xml:space="preserve">
     <value>Table name must be specified to configure a table-specific property mapping.</value>
   </data>
+  <data name="MethodNeedsToBeImplementedInTheProvider" xml:space="preserve">
+    <value>This method needs to be implemented in the provider.</value>
+  </data>
   <data name="MethodOnNonTphRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
@@ -806,6 +854,9 @@
   </data>
   <data name="ModificationCommandInvalidEntityStateSensitive" xml:space="preserve">
     <value>Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
+  </data>
+  <data name="MultipleEntityPropertiesInSetProperty" xml:space="preserve">
+    <value>Multiple 'SetProperty' invocations refer to properties on different entity types ('{entityType1}' and '{entityType2}'). A single 'ExecuteUpdate' call can only update the properties of a single entity type.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -852,6 +903,9 @@
   <data name="NoProviderConfigured" xml:space="preserve">
     <value>No relational database providers are configured. Configure a database provider using 'OnConfiguring' or by creating an ImmutableDbContextOptions with a configured database provider and passing it to the context.</value>
   </data>
+  <data name="NoSetPropertyInvocation" xml:space="preserve">
+    <value>An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.</value>
+  </data>
   <data name="NullKeyValue" xml:space="preserve">
     <value>Unable to modify a row in table '{table}' because its key column '{keyColumn}' is null.</value>
   </data>
@@ -890,6 +944,9 @@
   </data>
   <data name="SetOperationsOnDifferentStoreTypes" xml:space="preserve">
     <value>Unable to translate set operation when matching columns on both sides have different store types.</value>
+  </data>
+  <data name="SetPropertyMethodInvoked" xml:space="preserve">
+    <value>The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.</value>
   </data>
   <data name="SplitQueryString" xml:space="preserve">
     <value>This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.</value>
@@ -1032,6 +1089,9 @@
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.</value>
   </data>
+  <data name="UnableToTranslateSetProperty" xml:space="preserve">
+    <value>The following 'SetProperty' failed to translate: 'SetProperty({property}, {value})'. {details}</value>
+  </data>
   <data name="UnhandledAnnotatableType" xml:space="preserve">
     <value>Unhandled annotatable type '{annotatableType}'.</value>
   </data>
@@ -1085,47 +1145,5 @@
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
-  </data>
-  <data name="JsonEntityOwnedByNonJsonOwnedType" xml:space="preserve">
-    <value>Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.</value>
-  </data>
-  <data name="JsonEntityWithTableSplittingIsNotSupported" xml:space="preserve">
-    <value>Table splitting is not supported for entities containing entities mapped to JSON.</value>
-  </data>
-  <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
-    <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
-  </data>
-  <data name="JsonEntityWithOwnerNotMappedToTableOrView" xml:space="preserve">
-    <value>Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view.This is not supported.</value>
-  </data>
-  <data name="JsonEntityMappedToDifferentViewThanOwner" xml:space="preserve">
-    <value>Entity '{jsonType}' is mapped to JSON and also mapped to a view '{viewName}', however it's owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as it's owner.</value>
-  </data>
-  <data name="JsonEntityWithNonTphInheritanceOnOwner" xml:space="preserve">
-    <value>Entity type '{rootType}' references entities mapped to JSON. Only '{tph}' inheritance is supported for those entities.</value>
-  </data>
-  <data name="JsonEntityReferencingRegularEntity" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' is mapped to JSON and has navigation to a regular entity which is not the owner.</value>
-  </data>
-  <data name="JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey" xml:space="preserve">
-    <value>Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have JSON property name configured explicitly.</value>
-  </data>
-  <data name="JsonEntityWithExplicitlyConfiguredOrdinalKey" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' is part of collection mapped to JSON and has it's ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.</value>
-  </data>
-  <data name="JsonEntityWithIncorrectNumberOfKeyProperties" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' has incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
-  </data>
-  <data name="JsonEntityWithDefaultValueSetOnItsProperty" xml:space="preserve">
-    <value>Setting default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.</value>
-  </data>
-  <data name="JsonEntityWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
-    <value>Entity '{jsonEntity}' is mapped to JSON and it contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.</value>
-  </data>
-  <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
-    <value>JSON property name should only be configured on nested owned navigations.</value>
-  </data>
-  <data name="MethodNeedsToBeImplementedInTheProvider" xml:space="preserve">
-    <value>This method needs to be implemented in the provider.</value>
   </data>
 </root>

@@ -99,7 +99,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
                     return relationalSplitCollectionShaperExpression;
 
                 case NonQueryExpression nonQueryExpression:
-                    VerifyUniqueAliasInExpression(nonQueryExpression.DeleteExpression);
+                    VerifyUniqueAliasInExpression(nonQueryExpression.Expression);
                     return nonQueryExpression;
 
                 default:

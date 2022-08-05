@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 /// <summary>
 ///     <para>
-///         An expression that represents a WHEN...THEN... construct in a SQL tree.
+///         An object that represents a WHEN...THEN... construct in a SQL tree.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally

@@ -502,6 +502,139 @@ OUTER APPLY (
 WHERE [o].[OrderID] < 10276");
     }
 
+    public override async Task Update_where_constant(bool async)
+    {
+        await base.Update_where_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_parameter(bool async)
+    {
+        await base.Update_where_parameter(async);
+
+        AssertExecuteUpdateSql(
+            @"@__value_0='Abc' (Size = 4000)
+
+UPDATE [c]
+    SET [c].[ContactName] = @__value_0
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_using_property_plus_constant(bool async)
+    {
+        await base.Update_where_using_property_plus_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + N'Abc'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_using_property_plus_parameter(bool async)
+    {
+        await base.Update_where_using_property_plus_parameter(async);
+
+        AssertExecuteUpdateSql(
+            @"@__value_0='Abc' (Size = 4000)
+
+UPDATE [c]
+    SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @__value_0
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_using_property_plus_property(bool async)
+    {
+        await base.Update_where_using_property_plus_property(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_constant_using_ef_property(bool async)
+    {
+        await base.Update_where_constant_using_ef_property(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_null(bool async)
+    {
+        await base.Update_where_null(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = NULL
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_without_property_to_set_throws(bool async)
+    {
+        await base.Update_without_property_to_set_throws(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_with_invalid_lambda_throws(bool async)
+    {
+        await base.Update_with_invalid_lambda_throws(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_where_multi_property_update(bool async)
+    {
+        await base.Update_where_multi_property_update(async);
+
+        AssertExecuteUpdateSql(
+            @"@__value_0='Abc' (Size = 4000)
+
+UPDATE [c]
+    SET [c].[City] = N'Seattle',
+    [c].[ContactName] = @__value_0
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_with_invalid_lambda_in_set_property_throws(bool async)
+    {
+        await base.Update_with_invalid_lambda_in_set_property_throws(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_multiple_entity_update(bool async)
+    {
+        await base.Update_multiple_entity_update(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_unmapped_property(bool async)
+    {
+        await base.Update_unmapped_property(async);
+
+        AssertExecuteUpdateSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    private void AssertExecuteUpdateSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, forUpdate: true);
 }

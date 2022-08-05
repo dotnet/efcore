@@ -646,6 +646,35 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         }
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task ExecuteUpdate_works_for_table_sharing(bool async)
+    {
+        await InitializeAsync(OnModelCreating);
+
+        if (async)
+        {
+            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+                CreateContext,
+                UseTransaction,
+                async context => await context.Set<Vehicle>().ExecuteUpdateAsync(s => s.SetProperty(e => e.SeatingCapacity, e => 1)),
+                context =>
+                {
+                    Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1));
+
+                    return Task.CompletedTask;
+                });
+        }
+        else
+        {
+            TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext,
+                UseTransaction,
+                context => context.Set<Vehicle>().ExecuteUpdate(s => s.SetProperty(e => e.SeatingCapacity, e => 1)),
+                context => Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1)));
+        }
+    }
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
