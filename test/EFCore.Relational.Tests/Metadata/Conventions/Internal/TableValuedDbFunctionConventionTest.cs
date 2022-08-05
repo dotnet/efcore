@@ -95,7 +95,7 @@ public class TableValuedDbFunctionConventionTest
     }
 
     private static TestHelpers.TestModelBuilder CreateModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private static IModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
         => modelBuilder.FinalizeModel();

@@ -107,7 +107,7 @@ RETURNING ""Computed"";
             stringBuilder.ToString());
 
     protected override TestHelpers TestHelpers
-        => RelationalTestHelpers.Instance;
+        => FakeRelationalTestHelpers.Instance;
 
     protected override string RowsAffected
         => "provider_specific_rowcount()";

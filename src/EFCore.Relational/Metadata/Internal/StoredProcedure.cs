@@ -12,14 +12,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class StoredProcedure :
     ConventionAnnotatable, IRuntimeStoredProcedure, IMutableStoredProcedure, IConventionStoredProcedure
 {
-    private readonly List<string> _parameters = new();
-    private readonly HashSet<string> _parametersSet = new();
-    private readonly List<string> _resultColumns = new();
-    private readonly HashSet<string> _resultColumnsSet = new();
+    private readonly List<StoredProcedureParameter> _parameters = new();
+    private readonly Dictionary<string, StoredProcedureParameter> _currentValueParameters = new();
+    private readonly Dictionary<string, StoredProcedureParameter> _originalValueParameters = new();
+    private StoredProcedureParameter? _rowsAffectedParameter;
+    private readonly List<StoredProcedureResultColumn> _resultColumns = new();
+    private StoredProcedureResultColumn? _rowsAffectedResultColumn;
+    private readonly Dictionary<string, StoredProcedureResultColumn> _propertyResultColumns = new();
     private string? _schema;
     private string? _name;
     private InternalStoredProcedureBuilder? _builder;
     private bool _areTransactionsSuppressed;
+    private bool _areRowsAffectedReturned;
     private IStoreStoredProcedure? _storeStoredProcedure;
 
     private ConfigurationSource _configurationSource;
@@ -350,7 +354,12 @@ public class StoredProcedure :
         var tableName = EntityType.GetTableName() ?? EntityType.GetDefaultTableName();
         if (tableName == null)
         {
-            return null;
+            if (_configurationSource == ConfigurationSource.Convention)
+            {
+                return null;
+            }
+
+            tableName = Uniquifier.Truncate(EntityType.ShortName(), EntityType.Model.GetMaxIdentifierLength());
         }
         
         string? suffix;
@@ -439,7 +448,7 @@ public class StoredProcedure :
         get => _areTransactionsSuppressed;
         set => SetAreTransactionsSuppressed(value, ConfigurationSource.Explicit);
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -457,7 +466,45 @@ public class StoredProcedure :
         return areTransactionsSuppressed;
     }
     
-    /// <inheritdoc />
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool AreRowsAffectedReturned
+    {
+        get => _areRowsAffectedReturned;
+        set => SetAreRowsAffectedReturned(value);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool SetAreRowsAffectedReturned(bool areRowsAffectedReturned)
+    {
+        EnsureMutable();
+
+        if (_rowsAffectedParameter != null || _rowsAffectedResultColumn != null)
+        {
+            throw new InvalidOperationException(RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter(
+                ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+        }
+
+        _areRowsAffectedReturned = areRowsAffectedReturned;
+        
+        return areRowsAffectedReturned;
+    }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual ConfigurationSource? GetAreTransactionsSuppressedConfigurationSource()
         => _areTransactionsSuppressedConfigurationSource;
 
@@ -486,55 +533,189 @@ public class StoredProcedure :
             }
         }
     }
-
-    /// <inheritdoc />
-    public virtual IReadOnlyList<string> Parameters
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<StoredProcedureParameter> Parameters
     {
         [DebuggerStepThrough]
         get => _parameters;
     }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureParameter? FindParameter(string propertyName)
+        => _currentValueParameters.TryGetValue(propertyName, out var parameter)
+            ? parameter
+            : null;
 
-    /// <inheritdoc />
-    public virtual bool ContainsParameter(string propertyName)
-        => _parametersSet.Contains(propertyName);
-
-    /// <inheritdoc />
-    public virtual bool AddParameter(string propertyName)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureParameter AddParameter(string propertyName)
     {
-        if (!_parametersSet.Contains(propertyName))
+        if (_currentValueParameters.ContainsKey(propertyName))
         {
-            _parameters.Add(propertyName);
-            _parametersSet.Add(propertyName);
-
-            return true;
+            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateParameter(
+                propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
-        return false;
+        var parameter = new StoredProcedureParameter(this, rowsAffected: false, propertyName, originalValue: false);
+        _parameters.Add(parameter);
+        _currentValueParameters.Add(propertyName, parameter);
+
+        return parameter;
     }
 
-    /// <inheritdoc />
-    public virtual IReadOnlyList<string> ResultColumns
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureParameter? FindOriginalValueParameter(string propertyName)
+        => _originalValueParameters.TryGetValue(propertyName, out var parameter)
+            ? parameter
+            : null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureParameter AddOriginalValueParameter(string propertyName)
+    {
+        if (_originalValueParameters.ContainsKey(propertyName))
+        {
+            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateOriginalValueParameter(
+                propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+        }
+        
+        var parameter = new StoredProcedureParameter(this, rowsAffected: false, propertyName, originalValue: true);
+        _parameters.Add(parameter);
+        _originalValueParameters.Add(propertyName, parameter);
+
+        return parameter;
+    }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureParameter? FindRowsAffectedParameter()
+        => _rowsAffectedParameter;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureParameter AddRowsAffectedParameter()
+    {
+        if (_rowsAffectedParameter != null
+            || _rowsAffectedResultColumn != null
+            || _areRowsAffectedReturned)
+        {
+            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter(
+                ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+        }
+        
+        var parameter = new StoredProcedureParameter(this, rowsAffected: true, propertyName: null, originalValue: null);
+        _parameters.Add(parameter);
+        _rowsAffectedParameter = parameter;
+
+        return parameter;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<StoredProcedureResultColumn> ResultColumns
     {
         [DebuggerStepThrough]
         get => _resultColumns;
     }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureResultColumn? FindResultColumn(string propertyName)
+        => _propertyResultColumns.TryGetValue(propertyName, out var resultColumn)
+            ? resultColumn
+            : null;
 
-    /// <inheritdoc />
-    public virtual bool ContainsResultColumn(string propertyName)
-        => _resultColumnsSet.Contains(propertyName);
-
-    /// <inheritdoc />
-    public virtual bool AddResultColumn(string propertyName)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureResultColumn AddResultColumn(string propertyName)
     {
-        if (!_resultColumnsSet.Contains(propertyName))
+        if (_propertyResultColumns.ContainsKey(propertyName))
         {
-            _resultColumns.Add(propertyName);
-            _resultColumnsSet.Add(propertyName);
-            
-            return true;
+            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateResultColumn(
+                propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
-        return false;
+        var resultColumn = new StoredProcedureResultColumn(this, forRowsAffected: false, propertyName);
+        _resultColumns.Add(resultColumn);
+        _propertyResultColumns.Add(propertyName, resultColumn);
+
+        return resultColumn;
+    }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureResultColumn? FindRowsAffectedResultColumn()
+        => _rowsAffectedResultColumn;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoredProcedureResultColumn AddRowsAffectedResultColumn()
+    {
+        if (_rowsAffectedResultColumn != null
+            || _rowsAffectedParameter != null
+            || _areRowsAffectedReturned)
+        {
+            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn(
+                ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+        }
+
+        var resultColumn = new StoredProcedureResultColumn(this, forRowsAffected: true, propertyName: null);
+        _resultColumns.Add(resultColumn);
+        _rowsAffectedResultColumn = resultColumn;
+
+        return resultColumn;
     }
 
     /// <summary>
@@ -603,6 +784,62 @@ public class StoredProcedure :
         get => _storeStoredProcedure!;
         set => _storeStoredProcedure = value;
     }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IReadOnlyStoredProcedureParameter> IReadOnlyStoredProcedure.Parameters
+    {
+        [DebuggerStepThrough]
+        get => Parameters;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IMutableStoredProcedureParameter> IMutableStoredProcedure.Parameters
+    {
+        [DebuggerStepThrough]
+        get => Parameters;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IConventionStoredProcedureParameter> IConventionStoredProcedure.Parameters
+    {
+        [DebuggerStepThrough]
+        get => Parameters;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IStoredProcedureParameter> IStoredProcedure.Parameters
+    {
+        [DebuggerStepThrough]
+        get => Parameters;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IReadOnlyStoredProcedureResultColumn> IReadOnlyStoredProcedure.ResultColumns
+    {
+        [DebuggerStepThrough]
+        get => ResultColumns;
+    }
+
+    /// <inheritdoc />
+    IReadOnlyList<IMutableStoredProcedureResultColumn> IMutableStoredProcedure.ResultColumns
+    {
+        [DebuggerStepThrough]
+        get => ResultColumns;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IConventionStoredProcedureResultColumn> IConventionStoredProcedure.ResultColumns
+    {
+        [DebuggerStepThrough]
+        get => ResultColumns;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IStoredProcedureResultColumn> IStoredProcedure.ResultColumns
+    {
+        [DebuggerStepThrough]
+        get => ResultColumns;
+    }
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -616,17 +853,164 @@ public class StoredProcedure :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    string? IConventionStoredProcedure.AddParameter(string propertyName, bool fromDataAnnotation)
-        => AddParameter(propertyName) ? propertyName : null;
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    string? IConventionStoredProcedure.AddResultColumn(string propertyName, bool fromDataAnnotation)
-        => AddResultColumn(propertyName) ? propertyName : null;
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
     bool IConventionStoredProcedure.SetAreTransactionsSuppressed(bool areTransactionsSuppressed, bool fromDataAnnotation)
         => SetAreTransactionsSuppressed(
             areTransactionsSuppressed, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionStoredProcedure.SetAreRowsAffectedReturned(bool rowsAffectedReturned, bool fromDataAnnotation)
+        => SetAreRowsAffectedReturned(rowsAffectedReturned);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindParameter(string propertyName)
+        => FindParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureParameter? IMutableStoredProcedure.FindParameter(string propertyName)
+        => FindParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureParameter? IConventionStoredProcedure.FindParameter(string propertyName)
+        => FindParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IStoredProcedureParameter? IStoredProcedure.FindParameter(string propertyName)
+        => FindParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureParameter? IConventionStoredProcedure.AddParameter(string propertyName, bool fromDataAnnotation)
+        => AddParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureParameter IMutableStoredProcedure.AddParameter(string propertyName)
+        => AddParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindOriginalValueParameter(string propertyName)
+        => FindOriginalValueParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureParameter? IMutableStoredProcedure.FindOriginalValueParameter(string propertyName)
+        => FindOriginalValueParameter(propertyName);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureParameter? IConventionStoredProcedure.FindOriginalValueParameter(string propertyName)
+        => FindOriginalValueParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IStoredProcedureParameter? IStoredProcedure.FindOriginalValueParameter(string propertyName)
+        => FindOriginalValueParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureParameter IMutableStoredProcedure.AddOriginalValueParameter(string propertyName)
+        => AddOriginalValueParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureParameter? IConventionStoredProcedure.AddOriginalValueParameter(
+        string propertyName, bool fromDataAnnotation)
+        => AddOriginalValueParameter(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindRowsAffectedParameter()
+        => FindRowsAffectedParameter();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureParameter? IMutableStoredProcedure.FindRowsAffectedParameter()
+        => FindRowsAffectedParameter();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureParameter? IConventionStoredProcedure.FindRowsAffectedParameter()
+        => FindRowsAffectedParameter();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IStoredProcedureParameter? IStoredProcedure.FindRowsAffectedParameter()
+        => FindRowsAffectedParameter();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureParameter IMutableStoredProcedure.AddRowsAffectedParameter()
+        => AddRowsAffectedParameter();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureParameter? IConventionStoredProcedure.AddRowsAffectedParameter(bool fromDataAnnotation)
+        => AddRowsAffectedParameter();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IReadOnlyStoredProcedureResultColumn? IReadOnlyStoredProcedure.FindResultColumn(string propertyName)
+        => FindResultColumn(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureResultColumn? IMutableStoredProcedure.FindResultColumn(string propertyName)
+        => FindResultColumn(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumn? IConventionStoredProcedure.FindResultColumn(string propertyName)
+        => FindResultColumn(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IStoredProcedureResultColumn? IStoredProcedure.FindResultColumn(string propertyName)
+        => FindResultColumn(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureResultColumn IMutableStoredProcedure.AddResultColumn(string propertyName)
+        => AddResultColumn(propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumn? IConventionStoredProcedure.AddResultColumn(
+        string propertyName, bool fromDataAnnotation)
+        => AddResultColumn(propertyName);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IReadOnlyStoredProcedureResultColumn? IReadOnlyStoredProcedure.FindRowsAffectedResultColumn()
+        => FindRowsAffectedResultColumn();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureResultColumn? IMutableStoredProcedure.FindRowsAffectedResultColumn()
+        => FindRowsAffectedResultColumn();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumn? IConventionStoredProcedure.FindRowsAffectedResultColumn()
+        => FindRowsAffectedResultColumn();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IStoredProcedureResultColumn? IStoredProcedure.FindRowsAffectedResultColumn()
+        => FindRowsAffectedResultColumn();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IMutableStoredProcedureResultColumn IMutableStoredProcedure.AddRowsAffectedResultColumn()
+        => AddRowsAffectedResultColumn();
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumn? IConventionStoredProcedure.AddRowsAffectedResultColumn(bool fromDataAnnotation)
+        => AddRowsAffectedResultColumn();
 }

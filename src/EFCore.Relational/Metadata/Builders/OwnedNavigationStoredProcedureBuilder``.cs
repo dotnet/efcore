@@ -79,10 +79,78 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         Expression<Func<TDependentEntity, TProperty>> propertyExpression,
         Action<StoredProcedureParameterBuilder> buildAction)
     {
-        Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        var parameterBuilder = Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit)!;
+        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
+    
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <param name="propertyName">The property name.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+        string propertyName)
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasOriginalValueParameter(propertyName);
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <param name="propertyName">The parameter name.</param>
+    /// <param name="buildAction">An action that performs configuration of the parameter.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasOriginalValueParameter(propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <genericparam name="TProperty">The property type.</genericparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (<c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+        Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+    {
+        Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit);
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
+    /// </summary>
+    /// <genericparam name="TProperty">The property type.</genericparam>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (<c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the parameter.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+        Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+        Action<StoredProcedureParameterBuilder> buildAction)
+    {
+        var parameterBuilder = Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit)!;
+        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        return this;
+    }
+    
+    /// <summary>
+    ///     Configures a new parameter that returns the rows affected if no such parameter exists.
+    /// </summary>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter()
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedParameter();
+
+    /// <summary>
+    ///     Configures a new parameter that returns the rows affected if no such parameter exists.
+    /// </summary>
+    /// <param name="buildAction">An action that performs configuration of the parameter.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
+        Action<StoredProcedureParameterBuilder> buildAction)
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedParameter(buildAction);
     
     /// <summary>
     ///     Configures a new column of the result for this stored procedure. This is used for database generated columns.
@@ -130,10 +198,38 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         Expression<Func<TDependentEntity, TProperty>> propertyExpression,
         Action<StoredProcedureResultColumnBuilder> buildAction)
     {
-        Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit);
-        buildAction(new(Metadata.GetStoreIdentifier()!.Value, CreatePropertyBuilder(propertyExpression)));
+        var resultColumnBuilder = Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit)!;
+        buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
+    
+    /// <summary>
+    ///     Configures a new column of the result that returns the rows affected for this stored procedure
+    ///     if no such column exists.
+    /// </summary>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn()
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedResultColumn();
+    
+    /// <summary>
+    ///     Configures a new column of the result that returns the rows affected for this stored procedure
+    ///     if no such column exists.
+    /// </summary>
+    /// <param name="buildAction">An action that performs configuration of the column.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn(
+        Action<StoredProcedureResultColumnBuilder> buildAction)
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedResultColumn(buildAction);
+    
+    /// <summary>
+    ///     Configures the result of this stored procedure to be the number of rows affected.
+    /// </summary>
+    /// <param name="rowsAffectedReturned">
+    ///     A value indicating whether this stored procedure returns the number of rows affected.
+    /// </param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned = true)
+        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedReturnValue(rowsAffectedReturned);
 
     /// <summary>
     ///     Prevents automatically creating a transaction when executing this stored procedure.

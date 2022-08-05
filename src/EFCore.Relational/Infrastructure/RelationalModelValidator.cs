@@ -214,11 +214,14 @@ public class RelationalModelValidator : ModelValidator
         foreach (var entityType in model.GetEntityTypes())
         {
             var mappingStrategy = entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy;
+
+            var sprocCount = 0;
             var deleteStoredProcedure = entityType.GetDeleteStoredProcedure();
             if (deleteStoredProcedure != null)
             {
                 AddSproc(StoreObjectType.DeleteStoredProcedure, entityType, storedProcedures);
                 ValidateSproc(deleteStoredProcedure, mappingStrategy);
+                sprocCount++;
             }
 
             var insertStoredProcedure = entityType.GetInsertStoredProcedure();
@@ -226,6 +229,7 @@ public class RelationalModelValidator : ModelValidator
             {
                 AddSproc(StoreObjectType.InsertStoredProcedure, entityType, storedProcedures);
                 ValidateSproc(insertStoredProcedure, mappingStrategy);
+                sprocCount++;
             }
 
             var updateStoredProcedure = entityType.GetUpdateStoredProcedure();
@@ -233,6 +237,14 @@ public class RelationalModelValidator : ModelValidator
             {
                 AddSproc(StoreObjectType.UpdateStoredProcedure, entityType, storedProcedures);
                 ValidateSproc(updateStoredProcedure, mappingStrategy);
+                sprocCount++;
+            }
+
+            if (sprocCount > 0
+                && sprocCount < 3
+                && entityType.GetTableName() == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.StoredProcedureUnmapped(entityType.DisplayName()));
             }
         }
 
@@ -337,6 +349,8 @@ public class RelationalModelValidator : ModelValidator
             }
         }
 
+        var originalValueProperties = new Dictionary<string, IProperty>(properties);
+
         var storeGeneratedProperties = storeObjectIdentifier.StoreObjectType switch
         {
             StoreObjectType.InsertStoredProcedure
@@ -346,56 +360,106 @@ public class RelationalModelValidator : ModelValidator
             _ => new Dictionary<string, IProperty>()
         };
 
+        var resultColumnNames = new HashSet<string>();
         foreach (var resultColumn in sproc.ResultColumns)
         {
-            if (!properties.TryGetValue(resultColumn, out var property))
+            IProperty? property = null!;
+            if (resultColumn.PropertyName != null
+                && !properties.TryGetValue(resultColumn.PropertyName, out property))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureResultColumnNotFound(
-                        resultColumn, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                        resultColumn.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+            }
+            
+            if (!resultColumnNames.Add(resultColumn.Name))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureDuplicateResultColumnName(
+                        resultColumn.Name, storeObjectIdentifier.DisplayName()));
+            }
+            
+            if (resultColumn.PropertyName == null)
+            {
+                continue;
             }
 
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
                 case StoreObjectType.UpdateStoredProcedure:
-                    if (!storeGeneratedProperties.Remove(property.Name))
+                    if (!storeGeneratedProperties.ContainsKey(property.Name))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureResultColumnNotGenerated(
-                                entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
 
                     break;
                 case StoreObjectType.DeleteStoredProcedure:
                     throw new InvalidOperationException(
                         RelationalStrings.StoredProcedureResultColumnDelete(
-                            entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                            entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
                 default:
                     Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
                     break;
             }
         }
-
+        
+        var parameterNames = new HashSet<string>();
         foreach (var parameter in sproc.Parameters)
         {
-            if (!properties.TryGetAndRemove(parameter, out IProperty property))
+            IProperty property = null!;
+            if (parameter.PropertyName != null)
+            {
+                if (parameter.ForOriginalValue == true)
+                {
+                    if (!originalValueProperties.TryGetAndRemove(parameter.PropertyName, out property))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureParameterNotFound(
+                                parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                    }
+                }
+                else if (!properties.TryGetAndRemove(parameter.PropertyName, out property))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.StoredProcedureParameterNotFound(
+                            parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                }
+            }
+            
+            if (!parameterNames.Add(parameter.Name))
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.StoredProcedureParameterNotFound(
-                        parameter, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                    RelationalStrings.StoredProcedureDuplicateParameterName(
+                        parameter.Name, storeObjectIdentifier.DisplayName()));
+            }
+            
+            if (parameter.PropertyName == null)
+            {
+                continue;
             }
 
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
                 case StoreObjectType.UpdateStoredProcedure:
-                    if (property.GetDirection(storeObjectIdentifier) != ParameterDirection.Input
+                    if (parameter.Direction != ParameterDirection.Input
                         && !storeGeneratedProperties.Remove(property.Name))
                     {
+                        if (sproc.Parameters.Any(p => p.PropertyName == property.Name
+                                && p.ForOriginalValue != parameter.ForOriginalValue
+                                && p.Direction != ParameterDirection.Input))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.StoredProcedureOutputParameterConflict(
+                                    entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
+                        }
+
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureOutputParameterNotGenerated(
-                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
 
                     break;
@@ -405,13 +469,30 @@ public class RelationalModelValidator : ModelValidator
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureDeleteNonKeyProperty(
-                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
                     
                     break;
                 default:
                     Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
                     break;
+            }
+        }
+
+        foreach (var resultColumn in sproc.ResultColumns)
+        {
+            if (resultColumn.PropertyName == null)
+            {
+                continue;
+            }
+            
+            properties.Remove(resultColumn.PropertyName);
+            
+            if (!storeGeneratedProperties.Remove(resultColumn.PropertyName))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureResultColumnParameterConflict(
+                        entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
             }
         }
         
@@ -422,11 +503,6 @@ public class RelationalModelValidator : ModelValidator
                     entityType.DisplayName(),
                     storeObjectIdentifier.DisplayName(),
                     storeGeneratedProperties.Values.Format()));
-        }
-
-        foreach (var resultColumn in sproc.ResultColumns)
-        {
-            properties.Remove(resultColumn);
         }
 
         if (properties.Count > 0)
@@ -464,6 +540,14 @@ public class RelationalModelValidator : ModelValidator
                 }
             }
 
+            foreach (var property in properties.Keys.ToList())
+            {
+                if (!originalValueProperties.ContainsKey(property))
+                {
+                    properties.Remove(property);
+                }
+            }
+
             if (properties.Count > 0)
             {
                 throw new InvalidOperationException(
@@ -472,6 +556,20 @@ public class RelationalModelValidator : ModelValidator
                         storeObjectIdentifier.DisplayName(),
                         properties.Values.Format(false)));
             }
+        }
+
+        var missedConcurrencyToken = originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken);
+        if (missedConcurrencyToken != null
+            && storeObjectIdentifier.StoreObjectType != StoreObjectType.InsertStoredProcedure
+            && (sproc.AreRowsAffectedReturned
+                || sproc.FindRowsAffectedParameter() != null
+                || sproc.FindRowsAffectedResultColumn() != null))
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(
+                    entityType.DisplayName(),
+                    storeObjectIdentifier.DisplayName(),
+                    missedConcurrencyToken.Name));
         }
     }
 

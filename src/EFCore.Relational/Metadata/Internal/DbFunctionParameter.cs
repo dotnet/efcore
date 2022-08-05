@@ -40,7 +40,7 @@ public class DbFunctionParameter :
         Name = name;
         Function = function;
         ClrType = clrType;
-        _builder = new InternalDbFunctionParameterBuilder(this, function.Builder.ModelBuilder);
+        _builder = new(this, function.Builder.ModelBuilder);
     }
 
     /// <summary>
@@ -74,7 +74,10 @@ public class DbFunctionParameter :
         => _builder = null;
 
     /// <summary>
-    ///     Indicates whether the function parameter is read-only.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override bool IsReadOnly
         => ((Annotatable)Function.Model).IsReadOnly;
@@ -86,19 +89,39 @@ public class DbFunctionParameter :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbFunction Function { get; }
-
-    /// <inheritdoc />
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual string Name { get; }
-
-    /// <inheritdoc />
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual Type ClrType { get; }
-
-    /// <inheritdoc />
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [DebuggerStepThrough]
     public virtual ConfigurationSource GetConfigurationSource()
         => Function.GetConfigurationSource();
-
-    /// <inheritdoc />
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IStoreFunctionParameter StoreFunctionParameter { get; set; } = default!;
 
     /// <summary>

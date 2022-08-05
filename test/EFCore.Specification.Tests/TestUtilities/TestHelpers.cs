@@ -34,7 +34,7 @@ public abstract class TestHelpers
     public IServiceProvider CreateServiceProvider(IServiceCollection customServices = null)
         => CreateServiceProvider(customServices, AddProviderServices);
 
-    private static IServiceProvider CreateServiceProvider(
+    protected static IServiceProvider CreateServiceProvider(
         IServiceCollection customServices,
         Func<IServiceCollection, IServiceCollection> addProviderServices)
     {
@@ -50,73 +50,6 @@ public abstract class TestHelpers
         }
 
         return services.BuildServiceProvider(); // No scope validation; test doubles violate scopes, but only resolved once.
-    }
-
-    protected virtual EntityFrameworkDesignServicesBuilder CreateEntityFrameworkDesignServicesBuilder(IServiceCollection services)
-        => new(services);
-
-    public IServiceProvider CreateDesignServiceProvider(
-        IServiceCollection customServices = null,
-        Action<EntityFrameworkDesignServicesBuilder> replaceServices = null,
-        Type additionalDesignTimeServices = null,
-        IOperationReporter reporter = null)
-        => CreateDesignServiceProvider(
-            CreateContext().GetService<IDatabaseProvider>().Name,
-            customServices,
-            replaceServices,
-            additionalDesignTimeServices,
-            reporter);
-
-    public IServiceProvider CreateDesignServiceProvider(
-        string provider,
-        IServiceCollection customServices = null,
-        Action<EntityFrameworkDesignServicesBuilder> replaceServices = null,
-        Type additionalDesignTimeServices = null,
-        IOperationReporter reporter = null)
-        => CreateServiceProvider(
-            customServices, services =>
-            {
-                if (replaceServices != null)
-                {
-                    var builder = CreateEntityFrameworkDesignServicesBuilder(services);
-                    replaceServices(builder);
-                }
-
-                if (additionalDesignTimeServices != null)
-                {
-                    ConfigureDesignTimeServices(additionalDesignTimeServices, services);
-                }
-
-                ConfigureProviderServices(provider, services);
-                services.AddEntityFrameworkDesignTimeServices(reporter);
-
-                return services;
-            });
-
-    private void ConfigureProviderServices(string provider, IServiceCollection services)
-    {
-        var providerAssembly = Assembly.Load(new AssemblyName(provider));
-
-        var providerServicesAttribute = providerAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
-        if (providerServicesAttribute == null)
-        {
-            throw new InvalidOperationException(DesignStrings.CannotFindDesignTimeProviderAssemblyAttribute(provider));
-        }
-
-        var designTimeServicesType = providerAssembly.GetType(
-            providerServicesAttribute.TypeName,
-            throwOnError: true,
-            ignoreCase: false)!;
-
-        ConfigureDesignTimeServices(designTimeServicesType, services);
-    }
-
-    private static void ConfigureDesignTimeServices(
-        Type designTimeServicesType,
-        IServiceCollection services)
-    {
-        var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType)!;
-        designTimeServices.ConfigureDesignTimeServices(services);
     }
 
     public abstract IServiceCollection AddProviderServices(IServiceCollection services);

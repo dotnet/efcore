@@ -253,8 +253,8 @@ public class RelationalDatabaseFacadeExtensionsTest
     {
         public ThudContext()
             : base(
-                RelationalTestHelpers.Instance.CreateOptions(
-                    RelationalTestHelpers.Instance.CreateServiceProvider(
+                FakeRelationalTestHelpers.Instance.CreateOptions(
+                    FakeRelationalTestHelpers.Instance.CreateServiceProvider(
                         new ServiceCollection()
                             .AddScoped<IRawSqlCommandBuilder, TestRawSqlCommandBuilder>())))
         {

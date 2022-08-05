@@ -13,5 +13,5 @@ public class TestRelationalConventionSetBuilder : RelationalConventionSetBuilder
     }
 
     public static ConventionSet Build()
-        => ConventionSet.CreateConventionSet(RelationalTestHelpers.Instance.CreateContext());
+        => ConventionSet.CreateConventionSet(FakeRelationalTestHelpers.Instance.CreateContext());
 }

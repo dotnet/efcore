@@ -2008,7 +2008,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class MigrationsFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        public abstract TestHelpers TestHelpers { get; }
+        public abstract RelationalTestHelpers TestHelpers { get; }
 
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

@@ -19,11 +19,16 @@ public interface IStoreStoredProcedure : ITableBase
     ///     Gets the entity type mappings.
     /// </summary>
     new IEnumerable<IStoredProcedureMapping> EntityTypeMappings { get; }
-
+    
     /// <summary>
-    ///     Gets the parameters for this stored procedures.
+    ///     Gets the return for this stored procedure.
     /// </summary>
-    IEnumerable<IStoreStoredProcedureParameter> Parameters { get; }
+    IStoreStoredProcedureReturn? Return { get; }
+    
+    /// <summary>
+    ///     Gets the parameters for this stored procedure.
+    /// </summary>
+    IReadOnlyList<IStoreStoredProcedureParameter> Parameters { get; }
 
     /// <summary>
     ///     Gets the parameter with the given name. Returns <see langword="null" />

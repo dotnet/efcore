@@ -93,7 +93,7 @@ public class TriggerTest
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private class Customer
     {

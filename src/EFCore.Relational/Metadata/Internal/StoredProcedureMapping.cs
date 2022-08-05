@@ -21,11 +21,13 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
         IEntityType entityType,
         StoreStoredProcedure storeStoredProcedure,
         IStoredProcedure storedProcedure,
+        ITableMapping? tableMapping,
         bool includesDerivedTypes)
         : base(entityType, storeStoredProcedure, includesDerivedTypes)
     {
         StoredProcedure = storedProcedure;
         StoredProcedureIdentifier = storedProcedure.GetStoreIdentifier();
+        TableMapping = tableMapping;
     }
 
     /// <inheritdoc />
@@ -37,6 +39,9 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
 
     /// <inheritdoc />
     public virtual StoreObjectIdentifier StoredProcedureIdentifier { get; }
+    
+    /// <inheritdoc />
+    public virtual ITableMapping? TableMapping { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,6 +79,18 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
     /// </summary>
     public override string ToString()
         => ((IStoredProcedureMapping)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DebugView DebugView
+        => new(
+            () => ((IStoredProcedureMapping)this).ToDebugString(),
+            () => ((IStoredProcedureMapping)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <inheritdoc />
     IEnumerable<IStoredProcedureResultColumnMapping> IStoredProcedureMapping.ResultColumnMappings

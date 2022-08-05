@@ -1218,7 +1218,7 @@ FROM ""People"";",
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 
-        public override TestHelpers TestHelpers
+        public override RelationalTestHelpers TestHelpers
             => SqliteTestHelpers.Instance;
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)

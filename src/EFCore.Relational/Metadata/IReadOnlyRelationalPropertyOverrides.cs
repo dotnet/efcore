@@ -35,12 +35,6 @@ public interface IReadOnlyRelationalPropertyOverrides : IReadOnlyAnnotatable
     bool IsColumnNameOverridden { get; }
 
     /// <summary>
-    ///     Gets the direction of the stored procedure parameter.
-    /// </summary>
-    ParameterDirection? Direction
-        => ((ParameterDirection?)this[RelationalAnnotationNames.ParameterDirection]);
-
-    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>

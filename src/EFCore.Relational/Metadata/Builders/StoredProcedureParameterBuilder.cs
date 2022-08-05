@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
-public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
+public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder?>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,23 +23,19 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public StoredProcedureParameterBuilder(in StoreObjectIdentifier storeObject, PropertyBuilder propertyBuilder)
+    public StoredProcedureParameterBuilder(
+        InternalStoredProcedureParameterBuilder builder, PropertyBuilder? propertyBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.InsertStoredProcedure
-            || storeObject.StoreObjectType == StoreObjectType.DeleteStoredProcedure
-            || storeObject.StoreObjectType == StoreObjectType.UpdateStoredProcedure,
-            "StoreObjectType should be StoredProcedure, not " + storeObject.StoreObjectType);
-
-        InternalOverrides = RelationalPropertyOverrides.GetOrCreate(
-            propertyBuilder.Metadata, storeObject, ConfigurationSource.Explicit);
+        Builder = builder;
         PropertyBuilder = propertyBuilder;
     }
 
     /// <summary>
-    ///     The stored procedure-specific overrides being configured.
+    ///     The stored procedure parameter being configured.
     /// </summary>
-    public virtual IMutableRelationalPropertyOverrides Overrides => InternalOverrides;
-
+    public virtual IMutableStoredProcedureParameter Metadata
+        => Builder.Metadata;
+    
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -47,9 +43,9 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual RelationalPropertyOverrides InternalOverrides { get; }
+    protected virtual InternalStoredProcedureParameterBuilder Builder { get; }
 
-    private PropertyBuilder PropertyBuilder { get; }
+    private PropertyBuilder? PropertyBuilder { get; }
 
     /// <summary>
     ///     Sets the name of the stored procedure parameter.
@@ -60,11 +56,11 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
     /// </remarks>
     /// <param name="name">The store type of the function parameter in the database.</param>
     /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
-    public virtual StoredProcedureParameterBuilder HasName(string? name)
+    public virtual StoredProcedureParameterBuilder HasName(string name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NotNull(name, nameof(name));
 
-        InternalOverrides.SetColumnName(name, ConfigurationSource.Explicit);
+        Builder.HasName(name, ConfigurationSource.Explicit);
 
         return this;
     }
@@ -79,7 +75,7 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
     /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
     public virtual StoredProcedureParameterBuilder IsInputOutput()
     {
-        ((IMutableRelationalPropertyOverrides)InternalOverrides).Direction = ParameterDirection.InputOutput;
+        Builder.HasDirection(ParameterDirection.InputOutput, ConfigurationSource.Explicit);
 
         return this;
     }
@@ -94,7 +90,7 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
     /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
     public virtual StoredProcedureParameterBuilder IsOutput()
     {
-        ((IMutableRelationalPropertyOverrides)InternalOverrides).Direction = ParameterDirection.Output;
+        Builder.HasDirection(ParameterDirection.Output, ConfigurationSource.Explicit);
 
         return this;
     }
@@ -111,12 +107,12 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder>
     {
         Check.NotEmpty(annotation, nameof(annotation));
 
-        InternalOverrides.Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+        Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
         return this;
     }
 
-    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
+    PropertyBuilder? IInfrastructure<PropertyBuilder?>.Instance => PropertyBuilder;
 
     #region Hidden System.Object members
 

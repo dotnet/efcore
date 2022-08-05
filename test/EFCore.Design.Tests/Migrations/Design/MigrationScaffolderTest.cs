@@ -71,7 +71,7 @@ public class MigrationsScaffolderTest
                 new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
         var historyRepository = new MockHistoryRepository();
 
-        var services = RelationalTestHelpers.Instance.CreateContextServices();
+        var services = FakeRelationalTestHelpers.Instance.CreateContextServices();
         var model = new Model().FinalizeModel();
         model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, new RelationalModel(model));
 

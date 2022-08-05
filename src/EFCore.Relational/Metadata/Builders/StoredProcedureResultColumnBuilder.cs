@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
-public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilder>
+public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilder?>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,22 +22,18 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public StoredProcedureResultColumnBuilder(in StoreObjectIdentifier storeObject, PropertyBuilder propertyBuilder)
+    public StoredProcedureResultColumnBuilder(
+        InternalStoredProcedureResultColumnBuilder builder, PropertyBuilder? propertyBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.InsertStoredProcedure
-            || storeObject.StoreObjectType == StoreObjectType.DeleteStoredProcedure
-            || storeObject.StoreObjectType == StoreObjectType.UpdateStoredProcedure,
-            "StoreObjectType should be StoredProcedure, not " + storeObject.StoreObjectType);
-
-        InternalOverrides = RelationalPropertyOverrides.GetOrCreate(
-            propertyBuilder.Metadata, storeObject, ConfigurationSource.Explicit);
+        Builder = builder;
         PropertyBuilder = propertyBuilder;
     }
 
     /// <summary>
-    ///     The stored procedure-specific overrides being configured.
+    ///     The stored procedure result column being configured.
     /// </summary>
-    public virtual IMutableRelationalPropertyOverrides Overrides => InternalOverrides;
+    public virtual IMutableStoredProcedureResultColumn Metadata
+        => Builder.Metadata;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,9 +42,9 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual RelationalPropertyOverrides InternalOverrides { get; }
+    protected virtual InternalStoredProcedureResultColumnBuilder Builder { get; }
 
-    private PropertyBuilder PropertyBuilder { get; }
+    private PropertyBuilder? PropertyBuilder { get; }
 
     /// <summary>
     ///     Sets the name of the stored procedure result column.
@@ -59,11 +55,11 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     /// </remarks>
     /// <param name="name">The store type of the function parameter in the database.</param>
     /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
-    public virtual StoredProcedureResultColumnBuilder HasName(string? name)
+    public virtual StoredProcedureResultColumnBuilder HasName(string name)
     {
         Check.NullButNotEmpty(name, nameof(name));
 
-        InternalOverrides.SetColumnName(name, ConfigurationSource.Explicit);
+        Builder.HasName(name, ConfigurationSource.Explicit);
 
         return this;
     }
@@ -80,12 +76,12 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     {
         Check.NotEmpty(annotation, nameof(annotation));
 
-        InternalOverrides.Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+        Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
         return this;
     }
 
-    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
+    PropertyBuilder? IInfrastructure<PropertyBuilder?>.Instance => PropertyBuilder;
 
     #region Hidden System.Object members
 

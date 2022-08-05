@@ -27,6 +27,11 @@ public interface IStoreStoredProcedureParameter : IColumnBase
     ParameterDirection Direction { get; }
 
     /// <summary>
+    ///     Gets the 0-based position of the parameter in the declaring stored procedure.
+    /// </summary>
+    int Position { get; }
+
+    /// <summary>
     ///     Returns the property mapping for the given entity type.
     /// </summary>
     /// <param name="entityType">An entity type.</param>

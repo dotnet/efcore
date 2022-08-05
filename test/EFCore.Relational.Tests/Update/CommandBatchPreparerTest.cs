@@ -339,7 +339,7 @@ public class CommandBatchPreparerTest
     [ConditionalFact]
     public void BatchCommands_creates_batches_lazily()
     {
-        var configuration = RelationalTestHelpers.Instance.CreateContextServices(
+        var configuration = FakeRelationalTestHelpers.Instance.CreateContextServices(
             new ServiceCollection().AddScoped<IModificationCommandBatchFactory, TestModificationCommandBatchFactory>(),
             CreateFKOneToManyModelWithGeneratedIds());
 
@@ -996,7 +996,7 @@ FakeEntity [Deleted]"
     }
 
     private static IServiceProvider CreateContextServices(IModel model)
-        => RelationalTestHelpers.Instance.CreateContextServices(model);
+        => FakeRelationalTestHelpers.Instance.CreateContextServices(model);
 
     public List<ModificationCommandBatch> CreateBatches(
         IUpdateEntry[] entries,
@@ -1012,7 +1012,7 @@ FakeEntity [Deleted]"
         bool sensitiveLogging = false)
     {
         modificationCommandBatchFactory ??=
-            RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
+            FakeRelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
 
         var loggingOptions = new LoggingOptions();
         if (sensitiveLogging)
@@ -1033,7 +1033,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateSimpleFKModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1055,7 +1055,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateFKOneToManyModelWithGeneratedIds()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1077,7 +1077,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateCyclicFKModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1105,7 +1105,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateCyclicFkWithTailModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1141,7 +1141,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateTwoLevelFKModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>();
 
@@ -1166,7 +1166,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateSharedTableModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>

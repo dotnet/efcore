@@ -6980,7 +6980,7 @@ WHERE name = '{connection.Database}';";
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
-        public override TestHelpers TestHelpers
+        public override RelationalTestHelpers TestHelpers
             => SqlServerTestHelpers.Instance;
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)

@@ -628,7 +628,7 @@ RETURNING 1;
 
     private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var entityType = modelBuilder.Entity<T1>();
 
         entityType.Property(t => t.Id).HasColumnName("Col1");
@@ -654,7 +654,7 @@ RETURNING 1;
     {
         var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-        return RelationalTestHelpers.Instance.CreateInternalEntry(
+        return FakeRelationalTestHelpers.Instance.CreateInternalEntry(
             model, entityState, new T1
             {
                 Id = overrideKeyValues ? 1 : default,
@@ -692,7 +692,7 @@ RETURNING 1;
             var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             sqlGenerator ??= new FakeSqlGenerator(
-                RelationalTestHelpers.Instance.CreateContextServices()
+                FakeRelationalTestHelpers.Instance.CreateContextServices()
                     .GetRequiredService<UpdateSqlGeneratorDependencies>());
 
             return new ModificationCommandBatchFactoryDependencies(

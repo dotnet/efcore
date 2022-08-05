@@ -93,11 +93,6 @@ public static class RelationalAnnotationNames
     public const string UpdateStoredProcedure = Prefix + "UpdateStoredProcedure";
 
     /// <summary>
-    ///     The name for mapped function name annotations.
-    /// </summary>
-    public const string ParameterDirection = Prefix + "ParameterDirection";
-
-    /// <summary>
     ///     The name for mapped sql query annotations.
     /// </summary>
     public const string SqlQuery = Prefix + "SqlQuery";

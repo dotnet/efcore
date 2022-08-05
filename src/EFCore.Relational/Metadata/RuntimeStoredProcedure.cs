@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -13,10 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </summary>
 public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
 {
-    private readonly List<string> _parameters = new();
-    private readonly List<string> _resultColumns = new();
+    private readonly List<RuntimeStoredProcedureParameter> _parameters = new();
+    private readonly List<RuntimeStoredProcedureResultColumn> _resultColumns = new();
     private readonly string? _schema;
     private readonly string _name;
+    private readonly bool _areRowsAffectedReturned;
     private readonly bool _areTransactionsSuppressed;
     private IStoreStoredProcedure? _storeStoredProcedure;
 
@@ -26,16 +28,19 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     /// <param name="entityType">The mapped entity type.</param>
     /// <param name="name">The name.</param>
     /// <param name="schema">The schema.</param>
+    /// <param name="areRowsAffectedReturned">Whether this stored procedure returns the number of rows affected.</param>
     /// <param name="areTransactionsSuppressed">Whether the automatic transactions are surpressed.</param>
     public RuntimeStoredProcedure(
         RuntimeEntityType entityType,
         string name,
         string? schema,
+        bool areRowsAffectedReturned,
         bool areTransactionsSuppressed)
     {
         EntityType = entityType;
         _name = name;
         _schema = schema;
+        _areRowsAffectedReturned = areRowsAffectedReturned;
         _areTransactionsSuppressed = areTransactionsSuppressed;
     }
 
@@ -47,19 +52,47 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     /// <summary>
     ///     Adds a new parameter mapped to the property with the given name.
     /// </summary>
+    /// <param name="name">The name of the parameter.</param>
+    /// <param name="direction">The direction.</param>
+    /// <param name="forRowsAffected">Whether the parameter holds the rows affected.</param>
     /// <param name="propertyName">The name of the corresponding property.</param>
-    public virtual void AddParameter(string propertyName)
+    /// <param name="forOriginalValue">Whether the parameter holds the original value.</param>
+    public virtual RuntimeStoredProcedureParameter AddParameter(
+        string name,
+        ParameterDirection direction,
+        bool forRowsAffected,
+        string? propertyName,
+        bool? forOriginalValue)
     {
-        _parameters.Add(propertyName);
+        var parameter = new RuntimeStoredProcedureParameter(
+            this,
+            name,
+            direction,
+            forRowsAffected,
+            propertyName,
+            forOriginalValue);
+        _parameters.Add(parameter);
+        return parameter;
     }
 
     /// <summary>
     ///     Adds a new column of the result for this stored procedure mapped to the property with the given name
     /// </summary>
+    /// <param name="name">The name of the result column.</param>
+    /// <param name="forRowsAffected">Whether the column holds the rows affected.</param>
     /// <param name="propertyName">The name of the corresponding property.</param>
-    public virtual void AddResultColumn(string propertyName)
+    public virtual RuntimeStoredProcedureResultColumn AddResultColumn(
+        string name,
+        bool forRowsAffected,
+        string? propertyName)
     {
-        _resultColumns.Add(propertyName);
+        var resultColumn = new RuntimeStoredProcedureResultColumn(
+            this,
+            name,
+            forRowsAffected,
+            propertyName);
+        _resultColumns.Add(resultColumn);
+        return resultColumn;
     }
 
     /// <summary>
@@ -124,30 +157,88 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
         [DebuggerStepThrough]
         get => _areTransactionsSuppressed;
     }
+    
+    /// <inheritdoc />
+    bool IReadOnlyStoredProcedure.AreRowsAffectedReturned
+    {
+        [DebuggerStepThrough]
+        get => _areRowsAffectedReturned;
+    }
 
     /// <inheritdoc />
-    IReadOnlyList<string> IReadOnlyStoredProcedure.Parameters
+    IReadOnlyList<IReadOnlyStoredProcedureParameter> IReadOnlyStoredProcedure.Parameters
+    {
+        [DebuggerStepThrough]
+        get => _parameters;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IStoredProcedureParameter> IStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => _parameters;
     }
 
     /// <inheritdoc />
-    bool IReadOnlyStoredProcedure.ContainsParameter(string propertyName)
-        => _parameters.Contains(propertyName);
+    IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindParameter(string propertyName)
+        => _parameters.FirstOrDefault((IReadOnlyStoredProcedureParameter p)
+            => p.ForOriginalValue == false && p.PropertyName == propertyName);
+    
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IStoredProcedureParameter? IStoredProcedure.FindParameter(string propertyName)
+        => (IStoredProcedureParameter?)((IReadOnlyStoredProcedure)this).FindParameter(propertyName);
+    
+    /// <inheritdoc />
+    IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindOriginalValueParameter(string propertyName)
+        => _parameters.FirstOrDefault((IReadOnlyStoredProcedureParameter p)
+            => p.ForOriginalValue == true && p.PropertyName == propertyName);
 
     /// <inheritdoc />
-    IReadOnlyList<string> IReadOnlyStoredProcedure.ResultColumns
+    IStoredProcedureParameter? IStoredProcedure.FindOriginalValueParameter(string propertyName)
+        => (IStoredProcedureParameter?)((IReadOnlyStoredProcedure)this).FindOriginalValueParameter(propertyName);
+    
+    /// <inheritdoc />
+    IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindRowsAffectedParameter()
+        => _parameters.FirstOrDefault((IStoredProcedureParameter p)
+            => p.ForRowsAffected);
+    
+    /// <inheritdoc />
+    IStoredProcedureParameter? IStoredProcedure.FindRowsAffectedParameter()
+        => (IStoredProcedureParameter?)((IReadOnlyStoredProcedure)this).FindRowsAffectedParameter();
+
+    /// <inheritdoc />
+    IReadOnlyList<IReadOnlyStoredProcedureResultColumn> IReadOnlyStoredProcedure.ResultColumns
+    {
+        [DebuggerStepThrough]
+        get => _resultColumns;
+    }
+    
+    /// <inheritdoc />
+    IReadOnlyList<IStoredProcedureResultColumn> IStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
         get => _resultColumns;
     }
 
     /// <inheritdoc />
-    bool IReadOnlyStoredProcedure.ContainsResultColumn(string propertyName)
-        => _resultColumns.Contains(propertyName);
-
+    IReadOnlyStoredProcedureResultColumn? IReadOnlyStoredProcedure.FindResultColumn(string propertyName)
+        => _resultColumns.FirstOrDefault((IReadOnlyStoredProcedureResultColumn c)
+            => c.PropertyName == propertyName);
     
+    /// <inheritdoc />
+    IStoredProcedureResultColumn? IStoredProcedure.FindResultColumn(string propertyName)
+        => (IStoredProcedureResultColumn?)((IReadOnlyStoredProcedure)this).FindResultColumn(propertyName);
+
+    /// <inheritdoc />
+    IReadOnlyStoredProcedureResultColumn? IReadOnlyStoredProcedure.FindRowsAffectedResultColumn()
+        => _resultColumns.FirstOrDefault((IReadOnlyStoredProcedureResultColumn c)
+                => c.ForRowsAffected);
+    
+    /// <inheritdoc />
+    IStoredProcedureResultColumn? IStoredProcedure.FindRowsAffectedResultColumn()
+        => (IStoredProcedureResultColumn?)((IReadOnlyStoredProcedure)this).FindRowsAffectedResultColumn();
+
     /// <inheritdoc />
     IStoreStoredProcedure IStoredProcedure.StoreStoredProcedure
     {

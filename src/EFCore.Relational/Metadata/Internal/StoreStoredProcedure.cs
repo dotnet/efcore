@@ -36,6 +36,14 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SortedSet<IStoredProcedure> StoredProcedures { get; }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IStoreStoredProcedureReturn? Return { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -80,7 +88,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
             .Concat(property.GetDeleteStoredProcedureParameterMappings())
             .Concat(property.GetUpdateStoredProcedureParameterMappings())
             .FirstOrDefault(cm => cm.StoredProcedureMapping.StoreStoredProcedure == this)
-            ?.Parameter;
+            ?.StoreParameter;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -129,6 +137,18 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     public override string ToString()
         => ((IStoreStoredProcedure)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DebugView DebugView
+        => new(
+            () => ((IStoreStoredProcedure)this).ToDebugString(),
+            () => ((IStoreStoredProcedure)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+
     /// <inheritdoc />
     IEnumerable<IStoredProcedure> IStoreStoredProcedure.StoredProcedures
     {
@@ -144,7 +164,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     }
 
     /// <inheritdoc />
-    IEnumerable<IStoreStoredProcedureParameter> IStoreStoredProcedure.Parameters
+    IReadOnlyList<IStoreStoredProcedureParameter> IStoreStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;

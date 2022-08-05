@@ -83,7 +83,6 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.IsFixedLength,
             RelationalAnnotationNames.Collation,
             RelationalAnnotationNames.IsStored,
-            RelationalAnnotationNames.ParameterDirection,
             RelationalAnnotationNames.TpcMappingStrategy,
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
@@ -347,7 +346,7 @@ public class CSharpMigrationsGeneratorTest
 
             if (!invalidAnnotations.Contains(annotationName))
             {
-                var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+                var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
                 var metadataItem = createMetadataItem(modelBuilder);
                 metadataItem.SetAnnotation(
                     annotationName, validAnnotations.ContainsKey(annotationName)
@@ -443,7 +442,7 @@ public class CSharpMigrationsGeneratorTest
                     new CSharpSnapshotGeneratorDependencies(
                         codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))));
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         modelBuilder.Entity<WithAnnotations>(
             eb =>
@@ -470,7 +469,7 @@ public class CSharpMigrationsGeneratorTest
 
     private static void AssertConverter(ValueConverter valueConverter, string expected)
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var property = modelBuilder.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
         property.SetMaxLength(1000);
         property.SetValueConverter(valueConverter);
@@ -698,7 +697,7 @@ namespace MyNamespace
     {
         var generator = CreateMigrationsCodeGenerator();
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         modelBuilder.Entity<EntityWithConstructorBinding>(
             x =>
@@ -794,7 +793,7 @@ namespace MyNamespace
     {
         var generator = CreateMigrationsCodeGenerator();
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<EntityWithEveryPrimitive>(
             eb =>
             {

@@ -62,7 +62,11 @@ public class RelationalModelRuntimeInitializer : ModelRuntimeInitializer
         }
         else
         {
-            RelationalModel.Add(model, RelationalDependencies.RelationalAnnotationProvider, designTime);
+            RelationalModel.Add(
+                model,
+                RelationalDependencies.RelationalAnnotationProvider,
+                (IRelationalTypeMappingSource)Dependencies.ModelDependencies.TypeMappingSource,
+                designTime);
         }
     }
 }

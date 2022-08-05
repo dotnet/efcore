@@ -51,7 +51,7 @@ public class RelationalIndexExtensionsTest
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true)]
     [Index(nameof(B), nameof(C), Name = "IndexOnBAndC")]
