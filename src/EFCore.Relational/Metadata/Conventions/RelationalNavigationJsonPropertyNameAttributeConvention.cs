@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class RelationalNavigationJsonPropertyNameAttributeConvention : NavigationAttributeConventionBase<JsonPropertyNameAttribute>
+public class RelationalNavigationJsonPropertyNameAttributeConvention :
+    NavigationAttributeConventionBase<JsonPropertyNameAttribute>,
+    INavigationAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalNavigationJsonPropertyNameAttributeConvention" />.

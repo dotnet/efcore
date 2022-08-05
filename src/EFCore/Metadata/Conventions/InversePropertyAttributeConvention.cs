@@ -15,6 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </remarks>
 public class InversePropertyAttributeConvention :
     NavigationAttributeConventionBase<InversePropertyAttribute>,
+    IEntityTypeAddedConvention,
+    IEntityTypeRemovedConvention,
+    IEntityTypeBaseTypeChangedConvention,
+    IEntityTypeMemberIgnoredConvention,
+    INavigationAddedConvention,
     IModelFinalizingConvention
 {
     /// <summary>

@@ -12,7 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class RequiredNavigationAttributeConvention : NavigationAttributeConventionBase<RequiredAttribute>
+public class RequiredNavigationAttributeConvention :
+    NavigationAttributeConventionBase<RequiredAttribute>,
+    INavigationAddedConvention,
+    ISkipNavigationAddedConvention,
+    IForeignKeyPrincipalEndChangedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RequiredNavigationAttributeConvention" />.

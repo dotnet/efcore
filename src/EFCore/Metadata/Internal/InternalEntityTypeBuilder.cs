@@ -148,6 +148,42 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
         return keyBuilder;
     }
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetPrimaryKey(
+        IReadOnlyList<string> propertyNames,
+        ConfigurationSource configurationSource)
+    {
+        for (var i = 0; i < propertyNames.Count; i++)
+        {
+            if (!CanHaveProperty(
+                    propertyType: null,
+                    propertyNames[i],
+                    null,
+                    typeConfigurationSource: null,
+                    configurationSource,
+                    checkClrProperty: true))
+            {
+                return false;
+            }
+        }
+        
+        var previousPrimaryKey = Metadata.FindPrimaryKey();
+        if (previousPrimaryKey != null
+            && previousPrimaryKey.Properties.Select(p => p.Name).SequenceEqual(propertyNames))
+        {
+            return true;
+        }
+
+        return configurationSource.Overrides(Metadata.GetPrimaryKeyConfigurationSource())
+            && (!Metadata.IsKeyless
+                || configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource()));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -674,7 +710,8 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         string propertyName,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
-        ConfigurationSource? configurationSource)
+        ConfigurationSource? configurationSource,
+        bool checkClrProperty = false)
     {
         var existingProperty = Metadata.FindProperty(propertyName);
         return existingProperty != null
@@ -686,16 +723,20 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                     || typeConfigurationSource.Overrides(existingTypeConfigurationSource)))
             || configurationSource.Overrides(existingProperty.GetConfigurationSource())
             : configurationSource.HasValue
-            && CanAddProperty(propertyType ?? memberInfo?.GetMemberType(), propertyName, configurationSource.Value);
+            && CanAddProperty(propertyType ?? memberInfo?.GetMemberType(), propertyName, configurationSource.Value, checkClrProperty);
     }
 
     private bool CanAddProperty(
         Type? propertyType,
         string propertyName,
-        ConfigurationSource configurationSource)
+        ConfigurationSource configurationSource,
+        bool checkClrProperty = false)
         => !IsIgnored(propertyName, configurationSource)
             && (propertyType == null
                 || Metadata.Model.Builder.CanBeConfigured(propertyType, TypeConfigurationType.Property, configurationSource))
+            && (!checkClrProperty
+                || propertyType != null
+                || Metadata.GetRuntimeProperties().ContainsKey(propertyName))
             && Metadata.FindServicePropertiesInHierarchy(propertyName).Cast<IConventionPropertyBase>()
                 .Concat(Metadata.FindNavigationsInHierarchy(propertyName))
                 .Concat(Metadata.FindSkipNavigationsInHierarchy(propertyName))
@@ -2423,6 +2464,33 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
 
         return index?.Builder;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanHaveIndex(
+        IReadOnlyList<string> propertyNames,
+        ConfigurationSource configurationSource)
+    {
+        for (var i = 0; i < propertyNames.Count; i++)
+        {
+            if (!CanHaveProperty(
+                    propertyType: null,
+                    propertyNames[i],
+                    null,
+                    typeConfigurationSource: null,
+                    configurationSource,
+                    checkClrProperty: true))
+            {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     /// <summary>
@@ -5243,6 +5311,18 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    bool IConventionEntityTypeBuilder.CanSetPrimaryKey(IReadOnlyList<string> propertyNames, bool fromDataAnnotation)
+        => CanSetPrimaryKey(
+            propertyNames,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     bool IConventionEntityTypeBuilder.CanSetPrimaryKey(IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation)
         => CanSetPrimaryKey(
             properties as IReadOnlyList<Property> ?? properties?.Cast<Property>().ToList(),
@@ -5347,6 +5427,18 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         => HasIndex(
             propertyNames,
             name,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionEntityTypeBuilder.CanHaveIndex(IReadOnlyList<string> propertyNames, bool fromDataAnnotation)
+        => CanHaveIndex(
+            propertyNames,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

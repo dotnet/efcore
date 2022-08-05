@@ -9,7 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
+public class IndexAttributeConvention :
+    IEntityTypeAddedConvention,
+    IEntityTypeBaseTypeChangedConvention,
+    IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="IndexAttributeConvention" />.
@@ -65,45 +68,25 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
                  entityType.ClrType.GetCustomAttributes<IndexAttribute>(inherit: true))
         {
             IConventionIndexBuilder? indexBuilder;
-            if (!shouldThrow)
+            if (!shouldThrow
+                && !entityType.Builder.CanHaveIndex(indexAttribute.PropertyNames, fromDataAnnotation: true))
             {
-                var indexProperties = new List<IConventionProperty>();
-                foreach (var propertyName in indexAttribute.PropertyNames)
-                {
-                    var property = entityType.FindProperty(propertyName);
-                    if (property == null)
-                    {
-                        return;
-                    }
+                continue;
+            }
 
-                    indexProperties.Add(property);
-                }
-
+            try
+            {
                 indexBuilder = indexAttribute.Name == null
                     ? entityType.Builder.HasIndex(
-                        indexProperties, fromDataAnnotation: true)
+                        indexAttribute.PropertyNames, fromDataAnnotation: true)
                     : entityType.Builder.HasIndex(
-                        indexProperties, indexAttribute.Name, fromDataAnnotation: true);
+                        indexAttribute.PropertyNames, indexAttribute.Name, fromDataAnnotation: true);
             }
-            else
+            catch (InvalidOperationException exception)
             {
-                try
-                {
-                    // Using the HasIndex(propertyNames) overload gives us
-                    // a chance to create a missing property
-                    // e.g. if the CLR property existed but was non-public.
-                    indexBuilder = indexAttribute.Name == null
-                        ? entityType.Builder.HasIndex(
-                            indexAttribute.PropertyNames, fromDataAnnotation: true)
-                        : entityType.Builder.HasIndex(
-                            indexAttribute.PropertyNames, indexAttribute.Name, fromDataAnnotation: true);
-                }
-                catch (InvalidOperationException exception)
-                {
-                    CheckMissingProperties(entityType, indexAttribute, exception);
+                CheckMissingProperties(entityType, indexAttribute, exception);
 
-                    throw;
-                }
+                throw;
             }
 
             if (indexBuilder == null)

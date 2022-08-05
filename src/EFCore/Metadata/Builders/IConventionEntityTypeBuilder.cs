@@ -241,6 +241,14 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     ///     <see langword="null" /> otherwise.
     /// </returns>
     IConventionKeyBuilder? PrimaryKey(IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
+    
+    /// <summary>
+    ///     Returns a value indicating whether the given properties can be set as the primary key for this entity type.
+    /// </summary>
+    /// <param name="propertyNames">The names of the properties that make up the index.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given properties can be set as the primary key.</returns>
+    bool CanSetPrimaryKey(IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the given properties can be set as the primary key for this entity type.
@@ -369,6 +377,14 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
         IReadOnlyList<IConventionProperty> properties,
         string name,
         bool fromDataAnnotation = false);
+    
+    /// <summary>
+    ///     Returns a value indicating whether and index on the given properties can be added to this entity type.
+    /// </summary>
+    /// <param name="propertyNames">The names of the properties that make up the index.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the index can be added.</returns>
+    bool CanHaveIndex(IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Removes an index from this entity type.
