@@ -9,11 +9,19 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class NonQueryExpression : Expression, IPrintableExpression
 {
     public NonQueryExpression(DeleteExpression deleteExpression)
+        : this(deleteExpression, CommandSource.ExecuteDelete)
     {
-        DeleteExpression = deleteExpression;
+    }
+
+    public NonQueryExpression(DeleteExpression expression, CommandSource commandSource)
+    {
+        DeleteExpression = expression;
+        CommandSource = commandSource;
     }
 
     public virtual DeleteExpression DeleteExpression { get; }
+
+    public virtual CommandSource CommandSource { get; }
 
     /// <inheritdoc />
     public override Type Type => typeof(int);

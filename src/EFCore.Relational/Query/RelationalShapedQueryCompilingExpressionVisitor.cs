@@ -68,23 +68,25 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
             Expression.Constant(relationalCommandCache),
             Expression.Constant(_contextType),
+            Expression.Constant(nonQueryExpression.CommandSource),
             Expression.Constant(_threadSafetyChecksEnabled));
     }
 
     private static readonly MethodInfo NonQueryMethodInfo
         = typeof(RelationalShapedQueryCompilingExpressionVisitor).GetTypeInfo()
             .GetDeclaredMethods(nameof(NonQueryResult))
-            .Single(mi => mi.GetParameters().Length == 4);
+            .Single(mi => mi.GetParameters().Length == 5);
 
     private static readonly MethodInfo NonQueryAsyncMethodInfo
         = typeof(RelationalShapedQueryCompilingExpressionVisitor).GetTypeInfo()
             .GetDeclaredMethods(nameof(NonQueryResultAsync))
-            .Single(mi => mi.GetParameters().Length == 4);
+            .Single(mi => mi.GetParameters().Length == 5);
 
     private static int NonQueryResult(
         RelationalQueryContext relationalQueryContext,
         RelationalCommandCache relationalCommandCache,
         Type contextType,
+        CommandSource commandSource,
         bool threadSafetyChecksEnabled)
     {
         try
@@ -97,7 +99,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             try
             {
                 return relationalQueryContext.ExecutionStrategy.Execute(
-                    (relationalQueryContext, relationalCommandCache),
+                    (relationalQueryContext, relationalCommandCache, commandSource),
                     static (_, state) =>
                     {
                         EntityFrameworkEventSource.Log.QueryExecuting();
@@ -110,7 +112,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                             null,
                             state.relationalQueryContext.Context,
                             state.relationalQueryContext.CommandLogger,
-                            CommandSource.BulkUpdate));
+                            state.commandSource));
                     },
                     null);
             }
@@ -130,7 +132,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             }
             else
             {
-                relationalQueryContext.QueryLogger.BulkOperationFailed(contextType, exception);
+                switch (commandSource)
+                {
+                    case CommandSource.ExecuteDelete:
+                        relationalQueryContext.QueryLogger.ExecuteDeleteFailed(contextType, exception);
+                        break;
+
+                    case CommandSource.ExecuteUpdate:
+                        relationalQueryContext.QueryLogger.ExecuteUpdateFailed(contextType, exception);
+                        break;
+
+                    default:
+                        relationalQueryContext.QueryLogger.NonQueryOperationFailed(contextType, exception);
+                        break;
+                }
             }
 
             throw;
@@ -141,6 +156,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         RelationalQueryContext relationalQueryContext,
         RelationalCommandCache relationalCommandCache,
         Type contextType,
+        CommandSource commandSource,
         bool threadSafetyChecksEnabled)
     {
         try
@@ -153,7 +169,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             try
             {
                 return relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                    (relationalQueryContext, relationalCommandCache),
+                    (relationalQueryContext, relationalCommandCache, commandSource),
                     static (_, state, cancellationToken) =>
                     {
                         EntityFrameworkEventSource.Log.QueryExecuting();
@@ -166,7 +182,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                             null,
                             state.relationalQueryContext.Context,
                             state.relationalQueryContext.CommandLogger,
-                            CommandSource.BulkUpdate),
+                            state.commandSource),
                             cancellationToken);
                     },
                     null);
@@ -187,7 +203,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             }
             else
             {
-                relationalQueryContext.QueryLogger.BulkOperationFailed(contextType, exception);
+                switch (commandSource)
+                {
+                    case CommandSource.ExecuteDelete:
+                        relationalQueryContext.QueryLogger.ExecuteDeleteFailed(contextType, exception);
+                        break;
+
+                    case CommandSource.ExecuteUpdate:
+                        relationalQueryContext.QueryLogger.ExecuteUpdateFailed(contextType, exception);
+                        break;
+
+                    default:
+                        relationalQueryContext.QueryLogger.NonQueryOperationFailed(contextType, exception);
+                        break;
+                }
             }
 
             throw;

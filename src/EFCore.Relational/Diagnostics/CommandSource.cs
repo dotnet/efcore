@@ -61,5 +61,16 @@ public enum CommandSource
     /// <summary>
     ///     The command was generated as part of a bulk update.
     /// </summary>
-    BulkUpdate
+    [Obsolete("Use ExecuteDelete or ExecuteUpdate instead.")]
+    BulkUpdate,
+
+    /// <summary>
+    ///     The command was generated as part of an 'ExecuteDelete' operation.
+    /// </summary>
+    ExecuteDelete = 9,
+
+    /// <summary>
+    ///     The command was generated as part of an 'ExecuteUpdate' operation.
+    /// </summary>
+    ExecuteUpdate,
 }

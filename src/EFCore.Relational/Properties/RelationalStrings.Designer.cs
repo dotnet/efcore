@@ -2614,25 +2614,75 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An exception occurred while executing a bulk operation for context type '{contextType}'.{newline}{error}
+        ///     An exception occurred while executing an 'ExecuteDelete' operation for context type '{contextType}'.{newline}{error}
         /// </summary>
-        public static EventDefinition<Type, string, Exception> LogExceptionDuringBulkOperation(IDiagnosticsLogger logger)
+        public static EventDefinition<Type, string, Exception> LogExceptionDuringExecuteDelete(IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringBulkOperation;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringExecuteDelete;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringBulkOperation,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringExecuteDelete,
                     logger,
                     static logger => new EventDefinition<Type, string, Exception>(
                         logger.Options,
-                        RelationalEventId.BulkOperationFailed,
+                        RelationalEventId.ExecuteDeleteFailed,
                         LogLevel.Error,
-                        "RelationalEventId.BulkOperationFailed",
+                        "RelationalEventId.ExecuteDeleteFailed",
                         level => LoggerMessage.Define<Type, string, Exception>(
                             level,
-                            RelationalEventId.BulkOperationFailed,
-                            _resourceManager.GetString("LogExceptionDuringBulkOperation")!)));
+                            RelationalEventId.ExecuteDeleteFailed,
+                            _resourceManager.GetString("LogExceptionDuringExecuteDelete")!)));
+            }
+
+            return (EventDefinition<Type, string, Exception>)definition;
+        }
+
+        /// <summary>
+        ///     An exception occurred while executing an 'ExecuteUpdate' operation for context type '{contextType}'.{newline}{error}
+        /// </summary>
+        public static EventDefinition<Type, string, Exception> LogExceptionDuringExecuteUpdate(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringExecuteUpdate;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringExecuteUpdate,
+                    logger,
+                    static logger => new EventDefinition<Type, string, Exception>(
+                        logger.Options,
+                        RelationalEventId.ExecuteUpdateFailed,
+                        LogLevel.Error,
+                        "RelationalEventId.ExecuteUpdateFailed",
+                        level => LoggerMessage.Define<Type, string, Exception>(
+                            level,
+                            RelationalEventId.ExecuteUpdateFailed,
+                            _resourceManager.GetString("LogExceptionDuringExecuteUpdate")!)));
+            }
+
+            return (EventDefinition<Type, string, Exception>)definition;
+        }
+
+        /// <summary>
+        ///     An exception occurred while executing a non-query operation for context type '{contextType}'.{newline}{error}
+        /// </summary>
+        public static EventDefinition<Type, string, Exception> LogExceptionDuringNonQueryOperation(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringNonQueryOperation;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogExceptionDuringNonQueryOperation,
+                    logger,
+                    static logger => new EventDefinition<Type, string, Exception>(
+                        logger.Options,
+                        RelationalEventId.NonQueryOperationFailed,
+                        LogLevel.Error,
+                        "RelationalEventId.NonQueryOperationFailed",
+                        level => LoggerMessage.Define<Type, string, Exception>(
+                            level,
+                            RelationalEventId.NonQueryOperationFailed,
+                            _resourceManager.GetString("LogExceptionDuringNonQueryOperation")!)));
             }
 
             return (EventDefinition<Type, string, Exception>)definition;
