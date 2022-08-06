@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -152,7 +150,8 @@ public abstract class TestHelpers
         var modelCreationDependencies = contextServices.GetRequiredService<ModelCreationDependencies>();
 
         var modelConfigurationBuilder = new TestModelConfigurationBuilder(
-            modelCreationDependencies.ConventionSetBuilder.CreateConventionSet());
+            modelCreationDependencies.ConventionSetBuilder.CreateConventionSet(),
+            contextServices);
 
         configure?.Invoke(modelConfigurationBuilder);
 
@@ -412,20 +411,20 @@ public abstract class TestHelpers
 
     public class TestModelConfigurationBuilder : ModelConfigurationBuilder
     {
-        public TestModelConfigurationBuilder(ConventionSet conventions)
-            : base(conventions)
+        public TestModelConfigurationBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider)
+            : base(conventionSet, serviceProvider)
         {
-            Conventions = conventions;
+            ConventionSet = conventionSet;
         }
 
-        public ConventionSet Conventions { get; }
+        public ConventionSet ConventionSet { get; }
 
         public TestModelBuilder CreateModelBuilder(
             ModelDependencies modelDependencies,
             IModelRuntimeInitializer modelRuntimeInitializer,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
             => new(
-                Conventions,
+                ConventionSet,
                 modelDependencies,
                 ModelConfiguration.IsEmpty() ? null : ModelConfiguration.Validate(),
                 modelRuntimeInitializer,
@@ -433,47 +432,47 @@ public abstract class TestHelpers
 
         public void RemoveAllConventions()
         {
-            Conventions.EntityTypeAddedConventions.Clear();
-            Conventions.EntityTypeAnnotationChangedConventions.Clear();
-            Conventions.EntityTypeBaseTypeChangedConventions.Clear();
-            Conventions.EntityTypeIgnoredConventions.Clear();
-            Conventions.EntityTypeMemberIgnoredConventions.Clear();
-            Conventions.EntityTypePrimaryKeyChangedConventions.Clear();
-            Conventions.EntityTypeRemovedConventions.Clear();
-            Conventions.ForeignKeyAddedConventions.Clear();
-            Conventions.ForeignKeyAnnotationChangedConventions.Clear();
-            Conventions.ForeignKeyDependentRequirednessChangedConventions.Clear();
-            Conventions.ForeignKeyOwnershipChangedConventions.Clear();
-            Conventions.ForeignKeyPrincipalEndChangedConventions.Clear();
-            Conventions.ForeignKeyPropertiesChangedConventions.Clear();
-            Conventions.ForeignKeyRemovedConventions.Clear();
-            Conventions.ForeignKeyRequirednessChangedConventions.Clear();
-            Conventions.ForeignKeyUniquenessChangedConventions.Clear();
-            Conventions.IndexAddedConventions.Clear();
-            Conventions.IndexAnnotationChangedConventions.Clear();
-            Conventions.IndexRemovedConventions.Clear();
-            Conventions.IndexUniquenessChangedConventions.Clear();
-            Conventions.IndexSortOrderChangedConventions.Clear();
-            Conventions.KeyAddedConventions.Clear();
-            Conventions.KeyAnnotationChangedConventions.Clear();
-            Conventions.KeyRemovedConventions.Clear();
-            Conventions.ModelAnnotationChangedConventions.Clear();
-            Conventions.ModelFinalizedConventions.Clear();
-            Conventions.ModelFinalizingConventions.Clear();
-            Conventions.ModelInitializedConventions.Clear();
-            Conventions.NavigationAddedConventions.Clear();
-            Conventions.NavigationAnnotationChangedConventions.Clear();
-            Conventions.NavigationRemovedConventions.Clear();
-            Conventions.PropertyAddedConventions.Clear();
-            Conventions.PropertyAnnotationChangedConventions.Clear();
-            Conventions.PropertyFieldChangedConventions.Clear();
-            Conventions.PropertyNullabilityChangedConventions.Clear();
-            Conventions.PropertyRemovedConventions.Clear();
-            Conventions.SkipNavigationAddedConventions.Clear();
-            Conventions.SkipNavigationAnnotationChangedConventions.Clear();
-            Conventions.SkipNavigationForeignKeyChangedConventions.Clear();
-            Conventions.SkipNavigationInverseChangedConventions.Clear();
-            Conventions.SkipNavigationRemovedConventions.Clear();
+            ConventionSet.EntityTypeAddedConventions.Clear();
+            ConventionSet.EntityTypeAnnotationChangedConventions.Clear();
+            ConventionSet.EntityTypeBaseTypeChangedConventions.Clear();
+            ConventionSet.EntityTypeIgnoredConventions.Clear();
+            ConventionSet.EntityTypeMemberIgnoredConventions.Clear();
+            ConventionSet.EntityTypePrimaryKeyChangedConventions.Clear();
+            ConventionSet.EntityTypeRemovedConventions.Clear();
+            ConventionSet.ForeignKeyAddedConventions.Clear();
+            ConventionSet.ForeignKeyAnnotationChangedConventions.Clear();
+            ConventionSet.ForeignKeyDependentRequirednessChangedConventions.Clear();
+            ConventionSet.ForeignKeyOwnershipChangedConventions.Clear();
+            ConventionSet.ForeignKeyPrincipalEndChangedConventions.Clear();
+            ConventionSet.ForeignKeyPropertiesChangedConventions.Clear();
+            ConventionSet.ForeignKeyRemovedConventions.Clear();
+            ConventionSet.ForeignKeyRequirednessChangedConventions.Clear();
+            ConventionSet.ForeignKeyUniquenessChangedConventions.Clear();
+            ConventionSet.IndexAddedConventions.Clear();
+            ConventionSet.IndexAnnotationChangedConventions.Clear();
+            ConventionSet.IndexRemovedConventions.Clear();
+            ConventionSet.IndexUniquenessChangedConventions.Clear();
+            ConventionSet.IndexSortOrderChangedConventions.Clear();
+            ConventionSet.KeyAddedConventions.Clear();
+            ConventionSet.KeyAnnotationChangedConventions.Clear();
+            ConventionSet.KeyRemovedConventions.Clear();
+            ConventionSet.ModelAnnotationChangedConventions.Clear();
+            ConventionSet.ModelFinalizedConventions.Clear();
+            ConventionSet.ModelFinalizingConventions.Clear();
+            ConventionSet.ModelInitializedConventions.Clear();
+            ConventionSet.NavigationAddedConventions.Clear();
+            ConventionSet.NavigationAnnotationChangedConventions.Clear();
+            ConventionSet.NavigationRemovedConventions.Clear();
+            ConventionSet.PropertyAddedConventions.Clear();
+            ConventionSet.PropertyAnnotationChangedConventions.Clear();
+            ConventionSet.PropertyFieldChangedConventions.Clear();
+            ConventionSet.PropertyNullabilityChangedConventions.Clear();
+            ConventionSet.PropertyRemovedConventions.Clear();
+            ConventionSet.SkipNavigationAddedConventions.Clear();
+            ConventionSet.SkipNavigationAnnotationChangedConventions.Clear();
+            ConventionSet.SkipNavigationForeignKeyChangedConventions.Clear();
+            ConventionSet.SkipNavigationInverseChangedConventions.Clear();
+            ConventionSet.SkipNavigationRemovedConventions.Clear();
         }
     }
 }

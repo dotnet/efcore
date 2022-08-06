@@ -3432,7 +3432,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         => TestHelpers.CreateConventionBuilder(
             CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),
             modelConfigurationBuilder => ConventionSet.Remove(
-                modelConfigurationBuilder.Conventions.ModelFinalizingConventions,
+                modelConfigurationBuilder.ConventionSet.ModelFinalizingConventions,
                 typeof(T)));
 
     protected override TestHelpers TestHelpers

@@ -405,6 +405,67 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Conventions_can_be_added()
+        {
+            var modelBuilder = CreateModelBuilder(c => c.Conventions.Add(s => new TestConvention()));
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal("bar", model["foo"]);
+        }
+        
+        [ConditionalFact]
+        public virtual void Conventions_can_be_removed()
+        {
+            var modelBuilder = CreateModelBuilder(c =>
+            {
+                c.Conventions.Add(s => new TestConvention());
+                c.Conventions.Remove(typeof(TestConvention));
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Null(model["foo"]);
+        }
+        
+        [ConditionalFact]
+        public virtual void Conventions_can_be_replaced()
+        {
+            var modelBuilder = CreateModelBuilder(c =>
+                c.Conventions.Replace<DbSetFindingConvention>(s =>
+                    new TestDbSetFindingConvention(s.GetService<ProviderConventionSetBuilderDependencies>())));
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal("bar", model["foo"]);
+        }
+        
+        protected class TestConvention : IModelInitializedConvention
+        {
+            public void ProcessModelInitialized(
+                IConventionModelBuilder modelBuilder,
+                IConventionContext<IConventionModelBuilder> context)
+            {
+                modelBuilder.HasAnnotation("foo", "bar");
+            }
+        }
+        
+        protected class TestDbSetFindingConvention : DbSetFindingConvention
+        {
+            public TestDbSetFindingConvention(ProviderConventionSetBuilderDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+            
+            public override void ProcessModelInitialized(
+                IConventionModelBuilder modelBuilder,
+                IConventionContext<IConventionModelBuilder> context)
+            {
+                modelBuilder.HasAnnotation("foo", "bar");
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Int32_cannot_be_ignored()
             => Assert.Equal(
                 CoreStrings.UnconfigurableType("int?", "Ignored", "Property", "int"),
