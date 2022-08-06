@@ -376,4 +376,38 @@ public static class ExpressionExtensions
             target,
             Expression.Constant(propertyName));
     }
+
+    private static readonly MethodInfo ObjectEqualsMethodInfo
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
+
+    /// <summary>
+    ///     <para>
+    ///         Creates an <see cref="Expression" /> tree representing equality comparison between 2 expressions using
+    ///         <see cref="object.Equals(object?, object?)"/> method.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="left">The left expression in equality comparison.</param>
+    /// <param name="right">The right expression in equality comparison.</param>
+    /// <param name="negated">If the comparison is non-equality.</param>
+    /// <returns>An expression to compare left and right expressions.</returns>
+    public static Expression BuildEqualsExpression(
+        Expression left,
+        Expression right,
+        bool negated = false)
+    {
+        var result = Expression.Call(ObjectEqualsMethodInfo, AddConvertToObject(left), AddConvertToObject(right));
+
+        return negated
+            ? Expression.Not(result)
+            : result;
+
+        static Expression AddConvertToObject(Expression expression)
+            => expression.Type.IsValueType
+                ? Expression.Convert(expression, typeof(object))
+                : expression;
+    }
 }

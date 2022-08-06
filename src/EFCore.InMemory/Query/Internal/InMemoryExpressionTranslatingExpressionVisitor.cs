@@ -533,6 +533,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             updatedMemberExpression = ConvertToNullable(updatedMemberExpression);
 
             return Expression.Condition(
+                // Since inner is nullable type this is fine.
                 Expression.Equal(innerExpression, Expression.Default(innerExpression.Type)),
                 Expression.Default(updatedMemberExpression.Type),
                 updatedMemberExpression);
@@ -1502,7 +1503,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
                     }
 
-                    return Expression.Equal(l, r);
+                    return ExpressionExtensions.BuildEqualsExpression(l, r);
                 })
             .Aggregate((a, b) => Expression.AndAlso(a, b));
 

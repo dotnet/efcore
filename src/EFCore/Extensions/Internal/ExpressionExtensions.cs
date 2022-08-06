@@ -193,9 +193,6 @@ public static class ExpressionExtensions
         return expression;
     }
 
-    private static readonly MethodInfo ObjectEqualsMethodInfo
-        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -226,18 +223,15 @@ public static class ExpressionExtensions
             => property.ClrType.IsValueType
                 && property.ClrType.UnwrapNullableType() is Type nonNullableType
                 && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
-                    ? Expression.Call(
-                        ObjectEqualsMethodInfo,
+                    ? Infrastructure.ExpressionExtensions.BuildEqualsExpression(
                         Expression.Call(
                             EF.PropertyMethod.MakeGenericMethod(typeof(object)),
                             entityParameterExpression,
                             Expression.Constant(property.Name, typeof(string))),
-                        Expression.Convert(
-                            Expression.Call(
-                                keyValuesConstantExpression,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
-                            typeof(object)))
+                        Expression.Call(
+                            keyValuesConstantExpression,
+                            ValueBuffer.GetValueMethod,
+                            Expression.Constant(i)))
                     : Expression.Equal(
                         Expression.Call(
                             EF.PropertyMethod.MakeGenericMethod(property.ClrType),

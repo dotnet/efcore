@@ -600,7 +600,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     private SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
-        => TranslateExpression(Expression.Equal(outerKey, innerKey))!;
+        => TranslateExpression(EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKey, innerKey))!;
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateLastOrDefault(
@@ -1055,7 +1055,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             predicateBody = Expression.Call(
                 QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
                 source,
-                Expression.Quote(Expression.Lambda(Expression.Equal(innerParameter, entityParameter), innerParameter)));
+                Expression.Quote(Expression.Lambda(
+                    EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(innerParameter, entityParameter),
+                    innerParameter)));
         }
 
         var newSource = Expression.Call(
@@ -1147,9 +1149,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
     {
-        private static readonly MethodInfo ObjectEqualsMethodInfo
-            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
-
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -1275,8 +1274,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         : foreignKey.Properties,
                     makeNullable);
 
-                var keyComparison = Expression.Call(
-                    ObjectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
+                var keyComparison = Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKey, innerKey);
 
                 var predicate = makeNullable
                     ? Expression.AndAlso(
@@ -1367,7 +1365,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                             : foreignKey.Properties,
                         makeNullable);
 
-                    var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey))!;
+                    var joinPredicate = _sqlTranslator.Translate(
+                        EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKey, innerKey))!;
                     // Following conditions should match conditions for pushdown on outer during SelectExpression.AddJoin method
                     var pushdownRequired = _selectExpression.Limit != null
                         || _selectExpression.Offset != null

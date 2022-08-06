@@ -784,7 +784,7 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
     public virtual async Task Where_subquery_on_navigation(bool async)
         // Complex entity equality. Issue #15260.
         => Assert.Equal(
-            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
+            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("Equals", nameof(OrderDetail)),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => AssertQuery(
                     async,
@@ -800,7 +800,7 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
     public virtual async Task Where_subquery_on_navigation2(bool async)
         // Complex entity equality. Issue #15260.
         => Assert.Equal(
-            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
+            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("Equals", nameof(OrderDetail)),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => AssertQuery(
                     async,
