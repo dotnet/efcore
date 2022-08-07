@@ -710,6 +710,8 @@ public abstract partial class ModelBuilderTest
 
             var joinEntityType = categoryFk.DeclaringEntityType;
             Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+            Assert.Equal(new[] {"CategoryWithAttributeId", "ProductWithAttributeId"},
+                joinEntityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
         protected class ProductWithAttribute

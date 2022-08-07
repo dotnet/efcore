@@ -216,25 +216,25 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
     private string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type, Type)> types)
     {
-        var readonlyType = types.Key;
+        var readOnlyType = types.Key;
         var (mutableType, conventionType, conventionBuilderType, runtimeType) = types.Value;
 
-        if (!readonlyType.IsAssignableFrom(mutableType))
+        if (!readOnlyType.IsAssignableFrom(mutableType))
         {
-            return $"{mutableType.Name} should derive from {readonlyType.Name}";
+            return $"{mutableType.Name} should derive from {readOnlyType.Name}";
         }
 
-        if (!readonlyType.IsAssignableFrom(conventionType))
+        if (!readOnlyType.IsAssignableFrom(conventionType))
         {
-            return $"{mutableType.Name} should derive from {readonlyType.Name}";
+            return $"{mutableType.Name} should derive from {readOnlyType.Name}";
         }
 
-        if (typeof(IAnnotation) != readonlyType
-            && typeof(IReadOnlyAnnotatable) != readonlyType)
+        if (readOnlyType != typeof(IAnnotation)
+            && readOnlyType != typeof(IReadOnlyAnnotatable))
         {
-            if (!typeof(IReadOnlyAnnotatable).IsAssignableFrom(readonlyType))
+            if (!typeof(IReadOnlyAnnotatable).IsAssignableFrom(readOnlyType))
             {
-                return $"{readonlyType.Name} should derive from IAnnotatable";
+                return $"{readOnlyType.Name} should derive from IReadOnlyAnnotatable";
             }
 
             if (!typeof(IMutableAnnotatable).IsAssignableFrom(mutableType))
@@ -246,6 +246,11 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             {
                 return $"{conventionType.Name} should derive from IConventionAnnotatable";
             }
+            
+            if (!typeof(IAnnotatable).IsAssignableFrom(runtimeType))
+            {
+                return $"{runtimeType.Name} should derive from IAnnotatable";
+            }
 
             if (conventionBuilderType != null
                 && !typeof(IConventionAnnotatableBuilder).IsAssignableFrom(conventionBuilderType))
@@ -253,9 +258,9 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 return $"{conventionBuilderType.Name} should derive from IConventionAnnotatableBuilder";
             }
 
-            if (readonlyType.Namespace != MetadataNamespace)
+            if (readOnlyType.Namespace != MetadataNamespace)
             {
-                return $"{readonlyType.Name} is expected to be in the {MetadataNamespace} namespace";
+                return $"{readOnlyType.Name} is expected to be in the {MetadataNamespace} namespace";
             }
 
             if (mutableType.Namespace != MetadataNamespace)
@@ -266,6 +271,11 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             if (conventionType.Namespace != MetadataNamespace)
             {
                 return $"{conventionType.Name} is expected to be in the {MetadataNamespace} namespace";
+            }
+
+            if (runtimeType.Namespace != MetadataNamespace)
+            {
+                return $"{runtimeType.Name} is expected to be in the {MetadataNamespace} namespace";
             }
 
             if (conventionBuilderType != null
