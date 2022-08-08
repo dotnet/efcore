@@ -315,14 +315,6 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedReturnValue(rowsAffectedReturned);
 
     /// <summary>
-    ///     Prevents automatically creating a transaction when executing this stored procedure.
-    /// </summary>
-    /// <param name="suppress">A value indicating whether the automatic transactions should be prevented.</param>
-    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual StoredProcedureBuilder<TEntity> SuppressTransactions(bool suppress = true)
-        => (StoredProcedureBuilder<TEntity>)base.SuppressTransactions(suppress);
-
-    /// <summary>
     ///     Adds or updates an annotation on the stored procedure. If an annotation with the key specified in
     ///     <paramref name="annotation" /> already exists, its value will be updated.
     /// </summary>

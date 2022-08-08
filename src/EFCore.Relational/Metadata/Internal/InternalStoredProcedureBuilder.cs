@@ -410,33 +410,6 @@ public class InternalStoredProcedureBuilder :
         => Metadata.IsRowsAffectedReturned == rowsAffectedReturned
             || configurationSource.Overrides(Metadata.GetConfigurationSource());
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual InternalStoredProcedureBuilder? SuppressTransactions(bool suppress, ConfigurationSource configurationSource)
-    {
-        if (!CanSuppressTransactions(suppress, configurationSource))
-        {
-            return null;
-        }
-
-        Metadata.SetAreTransactionsSuppressed(suppress, configurationSource);
-        return this;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool CanSuppressTransactions(bool suppress, ConfigurationSource configurationSource)
-        => Metadata.AreTransactionsSuppressed == suppress
-            || configurationSource.Overrides(Metadata.GetAreTransactionsSuppressedConfigurationSource());
-
     IConventionStoredProcedure IConventionStoredProcedureBuilder.Metadata
     {
         [DebuggerStepThrough]
@@ -524,15 +497,4 @@ public class InternalStoredProcedureBuilder :
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveRowsAffectedResultColumn(string propertyName, bool fromDataAnnotation)
         => CanHaveRowsAffectedResultColumn(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.SuppressTransactions(bool suppress, bool fromDataAnnotation)
-        => SuppressTransactions(suppress, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    bool IConventionStoredProcedureBuilder.CanSetSuppressTransactions(bool suppress, bool fromDataAnnotation)
-        => CanSuppressTransactions(suppress,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

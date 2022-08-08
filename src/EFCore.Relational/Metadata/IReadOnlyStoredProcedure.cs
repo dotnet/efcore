@@ -26,11 +26,6 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     IReadOnlyEntityType EntityType { get; }
 
     /// <summary>
-    ///     Returns a value indicating whether automatic creation of transactions is disabled when executing this stored procedure.
-    /// </summary>
-    bool AreTransactionsSuppressed { get; }
-    
-    /// <summary>
     ///     Gets a value indicating whether this stored procedure returns the number of rows affected.
     /// </summary>
     bool IsRowsAffectedReturned { get; }

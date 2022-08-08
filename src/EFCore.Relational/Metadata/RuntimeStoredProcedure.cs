@@ -19,7 +19,6 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     private readonly string? _schema;
     private readonly string _name;
     private readonly bool _isRowsAffectedReturned;
-    private readonly bool _areTransactionsSuppressed;
     private IStoreStoredProcedure? _storeStoredProcedure;
 
     /// <summary>
@@ -29,19 +28,16 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     /// <param name="name">The name.</param>
     /// <param name="schema">The schema.</param>
     /// <param name="rowsAffectedReturned">Whether this stored procedure returns the number of rows affected.</param>
-    /// <param name="transactionsSuppressed">Whether the automatic transactions are surpressed.</param>
     public RuntimeStoredProcedure(
         RuntimeEntityType entityType,
         string name,
         string? schema,
-        bool rowsAffectedReturned,
-        bool transactionsSuppressed)
+        bool rowsAffectedReturned)
     {
         EntityType = entityType;
         _name = name;
         _schema = schema;
         _isRowsAffectedReturned = rowsAffectedReturned;
-        _areTransactionsSuppressed = transactionsSuppressed;
     }
 
     /// <summary>
@@ -151,13 +147,6 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
         get => _schema;
     }
 
-    /// <inheritdoc />
-    bool IReadOnlyStoredProcedure.AreTransactionsSuppressed
-    {
-        [DebuggerStepThrough]
-        get => _areTransactionsSuppressed;
-    }
-    
     /// <inheritdoc />
     bool IReadOnlyStoredProcedure.IsRowsAffectedReturned
     {

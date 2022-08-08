@@ -491,8 +491,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append(parameters.TargetName).AppendLine(",")
             .Append(code.Literal(storedProcedure.Name)).AppendLine(",")
             .Append(code.Literal(storedProcedure.Schema)).AppendLine(",")
-            .Append(code.Literal(storedProcedure.IsRowsAffectedReturned)).AppendLine(",")
-            .Append(code.Literal(storedProcedure.AreTransactionsSuppressed))
+            .Append(code.Literal(storedProcedure.IsRowsAffectedReturned))
             .AppendLine(");")
             .DecrementIndent()
             .AppendLine();

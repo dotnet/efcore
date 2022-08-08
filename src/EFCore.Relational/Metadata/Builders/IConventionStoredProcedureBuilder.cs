@@ -156,20 +156,4 @@ public interface IConventionStoredProcedureBuilder : IConventionAnnotatableBuild
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the column of the result can be used for the stored procedure.</returns>
     bool CanHaveRowsAffectedResultColumn(string propertyName, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Prevents automatically creating a transaction when executing this stored procedure.
-    /// </summary>
-    /// <param name="suppress">A value indicating whether the automatic transactions should be prevented.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    IConventionStoredProcedureBuilder? SuppressTransactions(bool suppress, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Returns a value indicating whether the transaction suppression can be set for stored procedure.
-    /// </summary>
-    /// <param name="suppress">A value indicating whether the automatic transactions should be prevented.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the column of the result can be used for the stored procedure.</returns>
-    bool CanSetSuppressTransactions(bool suppress, bool fromDataAnnotation = false);
 }

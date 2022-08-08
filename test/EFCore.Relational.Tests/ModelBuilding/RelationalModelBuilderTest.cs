@@ -236,7 +236,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public virtual void Duplicate_sproc_rows_affected_result_column_throws()
         {
             var modelBuilder = CreateModelBuilder();
-            
+
             var sproc = modelBuilder.Entity<BookLabel>()
                 .UpdateUsingStoredProcedure(
                     s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
@@ -266,7 +266,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public virtual void Duplicate_sproc_rows_affected_parameter_throws()
         {
             var modelBuilder = CreateModelBuilder();
-            
+
             var sproc = modelBuilder.Entity<BookLabel>()
                 .UpdateUsingStoredProcedure(
                     s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
@@ -394,7 +394,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             modelBuilder.Entity<BookLabel>()
                 .Ignore(s => s.SpecialBookLabel)
                 .InsertUsingStoredProcedure(
-                    s => s.SuppressTransactions().HasAnnotation("foo", "bar1")
+                    s => s.HasAnnotation("foo", "bar1")
                         .HasParameter(b => b.BookId)
                         .HasParameter("Discriminator")
                         .HasResultColumn(
@@ -407,7 +407,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                         .HasResultColumn("RowVersion")
                         .HasRowsAffectedReturnValue())
                 .UpdateUsingStoredProcedure(
-                    s => s.SuppressTransactions().HasAnnotation("foo", "bar2")
+                    s => s.HasAnnotation("foo", "bar2")
                         .HasParameter(
                             b => b.Id, p =>
                             {
@@ -420,7 +420,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                         .HasOriginalValueParameter("RowVersion", p => p.HasName("OriginalRowVersion"))
                         .HasParameter("RowVersion", p => p.IsOutput()))
                 .DeleteUsingStoredProcedure(
-                    s => s.SuppressTransactions().HasAnnotation("foo", "bar3")
+                    s => s.HasAnnotation("foo", "bar3")
                         .HasParameter(b => b.Id, p => p.HasName("DeleteId"))
                         .HasRowsAffectedResultColumn()
                         .HasOriginalValueParameter("RowVersion"));
@@ -446,7 +446,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(insertSproc.FindParameter("Id"));
             Assert.Null(insertSproc.FindResultColumn("Discriminator"));
             Assert.False(insertSproc.FindResultColumn("Id")!.ForRowsAffected);
-            Assert.True(insertSproc.AreTransactionsSuppressed);
             Assert.True(insertSproc.IsRowsAffectedReturned);
             Assert.Equal("bar1", insertSproc["foo"]);
             Assert.Same(bookLabel, insertSproc.EntityType);
@@ -456,7 +455,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("dbo", updateSproc.Schema);
             Assert.Equal(new[] { "Id", "BookId", null, "RowVersion", "RowVersion" }, updateSproc.Parameters.Select(p => p.PropertyName));
             Assert.Empty(updateSproc.ResultColumns);
-            Assert.True(updateSproc.AreTransactionsSuppressed);
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookLabel, updateSproc.EntityType);
             Assert.False(updateSproc.IsRowsAffectedReturned);
@@ -484,7 +482,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("mySchema", deleteSproc.Schema);
             Assert.Equal(new[] { "Id", "RowVersion" }, deleteSproc.Parameters.Select(p => p.PropertyName));
             Assert.Equal(new[] { "RowsAffected" }, deleteSproc.ResultColumns.Select(p => p.Name));
-            Assert.True(deleteSproc.AreTransactionsSuppressed);
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookLabel, deleteSproc.EntityType);
             Assert.False(deleteSproc.IsRowsAffectedReturned);
@@ -719,11 +716,11 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                     lb.Property(l => l.Id).ValueGeneratedOnUpdate();
 
                     lb.InsertUsingStoredProcedure(
-                            s => s.SuppressTransactions().HasAnnotation("foo", "bar1")
+                            s => s.HasAnnotation("foo", "bar1")
                                 .HasParameter(b => b.Id)
                                 .HasParameter(b => b.BookId, p => p.HasName("InsertId")))
                         .UpdateUsingStoredProcedure(
-                            s => s.SuppressTransactions().HasAnnotation("foo", "bar2")
+                            s => s.HasAnnotation("foo", "bar2")
                                 .HasParameter(b => b.Id)
                                 .HasParameter(b => b.BookId, p =>
                                 {
@@ -738,8 +735,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                                         Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
                                     }))
                         .DeleteUsingStoredProcedure(
-                            s => s.SuppressTransactions().HasAnnotation("foo", "bar3")
-                                .HasParameter(b => b.BookId, p => p.HasName("DeleteId")));
+                            s => s.HasAnnotation("foo", "bar3").HasParameter(b => b.BookId, p => p.HasName("DeleteId")));
                 });
             modelBuilder.Entity<Book>()
                 .OwnsOne(b => b.AlternateLabel);
@@ -767,7 +763,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(insertSproc.Schema);
             Assert.Equal(new[] { "Id", "BookId" }, insertSproc.Parameters.Select(p => p.PropertyName));
             Assert.Empty(insertSproc.ResultColumns);
-            Assert.True(insertSproc.AreTransactionsSuppressed);
             Assert.Equal("bar1", insertSproc["foo"]);
             Assert.Same(bookOwnership1.DeclaringEntityType, insertSproc.EntityType);
 
@@ -776,7 +771,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("dbo", updateSproc.Schema);
             Assert.Equal(new[] { "Id", "BookId" }, updateSproc.Parameters.Select(p => p.PropertyName));
             Assert.Equal(new[] { "Id" }, updateSproc.ResultColumns.Select(p => p.Name));
-            Assert.True(updateSproc.AreTransactionsSuppressed);
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookOwnership1.DeclaringEntityType, updateSproc.EntityType);
 
@@ -785,7 +779,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(deleteSproc.Schema);
             Assert.Equal(new[] { "BookId" }, deleteSproc.Parameters.Select(p => p.PropertyName));
             Assert.Empty(deleteSproc.ResultColumns);
-            Assert.True(deleteSproc.AreTransactionsSuppressed);
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookOwnership1.DeclaringEntityType, deleteSproc.EntityType);
 
@@ -800,7 +793,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal(
                 "BookId",
                 bookId.GetColumnName(StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.DeleteStoredProcedure)!.Value));
-            
+
             Assert.Null(bookOwnership2.DeclaringEntityType.GetInsertStoredProcedure());
             Assert.Null(bookOwnership2.DeclaringEntityType.GetUpdateStoredProcedure());
             Assert.Null(bookOwnership2.DeclaringEntityType.GetDeleteStoredProcedure());
@@ -918,7 +911,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
             => new(TableBuilder.HasCheckConstraint(name, sql));
-        
+
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
 
@@ -976,11 +969,11 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public abstract string? Schema { get; }
 
         public abstract TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true);
-        
+
         public abstract TestCheckConstraintBuilder HasCheckConstraint(
             string name,
             string? sql);
-        
+
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
@@ -1253,7 +1246,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestColumnBuilder<TProperty>(TableBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
-        
+
         public override TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value)
             => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
@@ -1261,7 +1254,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
     public abstract class TestColumnBuilder<TProperty>
     {
         public abstract TestColumnBuilder<TProperty> HasColumnName(string? name);
-        
+
         public abstract TestColumnBuilder<TProperty> HasAnnotation(
             string annotation,
             object? value);
@@ -1284,7 +1277,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> HasColumnName(string? name)
             => Wrap(ColumnBuilder.HasColumnName(name));
-        
+
         public override TestColumnBuilder<TProperty> HasAnnotation(
             string annotation,
             object? value)
@@ -1559,7 +1552,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression);
-        
+
         public abstract TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
             string annotation,
             object? value);
@@ -1723,7 +1716,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
             where TDerivedEntity : class, TEntity;
-        
+
         public abstract TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
             string propertyName);
 
@@ -1782,8 +1775,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
 
-        public abstract TestStoredProcedureBuilder<TEntity> SuppressTransactions(bool suppress = true);
-
         public abstract TestStoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value);
     }
 
@@ -1830,7 +1821,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression, s => buildAction(new(s))));
-        
+
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
             string propertyName)
             => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName));
@@ -1901,9 +1892,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
-
-        public override TestStoredProcedureBuilder<TEntity> SuppressTransactions(bool suppress)
-            => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));
 
         public override TestStoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value)
             => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
@@ -2036,9 +2024,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
 
-        public override TestStoredProcedureBuilder<TEntity> SuppressTransactions(bool suppress)
-            => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));
-
         public override TestStoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value)
             => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
     }
@@ -2060,7 +2045,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction);
-        
+
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
             string propertyName);
 
@@ -2074,7 +2059,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction);
-        
+
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter();
 
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
@@ -2098,12 +2083,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn(
             Action<TestStoredProcedureResultColumnBuilder> buildAction);
-        
+
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
             HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
-        
-        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
-            SuppressTransactions(bool suppress = true);
 
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
             string annotation,
@@ -2149,7 +2131,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasParameter<TProperty>(propertyExpression, s => buildAction(new(s))));
-        
+
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
             string propertyName)
             => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName));
@@ -2167,14 +2149,14 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasOriginalValueParameter<TProperty>(propertyExpression, s => buildAction(new(s))));
-        
+
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new(s))));
-        
+
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
             string propertyName)
             => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName));
@@ -2192,7 +2174,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression, s => buildAction(new(s))));
-        
+
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
 
@@ -2202,9 +2184,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
-
-        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> SuppressTransactions(bool suppress)
-            => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
             string annotation,
@@ -2251,7 +2230,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(
                 StoredProcedureBuilder.HasParameter(
                     propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
-        
+
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
             string propertyName)
             => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName));
@@ -2271,7 +2250,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(
                 StoredProcedureBuilder.HasOriginalValueParameter(
                     propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
-        
+
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
 
@@ -2298,7 +2277,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(
                 StoredProcedureBuilder.HasResultColumn(
                     propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
-        
+
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
 
@@ -2308,9 +2287,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
-
-        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> SuppressTransactions(bool suppress)
-            => Wrap(StoredProcedureBuilder.SuppressTransactions(suppress));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
             string annotation,
@@ -2341,7 +2317,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public virtual TestStoredProcedureParameterBuilder IsInputOutput()
             => Wrap(StoredProcedureParameterBuilder.IsInputOutput());
-        
+
         public virtual TestStoredProcedureParameterBuilder HasAnnotation(
             string annotation,
             object? value)

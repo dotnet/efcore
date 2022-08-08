@@ -146,18 +146,4 @@ public interface IConventionStoredProcedure : IReadOnlyStoredProcedure, IConvent
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     bool SetIsRowsAffectedReturned(bool rowsAffectedReturned, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Prevents automatically creating a transaction when executing this stored procedure.
-    /// </summary>
-    /// <param name="areTransactionsSuppressed">A value indicating whether the automatic transactions should be prevented.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The configured value.</returns>
-    bool SetAreTransactionsSuppressed(bool areTransactionsSuppressed, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Gets the configuration source for <see cref="IReadOnlyStoredProcedure.Schema" />.
-    /// </summary>
-    /// <returns>The configuration source for <see cref="IReadOnlyStoredProcedure.Schema" />.</returns>
-    ConfigurationSource? GetAreTransactionsSuppressedConfigurationSource();
 }

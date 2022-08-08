@@ -183,17 +183,6 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     }
 
     /// <summary>
-    ///     Prevents automatically creating a transaction when executing this stored procedure.
-    /// </summary>
-    /// <param name="suppress">A value indicating whether the automatic transactions should be prevented.</param>
-    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual StoredProcedureBuilder SuppressTransactions(bool suppress = true)
-    {
-        Builder.SuppressTransactions(suppress, ConfigurationSource.Explicit);
-        return this;
-    }
-    
-    /// <summary>
     ///     Adds or updates an annotation on the stored procedure. If an annotation with the key specified in
     ///     <paramref name="annotation" /> already exists, its value will be updated.
     /// </summary>
