@@ -217,6 +217,47 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
+        public void Lazy_loading_proxies()
+            => Test(
+                new LazyLoadingProxiesContext(),
+                new CompiledModelCodeGenerationOptions(),
+                assertModel: model =>
+                {
+                    Assert.Equal(
+                        typeof(ILazyLoader), model.FindEntityType(typeof(LazyProxiesEntity1))!.GetServiceProperties().Single().ClrType);
+                    Assert.Equal(
+                        typeof(ILazyLoader), model.FindEntityType(typeof(LazyProxiesEntity1))!.GetServiceProperties().Single().ClrType);
+                });
+
+        public class LazyLoadingProxiesContext : ContextBase
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<LazyProxiesEntity1>();
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
+                => base.OnConfiguring(options.UseLazyLoadingProxies());
+        }
+
+        public class LazyProxiesEntity1
+        {
+            public int Id { get; set; }
+
+            public virtual LazyProxiesEntity2 ReferenceNavigation { get; set; }
+        }
+
+        public class LazyProxiesEntity2
+        {
+            public ILazyLoader Loader { get; set; }
+
+            public int Id { get; set; }
+            public virtual ICollection<LazyProxiesEntity1> CollectionNavigation { get; set; }
+        }
+
+        [ConditionalFact]
         public void Throws_for_query_filter()
             => Test(
                 new QueryFilterContext(),
@@ -4776,6 +4817,7 @@ namespace TestNamespace
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Cosmos"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.InMemory"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Proxies"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite"),
