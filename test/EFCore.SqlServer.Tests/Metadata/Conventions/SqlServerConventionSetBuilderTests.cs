@@ -1,22 +1,22 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+public class SqlServerConventionSetBuilderTests : ConventionSetBuilderTests
 {
-    public class SqlServerConventionSetBuilderTests : ConventionSetBuilderTests
+    public override IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI()
     {
-        public override IModel Can_build_a_model_with_default_conventions_without_DI()
-        {
-            var model = base.Can_build_a_model_with_default_conventions_without_DI();
+        var model = base.Can_build_a_model_with_default_conventions_without_DI();
 
-            Assert.Equal("ProductTable", model.GetEntityTypes().Single().GetTableName());
+        Assert.Equal("ProductTable", model.GetEntityTypes().Single().GetTableName());
 
-            return model;
-        }
-
-        protected override ConventionSet GetConventionSet() => SqlServerConventionSetBuilder.Build();
+        return model;
     }
+
+    protected override ConventionSet GetConventionSet()
+        => SqlServerConventionSetBuilder.Build();
+
+    protected override ModelBuilder GetModelBuilder()
+        => SqlServerConventionSetBuilder.CreateModelBuilder();
 }

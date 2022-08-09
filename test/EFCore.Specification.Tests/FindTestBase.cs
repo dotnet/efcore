@@ -1,12 +1,7 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -14,703 +9,710 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class FindTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : FindTestBase<TFixture>.FindFixtureBase
     {
-        protected FindTestBase(TFixture fixture) => Fixture = fixture;
+        protected FindTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
-        protected abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues)
-            where TEntity : class;
-
-        protected abstract ValueTask<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
-            where TEntity : class;
+        protected abstract TestFinder Finder { get; }
 
         [ConditionalFact]
         public virtual void Find_int_key_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new IntKey { Id = 88 }).Entity;
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new IntKey { Id = 88 }).Entity;
 
-                Assert.Same(entity, Find<IntKey>(context, 88));
-            }
+            Assert.Same(entity, Finder.Find<IntKey>(context, 88));
         }
 
         [ConditionalFact]
         public virtual void Find_int_key_from_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Smokey", Find<IntKey>(context, 77).Foo);
-            }
+            using var context = CreateContext();
+            Assert.Equal("Smokey", Finder.Find<IntKey>(context, 77).Foo);
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_int_key_not_in_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<IntKey>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<IntKey>(context, 99));
         }
 
         [ConditionalFact]
         public virtual void Find_nullable_int_key_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new NullableIntKey { Id = 88 }).Entity;
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new NullableIntKey { Id = 88 }).Entity;
 
-                Assert.Same(entity, Find<NullableIntKey>(context, 88));
-            }
+            Assert.Same(entity, Finder.Find<NullableIntKey>(context, 88));
         }
 
         [ConditionalFact]
         public virtual void Find_nullable_int_key_from_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Smokey", Find<NullableIntKey>(context, 77).Foo);
-            }
+            using var context = CreateContext();
+            Assert.Equal("Smokey", Finder.Find<NullableIntKey>(context, 77).Foo);
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_nullable_int_key_not_in_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<NullableIntKey>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<NullableIntKey>(context, 99));
         }
 
         [ConditionalFact]
         public virtual void Find_string_key_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new StringKey { Id = "Rabbit" }).Entity;
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new StringKey { Id = "Rabbit" }).Entity;
 
-                Assert.Same(entity, Find<StringKey>(context, "Rabbit"));
-            }
+            Assert.Same(entity, Finder.Find<StringKey>(context, "Rabbit"));
         }
 
         [ConditionalFact]
         public virtual void Find_string_key_from_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alice", Find<StringKey>(context, "Cat").Foo);
-            }
+            using var context = CreateContext();
+            Assert.Equal("Alice", Finder.Find<StringKey>(context, "Cat").Foo);
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_string_key_not_in_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<StringKey>(context, "Fox"));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<StringKey>(context, "Fox"));
         }
 
         [ConditionalFact]
         public virtual void Find_composite_key_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new CompositeKey { Id1 = 88, Id2 = "Rabbit" }).Entity;
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new CompositeKey { Id1 = 88, Id2 = "Rabbit" }).Entity;
 
-                Assert.Same(entity, Find<CompositeKey>(context, 88, "Rabbit"));
-            }
+            Assert.Same(entity, Finder.Find<CompositeKey>(context, 88, "Rabbit"));
         }
 
         [ConditionalFact]
         public virtual void Find_composite_key_from_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Olive", Find<CompositeKey>(context, 77, "Dog").Foo);
-            }
+            using var context = CreateContext();
+            Assert.Equal("Olive", Finder.Find<CompositeKey>(context, 77, "Dog").Foo);
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_composite_key_not_in_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<CompositeKey>(context, 77, "Fox"));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<CompositeKey>(context, 77, "Fox"));
         }
 
         [ConditionalFact]
         public virtual void Find_base_type_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new BaseType { Id = 88 }).Entity;
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new BaseType { Id = 88 }).Entity;
 
-                Assert.Same(entity, Find<BaseType>(context, 88));
-            }
+            Assert.Same(entity, Finder.Find<BaseType>(context, 88));
         }
 
         [ConditionalFact]
         public virtual void Find_base_type_from_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Baxter", Find<BaseType>(context, 77).Foo);
-            }
+            using var context = CreateContext();
+            Assert.Equal("Baxter", Finder.Find<BaseType>(context, 77).Foo);
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_base_type_not_in_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<BaseType>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<BaseType>(context, 99));
         }
 
         [ConditionalFact]
         public virtual void Find_derived_type_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new DerivedType { Id = 88 }).Entity;
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new DerivedType { Id = 88 }).Entity;
 
-                Assert.Same(entity, Find<DerivedType>(context, 88));
-            }
+            Assert.Same(entity, Finder.Find<DerivedType>(context, 88));
         }
 
         [ConditionalFact]
         public virtual void Find_derived_type_from_store()
         {
-            using (var context = CreateContext())
-            {
-                var derivedType = Find<DerivedType>(context, 78);
-                Assert.Equal("Strawberry", derivedType.Foo);
-                Assert.Equal("Cheesecake", derivedType.Boo);
-            }
+            using var context = CreateContext();
+            var derivedType = Finder.Find<DerivedType>(context, 78);
+            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Cheesecake", derivedType.Boo);
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_derived_type_not_in_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<DerivedType>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<DerivedType>(context, 99));
         }
 
         [ConditionalFact]
         public virtual void Find_base_type_using_derived_set_tracked()
         {
-            using (var context = CreateContext())
-            {
-                context.Attach(
-                    new BaseType { Id = 88 });
+            using var context = CreateContext();
+            context.Attach(
+                new BaseType { Id = 88 });
 
-                Assert.Null(Find<DerivedType>(context, 88));
-            }
+            Assert.Null(Finder.Find<DerivedType>(context, 88));
         }
 
         [ConditionalFact]
         public virtual void Find_base_type_using_derived_set_from_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<DerivedType>(context, 77));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<DerivedType>(context, 77));
         }
 
         [ConditionalFact]
         public virtual void Find_derived_type_using_base_set_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new DerivedType { Id = 88 }).Entity;
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new DerivedType { Id = 88 }).Entity;
 
-                Assert.Same(entity, Find<BaseType>(context, 88));
-            }
+            Assert.Same(entity, Finder.Find<BaseType>(context, 88));
         }
 
         [ConditionalFact]
         public virtual void Find_derived_using_base_set_type_from_store()
         {
-            using (var context = CreateContext())
-            {
-                var derivedType = Find<BaseType>(context, 78);
-                Assert.Equal("Strawberry", derivedType.Foo);
-                Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
-            }
+            using var context = CreateContext();
+            var derivedType = Finder.Find<BaseType>(context, 78);
+            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
         }
 
         [ConditionalFact]
         public virtual void Find_shadow_key_tracked()
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Entry(new ShadowKey());
-                entry.Property("Id").CurrentValue = 88;
-                entry.State = EntityState.Unchanged;
+            using var context = CreateContext();
+            var entry = context.Entry(new ShadowKey());
+            entry.Property("Id").CurrentValue = 88;
+            entry.State = EntityState.Unchanged;
 
-                Assert.Same(entry.Entity, Find<ShadowKey>(context, 88));
-            }
+            Assert.Same(entry.Entity, Finder.Find<ShadowKey>(context, 88));
         }
 
         [ConditionalFact]
         public virtual void Find_shadow_key_from_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Clippy", Find<ShadowKey>(context, 77).Foo);
-            }
+            using var context = CreateContext();
+            Assert.Equal("Clippy", Finder.Find<ShadowKey>(context, 77).Foo);
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_shadow_key_not_in_store()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<ShadowKey>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<ShadowKey>(context, 99));
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_null_key_values_array()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<CompositeKey>(context, null));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<CompositeKey>(context, null));
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_null_key()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<IntKey>(context, new object[] { null }));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<IntKey>(context, new object[] { null }));
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_null_nullable_key()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<NullableIntKey>(context, new object[] { null }));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<NullableIntKey>(context, new object[] { null }));
         }
 
         [ConditionalFact]
         public virtual void Returns_null_for_null_in_composite_key()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(Find<CompositeKey>(context, 77, null));
-            }
+            using var context = CreateContext();
+            Assert.Null(Finder.Find<CompositeKey>(context, 77, null));
         }
 
         [ConditionalFact]
         public virtual void Throws_for_multiple_values_passed_for_simple_key()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindNotCompositeKey("IntKey", 2),
-                    Assert.Throws<ArgumentException>(() => Find<IntKey>(context, 77, 88)).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.FindNotCompositeKey("IntKey", 2),
+                Assert.Throws<ArgumentException>(() => Finder.Find<IntKey>(context, 77, 88)).Message);
         }
 
         [ConditionalFact]
         public virtual void Throws_for_wrong_number_of_values_for_composite_key()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
-                    Assert.Throws<ArgumentException>(() => Find<CompositeKey>(context, 77)).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
+                Assert.Throws<ArgumentException>(() => Finder.Find<CompositeKey>(context, 77)).Message);
         }
 
         [ConditionalFact]
         public virtual void Throws_for_bad_type_for_simple_key()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
-                    Assert.Throws<ArgumentException>(() => Find<IntKey>(context, "77")).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
+                Assert.Throws<ArgumentException>(() => Finder.Find<IntKey>(context, "77")).Message);
         }
 
         [ConditionalFact]
         public virtual void Throws_for_bad_type_for_composite_key()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
-                    Assert.Throws<ArgumentException>(() => Find<CompositeKey>(context, 77, 88)).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
+                Assert.Throws<ArgumentException>(() => Finder.Find<CompositeKey>(context, 77, 88)).Message);
         }
 
         [ConditionalFact]
         public virtual void Throws_for_bad_entity_type()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidSetType(nameof(Random)),
-                    Assert.Throws<InvalidOperationException>(() => Find<Random>(context, 77)).Message);
-            }
+            using var context = CreateContext();
+
+            Assert.Equal(
+                CoreStrings.InvalidSetType(nameof(Random)),
+                Assert.Throws<InvalidOperationException>(() => Finder.Find<Random>(context, 77)).Message);
         }
 
         [ConditionalFact]
-        public virtual async Task Find_int_key_tracked_async()
+        public virtual void Throws_for_bad_entity_type_with_different_namespace()
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new IntKey { Id = 88 }).Entity;
+            using var context = CreateContext();
 
-                var valueTask = FindAsync<IntKey>(context, 88);
-                Assert.True(valueTask.IsCompleted);
-                Assert.Same(entity, await valueTask);
-            }
+            Assert.Equal(
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(
+                    typeof(DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => Finder.Find<DifferentNamespace.ShadowKey>(context, 77)).Message);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_int_key_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_int_key_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Smokey", (await FindAsync<IntKey>(context, 77)).Foo);
-            }
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new IntKey { Id = 88 }).Entity;
+
+            var valueTask = Finder.FindAsync<IntKey>(cancellationType, context, new object[] { 88 });
+
+            Assert.True(valueTask.IsCompleted);
+            Assert.Same(entity, await valueTask);
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_int_key_not_in_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_int_key_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<IntKey>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Smokey", (await Finder.FindAsync<IntKey>(cancellationType, context, new object[] { 77 })).Foo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_nullable_int_key_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_int_key_not_in_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new NullableIntKey { Id = 88 }).Entity;
-
-                Assert.Same(entity, await FindAsync<NullableIntKey>(context, 88));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<IntKey>(cancellationType, context, new object[] { 99 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_nullable_int_key_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_nullable_int_key_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Smokey", (await FindAsync<NullableIntKey>(context, 77)).Foo);
-            }
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new NullableIntKey { Id = 88 }).Entity;
+
+            Assert.Same(entity, await Finder.FindAsync<NullableIntKey>(cancellationType, context, new object[] { 88 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_nullable_int_key_not_in_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_nullable_int_key_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<NullableIntKey>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Smokey", (await Finder.FindAsync<NullableIntKey>(cancellationType, context, new object[] { 77 })).Foo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_string_key_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_nullable_int_key_not_in_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new StringKey { Id = "Rabbit" }).Entity;
-
-                Assert.Same(entity, await FindAsync<StringKey>(context, "Rabbit"));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<NullableIntKey>(cancellationType, context, new object[] { 99 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_string_key_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_string_key_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Alice", (await FindAsync<StringKey>(context, "Cat")).Foo);
-            }
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new StringKey { Id = "Rabbit" }).Entity;
+
+            Assert.Same(entity, await Finder.FindAsync<StringKey>(cancellationType, context, new object[] { "Rabbit" }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_string_key_not_in_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_string_key_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<StringKey>(context, "Fox"));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Alice", (await Finder.FindAsync<StringKey>(cancellationType, context, new object[] { "Cat" })).Foo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_composite_key_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_string_key_not_in_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new CompositeKey { Id1 = 88, Id2 = "Rabbit" }).Entity;
-
-                Assert.Same(entity, await FindAsync<CompositeKey>(context, 88, "Rabbit"));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<StringKey>(cancellationType, context, new object[] { "Fox" }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_composite_key_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_composite_key_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Olive", (await FindAsync<CompositeKey>(context, 77, "Dog")).Foo);
-            }
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new CompositeKey { Id1 = 88, Id2 = "Rabbit" }).Entity;
+
+            Assert.Same(entity, await Finder.FindAsync<CompositeKey>(cancellationType, context, new object[] { 88, "Rabbit" }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_composite_key_not_in_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_composite_key_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<CompositeKey>(context, 77, "Fox"));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Olive", (await Finder.FindAsync<CompositeKey>(cancellationType, context, new object[] { 77, "Dog" })).Foo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_base_type_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_composite_key_not_in_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new BaseType { Id = 88 }).Entity;
-
-                Assert.Same(entity, await FindAsync<BaseType>(context, 88));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, new object[] { 77, "Fox" }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_base_type_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_base_type_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Baxter", (await FindAsync<BaseType>(context, 77)).Foo);
-            }
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new BaseType { Id = 88 }).Entity;
+
+            Assert.Same(entity, await Finder.FindAsync<BaseType>(cancellationType, context, new object[] { 88 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_base_type_not_in_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_base_type_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<BaseType>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Baxter", (await Finder.FindAsync<BaseType>(cancellationType, context, new object[] { 77 })).Foo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_derived_type_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_base_type_not_in_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new DerivedType { Id = 88 }).Entity;
-
-                Assert.Same(entity, await FindAsync<DerivedType>(context, 88));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<BaseType>(cancellationType, context, new object[] { 99 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_derived_type_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_derived_type_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var derivedType = await FindAsync<DerivedType>(context, 78);
-                Assert.Equal("Strawberry", derivedType.Foo);
-                Assert.Equal("Cheesecake", derivedType.Boo);
-            }
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new DerivedType { Id = 88 }).Entity;
+
+            Assert.Same(entity, await Finder.FindAsync<DerivedType>(cancellationType, context, new object[] { 88 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_derived_type_not_in_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_derived_type_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<DerivedType>(context, 99));
-            }
+            using var context = CreateContext();
+            var derivedType = await Finder.FindAsync<DerivedType>(cancellationType, context, new object[] { 78 });
+            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Cheesecake", derivedType.Boo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_base_type_using_derived_set_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_derived_type_not_in_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                context.Attach(
-                    new BaseType { Id = 88 });
-
-                Assert.Null(await FindAsync<DerivedType>(context, 88));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<DerivedType>(cancellationType, context, new object[] { 99 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_base_type_using_derived_set_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_base_type_using_derived_set_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<DerivedType>(context, 77));
-            }
+            using var context = CreateContext();
+            context.Attach(
+                new BaseType { Id = 88 });
+
+            Assert.Null(await Finder.FindAsync<DerivedType>(cancellationType, context, new object[] { 88 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_derived_type_using_base_set_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_base_type_using_derived_set_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var entity = context.Attach(
-                    new DerivedType { Id = 88 }).Entity;
-
-                Assert.Same(entity, await FindAsync<BaseType>(context, 88));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<DerivedType>(cancellationType, context, new object[] { 77 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_derived_using_base_set_type_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_derived_type_using_base_set_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var derivedType = await FindAsync<BaseType>(context, 78);
-                Assert.Equal("Strawberry", derivedType.Foo);
-                Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
-            }
+            using var context = CreateContext();
+            var entity = context.Attach(
+                new DerivedType { Id = 88 }).Entity;
+
+            Assert.Same(entity, await Finder.FindAsync<BaseType>(cancellationType, context, new object[] { 88 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_shadow_key_tracked_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_derived_using_base_set_type_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Entry(new ShadowKey());
-                entry.Property("Id").CurrentValue = 88;
-                entry.State = EntityState.Unchanged;
-
-                Assert.Same(entry.Entity, await FindAsync<ShadowKey>(context, 88));
-            }
+            using var context = CreateContext();
+            var derivedType = await Finder.FindAsync<BaseType>(cancellationType, context, new object[] { 78 });
+            Assert.Equal("Strawberry", derivedType.Foo);
+            Assert.Equal("Cheesecake", ((DerivedType)derivedType).Boo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Find_shadow_key_from_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_shadow_key_tracked_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal("Clippy", (await FindAsync<ShadowKey>(context, 77)).Foo);
-            }
+            using var context = CreateContext();
+            var entry = context.Entry(new ShadowKey());
+            entry.Property("Id").CurrentValue = 88;
+            entry.State = EntityState.Unchanged;
+
+            Assert.Same(entry.Entity, await Finder.FindAsync<ShadowKey>(cancellationType, context, new object[] { 88 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_shadow_key_not_in_store_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Find_shadow_key_from_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<ShadowKey>(context, 99));
-            }
+            using var context = CreateContext();
+            Assert.Equal("Clippy", (await Finder.FindAsync<ShadowKey>(cancellationType, context, new object[] { 77 })).Foo);
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_null_key_values_array_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_shadow_key_not_in_store_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<CompositeKey>(context, null));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<ShadowKey>(cancellationType, context, new object[] { 99 }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_null_key_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_null_key_values_array_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<IntKey>(context, new object[] { null }));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, null));
         }
 
-        [ConditionalFact]
-        public virtual async Task Returns_null_for_null_in_composite_key_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_null_key_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(await FindAsync<CompositeKey>(context, 77, null));
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<IntKey>(cancellationType, context, new object[] { null }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Throws_for_multiple_values_passed_for_simple_key_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Returns_null_for_null_in_composite_key_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindNotCompositeKey("IntKey", 2),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, 77, 88).AsTask())).Message);
-            }
+            using var context = CreateContext();
+            Assert.Null(await Finder.FindAsync<CompositeKey>(cancellationType, context, new object[] { 77, null }));
         }
 
-        [ConditionalFact]
-        public virtual async Task Throws_for_wrong_number_of_values_for_composite_key_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Throws_for_multiple_values_passed_for_simple_key_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77).AsTask())).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.FindNotCompositeKey("IntKey", cancellationType == CancellationType.Wrong ? 3 : 2),
+                (await Assert.ThrowsAsync<ArgumentException>(
+                    () => Finder.FindAsync<IntKey>(cancellationType, context, new object[] { 77, 88 }).AsTask())).Message);
         }
 
-        [ConditionalFact]
-        public virtual async Task Throws_for_bad_type_for_simple_key_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Throws_for_wrong_number_of_values_for_composite_key_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, "77").AsTask())).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                cancellationType == CancellationType.Wrong
+                    ? CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "CancellationToken", "string")
+                    : CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
+                (await Assert.ThrowsAsync<ArgumentException>(
+                    () => Finder.FindAsync<CompositeKey>(cancellationType, context, new object[] { 77 }).AsTask())).Message);
         }
 
-        [ConditionalFact]
-        public virtual async Task Throws_for_bad_type_for_composite_key_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Throws_for_bad_type_for_simple_key_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
-                    (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77, 88).AsTask())).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
+                (await Assert.ThrowsAsync<ArgumentException>(
+                    () => Finder.FindAsync<IntKey>(cancellationType, context, new object[] { "77" }).AsTask())).Message);
         }
 
-        [ConditionalFact]
-        public virtual async Task Throws_for_bad_entity_type_async()
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Throws_for_bad_type_for_composite_key_async(CancellationType cancellationType)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidSetType(nameof(Random)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77).AsTask())).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
+                (await Assert.ThrowsAsync<ArgumentException>(
+                    () => Finder.FindAsync<CompositeKey>(cancellationType, context, new object[] { 77, 78 }).AsTask())).Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Throws_for_bad_entity_type_async(CancellationType cancellationType)
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.InvalidSetType(nameof(Random)),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Finder.FindAsync<Random>(cancellationType, context, new object[] { 77 }).AsTask())).Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData((int)CancellationType.Right)]
+        [InlineData((int)CancellationType.Wrong)]
+        [InlineData((int)CancellationType.None)]
+        public virtual async Task Throws_for_bad_entity_type_with_different_namespace_async(CancellationType cancellationType)
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(
+                    typeof(DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => Finder.FindAsync<DifferentNamespace.ShadowKey>(cancellationType, context, new object[] { 77 }).AsTask()))
+                .Message);
+        }
+
+        public enum CancellationType
+        {
+            Right,
+            Wrong,
+            None
         }
 
         protected class BaseType
@@ -761,11 +763,13 @@ namespace Microsoft.EntityFrameworkCore
             public string Foo { get; set; }
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class FindFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
-            protected override string StoreName { get; } = "FindTest";
+            protected override string StoreName
+                => "FindTest";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -807,5 +811,88 @@ namespace Microsoft.EntityFrameworkCore
                 context.SaveChanges();
             }
         }
+
+        public abstract class TestFinder
+        {
+            public abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                where TEntity : class;
+
+            public abstract ValueTask<TEntity> FindAsync<TEntity>(
+                CancellationType cancellationType,
+                DbContext context,
+                object[] keyValues,
+                CancellationToken cancellationToken = default)
+                where TEntity : class;
+        }
+
+        public class FindViaSetFinder : TestFinder
+        {
+            public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                => context.Set<TEntity>().Find(keyValues);
+
+            public override ValueTask<TEntity> FindAsync<TEntity>(
+                CancellationType cancellationType,
+                DbContext context,
+                object[] keyValues,
+                CancellationToken cancellationToken = default)
+                => cancellationType switch
+                {
+                    CancellationType.Right => context.Set<TEntity>().FindAsync(keyValues, cancellationToken: cancellationToken),
+                    CancellationType.Wrong => context.Set<TEntity>()
+                        .FindAsync(keyValues?.Concat(new object[] { cancellationToken }).ToArray()),
+                    CancellationType.None => context.Set<TEntity>().FindAsync(keyValues),
+                    _ => throw new ArgumentOutOfRangeException(nameof(cancellationType), cancellationType, null)
+                };
+        }
+
+        public class FindViaContextFinder : TestFinder
+            {
+                public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                    => (TEntity)context.Find(typeof(TEntity), keyValues);
+
+                public override async ValueTask<TEntity> FindAsync<TEntity>(
+                    CancellationType cancellationType,
+                    DbContext context,
+                    object[] keyValues,
+                    CancellationToken cancellationToken = default)
+                    => cancellationType switch
+                    {
+                        CancellationType.Right => (TEntity)await context.FindAsync(
+                            typeof(TEntity), keyValues, cancellationToken: cancellationToken),
+                        CancellationType.Wrong => (TEntity)await context.FindAsync(
+                            typeof(TEntity), keyValues?.Concat(new object[] { cancellationToken }).ToArray()),
+                        CancellationType.None => (TEntity)await context.FindAsync(typeof(TEntity), keyValues),
+                        _ => throw new ArgumentOutOfRangeException(nameof(cancellationType), cancellationType, null)
+                    };
+            }
+
+        public class FindViaNonGenericContextFinder : TestFinder
+        {
+            public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                => context.Find<TEntity>(keyValues);
+
+            public override ValueTask<TEntity> FindAsync<TEntity>(
+                CancellationType cancellationType,
+                DbContext context,
+                object[] keyValues,
+                CancellationToken cancellationToken = default)
+                => cancellationType switch
+                {
+                    CancellationType.Right => context.FindAsync<TEntity>(keyValues, cancellationToken: cancellationToken),
+                    CancellationType.Wrong => context.FindAsync<TEntity>(
+                        keyValues?.Concat(new object[] { cancellationToken }).ToArray()),
+                    CancellationType.None => context.FindAsync<TEntity>(keyValues),
+                    _ => throw new ArgumentOutOfRangeException(nameof(cancellationType), cancellationType, null)
+                };
+
+        }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.DifferentNamespace
+{
+    internal class ShadowKey
+    {
+        public string Foo { get; set; }
     }
 }

@@ -1,21 +1,14 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class InterceptionResultTest
 {
-    public class InterceptionResultTest
-    {
-        [ConditionalFact]
-        public void InterceptionResult_Result_throws_if_HasResult_is_false()
-        {
-            Assert.Equal(
-                CoreStrings.NoInterceptionResult,
-                Assert.Throws<InvalidOperationException>(
-                    () => default(InterceptionResult<object>).Result).Message);
-        }
-    }
+    [ConditionalFact]
+    public void InterceptionResult_Result_throws_if_HasResult_is_false()
+        => Assert.Equal(
+            CoreStrings.NoInterceptionResult,
+            Assert.Throws<InvalidOperationException>(
+                () => default(InterceptionResult<object>).Result).Message);
 }

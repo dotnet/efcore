@@ -1,57 +1,28 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+/// <summary>
+///     Represents a relational database function in a model.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+/// </remarks>
+public interface IDbFunction : IReadOnlyDbFunction, IAnnotatable
 {
     /// <summary>
-    ///     Represents a relational database function in an <see cref="IModel" />.
+    ///     Gets the model in which this function is defined.
     /// </summary>
-    public interface IDbFunction
-    {
-        /// <summary>
-        ///     The name of the function in the database.
-        /// </summary>
-        string Name { get; }
+    new IModel Model { get; }
 
-        /// <summary>
-        ///     The schema of the function in the database.
-        /// </summary>
-        string Schema { get; }
+    /// <summary>
+    ///     Gets the parameters for this function
+    /// </summary>
+    new IReadOnlyList<IDbFunctionParameter> Parameters { get; }
 
-        /// <summary>
-        ///     The <see cref="IModel" /> in which this function is defined.
-        /// </summary>
-        IModel Model { get; }
-
-        /// <summary>
-        ///     The CLR method which maps to the function in the database.
-        /// </summary>
-        MethodInfo MethodInfo { get; }
-
-        /// <summary>
-        ///     The configured store type string
-        /// </summary>
-        string StoreType { get; }
-
-        /// <summary>
-        ///     The type mapping for the function's return type
-        /// </summary>
-        RelationalTypeMapping TypeMapping { get; }
-
-        /// <summary>
-        ///     The parameters for this function
-        /// </summary>
-        IReadOnlyList<IDbFunctionParameter> Parameters { get; }
-
-        /// <summary>
-        ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
-        /// </summary>
-        Func<IReadOnlyCollection<SqlExpression>, SqlExpression> Translation { get; }
-    }
+    /// <summary>
+    ///     Gets the associated <see cref="IStoreFunction" />.
+    /// </summary>
+    IStoreFunction StoreFunction { get; }
 }

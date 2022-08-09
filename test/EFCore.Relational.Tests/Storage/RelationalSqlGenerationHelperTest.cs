@@ -1,11 +1,22 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.Storage;
+
+public class RelationalSqlGenerationHelperTest
 {
-    public class RelationalSqlGenerationHelperTest : SqlGenerationHelperTestBase
-    {
-        protected override ISqlGenerationHelper CreateSqlGenerationHelper()
-            => new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
-    }
+    [ConditionalFact]
+    public void GenerateParameterName_returns_parameter_name()
+        => Assert.Equal("@name", CreateSqlGenerationHelper().GenerateParameterName("name"));
+
+    [ConditionalFact]
+    public void Default_BatchCommandSeparator_is_semicolon()
+        => Assert.Equal(";", CreateSqlGenerationHelper().StatementTerminator);
+
+    [ConditionalFact]
+    public void BatchSeparator_returns_separator()
+        => Assert.Equal(Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
+
+    private ISqlGenerationHelper CreateSqlGenerationHelper()
+        => new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
 }

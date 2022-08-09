@@ -3,7 +3,8 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 {
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
     public static class SqlServerNTSStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerNTSStrings", typeof(SqlServerNTSStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerNTSStrings", typeof(SqlServerNTSStrings).Assembly);
 
         /// <summary>
         ///     UseNetTopologySuite requires AddEntityFrameworkSqlServerNetTopologySuite to be called on the internal service provider used.
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");

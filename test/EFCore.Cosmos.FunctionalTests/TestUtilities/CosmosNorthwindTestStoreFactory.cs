@@ -1,22 +1,18 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+public class CosmosNorthwindTestStoreFactory : CosmosTestStoreFactory
 {
-    public class CosmosNorthwindTestStoreFactory : CosmosTestStoreFactory
+    private const string Name = "Northwind";
+
+    public static new CosmosNorthwindTestStoreFactory Instance { get; } = new();
+
+    protected CosmosNorthwindTestStoreFactory()
     {
-        private const string Name = "Northwind";
-
-        public static new CosmosNorthwindTestStoreFactory Instance { get; }
-            = new CosmosNorthwindTestStoreFactory();
-
-        protected CosmosNorthwindTestStoreFactory()
-        {
-        }
-
-        public override TestStore GetOrCreate(string storeName)
-            => CosmosTestStore.GetOrCreate(Name, "Northwind.json");
     }
+
+    public override TestStore GetOrCreate(string storeName)
+        => CosmosTestStore.GetOrCreate(Name, "Northwind.json");
 }

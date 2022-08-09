@@ -1,59 +1,68 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture>
 {
-    public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture>
+    public CustomConvertersInMemoryTest(CustomConvertersInMemoryFixture fixture)
+        : base(fixture)
     {
-        public CustomConvertersInMemoryTest(CustomConvertersInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        // Disabled: In-memory database is case-sensitive
-        public override void Can_insert_and_read_back_with_case_insensitive_string_key()
-        {
-        }
+    public override void Optional_datetime_reading_null_from_database()
+    {
+    }
 
-        [ConditionalTheory(Skip = "Issue#14042")]
-        public override Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
-        {
-            return base.Can_query_custom_type_not_mapped_by_default_equality(isAsync);
-        }
+    // Disabled: In-memory database is case-sensitive
+    public override void Can_insert_and_read_back_with_case_insensitive_string_key()
+    {
+    }
 
-        [ConditionalFact(Skip = "Issue#17050")]
-        public override void Value_conversion_with_property_named_value()
-        {
-        }
+    [ConditionalFact(Skip = "Issue#17050")]
+    public override void Value_conversion_with_property_named_value()
+    {
+    }
 
-        [ConditionalFact(Skip = "Issue#17050")]
-        public override void Collection_property_as_scalar()
-        {
-            base.Collection_property_as_scalar();
-        }
+    [ConditionalFact(Skip = "Issue#17050")]
+    public override void Collection_property_as_scalar_Any()
+        => base.Collection_property_as_scalar_Any();
 
-        public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
-        {
-            public override bool StrictEquality => true;
+    [ConditionalFact(Skip = "Issue#17050")]
+    public override void Collection_property_as_scalar_Count_member()
+        => base.Collection_property_as_scalar_Count_member();
 
-            public override bool SupportsAnsi => false;
+    [ConditionalFact(Skip = "Issue#17050")]
+    public override void Collection_enum_as_string_Contains()
+        => base.Collection_enum_as_string_Contains();
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+    public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
+    {
+        public override bool StrictEquality
+            => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+        public override bool SupportsAnsi
+            => false;
 
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        public override bool SupportsUnicodeToAnsiConversion
+            => true;
 
-            public override bool SupportsBinaryKeys => false;
+        public override bool SupportsLargeStringComparisons
+            => true;
 
-            public override bool SupportsDecimalComparisons => true;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
 
-            public override DateTime DefaultDateTime => new DateTime();
-        }
+        public override bool SupportsBinaryKeys
+            => false;
+
+        public override bool SupportsDecimalComparisons
+            => true;
+
+        public override DateTime DefaultDateTime
+            => new();
+
+        public override bool PreservesDateTimeKind
+            => true;
     }
 }

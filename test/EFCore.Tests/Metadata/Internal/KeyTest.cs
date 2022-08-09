@@ -1,82 +1,74 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+public class KeyTest
 {
-    public class KeyTest
+    [ConditionalFact]
+    public void Throws_when_model_is_readonly()
     {
-        [ConditionalFact]
-        public void Use_of_custom_IKey_throws()
-        {
-            var key = new FakeKey();
+        var model = CreateModel();
+        var entityType = model.AddEntityType("E");
+        var property = entityType.AddProperty("P", typeof(int));
+        var key = entityType.AddKey(new[] { property });
 
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), nameof(FakeKey)),
-                Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
-        }
+        model.FinalizeModel();
 
-        private class FakeKey : IKey
-        {
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
-            public IReadOnlyList<IProperty> Properties { get; }
-            public IEntityType DeclaringEntityType { get; }
-        }
+        Assert.Equal(
+            CoreStrings.ModelReadOnly,
+            Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { property })).Message);
 
-        [ConditionalFact]
-        public void Can_create_key_from_properties()
-        {
-            var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
-            var property1 = entityType.AddProperty(Customer.IdProperty);
-            var property2 = entityType.AddProperty(Customer.NameProperty);
-            property2.SetIsNullable(false);
+        Assert.Equal(
+            CoreStrings.ModelReadOnly,
+            Assert.Throws<InvalidOperationException>(() => entityType.RemoveKey(key)).Message);
+    }
 
-            var key = entityType.AddKey(new[] { property1, property2 });
+    [ConditionalFact]
+    public void Can_create_key_from_properties()
+    {
+        var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
+        var property1 = entityType.AddProperty(Customer.IdProperty);
+        var property2 = entityType.AddProperty(Customer.NameProperty);
+        property2.SetIsNullable(false);
 
-            Assert.True(new[] { property1, property2 }.SequenceEqual(key.Properties));
-            Assert.Equal(ConfigurationSource.Convention, key.GetConfigurationSource());
-        }
+        var key = entityType.AddKey(new[] { property1, property2 });
 
-        [ConditionalFact]
-        public void Validates_properties_from_same_entity()
-        {
-            var model = CreateModel();
-            var entityType1 = model.AddEntityType(typeof(Customer));
-            var entityType2 = model.AddEntityType(typeof(Order));
-            var property1 = entityType1.AddProperty(Customer.IdProperty);
-            var property2 = entityType2.AddProperty(Order.NameProperty);
+        Assert.True(new[] { property1, property2 }.SequenceEqual(key.Properties));
+        Assert.Equal(ConfigurationSource.Convention, key.GetConfigurationSource());
+    }
 
-            Assert.Equal(
-                CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
-                Assert.Throws<InvalidOperationException>(
-                    () => entityType1.AddKey(new[] { property1, property2 })).Message);
-        }
+    [ConditionalFact]
+    public void Validates_properties_from_same_entity()
+    {
+        var model = CreateModel();
+        var entityType1 = model.AddEntityType(typeof(Customer));
+        var entityType2 = model.AddEntityType(typeof(Order));
+        var property1 = entityType1.AddProperty(Customer.IdProperty);
+        var property2 = entityType2.AddProperty(Order.NameProperty);
 
-        private static IMutableModel CreateModel() => new Model();
+        Assert.Equal(
+            CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
+            Assert.Throws<InvalidOperationException>(
+                () => entityType1.AddKey(new[] { property1, property2 })).Message);
+    }
 
-        private class Customer
-        {
-            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+    private static IMutableModel CreateModel()
+        => new Model();
 
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
+    private class Customer
+    {
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
 
-        private class Order
-        {
-            public static readonly PropertyInfo NameProperty = typeof(Order).GetProperty("Name");
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 
-            public string Name { get; set; }
-        }
+    private class Order
+    {
+        public static readonly PropertyInfo NameProperty = typeof(Order).GetProperty("Name");
+
+        public string Name { get; set; }
     }
 }

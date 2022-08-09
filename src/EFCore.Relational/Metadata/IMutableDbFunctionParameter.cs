@@ -1,29 +1,28 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+/// <summary>
+///     Represents a function parameter.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+/// </remarks>
+public interface IMutableDbFunctionParameter : IReadOnlyDbFunctionParameter, IMutableAnnotatable
 {
     /// <summary>
-    ///     Represents a mutable database function parameter in an <see cref="IMutableDbFunction" />.
+    ///     Gets the function to which this parameter belongs.
     /// </summary>
-    public interface IMutableDbFunctionParameter : IDbFunctionParameter
-    {
-        /// <summary>
-        ///     The <see cref="IMutableDbFunction" /> to which this parameter belongs.
-        /// </summary>
-        new IMutableDbFunction Function { get; }
+    new IMutableDbFunction Function { get; }
 
-        /// <summary>
-        ///     The store (database) type of this parameter.
-        /// </summary>
-        new string StoreType { get; [param: CanBeNull] set; }
+    /// <summary>
+    ///     Gets or sets the store type of this parameter.
+    /// </summary>
+    new string? StoreType { get; set; }
 
-        /// <summary>
-        ///     The <see cref="RelationalTypeMapping" /> for this parameter.
-        /// </summary>
-        new RelationalTypeMapping TypeMapping { get; [param: CanBeNull] set; }
-    }
+    /// <summary>
+    ///     Gets or sets the <see cref="RelationalTypeMapping" /> for this parameter.
+    /// </summary>
+    new RelationalTypeMapping? TypeMapping { get; set; }
 }

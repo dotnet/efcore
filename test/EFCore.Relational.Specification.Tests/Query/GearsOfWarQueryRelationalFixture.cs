@@ -1,17 +1,85 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
 {
-    public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
+    public override Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
     {
-        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+        var discriminatorMapping = new Dictionary<(Type, string), Func<object, object>>
+        {
+            {
+                (typeof(Gear), "Discriminator"), e =>
+                {
+                    switch (((Gear)e)?.Nickname)
+                    {
+                        case "Baird":
+                        case "Marcus":
+                            return "Officer";
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+                        case "Cole Train":
+                        case "Dom":
+                        case "Paduk":
+                            return "Gear";
 
-        protected override bool ShouldLogCategory(string logCategory)
-            => logCategory == DbLoggerCategory.Query.Name;
+                        default:
+                            return null;
+                    }
+                }
+            },
+            {
+                (typeof(Faction), "Discriminator"), e =>
+                {
+                    switch (((Faction)e)?.Id)
+                    {
+                        case 1:
+                        case 2:
+                            return "LocustHorde";
+
+                        default:
+                            return null;
+                    }
+                }
+            },
+            {
+                (typeof(LocustLeader), "Discriminator"), e =>
+                {
+                    switch (((LocustLeader)e)?.Name)
+                    {
+                        case "General Karn":
+                        case "General RAAM":
+                        case "High Priest Skorge":
+                        case "The Speaker":
+                            return "LocustLeader";
+
+                        case "Queen Myrrah":
+                        case "Unknown":
+                            return "LocustCommander";
+
+                        default:
+                            return null;
+                    }
+                }
+            },
+        };
+
+        foreach (var shadowPropertyMappingElement in base.GetShadowPropertyMappings())
+        {
+            discriminatorMapping.Add(shadowPropertyMappingElement.Key, shadowPropertyMappingElement.Value);
+        }
+
+        return discriminatorMapping;
     }
+
+    public new RelationalTestStore TestStore
+        => (RelationalTestStore)base.TestStore;
+
+    public TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Query.Name;
 }

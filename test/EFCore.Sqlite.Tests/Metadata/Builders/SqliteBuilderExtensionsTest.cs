@@ -1,148 +1,70 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Builders
+public class SqliteBuilderExtensionsTest
 {
-    public class SqliteBuilderExtensionsTest
+    [ConditionalFact]
+    public void Can_set_srid()
     {
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_srid(bool obsolete)
-        {
-            var modelBuilder = CreateConventionModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Geometry)
-                    .ForSqliteHasSrid(1);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property(e => e.Geometry)
-                    .HasSrid(1);
-            }
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Geometry)
+            .HasSrid(1);
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Geometry)
-                .Metadata;
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Geometry)
+            .Metadata;
 
-            Assert.Equal(1, property.GetSrid());
-        }
+        Assert.Equal(1, property.GetSrid());
+    }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_srid_non_generic(bool obsolete)
-        {
-            var modelBuilder = CreateConventionModelBuilder();
+    [ConditionalFact]
+    public void Can_set_srid_non_generic()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property<string>("Geometry")
-                    .ForSqliteHasSrid(1);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity<Customer>()
-                    .Property<string>("Geometry")
-                    .HasSrid(1);
-            }
+        modelBuilder
+            .Entity<Customer>()
+            .Property<string>("Geometry")
+            .HasSrid(1);
 
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property<string>("Geometry")
-                .Metadata;
+        var property = modelBuilder
+            .Entity<Customer>()
+            .Property<string>("Geometry")
+            .Metadata;
 
-            Assert.Equal(1, property.GetSrid());
-        }
+        Assert.Equal(1, property.GetSrid());
+    }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_srid_convention(bool obsolete)
-        {
-            var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
+    [ConditionalFact]
+    public void Can_set_srid_convention()
+    {
+        var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(string), "Geometry")
-                    .ForSqliteHasSrid(1);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(string), "Geometry")
-                    .HasSrid(1);
-            }
+        modelBuilder
+            .Entity(typeof(Customer))
+            .Property(typeof(string), "Geometry")
+            .HasSrid(1);
 
-            var property = modelBuilder
-                .Entity(typeof(Customer))
-                .Property(typeof(string), "Geometry")
-                .Metadata;
+        var property = modelBuilder
+            .Entity(typeof(Customer))
+            .Property(typeof(string), "Geometry")
+            .Metadata;
 
-            Assert.Equal(1, property.GetSrid());
-        }
+        Assert.Equal(1, property.GetSrid());
+    }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Can_set_dimension_convention(bool obsolete)
-        {
-            var modelBuilder = ((IConventionModel)CreateConventionModelBuilder().Model).Builder;
+    protected virtual ModelBuilder CreateConventionModelBuilder()
+        => SqliteTestHelpers.Instance.CreateConventionBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(string), "Geometry")
-                    .ForSqliteHasDimension("Z");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder
-                    .Entity(typeof(Customer))
-                    .Property(typeof(string), "Geometry")
-                    .HasGeometricDimension("Z");
-            }
-
-            var property = modelBuilder
-                .Entity(typeof(Customer))
-                .Property(typeof(string), "Geometry")
-                .Metadata;
-
-            Assert.Equal("Z", property.GetGeometricDimension());
-        }
-
-        protected virtual ModelBuilder CreateConventionModelBuilder()
-            => SqliteTestHelpers.Instance.CreateConventionBuilder();
-
-        private class Customer
-        {
-            public int Id { get; set; }
-            public string Geometry { get; set; }
-        }
+    private class Customer
+    {
+        public int Id { get; set; }
+        public string Geometry { get; set; }
     }
 }

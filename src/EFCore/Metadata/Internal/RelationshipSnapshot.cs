@@ -1,10 +1,15 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
-using JetBrains.Annotations;
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class RelationshipSnapshot
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,56 +17,79 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class RelationshipSnapshot
+    public RelationshipSnapshot(
+        InternalForeignKeyBuilder relationship,
+        EntityType.Snapshot? ownedEntityTypeSnapshot,
+        List<(SkipNavigation, ConfigurationSource)>? referencingSkipNavigations)
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public RelationshipSnapshot(
-            [NotNull] InternalRelationshipBuilder relationship,
-            [CanBeNull] EntityType.Snapshot definedEntityTypeSnapshot)
+        Relationship = relationship;
+        OwnedEntityTypeSnapshot = ownedEntityTypeSnapshot;
+        ReferencingSkipNavigations = referencingSkipNavigations;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalForeignKeyBuilder Relationship { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual EntityType.Snapshot? OwnedEntityTypeSnapshot { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual List<(SkipNavigation SkipNavigation, ConfigurationSource ForeignKeyConfigurationSource)>? ReferencingSkipNavigations
+    {
+        [DebuggerStepThrough]
+        get;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalForeignKeyBuilder? Attach(InternalEntityTypeBuilder? entityTypeBuilder = null)
+    {
+        entityTypeBuilder ??= Relationship.Metadata.DeclaringEntityType.Builder;
+
+        var newRelationship = Relationship.Attach(entityTypeBuilder);
+        if (newRelationship != null)
         {
-            Relationship = relationship;
-            DefinedEntityTypeSnapshot = definedEntityTypeSnapshot;
-        }
+            OwnedEntityTypeSnapshot?.Attach(
+                newRelationship.Metadata.ResolveOtherEntityType(entityTypeBuilder.Metadata).Builder);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalRelationshipBuilder Relationship { [DebuggerStepThrough] get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual EntityType.Snapshot DefinedEntityTypeSnapshot { [DebuggerStepThrough] get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalRelationshipBuilder Attach([CanBeNull] InternalEntityTypeBuilder entityTypeBuilder = null)
-        {
-            entityTypeBuilder ??= Relationship.Metadata.DeclaringEntityType.Builder;
-            var newRelationship = Relationship.Attach(entityTypeBuilder);
-
-            if (newRelationship != null)
+            if (ReferencingSkipNavigations != null)
             {
-                DefinedEntityTypeSnapshot?.Attach(
-                    newRelationship.Metadata.ResolveOtherEntityType(entityTypeBuilder.Metadata).Builder);
-            }
+                foreach (var referencingNavigationTuple in ReferencingSkipNavigations)
+                {
+                    var skipNavigation = referencingNavigationTuple.SkipNavigation;
+                    if (!skipNavigation.IsInModel)
+                    {
+                        var navigationEntityType = skipNavigation.DeclaringEntityType;
+                        skipNavigation = !navigationEntityType.IsInModel
+                            ? null
+                            : navigationEntityType.FindSkipNavigation(skipNavigation.Name);
+                    }
 
-            return newRelationship;
+                    skipNavigation?.Builder.HasForeignKey(
+                        newRelationship.Metadata, referencingNavigationTuple.ForeignKeyConfigurationSource);
+                }
+            }
         }
+
+        return newRelationship;
     }
 }

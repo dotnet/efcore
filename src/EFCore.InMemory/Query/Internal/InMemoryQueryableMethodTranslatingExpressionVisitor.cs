@@ -1,1062 +1,1491 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Storage;
+namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
-    public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
+    private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
+    private readonly SharedTypeEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
+    private readonly InMemoryProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+    private readonly IModel _model;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public InMemoryQueryableMethodTranslatingExpressionVisitor(
+        QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+        QueryCompilationContext queryCompilationContext)
+        : base(dependencies, queryCompilationContext, subquery: false)
     {
-        private static readonly MethodInfo _efPropertyMethod = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
+        _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(queryCompilationContext, this);
+        _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
+        _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
+        _model = queryCompilationContext.Model;
+    }
 
-        private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
-        private readonly WeakEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
-        private readonly InMemoryProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
-        private readonly IModel _model;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected InMemoryQueryableMethodTranslatingExpressionVisitor(
+        InMemoryQueryableMethodTranslatingExpressionVisitor parentVisitor)
+        : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
+    {
+        _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(QueryCompilationContext, parentVisitor);
+        _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
+        _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
+        _model = parentVisitor._model;
+    }
 
-        public InMemoryQueryableMethodTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            IModel model)
-            : base(dependencies, subquery: false)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
+        => new InMemoryQueryableMethodTranslatingExpressionVisitor(this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitExtension(Expression extensionExpression)
+    {
+        switch (extensionExpression)
         {
-            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(this);
-            _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_expressionTranslator);
-            _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
-            _model = model;
+            case GroupByShaperExpression groupByShaperExpression:
+                var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
+
+                return ((InMemoryQueryExpression)groupShapedQueryExpression.QueryExpression)
+                    .Clone(groupShapedQueryExpression.ShaperExpression);
+
+            case ShapedQueryExpression shapedQueryExpression:
+                return ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression)
+                    .Clone(shapedQueryExpression.ShaperExpression);
+
+            default:
+                return base.VisitExtension(extensionExpression);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        if (methodCallExpression.Method.IsGenericMethod
+            && methodCallExpression.Arguments.Count == 1
+            && methodCallExpression.Arguments[0].Type.TryGetSequenceType() != null
+            && (string.Equals(methodCallExpression.Method.Name, "AsSplitQuery", StringComparison.Ordinal)
+                || string.Equals(methodCallExpression.Method.Name, "AsSingleQuery", StringComparison.Ordinal)))
+        {
+            return Visit(methodCallExpression.Arguments[0]);
         }
 
-        protected InMemoryQueryableMethodTranslatingExpressionVisitor(
-            InMemoryQueryableMethodTranslatingExpressionVisitor parentVisitor)
-            : base(parentVisitor.Dependencies, subquery: true)
+        return base.VisitMethodCall(methodCallExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
+        => CreateShapedQueryExpressionStatic(entityType);
+
+    private static ShapedQueryExpression CreateShapedQueryExpressionStatic(IEntityType entityType)
+    {
+        var queryExpression = new InMemoryQueryExpression(entityType);
+
+        return new ShapedQueryExpression(
+            queryExpression,
+            new EntityShaperExpression(
+                entityType,
+                new ProjectionBindingExpression(
+                    queryExpression,
+                    new ProjectionMember(),
+                    typeof(ValueBuffer)),
+                false));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
+    {
+        predicate = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters);
+        var newSource = TranslateWhere(source, predicate);
+        if (newSource == null)
         {
-            _expressionTranslator = parentVisitor._expressionTranslator;
-            _weakEntityExpandingExpressionVisitor = parentVisitor._weakEntityExpandingExpressionVisitor;
-            _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
-            _model = parentVisitor._model;
+            return null;
         }
 
-        protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
-            => new InMemoryQueryableMethodTranslatingExpressionVisitor(this);
+        source = newSource;
 
-        protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
-            => CreateShapedQueryExpression(_model.FindEntityType(elementType));
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
-        private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
+        if (source.ShaperExpression is GroupByShaperExpression)
         {
-            var queryExpression = new InMemoryQueryExpression(entityType);
-
-            return new ShapedQueryExpression(
-                queryExpression,
-                new EntityShaperExpression(
-                    entityType,
-                    new ProjectionBindingExpression(
-                        queryExpression,
-                        new ProjectionMember(),
-                        typeof(ValueBuffer)),
-                    false));
+            inMemoryQueryExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
         }
 
-        protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-            if (predicate == null)
-            {
-                return null;
-            }
-
-            inMemoryQueryExpression.ServerQueryExpression =
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Not(
                 Expression.Call(
-                    EnumerableMethods.All.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    predicate);
-
-            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
-
-            return source;
-        }
-
-        protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            if (predicate == null)
-            {
-                inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
                     EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression);
-            }
-            else
-            {
-                predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-                if (predicate == null)
-                {
-                    return null;
-                }
+                    inMemoryQueryExpression.ServerQueryExpression)));
 
-                inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
-                    EnumerableMethods.AnyWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    predicate);
-            }
+        return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(bool)));
+    }
 
-            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
-
-            return source;
-        }
-
-        protected override ShapedQueryExpression TranslateAverage(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
-            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Average));
-
-        protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
+    {
+        if (predicate != null)
         {
-            if (source.ShaperExpression.Type == resultType)
-            {
-                return source;
-            }
-
-            source.ShaperExpression = Expression.Convert(source.ShaperExpression, resultType);
-
-            return source;
-        }
-
-        protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(EnumerableMethods.Concat, source1, source2);
-
-        protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            item = TranslateExpression(item, preserveType: true);
-            if (item == null)
+            var newSource = TranslateWhere(source, predicate);
+            if (newSource == null)
             {
                 return null;
             }
 
-            inMemoryQueryExpression.ServerQueryExpression =
+            source = newSource;
+        }
+
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+        if (source.ShaperExpression is GroupByShaperExpression)
+        {
+            inMemoryQueryExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+        }
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                inMemoryQueryExpression.ServerQueryExpression));
+
+        return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(bool)));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateAverage(
+        ShapedQueryExpression source,
+        LambdaExpression? selector,
+        Type resultType)
+        => TranslateScalarAggregate(source, selector, nameof(Enumerable.Average), resultType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateCast(ShapedQueryExpression source, Type resultType)
+        => source.ShaperExpression.Type != resultType
+            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
+            : source;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        => TranslateSetOperation(EnumerableMethods.Concat, source1, source2);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+        var newItem = TranslateExpression(item, preserveType: true);
+        if (newItem == null)
+        {
+            return null;
+        }
+
+        item = newItem;
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                EnumerableMethods.Contains.MakeGenericMethod(item.Type),
                 Expression.Call(
-                    EnumerableMethods.Contains.MakeGenericMethod(item.Type),
-                    Expression.Call(
-                        EnumerableMethods.Select.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, item.Type),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        Expression.Lambda(
-                            inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()), inMemoryQueryExpression.CurrentParameter)),
-                    item);
+                    EnumerableMethods.Select.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, item.Type),
+                    inMemoryQueryExpression.ServerQueryExpression,
+                    Expression.Lambda(
+                        inMemoryQueryExpression.GetProjection(
+                            new ProjectionBindingExpression(inMemoryQueryExpression, new ProjectionMember(), item.Type)),
+                        inMemoryQueryExpression.CurrentParameter)),
+                item));
 
-            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
+        return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(bool)));
+    }
 
-            return source;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
+    {
+        if (predicate != null)
+        {
+            var newSource = TranslateWhere(source, predicate);
+            if (newSource == null)
+            {
+                return null;
+            }
+
+            source = newSource;
         }
 
-        protected override ShapedQueryExpression TranslateCount(ShapedQueryExpression source, LambdaExpression predicate)
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+        if (source.ShaperExpression is GroupByShaperExpression)
+        {
+            inMemoryQueryExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+        }
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                inMemoryQueryExpression.ServerQueryExpression));
+
+        return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(int)));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression? defaultValue)
+    {
+        if (defaultValue == null)
+        {
+            ((InMemoryQueryExpression)source.QueryExpression).ApplyDefaultIfEmpty();
+            return source.UpdateShaperExpression(MarkShaperNullable(source.ShaperExpression));
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateDistinct(ShapedQueryExpression source)
+    {
+        ((InMemoryQueryExpression)source.QueryExpression).ApplyDistinct();
+
+        return source;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateElementAtOrDefault(
+        ShapedQueryExpression source,
+        Expression index,
+        bool returnDefault)
+        => null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        => TranslateSetOperation(EnumerableMethods.Except, source1, source2);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateFirstOrDefault(
+        ShapedQueryExpression source,
+        LambdaExpression? predicate,
+        Type returnType,
+        bool returnDefault)
+        => TranslateSingleResultOperator(
+            source,
+            predicate,
+            returnType,
+            returnDefault
+                ? EnumerableMethods.FirstOrDefaultWithoutPredicate
+                : EnumerableMethods.FirstWithoutPredicate);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateGroupBy(
+        ShapedQueryExpression source,
+        LambdaExpression keySelector,
+        LambdaExpression? elementSelector,
+        LambdaExpression? resultSelector)
+    {
+        var remappedKeySelector = RemapLambdaBody(source, keySelector);
+
+        var translatedKey = TranslateGroupingKey(remappedKeySelector);
+        if (translatedKey != null)
         {
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            if (predicate == null)
+            var defaultElementSelector = elementSelector == null || elementSelector.Body == elementSelector.Parameters[0];
+            if (!defaultElementSelector)
             {
-                inMemoryQueryExpression.ServerQueryExpression =
-                    Expression.Call(
-                        EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression);
+                source = TranslateSelect(source, elementSelector!);
             }
-            else
+
+            var groupByShaper = inMemoryQueryExpression.ApplyGrouping(translatedKey, source.ShaperExpression, defaultElementSelector);
+
+            if (resultSelector == null)
             {
-                predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-                if (predicate == null)
+                return source.UpdateShaperExpression(groupByShaper);
+            }
+
+            var original1 = resultSelector.Parameters[0];
+            var original2 = resultSelector.Parameters[1];
+
+            var newResultSelectorBody = new ReplacingExpressionVisitor(
+                new Expression[] { original1, original2 },
+                new[] { groupByShaper.KeySelector, groupByShaper }).Visit(resultSelector.Body);
+
+            newResultSelectorBody = ExpandSharedTypeEntities(inMemoryQueryExpression, newResultSelectorBody);
+            var newShaper = _projectionBindingExpressionVisitor.Translate(inMemoryQueryExpression, newResultSelectorBody);
+
+            return source.UpdateShaperExpression(newShaper);
+        }
+
+        return null;
+    }
+
+    private Expression? TranslateGroupingKey(Expression expression)
+    {
+        switch (expression)
+        {
+            case NewExpression newExpression:
+                if (newExpression.Arguments.Count == 0)
+                {
+                    return newExpression;
+                }
+
+                var newArguments = new Expression[newExpression.Arguments.Count];
+                for (var i = 0; i < newArguments.Length; i++)
+                {
+                    var key = TranslateGroupingKey(newExpression.Arguments[i]);
+                    if (key == null)
+                    {
+                        return null;
+                    }
+
+                    newArguments[i] = key;
+                }
+
+                return newExpression.Update(newArguments);
+
+            case MemberInitExpression memberInitExpression:
+                var updatedNewExpression = (NewExpression?)TranslateGroupingKey(memberInitExpression.NewExpression);
+                if (updatedNewExpression == null)
                 {
                     return null;
                 }
 
-                inMemoryQueryExpression.ServerQueryExpression =
-                    Expression.Call(
-                        EnumerableMethods.CountWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        predicate);
-            }
-
-            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
-
-            return source;
-        }
-
-        protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue)
-        {
-            if (defaultValue == null)
-            {
-                ((InMemoryQueryExpression)source.QueryExpression).ApplyDefaultIfEmpty();
-                source.ShaperExpression = MarkShaperNullable(source.ShaperExpression);
-
-                return source;
-            }
-
-            return null;
-        }
-
-        protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            inMemoryQueryExpression.PushdownIntoSubquery();
-            inMemoryQueryExpression.ServerQueryExpression
-                = Expression.Call(
-                    EnumerableMethods.Distinct.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression);
-
-            return source;
-        }
-
-        protected override ShapedQueryExpression TranslateElementAtOrDefault(
-            ShapedQueryExpression source, Expression index, bool returnDefault)
-            => null;
-
-        protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(EnumerableMethods.Except, source1, source2);
-
-        protected override ShapedQueryExpression TranslateFirstOrDefault(
-            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
-        {
-            return TranslateSingleResultOperator(
-                source,
-                predicate,
-                returnType,
-                returnDefault
-                    ? EnumerableMethods.FirstOrDefaultWithoutPredicate
-                    : EnumerableMethods.FirstWithoutPredicate);
-        }
-
-        protected override ShapedQueryExpression TranslateGroupBy(
-            ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
-        {
-            var remappedKeySelector = RemapLambdaBody(source, keySelector);
-
-            var translatedKey = TranslateGroupingKey(remappedKeySelector);
-            if (translatedKey != null)
-            {
-                if (elementSelector != null)
+                var newBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
+                for (var i = 0; i < newBindings.Length; i++)
                 {
-                    source = TranslateSelect(source, elementSelector);
-                }
-
-                var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-                source.ShaperExpression = inMemoryQueryExpression.ApplyGrouping(translatedKey, source.ShaperExpression);
-
-                if (resultSelector == null)
-                {
-                    return source;
-                }
-
-                var original1 = resultSelector.Parameters[0];
-                var original2 = resultSelector.Parameters[1];
-
-                var newResultSelectorBody = new ReplacingExpressionVisitor(
-                        new Expression[] { original1, original2 },
-                        new[] { ((GroupByShaperExpression)source.ShaperExpression).KeySelector, source.ShaperExpression })
-                    .Visit(resultSelector.Body);
-
-                newResultSelectorBody = ExpandWeakEntities(inMemoryQueryExpression, newResultSelectorBody);
-
-                source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(inMemoryQueryExpression, newResultSelectorBody);
-
-                inMemoryQueryExpression.PushdownIntoSubquery();
-
-                return source;
-            }
-
-            return null;
-        }
-
-        private Expression TranslateGroupingKey(Expression expression)
-        {
-            switch (expression)
-            {
-                case NewExpression newExpression:
-                    // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-                    if (newExpression.Constructor == null)
-                    {
-                        return newExpression;
-                    }
-
-                    if (newExpression.Arguments.Count == 0)
-                    {
-                        return newExpression;
-                    }
-
-                    var newArguments = new Expression[newExpression.Arguments.Count];
-                    for (var i = 0; i < newArguments.Length; i++)
-                    {
-                        newArguments[i] = TranslateGroupingKey(newExpression.Arguments[i]);
-                        if (newArguments[i] == null)
-                        {
-                            return null;
-                        }
-                    }
-
-                    return newExpression.Update(newArguments);
-
-                case MemberInitExpression memberInitExpression:
-                    var updatedNewExpression = (NewExpression)TranslateGroupingKey(memberInitExpression.NewExpression);
-                    if (updatedNewExpression == null)
+                    var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
+                    var visitedExpression = TranslateGroupingKey(memberAssignment.Expression);
+                    if (visitedExpression == null)
                     {
                         return null;
                     }
 
-                    var newBindings = new MemberAssignment[memberInitExpression.Bindings.Count];
-                    for (var i = 0; i < newBindings.Length; i++)
-                    {
-                        var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
-                        var visitedExpression = TranslateGroupingKey(memberAssignment.Expression);
-                        if (visitedExpression == null)
-                        {
-                            return null;
-                        }
-
-                        newBindings[i] = memberAssignment.Update(visitedExpression);
-                    }
-
-                    return memberInitExpression.Update(updatedNewExpression, newBindings);
-
-                default:
-                    var translation = _expressionTranslator.Translate(expression);
-                    if (translation == null)
-                    {
-                        return null;
-                    }
-
-                    return translation.Type == expression.Type
-                        ? translation
-                        : Expression.Convert(translation, expression.Type);
-            }
-        }
-
-        protected override ShapedQueryExpression TranslateGroupJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector)
-            => null;
-
-        protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(EnumerableMethods.Intersect, source1, source2);
-
-        protected override ShapedQueryExpression TranslateJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector)
-        {
-            outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
-            innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
-            if (outerKeySelector == null
-                || innerKeySelector == null)
-            {
-                return null;
-            }
-
-            (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
-
-            var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                resultSelector.Parameters[0].Type,
-                resultSelector.Parameters[1].Type);
-
-            ((InMemoryQueryExpression)outer.QueryExpression).AddInnerJoin(
-                (InMemoryQueryExpression)inner.QueryExpression,
-                outerKeySelector,
-                innerKeySelector,
-                transparentIdentifierType);
-
-            return TranslateResultSelectorForJoin(
-                outer,
-                resultSelector,
-                inner.ShaperExpression,
-                transparentIdentifierType);
-        }
-
-        private static (LambdaExpression OuterKeySelector, LambdaExpression InnerKeySelector)
-            AlignKeySelectorTypes(LambdaExpression outerKeySelector, LambdaExpression innerKeySelector)
-        {
-            static bool isConvertedToNullable(Expression outer, Expression inner)
-                => outer.Type.IsNullableType()
-                    && !inner.Type.IsNullableType()
-                    && outer.Type.UnwrapNullableType() == inner.Type;
-
-            if (outerKeySelector.Body.Type != innerKeySelector.Body.Type)
-            {
-                if (isConvertedToNullable(outerKeySelector.Body, innerKeySelector.Body))
-                {
-                    innerKeySelector = Expression.Lambda(
-                        Expression.Convert(innerKeySelector.Body, outerKeySelector.Body.Type), innerKeySelector.Parameters);
+                    newBindings[i] = memberAssignment.Update(visitedExpression);
                 }
-                else if (isConvertedToNullable(innerKeySelector.Body, outerKeySelector.Body))
-                {
-                    outerKeySelector = Expression.Lambda(
-                        Expression.Convert(outerKeySelector.Body, innerKeySelector.Body.Type), outerKeySelector.Parameters);
-                }
-            }
 
-            return (outerKeySelector, innerKeySelector);
-        }
+                return memberInitExpression.Update(updatedNewExpression, newBindings);
 
-        protected override ShapedQueryExpression TranslateLastOrDefault(
-            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
-        {
-            return TranslateSingleResultOperator(
-                source,
-                predicate,
-                returnType,
-                returnDefault
-                    ? EnumerableMethods.LastOrDefaultWithoutPredicate
-                    : EnumerableMethods.LastWithoutPredicate);
-        }
-
-        protected override ShapedQueryExpression TranslateLeftJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector)
-        {
-            outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
-            innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
-            if (outerKeySelector == null
-                || innerKeySelector == null)
-            {
-                return null;
-            }
-
-            (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
-
-            var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                resultSelector.Parameters[0].Type,
-                resultSelector.Parameters[1].Type);
-
-            ((InMemoryQueryExpression)outer.QueryExpression).AddLeftJoin(
-                (InMemoryQueryExpression)inner.QueryExpression,
-                outerKeySelector,
-                innerKeySelector,
-                transparentIdentifierType);
-
-            return TranslateResultSelectorForJoin(
-                outer,
-                resultSelector,
-                MarkShaperNullable(inner.ShaperExpression),
-                transparentIdentifierType);
-        }
-
-        protected override ShapedQueryExpression TranslateLongCount(ShapedQueryExpression source, LambdaExpression predicate)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            if (predicate == null)
-            {
-                inMemoryQueryExpression.ServerQueryExpression =
-                    Expression.Call(
-                        EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(
-                            inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression);
-            }
-            else
-            {
-                predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-                if (predicate == null)
+            default:
+                var translation = TranslateExpression(expression);
+                if (translation == null)
                 {
                     return null;
                 }
 
-                inMemoryQueryExpression.ServerQueryExpression =
-                    Expression.Call(
-                        EnumerableMethods.LongCountWithPredicate.MakeGenericMethod(
-                            inMemoryQueryExpression.CurrentParameter.Type),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        predicate);
-            }
-
-            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
-
-            return source;
+                return translation.Type == expression.Type
+                    ? translation
+                    : Expression.Convert(translation, expression.Type);
         }
+    }
 
-        protected override ShapedQueryExpression TranslateMax(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
-            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Max));
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateGroupJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+        => null;
 
-        protected override ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
-            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Min));
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        => TranslateSetOperation(EnumerableMethods.Intersect, source1, source2);
 
-        protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var (newOuterKeySelector, newInnerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);
+
+        if (newOuterKeySelector == null
+            || newInnerKeySelector == null)
         {
-            if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
-            {
-                var entityType = entityShaperExpression.EntityType;
-                if (entityType.ClrType == resultType)
-                {
-                    return source;
-                }
-
-                var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
-                if (baseType != null)
-                {
-                    source.ShaperExpression = entityShaperExpression.WithEntityType(baseType);
-
-                    return source;
-                }
-
-                var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == resultType);
-                if (derivedType != null)
-                {
-                    var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
-                    var parameter = Expression.Parameter(entityType.ClrType);
-
-                    var callEFProperty = Expression.Call(
-                        _efPropertyMethod.MakeGenericMethod(
-                            discriminatorProperty.ClrType),
-                        parameter,
-                        Expression.Constant(discriminatorProperty.Name));
-
-                    var equals = Expression.Equal(
-                        callEFProperty,
-                        Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
-
-                    foreach (var derivedDerivedType in derivedType.GetDerivedTypes())
-                    {
-                        equals = Expression.OrElse(
-                            equals,
-                            Expression.Equal(
-                                callEFProperty,
-                                Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
-                    }
-
-                    var discriminatorPredicate = TranslateLambdaExpression(source, Expression.Lambda(equals, parameter));
-                    if (discriminatorPredicate == null)
-                    {
-                        return null;
-                    }
-
-                    inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
-                        EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
-                        inMemoryQueryExpression.ServerQueryExpression,
-                        discriminatorPredicate);
-
-                    var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                    var projectionMember = projectionBindingExpression.ProjectionMember;
-                    var entityProjection = (EntityProjectionExpression)inMemoryQueryExpression.GetMappedProjection(projectionMember);
-
-                    inMemoryQueryExpression.ReplaceProjectionMapping(
-                        new Dictionary<ProjectionMember, Expression>
-                        {
-                            { projectionMember, entityProjection.UpdateEntityType(derivedType) }
-                        });
-
-                    source.ShaperExpression = entityShaperExpression.WithEntityType(derivedType);
-
-                    return source;
-                }
-            }
-
             return null;
         }
 
-        protected override ShapedQueryExpression TranslateOrderBy(
-            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+        (outerKeySelector, innerKeySelector) = (newOuterKeySelector, newInnerKeySelector);
 
-            keySelector = TranslateLambdaExpression(source, keySelector);
-            if (keySelector == null)
+        var outerShaperExpression = ((InMemoryQueryExpression)outer.QueryExpression).AddInnerJoin(
+            (InMemoryQueryExpression)inner.QueryExpression,
+            outerKeySelector,
+            innerKeySelector,
+            outer.ShaperExpression,
+            inner.ShaperExpression);
+
+        outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+        return TranslateTwoParameterSelector(outer, resultSelector);
+    }
+
+    private (LambdaExpression? OuterKeySelector, LambdaExpression? InnerKeySelector) ProcessJoinKeySelector(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector)
+    {
+        var left = RemapLambdaBody(outer, outerKeySelector);
+        var right = RemapLambdaBody(inner, innerKeySelector);
+
+        var joinCondition = TranslateExpression(EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(left, right));
+
+        var (outerKeyBody, innerKeyBody) = DecomposeJoinCondition(joinCondition);
+
+        if (outerKeyBody == null
+            || innerKeyBody == null)
+        {
+            return (null, null);
+        }
+
+        outerKeySelector = Expression.Lambda(outerKeyBody, ((InMemoryQueryExpression)outer.QueryExpression).CurrentParameter);
+        innerKeySelector = Expression.Lambda(innerKeyBody, ((InMemoryQueryExpression)inner.QueryExpression).CurrentParameter);
+
+        return AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
+    }
+
+    private static (Expression?, Expression?) DecomposeJoinCondition(Expression? joinCondition)
+    {
+        var leftExpressions = new List<Expression>();
+        var rightExpressions = new List<Expression>();
+
+        return ProcessJoinCondition(joinCondition, leftExpressions, rightExpressions)
+            ? leftExpressions.Count == 1
+                ? (leftExpressions[0], rightExpressions[0])
+                : (CreateAnonymousObject(leftExpressions), CreateAnonymousObject(rightExpressions))
+            : (null, null);
+
+        // InMemory joins need to use AnonymousObject to perform correct key comparison for server side joins
+        static Expression CreateAnonymousObject(List<Expression> expressions)
+            => Expression.New(
+                AnonymousObject.AnonymousObjectCtor,
+                Expression.NewArrayInit(
+                    typeof(object),
+                    expressions.Select(e => Expression.Convert(e, typeof(object)))));
+    }
+
+    private static bool ProcessJoinCondition(
+        Expression? joinCondition,
+        List<Expression> leftExpressions,
+        List<Expression> rightExpressions)
+    {
+        if (joinCondition is BinaryExpression binaryExpression)
+        {
+            if (binaryExpression.NodeType == ExpressionType.Equal)
+            {
+                leftExpressions.Add(binaryExpression.Left);
+                rightExpressions.Add(binaryExpression.Right);
+
+                return true;
+            }
+
+            if (binaryExpression.NodeType == ExpressionType.AndAlso)
+            {
+                return ProcessJoinCondition(binaryExpression.Left, leftExpressions, rightExpressions)
+                    && ProcessJoinCondition(binaryExpression.Right, leftExpressions, rightExpressions);
+            }
+        }
+
+        if (joinCondition is MethodCallExpression methodCallExpression
+            && methodCallExpression.Method.Name == nameof(object.Equals)
+            && methodCallExpression.Arguments.Count == 2
+            && ((methodCallExpression.Method.IsStatic
+                    && methodCallExpression.Method.DeclaringType == typeof(object))
+                || typeof(ValueComparer).IsAssignableFrom(methodCallExpression.Method.DeclaringType)))
+        {
+            leftExpressions.Add(methodCallExpression.Arguments[0]);
+            rightExpressions.Add(methodCallExpression.Arguments[1]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static (LambdaExpression OuterKeySelector, LambdaExpression InnerKeySelector)
+        AlignKeySelectorTypes(LambdaExpression outerKeySelector, LambdaExpression innerKeySelector)
+    {
+        if (outerKeySelector.Body.Type != innerKeySelector.Body.Type)
+        {
+            if (IsConvertedToNullable(outerKeySelector.Body, innerKeySelector.Body))
+            {
+                innerKeySelector = Expression.Lambda(
+                    Expression.Convert(innerKeySelector.Body, outerKeySelector.Body.Type), innerKeySelector.Parameters);
+            }
+            else if (IsConvertedToNullable(innerKeySelector.Body, outerKeySelector.Body))
+            {
+                outerKeySelector = Expression.Lambda(
+                    Expression.Convert(outerKeySelector.Body, innerKeySelector.Body.Type), outerKeySelector.Parameters);
+            }
+        }
+
+        return (outerKeySelector, innerKeySelector);
+
+        static bool IsConvertedToNullable(Expression outer, Expression inner)
+            => outer.Type.IsNullableType()
+                && !inner.Type.IsNullableType()
+                && outer.Type.UnwrapNullableType() == inner.Type;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateLastOrDefault(
+        ShapedQueryExpression source,
+        LambdaExpression? predicate,
+        Type returnType,
+        bool returnDefault)
+        => TranslateSingleResultOperator(
+            source,
+            predicate,
+            returnType,
+            returnDefault
+                ? EnumerableMethods.LastOrDefaultWithoutPredicate
+                : EnumerableMethods.LastWithoutPredicate);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateLeftJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var (newOuterKeySelector, newInnerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);
+
+        if (newOuterKeySelector == null
+            || newInnerKeySelector == null)
+        {
+            return null;
+        }
+
+        (outerKeySelector, innerKeySelector) = (newOuterKeySelector, newInnerKeySelector);
+
+        var outerShaperExpression = ((InMemoryQueryExpression)outer.QueryExpression).AddLeftJoin(
+            (InMemoryQueryExpression)inner.QueryExpression,
+            outerKeySelector,
+            innerKeySelector,
+            outer.ShaperExpression,
+            inner.ShaperExpression);
+
+        outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+        return TranslateTwoParameterSelector(outer, resultSelector);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
+    {
+        if (predicate != null)
+        {
+            var newSource = TranslateWhere(source, predicate);
+            if (newSource == null)
             {
                 return null;
             }
 
-            var orderBy = ascending ? EnumerableMethods.OrderBy : EnumerableMethods.OrderByDescending;
-            inMemoryQueryExpression.ServerQueryExpression
-                = Expression.Call(
-                    orderBy.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    keySelector);
-
-            return source;
+            source = newSource;
         }
 
-        protected override ShapedQueryExpression TranslateReverse(ShapedQueryExpression source)
-            => null;
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
-        protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
+        if (source.ShaperExpression is GroupByShaperExpression)
         {
-            if (selector.Body == selector.Parameters[0])
+            inMemoryQueryExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+        }
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(
+                    inMemoryQueryExpression.CurrentParameter.Type),
+                inMemoryQueryExpression.ServerQueryExpression));
+
+        return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(long)));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateMax(
+        ShapedQueryExpression source,
+        LambdaExpression? selector,
+        Type resultType)
+        => TranslateScalarAggregate(source, selector, nameof(Enumerable.Max), resultType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
+        => TranslateScalarAggregate(source, selector, nameof(Enumerable.Min), resultType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
+    {
+        if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
+        {
+            var entityType = entityShaperExpression.EntityType;
+            if (entityType.ClrType == resultType)
             {
                 return source;
             }
 
-            var newSelectorBody = ReplacingExpressionVisitor.Replace(
-                selector.Parameters.Single(), source.ShaperExpression, selector.Body);
-
-            var groupByQuery = source.ShaperExpression is GroupByShaperExpression;
-            var queryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            source.ShaperExpression = _projectionBindingExpressionVisitor.Translate(queryExpression, newSelectorBody);
-
-            if (groupByQuery)
+            var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
+            var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
+            var newSource = TranslateWhere(source, predicate);
+            if (newSource == null)
             {
-                queryExpression.PushdownIntoSubquery();
+                // EntityType is not part of hierarchy
+                return null;
             }
 
-            return source;
+            source = newSource;
+
+            var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
+            if (baseType != null)
+            {
+                return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(baseType));
+            }
+
+            var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
+            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+            var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+            var projectionMember = projectionBindingExpression.ProjectionMember;
+            Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
+
+            var entityProjectionExpression =
+                (EntityProjectionExpression)inMemoryQueryExpression.GetProjection(projectionBindingExpression);
+            inMemoryQueryExpression.ReplaceProjection(
+                new Dictionary<ProjectionMember, Expression>
+                {
+                    { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
+                });
+
+            return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(derivedType));
         }
 
-        protected override ShapedQueryExpression TranslateSelectMany(
-            ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateOrderBy(
+        ShapedQueryExpression source,
+        LambdaExpression keySelector,
+        bool ascending)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+        var newKeySelector = TranslateLambdaExpression(source, keySelector);
+        if (newKeySelector == null)
         {
-            var defaultIfEmpty = new DefaultIfEmptyFindingExpressionVisitor().IsOptional(collectionSelector);
-            var collectionSelectorBody = RemapLambdaBody(source, collectionSelector);
-
-            if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
-            {
-                var transparentIdentifierType = TransparentIdentifierFactory.Create(
-                    resultSelector.Parameters[0].Type,
-                    resultSelector.Parameters[1].Type);
-
-                var innerShaperExpression = defaultIfEmpty
-                    ? MarkShaperNullable(inner.ShaperExpression)
-                    : inner.ShaperExpression;
-
-                ((InMemoryQueryExpression)source.QueryExpression).AddSelectMany(
-                    (InMemoryQueryExpression)inner.QueryExpression, transparentIdentifierType, defaultIfEmpty);
-
-                return TranslateResultSelectorForJoin(
-                    source,
-                    resultSelector,
-                    innerShaperExpression,
-                    transparentIdentifierType);
-            }
-
             return null;
         }
 
-        private class DefaultIfEmptyFindingExpressionVisitor : ExpressionVisitor
+        keySelector = newKeySelector;
+
+        var orderBy = ascending ? EnumerableMethods.OrderBy : EnumerableMethods.OrderByDescending;
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                orderBy.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
+                inMemoryQueryExpression.ServerQueryExpression,
+                keySelector));
+
+        return source;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateReverse(ShapedQueryExpression source)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                EnumerableMethods.Reverse.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                inMemoryQueryExpression.ServerQueryExpression));
+
+        return source;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
+    {
+        if (selector.Body == selector.Parameters[0])
         {
-            private bool _defaultIfEmpty;
-
-            public bool IsOptional(LambdaExpression lambdaExpression)
-            {
-                _defaultIfEmpty = false;
-
-                Visit(lambdaExpression.Body);
-
-                return _defaultIfEmpty;
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
-                {
-                    _defaultIfEmpty = true;
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
-        }
-
-        protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
-        {
-            var innerParameter = Expression.Parameter(selector.ReturnType.TryGetSequenceType(), "i");
-            var resultSelector = Expression.Lambda(
-                innerParameter, Expression.Parameter(source.Type.TryGetSequenceType()), innerParameter);
-
-            return TranslateSelectMany(source, selector, resultSelector);
-        }
-
-        protected override ShapedQueryExpression TranslateSingleOrDefault(
-            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
-        {
-            return TranslateSingleResultOperator(
-                source,
-                predicate,
-                returnType,
-                returnDefault
-                    ? EnumerableMethods.SingleOrDefaultWithoutPredicate
-                    : EnumerableMethods.SingleWithoutPredicate);
-        }
-
-        protected override ShapedQueryExpression TranslateSkip(ShapedQueryExpression source, Expression count)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            count = TranslateExpression(count);
-            if (count == null)
-            {
-                return null;
-            }
-
-            inMemoryQueryExpression.ServerQueryExpression
-                = Expression.Call(
-                    EnumerableMethods.Skip.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    count);
-
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
-            => null;
+        var newSelectorBody = RemapLambdaBody(source, selector);
+        var queryExpression = (InMemoryQueryExpression)source.QueryExpression;
+        var newShaper = _projectionBindingExpressionVisitor.Translate(queryExpression, newSelectorBody);
 
-        protected override ShapedQueryExpression TranslateSum(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
-            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Sum));
+        return source.UpdateShaperExpression(newShaper);
+    }
 
-        protected override ShapedQueryExpression TranslateTake(ShapedQueryExpression source, Expression count)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateSelectMany(
+        ShapedQueryExpression source,
+        LambdaExpression collectionSelector,
+        LambdaExpression resultSelector)
+    {
+        var defaultIfEmpty = new DefaultIfEmptyFindingExpressionVisitor().IsOptional(collectionSelector);
+        var collectionSelectorBody = RemapLambdaBody(source, collectionSelector);
+
+        if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
         {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            count = TranslateExpression(count);
-            if (count == null)
-            {
-                return null;
-            }
+            var outerShaperExpression = ((InMemoryQueryExpression)source.QueryExpression).AddSelectMany(
+                (InMemoryQueryExpression)inner.QueryExpression, source.ShaperExpression, inner.ShaperExpression, defaultIfEmpty);
 
-            inMemoryQueryExpression.ServerQueryExpression
-                = Expression.Call(
-                    EnumerableMethods.Take.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    count);
+            source = source.UpdateShaperExpression(outerShaperExpression);
 
-            return source;
+            return TranslateTwoParameterSelector(source, resultSelector);
         }
 
-        protected override ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
-            => null;
+        return null;
+    }
 
-        protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+    private sealed class DefaultIfEmptyFindingExpressionVisitor : ExpressionVisitor
+    {
+        private bool _defaultIfEmpty;
+
+        public bool IsOptional(LambdaExpression lambdaExpression)
         {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            keySelector = TranslateLambdaExpression(source, keySelector);
-            if (keySelector == null)
-            {
-                return null;
-            }
+            _defaultIfEmpty = false;
 
-            inMemoryQueryExpression.ServerQueryExpression
-                = Expression.Call(
-                    (ascending ? EnumerableMethods.ThenBy : EnumerableMethods.ThenByDescending)
-                    .MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    keySelector);
+            Visit(lambdaExpression.Body);
 
-            return source;
+            return _defaultIfEmpty;
         }
 
-        protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(EnumerableMethods.Union, source1, source2);
-
-        protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-            predicate = TranslateLambdaExpression(source, predicate, preserveType: true);
-            if (predicate == null)
+            if (methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
-                return null;
+                _defaultIfEmpty = true;
             }
 
-            inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
+            return base.VisitMethodCall(methodCallExpression);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
+    {
+        var innerParameter = Expression.Parameter(selector.ReturnType.GetSequenceType(), "i");
+        var resultSelector = Expression.Lambda(
+            innerParameter, Expression.Parameter(source.Type.GetSequenceType()), innerParameter);
+
+        return TranslateSelectMany(source, selector, resultSelector);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateSingleOrDefault(
+        ShapedQueryExpression source,
+        LambdaExpression? predicate,
+        Type returnType,
+        bool returnDefault)
+        => TranslateSingleResultOperator(
+            source,
+            predicate,
+            returnType,
+            returnDefault
+                ? EnumerableMethods.SingleOrDefaultWithoutPredicate
+                : EnumerableMethods.SingleWithoutPredicate);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateSkip(ShapedQueryExpression source, Expression count)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+        var newCount = TranslateExpression(count);
+        if (newCount == null)
+        {
+            return null;
+        }
+
+        count = newCount;
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                EnumerableMethods.Skip.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                inMemoryQueryExpression.ServerQueryExpression,
+                count));
+
+        return source;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
+        => null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
+        => TranslateScalarAggregate(source, selector, nameof(Enumerable.Sum), resultType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+        var newCount = TranslateExpression(count);
+        if (newCount == null)
+        {
+            return null;
+        }
+
+        count = newCount;
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                EnumerableMethods.Take.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                inMemoryQueryExpression.ServerQueryExpression,
+                count));
+
+        return source;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
+        => null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateThenBy(
+        ShapedQueryExpression source,
+        LambdaExpression keySelector,
+        bool ascending)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+        var newKeySelector = TranslateLambdaExpression(source, keySelector);
+        if (newKeySelector == null)
+        {
+            return null;
+        }
+
+        keySelector = newKeySelector;
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
+                (ascending ? EnumerableMethods.ThenBy : EnumerableMethods.ThenByDescending)
+                .MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
+                inMemoryQueryExpression.ServerQueryExpression,
+                keySelector));
+
+        return source;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        => TranslateSetOperation(EnumerableMethods.Union, source1, source2);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+        var newPredicate = TranslateLambdaExpression(source, predicate, preserveType: true);
+        if (newPredicate == null)
+        {
+            return null;
+        }
+
+        predicate = newPredicate;
+
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(
                 EnumerableMethods.Where.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                 inMemoryQueryExpression.ServerQueryExpression,
-                predicate);
+                predicate));
 
-            return source;
+        return source;
+    }
+
+    private Expression? TranslateExpression(Expression expression, bool preserveType = false)
+    {
+        var translation = _expressionTranslator.Translate(expression);
+        if (translation == null && _expressionTranslator.TranslationErrorDetails != null)
+        {
+            AddTranslationErrorDetails(_expressionTranslator.TranslationErrorDetails);
         }
 
-        private Expression TranslateExpression(Expression expression, bool preserveType = false)
+        if (expression != null
+            && translation != null
+            && preserveType
+            && expression.Type != translation.Type)
         {
-            var result = _expressionTranslator.Translate(expression);
-
-            if (expression != null
-                && result != null
-                && preserveType
-                && expression.Type != result.Type)
-            {
-                result = expression.Type == typeof(bool)
-                    ? Expression.Equal(result, Expression.Constant(true, result.Type))
-                    : (Expression)Expression.Convert(result, expression.Type);
-            }
-
-            return result;
+            translation = expression.Type == typeof(bool)
+                ? Expression.Equal(translation, Expression.Constant(true, translation.Type))
+                : Expression.Convert(translation, expression.Type);
         }
 
-        private LambdaExpression TranslateLambdaExpression(
-            ShapedQueryExpression shapedQueryExpression,
-            LambdaExpression lambdaExpression,
-            bool preserveType = false)
-        {
-            var lambdaBody = TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression), preserveType);
+        return translation;
+    }
 
-            return lambdaBody != null
-                ? Expression.Lambda(
-                    lambdaBody,
-                    ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression).CurrentParameter)
-                : null;
+    private LambdaExpression? TranslateLambdaExpression(
+        ShapedQueryExpression shapedQueryExpression,
+        LambdaExpression lambdaExpression,
+        bool preserveType = false)
+    {
+        var lambdaBody = TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression), preserveType);
+
+        return lambdaBody != null
+            ? Expression.Lambda(
+                lambdaBody,
+                ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression).CurrentParameter)
+            : null;
+    }
+
+    private Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
+    {
+        var lambdaBody = ReplacingExpressionVisitor.Replace(
+            lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
+
+        return ExpandSharedTypeEntities((InMemoryQueryExpression)shapedQueryExpression.QueryExpression, lambdaBody);
+    }
+
+    private Expression ExpandSharedTypeEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
+        => _weakEntityExpandingExpressionVisitor.Expand(queryExpression, lambdaBody);
+
+    private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
+    {
+        private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
+
+        private InMemoryQueryExpression _queryExpression;
+
+        public SharedTypeEntityExpandingExpressionVisitor(InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
+        {
+            _expressionTranslator = expressionTranslator;
+            _queryExpression = null!;
         }
 
-        private Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
-        {
-            var lambdaBody = ReplacingExpressionVisitor.Replace(
-                lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
+        public string? TranslationErrorDetails
+            => _expressionTranslator.TranslationErrorDetails;
 
-            return ExpandWeakEntities((InMemoryQueryExpression)shapedQueryExpression.QueryExpression, lambdaBody);
+        public Expression Expand(InMemoryQueryExpression queryExpression, Expression lambdaBody)
+        {
+            _queryExpression = queryExpression;
+
+            return Visit(lambdaBody);
         }
 
-        internal Expression ExpandWeakEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
-            => _weakEntityExpandingExpressionVisitor.Expand(queryExpression, lambdaBody);
-
-        private class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            private InMemoryQueryExpression _queryExpression;
-            private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
+            var innerExpression = Visit(memberExpression.Expression);
 
-            public WeakEntityExpandingExpressionVisitor(InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
+            return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
+                ?? memberExpression.Update(innerExpression);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
             {
-                _expressionTranslator = expressionTranslator;
+                source = Visit(source);
+
+                return TryExpand(source, MemberIdentity.Create(navigationName))
+                    ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
             }
 
-            public virtual Expression Expand(InMemoryQueryExpression queryExpression, Expression lambdaBody)
-            {
-                _queryExpression = queryExpression;
+            return base.VisitMethodCall(methodCallExpression);
+        }
 
-                return Visit(lambdaBody);
-            }
-
-            protected override Expression VisitMember(MemberExpression memberExpression)
-            {
-                var innerExpression = Visit(memberExpression.Expression);
-
-                return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
-                    ?? memberExpression.Update(innerExpression);
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
-                {
-                    source = Visit(source);
-
-                    return TryExpand(source, MemberIdentity.Create(navigationName))
-                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
-
-            protected override Expression VisitExtension(Expression extensionExpression)
-                => extensionExpression is EntityShaperExpression
+        protected override Expression VisitExtension(Expression extensionExpression)
+            => extensionExpression is EntityShaperExpression
+                || extensionExpression is ShapedQueryExpression
+                || extensionExpression is GroupByShaperExpression
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
 
-            private Expression TryExpand(Expression source, MemberIdentity member)
-            {
-                source = source.UnwrapTypeConversion(out var convertedType);
-                if (!(source is EntityShaperExpression entityShaperExpression))
-                {
-                    return null;
-                }
-
-                var entityType = entityShaperExpression.EntityType;
-                if (convertedType != null)
-                {
-                    entityType = entityType.GetRootType().GetDerivedTypesInclusive()
-                        .FirstOrDefault(et => et.ClrType == convertedType);
-
-                    if (entityType == null)
-                    {
-                        return null;
-                    }
-                }
-
-                var navigation = member.MemberInfo != null
-                    ? entityType.FindNavigation(member.MemberInfo)
-                    : entityType.FindNavigation(member.Name);
-
-                if (navigation == null)
-                {
-                    return null;
-                }
-
-                var targetEntityType = navigation.GetTargetType();
-                if (targetEntityType == null
-                    || (!targetEntityType.HasDefiningNavigation()
-                        && !targetEntityType.IsOwned()))
-                {
-                    return null;
-                }
-
-                var foreignKey = navigation.ForeignKey;
-                if (navigation.IsCollection())
-                {
-                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType);
-                    var innerQueryExpression = (InMemoryQueryExpression)innerShapedQuery.QueryExpression;
-
-                    var makeNullable = foreignKey.PrincipalKey.Properties
-                        .Concat(foreignKey.Properties)
-                        .Select(p => p.ClrType)
-                        .Any(t => t.IsNullableType());
-
-                    var outerKey = entityShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
-                            ? foreignKey.Properties
-                            : foreignKey.PrincipalKey.Properties,
-                        makeNullable);
-                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
-                            ? foreignKey.PrincipalKey.Properties
-                            : foreignKey.Properties,
-                        makeNullable);
-
-                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
-                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
-                        : outerKey;
-
-                    var predicate = outerKeyFirstProperty.Type.IsNullableType()
-                        ? Expression.AndAlso(
-                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
-                            Expression.Equal(outerKey, innerKey))
-                        : Expression.Equal(outerKey, innerKey);
-
-                    var correlationPredicate = _expressionTranslator.Translate(predicate);
-                    innerQueryExpression.ServerQueryExpression = Expression.Call(
-                        EnumerableMethods.Where.MakeGenericMethod(innerQueryExpression.CurrentParameter.Type),
-                        innerQueryExpression.ServerQueryExpression,
-                        Expression.Lambda(correlationPredicate, innerQueryExpression.CurrentParameter));
-
-                    return innerShapedQuery;
-                }
-
-                var entityProjectionExpression
-                    = (EntityProjectionExpression)(entityShaperExpression.ValueBufferExpression is
-                        ProjectionBindingExpression projectionBindingExpression
-                        ? _queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                        : entityShaperExpression.ValueBufferExpression);
-
-                var innerShaper = entityProjectionExpression.BindNavigation(navigation);
-                if (innerShaper == null)
-                {
-                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType);
-                    var innerQueryExpression = (InMemoryQueryExpression)innerShapedQuery.QueryExpression;
-
-                    var makeNullable = foreignKey.PrincipalKey.Properties
-                        .Concat(foreignKey.Properties)
-                        .Select(p => p.ClrType)
-                        .Any(t => t.IsNullableType());
-
-                    var outerKey = entityShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
-                            ? foreignKey.Properties
-                            : foreignKey.PrincipalKey.Properties,
-                        makeNullable);
-                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
-                            ? foreignKey.PrincipalKey.Properties
-                            : foreignKey.Properties,
-                        makeNullable);
-
-                    var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey), _queryExpression.CurrentParameter);
-                    var innerKeySelector = Expression.Lambda(
-                        _expressionTranslator.Translate(innerKey), innerQueryExpression.CurrentParameter);
-                    (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
-                    innerShaper = _queryExpression.AddNavigationToWeakEntityType(
-                        entityProjectionExpression, navigation, innerQueryExpression, outerKeySelector, innerKeySelector);
-                }
-
-                return innerShaper;
-            }
-        }
-
-        private ShapedQueryExpression TranslateScalarAggregate(
-            ShapedQueryExpression source, LambdaExpression selector, string methodName)
+        private Expression? TryExpand(Expression? source, MemberIdentity member)
         {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            selector = selector == null
-                || selector.Body == selector.Parameters[0]
-                    ? Expression.Lambda(
-                        inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
-                        inMemoryQueryExpression.CurrentParameter)
-                    : TranslateLambdaExpression(source, selector, preserveType: true);
-
-            if (selector == null)
+            source = source.UnwrapTypeConversion(out var convertedType);
+            if (source is not EntityShaperExpression entityShaperExpression)
             {
                 return null;
             }
 
-            var method = GetMethod();
-            method = method.GetGenericArguments().Length == 2
-                ? method.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
-                : method.MakeGenericMethod(typeof(ValueBuffer));
-
-            inMemoryQueryExpression.ServerQueryExpression
-                = Expression.Call(
-                    method,
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    selector);
-
-            source.ShaperExpression = inMemoryQueryExpression.GetSingleScalarProjection();
-
-            return source;
-
-            MethodInfo GetMethod()
-                => methodName switch
-                {
-                    nameof(Enumerable.Average) => EnumerableMethods.GetAverageWithSelector(selector.ReturnType),
-                    nameof(Enumerable.Max) => EnumerableMethods.GetMaxWithSelector(selector.ReturnType),
-                    nameof(Enumerable.Min) => EnumerableMethods.GetMinWithSelector(selector.ReturnType),
-                    nameof(Enumerable.Sum) => EnumerableMethods.GetSumWithSelector(selector.ReturnType),
-                    _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
-                };
-        }
-
-        private ShapedQueryExpression TranslateSingleResultOperator(
-            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, MethodInfo method)
-        {
-            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
-            if (predicate != null)
+            var entityType = entityShaperExpression.EntityType;
+            if (convertedType != null)
             {
-                source = TranslateWhere(source, predicate);
-                if (source == null)
+                entityType = entityType.GetRootType().GetDerivedTypesInclusive()
+                    .FirstOrDefault(et => et.ClrType == convertedType);
+
+                if (entityType == null)
                 {
                     return null;
                 }
             }
 
-            inMemoryQueryExpression.ServerQueryExpression =
-                Expression.Call(
-                    method.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
-                    inMemoryQueryExpression.ServerQueryExpression);
+            var navigation = member.MemberInfo != null
+                ? entityType.FindNavigation(member.MemberInfo)
+                : entityType.FindNavigation(member.Name!);
 
-            inMemoryQueryExpression.ConvertToEnumerable();
-
-            if (source.ShaperExpression.Type != returnType)
+            if (navigation == null)
             {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
+                return null;
             }
 
-            return source;
+            var targetEntityType = navigation.TargetEntityType;
+            if (targetEntityType == null
+                || !targetEntityType.IsOwned())
+            {
+                return null;
+            }
+
+            var foreignKey = navigation.ForeignKey;
+            if (navigation.IsCollection)
+            {
+                var innerShapedQuery = CreateShapedQueryExpressionStatic(targetEntityType);
+                var innerQueryExpression = (InMemoryQueryExpression)innerShapedQuery.QueryExpression;
+
+                var makeNullable = foreignKey.PrincipalKey.Properties
+                    .Concat(foreignKey.Properties)
+                    .Select(p => p.ClrType)
+                    .Any(t => t.IsNullableType());
+
+                var outerKey = entityShaperExpression.CreateKeyValuesExpression(
+                    navigation.IsOnDependent
+                        ? foreignKey.Properties
+                        : foreignKey.PrincipalKey.Properties,
+                    makeNullable);
+                var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
+                    navigation.IsOnDependent
+                        ? foreignKey.PrincipalKey.Properties
+                        : foreignKey.Properties,
+                    makeNullable);
+
+                var keyComparison = EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKey, innerKey);
+
+                var predicate = makeNullable
+                    ? Expression.AndAlso(
+                        outerKey is NewArrayExpression newArrayExpression
+                            ? newArrayExpression.Expressions
+                                .Select(
+                                    e =>
+                                    {
+                                        var left = (e as UnaryExpression)?.Operand ?? e;
+
+                                        return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                    })
+                                .Aggregate((l, r) => Expression.AndAlso(l, r))
+                            : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                        keyComparison)
+                    : (Expression)keyComparison;
+
+                var correlationPredicate = _expressionTranslator.Translate(predicate)!;
+                innerQueryExpression.UpdateServerQueryExpression(
+                    Expression.Call(
+                        EnumerableMethods.Where.MakeGenericMethod(innerQueryExpression.CurrentParameter.Type),
+                        innerQueryExpression.ServerQueryExpression,
+                        Expression.Lambda(correlationPredicate, innerQueryExpression.CurrentParameter)));
+
+                return innerShapedQuery;
+            }
+
+            var entityProjectionExpression =
+                entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression
+                    ? (EntityProjectionExpression)_queryExpression.GetProjection(projectionBindingExpression)
+                    : (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
+            var innerShaper = entityProjectionExpression.BindNavigation(navigation);
+            if (innerShaper == null)
+            {
+                var innerShapedQuery = CreateShapedQueryExpressionStatic(targetEntityType);
+                var innerQueryExpression = (InMemoryQueryExpression)innerShapedQuery.QueryExpression;
+
+                var makeNullable = foreignKey.PrincipalKey.Properties
+                    .Concat(foreignKey.Properties)
+                    .Select(p => p.ClrType)
+                    .Any(t => t.IsNullableType());
+
+                var outerKey = entityShaperExpression.CreateKeyValuesExpression(
+                    navigation.IsOnDependent
+                        ? foreignKey.Properties
+                        : foreignKey.PrincipalKey.Properties,
+                    makeNullable);
+                var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
+                    navigation.IsOnDependent
+                        ? foreignKey.PrincipalKey.Properties
+                        : foreignKey.Properties,
+                    makeNullable);
+
+                if (foreignKey.Properties.Count > 1)
+                {
+                    outerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, outerKey);
+                    innerKey = Expression.New(AnonymousObject.AnonymousObjectCtor, innerKey);
+                }
+
+                var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey)!, _queryExpression.CurrentParameter);
+                var innerKeySelector = Expression.Lambda(
+                    _expressionTranslator.Translate(innerKey)!, innerQueryExpression.CurrentParameter);
+                (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
+                innerShaper = _queryExpression.AddNavigationToWeakEntityType(
+                    entityProjectionExpression, navigation, innerQueryExpression, outerKeySelector, innerKeySelector);
+            }
+
+            return innerShaper;
         }
 
-        private ShapedQueryExpression TranslateSetOperation(
-            MethodInfo setOperationMethodInfo,
-            ShapedQueryExpression source1,
-            ShapedQueryExpression source2)
+        private static Expression AddConvertToObject(Expression expression)
+            => expression.Type.IsValueType
+                ? Expression.Convert(expression, typeof(object))
+                : expression;
+    }
+
+    private ShapedQueryExpression TranslateTwoParameterSelector(ShapedQueryExpression source, LambdaExpression resultSelector)
+    {
+        var transparentIdentifierType = source.ShaperExpression.Type;
+        var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
+
+        Expression original1 = resultSelector.Parameters[0];
+        var replacement1 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Outer");
+        Expression original2 = resultSelector.Parameters[1];
+        var replacement2 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Inner");
+        var newResultSelector = Expression.Lambda(
+            new ReplacingExpressionVisitor(
+                    new[] { original1, original2 }, new[] { replacement1, replacement2 })
+                .Visit(resultSelector.Body),
+            transparentIdentifierParameter);
+
+        return TranslateSelect(source, newResultSelector);
+    }
+
+    private static Expression AccessField(
+        Type transparentIdentifierType,
+        Expression targetExpression,
+        string fieldName)
+        => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
+
+    private ShapedQueryExpression? TranslateScalarAggregate(
+        ShapedQueryExpression source,
+        LambdaExpression? selector,
+        string methodName,
+        Type returnType)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+        selector = selector == null
+            || selector.Body == selector.Parameters[0]
+                ? Expression.Lambda(
+                    inMemoryQueryExpression.GetProjection(
+                        new ProjectionBindingExpression(
+                            inMemoryQueryExpression, new ProjectionMember(), returnType)),
+                    inMemoryQueryExpression.CurrentParameter)
+                : TranslateLambdaExpression(source, selector, preserveType: true);
+
+        if (selector == null
+            || selector.Body is EntityProjectionExpression)
         {
-            var inMemoryQueryExpression1 = (InMemoryQueryExpression)source1.QueryExpression;
-            var inMemoryQueryExpression2 = (InMemoryQueryExpression)source2.QueryExpression;
+            return null;
+        }
 
-            // Apply any pending selectors, ensuring that the shape of both expressions is identical
-            // prior to applying the set operation.
-            inMemoryQueryExpression1.PushdownIntoSubquery();
-            inMemoryQueryExpression2.PushdownIntoSubquery();
+        var method = GetMethod();
+        method = method.GetGenericArguments().Length == 2
+            ? method.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
+            : method.MakeGenericMethod(typeof(ValueBuffer));
 
-            inMemoryQueryExpression1.ServerQueryExpression = Expression.Call(
-                setOperationMethodInfo.MakeGenericMethod(typeof(ValueBuffer)),
-                inMemoryQueryExpression1.ServerQueryExpression,
-                inMemoryQueryExpression2.ServerQueryExpression);
+        inMemoryQueryExpression.UpdateServerQueryExpression(
+            Expression.Call(method, inMemoryQueryExpression.ServerQueryExpression, selector));
 
+        return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), returnType));
+
+        MethodInfo GetMethod()
+            => methodName switch
+            {
+                nameof(Enumerable.Average) => EnumerableMethods.GetAverageWithSelector(selector.ReturnType),
+                nameof(Enumerable.Max) => EnumerableMethods.GetMaxWithSelector(selector.ReturnType),
+                nameof(Enumerable.Min) => EnumerableMethods.GetMinWithSelector(selector.ReturnType),
+                nameof(Enumerable.Sum) => EnumerableMethods.GetSumWithSelector(selector.ReturnType),
+                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("Aggregate Operator"))
+            };
+    }
+
+    private ShapedQueryExpression? TranslateSingleResultOperator(
+        ShapedQueryExpression source,
+        LambdaExpression? predicate,
+        Type returnType,
+        MethodInfo method)
+    {
+        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+        if (predicate != null)
+        {
+            var newSource = TranslateWhere(source, predicate);
+            if (newSource == null)
+            {
+                return null;
+            }
+
+            source = newSource;
+        }
+
+        inMemoryQueryExpression.ConvertToSingleResult(method);
+
+        return source.ShaperExpression.Type != returnType
+            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+            : source;
+    }
+
+    private static ShapedQueryExpression TranslateSetOperation(
+        MethodInfo setOperationMethodInfo,
+        ShapedQueryExpression source1,
+        ShapedQueryExpression source2)
+    {
+        var inMemoryQueryExpression1 = (InMemoryQueryExpression)source1.QueryExpression;
+        var inMemoryQueryExpression2 = (InMemoryQueryExpression)source2.QueryExpression;
+
+        inMemoryQueryExpression1.ApplySetOperation(setOperationMethodInfo, inMemoryQueryExpression2);
+
+        if (setOperationMethodInfo.Equals(EnumerableMethods.Except))
+        {
             return source1;
+        }
+
+        var makeNullable = setOperationMethodInfo != EnumerableMethods.Intersect;
+
+        return source1.UpdateShaperExpression(
+            MatchShaperNullabilityForSetOperation(
+                source1.ShaperExpression, source2.ShaperExpression, makeNullable));
+    }
+
+    private static Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
+    {
+        switch (shaper1)
+        {
+            case EntityShaperExpression entityShaperExpression1
+                when shaper2 is EntityShaperExpression entityShaperExpression2:
+                return entityShaperExpression1.IsNullable != entityShaperExpression2.IsNullable
+                    ? entityShaperExpression1.MakeNullable(makeNullable)
+                    : entityShaperExpression1;
+
+            case NewExpression newExpression1
+                when shaper2 is NewExpression newExpression2:
+                var newArguments = new Expression[newExpression1.Arguments.Count];
+                for (var i = 0; i < newArguments.Length; i++)
+                {
+                    newArguments[i] = MatchShaperNullabilityForSetOperation(
+                        newExpression1.Arguments[i], newExpression2.Arguments[i], makeNullable);
+                }
+
+                return newExpression1.Update(newArguments);
+
+            case MemberInitExpression memberInitExpression1
+                when shaper2 is MemberInitExpression memberInitExpression2:
+                var newExpression = (NewExpression)MatchShaperNullabilityForSetOperation(
+                    memberInitExpression1.NewExpression, memberInitExpression2.NewExpression, makeNullable);
+
+                var memberBindings = new MemberBinding[memberInitExpression1.Bindings.Count];
+                for (var i = 0; i < memberBindings.Length; i++)
+                {
+                    var memberAssignment = memberInitExpression1.Bindings[i] as MemberAssignment;
+                    Check.DebugAssert(memberAssignment != null, "Only member assignment bindings are supported");
+
+                    memberBindings[i] = memberAssignment.Update(
+                        MatchShaperNullabilityForSetOperation(
+                            memberAssignment.Expression, ((MemberAssignment)memberInitExpression2.Bindings[i]).Expression,
+                            makeNullable));
+                }
+
+                return memberInitExpression1.Update(newExpression, memberBindings);
+
+            default:
+                return shaper1;
         }
     }
 }

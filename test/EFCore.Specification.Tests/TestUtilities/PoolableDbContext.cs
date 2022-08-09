@@ -1,42 +1,17 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+public class PoolableDbContext : DbContext
 {
-    public class PoolableDbContext : DbContext
+    protected PoolableDbContext()
+        : this(new DbContextOptions<PoolableDbContext>())
     {
-        private IDbContextPool _contextPool;
+    }
 
-        protected PoolableDbContext()
-            : this(new DbContextOptions<PoolableDbContext>())
-        {
-        }
-
-        public PoolableDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
-        public virtual void SetPool(IDbContextPool contextPool) => _contextPool = contextPool;
-
-        public override void Dispose()
-        {
-            if (_contextPool != null)
-            {
-                if (!_contextPool.Return(this))
-                {
-                    ((IDbContextPoolable)this).SetPool(null);
-                    base.Dispose();
-                }
-
-                _contextPool = null;
-            }
-            else
-            {
-                base.Dispose();
-            }
-        }
+    public PoolableDbContext(DbContextOptions options)
+        : base(options)
+    {
     }
 }

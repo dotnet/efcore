@@ -1,61 +1,64 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+#nullable enable
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
 {
-    public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
+    protected ConnectionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
+        : base(fixture)
     {
-        protected ConnectionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
+    }
+
+    protected override DbContextOptionsBuilder ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlite();
+
+    protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
+        => new(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);
+
+    public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
+    {
+        protected override string StoreName
+            => "ConnectionInterception";
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
+
+        protected override IServiceCollection InjectInterceptors(
+            IServiceCollection serviceCollection,
+            IEnumerable<IInterceptor> injectedInterceptors)
+            => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
+    }
+
+    public class ConnectionInterceptionSqliteTest
+        : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionSqliteTest.InterceptionSqliteFixture>
+    {
+        public ConnectionInterceptionSqliteTest(InterceptionSqliteFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
-            => new BadUniverseContext(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);
-
-        public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
+        public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
-            protected override string StoreName => "ConnectionInterception";
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override bool ShouldSubscribeToDiagnosticListener
+                => false;
+        }
+    }
 
-            protected override IServiceCollection InjectInterceptors(
-                IServiceCollection serviceCollection,
-                IEnumerable<IInterceptor> injectedInterceptors)
-                => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
+    public class ConnectionInterceptionWithDiagnosticsSqliteTest
+        : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
+    {
+        public ConnectionInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
+            : base(fixture)
+        {
         }
 
-        public class ConnectionInterceptionSqliteTest
-            : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionSqliteTest.InterceptionSqliteFixture>
+        public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
-            public ConnectionInterceptionSqliteTest(InterceptionSqliteFixture fixture)
-                : base(fixture)
-            {
-            }
-
-            public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
-            {
-                protected override bool ShouldSubscribeToDiagnosticListener => false;
-            }
-        }
-
-        public class ConnectionInterceptionWithDiagnosticsSqliteTest
-            : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
-        {
-            public ConnectionInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
-                : base(fixture)
-            {
-            }
-
-            public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
-            {
-                protected override bool ShouldSubscribeToDiagnosticListener => true;
-            }
+            protected override bool ShouldSubscribeToDiagnosticListener
+                => true;
         }
     }
 }

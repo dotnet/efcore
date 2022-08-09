@@ -1,22 +1,43 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
+    where TModelCustomizer : IModelCustomizer, new()
 {
-    public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
-        where TModelCustomizer : IModelCustomizer, new()
+    protected override ITestStoreFactory TestStoreFactory
+        => CosmosNorthwindTestStoreFactory.Instance;
+
+    protected override bool UsePooling
+        => false;
+
+    public TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Query.Name;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        protected override ITestStoreFactory TestStoreFactory => CosmosNorthwindTestStoreFactory.Instance;
+        base.OnModelCreating(modelBuilder, context);
 
-        protected override bool UsePooling => false;
+        modelBuilder
+            .Entity<CustomerQuery>()
+            .HasDiscriminator<string>("Discriminator").HasValue("Customer");
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory
-            => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        modelBuilder
+            .Entity<OrderQuery>()
+            .HasDiscriminator<string>("Discriminator").HasValue("Order");
+
+        modelBuilder
+            .Entity<ProductQuery>()
+            .HasDiscriminator<string>("Discriminator").HasValue("Product");
+
+        modelBuilder
+            .Entity<CustomerQueryWithQueryFilter>()
+            .HasDiscriminator<string>("Discriminator").HasValue("Customer");
     }
 }

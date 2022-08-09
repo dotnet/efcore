@@ -1,8 +1,9 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Data;
+using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 using static SQLitePCL.raw;
@@ -68,13 +69,23 @@ namespace Microsoft.Data.Sqlite
                 connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
 
                 using (connection1.BeginTransaction())
-                using (connection2.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
+                    using (connection2.BeginTransaction(IsolationLevel.ReadUncommitted))
+                    {
+                        connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
-                    var value = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+                        var value = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
 
-                    Assert.Equal(1, value);
+                        Assert.Equal(1, value);
+                    }
+
+                    connection2.DefaultTimeout = 1;
+
+                    var ex = Assert.Throws<SqliteException>(
+                        () => connection2.ExecuteScalar<long>("SELECT * FROM Data;"));
+
+                    Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
+                    Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
                 }
             }
         }
@@ -114,32 +125,42 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void IsolationLevel_throws_when_completed()
+        public void Deferred_allows_parallel_reads()
+        {
+            const string connectionString = "Data Source=deferred;Mode=Memory;Cache=Shared";
+
+            using (var connection1 = new SqliteConnection(connectionString))
+            using (var connection2 = new SqliteConnection(connectionString))
+            {
+                connection1.Open();
+                connection2.Open();
+
+                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (42);");
+
+                using (connection1.BeginTransaction(deferred: true))
+                {
+                    var value1 = connection1.ExecuteScalar<long>("SELECT * FROM Data;");
+                    Assert.Equal(42L, value1);
+
+                    using (connection2.BeginTransaction(deferred: true))
+                    {
+                        var value2 = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+                        Assert.Equal(42L, value2);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void IsolationLevel_is_serializable_when_unspecified()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                var transaction = connection.BeginTransaction();
-                transaction.Dispose();
-
-                var ex = Assert.Throws<InvalidOperationException>(() => transaction.IsolationLevel);
-
-                Assert.Equal(Resources.TransactionCompleted, ex.Message);
-            }
-        }
-
-        [Fact]
-        public void IsolationLevel_is_inferred_when_unspecified()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared"))
-            {
-                connection.Open();
-                connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
-
                 using (var transaction = connection.BeginTransaction())
                 {
-                    Assert.Equal(IsolationLevel.ReadUncommitted, transaction.IsolationLevel);
+                    Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
                 }
             }
         }
@@ -326,6 +347,26 @@ namespace Microsoft.Data.Sqlite
                 transaction.Dispose();
                 transaction.Dispose();
             }
+        }
+
+        [Fact]
+        public void Savepoint()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            CreateTestTable(connection);
+
+            var transaction = connection.BeginTransaction();
+            transaction.Save("MySavepointName");
+
+            connection.ExecuteNonQuery("INSERT INTO TestTable (TestColumn) VALUES (8)");
+            Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+
+            transaction.Rollback("MySavepointName");
+            Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+
+            transaction.Release("MySavepointName");
+            Assert.Throws<SqliteException>(() => transaction.Rollback("MySavepointName"));
         }
 
         private static void CreateTestTable(SqliteConnection connection)

@@ -1,15 +1,15 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+/// <summary>
+///     Signals that custom LINQ operator parameter should not be parameterized during query compilation.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information and examples.
+/// </remarks>
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class NotParameterizedAttribute : Attribute
 {
-    /// <summary>
-    ///     Signals that custom LINQ operator parameter should not be parameterized during query compilation.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class NotParameterizedAttribute : Attribute
-    {
-    }
 }

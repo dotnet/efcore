@@ -1,67 +1,80 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
+
+public class MigrationsIdGeneratorTest
 {
-    public class MigrationsIdGeneratorTest
+    [ConditionalFact]
+    public void CreateId_works()
     {
-        [ConditionalFact]
-        public void CreateId_works()
-        {
-            var id = new MigrationsIdGenerator().GenerateId("Twilight");
+        var id = new MigrationsIdGenerator().GenerateId("Twilight");
 
-            Assert.Matches("[0-9]{14}_Twilight", id);
-        }
+        Assert.Matches("[0-9]{14}_Twilight", id);
+    }
 
-        [ConditionalFact]
-        public void CreateId_always_increments_timestamp()
-        {
-            var generator = new MigrationsIdGenerator();
+    [ConditionalFact]
+    public void CreateId_always_increments_timestamp()
+    {
+        var generator = new MigrationsIdGenerator();
 
-            var id1 = generator.GenerateId("Rainbow");
-            var id2 = generator.GenerateId("Rainbow");
+        var id1 = generator.GenerateId("Rainbow");
+        var id2 = generator.GenerateId("Rainbow");
 
-            Assert.NotEqual(id1, id2);
-        }
+        Assert.NotEqual(id1, id2);
+    }
 
-        [ConditionalFact]
-        [UseCulture("fa")]
-        public void CreateId_uses_invariant_calendar()
-        {
-            var invariantYear = CultureInfo.InvariantCulture.Calendar.GetYear(DateTime.Today).ToString();
+    [ConditionalFact]
+    [UseCulture("fa")]
+    public void CreateId_uses_invariant_calendar()
+    {
+        var invariantYear = CultureInfo.InvariantCulture.Calendar.GetYear(DateTime.Today).ToString();
 
-            var id = new MigrationsIdGenerator().GenerateId("Zecora");
+        var id = new MigrationsIdGenerator().GenerateId("Zecora");
 
-            Assert.StartsWith(invariantYear, id);
-        }
+        Assert.StartsWith(invariantYear, id);
+    }
 
-        [ConditionalFact]
-        public void GetName_works()
-        {
-            var name = new MigrationsIdGenerator().GetName("20150302100620_Apple");
+    [ConditionalFact]
+    public void GetName_works()
+    {
+        var name = new MigrationsIdGenerator().GetName("20150302100620_Apple");
 
-            Assert.Equal("Apple", name);
-        }
+        Assert.Equal("Apple", name);
+    }
 
-        [ConditionalFact]
-        public void IsValidId_returns_true_when_valid()
-        {
-            var valid = new MigrationsIdGenerator().IsValidId("20150302100930_Rarity");
+    [ConditionalFact]
+    public void IsValidId_returns_true_when_valid()
+    {
+        var valid = new MigrationsIdGenerator().IsValidId("20150302100930_Rarity");
 
-            Assert.True(valid);
-        }
+        Assert.True(valid);
+    }
 
-        [ConditionalFact]
-        public void IsValidId_returns_false_when_invalid()
-        {
-            var valid = new MigrationsIdGenerator().IsValidId("Rarity");
+    [ConditionalFact]
+    public void IsValidId_returns_false_when_invalid()
+    {
+        var valid = new MigrationsIdGenerator().IsValidId("Rarity");
 
-            Assert.False(valid);
-        }
+        Assert.False(valid);
+    }
+
+    [ConditionalFact]
+    public void IsValidId_returns_false_when_supplied_format_is_too_long()
+    {
+        var valid = new MigrationsIdGenerator().IsValidId("123456789012345_InitialCreate");
+
+        Assert.False(valid);
+    }
+
+    [ConditionalFact]
+    public void IsValidId_returns_false_when_supplied_format_is_too_short()
+    {
+        var valid = new MigrationsIdGenerator().IsValidId("1234567890123_InitialCreate");
+
+        Assert.False(valid);
     }
 }

@@ -117,38 +117,62 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AmbiguousColumnName" xml:space="preserve">
+    <value>The name '{name}' is ambiguous between columns '{column1}' and '{column2}'. Specify one using its exact case.</value>
+  </data>
+  <data name="AmbiguousParameterName" xml:space="preserve">
+    <value>Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.</value>
+  </data>
+  <data name="CalledOnNullValue" xml:space="preserve">
+    <value>The data is NULL at ordinal {ordinal}. This method can't be called on NULL values. Check using IsDBNull before calling.</value>
+  </data>
   <data name="CallRequiresOpenConnection" xml:space="preserve">
     <value>{methodName} can only be called when the connection is open.</value>
   </data>
-  <data name="CallRequiresSetCommandText" xml:space="preserve">
-    <value>CommandText must be set before {methodName} can be called.</value>
+  <data name="CannotStoreNaN" xml:space="preserve">
+    <value>Cannot store 'NaN' values.</value>
   </data>
   <data name="ConnectionStringRequiresClosedConnection" xml:space="preserve">
     <value>ConnectionString cannot be set when the connection is open.</value>
   </data>
+  <data name="ConvertFailed" xml:space="preserve">
+    <value>Cannot convert object of type '{sourceType}' to object of type '{targetType}'.</value>
+  </data>
   <data name="DataReaderClosed" xml:space="preserve">
     <value>Invalid attempt to call {operation} when reader is closed.</value>
   </data>
+  <data name="DataReaderOpen" xml:space="preserve">
+    <value>An open reader is already associated with this command. Close it before opening a new one.</value>
+  </data>
+  <data name="DefaultNativeError" xml:space="preserve">
+    <value>For more information on this error code see https://www.sqlite.org/rescode.html</value>
+  </data>
+  <data name="EncryptionNotSupported" xml:space="preserve">
+    <value>You specified a password in the connection string, but the native SQLite library '{libraryName}' doesn't support encryption.</value>
+  </data>
   <data name="InvalidCommandType" xml:space="preserve">
-    <value>The CommandType '{commandType}' is invalid.</value>
+    <value>The CommandType '{commandType}' is not supported.</value>
+  </data>
+  <data name="InvalidEnumValue" xml:space="preserve">
+    <value>The {enumType} enumeration value, {value}, is invalid.</value>
   </data>
   <data name="InvalidIsolationLevel" xml:space="preserve">
-    <value>The IsolationLevel '{isolationLevel}' is invalid.</value>
+    <value>The IsolationLevel '{isolationLevel}' is not supported.</value>
+  </data>
+  <data name="InvalidOffsetAndCount" xml:space="preserve">
+    <value>Offset and count were out of bounds for the buffer.</value>
   </data>
   <data name="InvalidParameterDirection" xml:space="preserve">
-    <value>The ParameterDirection '{direction}' is invalid.</value>
+    <value>The ParameterDirection '{direction}' is not supported.</value>
   </data>
   <data name="KeywordNotSupported" xml:space="preserve">
-    <value>Keyword not supported: '{keyword}'.</value>
+    <value>Connection string keyword '{keyword}' is not supported. For a possible alternative, see https://go.microsoft.com/fwlink/?linkid=2142181.</value>
   </data>
   <data name="MissingParameters" xml:space="preserve">
     <value>Must add values for the following parameters: {parameters}</value>
   </data>
   <data name="NoData" xml:space="preserve">
     <value>No data exists for the row/column.</value>
-  </data>
-  <data name="OpenRequiresSetConnectionString" xml:space="preserve">
-    <value>ConnectionString must be set before Open can be called.</value>
   </data>
   <data name="ParallelTransactionsNotSupported" xml:space="preserve">
     <value>SqliteConnection does not support nested transactions.</value>
@@ -159,64 +183,43 @@
   <data name="RequiresSet" xml:space="preserve">
     <value>{propertyName} must be set.</value>
   </data>
-  <data name="TransactionCompleted" xml:space="preserve">
-    <value>This SqliteTransaction has completed; it is no longer usable.</value>
-  </data>
-  <data name="TransactionConnectionMismatch" xml:space="preserve">
-    <value>The transaction object is not associated with the connection object.</value>
-  </data>
-  <data name="TransactionRequired" xml:space="preserve">
-    <value>Execute requires the command to have a transaction object when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.</value>
-  </data>
-  <data name="UnknownDataType" xml:space="preserve">
-    <value>No mapping exists from object type {typeName} to a known managed provider native type.</value>
-  </data>
-  <data name="SqliteNativeError" xml:space="preserve">
-    <value>SQLite Error {errorCode}: '{message}'.</value>
-  </data>
-  <data name="DefaultNativeError" xml:space="preserve">
-    <value>For more information on this error code see http://sqlite.org/rescode.html</value>
-  </data>
-  <data name="AmbiguousParameterName" xml:space="preserve">
-    <value>Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.</value>
-  </data>
-  <data name="InvalidEnumValue" xml:space="preserve">
-    <value>The {enumType} enumeration value, {value}, is invalid.</value>
-  </data>
-  <data name="ConvertFailed" xml:space="preserve">
-    <value>Cannot convert object of type '{sourceType}' to object of type '{targetType}'.</value>
-  </data>
-  <data name="CannotStoreNaN" xml:space="preserve">
-    <value>Cannot store 'NaN' values.</value>
-  </data>
-  <data name="DataReaderOpen" xml:space="preserve">
-    <value>An open reader is already associated with this command. Close it before opening a new one.</value>
-  </data>
-  <data name="SetRequiresNoOpenReader" xml:space="preserve">
-    <value>An open reader is associated with this command. Close it before changing the {propertyName} property.</value>
-  </data>
-  <data name="CalledOnNullValue" xml:space="preserve">
-    <value>The data is NULL at ordinal {ordinal}. This method can't be called on NULL values. Check using IsDBNull before calling.</value>
-  </data>
-  <data name="UDFCalledWithNull" xml:space="preserve">
-    <value>The SQL function '{function}' was called with a NULL argument at ordinal {ordinal}. Create the function using a Nullable parameter or rewrite your query to avoid passing NULL.</value>
-  </data>
-  <data name="SqlBlobRequiresOpenConnection" xml:space="preserve">
-    <value>SqliteBlob can only be used when the connection is open.</value>
-  </data>
-  <data name="InvalidOffsetAndCount" xml:space="preserve">
-    <value>Offset and count were out of bounds for the buffer.</value>
-  </data>
   <data name="ResizeNotSupported" xml:space="preserve">
     <value>The size of a blob may not be changed by the SqliteBlob API. Use an UPDATE command instead.</value>
   </data>
   <data name="SeekBeforeBegin" xml:space="preserve">
     <value>An attempt was made to move the position before the beginning of the stream.</value>
   </data>
+  <data name="SetRequiresNoOpenReader" xml:space="preserve">
+    <value>An open reader is associated with this command. Close it before changing the {propertyName} property.</value>
+  </data>
+  <data name="SqlBlobRequiresOpenConnection" xml:space="preserve">
+    <value>SqliteBlob can only be used when the connection is open.</value>
+  </data>
+  <data name="SqliteNativeError" xml:space="preserve">
+    <value>SQLite Error {errorCode}: '{message}'.</value>
+  </data>
+  <data name="TooManyRestrictions" xml:space="preserve">
+    <value>More restrictions were provided than the collection '{collectionName}' supports.</value>
+  </data>
+  <data name="TransactionCompleted" xml:space="preserve">
+    <value>This SqliteTransaction has completed; it is no longer usable.</value>
+  </data>
+  <data name="TransactionConnectionMismatch" xml:space="preserve">
+    <value>The transaction object is not associated with the same connection object as this command.</value>
+  </data>
+  <data name="TransactionRequired" xml:space="preserve">
+    <value>Execute requires the command to have a transaction object when the connection assigned to the command is in a pending local transaction.  The Transaction property of the command has not been initialized.</value>
+  </data>
+  <data name="UDFCalledWithNull" xml:space="preserve">
+    <value>The SQL function '{function}' was called with a NULL argument at ordinal {ordinal}. Create the function using a Nullable parameter or rewrite your query to avoid passing NULL.</value>
+  </data>
+  <data name="UnknownCollection" xml:space="preserve">
+    <value>The requested collection '{collectionName}' is not defined.</value>
+  </data>
+  <data name="UnknownDataType" xml:space="preserve">
+    <value>No mapping exists from object type {typeName} to a known managed provider native type.</value>
+  </data>
   <data name="WriteNotSupported" xml:space="preserve">
     <value>Stream does not support writing.</value>
-  </data>
-  <data name="EncryptionNotSupported" xml:space="preserve">
-    <value>You specified a password in the connection string, but the native SQLite library you're using doesn't support encryption.</value>
   </data>
 </root>
