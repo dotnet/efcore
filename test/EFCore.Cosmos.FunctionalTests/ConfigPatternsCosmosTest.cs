@@ -28,6 +28,7 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
         {
             client = context.Database.GetCosmosClient();
             Assert.NotNull(client);
+            Assert.Equal(DatabaseName, context.Database.GetCosmosDatabaseId());
             Assert.True(context.Database.IsCosmos());
         }
 

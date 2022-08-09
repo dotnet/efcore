@@ -124,7 +124,7 @@
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
-    <value>Both the connection string and account key or account endpoint were specified. Specify only one set of connection details.</value>
+    <value>Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.</value>
   </data>
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>

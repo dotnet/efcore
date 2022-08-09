@@ -53,7 +53,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
     public virtual ConventionSet CreateConventionSet()
     {
         var conventionSet = new ConventionSet();
-        
+
         conventionSet.Add(new ModelCleanupConvention(Dependencies));
         conventionSet.Add(new NotMappedEntityTypeAttributeConvention(Dependencies));
         conventionSet.Add(new OwnedEntityTypeAttributeConvention(Dependencies));
