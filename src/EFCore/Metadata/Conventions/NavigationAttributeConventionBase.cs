@@ -29,7 +29,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     ///     Dependencies for this service.
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
-    
+
     /// <summary>
     ///     Called after an entity type is added to the model.
     /// </summary>
@@ -59,7 +59,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
             }
         }
     }
-    
+
     /// <summary>
     ///     Called after an entity type is ignored.
     /// </summary>
@@ -111,7 +111,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
             }
         }
     }
-    
+
     /// <summary>
     ///     Called after an entity type is removed from the model.
     /// </summary>
@@ -143,7 +143,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
             }
         }
     }
-    
+
     /// <summary>
     ///     Called after the base type of an entity type changes.
     /// </summary>
@@ -211,7 +211,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
 
     private static void Sort(List<(PropertyInfo, Type)> navigations)
         => navigations.Sort((x, y) => StringComparer.Ordinal.Compare(x.Item1.Name, y.Item1.Name));
-    
+
     /// <summary>
     ///     Called after a navigation is added to the entity type.
     /// </summary>
@@ -232,7 +232,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
             }
         }
     }
-    
+
     /// <summary>
     ///     Called after a skip navigation is added to the entity type.
     /// </summary>
@@ -253,7 +253,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
             }
         }
     }
-    
+
     /// <summary>
     ///     Called after the principal end of a foreign key is changed.
     /// </summary>
@@ -273,7 +273,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
         ProcessForeignKeyPrincipalEndChanged(
             relationshipBuilder, dependentToPrincipalAttributes, principalToDependentAttributes, context);
     }
-    
+
     /// <summary>
     ///     Called after an entity type member is ignored.
     /// </summary>

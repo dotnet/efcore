@@ -80,9 +80,9 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.Add(new RelationalMapToJsonConvention(Dependencies, RelationalDependencies));
 
         conventionSet.Replace<ValueGenerationConvention>(
-            new RelationalValueGenerationConvention(Dependencies, RelationalDependencies));        
+            new RelationalValueGenerationConvention(Dependencies, RelationalDependencies));
         conventionSet.Replace<QueryFilterRewritingConvention>(
-            new RelationalQueryFilterRewritingConvention(Dependencies, RelationalDependencies));        
+            new RelationalQueryFilterRewritingConvention(Dependencies, RelationalDependencies));
         conventionSet.Replace<RuntimeModelConvention>(new RelationalRuntimeModelConvention(Dependencies, RelationalDependencies));
 
         return conventionSet;

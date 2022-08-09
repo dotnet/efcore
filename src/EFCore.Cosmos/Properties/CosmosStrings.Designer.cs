@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
-        ///     Both the connection string and account key or account endpoint were specified. Specify only one set of connection details.
+        ///     Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.
         /// </summary>
         public static string ConnectionStringConflictingConfiguration
             => GetString("ConnectionStringConflictingConfiguration");

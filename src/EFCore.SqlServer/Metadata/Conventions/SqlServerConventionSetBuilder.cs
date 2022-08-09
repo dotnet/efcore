@@ -61,7 +61,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
         conventionSet.Replace<ValueGenerationConvention>(
             new SqlServerValueGenerationConvention(Dependencies, RelationalDependencies));
         conventionSet.Replace<RuntimeModelConvention>(new SqlServerRuntimeModelConvention(Dependencies, RelationalDependencies));
-        
+
         var sqlServerTemporalConvention = new SqlServerTemporalConvention(Dependencies, RelationalDependencies);
         ConventionSet.AddBefore(
             conventionSet.EntityTypeAnnotationChangedConventions,
@@ -69,7 +69,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
             typeof(SqlServerValueGenerationConvention));
         conventionSet.SkipNavigationForeignKeyChangedConventions.Add(sqlServerTemporalConvention);
         conventionSet.ModelFinalizingConventions.Add(sqlServerTemporalConvention);
-        
+
         return conventionSet;
     }
 
