@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="5.0.0" />
+    <PackageReference Include="Castle.Core" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
