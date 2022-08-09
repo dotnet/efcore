@@ -23,7 +23,7 @@ public interface IStoreStoredProcedure : ITableBase
     /// <summary>
     ///     Gets the return for this stored procedure.
     /// </summary>
-    IStoreStoredProcedureReturn? Return { get; }
+    IStoreStoredProcedureReturnValue? ReturnValue { get; }
     
     /// <summary>
     ///     Gets the parameters for this stored procedure.

@@ -510,7 +510,7 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+            .ToTable(tb => tb.HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id"));
 
         var checkConstraint = entityType.FindCheckConstraint("CK_Customer_AlternateId");
 
@@ -528,11 +528,11 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+            .ToTable(tb => tb.HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id"));
 
         modelBuilder
             .Entity<Customer>()
-            .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id");
+            .ToTable(tb => tb.HasCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id"));
 
         var checkConstraint = entityType.FindCheckConstraint("CK_Customer_AlternateId");
 

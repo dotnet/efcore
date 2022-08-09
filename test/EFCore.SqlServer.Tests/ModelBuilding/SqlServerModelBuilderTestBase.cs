@@ -424,10 +424,13 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Child>()
                 .HasBaseType(null)
-                    .HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000", c => c.HasName("CK_LargeId"));
+                .ToTable(tb => tb.HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000").HasName("CK_LargeId"));
             modelBuilder.Entity<ChildBase>()
-                .HasCheckConstraint("PositiveId", "Id > 0")
-                    .HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000");
+                .ToTable(tb =>
+                {
+                    tb.HasCheckConstraint("PositiveId", "Id > 0");
+                    tb.HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000");
+                });
             modelBuilder.Entity<Child>()
                 .HasBaseType<ChildBase>();
             modelBuilder.Entity<DisjointChildSubclass1>();
@@ -457,12 +460,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<ChildBase>()
-                .HasCheckConstraint("LargeId", "Id > 100", c => c.HasName("CK_LargeId"));
+                .ToTable(tb => tb.HasCheckConstraint("LargeId", "Id > 100").HasName("CK_LargeId"));
 
             Assert.Equal(
                 RelationalStrings.DuplicateCheckConstraint("LargeId", nameof(Child), nameof(ChildBase)),
                 Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<Child>().HasCheckConstraint("LargeId", "Id > 1000")).Message);
+                    () => modelBuilder.Entity<Child>().ToTable(tb => tb.HasCheckConstraint("LargeId", "Id > 1000"))).Message);
         }
 
         [ConditionalFact]
@@ -471,9 +474,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Child>()
                 .HasBaseType(null)
-                .HasCheckConstraint("LargeId", "Id > 1000");
+                .ToTable(tb => tb.HasCheckConstraint("LargeId", "Id > 1000"));
             modelBuilder.Entity<ChildBase>()
-                .HasCheckConstraint("LargeId", "Id > 100", c => c.HasName("CK_LargeId"));
+                .ToTable(tb => tb.HasCheckConstraint("LargeId", "Id > 100").HasName("CK_LargeId"));
 
             Assert.Equal(
                 RelationalStrings.DuplicateCheckConstraint("LargeId", nameof(Child), nameof(ChildBase)),
@@ -735,8 +738,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                             tb.Ignore(l => l.Book);
                             tb.WithOwner()
                                 .HasConstraintName("AlternateLabelFK");
-                            tb.ToTable("TT", "TS");
-                            tb.IsMemoryOptimized();
+                            tb.ToTable("TT", "TS", tb => tb.IsMemoryOptimized());
                             tb.OwnsOne(
                                 l => l.AnotherBookLabel, ab =>
                                 {
@@ -899,7 +901,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 r =>
                 {
                     r.HasKey(o => o.OrderId);
-                    r.IsMemoryOptimized();
+                    r.ToTable(tb => tb.IsMemoryOptimized());
                     r.Ignore(o => o.OrderCombination);
                     r.Ignore(o => o.Details);
                 });
@@ -1027,8 +1029,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Ignore<Product>();
 
             var ownedBuilder = modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details)
-                .ToTable("OtherCustomerDetails")
-                .HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0", c => c.HasName("CK_Guid"));
+                .ToTable("OtherCustomerDetails", tb =>
+                    tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
             ownedBuilder.Property(d => d.CustomerId);
             ownedBuilder.HasIndex(d => d.CustomerId);
             ownedBuilder.WithOwner(d => (OtherCustomer?)d.Customer)
@@ -1037,8 +1039,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Entity<SpecialCustomer>().OwnsOne(
                 c => c.Details, b =>
                 {
-                    b.ToTable("SpecialCustomerDetails");
-                    b.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0", c => c.HasName("CK_Guid"));
+                    b.ToTable("SpecialCustomerDetails", tb =>
+                        tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
                     b.Property(d => d.CustomerId);
                     b.HasIndex(d => d.CustomerId);
                     b.WithOwner(d => (SpecialCustomer?)d.Customer)
@@ -1921,6 +1923,73 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
             => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
     }
+    
+    public abstract class TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        public abstract TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema);
+        public abstract TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);
+        public abstract TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
+    }
+
+    public class GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> :
+        TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>,
+        IInfrastructure<OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>>
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        public GenericTestOwnedNavigationTemporalTableBuilder(OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> temporalTableBuilder)
+        {
+            TemporalTableBuilder = temporalTableBuilder;
+        }
+
+        private OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> TemporalTableBuilder { get; }
+
+        OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
+            => TemporalTableBuilder;
+
+        protected virtual TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder)
+            => new GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(tableBuilder);
+
+        public override TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema)
+            => Wrap(TemporalTableBuilder.UseHistoryTable(name, schema));
+
+        public override TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
+            => new(TemporalTableBuilder.HasPeriodStart(propertyName));
+
+        public override TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
+            => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
+    }
+
+    public class NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> :
+        TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>,
+        IInfrastructure<OwnedNavigationTemporalTableBuilder>
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        public NonGenericTestOwnedNavigationTemporalTableBuilder(OwnedNavigationTemporalTableBuilder temporalTableBuilder)
+        {
+            TemporalTableBuilder = temporalTableBuilder;
+        }
+
+        private OwnedNavigationTemporalTableBuilder TemporalTableBuilder { get; }
+
+        OwnedNavigationTemporalTableBuilder IInfrastructure<OwnedNavigationTemporalTableBuilder>.Instance
+            => TemporalTableBuilder;
+
+        protected virtual TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationTemporalTableBuilder temporalTableBuilder)
+            => new NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(temporalTableBuilder);
+
+        public override TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema)
+            => Wrap(TemporalTableBuilder.UseHistoryTable(name, schema));
+
+        public override TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
+            => new(TemporalTableBuilder.HasPeriodStart(propertyName));
+
+        public override TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
+            => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
+    }
 
     public class TestTemporalPeriodPropertyBuilder
     {
@@ -1932,6 +2001,19 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         protected TemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; }
 
         public TestTemporalPeriodPropertyBuilder HasColumnName(string name)
+            => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
+    }
+
+    public class TestOwnedNavigationTemporalPeriodPropertyBuilder
+    {
+        public TestOwnedNavigationTemporalPeriodPropertyBuilder(OwnedNavigationTemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
+        {
+            TemporalPeriodPropertyBuilder = temporalPeriodPropertyBuilder;
+        }
+
+        protected OwnedNavigationTemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; }
+
+        public TestOwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
     }
 }

@@ -396,7 +396,7 @@ public class InternalStoredProcedureBuilder :
             return null;
         }
 
-        Metadata.SetAreRowsAffectedReturned(rowsAffectedReturned);
+        Metadata.SetIsRowsAffectedReturned(rowsAffectedReturned);
         return this;
     }
 
@@ -407,7 +407,7 @@ public class InternalStoredProcedureBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanHaveRowsAffectedReturn(bool rowsAffectedReturned, ConfigurationSource configurationSource)
-        => Metadata.AreRowsAffectedReturned == rowsAffectedReturned
+        => Metadata.IsRowsAffectedReturned == rowsAffectedReturned
             || configurationSource.Overrides(Metadata.GetConfigurationSource());
 
     /// <summary>

@@ -178,10 +178,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
-        GenerateSimpleFluentApiCall(
-            annotations,
-            RelationalAnnotationNames.Comment, nameof(RelationalEntityTypeBuilderExtensions.HasComment), methodCallCodeFragments);
-
         if (annotations.TryGetValue(RelationalAnnotationNames.MappingStrategy, out var mappingStrategyAnnotation)
             && mappingStrategyAnnotation.Value is string mappingStrategy)
         {

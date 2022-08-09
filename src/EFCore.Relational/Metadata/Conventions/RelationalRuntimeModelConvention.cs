@@ -498,7 +498,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             runtimeEntityType,
             storedProcedure.Name,
             storedProcedure.Schema,
-            storedProcedure.AreRowsAffectedReturned,
+            storedProcedure.IsRowsAffectedReturned,
             storedProcedure.AreTransactionsSuppressed);
 
         foreach (var parameter in storedProcedure.Parameters)

@@ -140,11 +140,11 @@ public class CSharpMigrationsGeneratorTest
             },
             {
                 RelationalAnnotationNames.Comment, ("My Comment",
-                    _toTable
-                    + ";"
-                    + _nl
-                    + _nl
-                    + @"entityTypeBuilder.HasComment(""My Comment"")")
+                    _nl
+                    + @"entityTypeBuilder.ToTable(""WithAnnotations"", t =>" + _nl
+                    + "    {" + _nl
+                    + @"        t.HasComment(""My Comment"");" + _nl
+                    + "    })")
             },
             {
 #pragma warning disable CS0612 // Type or member is obsolete

@@ -27,6 +27,17 @@ public class TableBuilder<TEntity> : TableBuilder, IInfrastructure<EntityTypeBui
         => (EntityTypeBuilder<TEntity>)((IInfrastructure<EntityTypeBuilder>)this).Instance;
 
     /// <summary>
+    ///     Configures a comment to be applied to the table
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="comment">The comment for the table.</param>
+    /// <returns>A builder to further configure the table.</returns>
+    public new virtual TableBuilder<TEntity> HasComment(string? comment)
+        => (TableBuilder<TEntity>)base.HasComment(comment);
+    
+    /// <summary>
     ///     Configures the table to be ignored by migrations.
     /// </summary>
     /// <remarks>

@@ -562,7 +562,7 @@ public class RelationalModelValidator : ModelValidator
         var missedConcurrencyToken = originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken);
         if (missedConcurrencyToken != null
             && storeObjectIdentifier.StoreObjectType != StoreObjectType.InsertStoredProcedure
-            && (sproc.AreRowsAffectedReturned
+            && (sproc.IsRowsAffectedReturned
                 || sproc.FindRowsAffectedParameter() != null
                 || sproc.FindRowsAffectedResultColumn() != null))
         {

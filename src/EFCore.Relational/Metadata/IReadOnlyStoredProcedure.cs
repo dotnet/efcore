@@ -33,7 +33,7 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     /// <summary>
     ///     Gets a value indicating whether this stored procedure returns the number of rows affected.
     /// </summary>
-    bool AreRowsAffectedReturned { get; }
+    bool IsRowsAffectedReturned { get; }
 
     /// <summary>
     ///     Returns the store identifier of this stored procedure.

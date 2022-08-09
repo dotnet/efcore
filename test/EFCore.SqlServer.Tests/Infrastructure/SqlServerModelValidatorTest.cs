@@ -470,7 +470,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
 
-        modelBuilder.Entity<A>().ToTable("Table").IsMemoryOptimized();
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.IsMemoryOptimized());
 
         modelBuilder.Entity<B>().ToTable("Table");
 

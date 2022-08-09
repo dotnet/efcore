@@ -1252,7 +1252,7 @@ public partial class Entity
                     "Entity",
                     x =>
                     {
-                        x.HasComment("Entity Comment");
+                        x.ToTable(tb => tb.HasComment("Entity Comment"));
                         x.Property<int>("Id").HasComment("Property Comment");
                     })
             ,
@@ -1292,10 +1292,10 @@ public partial class Entity
                     "Entity",
                     x =>
                     {
-                        x.HasComment(
+                        x.ToTable(tb => tb.HasComment(
                             @"Entity Comment
 On multiple lines
-With XML content <br/>");
+With XML content <br/>"));
                         x.Property<int>("Id").HasComment(
                             @"Property Comment
 On multiple lines

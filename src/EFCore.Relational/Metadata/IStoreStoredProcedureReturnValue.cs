@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <summary>
 ///     Represents the return value of a stored procedure.
 /// </summary>
-public interface IStoreStoredProcedureReturn : IColumnBase
+public interface IStoreStoredProcedureReturnValue : IColumnBase
 {
     /// <summary>
     ///     Gets the containing stored procedure.
@@ -37,7 +37,7 @@ public interface IStoreStoredProcedureReturn : IColumnBase
         var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
         if (singleLine)
         {
-            builder.Append($"StoreStoredProcedureReturn: {Table.Name}.");
+            builder.Append($"StoreStoredProcedureReturnValue: {Table.Name}.");
         }
 
         builder.Append(Name).Append(" (");

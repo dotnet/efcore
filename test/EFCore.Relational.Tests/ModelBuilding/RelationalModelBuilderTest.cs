@@ -447,7 +447,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(insertSproc.FindResultColumn("Discriminator"));
             Assert.False(insertSproc.FindResultColumn("Id")!.ForRowsAffected);
             Assert.True(insertSproc.AreTransactionsSuppressed);
-            Assert.True(insertSproc.AreRowsAffectedReturned);
+            Assert.True(insertSproc.IsRowsAffectedReturned);
             Assert.Equal("bar1", insertSproc["foo"]);
             Assert.Same(bookLabel, insertSproc.EntityType);
 
@@ -459,7 +459,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(updateSproc.AreTransactionsSuppressed);
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookLabel, updateSproc.EntityType);
-            Assert.False(updateSproc.AreRowsAffectedReturned);
+            Assert.False(updateSproc.IsRowsAffectedReturned);
 
             var rowsAffectedParameter = updateSproc.Parameters[2];
             Assert.Null(rowsAffectedParameter.ForOriginalValue);
@@ -487,7 +487,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.True(deleteSproc.AreTransactionsSuppressed);
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookLabel, deleteSproc.EntityType);
-            Assert.False(deleteSproc.AreRowsAffectedReturned);
+            Assert.False(deleteSproc.IsRowsAffectedReturned);
 
             var rowsAffectedResultColumn = deleteSproc.ResultColumns[0];
             Assert.True(rowsAffectedResultColumn.ForRowsAffected);
@@ -880,6 +880,10 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
 
+        public abstract TestCheckConstraintBuilder HasCheckConstraint(
+            string name,
+            string? sql);
+
         public abstract TestTriggerBuilder HasTrigger(string name);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
@@ -912,6 +916,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
 
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
+        
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
 
@@ -947,6 +954,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
 
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
+
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
 
@@ -966,7 +976,11 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public abstract string? Schema { get; }
 
         public abstract TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true);
-
+        
+        public abstract TestCheckConstraintBuilder HasCheckConstraint(
+            string name,
+            string? sql);
+        
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
@@ -1002,6 +1016,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
 
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
+
         public override TestColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyName));
 
@@ -1036,6 +1053,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
 
         public override TestColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyName));
@@ -2399,16 +2419,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TriggerBuilder.HasAnnotation(annotation, value));
     }
 
-    public abstract class TestCheckConstraintBuilder
+    public class TestCheckConstraintBuilder : IInfrastructure<CheckConstraintBuilder>
     {
-        public abstract TestCheckConstraintBuilder HasName(string name);
-
-        public abstract TestCheckConstraintBuilder HasAnnotation(string annotation, object? value);
-    }
-
-    public class NonGenericTestCheckConstraintBuilder : TestCheckConstraintBuilder, IInfrastructure<CheckConstraintBuilder>
-    {
-        public NonGenericTestCheckConstraintBuilder(CheckConstraintBuilder checkConstraintBuilder)
+        public TestCheckConstraintBuilder(CheckConstraintBuilder checkConstraintBuilder)
         {
             CheckConstraintBuilder = checkConstraintBuilder;
         }
@@ -2419,12 +2432,12 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             => CheckConstraintBuilder;
 
         protected virtual TestCheckConstraintBuilder Wrap(CheckConstraintBuilder checkConstraintBuilder)
-            => new NonGenericTestCheckConstraintBuilder(checkConstraintBuilder);
+            => new TestCheckConstraintBuilder(checkConstraintBuilder);
 
-        public override TestCheckConstraintBuilder HasName(string name)
+        public virtual TestCheckConstraintBuilder HasName(string name)
             => Wrap(CheckConstraintBuilder.HasName(name));
 
-        public override TestCheckConstraintBuilder HasAnnotation(string annotation, object? value)
+        public virtual TestCheckConstraintBuilder HasAnnotation(string annotation, object? value)
             => Wrap(CheckConstraintBuilder.HasAnnotation(annotation, value));
     }
 }

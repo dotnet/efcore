@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class StoreStoredProcedureReturn : ColumnBase<ColumnMappingBase>, IStoreStoredProcedureReturn
+public class StoreStoredProcedureReturnValue : ColumnBase<ColumnMappingBase>, IStoreStoredProcedureReturnValue
 {
     private readonly RelationalTypeMapping? _storeTypeMapping;
 
@@ -19,7 +19,7 @@ public class StoreStoredProcedureReturn : ColumnBase<ColumnMappingBase>, IStoreS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public StoreStoredProcedureReturn(
+    public StoreStoredProcedureReturnValue(
         string name,
         string type,
         StoreStoredProcedure storedProcedure,
@@ -54,7 +54,7 @@ public class StoreStoredProcedureReturn : ColumnBase<ColumnMappingBase>, IStoreS
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override string ToString()
-        => ((IStoreStoredProcedureReturn)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        => ((IStoreStoredProcedureReturnValue)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,11 +65,11 @@ public class StoreStoredProcedureReturn : ColumnBase<ColumnMappingBase>, IStoreS
     [EntityFrameworkInternal]
     public virtual DebugView DebugView
         => new(
-            () => ((IStoreStoredProcedureReturn)this).ToDebugString(),
-            () => ((IStoreStoredProcedureReturn)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+            () => ((IStoreStoredProcedureReturnValue)this).ToDebugString(),
+            () => ((IStoreStoredProcedureReturnValue)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <inheritdoc />
-    IStoreStoredProcedure IStoreStoredProcedureReturn.StoredProcedure
+    IStoreStoredProcedure IStoreStoredProcedureReturnValue.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;

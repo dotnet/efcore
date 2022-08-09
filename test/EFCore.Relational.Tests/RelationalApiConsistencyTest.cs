@@ -333,7 +333,7 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                     typeof(Action<StoredProcedureResultColumnBuilder>)
                 }),
             typeof(IConventionStoredProcedure).GetMethod(
-                nameof(IConventionStoredProcedure.SetAreRowsAffectedReturned),
+                nameof(IConventionStoredProcedure.SetIsRowsAffectedReturned),
                 new[] { typeof(bool), typeof(bool) })
         };
 

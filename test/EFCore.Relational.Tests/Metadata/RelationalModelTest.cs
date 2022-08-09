@@ -416,17 +416,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(ordersCustomerIndex.GetDefaultDatabaseName(
                 StoreObjectIdentifier.Table(ordersView.Name, ordersView.Schema)));
 
-            var specialtyCK = specialCustomerType.GetCheckConstraints().Single();
-            Assert.Equal(mappedToTable
-                ? "Specialty"
-                : null, specialtyCK.Name);
-            Assert.Null(specialtyCK.GetName(
-                StoreObjectIdentifier.Table(ordersView.Name, ordersView.Schema)));
-            Assert.Equal(mappedToTable
-                ? "Specialty"
-                : null, specialtyCK.GetDefaultName());
-            Assert.Equal("Specialty", specialtyCK.GetDefaultName(
-                StoreObjectIdentifier.Table(ordersView.Name, ordersView.Schema)));
+            if (mappedToTable)
+            {
+                var specialtyCK = specialCustomerType.GetCheckConstraints().Single();
+                Assert.Equal("Specialty", specialtyCK.Name);
+                Assert.Null(
+                    specialtyCK.GetName(
+                        StoreObjectIdentifier.Table(ordersView.Name, ordersView.Schema)));
+                Assert.Equal("Specialty", specialtyCK.GetDefaultName());
+                Assert.Equal(
+                    "Specialty", specialtyCK.GetDefaultName(
+                        StoreObjectIdentifier.Table(ordersView.Name, ordersView.Schema)));
+            }
+            else
+            {
+                Assert.Empty(specialCustomerType.GetCheckConstraints());
+            }
 
             Assert.Equal(mappedToTable
                 ? "PK_Order"
@@ -2091,9 +2096,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         }
                     }
 
-                    cb.HasCheckConstraint("Specialty", "[Specialty] IN ('Specialist', 'Generalist')");
-
                     cb.Property(s => s.Specialty).IsRequired();
+
+                    if (cb.Metadata.GetTableName() != null)
+                    {
+                        cb.ToTable(tb => tb.HasCheckConstraint("Specialty", "[Specialty] IN ('Specialist', 'Generalist')"));
+                    }
 
                     cb.HasOne(c => c.RelatedCustomer).WithOne()
                         .HasForeignKey<SpecialCustomer>(c => c.RelatedCustomerSpecialty)

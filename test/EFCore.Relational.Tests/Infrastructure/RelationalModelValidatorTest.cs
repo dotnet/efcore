@@ -350,8 +350,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().ToTable("Table").HasComment("My comment");
-        modelBuilder.Entity<B>().ToTable("Table").HasComment("my comment");
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.HasComment("My comment"));
+        modelBuilder.Entity<B>().ToTable("Table", tb => tb.HasComment("my comment"));
 
         VerifyError(
             RelationalStrings.IncompatibleTableCommentMismatch(
@@ -365,7 +365,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().ToTable("Table").HasComment("My comment");
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.HasComment("My comment"));
         modelBuilder.Entity<B>().ToTable("Table");
 
         Validate(modelBuilder);
@@ -468,10 +468,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().HasCheckConstraint("SomeCK", "Id > 0", c => c.HasName("CK_Table_SomeCK"));
-        modelBuilder.Entity<A>().ToTable("Table");
-        modelBuilder.Entity<B>().HasCheckConstraint("SomeOtherCK", "Id > 10", c => c.HasName("CK_Table_SomeCK"));
-        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.HasCheckConstraint("SomeCK", "Id > 0").HasName("CK_Table_SomeCK"));
+        modelBuilder.Entity<B>().ToTable("Table", tb => tb.HasCheckConstraint("SomeOtherCK", "Id > 10").HasName("CK_Table_SomeCK"));
 
         VerifyError(
             RelationalStrings.DuplicateCheckConstraintSqlMismatch(
@@ -485,10 +483,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
-        modelBuilder.Entity<A>().ToTable("Table");
-        modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 10");
-        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.HasCheckConstraint("CK_Table_SomeCK", "Id > 0"));
+        modelBuilder.Entity<B>().ToTable("Table", tb => tb.HasCheckConstraint("CK_Table_SomeCK", "Id > 10"));
 
         var model = Validate(modelBuilder);
 
@@ -502,10 +498,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
-        modelBuilder.Entity<A>().ToTable("Table");
-        modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
-        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.HasCheckConstraint("CK_Table_SomeCK", "Id > 0"));
+        modelBuilder.Entity<B>().ToTable("Table", tb => tb.HasCheckConstraint("CK_Table_SomeCK", "Id > 0"));
 
         var model = Validate(modelBuilder);
 

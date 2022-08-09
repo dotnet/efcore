@@ -2292,15 +2292,14 @@ namespace TestNamespace
                         eb.OwnsMany(
                             typeof(OwnedType).FullName, "ManyOwned", ob =>
                             {
-                                ob.IsMemoryOptimized();
-                                ob.ToTable("ManyOwned", t => t.ExcludeFromMigrations());
+                                ob.ToTable("ManyOwned", t => t.IsMemoryOptimized().ExcludeFromMigrations());
                             });
 
                         eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
                             .UsingEntity(
                                 jb =>
                                 {
-                                    jb.HasComment("Join table");
+                                    jb.ToTable(tb => tb.HasComment("Join table"));
                                     jb.Property<byte[]>("rowid")
                                         .IsRowVersion()
                                         .HasComment("RowVersion")
@@ -2798,7 +2797,7 @@ namespace TestNamespace
                     Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(insertSproc.ResultColumns);
                     Assert.True(insertSproc.AreTransactionsSuppressed);
-                    Assert.False(insertSproc.AreRowsAffectedReturned);
+                    Assert.False(insertSproc.IsRowsAffectedReturned);
                     Assert.Equal("bar1", insertSproc["foo"]);
                     Assert.Same(principalBase, insertSproc.EntityType);
                     Assert.Equal("BaseId", insertSproc.Parameters.Last().Name);
@@ -2811,7 +2810,7 @@ namespace TestNamespace
                     Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.False(updateSproc.AreTransactionsSuppressed);
-                    Assert.False(updateSproc.AreRowsAffectedReturned);
+                    Assert.False(updateSproc.IsRowsAffectedReturned);
                     Assert.Empty(updateSproc.GetAnnotations());
                     Assert.Same(principalBase, updateSproc.EntityType);
                     Assert.Equal("Id", updateSproc.Parameters.Last().Name);
@@ -2823,7 +2822,7 @@ namespace TestNamespace
                     Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.Name));
                     Assert.Empty(deleteSproc.ResultColumns);
                     Assert.False(deleteSproc.AreTransactionsSuppressed);
-                    Assert.True(deleteSproc.AreRowsAffectedReturned);
+                    Assert.True(deleteSproc.IsRowsAffectedReturned);
                     Assert.Same(principalBase, deleteSproc.EntityType);
                     Assert.Equal("Id", deleteSproc.Parameters.Last().Name);
                     Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.DeleteStoredProcedure).Value));
@@ -4086,8 +4085,8 @@ namespace TestNamespace
                         eb.Property<int>("Id");
                         eb.HasKey("Id");
 
-                        eb.HasCheckConstraint("idConstraint", "Id <> 0");
-                        eb.HasCheckConstraint("anotherConstraint", "Id <> -1");
+                        eb.ToTable(tb => tb.HasCheckConstraint("idConstraint", "Id <> 0"));
+                        eb.ToTable(tb => tb.HasCheckConstraint("anotherConstraint", "Id <> -1"));
                     });
             }
         }

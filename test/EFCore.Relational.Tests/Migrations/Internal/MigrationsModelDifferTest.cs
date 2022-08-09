@@ -407,14 +407,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 "Node",
                 x =>
                 {
-                    x.ToTable("Node", "dbo");
+                    x.ToTable("Node", "dbo", tb => tb.HasCheckConstraint("CK_Node_SomeCheckConstraint", "[Id] > 10"));
                     x.Property<int>("Id");
                     x.Property<int>("AltId");
                     x.HasAlternateKey("AltId");
                     x.Property<int?>("ParentAltId");
                     x.HasOne("Node").WithMany().HasForeignKey("ParentAltId");
                     x.HasIndex("ParentAltId");
-                        x.HasCheckConstraint("CK_Node_SomeCheckConstraint", "[Id] > 10");
                 }),
             upOps =>
             {
@@ -907,17 +906,15 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 "MountainLion",
                 x =>
                 {
-                    x.ToTable("MountainLion", "dbo");
+                    x.ToTable("MountainLion", "dbo", tb => tb.HasComment("Old comment"));
                     x.Property<int>("Id");
-                    x.HasComment("Old comment");
                 }),
             target => target.Entity(
                 "MountainLion",
                 x =>
                 {
-                    x.ToTable("MountainLion", "dbo");
+                    x.ToTable("MountainLion", "dbo", tb => tb.HasComment("New comment"));
                     x.Property<int>("Id");
-                    x.HasComment("New comment");
                 }),
             operations =>
             {
@@ -3252,10 +3249,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 "Flamingo",
                 x =>
                 {
-                    x.ToTable("Flamingo", "dbo");
+                    x.ToTable("Flamingo", "dbo", tb => tb.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id"));
                     x.Property<int>("Id");
                     x.Property<int>("AlternateId");
-                    x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
                 }),
             operations =>
             {
@@ -3275,10 +3271,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 "Penguin",
                 x =>
                 {
-                    x.ToTable("Penguin", "dbo");
+                    x.ToTable("Penguin", "dbo", tb => tb.HasCheckConstraint("CK_Penguin_AlternateId", "AlternateId > Id"));
                     x.Property<int>("Id");
                     x.Property<int>("AlternateId");
-                    x.HasCheckConstraint("CK_Penguin_AlternateId", "AlternateId > Id");
                 }),
             target => target.Entity(
                 "Penguin",
@@ -3305,19 +3300,17 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 "Pelican",
                 x =>
                 {
-                    x.ToTable("Pelican", "dbo");
+                    x.ToTable("Pelican", "dbo", tb => tb.HasCheckConstraint("CK_Pelican_AlternateId", "AlternateId > Id"));
                     x.Property<int>("Id");
                     x.Property<int>("AlternateId");
-                    x.HasCheckConstraint("CK_Pelican_AlternateId", "AlternateId > Id");
                 }),
             target => target.Entity(
                 "Pelican",
                 x =>
                 {
-                    x.ToTable("Pelican", "dbo");
+                    x.ToTable("Pelican", "dbo", tb => tb.HasCheckConstraint("CK_Pelican_AlternateId", "AlternateId > Id").HasName("CK_Flamingo"));
                     x.Property<int>("Id");
                     x.Property<int>("AlternateId");
-                    x.HasCheckConstraint("CK_Pelican_AlternateId", "AlternateId > Id", c => c.HasName("CK_Flamingo"));
                 }),
             operations =>
             {
@@ -3342,19 +3335,17 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 "Rook",
                 x =>
                 {
-                    x.ToTable("Rook", "dbo");
+                    x.ToTable("Rook", "dbo", tb => tb.HasCheckConstraint("CK_Rook_AlternateId", "AlternateId > Id"));
                     x.Property<int>("Id");
                     x.Property<int>("AlternateId");
-                    x.HasCheckConstraint("CK_Rook_AlternateId", "AlternateId > Id");
                 }),
             target => target.Entity(
                 "Rook",
                 x =>
                 {
-                    x.ToTable("Rook", "dbo");
+                    x.ToTable("Rook", "dbo", tb => tb.HasCheckConstraint("CK_Rook_AlternateId", "AlternateId < Id"));
                     x.Property<int>("Id");
                     x.Property<int>("AlternateId");
-                    x.HasCheckConstraint("CK_Rook_AlternateId", "AlternateId < Id");
                 }),
             operations =>
             {
