@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class ConventionsBuilder
+public class ConventionSetBuilder
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ConventionSet _conventionSet;
@@ -27,7 +27,7 @@ public class ConventionsBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public ConventionsBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider)
+    public ConventionSetBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider)
     {
         Check.NotNull(conventionSet, nameof(conventionSet));
 

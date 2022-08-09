@@ -336,7 +336,8 @@ public static class ScaffoldingModelExtensions
     /// <param name="entityType">The entity type.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
     /// <returns>The fluent API calls.</returns>
-    public static FluentApiCodeFragment? GetFluentApiCalls(this IEntityType entityType, IAnnotationCodeGenerator annotationCodeGenerator)
+    public static FluentApiCodeFragment? GetFluentApiCalls(
+        this IEntityType entityType, IAnnotationCodeGenerator annotationCodeGenerator)
     {
         FluentApiCodeFragment? root = null;
 
@@ -346,10 +347,11 @@ public static class ScaffoldingModelExtensions
 
         annotations.Remove(RelationalAnnotationNames.TableName);
         annotations.Remove(RelationalAnnotationNames.Schema);
+        annotations.Remove(RelationalAnnotationNames.Comment);
         annotations.Remove(RelationalAnnotationNames.ViewName);
         annotations.Remove(RelationalAnnotationNames.ViewSchema);
-        annotations.Remove(ScaffoldingAnnotationNames.DbSetName);
         annotations.Remove(RelationalAnnotationNames.ViewDefinitionSql);
+        annotations.Remove(ScaffoldingAnnotationNames.DbSetName);
 
         var annotationsHandledByDataAnnotations = new Dictionary<string, IAnnotation>(annotations);
 
@@ -394,22 +396,34 @@ public static class ScaffoldingModelExtensions
             }
         }
 
+        var toTableNestedCalls = new List<MethodCallCodeFragment>();
+
+        var comment = entityType.GetComment();
+        if (comment != null)
+        {
+            toTableHandledByConventions = false;
+            toTableHandledByDataAnnotations = false;
+
+            toTableNestedCalls.Add(new MethodCallCodeFragment(nameof(TableBuilder.HasComment), comment));
+        }
+
         if (entityType.GetTriggers().Any())
         {
             toTableHandledByConventions = false;
             toTableHandledByDataAnnotations = false;
 
-            var toTableNestedCalls = new List<MethodCallCodeFragment>();
             foreach (var trigger in entityType.GetTriggers())
             {
                 toTableNestedCalls.Add(new MethodCallCodeFragment(nameof(TableBuilder.HasTrigger), trigger.Name));
             }
-
-            toTableArguments.Add(new NestedClosureCodeFragment("tb", toTableNestedCalls));
         }
 
         if (!toTableHandledByConventions)
         {
+            if (toTableNestedCalls.Count != 0)
+            {
+                toTableArguments.Add(new NestedClosureCodeFragment("tb", toTableNestedCalls));
+            }
             var toTable = new FluentApiCodeFragment(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
             {
                 Arguments = toTableArguments,

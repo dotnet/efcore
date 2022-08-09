@@ -784,6 +784,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="name">The name of the check constraint.</param>
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <returns>A builder to further configure the entity type.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static EntityTypeBuilder HasCheckConstraint(
         this EntityTypeBuilder entityTypeBuilder,
         string name,
@@ -809,6 +810,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <param name="buildAction">An action that performs configuration of the check constraint.</param>
     /// <returns>A builder to further configure the entity type.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static EntityTypeBuilder HasCheckConstraint(
         this EntityTypeBuilder entityTypeBuilder,
         string name,
@@ -836,6 +838,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="name">The name of the check constraint.</param>
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <returns>A builder to further configure the entity type.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string name,
@@ -855,6 +858,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <param name="buildAction">An action that performs configuration of the check constraint.</param>
     /// <returns>A builder to further configure the entity type.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string name,
@@ -873,6 +877,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="name">The name of the check constraint.</param>
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <returns>A builder to further configure the navigation.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static OwnedNavigationBuilder HasCheckConstraint(
         this OwnedNavigationBuilder ownedNavigationBuilder,
         string name,
@@ -899,6 +904,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="name">The name of the check constraint.</param>
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <returns>A builder to further configure the navigation.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder,
         string name,
@@ -919,6 +925,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <param name="buildAction">An action that performs configuration of the check constraint.</param>
     /// <returns>A builder to further configure the navigation.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static OwnedNavigationBuilder HasCheckConstraint(
         this OwnedNavigationBuilder ownedNavigationBuilder,
         string name,
@@ -948,6 +955,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="sql">The logical constraint sql used in the check constraint.</param>
     /// <param name="buildAction">An action that performs configuration of the check constraint.</param>
     /// <returns>A builder to further configure the navigation.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasCheckConstraint()) instead.")] // Don't remove, used in snapshot
     public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder,
         string name,
@@ -1015,6 +1023,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="comment">The comment for the table.</param>
     /// <returns>A builder to further configure the entity type.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasComment()) instead.")] // Don't remove, used in snapshot
     public static EntityTypeBuilder HasComment(
         this EntityTypeBuilder entityTypeBuilder,
         string? comment)
@@ -1033,6 +1042,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The entity type builder.</param>
     /// <param name="comment">The comment for the table.</param>
     /// <returns>A builder to further configure the entity type.</returns>
+    [Obsolete("Configure this using ToTable(t => t.HasComment()) instead.")] // Don't remove, used in snapshot
     public static EntityTypeBuilder<TEntity> HasComment<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string? comment)

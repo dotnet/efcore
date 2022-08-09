@@ -18,7 +18,7 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     private readonly List<RuntimeStoredProcedureResultColumn> _resultColumns = new();
     private readonly string? _schema;
     private readonly string _name;
-    private readonly bool _areRowsAffectedReturned;
+    private readonly bool _isRowsAffectedReturned;
     private readonly bool _areTransactionsSuppressed;
     private IStoreStoredProcedure? _storeStoredProcedure;
 
@@ -28,20 +28,20 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     /// <param name="entityType">The mapped entity type.</param>
     /// <param name="name">The name.</param>
     /// <param name="schema">The schema.</param>
-    /// <param name="areRowsAffectedReturned">Whether this stored procedure returns the number of rows affected.</param>
-    /// <param name="areTransactionsSuppressed">Whether the automatic transactions are surpressed.</param>
+    /// <param name="rowsAffectedReturned">Whether this stored procedure returns the number of rows affected.</param>
+    /// <param name="transactionsSuppressed">Whether the automatic transactions are surpressed.</param>
     public RuntimeStoredProcedure(
         RuntimeEntityType entityType,
         string name,
         string? schema,
-        bool areRowsAffectedReturned,
-        bool areTransactionsSuppressed)
+        bool rowsAffectedReturned,
+        bool transactionsSuppressed)
     {
         EntityType = entityType;
         _name = name;
         _schema = schema;
-        _areRowsAffectedReturned = areRowsAffectedReturned;
-        _areTransactionsSuppressed = areTransactionsSuppressed;
+        _isRowsAffectedReturned = rowsAffectedReturned;
+        _areTransactionsSuppressed = transactionsSuppressed;
     }
 
     /// <summary>
@@ -159,10 +159,10 @@ public class RuntimeStoredProcedure : AnnotatableBase, IRuntimeStoredProcedure
     }
     
     /// <inheritdoc />
-    bool IReadOnlyStoredProcedure.AreRowsAffectedReturned
+    bool IReadOnlyStoredProcedure.IsRowsAffectedReturned
     {
         [DebuggerStepThrough]
-        get => _areRowsAffectedReturned;
+        get => _isRowsAffectedReturned;
     }
 
     /// <inheritdoc />

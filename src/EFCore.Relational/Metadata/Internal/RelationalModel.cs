@@ -1249,10 +1249,10 @@ public class RelationalModel : Annotatable, IRelationalModel
                 if (storeStoredProcedure == null)
                 {
                     storeStoredProcedure = new StoreStoredProcedure(storedProcedure, model);
-                    if (storedProcedure.AreRowsAffectedReturned)
+                    if (storedProcedure.IsRowsAffectedReturned)
                     {
                         var typeMapping = relationalTypeMappingSource.FindMapping(typeof(int))!;
-                        storeStoredProcedure.Return = new StoreStoredProcedureReturn(
+                        storeStoredProcedure.ReturnValue = new StoreStoredProcedureReturnValue(
                                 "",
                                 typeMapping.StoreType,
                                 storeStoredProcedure,

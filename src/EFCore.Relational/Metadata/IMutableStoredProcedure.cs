@@ -35,7 +35,7 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     /// <summary>
     ///     Gets or sets a value indicating whether this stored procedure returns the number of rows affected.
     /// </summary>
-    new bool AreRowsAffectedReturned { get; set; }
+    new bool IsRowsAffectedReturned { get; set; }
 
     /// <summary>
     ///     Gets the parameters for this stored procedure.

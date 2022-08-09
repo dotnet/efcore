@@ -175,7 +175,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             _ => { },
             builder => builder.UseIdentityColumns().Entity("People", b =>
             {
-                b.IsMemoryOptimized();
+                b.ToTable(tb => tb.IsMemoryOptimized());
                 b.Property<int>("Id");
             }),
             model =>
@@ -236,8 +236,7 @@ EXEC(N'
             _ => { },
             builder => builder.UseIdentityColumns().Entity("People", b =>
             {
-                b.ToTable("Customers", tb => tb.IsTemporal());
-                b.IsMemoryOptimized();
+                b.ToTable("Customers", tb => tb.IsMemoryOptimized().IsTemporal());
                 b.Property<int>("Id");
             }),
             model =>
@@ -1088,7 +1087,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
             builder => builder.Entity(
                 "People", e =>
                 {
-                    e.IsMemoryOptimized();
+                    e.ToTable(tb => tb.IsMemoryOptimized());
                     e.Property<int>("Id");
                     e.Property<string>("Name");
                     e.HasKey("Id").IsClustered(false);
@@ -1863,7 +1862,8 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;",
                 {
                     e.Property<int>("Id");
                     e.Property<string>("Name");
-                    e.IsMemoryOptimized().HasKey("Id").IsClustered(false);
+                    e.ToTable(tb => tb.IsMemoryOptimized());
+                    e.HasKey("Id").IsClustered(false);
                 }),
             builder => { },
             builder => builder.Entity("People").HasIndex("Name").IsUnique(),
@@ -1897,7 +1897,8 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 {
                     e.Property<int>("Id");
                     e.Property<string>("Name");
-                    e.IsMemoryOptimized().HasKey("Id").IsClustered(false);
+                    e.ToTable(tb => tb.IsMemoryOptimized());
+                    e.HasKey("Id").IsClustered(false);
                 }),
             builder => { },
             builder => builder.Entity("People").HasIndex("Name").IsUnique().HasFilter("[Name] IS NOT NULL AND <> ''"),
@@ -1931,7 +1932,9 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 "People", e =>
                 {
                     e.Property<string>("Name").IsRequired();
-                    e.IsMemoryOptimized().HasKey("Name").IsClustered(false);
+                    e.ToTable(tb => tb.IsMemoryOptimized());
+                    e.ToTable(tb => tb.IsMemoryOptimized());
+                    e.HasKey("Name").IsClustered(false);
                 }),
             builder => { },
             builder => builder.Entity("People").HasIndex("Name").IsUnique().IsClustered(false),
@@ -2131,7 +2134,7 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(max) NOT NULL;");
                     e.Property<int>("DriverLicense");
                 }),
             builder => { },
-            builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", "[DriverLicense] > 0"),
+            builder => builder.Entity("People").ToTable(tb => tb.HasCheckConstraint("CK_People_Foo", "[DriverLicense] > 0")),
             model =>
             {
                 // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
@@ -5672,7 +5675,6 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                     e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
                     e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
-                    e.HasComment("Table comment");
 
                     e.ToTable(
                         tb => tb.IsTemporal(
@@ -5680,7 +5682,8 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                             {
                                 ttb.HasPeriodStart("SystemTimeStart");
                                 ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            })
+                            .HasComment("Table comment"));
                 }),
             model =>
             {
@@ -5822,13 +5825,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                 "Customer", e =>
                 {
                     e.Property<string>("Name").HasComment("Column comment");
-                    e.HasComment("Table comment");
+                    e.ToTable(tb => tb.HasComment("Table comment"));
                 }),
             builder => builder.Entity(
                 "Customer", e =>
                 {
                     e.Property<string>("Name").HasComment("Modified column comment");
-                    e.HasComment("Modified table comment");
+                    e.ToTable(tb => tb.HasComment("Modified table comment"));
                 }),
             model =>
             {

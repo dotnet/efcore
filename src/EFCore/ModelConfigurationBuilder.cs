@@ -25,7 +25,7 @@ public class ModelConfigurationBuilder
 {
     private readonly ModelConfiguration _modelConfiguration = new();
     private readonly ConventionSet _conventions;
-    private readonly ConventionsBuilder _conventionsBuilder;
+    private readonly ConventionSetBuilder _conventionSetBuilder;
     
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +39,7 @@ public class ModelConfigurationBuilder
         Check.NotNull(conventions, nameof(conventions));
 
         _conventions = conventions;
-        _conventionsBuilder = new ConventionsBuilder(conventions, serviceProvider);
+        _conventionSetBuilder = new ConventionSetBuilder(conventions, serviceProvider);
     }
 
     /// <summary>
@@ -55,8 +55,8 @@ public class ModelConfigurationBuilder
     /// <summary>
     ///     Gets the builder for the conventions that will be used in the model.
     /// </summary>
-    public virtual ConventionsBuilder Conventions
-        => _conventionsBuilder;
+    public virtual ConventionSetBuilder Conventions
+        => _conventionSetBuilder;
 
     /// <summary>
     ///     Prevents the conventions from the given type from discovering properties of the given or derived types.

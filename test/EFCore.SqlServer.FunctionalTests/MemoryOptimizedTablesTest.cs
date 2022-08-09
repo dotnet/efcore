@@ -76,12 +76,12 @@ public class MemoryOptimizedTablesTest : IClassFixture<MemoryOptimizedTablesTest
                 .Entity<FastUn>(
                     eb =>
                     {
-                        eb.IsMemoryOptimized();
+                        eb.ToTable(tb => tb.IsMemoryOptimized());
                         eb.HasIndex(e => e.Name).IsUnique();
                         eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
                     });
 
-            modelBuilder.Entity<BigUn>().IsMemoryOptimized();
+            modelBuilder.Entity<BigUn>().ToTable(tb => tb.IsMemoryOptimized());
         }
     }
 

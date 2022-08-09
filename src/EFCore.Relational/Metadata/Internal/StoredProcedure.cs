@@ -23,7 +23,7 @@ public class StoredProcedure :
     private string? _name;
     private InternalStoredProcedureBuilder? _builder;
     private bool _areTransactionsSuppressed;
-    private bool _areRowsAffectedReturned;
+    private bool _isRowsAffectedReturned;
     private IStoreStoredProcedure? _storeStoredProcedure;
 
     private ConfigurationSource _configurationSource;
@@ -472,10 +472,10 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool AreRowsAffectedReturned
+    public virtual bool IsRowsAffectedReturned
     {
-        get => _areRowsAffectedReturned;
-        set => SetAreRowsAffectedReturned(value);
+        get => _isRowsAffectedReturned;
+        set => SetIsRowsAffectedReturned(value);
     }
 
     /// <summary>
@@ -484,7 +484,7 @@ public class StoredProcedure :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool SetAreRowsAffectedReturned(bool areRowsAffectedReturned)
+    public virtual bool SetIsRowsAffectedReturned(bool rowsAffectedReturned)
     {
         EnsureMutable();
 
@@ -494,9 +494,9 @@ public class StoredProcedure :
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
-        _areRowsAffectedReturned = areRowsAffectedReturned;
+        _isRowsAffectedReturned = rowsAffectedReturned;
         
-        return areRowsAffectedReturned;
+        return rowsAffectedReturned;
     }
     
     /// <summary>
@@ -629,7 +629,7 @@ public class StoredProcedure :
     {
         if (_rowsAffectedParameter != null
             || _rowsAffectedResultColumn != null
-            || _areRowsAffectedReturned)
+            || _isRowsAffectedReturned)
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter(
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
@@ -705,7 +705,7 @@ public class StoredProcedure :
     {
         if (_rowsAffectedResultColumn != null
             || _rowsAffectedParameter != null
-            || _areRowsAffectedReturned)
+            || _isRowsAffectedReturned)
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn(
                 ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
@@ -859,8 +859,8 @@ public class StoredProcedure :
     
     /// <inheritdoc />
     [DebuggerStepThrough]
-    bool IConventionStoredProcedure.SetAreRowsAffectedReturned(bool rowsAffectedReturned, bool fromDataAnnotation)
-        => SetAreRowsAffectedReturned(rowsAffectedReturned);
+    bool IConventionStoredProcedure.SetIsRowsAffectedReturned(bool rowsAffectedReturned, bool fromDataAnnotation)
+        => SetIsRowsAffectedReturned(rowsAffectedReturned);
     
     /// <inheritdoc />
     [DebuggerStepThrough]

@@ -83,6 +83,45 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
             ConfigurationSource.Explicit)!);
 
     /// <summary>
+    ///     Configures a database check constraint when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information and examples.
+    /// </remarks>
+    /// <param name="name">The name of the check constraint.</param>
+    /// <param name="sql">The logical constraint sql used in the check constraint.</param>
+    /// <returns>A builder to configure the check constraint.</returns>
+    public virtual CheckConstraintBuilder HasCheckConstraint(
+        string name,
+        string? sql)
+    {
+        Check.NotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(sql, nameof(sql));
+        
+        var checkConstraint = InternalCheckConstraintBuilder.HasCheckConstraint(
+            (IConventionEntityType)Metadata,
+            name,
+            sql,
+            ConfigurationSource.Explicit)!;
+
+        return new((IMutableCheckConstraint)checkConstraint);
+    }
+    
+    /// <summary>
+    ///     Configures a comment to be applied to the table
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="comment">The comment for the table.</param>
+    /// <returns>A builder to further configure the table.</returns>
+    public virtual OwnedNavigationTableBuilder HasComment(string? comment)
+    {
+        Metadata.SetComment(comment);
+        return this;
+    }
+
+    /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used
     ///     to provide table-specific configuration if the property is mapped to more than one table.
     /// </summary>

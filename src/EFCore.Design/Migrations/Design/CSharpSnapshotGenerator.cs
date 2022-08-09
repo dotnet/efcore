@@ -164,8 +164,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 GenerateEntityTypeAnnotations(entityTypeBuilderName, entityType, stringBuilder);
 
-                GenerateCheckConstraints(entityTypeBuilderName, entityType, stringBuilder);
-
                 if (ownerNavigation != null)
                 {
                     GenerateRelationships(entityTypeBuilderName, entityType, stringBuilder);
@@ -847,12 +845,32 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         Dictionary<string, IAnnotation> annotations)
     {
         annotations.TryGetAndRemove(RelationalAnnotationNames.TableName, out IAnnotation tableNameAnnotation);
-        annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
         var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var tableName = (string?)tableNameAnnotation?.Value ?? table?.Name;
-        if (tableNameAnnotation == null
-            && entityType.BaseType != null
-            && entityType.BaseType.GetTableName() == tableName)
+        var explicitName = tableNameAnnotation != null 
+            || entityType.BaseType == null 
+            || entityType.BaseType.GetTableName() != tableName;
+        
+        annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
+        var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
+        
+        annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
+        var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
+        
+        annotations.TryGetAndRemove(RelationalAnnotationNames.Comment, out IAnnotation commentAnnotation);
+        var comment = (string?)commentAnnotation?.Value;
+        
+        var hasTriggers = entityType.GetTriggers().Any(t => t.TableName == tableName! && t.TableSchema == schema);
+        var hasOverrides = table != null
+            && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
+        var requiresTableBuilder = isExcludedFromMigrations
+            || comment != null
+            || hasTriggers
+            || hasOverrides
+            || entityType.GetCheckConstraints().Any();
+        
+        if (!explicitName
+            && !requiresTableBuilder)
         {
             return;
         }
@@ -861,51 +879,50 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .AppendLine()
             .Append(entityTypeBuilderName)
             .Append(".ToTable(");
-
-        var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
-        if (tableName == null
-            && (schemaAnnotation == null || schema == null))
+        
+        if (explicitName)
         {
-            stringBuilder.Append("(string)");
-        }
-
-        stringBuilder.Append(Code.Literal(tableName));
-
-        annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
-        var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
-        if (isExcludedAnnotation is not null)
-        {
-            annotations.Remove(isExcludedAnnotation.Name);
-        }
-
-        var hasTriggers = entityType.GetTriggers().Any(t => t.TableName == tableName! && t.TableSchema == schema);
-        var hasOverrides = table != null
-            && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
-        var requiresTableBuilder = isExcludedFromMigrations
-            || hasTriggers
-            || hasOverrides;
-
-        if (schema != null
-            || (schemaAnnotation != null && tableName != null))
-        {
-            stringBuilder
-                .Append(", ");
-
-            if (schema == null && !requiresTableBuilder)
+            if (tableName == null
+                && (schemaAnnotation == null || schema == null))
             {
                 stringBuilder.Append("(string)");
             }
 
-            stringBuilder.Append(Code.Literal(schema));
+            stringBuilder.Append(Code.Literal(tableName));
+
+            if (isExcludedAnnotation is not null)
+            {
+                annotations.Remove(isExcludedAnnotation.Name);
+            }
+
+
+            if (schema != null
+                || (schemaAnnotation != null && tableName != null))
+            {
+                stringBuilder
+                    .Append(", ");
+
+                if (schema == null && !requiresTableBuilder)
+                {
+                    stringBuilder.Append("(string)");
+                }
+
+                stringBuilder.Append(Code.Literal(schema));
+            }
         }
 
         if (requiresTableBuilder)
         {
             using (stringBuilder.Indent())
             {
+                if (explicitName)
+                {
+                    stringBuilder.Append(", ");
+                }
+
                 stringBuilder
-                .AppendLine(", t =>")
-                .Append("{");
+                    .AppendLine("t =>")
+                    .Append("{");
 
                 using (stringBuilder.Indent())
                 {
@@ -915,11 +932,20 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                             .AppendLine()
                             .AppendLine("t.ExcludeFromMigrations();");
                     }
+                    
+                    if (comment != null)
+                    {
+                        stringBuilder
+                            .AppendLine()
+                            .AppendLine($"t.{nameof(TableBuilder.HasComment)}({Code.Literal(comment!)});");
+                    }
 
                     if (hasTriggers)
                     {
                         GenerateTriggers("t", entityType, tableName!, schema, stringBuilder);
                     }
+
+                    GenerateCheckConstraints("t", entityType, stringBuilder);
 
                     if (hasOverrides)
                     {
@@ -1123,10 +1149,10 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .Append(".HasCheckConstraint(")
             .Append(Code.Literal(checkConstraint.ModelName))
             .Append(", ")
-            .Append(Code.Literal(checkConstraint.Sql));
+            .Append(Code.Literal(checkConstraint.Sql))
+            .Append(")");
 
         GenerateCheckConstraintAnnotations(checkConstraint, stringBuilder);
-        stringBuilder.AppendLine(");");
     }
 
     /// <summary>
@@ -1143,43 +1169,25 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(checkConstraint.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
-        if (annotations.Count > 0
-            || hasNonDefaultName)
+        using (stringBuilder.Indent())
         {
-            if (annotations.Count > 0)
-            {
-                stringBuilder
-                    .Append(", c =>")
-                    .AppendLine()
-                    .IncrementIndent()
-                    .AppendLine("{")
-                    .IncrementIndent();
-            }
-            else
-            {
-                stringBuilder.Append(", c => ");
-            }
-
             if (hasNonDefaultName)
             {
                 stringBuilder
-                    .Append("c.HasName(")
+                    .AppendLine()
+                    .Append(".HasName(")
                     .Append(Code.Literal(checkConstraint.Name!))
                     .Append(")");
             }
 
             if (annotations.Count > 0)
             {
-                if (hasNonDefaultName)
-                {
-                    stringBuilder.AppendLine(";");
-                }
-
-                GenerateAnnotations("c", checkConstraint, stringBuilder, annotations, inChainedCall: false);
-                stringBuilder
-                    .DecrementIndent()
-                    .Append("}")
-                    .DecrementIndent();
+                GenerateAnnotations("t", checkConstraint, stringBuilder, annotations, inChainedCall: true);
+                stringBuilder.IncrementIndent();
+            }
+            else
+            {
+                stringBuilder.AppendLine(";");
             }
         }
     }

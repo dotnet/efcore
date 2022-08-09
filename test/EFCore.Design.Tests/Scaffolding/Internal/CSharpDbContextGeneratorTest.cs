@@ -318,7 +318,7 @@ public partial class TestDbContext : DbContext
                     "Entity",
                     x =>
                     {
-                        x.HasComment("An entity comment");
+                        x.ToTable(tb => tb.HasComment("An entity comment"));
                     }),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(

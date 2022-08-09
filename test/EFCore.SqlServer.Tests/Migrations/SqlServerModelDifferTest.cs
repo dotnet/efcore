@@ -57,7 +57,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 "Person",
                 x =>
                 {
-                    x.IsMemoryOptimized();
+                    x.ToTable(tb => tb.IsMemoryOptimized());
                 }),
             upOps =>
             {
@@ -107,7 +107,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 "Person",
                 x =>
                 {
-                    x.IsMemoryOptimized();
+                    x.ToTable(tb => tb.IsMemoryOptimized());
                 }),
             upOps =>
             {

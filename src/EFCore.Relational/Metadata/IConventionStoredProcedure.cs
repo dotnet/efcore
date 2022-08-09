@@ -145,7 +145,7 @@ public interface IConventionStoredProcedure : IReadOnlyStoredProcedure, IConvent
     /// <param name="rowsAffectedReturned">A value indicating whether the number of rows affected is returned.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    bool SetAreRowsAffectedReturned(bool rowsAffectedReturned, bool fromDataAnnotation = false);
+    bool SetIsRowsAffectedReturned(bool rowsAffectedReturned, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Prevents automatically creating a transaction when executing this stored procedure.

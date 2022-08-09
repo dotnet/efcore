@@ -370,7 +370,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             x =>
             {
                 x.Property<int>("Id");
-                x.IsMemoryOptimized();
+                x.ToTable(tb => tb.IsMemoryOptimized());
             });
         var entityType = (IEntityType)modelBuilder.Model.FindEntityType("Post")!;
 

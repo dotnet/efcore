@@ -36,7 +36,7 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
         conventionSet.Add(new ContextContainerConvention(Dependencies));
         conventionSet.Add(new ETagPropertyConvention());
         conventionSet.Add(new StoreKeyConvention(Dependencies));
-        
+
         conventionSet.Replace<ValueGenerationConvention>(new CosmosValueGenerationConvention(Dependencies));
         conventionSet.Replace<KeyDiscoveryConvention>(new CosmosKeyDiscoveryConvention(Dependencies));
         conventionSet.Replace<InversePropertyAttributeConvention>(new CosmosInversePropertyAttributeConvention(Dependencies));
