@@ -1042,4 +1042,20 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the discriminator property can be removed.</returns>
     bool CanRemoveDiscriminator(bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///    Gets or creates a builder for the target of a potential navigation.
+    /// </summary>
+    /// <param name="targetClrType">The CLR type of the target.</param>
+    /// <param name="navigationInfo">The navigation property.</param>
+    /// <param name="createIfMissing">Whether the entity type should be created if currently not in the model.</param>
+    /// <param name="targetShouldBeOwned">Whether the target should be owned. <see langword="null" /> if it can be either.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The entity type builder or <see langword="null" /> if not found and can't be created.</returns>
+    IConventionEntityTypeBuilder? GetTargetEntityTypeBuilder(
+        Type targetClrType,
+        MemberInfo navigationInfo,
+        bool createIfMissing = true,
+        bool? targetShouldBeOwned = null,
+        bool fromDataAnnotation = false);
 }

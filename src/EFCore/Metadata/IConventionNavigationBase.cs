@@ -26,10 +26,7 @@ public interface IConventionNavigationBase : IReadOnlyNavigationBase, IConventio
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     bool? SetIsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation = false)
-    {
-        SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, fromDataAnnotation);
-        return eagerLoaded;
-    }
+        => (bool?)SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyNavigationBase.IsEagerLoaded" />.

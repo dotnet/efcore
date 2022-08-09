@@ -72,7 +72,7 @@ public partial class ConventionDispatcher
                     modelConvention.ProcessModelFinalizing(modelBuilder, _modelBuilderConventionContext);
                     if (_modelBuilderConventionContext.ShouldStopProcessing())
                     {
-                        return _modelBuilderConventionContext.Result!;
+                        return _modelBuilderConventionContext.Result ?? modelBuilder;
                     }
                 }
             }

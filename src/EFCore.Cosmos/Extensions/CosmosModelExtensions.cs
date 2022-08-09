@@ -44,14 +44,10 @@ public static class CosmosModelExtensions
         this IConventionModel model,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        model.SetOrRemoveAnnotation(
+        => (string?)model.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the configuration source for the default container name.

@@ -89,14 +89,10 @@ public static class RelationalIndexExtensions
         this IConventionIndex index,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        index.SetOrRemoveAnnotation(
+        => (string?)index.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the name of the index in the database.
@@ -157,14 +153,10 @@ public static class RelationalIndexExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static string? SetFilter(this IConventionIndex index, string? value, bool fromDataAnnotation = false)
-    {
-        index.SetAnnotation(
+        => (string?)index.SetAnnotation(
             RelationalAnnotationNames.Filter,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the index filter expression.

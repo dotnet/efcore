@@ -134,18 +134,7 @@ public class StoredProcedure :
     public static StoredProcedure SetStoredProcedure(
         IMutableEntityType entityType,
         StoreObjectType sprocType)
-    {
-        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
-        var sproc = new StoredProcedure(entityType, ConfigurationSource.Explicit);
-        entityType.SetAnnotation(GetAnnotationName(sprocType), sproc);
-
-        if (oldId != null)
-        {
-            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)sproc).GetStoreIdentifier(), (IConventionEntityType)entityType);
-        }
-        
-        return sproc;
-    }
+        => SetStoredProcedure(entityType, sprocType, null, null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -156,13 +145,17 @@ public class StoredProcedure :
     public static StoredProcedure SetStoredProcedure(
         IMutableEntityType entityType,
         StoreObjectType sprocType,
-        string name,
+        string? name,
         string? schema)
     {
         var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var sproc = new StoredProcedure(entityType, ConfigurationSource.Explicit);
         entityType.SetAnnotation(GetAnnotationName(sprocType), sproc);
-        sproc.SetName(name, schema, ConfigurationSource.Explicit, skipOverrides: true);
+
+        if (name != null)
+        {
+            sproc.SetName(name, schema, ConfigurationSource.Explicit, skipOverrides: true);
+        }
 
         if (oldId != null)
         {
@@ -182,21 +175,7 @@ public class StoredProcedure :
         IConventionEntityType entityType,
         StoreObjectType sprocType,
         bool fromDataAnnotation)
-    {
-        var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
-        var sproc = new StoredProcedure(
-            (IMutableEntityType)entityType,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-        sproc = (StoredProcedure?)entityType.SetAnnotation(GetAnnotationName(sprocType), sproc)?.Value;
-
-        if (oldId != null
-            && sproc != null)
-        {
-            UpdateOverrides(oldId.Value, ((IReadOnlyStoredProcedure)sproc).GetStoreIdentifier(), entityType);
-        }
-
-        return sproc;
-    }
+        => SetStoredProcedure(entityType, sprocType, null, null, fromDataAnnotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -207,16 +186,19 @@ public class StoredProcedure :
     public static StoredProcedure? SetStoredProcedure(
         IConventionEntityType entityType,
         StoreObjectType sprocType,
-        string name,
+        string? name,
         string? schema,
         bool fromDataAnnotation)
     {
         var oldId = FindDeclaredStoredProcedure(entityType, sprocType)?.GetStoreIdentifier();
         var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
         var sproc = new StoredProcedure((IMutableEntityType)entityType, configurationSource);
-        sproc = (StoredProcedure?)entityType.SetAnnotation(GetAnnotationName(sprocType), sproc)?.Value;
+        sproc = (StoredProcedure?)entityType.SetAnnotation(GetAnnotationName(sprocType), sproc, fromDataAnnotation)?.Value;
 
-        sproc?.SetName(name, schema, configurationSource, skipOverrides: true);
+        if (name != null)
+        {
+            sproc?.SetName(name, schema, configurationSource, skipOverrides: true);
+        }
 
         if (oldId != null
             && sproc != null)

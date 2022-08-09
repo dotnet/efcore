@@ -45,11 +45,10 @@ public static class SqlServerEntityTypeExtensions
         this IConventionEntityType entityType,
         bool? memoryOptimized,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized, fromDataAnnotation);
-
-        return memoryOptimized;
-    }
+        => (bool?)entityType.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.MemoryOptimized,
+            memoryOptimized,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the configuration source for the memory-optimized setting.
@@ -86,11 +85,10 @@ public static class SqlServerEntityTypeExtensions
         this IConventionEntityType entityType,
         bool? temporal,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.IsTemporal, temporal, fromDataAnnotation);
-
-        return temporal;
-    }
+        => (bool?)entityType.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.IsTemporal,
+            temporal,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the configuration source for the temporal table setting.
@@ -129,14 +127,10 @@ public static class SqlServerEntityTypeExtensions
         this IConventionEntityType entityType,
         string? periodStartPropertyName,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             SqlServerAnnotationNames.TemporalPeriodStartPropertyName,
             periodStartPropertyName,
-            fromDataAnnotation);
-
-        return periodStartPropertyName;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the configuration source for the temporal table period start property name setting.
@@ -175,14 +169,10 @@ public static class SqlServerEntityTypeExtensions
         this IConventionEntityType entityType,
         string? periodEndPropertyName,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             SqlServerAnnotationNames.TemporalPeriodEndPropertyName,
             periodEndPropertyName,
-            fromDataAnnotation);
-
-        return periodEndPropertyName;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the configuration source for the temporal table period end property name setting.
@@ -227,14 +217,10 @@ public static class SqlServerEntityTypeExtensions
         this IConventionEntityType entityType,
         string? historyTableName,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             SqlServerAnnotationNames.TemporalHistoryTableName,
             historyTableName,
-            fromDataAnnotation);
-
-        return historyTableName;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the configuration source for the temporal history table name setting.
@@ -273,14 +259,10 @@ public static class SqlServerEntityTypeExtensions
         this IConventionEntityType entityType,
         string? historyTableSchema,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             SqlServerAnnotationNames.TemporalHistoryTableSchema,
             historyTableSchema,
-            fromDataAnnotation);
-
-        return historyTableSchema;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the configuration source for the temporal history table schema setting.

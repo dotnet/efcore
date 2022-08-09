@@ -112,14 +112,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.TableName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the table name.
@@ -201,14 +197,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.Schema,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the database schema.
@@ -342,14 +334,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.ViewName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the view name.
@@ -416,14 +404,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.ViewSchema,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the view schema.
@@ -1082,11 +1066,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? comment,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
-
-        return comment;
-    }
+        => (string?)entityType.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.Comment,
+            comment,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the table comment.

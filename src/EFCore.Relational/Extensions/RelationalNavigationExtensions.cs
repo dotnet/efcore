@@ -47,14 +47,10 @@ public static class RelationalNavigationExtensions
         this IConventionNavigationBase navigation,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        navigation.SetOrRemoveAnnotation(
+        => (string?)navigation.SetOrRemoveAnnotation(
             RelationalAnnotationNames.JsonPropertyName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given navigation.

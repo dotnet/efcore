@@ -63,14 +63,10 @@ public static class SqlServerPropertyExtensions
         this IConventionProperty property,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the hi-lo sequence name.
@@ -126,14 +122,10 @@ public static class SqlServerPropertyExtensions
         this IConventionProperty property,
         string? schema,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceSchema,
             Check.NullButNotEmpty(schema, nameof(schema)),
-            fromDataAnnotation);
-
-        return schema;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the hi-lo sequence schema.
@@ -243,14 +235,10 @@ public static class SqlServerPropertyExtensions
         this IConventionProperty property,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the key value generation sequence name.
@@ -306,14 +294,10 @@ public static class SqlServerPropertyExtensions
         this IConventionProperty property,
         string? schema,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceSchema,
             Check.NullButNotEmpty(schema, nameof(schema)),
-            fromDataAnnotation);
-
-        return schema;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the key value generation sequence schema.
@@ -463,14 +447,10 @@ public static class SqlServerPropertyExtensions
         this IConventionProperty property,
         long? seed,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (long?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.IdentitySeed,
             seed,
-            fromDataAnnotation);
-
-        return seed;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Sets the identity seed for a particular table.
@@ -872,11 +852,9 @@ public static class SqlServerPropertyExtensions
     public static void SetValueGenerationStrategy(
         this IMutableProperty property,
         SqlServerValueGenerationStrategy? value)
-    {
-        CheckValueGenerationStrategy(property, value);
-
-        property.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
-    }
+        => property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.ValueGenerationStrategy,
+            CheckValueGenerationStrategy(property, value));
 
     /// <summary>
     ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
@@ -889,13 +867,10 @@ public static class SqlServerPropertyExtensions
         this IConventionProperty property,
         SqlServerValueGenerationStrategy? value,
         bool fromDataAnnotation = false)
-    {
-        CheckValueGenerationStrategy(property, value);
-
-        return (SqlServerValueGenerationStrategy?)property.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)
-            ?.Value;
-    }
+        => (SqlServerValueGenerationStrategy?)property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.ValueGenerationStrategy,
+            CheckValueGenerationStrategy(property, value),
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
@@ -934,11 +909,9 @@ public static class SqlServerPropertyExtensions
     public static void SetValueGenerationStrategy(
         this IMutableRelationalPropertyOverrides overrides,
         SqlServerValueGenerationStrategy? value)
-    {
-        CheckValueGenerationStrategy(overrides.Property, value);
-
-        overrides.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
-    }
+        => overrides.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.ValueGenerationStrategy,
+            CheckValueGenerationStrategy(overrides.Property, value));
 
     /// <summary>
     ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
@@ -951,37 +924,38 @@ public static class SqlServerPropertyExtensions
         this IConventionRelationalPropertyOverrides overrides,
         SqlServerValueGenerationStrategy? value,
         bool fromDataAnnotation = false)
-    {
-        CheckValueGenerationStrategy(overrides.Property, value);
+        => (SqlServerValueGenerationStrategy?)overrides.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.ValueGenerationStrategy,
+            CheckValueGenerationStrategy(overrides.Property, value),
+            fromDataAnnotation)?.Value;
 
-        return (SqlServerValueGenerationStrategy?)overrides.SetOrRemoveAnnotation(
-                SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)
-            ?.Value;
-    }
-
-    private static void CheckValueGenerationStrategy(IReadOnlyProperty property, SqlServerValueGenerationStrategy? value)
+    private static SqlServerValueGenerationStrategy? CheckValueGenerationStrategy(IReadOnlyProperty property, SqlServerValueGenerationStrategy? value)
     {
-        if (value != null)
+        if (value == null)
         {
-            var propertyType = property.ClrType;
-
-            if (value == SqlServerValueGenerationStrategy.IdentityColumn
-                && !IsCompatibleWithValueGeneration(property))
-            {
-                throw new ArgumentException(
-                    SqlServerStrings.IdentityBadType(
-                        property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
-            }
-
-            if ((value == SqlServerValueGenerationStrategy.SequenceHiLo
-                    || value == SqlServerValueGenerationStrategy.Sequence)
-                && !IsCompatibleWithValueGeneration(property))
-            {
-                throw new ArgumentException(
-                    SqlServerStrings.SequenceBadType(
-                        property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
-            }
+            return null;
         }
+
+        var propertyType = property.ClrType;
+
+        if (value == SqlServerValueGenerationStrategy.IdentityColumn
+            && !IsCompatibleWithValueGeneration(property))
+        {
+            throw new ArgumentException(
+                SqlServerStrings.IdentityBadType(
+                    property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+        }
+
+        if ((value == SqlServerValueGenerationStrategy.SequenceHiLo
+                || value == SqlServerValueGenerationStrategy.Sequence)
+            && !IsCompatibleWithValueGeneration(property))
+        {
+            throw new ArgumentException(
+                SqlServerStrings.SequenceBadType(
+                    property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+        }
+
+        return value;
     }
 
     /// <summary>

@@ -246,14 +246,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Sets the column to which the property is mapped for a particular table-like store object.
@@ -352,11 +348,10 @@ public static class RelationalPropertyExtensions
     /// <param name="fromDataAnnotation">A value indicating whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static int? SetColumnOrder(this IConventionProperty property, int? order, bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.ColumnOrder, order, fromDataAnnotation);
-
-        return order;
-    }
+        => (int?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.ColumnOrder,
+            order,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> of the column order.
@@ -446,14 +441,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnType,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column name.
@@ -687,14 +678,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.DefaultValueSql,
             value,
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the default value SQL expression.
@@ -753,14 +740,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ComputedColumnSql,
             value,
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the computed value SQL expression.
@@ -827,11 +810,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         bool? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsStored, value, fromDataAnnotation);
-
-        return value;
-    }
+        => (bool?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.IsStored,
+            value,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the computed value SQL expression.
@@ -932,12 +914,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         object? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
-            RelationalAnnotationNames.DefaultValue, ConvertDefaultValue(property, value), fromDataAnnotation);
-
-        return value;
-    }
+        => (object?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.DefaultValue,
+            ConvertDefaultValue(property, value),
+            fromDataAnnotation)?.Value;
 
     private static object? ConvertDefaultValue(IReadOnlyProperty property, object? value)
     {
@@ -1095,11 +1075,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         bool? fixedLength,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
-
-        return fixedLength;
-    }
+        => (bool?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.IsFixedLength,
+            fixedLength,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsFixedLength(IReadOnlyProperty)" />.
@@ -1229,11 +1208,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? comment,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
-
-        return comment;
-    }
+        => (string?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.Comment,
+            comment,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column comment.
@@ -1291,10 +1269,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? collation,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
-        return collation;
-    }
+        => (string?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.Collation,
+            collation,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column collation.
@@ -1960,14 +1938,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.JsonPropertyName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity property.

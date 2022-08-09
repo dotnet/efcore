@@ -334,9 +334,11 @@ public class RelationshipDiscoveryConvention :
     {
         if (shouldCreate)
         {
-            var targetEntityTypeBuilder = ((InternalEntityTypeBuilder)entityTypeBuilder)
+            var targetEntityTypeBuilder = entityTypeBuilder
                 .GetTargetEntityTypeBuilder(
-                    targetClrType, navigationMemberInfo, ConfigurationSource.Convention,
+                    targetClrType,
+                    navigationMemberInfo,
+                    createIfMissing: true,
                     shouldBeOwned ?? ShouldBeOwned(targetClrType, entityTypeBuilder.Metadata.Model));
             if (targetEntityTypeBuilder != null)
             {
@@ -344,8 +346,8 @@ public class RelationshipDiscoveryConvention :
             }
         }
 
-        return ((InternalEntityTypeBuilder)entityTypeBuilder)
-            .GetTargetEntityTypeBuilder(targetClrType, navigationMemberInfo, null, shouldBeOwned);
+        return entityTypeBuilder
+            .GetTargetEntityTypeBuilder(targetClrType, navigationMemberInfo, createIfMissing: false, shouldBeOwned);
     }
 
     private static IReadOnlyList<RelationshipCandidate> RemoveIncompatibleWithExistingRelationships(
