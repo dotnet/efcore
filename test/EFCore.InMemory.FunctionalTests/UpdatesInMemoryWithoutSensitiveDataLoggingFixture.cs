@@ -1,18 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class UpdatesInMemoryWithoutSensitiveDataLoggingFixture : UpdatesInMemoryFixtureBase
 {
-    public class UpdatesInMemoryWithoutSensitiveDataLoggingFixture : UpdatesInMemoryFixtureBase
-    {
-        protected override string StoreName { get; } = "UpdateTestInsensitive";
+    protected override string StoreName
+        => "UpdateTestInsensitive";
 
-        protected override ITestStoreFactory TestStoreFactory
-            => InMemoryTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => InMemoryTestStoreFactory.Instance;
 
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).EnableSensitiveDataLogging(false);
-    }
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).EnableSensitiveDataLogging(false);
 }

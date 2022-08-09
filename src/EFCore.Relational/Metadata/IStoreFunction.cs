@@ -1,79 +1,78 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+/// <summary>
+///     Represents a function in the database.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+/// </remarks>
+public interface IStoreFunction : ITableBase
 {
     /// <summary>
-    ///     Represents a function in the database.
+    ///     Gets the associated model functions.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
-    /// </remarks>
-    public interface IStoreFunction : ITableBase
+    IEnumerable<IDbFunction> DbFunctions { get; }
+
+    /// <summary>
+    ///     Gets the value indicating whether the database function is built-in.
+    /// </summary>
+    bool IsBuiltIn { get; }
+
+    /// <summary>
+    ///     Gets the parameters for this function.
+    /// </summary>
+    IEnumerable<IStoreFunctionParameter> Parameters { get; }
+
+    /// <summary>
+    ///     Gets the scalar return type.
+    /// </summary>
+    string? ReturnType { get; }
+
+    /// <summary>
+    ///     Gets the entity type mappings for the returned row set.
+    /// </summary>
+    new IEnumerable<IFunctionMapping> EntityTypeMappings { get; }
+
+    /// <summary>
+    ///     Gets the columns defined for the returned row set.
+    /// </summary>
+    new IEnumerable<IFunctionColumn> Columns { get; }
+
+    /// <summary>
+    ///     Gets the column with the given name. Returns <see langword="null" />
+    ///     if no column with the given name is defined for the returned row set.
+    /// </summary>
+    new IFunctionColumn? FindColumn(string name);
+
+    /// <summary>
+    ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
+    /// </summary>
+    new IFunctionColumn? FindColumn(IProperty property);
+
+    /// <summary>
+    ///     <para>
+    ///         Creates a human-readable representation of the given metadata.
+    ///     </para>
+    ///     <para>
+    ///         Warning: Do not rely on the format of the returned string.
+    ///         It is designed for debugging only and may change arbitrarily between releases.
+    ///     </para>
+    /// </summary>
+    /// <param name="options">Options for generating the string.</param>
+    /// <param name="indent">The number of indent spaces to use before each new line.</param>
+    /// <returns>A human-readable representation.</returns>
+    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
     {
-        /// <summary>
-        ///     Gets the associated <see cref="IDbFunction" />s.
-        /// </summary>
-        IEnumerable<IDbFunction> DbFunctions { get; }
+        var builder = new StringBuilder();
+        var indentString = new string(' ', indent);
 
-        /// <summary>
-        ///     Gets the value indicating whether the database function is built-in.
-        /// </summary>
-        bool IsBuiltIn { get; }
-
-        /// <summary>
-        ///     Gets the parameters for this function.
-        /// </summary>
-        IEnumerable<IStoreFunctionParameter> Parameters { get; }
-
-        /// <summary>
-        ///     Gets the scalar return type.
-        /// </summary>
-        string? ReturnType { get; }
-
-        /// <summary>
-        ///     Gets the entity type mappings for the returned row set.
-        /// </summary>
-        new IEnumerable<IFunctionMapping> EntityTypeMappings { get; }
-
-        /// <summary>
-        ///     Gets the columns defined for the returned row set.
-        /// </summary>
-        new IEnumerable<IFunctionColumn> Columns { get; }
-
-        /// <summary>
-        ///     Gets the column with the given name. Returns <see langword="null" />
-        ///     if no column with the given name is defined for the returned row set.
-        /// </summary>
-        new IFunctionColumn? FindColumn(string name);
-
-        /// <summary>
-        ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
-        /// </summary>
-        new IFunctionColumn? FindColumn(IProperty property);
-
-        /// <summary>
-        ///     <para>
-        ///         Creates a human-readable representation of the given metadata.
-        ///     </para>
-        ///     <para>
-        ///         Warning: Do not rely on the format of the returned string.
-        ///         It is designed for debugging only and may change arbitrarily between releases.
-        ///     </para>
-        /// </summary>
-        /// <param name="options">Options for generating the string.</param>
-        /// <param name="indent">The number of indent spaces to use before each new line.</param>
-        /// <returns>A human-readable representation.</returns>
-        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+        try
         {
-            var builder = new StringBuilder();
-            var indentString = new string(' ', indent);
-
             builder
                 .Append(indentString)
                 .Append("StoreFunction: ");
@@ -140,8 +139,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     builder.Append(AnnotationsToDebugString(indent: indent + 2));
                 }
             }
-
-            return builder.ToString();
         }
+        catch (Exception exception)
+        {
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
+        }
+
+        return builder.ToString();
     }
 }

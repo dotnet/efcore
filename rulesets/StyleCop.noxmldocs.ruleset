@@ -133,6 +133,7 @@
     <Rule Id="SA1520" Action="None" />
     <Rule Id="SA1600" Action="None" />
     <Rule Id="SA1601" Action="None" />
+    <Rule Id="SA1602" Action="None" />
     <Rule Id="SA1603" Action="Warning" />
     <Rule Id="SA1609" Action="None" />        <!-- Property documentation should have value -->
     <Rule Id="SA1611" Action="None" />

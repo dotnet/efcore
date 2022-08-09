@@ -1,73 +1,65 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class GuidValueGeneratorEndToEndTest
 {
-    public class GuidValueGeneratorEndToEndTest
+    [ConditionalFact]
+    public async Task Can_use_GUIDs_end_to_end_async()
     {
-        [ConditionalFact]
-        public async Task Can_use_GUIDs_end_to_end_async()
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .BuildServiceProvider(validateScopes: true);
+
+        var guids = new List<Guid>();
+        var guidsHash = new HashSet<Guid>();
+        using (var context = new BronieContext(serviceProvider))
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider(validateScopes: true);
-
-            var guids = new List<Guid>();
-            var guidsHash = new HashSet<Guid>();
-            using (var context = new BronieContext(serviceProvider))
+            for (var i = 0; i < 10; i++)
             {
-                for (var i = 0; i < 10; i++)
-                {
-                    guids.Add(
-                        context.Add(
-                            new Pegasus { Name = "Rainbow Dash " + i }).Entity.Id);
-                    guidsHash.Add(guids.Last());
-                }
-
-                await context.SaveChangesAsync();
+                guids.Add(
+                    context.Add(
+                        new Pegasus { Name = "Rainbow Dash " + i }).Entity.Id);
+                guidsHash.Add(guids.Last());
             }
 
-            Assert.Equal(10, guidsHash.Count);
+            await context.SaveChangesAsync();
+        }
 
-            using (var context = new BronieContext(serviceProvider))
+        Assert.Equal(10, guidsHash.Count);
+
+        using (var context = new BronieContext(serviceProvider))
+        {
+            var pegasuses = await context.Pegasuses.OrderBy(e => e.Name).ToListAsync();
+
+            for (var i = 0; i < 10; i++)
             {
-                var pegasuses = await context.Pegasuses.OrderBy(e => e.Name).ToListAsync();
-
-                for (var i = 0; i < 10; i++)
-                {
-                    Assert.Equal(guids[i], pegasuses[i].Id);
-                }
+                Assert.Equal(guids[i], pegasuses[i].Id);
             }
         }
+    }
 
-        private class BronieContext : DbContext
+    private class BronieContext : DbContext
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public BronieContext(IServiceProvider serviceProvider)
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public BronieContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInMemoryDatabase(nameof(BronieContext))
-                    .UseInternalServiceProvider(_serviceProvider);
-
-            public DbSet<Pegasus> Pegasuses { get; set; }
+            _serviceProvider = serviceProvider;
         }
 
-        private class Pegasus
-        {
-            public Guid Id { get; set; }
-            public string Name { get; set; }
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(nameof(BronieContext))
+                .UseInternalServiceProvider(_serviceProvider);
+
+        public DbSet<Pegasus> Pegasuses { get; set; }
+    }
+
+    private class Pegasus
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
     }
 }

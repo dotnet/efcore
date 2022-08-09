@@ -1,29 +1,23 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class ManyToManyLoadSqlServerTest : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>
 {
-    public class ManyToManyLoadSqlServerTest : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>
+    public ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerFixture fixture)
+        : base(fixture)
     {
-        public ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public override async Task Load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
-        {
-            await base.Load_collection(state, queryTrackingBehavior, async);
+    public override async Task Load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
+    {
+        await base.Load_collection(state, queryTrackingBehavior, async);
 
-            AssertSql(
-                @"@__p_0='3'
+        AssertSql(
+            @"@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t0].[OneId], [t0].[TwoId], [t0].[JoinOneToTwoExtraId], [t0].[Id], [t0].[Name]
 FROM [EntityOnes] AS [e]
@@ -40,14 +34,14 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 WHERE [e].[Id] = @__p_0
 ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId]");
-        }
+    }
 
-        public override async Task Load_collection_using_Query_with_Include_for_inverse(bool async)
-        {
-            await base.Load_collection_using_Query_with_Include_for_inverse(async);
+    public override async Task Load_collection_using_Query_with_Include_for_inverse(bool async)
+    {
+        await base.Load_collection_using_Query_with_Include_for_inverse(async);
 
-            AssertSql(
-                @"@__p_0='3'
+        AssertSql(
+            @"@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name]
 FROM [EntityOnes] AS [e]
@@ -64,14 +58,14 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[TwoSkipSharedId]
 WHERE [e].[Id] = @__p_0
 ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId]");
-        }
+    }
 
-        public override async Task Load_collection_using_Query_with_Include_for_same_collection(bool async)
-        {
-            await base.Load_collection_using_Query_with_Include_for_same_collection(async);
+    public override async Task Load_collection_using_Query_with_Include_for_same_collection(bool async)
+    {
+        await base.Load_collection_using_Query_with_Include_for_same_collection(async);
 
-            AssertSql(
-                @"@__p_0='3'
+        AssertSql(
+            @"@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t0].[OneSkipSharedId0], [t0].[TwoSkipSharedId0], [t0].[Id0], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -93,14 +87,14 @@ LEFT JOIN (
 ) AS [t0] ON [t].[Id] = [t0].[TwoSkipSharedId]
 WHERE [e].[Id] = @__p_0
 ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[OneSkipSharedId0], [t0].[TwoSkipSharedId0]");
-        }
+    }
 
-        public override async Task Load_collection_using_Query_with_Include(bool async)
-        {
-            await base.Load_collection_using_Query_with_Include(async);
+    public override async Task Load_collection_using_Query_with_Include(bool async)
+    {
+        await base.Load_collection_using_Query_with_Include(async);
 
-            AssertSql(
-                @"@__p_0='3'
+        AssertSql(
+            @"@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -122,14 +116,14 @@ LEFT JOIN (
 ) AS [t1] ON [t].[Id] = [t1].[TwoId]
 WHERE [e].[Id] = @__p_0
 ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t1].[ThreeId], [t1].[TwoId]");
-        }
+    }
 
-        public override async Task Load_collection_using_Query_with_filtered_Include(bool async)
-        {
-            await base.Load_collection_using_Query_with_filtered_Include(async);
+    public override async Task Load_collection_using_Query_with_filtered_Include(bool async)
+    {
+        await base.Load_collection_using_Query_with_filtered_Include(async);
 
-            AssertSql(
-                @"@__p_0='3'
+        AssertSql(
+            @"@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -152,14 +146,14 @@ LEFT JOIN (
 ) AS [t1] ON [t].[Id] = [t1].[TwoId]
 WHERE [e].[Id] = @__p_0
 ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t1].[ThreeId], [t1].[TwoId]");
-        }
+    }
 
-        public override async Task Load_collection_using_Query_with_filtered_Include_and_projection(bool async)
-        {
-            await base.Load_collection_using_Query_with_filtered_Include_and_projection(async);
+    public override async Task Load_collection_using_Query_with_filtered_Include_and_projection(bool async)
+    {
+        await base.Load_collection_using_Query_with_filtered_Include_and_projection(async);
 
-            AssertSql(
-                @"@__p_0='3'
+        AssertSql(
+            @"@__p_0='3'
 
 SELECT [t].[Id], [t].[Name], (
     SELECT COUNT(*)
@@ -178,14 +172,14 @@ INNER JOIN (
 ) AS [t] ON [e].[Id] = [t].[OneSkipSharedId]
 WHERE [e].[Id] = @__p_0
 ORDER BY [t].[Id]");
-        }
+    }
 
-        public override async Task Load_collection_using_Query_with_join(bool async)
-        {
-            await base.Load_collection_using_Query_with_join(async);
+    public override async Task Load_collection_using_Query_with_join(bool async)
+    {
+        await base.Load_collection_using_Query_with_join(async);
 
-            AssertSql(
-                @"@__p_0='3'
+        AssertSql(
+            @"@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id0], [t2].[OneSkipSharedId], [t2].[TwoSkipSharedId], [t2].[Id], [t2].[Name], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -211,88 +205,102 @@ LEFT JOIN (
 ) AS [t2] ON [t].[Id] = [t2].[TwoSkipSharedId]
 WHERE [e].[Id] = @__p_0
 ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id0], [t2].[OneSkipSharedId], [t2].[TwoSkipSharedId]");
-        }
+    }
 
-        protected override void ClearLog()
-            => Fixture.TestSqlLoggerFactory.Clear();
+    protected override void ClearLog()
+        => Fixture.TestSqlLoggerFactory.Clear();
 
-        protected override void RecordLog()
-            => Sql = Fixture.TestSqlLoggerFactory.Sql;
+    protected override void RecordLog()
+        => Sql = Fixture.TestSqlLoggerFactory.Sql;
 
-        private const string FileNewLine = @"
+    private const string FileNewLine = @"
 ";
 
-        private void AssertSql(string expected)
+    private void AssertSql(string expected)
+    {
+        try
         {
-            try
-            {
-                Assert.Equal(
-                    expected,
-                    Sql,
-                    ignoreLineEndingDifferences: true);
-            }
-            catch
-            {
-                var methodCallLine = Environment.StackTrace.Split(
-                    new[] { Environment.NewLine },
-                    StringSplitOptions.RemoveEmptyEntries)[2][6..];
+            Assert.Equal(
+                expected,
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+        catch
+        {
+            var methodCallLine = Environment.StackTrace.Split(
+                new[] { Environment.NewLine },
+                StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
-                var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
-                var testName = methodCallLine.Substring(0, indexMethodEnding);
-                var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
-                var fileName = parts[1][..^5];
-                var lineNumber = int.Parse(parts[2]);
+            var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
+            var testName = methodCallLine.Substring(0, indexMethodEnding);
+            var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            var fileName = parts[1][..^5];
+            var lineNumber = int.Parse(parts[2]);
 
-                var currentDirectory = Directory.GetCurrentDirectory();
-                var logFile = currentDirectory.Substring(
-                        0,
-                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
-                    + "QueryBaseline.txt";
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var logFile = currentDirectory.Substring(
+                    0,
+                    currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                + "QueryBaseline.txt";
 
-                var testInfo = testName + " : " + lineNumber + FileNewLine;
+            var testInfo = testName + " : " + lineNumber + FileNewLine;
 
-                var newBaseLine = $@"            AssertSql(
+            var newBaseLine = $@"            AssertSql(
                 {"@\"" + Sql.Replace("\"", "\"\"") + "\""});
 
 ";
 
-                var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
+            var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
-                File.AppendAllText(logFile, contents);
+            File.AppendAllText(logFile, contents);
 
-                throw;
-            }
+            throw;
         }
+    }
 
-        private string Sql { get; set; }
+    private string Sql { get; set; }
 
-        public class ManyToManyLoadSqlServerFixture : ManyToManyLoadFixtureBase
+    public class ManyToManyLoadSqlServerFixture : ManyToManyLoadFixtureBase
+    {
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory
-                => (TestSqlLoggerFactory)ListLoggerFactory;
+            base.OnModelCreating(modelBuilder, context);
 
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
+            modelBuilder
+                .Entity<JoinOneSelfPayload>()
+                .Property(e => e.Payload)
+                .HasDefaultValueSql("GETUTCDATE()");
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
+            modelBuilder
+                .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                .IndexerProperty<string>("Payload")
+                .HasDefaultValue("Generated");
 
-                modelBuilder
-                    .Entity<JoinOneSelfPayload>()
-                    .Property(e => e.Payload)
-                    .HasDefaultValueSql("GETUTCDATE()");
+            modelBuilder
+                .Entity<JoinOneToThreePayloadFull>()
+                .Property(e => e.Payload)
+                .HasDefaultValue("Generated");
 
-                modelBuilder
-                    .SharedTypeEntity<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
-                    .IndexerProperty<string>("Payload")
-                    .HasDefaultValue("Generated");
+            modelBuilder
+                .Entity<UnidirectionalJoinOneSelfPayload>()
+                .Property(e => e.Payload)
+                .HasDefaultValueSql("GETUTCDATE()");
 
-                modelBuilder
-                    .Entity<JoinOneToThreePayloadFull>()
-                    .Property(e => e.Payload)
-                    .HasDefaultValue("Generated");
-            }
+            modelBuilder
+                .SharedTypeEntity<Dictionary<string, object>>("UnidirectionalJoinOneToThreePayloadFullShared")
+                .IndexerProperty<string>("Payload")
+                .HasDefaultValue("Generated");
+
+            modelBuilder
+                .Entity<UnidirectionalJoinOneToThreePayloadFull>()
+                .Property(e => e.Payload)
+                .HasDefaultValue("Generated");
         }
     }
 }

@@ -17,10 +17,11 @@
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
     <!-- Local build outside of Azure Pipeline -->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open;Ubuntu.1604.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967</HelixTargetQueues>
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1100.Amd64.Open;Ubuntu.1804.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <HelixSource>efcore/localbuild/</HelixSource>
     <HelixBuild>t001</HelixBuild>
+    <MSSQL_SA_PASSWORD>Password12!</MSSQL_SA_PASSWORD>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,8 @@
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
+    <!-- The trimming test project is a console program -->
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Trimming.Tests/*.csproj"/>
   </ItemGroup>
 
   <!-- Start LocalDb instance for test projects which uses SqlServer on windows -->
@@ -37,11 +40,18 @@
     </XUnitProject>
   </ItemGroup>
 
+  <!-- Work-around for https://github.com/dotnet/runtime/issues/70758 -->
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))'">
+    <XUnitProject Update="$(RepoRoot)/test/EFCore.InMemory.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.Sqlite.FunctionalTests/*.csproj">
+      <PreCommands>$(PreCommands); export COMPlus_EnableWriteXorExecute=0</PreCommands>
+    </XUnitProject>
+  </ItemGroup>
+
   <!-- Start SqlServer instance for test projects which uses SqlServer on docker. Also remove other projects as they will be run outside of docker. -->
   <ItemGroup Condition = "'$(HelixTargetQueue.Contains(`ubuntu-18.04-helix-sqlserver-amd64`))'">
     <XUnitProject Remove="$(RepoRoot)/test/**/*.csproj"/>
     <XUnitProject Include="$(SqlServerTests);$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj">
-      <PreCommands>$(PreCommands); export MSSQL_SA_PASSWORD=$(MSSQL_SA_PASSWORD); /opt/mssql/bin/sqlservr --accept-eula &amp;; export Test__SqlServer__DefaultConnection="Data Source=localhost;;Database=master;;User=sa;;Password=$(MSSQL_SA_PASSWORD);;Connect Timeout=60;;ConnectRetryCount=0" &amp;>/dev/null; sleep 120</PreCommands>
+      <PreCommands>$(PreCommands); export MSSQL_SA_PASSWORD=$(MSSQL_SA_PASSWORD); export Test__SqlServer__DefaultConnection="Server=localhost;;Database=master;;User=sa;;Password=$(MSSQL_SA_PASSWORD);;Connect Timeout=60;;ConnectRetryCount=0;;TrustServerCertificate=True"; /opt/mssql/bin/sqlservr --accept-eula &amp;; sleep 120; </PreCommands>
     </XUnitProject>
   </ItemGroup>
 
@@ -51,10 +61,10 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <XUnitPublishTargetFramework>net6.0</XUnitPublishTargetFramework>
+    <XUnitPublishTargetFramework>net7.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.2-pre.9</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>
-    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">01:00:00</XUnitWorkItemTimeout>
+    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>
 </Project>

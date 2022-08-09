@@ -1,23 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using CustomTestNamespace;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -25,10 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private static readonly string _nl = Environment.NewLine;
 
+        public CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
+            : base(fixture, output)
+        {
+        }
+
         [ConditionalFact]
         public void Empty_model()
-        {
-            Test(
+            => Test(
                 modelBuilder => { },
                 new ModelCodeGenerationOptions(),
                 code =>
@@ -37,37 +31,32 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext()
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
@@ -75,12 +64,10 @@ namespace TestNamespace
                     Assert.Empty(code.AdditionalFiles);
                 },
                 model => Assert.Empty(model.GetEntityTypes()));
-        }
 
         [ConditionalFact]
         public void SuppressConnectionStringWarning_works()
-        {
-            Test(
+            => Test(
                 modelBuilder => { },
                 new ModelCodeGenerationOptions { SuppressConnectionStringWarning = true },
                 code =>
@@ -89,36 +76,29 @@ namespace TestNamespace
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext()
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
@@ -126,12 +106,10 @@ namespace TestNamespace
                     Assert.Empty(code.AdditionalFiles);
                 },
                 model => Assert.Empty(model.GetEntityTypes()));
-        }
 
         [ConditionalFact]
         public void SuppressOnConfiguring_works()
-        {
-            Test(
+            => Test(
                 modelBuilder => { },
                 new ModelCodeGenerationOptions { SuppressOnConfiguring = true },
                 code =>
@@ -140,28 +118,22 @@ namespace TestNamespace
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
@@ -169,12 +141,10 @@ namespace TestNamespace
                     Assert.Empty(code.AdditionalFiles);
                 },
                 null);
-        }
 
         [ConditionalFact]
         public void DbSets_without_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity"),
                 new ModelCodeGenerationOptions
                 {
@@ -184,15 +154,14 @@ namespace TestNamespace
                 },
                 code =>
                 {
-                    Assert.Contains("DbSet<Entity> Entity { get; set; }" + _nl, code.ContextFile.Code);
+                    Assert.Contains("DbSet<Entity> Entity { get; set; }", code.ContextFile.Code);
+                    Assert.DoesNotContain("DbSet<Entity> Entity { get; set; } = null!;", code.ContextFile.Code);
                 },
                 null);
-        }
 
         [ConditionalFact]
         public void DbSets_with_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity"),
                 new ModelCodeGenerationOptions
                 {
@@ -205,7 +174,6 @@ namespace TestNamespace
                     Assert.Contains("DbSet<Entity> Entity { get; set; } = null!;", code.ContextFile.Code);
                 },
                 null);
-        }
 
         [ConditionalFact]
         public void Required_options_to_GenerateModel_are_not_null()
@@ -213,19 +181,17 @@ namespace TestNamespace
             var generator = CreateServices()
                 .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
                 .BuildServiceProvider(validateScopes: true)
-                .GetRequiredService<IModelCodeGenerator>();
+                .GetServices<IModelCodeGenerator>()
+                .Last(g => g is CSharpModelGenerator);
 
             Assert.StartsWith(
                 CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ContextName), "options"),
                 Assert.Throws<ArgumentException>(
-                    () =>
-                        generator.GenerateModel(
-                            new Model(),
-                            new ModelCodeGenerationOptions
-                            {
-                                ContextName = null,
-                                ConnectionString = "Initial Catalog=TestDatabase"
-                            })).Message);
+                        () =>
+                            generator.GenerateModel(
+                                new Model(),
+                                new ModelCodeGenerationOptions { ContextName = null, ConnectionString = "Initial Catalog=TestDatabase" }))
+                    .Message);
 
             Assert.StartsWith(
                 CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ConnectionString), "options"),
@@ -233,11 +199,7 @@ namespace TestNamespace
                     () =>
                         generator.GenerateModel(
                             new Model(),
-                            new ModelCodeGenerationOptions
-                            {
-                                ContextName = "TestDbContext",
-                                ConnectionString = null
-                            })).Message);
+                            new ModelCodeGenerationOptions { ContextName = "TestDbContext", ConnectionString = null })).Message);
         }
 
         [ConditionalFact]
@@ -246,7 +208,8 @@ namespace TestNamespace
             var generator = CreateServices()
                 .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
                 .BuildServiceProvider(validateScopes: true)
-                .GetRequiredService<IModelCodeGenerator>();
+                .GetServices<IModelCodeGenerator>()
+                .Last(g => g is CSharpModelGenerator);
 
             var scaffoldedModel = generator.GenerateModel(
                 new Model(),
@@ -259,16 +222,17 @@ namespace TestNamespace
                 });
 
             Assert.Contains(
-                @"optionsBuilder" + _nl +
-                @"                    .UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption())" + _nl +
-                @"                    .SetContextOption();",
+                @"optionsBuilder"
+                + _nl
+                + @"            .UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption())"
+                + _nl
+                + @"            .SetContextOption();",
                 scaffoldedModel.ContextFile.Code);
         }
 
         [ConditionalFact]
         public void IsRequired_is_generated_for_ref_property_without_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -281,7 +245,8 @@ namespace TestNamespace
                         });
                 },
                 new ModelCodeGenerationOptions { UseNullableReferenceTypes = false },
-                code => {
+                code =>
+                {
                     Assert.Contains("Property(e => e.RequiredString).IsRequired()", code.ContextFile.Code);
                     Assert.DoesNotContain("NotRequiredString", code.ContextFile.Code);
                     Assert.DoesNotContain("RequiredInt", code.ContextFile.Code);
@@ -295,12 +260,10 @@ namespace TestNamespace
                     Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void IsRequired_is_not_generated_for_ref_property_with_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -313,7 +276,8 @@ namespace TestNamespace
                         });
                 },
                 new ModelCodeGenerationOptions { UseNullableReferenceTypes = true },
-                code => {
+                code =>
+                {
                     Assert.DoesNotContain("RequiredString", code.ContextFile.Code);
                     Assert.DoesNotContain("NotRequiredString", code.ContextFile.Code);
                     Assert.DoesNotContain("RequiredInt", code.ContextFile.Code);
@@ -327,12 +291,10 @@ namespace TestNamespace
                     Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Comments_use_fluent_api()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity(
                     "Entity",
                     x =>
@@ -348,17 +310,15 @@ namespace TestNamespace
                 model => Assert.Equal(
                     "An int property",
                     model.FindEntityType("TestNamespace.Entity").GetProperty("Property").GetComment()));
-        }
 
         [ConditionalFact]
         public void Entity_comments_use_fluent_api()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity(
                     "Entity",
                     x =>
                     {
-                        x.HasComment("An entity comment");
+                        x.ToTable(tb => tb.HasComment("An entity comment"));
                     }),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(
@@ -367,16 +327,15 @@ namespace TestNamespace
                 model => Assert.Equal(
                     "An entity comment",
                     model.FindEntityType("TestNamespace.Entity").GetComment()));
-        }
 
         [ConditionalFact]
         public void Views_work()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Vista").ToView("Vista"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
-                code => Assert.Contains("entity.ToView(\"Vista\");", code.ContextFile.Code),
-                model => {
+                code => Assert.Contains(".ToView(\"Vista\")", code.ContextFile.Code),
+                model =>
+                {
                     var entityType = model.FindEntityType("TestNamespace.Vista");
 
                     Assert.NotNull(entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql));
@@ -385,14 +344,14 @@ namespace TestNamespace
                     Assert.Null(entityType.GetTableName());
                     Assert.Null(entityType.GetSchema());
                 });
-        }
 
         [ConditionalFact]
         public void ModelInDifferentNamespaceDbContext_works()
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace",
+                ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
@@ -422,8 +381,7 @@ namespace TestNamespace
 
         [ConditionalFact]
         public void ValueGenerated_works()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity(
                     "Entity",
                     x =>
@@ -438,7 +396,7 @@ namespace TestNamespace
                 code =>
                 {
                     Assert.Contains(
-                        @$"Property(e => e.ValueGeneratedOnAdd){_nl}                    .ValueGeneratedOnAdd()",
+                        @$"Property(e => e.ValueGeneratedOnAdd){_nl}                .ValueGeneratedOnAdd()",
                         code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnAddOrUpdate).ValueGeneratedOnAddOrUpdate()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ConcurrencyToken).IsConcurrencyToken()", code.ContextFile.Code);
@@ -454,12 +412,10 @@ namespace TestNamespace
                     Assert.Equal(ValueGenerated.OnUpdate, entity.GetProperty("ValueGeneratedOnUpdate").ValueGenerated);
                     Assert.Equal(ValueGenerated.Never, entity.GetProperty("ValueGeneratedNever").ValueGenerated);
                 });
-        }
 
         [ConditionalFact]
         public void HasPrecision_works()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity(
                     "Entity",
                     x =>
@@ -481,12 +437,10 @@ namespace TestNamespace
                     Assert.Equal(14, entity.GetProperty("HasPrecisionAndScale").GetPrecision());
                     Assert.Equal(7, entity.GetProperty("HasPrecisionAndScale").GetScale());
                 });
-        }
 
         [ConditionalFact]
         public void Collation_works()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("UseCollation").UseCollation("Some Collation"),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains("Property(e => e.UseCollation).UseCollation(\"Some Collation\")", code.ContextFile.Code),
@@ -495,12 +449,10 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Equal("Some Collation", entity.GetProperty("UseCollation").GetCollation());
                 });
-        }
 
         [ConditionalFact]
         public void ComputedColumnSql_works()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql("1 + 2"),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasComputedColumnSql(\"1 + 2\")", code.ContextFile.Code),
@@ -509,18 +461,18 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Equal("1 + 2", entity.GetProperty("ComputedColumn").GetComputedColumnSql());
                 });
-        }
 
         [ConditionalFact]
         public void IsUnicode_works()
-        {
-            Test(
-                modelBuilder => {
+            => Test(
+                modelBuilder =>
+                {
                     modelBuilder.Entity("Entity").Property<string>("UnicodeColumn").IsUnicode();
                     modelBuilder.Entity("Entity").Property<string>("NonUnicodeColumn").IsUnicode(false);
                 },
                 new ModelCodeGenerationOptions(),
-                code => {
+                code =>
+                {
                     Assert.Contains("Property(e => e.UnicodeColumn).IsUnicode()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.NonUnicodeColumn).IsUnicode(false)", code.ContextFile.Code);
                 },
@@ -530,12 +482,10 @@ namespace TestNamespace
                     Assert.True(entity.GetProperty("UnicodeColumn").IsUnicode());
                     Assert.False(entity.GetProperty("NonUnicodeColumn").IsUnicode());
                 });
-        }
 
         [ConditionalFact]
         public void ComputedColumnSql_works_stored()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn")
                     .HasComputedColumnSql("1 + 2", stored: true),
                 new ModelCodeGenerationOptions(),
@@ -545,12 +495,10 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.True(entity.GetProperty("ComputedColumn").GetIsStored());
                 });
-        }
 
         [ConditionalFact]
         public void ComputedColumnSql_works_unspecified()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("ComputedColumn").HasComputedColumnSql(),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasComputedColumnSql()", code.ContextFile.Code),
@@ -559,12 +507,10 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Empty(entity.GetProperty("ComputedColumn").GetComputedColumnSql());
                 });
-        }
 
         [ConditionalFact]
         public void DefaultValue_works_unspecified()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("DefaultedColumn").HasDefaultValue(),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasDefaultValue()", code.ContextFile.Code),
@@ -573,12 +519,10 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Equal(DBNull.Value, entity.GetProperty("DefaultedColumn").GetDefaultValue());
                 });
-        }
 
         [ConditionalFact]
         public void DefaultValueSql_works_unspecified()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Entity").Property<string>("DefaultedColumn").HasDefaultValueSql(),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(".HasDefaultValueSql()", code.ContextFile.Code),
@@ -587,12 +531,10 @@ namespace TestNamespace
                     var entity = model.FindEntityType("TestNamespace.Entity");
                     Assert.Empty(entity.GetProperty("DefaultedColumn").GetDefaultValueSql());
                 });
-        }
 
         [ConditionalFact]
         public void Entity_with_indexes_and_use_data_annotations_false_always_generates_fluent_API()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "EntityWithIndexes",
@@ -604,7 +546,8 @@ namespace TestNamespace
                             x.Property<int>("C");
                             x.HasKey("Id");
                             x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
-                                .IsUnique();
+                                .IsUnique()
+                                .IsDescending(false, true);
                             x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
@@ -616,63 +559,57 @@ namespace TestNamespace
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext()
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<EntityWithIndexes>(entity =>
-            {
-                entity.HasIndex(e => new { e.A, e.B }, ""IndexOnAAndB"")
-                    .IsUnique();
-
-                entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
-                    .HasFilter(""Filter SQL"")
-                    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
-
-                entity.Property(e => e.Id).UseIdentityColumn();
-            });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EntityWithIndexes>(entity =>
+        {
+            entity.HasIndex(e => new { e.A, e.B }, ""IndexOnAAndB"")
+                .IsUnique()
+                .IsDescending(false, true);
+
+            entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
+                .HasFilter(""Filter SQL"")
+                .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
                 },
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
-        }
 
         [ConditionalFact]
         public void Entity_with_indexes_and_use_data_annotations_true_generates_fluent_API_only_for_indexes_with_annotations()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "EntityWithIndexes",
@@ -684,7 +621,8 @@ namespace TestNamespace
                             x.Property<int>("C");
                             x.HasKey("Id");
                             x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
-                                .IsUnique();
+                                .IsUnique()
+                                .IsDescending(false, true);
                             x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
@@ -696,60 +634,151 @@ namespace TestNamespace
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext()
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<EntityWithIndexes>(entity =>
-            {
-                entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
-                    .HasFilter(""Filter SQL"")
-                    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
-
-                entity.Property(e => e.Id).UseIdentityColumn();
-            });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EntityWithIndexes>(entity =>
+        {
+            entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
+                .HasFilter(""Filter SQL"")
+                .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
                 },
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
-        }
+
+        [ConditionalFact]
+        public void Indexes_with_descending()
+            => Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("X");
+                            x.Property<int>("Y");
+                            x.Property<int>("Z");
+                            x.HasKey("Id");
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_unspecified");
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_empty")
+                                .IsDescending();
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_ascending")
+                                .IsDescending(false, false, false);
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_descending")
+                                .IsDescending(true, true, true);
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_mixed")
+                                .IsDescending(false, true, false);
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EntityWithIndexes>(entity =>
+        {
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_ascending"");
+
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_descending"").IsDescending();
+
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_empty"").IsDescending();
+
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_mixed"").IsDescending(false, true, false);
+
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_unspecified"");
+
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                        code.ContextFile);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes")!;
+                    Assert.Equal(5, entityType.GetIndexes().Count());
+
+                    var unspecifiedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_unspecified");
+                    Assert.Null(unspecifiedIndex.IsDescending);
+
+                    var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
+                    Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
+
+                    var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
+                    Assert.Null(allAscendingIndex.IsDescending);
+
+                    var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
+                    Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
+
+                    var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
+                    Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
+                });
 
         [ConditionalFact]
         public void Entity_lambda_uses_correct_identifiers()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -778,71 +807,63 @@ namespace TestNamespace
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext()
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        public virtual DbSet<DependentEntity> DependentEntity { get; set; }
-        public virtual DbSet<PrincipalEntity> PrincipalEntity { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<DependentEntity>(entity =>
-            {
-                entity.HasIndex(e => e.DependentId, ""IX_DependentEntity_DependentId"")
-                    .IsUnique();
-
-                entity.Property(e => e.Id).UseIdentityColumn();
-
-                entity.HasOne(d => d.NavigationToPrincipal)
-                    .WithOne(p => p.NavigationToDependent)
-                    .HasPrincipalKey<PrincipalEntity>(p => p.PrincipalId)
-                    .HasForeignKey<DependentEntity>(d => d.DependentId);
-            });
-
-            modelBuilder.Entity<PrincipalEntity>(entity =>
-            {
-                entity.HasKey(e => e.AlternateId);
-
-                entity.Property(e => e.AlternateId).UseIdentityColumn();
-            });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<DependentEntity> DependentEntity { get; set; }
+
+    public virtual DbSet<PrincipalEntity> PrincipalEntity { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<DependentEntity>(entity =>
+        {
+            entity.HasIndex(e => e.DependentId, ""IX_DependentEntity_DependentId"").IsUnique();
+
+            entity.Property(e => e.Id).UseIdentityColumn();
+
+            entity.HasOne(d => d.NavigationToPrincipal).WithOne(p => p.NavigationToDependent)
+                .HasPrincipalKey<PrincipalEntity>(p => p.PrincipalId)
+                .HasForeignKey<DependentEntity>(d => d.DependentId);
+        });
+
+        modelBuilder.Entity<PrincipalEntity>(entity =>
+        {
+            entity.HasKey(e => e.AlternateId);
+
+            entity.Property(e => e.AlternateId).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
                 },
                 model => { });
-        }
 
         [ConditionalFact]
         public void Column_type_is_not_scaffolded_as_annotation()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Employee",
@@ -858,60 +879,52 @@ namespace TestNamespace
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext()
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        public virtual DbSet<Employee> Employee { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Employee>(entity =>
-            {
-                entity.Property(e => e.Id).UseIdentityColumn();
-
-                entity.Property(e => e.HireDate)
-                    .HasColumnType(""date"")
-                    .HasColumnName(""hiring_date"");
-            });
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Employee> Employee { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Employee>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+            entity.Property(e => e.HireDate)
+                .HasColumnType(""date"")
+                .HasColumnName(""hiring_date"");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
                 },
                 model =>
                     Assert.Equal("date", model.FindEntityType("TestNamespace.Employee").GetProperty("HireDate").GetConfiguredColumnType()));
-        }
 
         [ConditionalFact]
         public void Is_fixed_length_annotation_should_be_scaffolded_without_optional_parameter()
-        {
-             Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Employee",
@@ -924,12 +937,10 @@ namespace TestNamespace
                 code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
                 model =>
                     Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
-        }
 
         [ConditionalFact]
         public void Global_namespace_works()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity"),
                 new ModelCodeGenerationOptions { ModelNamespace = string.Empty },
                 code =>
@@ -938,7 +949,6 @@ namespace TestNamespace
                         @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 public partial class TestDbContext : DbContext
 {
@@ -954,13 +964,10 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<MyEntity> MyEntity { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
-            optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-        }
-    }
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -983,18 +990,12 @@ public partial class TestDbContext : DbContext
                 {
                     Assert.NotNull(model.FindEntityType("MyEntity"));
                 });
-        }
 
         [ConditionalFact]
         public void Global_namespace_works_just_context()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity"),
-                new ModelCodeGenerationOptions
-                {
-                    ModelNamespace = "TestNamespace",
-                    ContextNamespace = string.Empty
-                },
+                new ModelCodeGenerationOptions { ModelNamespace = "TestNamespace", ContextNamespace = string.Empty },
                 code =>
                 {
                     Assert.Contains("using TestNamespace;", code.ContextFile.Code);
@@ -1005,18 +1006,12 @@ public partial class TestDbContext : DbContext
                 {
                     Assert.NotNull(model.FindEntityType("TestNamespace.MyEntity"));
                 });
-        }
 
         [ConditionalFact]
         public void Global_namespace_works_just_model()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity"),
-                new ModelCodeGenerationOptions
-                {
-                    ModelNamespace = string.Empty,
-                    ContextNamespace = "TestNamespace"
-                },
+                new ModelCodeGenerationOptions { ModelNamespace = string.Empty, ContextNamespace = "TestNamespace" },
                 code =>
                 {
                     Assert.Contains("namespace TestNamespace", code.ContextFile.Code);
@@ -1026,45 +1021,37 @@ public partial class TestDbContext : DbContext
                 {
                     Assert.NotNull(model.FindEntityType("MyEntity"));
                 });
-        }
 
         [ConditionalFact]
         public void Fluent_calls_in_custom_namespaces_work()
-        {
-            Test(
-                modelBuilder => CustomTestNamespace.TestModelBuilderExtensions.TestFluentApiCall(modelBuilder),
+            => Test(
+                modelBuilder => TestModelBuilderExtensions.TestFluentApiCall(modelBuilder),
                 new ModelCodeGenerationOptions { SuppressOnConfiguring = true },
                 code =>
                 {
                     AssertFileContents(
                         @"using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using CustomTestNamespace;
+using Microsoft.EntityFrameworkCore;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
     {
-        public TestDbContext()
-        {
-        }
-
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.TestFluentApiCall();
-
-            OnModelCreatingPartial(modelBuilder);
-        }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.TestFluentApiCall();
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
@@ -1073,21 +1060,201 @@ namespace TestNamespace
                 },
                 model => Assert.Empty(model.GetEntityTypes()),
                 skipBuild: true);
-        }
 
-        [ConditionalFact(Skip = "issue #26007")]
+        [ConditionalFact]
         public void Temporal_table_works()
+            // Shadow properties. Issue #26007.
+            => Assert.Equal(
+                SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState("Customer", "PeriodStart"),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        Test(
+                            modelBuilder => modelBuilder.Entity(
+                                "Customer", e =>
+                                {
+                                    e.Property<int>("Id");
+                                    e.Property<string>("Name");
+                                    e.HasKey("Id");
+                                    e.ToTable(tb => tb.IsTemporal());
+                                }),
+                            new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                            code =>
+                            {
+                                AssertFileContents(
+                                    @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Customer> Customer { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                                    + DesignStrings.SensitiveInformationWarning
+                                    + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Customer>(entity =>
         {
-            Test(
-                modelBuilder => modelBuilder.Entity(
-                    "Customer", e =>
+            entity.ToTable(tb => tb.IsTemporal(ttb =>
                     {
-                        e.Property<int>("Id");
-                        e.Property<string>("Name");
-                        e.HasKey("Id");
-                        e.ToTable(tb => tb.IsTemporal());
-                    }),
+                        ttb.UseHistoryTable(""CustomerHistory"");
+                        ttb
+                            .HasPeriodStart(""PeriodStart"")
+                            .HasColumnName(""PeriodStart"");
+                        ttb
+                            .HasPeriodEnd(""PeriodEnd"")
+                            .HasColumnName(""PeriodEnd"");
+                    }));
+
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                                    code.ContextFile);
+                            },
+                            model =>
+                            {
+                                // TODO
+                            })).Message);
+
+        [ConditionalFact]
+        public void Sequences_work()
+            => Test(
+                modelBuilder => modelBuilder.HasSequence<int>("EvenNumbers", "dbo")
+                    .StartsAt(2)
+                    .IncrementsBy(2)
+                    .HasMin(2)
+                    .HasMax(100)
+                    .IsCyclic(true),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(
+                    @".HasSequence<int>(""EvenNumbers"", ""dbo"")" + _nl +
+                    "            .StartsAt(2L)" + _nl +
+                    "            .IncrementsBy(2)" + _nl +
+                    "            .HasMin(2L)" + _nl +
+                    "            .HasMax(100L)" + _nl +
+                    "            .IsCyclic();",
+                    code.ContextFile.Code),
+                model =>
+                {
+                    var sequence = model.FindSequence("EvenNumbers", "dbo");
+                    Assert.NotNull(sequence);
+
+                    Assert.Equal(typeof(int), sequence.Type);
+                    Assert.Equal(2, sequence.StartValue);
+                    Assert.Equal(2, sequence.IncrementBy);
+                    Assert.Equal(2, sequence.MinValue);
+                    Assert.Equal(100, sequence.MaxValue);
+                    Assert.True(sequence.IsCyclic);
+                });
+
+        [ConditionalFact]
+        public void Trigger_works()
+            => Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Employee",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.ToTable(
+                                tb =>
+                                {
+                                    tb.HasTrigger("Trigger1");
+                                    tb.HasTrigger("Trigger2");
+                                });
+                        }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Employee> Employee { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Employee>(entity =>
+        {
+            entity.ToTable(tb =>
+                {
+                    tb.HasTrigger(""Trigger1"");
+                    tb.HasTrigger(""Trigger2"");
+                });
+
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                        code.ContextFile);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Employee")!;
+                    var triggers = entityType.GetTriggers();
+
+                    Assert.Collection(triggers.OrderBy(t => t.Name),
+                        t => Assert.Equal("Trigger1", t.Name),
+                        t => Assert.Equal("Trigger2", t.Name));
+                });
+
+        [ConditionalFact]
+        public void ValueGenerationStrategy_works_when_none()
+            => Test(
+                modelBuilder => modelBuilder.Entity(
+                    "Channel",
+                    x =>
+                    {
+                        x.Property<int>("Id")
+                            .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
+                    }),
+                new ModelCodeGenerationOptions(),
                 code =>
                 {
                     AssertFileContents(
@@ -1096,72 +1263,55 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
 {
-    public partial class TestDbContext : DbContext
+    public TestDbContext()
     {
-        public TestDbContext()
-        {
-        }
+    }
 
-        public TestDbContext(DbContextOptions<TestDbContext> options)
-            : base(options)
-        {
-        }
-
-        public virtual DbSet<Customer> Customer { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
-                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Customer>(entity =>
-            {
-                entity.ToTable(tb => tb.IsTemporal(ttb =>
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
     {
-        ttb
-            .HasPeriodStart(""PeriodStart"")
-            .HasColumnName(""PeriodStart"");
-        ttb
-            .HasPeriodEnd(""PeriodEnd"")
-            .HasColumnName(""PeriodEnd"");
     }
-));
 
-                entity.Property(e => e.Id).UseIdentityColumn();
-            });
+    public virtual DbSet<Channel> Channel { get; set; }
 
-            OnModelCreatingPartial(modelBuilder);
-        }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
 
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Channel>(entity =>
+        {
+            entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+        });
+
+        OnModelCreatingPartial(modelBuilder);
     }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 ",
                         code.ContextFile);
+
                 },
                 model =>
                 {
-                    // TODO
+                    var entityType = Assert.Single(model.GetEntityTypes());
+                    var property = Assert.Single(entityType.GetProperties());
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetValueGenerationStrategy());
                 });
-        }
 
         protected override void AddModelServices(IServiceCollection services)
-        {
-            services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
-        }
+            => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 
         protected override void AddScaffoldingServices(IServiceCollection services)
-        {
-            services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
-        }
+            => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
         private class TestModelAnnotationProvider : SqlServerAnnotationProvider
         {
@@ -1187,8 +1337,8 @@ namespace TestNamespace
         private class TestModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
         {
             private static readonly MethodInfo _testFluentApiCallMethodInfo
-                = typeof(CustomTestNamespace.TestModelBuilderExtensions).GetRuntimeMethod(
-                    nameof(CustomTestNamespace.TestModelBuilderExtensions.TestFluentApiCall), new[] { typeof(ModelBuilder) })!;
+                = typeof(TestModelBuilderExtensions).GetRuntimeMethod(
+                    nameof(TestModelBuilderExtensions.TestFluentApiCall), new[] { typeof(ModelBuilder) })!;
 
             public TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
                 : base(dependencies)
@@ -1198,7 +1348,7 @@ namespace TestNamespace
             protected override MethodCallCodeFragment GenerateFluentApi(IModel model, IAnnotation annotation)
                 => annotation.Name switch
                 {
-                    "Test:TestModelAnnotation" => new(_testFluentApiCallMethodInfo),
+                    "Test:TestModelAnnotation" => new MethodCallCodeFragment(_testFluentApiCallMethodInfo),
                     _ => base.GenerateFluentApi(model, annotation)
                 };
         }

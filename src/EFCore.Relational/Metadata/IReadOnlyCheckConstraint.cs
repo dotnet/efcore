@@ -1,70 +1,105 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Text;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+/// <summary>
+///     Represents a check constraint on the entity type.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information and examples.
+/// </remarks>
+public interface IReadOnlyCheckConstraint : IReadOnlyAnnotatable
 {
     /// <summary>
-    ///     Represents a check constraint on the entity type.
+    ///     Gets the name of the check constraint in the model.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
-    /// </remarks>
-    public interface IReadOnlyCheckConstraint : IReadOnlyAnnotatable
+    string ModelName { get; }
+
+    /// <summary>
+    ///     Gets the database name of the check constraint.
+    /// </summary>
+    string? Name { get; }
+
+    /// <summary>
+    ///     Returns the default database name that would be used for this check constraint.
+    /// </summary>
+    /// <returns>The default name that would be used for this check constraint.</returns>
+    string? GetDefaultName()
     {
-        /// <summary>
-        ///     Gets the name of the check constraint in the model.
-        /// </summary>
-        string ModelName { get; }
+        var table = StoreObjectIdentifier.Create(EntityType, StoreObjectType.Table);
+        return !table.HasValue ? null : GetDefaultName(table.Value);
+    }
 
-        /// <summary>
-        ///     Gets the database name of the check constraint.
-        /// </summary>
-        string Name { get; }
+    /// <summary>
+    ///     Gets the database name of the check constraint.
+    /// </summary>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The database name of the check constraint for the given store object.</returns>
+    string? GetName(in StoreObjectIdentifier storeObject);
 
-        /// <summary>
-        ///     Returns the default database name that would be used for this check constraint.
-        /// </summary>
-        /// <returns>The default name that would be used for this check constraint.</returns>
-        string? GetDefaultName()
+    /// <summary>
+    ///     Returns the default database name that would be used for this check constraint.
+    /// </summary>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The default name that would be used for this check constraint.</returns>
+    string? GetDefaultName(in StoreObjectIdentifier storeObject)
+        => storeObject.StoreObjectType == StoreObjectType.Table
+        ? Uniquifier.Truncate(ModelName, EntityType.Model.GetMaxIdentifierLength())
+        : null;
+
+    /// <summary>
+    ///     Gets the entity type on which this check constraint is defined.
+    /// </summary>
+    IReadOnlyEntityType EntityType { get; }
+
+    /// <summary>
+    ///     Gets the constraint sql used in a check constraint in the database.
+    /// </summary>
+    string Sql { get; }
+
+    /// <summary>
+    ///     <para>
+    ///         Creates a human-readable representation of the given metadata.
+    ///     </para>
+    ///     <para>
+    ///         Warning: Do not rely on the format of the returned string.
+    ///         It is designed for debugging only and may change arbitrarily between releases.
+    ///     </para>
+    /// </summary>
+    /// <param name="options">Options for generating the string.</param>
+    /// <param name="indent">The number of indent spaces to use before each new line.</param>
+    /// <returns>A human-readable representation.</returns>
+    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    {
+        var builder = new StringBuilder();
+        var indentString = new string(' ', indent);
+
+        builder
+            .Append(indentString)
+            .Append("Check: ");
+
+        builder.Append(ModelName);
+        if (Name != ModelName)
         {
-            var table = StoreObjectIdentifier.Create(EntityType, StoreObjectType.Table);
-            return !table.HasValue ? null : GetDefaultName(table.Value);
+            builder.Append('*');
         }
 
-        /// <summary>
-        ///     Gets the database name of the check constraint.
-        /// </summary>
-        /// <param name="storeObject">The identifier of the store object.</param>
-        /// <returns>The database name of the check constraint for the given store object.</returns>
-        string? GetName(in StoreObjectIdentifier storeObject);
+        builder
+            .Append(" \"")
+            .Append(Sql)
+            .Append('"');
 
-        /// <summary>
-        ///     Returns the default database name that would be used for this check constraint.
-        /// </summary>
-        /// <param name="storeObject">The identifier of the store object.</param>
-        /// <returns>The default name that would be used for this check constraint.</returns>
-        string GetDefaultName(in StoreObjectIdentifier storeObject)
+        if ((options & MetadataDebugStringOptions.SingleLine) == 0)
         {
-            var prefix = $"CK_{storeObject.Name}_";
-            return Uniquifier.Truncate(
-                !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27059", out var enabled) && enabled)
-                || ModelName.StartsWith(prefix, StringComparison.Ordinal)
-                    ? ModelName
-                    : prefix + ModelName,
-                EntityType.Model.GetMaxIdentifierLength());
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent: indent + 2));
+            }
         }
 
-        /// <summary>
-        ///     Gets the entity type on which this check constraint is defined.
-        /// </summary>
-        IReadOnlyEntityType EntityType { get; }
-
-        /// <summary>
-        ///     Gets the constraint sql used in a check constraint in the database.
-        /// </summary>
-        string Sql { get; }
+        return builder.ToString();
     }
 }
