@@ -18,9 +18,8 @@ variables:
     - group: DotNetBuilds storage account read tokens
     - group: AzureDevOps-Artifact-Feeds-Pats
     - name: _InternalRuntimeDownloadArgs
-      value: >-
-        /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal
-        /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
+      value: /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal
+             /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
   - ${{ if eq(variables['System.TeamProject'], 'public') }}:
     - name: _InternalRuntimeDownloadArgs
       value: ''
