@@ -172,7 +172,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         when genericMethod == RelationalQueryableExtensions.ExecuteDeleteMethodInfo:
                         return TranslateExecuteDelete(shapedQueryExpression)
                             ?? throw new InvalidOperationException(
-                                RelationalStrings.NonQueryTranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+                                RelationalStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
+
+                    case nameof(RelationalQueryableExtensions.ExecuteUpdate)
+                        when genericMethod == RelationalQueryableExtensions.ExecuteUpdateMethodInfo:
+                        return TranslateExecuteUpdate(shapedQueryExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote())
+                            ?? throw new InvalidOperationException(
+                                RelationalStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
                 }
             }
         }
@@ -971,7 +979,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <summary>
-    ///     Translates <see cref="RelationalQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" />  method
+    ///     Translates <see cref="RelationalQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" /> method
     ///     over the given source.
     /// </summary>
     /// <param name="source">The shaped query on which the operator is applied.</param>
@@ -1056,7 +1064,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
                 source,
                 Expression.Quote(Expression.Lambda(
-                    EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(innerParameter, entityParameter),
+                    Infrastructure.ExpressionExtensions.BuildEqualsExpression(innerParameter, entityParameter),
                     innerParameter)));
         }
 
@@ -1069,11 +1077,199 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <summary>
-    ///     Validates if the current select expression can be used for execute delete operation or it requires to be pushed into a subquery.
+    ///     Translates <see cref="RelationalQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyStatements{TSource}, SetPropertyStatements{TSource}}})" /> method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <param name="setPropertyStatements">The lambda expression containing <see cref="SetPropertyStatements{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})"/> statements.</param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual NonQueryExpression? TranslateExecuteUpdate(
+        ShapedQueryExpression source,
+        LambdaExpression setPropertyStatements)
+    {
+        var propertyValueLambdaExpressions = new List<(LambdaExpression, LambdaExpression)>();
+        PopulateSetPropertyStatements(setPropertyStatements.Body, propertyValueLambdaExpressions, setPropertyStatements.Parameters[0]);
+        if (TranslationErrorDetails != null)
+        {
+            return null;
+        }
+
+        if (propertyValueLambdaExpressions.Count == 0)
+        {
+            AddTranslationErrorDetails(RelationalStrings.NoSetPropertyInvocation);
+            return null;
+        }
+
+        EntityShaperExpression? entityShaperExpression = null;
+        var setColumnValues = new List<SetColumnValue>();
+        foreach (var (propertyExpression, valueExpression) in propertyValueLambdaExpressions)
+        {
+            var left = RemapLambdaBody(source, propertyExpression);
+            if (!IsValidPropertyAccess(left, out var ese))
+            {
+                AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
+                return null;
+            }
+
+            if (entityShaperExpression is null)
+            {
+                entityShaperExpression = ese;
+            }
+            else if (!ReferenceEquals(ese, entityShaperExpression))
+            {
+                AddTranslationErrorDetails(RelationalStrings.MultipleEntityPropertiesInSetProperty(
+                    entityShaperExpression.EntityType.DisplayName(), ese.EntityType.DisplayName()));
+                return null;
+            }
+
+            var right = RemapLambdaBody(source, valueExpression);
+            // We generate equality between property = value while translating sothat value infer tye type mapping from property correctly.
+            // Later we decompose it back into left/right components so that the equality is not in the tree which can get affected by
+            // null semantics or other visitor.
+            var setter = Infrastructure.ExpressionExtensions.BuildEqualsExpression(left, right);
+            var translation = _sqlTranslator.Translate(setter);
+            if (translation is SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: ColumnExpression column } sqlBinaryExpression)
+            {
+                setColumnValues.Add(new SetColumnValue(column, sqlBinaryExpression.Right));
+            }
+            else
+            {
+                // We would reach here only if the property is unmapped or value fails to translate.
+                AddTranslationErrorDetails(RelationalStrings.UnableToTranslateSetProperty(
+                    propertyExpression.Print(), valueExpression.Print(), _sqlTranslator.TranslationErrorDetails));
+                return null;
+            }
+        }
+
+        Check.DebugAssert(entityShaperExpression != null, "EntityShaperExpression should have a value.");
+
+        var entityType = entityShaperExpression.EntityType;
+        var mappingStrategy = entityType.GetMappingStrategy();
+        if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
+        {
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnTPT(nameof(RelationalQueryableExtensions.ExecuteUpdate), entityType.DisplayName()));
+            return null;
+        }
+
+        if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
+            && entityType.GetDirectlyDerivedTypes().Any())
+        {
+            // We allow TPC is it is leaf type
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnTPC(nameof(RelationalQueryableExtensions.ExecuteUpdate), entityType.DisplayName()));
+            return null;
+        }
+
+        if (entityType.GetViewOrTableMappings().Count() != 1)
+        {
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnEntitySplitting(
+                    nameof(RelationalQueryableExtensions.ExecuteUpdate), entityType.DisplayName()));
+            return null;
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (IsValidSelectExpressionForExecuteUpdate(selectExpression, entityShaperExpression, out var tableExpression))
+        {
+            selectExpression.ReplaceProjection(new List<Expression>());
+            selectExpression.ApplyProjection();
+
+            return new NonQueryExpression(new UpdateExpression(tableExpression, selectExpression, setColumnValues));
+        }
+
+        // We need to convert to join with original query using PK
+        var pk = entityType.FindPrimaryKey();
+        if (pk == null)
+        {
+            AddTranslationErrorDetails(
+                RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator(
+                    nameof(RelationalQueryableExtensions.ExecuteUpdate),
+                    entityType.DisplayName()));
+            return null;
+        }
+
+        //var clrType = entityType.ClrType;
+        //var entityParameter = Expression.Parameter(clrType);
+        //Expression predicateBody;
+        //if (pk.Properties.Count == 1)
+        //{
+        //    predicateBody = Expression.Call(
+        //        QueryableMethods.Contains.MakeGenericMethod(clrType), source, entityParameter);
+        //}
+        //else
+        //{
+        //    var innerParameter = Expression.Parameter(clrType);
+        //    predicateBody = Expression.Call(
+        //        QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
+        //        source,
+        //        Expression.Quote(Expression.Lambda(Expression.Equal(innerParameter, entityParameter), innerParameter)));
+        //}
+
+        //var newSource = Expression.Call(
+        //    QueryableMethods.Where.MakeGenericMethod(clrType),
+        //    new EntityQueryRootExpression(entityType),
+        //    Expression.Quote(Expression.Lambda(predicateBody, entityParameter)));
+
+        //return TranslateExecuteDelete((ShapedQueryExpression)Visit(newSource));
+
+        return null;
+
+        void PopulateSetPropertyStatements(
+            Expression expression, List<(LambdaExpression, LambdaExpression)> list, ParameterExpression parameter)
+        {
+            switch (expression)
+            {
+                case ParameterExpression p
+                    when parameter == p:
+                    break;
+
+                case MethodCallExpression methodCallExpression
+                when methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.Name == nameof(SetPropertyStatements<int>.SetProperty)
+                    && methodCallExpression.Method.DeclaringType!.IsGenericType
+                    && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyStatements<>):
+
+                    list.Add((methodCallExpression.Arguments[0].UnwrapLambdaFromQuote(),
+                    methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()));
+                    PopulateSetPropertyStatements(methodCallExpression.Object!, list, parameter);
+
+                    break;
+
+                default:
+                    AddTranslationErrorDetails(RelationalStrings.InvalidArgumentToExecuteUpdate);
+                    break;
+            }
+        }
+
+        static bool IsValidPropertyAccess(Expression expression, [NotNullWhen(true)] out EntityShaperExpression? entityShaperExpression)
+        {
+            if (expression is MemberExpression { Expression: EntityShaperExpression ese })
+            {
+                entityShaperExpression = ese;
+                return true;
+            }
+
+            if (expression is MethodCallExpression mce
+                && mce.TryGetEFPropertyArguments(out var source, out _)
+                && source is EntityShaperExpression ese1)
+            {
+                entityShaperExpression = ese1;
+                return true;
+            }
+
+            entityShaperExpression = null;
+            return false;
+        }
+    }
+
+    /// <summary>
+    ///     Checks weather the current select expression can be used as-is for execute a delete operation,
+    ///     or whether it must be pushed down into a subquery.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         By default, only single-table select expressions are supported, and only with a predicate.
+    ///         By default, only single-table select expressions are supported, and optionally with a predicate.
     ///     </para>
     ///     <para>
     ///         Providers can override this to allow more select expression features to be supported without pushing down into a subquery.
@@ -1082,7 +1278,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     </para>
     /// </remarks>
     /// <param name="selectExpression">The select expression to validate.</param>
-    /// <param name="entityShaperExpression">The entity shaper expression on which delete operation is being applied.</param>
+    /// <param name="entityShaperExpression">The entity shaper expression on which the delete operation is being applied.</param>
     /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
     /// <returns> das </returns>
     protected virtual bool IsValidSelectExpressionForExecuteDelete(
@@ -1098,9 +1294,51 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
             && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] is TableExpression)
+            && selectExpression.Tables[0] is TableExpression expression)
         {
-            tableExpression = (TableExpression)selectExpression.Tables[0];
+            tableExpression = expression;
+
+            return true;
+        }
+
+        tableExpression = null;
+        return false;
+    }
+
+    // TODO: Update this documentation.
+    /// <summary>
+    ///     Validates if the current select expression can be used for execute update operation or it requires to be pushed into a subquery.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         By default, only single-table select expressions are supported, and optionally with a predicate.
+    ///     </para>
+    ///     <para>
+    ///         Providers can override this to allow more select expression features to be supported without pushing down into a subquery.
+    ///         When doing this, VisitUpdate must also be overridden in the provider's QuerySqlGenerator to add SQL generation support for
+    ///         the feature.
+    ///     </para>
+    /// </remarks>
+    /// <param name="selectExpression">The select expression to validate.</param>
+    /// <param name="entityShaperExpression">The entity shaper expression on which the update operation is being applied.</param>
+    /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
+    /// <returns> das </returns>
+    protected virtual bool IsValidSelectExpressionForExecuteUpdate(
+        SelectExpression selectExpression,
+        EntityShaperExpression entityShaperExpression,
+        [NotNullWhen(true)] out TableExpression? tableExpression)
+    {
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            // If entity type has primary key then Distinct is no-op
+            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] is TableExpression expression)
+        {
+            tableExpression = expression;
 
             return true;
         }

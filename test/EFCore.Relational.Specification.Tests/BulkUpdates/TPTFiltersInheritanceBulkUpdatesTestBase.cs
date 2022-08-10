@@ -35,4 +35,17 @@ public abstract class TPTFiltersInheritanceBulkUpdatesTestBase<TFixture> : Filte
     {
         return base.Delete_where_using_hierarchy_derived(async);
     }
+
+    // Keyless entities are mapped as TPH only
+    public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async) => Task.CompletedTask;
+
+    public override Task Update_where_hierarchy(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPT("ExecuteUpdate", "Animal"),
+            () => base.Update_where_hierarchy(async));
+
+    public override Task Update_where_hierarchy_derived(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPT("ExecuteUpdate", "Kiwi"),
+            () => base.Update_where_hierarchy_derived(async));
 }

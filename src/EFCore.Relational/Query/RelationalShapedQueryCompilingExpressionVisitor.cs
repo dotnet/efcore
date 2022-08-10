@@ -60,7 +60,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             Dependencies.MemoryCache,
             RelationalDependencies.QuerySqlGeneratorFactory,
             RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-            nonQueryExpression.DeleteExpression,
+            nonQueryExpression.Expression,
             _useRelationalNulls);
 
         return Expression.Call(

@@ -40,6 +40,11 @@ public class SelectExpressionPruningExpressionVisitor : ExpressionVisitor
             case DeleteExpression deleteExpression:
                 return deleteExpression.Update(deleteExpression.SelectExpression.Prune());
 
+            case UpdateExpression updateExpression:
+                return updateExpression.Update(
+                    updateExpression.SelectExpression.Prune(),
+                    updateExpression.SetColumnValues.Select(e => new SetColumnValue(e.Column, (SqlExpression)Visit(e.Value))).ToList());
+
             default:
                 return base.Visit(expression);
         }
