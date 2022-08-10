@@ -410,11 +410,12 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                   group p by p.Category
                   into g
                   select new { Category = g.Key, AveragePrice = g.Average(p => p.UnitPrice) },
-            ss => from p in ss.Set<ProductForLinq>()
-                  group p by p.Category
-                  into g
-                  select new { Category = g.Key, AveragePrice = Math.Round(g.Average(p => p.UnitPrice) - 0.0000005m, 6) },
-            elementSorter: e => (e.Category, e.AveragePrice));
+            elementSorter: e => (e.Category, e.AveragePrice),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Category, a.Category);
+                Assert.Equal(e.AveragePrice, a.AveragePrice, 5);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -644,7 +645,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(l.Id, r.Id);
                 Assert.Equal(l.Age, r.Age);
                 Assert.Equal(l.Style, r.Style);
-                Assert.Equal(l.Values, r.Values);
+                AssertCollection(l.Values, r.Values, elementSorter: e => (e.Id, e.Style, e.Age));
             });
 
     [ConditionalTheory] // From #19506
