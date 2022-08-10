@@ -43,6 +43,22 @@ public class TemporalPeriodPropertyBuilder
         return this;
     }
 
+    /// <summary>
+    ///     Configures the precision of the period property.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="precision">The precision of the period property.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual TemporalPeriodPropertyBuilder HasPrecision(int precision)
+    {
+        _propertyBuilder.HasPrecision(precision);
+
+        return this;
+    }
+
     #region Hidden System.Object members
 
     /// <summary>

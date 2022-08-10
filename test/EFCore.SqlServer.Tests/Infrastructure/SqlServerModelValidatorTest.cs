@@ -904,6 +904,54 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqlServerStrings.TemporalAllEntitiesMappedToSameTableMustBeTemporal("Splitting1"), modelBuilder);
     }
 
+    [ConditionalFact]
+    public void Temporal_table_with_explicit_precision_on_period_columns_passes_validation()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Human>().ToTable(tb => tb.IsTemporal(ttb =>
+        {
+            ttb.HasPeriodStart("Start").HasPrecision(2);
+            ttb.HasPeriodEnd("End").HasPrecision(2);
+        }));
+
+        Validate(modelBuilder);
+
+        var entity = modelBuilder.Model.FindEntityType(typeof(Human));
+
+        Assert.Equal(2, entity.FindProperty("Start").GetPrecision());
+        Assert.Equal(2, entity.FindProperty("End").GetPrecision());
+    }
+
+    [ConditionalFact]
+    public void Temporal_table_with_owned_with_explicit_precision_on_period_columns_passes_validation()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Owner>(b =>
+        {
+            b.ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
+                ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
+            }));
+            b.OwnsOne(x => x.Owned).ToTable(tb =>
+                tb.IsTemporal(ttb =>
+                {
+                    ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
+                    ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
+                }));
+        });
+
+        Validate(modelBuilder);
+
+        var ownerEntity = modelBuilder.Model.FindEntityType(typeof(Owner));
+        var ownedEntity = modelBuilder.Model.FindEntityType(typeof(OwnedEntity));
+
+        Assert.Equal(2, ownerEntity.FindProperty("Start").GetPrecision());
+        Assert.Equal(2, ownerEntity.FindProperty("End").GetPrecision());
+        Assert.Equal(2, ownedEntity.FindProperty("Start").GetPrecision());
+        Assert.Equal(2, ownedEntity.FindProperty("End").GetPrecision());
+    }
+
     public class Human
     {
         public int Id { get; set; }
