@@ -274,6 +274,23 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_owned_type_mapped_to_a_container()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>();
+        modelBuilder.Entity<Order>(
+            ob =>
+            {
+                var ownedType = ob.OwnsOne(o => o.OrderDetails).OwnedEntityType;
+                ownedType.SetContainer("Details");
+            });
+
+        VerifyError(
+            CosmosStrings.OwnedTypeDifferentContainer(
+                nameof(OrderDetails), nameof(Order), "Details"), modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_missing_discriminator()
     {
         var modelBuilder = CreateConventionModelBuilder();

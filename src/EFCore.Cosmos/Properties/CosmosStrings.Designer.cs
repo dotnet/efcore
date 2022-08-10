@@ -228,6 +228,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, missingEntityType, keyValue);
 
         /// <summary>
+        ///     The entity type '{entityType}' is owned by the entity type '{owner}', but is mapped to the container '{container}'. Owned types mapped to a container directly are not supported, remove this configuration to allow the owned type to be embedded in the same document as the owner.
+        /// </summary>
+        public static string OwnedTypeDifferentContainer(object? entityType, object? owner, object? container)
+            => string.Format(
+                GetString("OwnedTypeDifferentContainer", nameof(entityType), nameof(owner), nameof(container)),
+                entityType, owner, container);
+
+        /// <summary>
         ///     The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.
         /// </summary>
         public static string PartitionKeyMismatch(object? partitionKey1, object? partitionKey2)

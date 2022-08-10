@@ -299,7 +299,7 @@ public class RelationalModelValidator : ModelValidator
                 RelationalStrings.StoredProcedureKeyless(
                     entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
         }
-        
+
         var properties = entityType.GetDeclaredProperties().ToDictionary(p => p.Name);
         if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
         {
@@ -339,12 +339,12 @@ public class RelationalModelValidator : ModelValidator
                     {
                         break;
                     }
-                    
+
                     foreach (var property in baseType.GetDeclaredProperties())
                     {
                         properties.Add(property.Name, property);
                     }
-                    
+
                     baseType = baseType.BaseType;
                 }
             }
@@ -372,14 +372,14 @@ public class RelationalModelValidator : ModelValidator
                     RelationalStrings.StoredProcedureResultColumnNotFound(
                         resultColumn.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
             }
-            
+
             if (!resultColumnNames.Add(resultColumn.Name))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureDuplicateResultColumnName(
                         resultColumn.Name, storeObjectIdentifier.DisplayName()));
             }
-            
+
             if (resultColumn.PropertyName == null)
             {
                 continue;
@@ -406,7 +406,7 @@ public class RelationalModelValidator : ModelValidator
                     break;
             }
         }
-        
+
         var parameterNames = new HashSet<string>();
         foreach (var parameter in sproc.Parameters)
         {
@@ -429,14 +429,14 @@ public class RelationalModelValidator : ModelValidator
                             parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
                 }
             }
-            
+
             if (!parameterNames.Add(parameter.Name))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureDuplicateParameterName(
                         parameter.Name, storeObjectIdentifier.DisplayName()));
             }
-            
+
             if (parameter.PropertyName == null)
             {
                 continue;
@@ -472,7 +472,7 @@ public class RelationalModelValidator : ModelValidator
                             RelationalStrings.StoredProcedureDeleteNonKeyProperty(
                                 entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
-                    
+
                     break;
                 default:
                     Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
@@ -486,9 +486,9 @@ public class RelationalModelValidator : ModelValidator
             {
                 continue;
             }
-            
+
             properties.Remove(resultColumn.PropertyName);
-            
+
             if (!storeGeneratedProperties.Remove(resultColumn.PropertyName))
             {
                 throw new InvalidOperationException(
@@ -496,7 +496,7 @@ public class RelationalModelValidator : ModelValidator
                         entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
             }
         }
-        
+
         if (storeGeneratedProperties.Count > 0)
         {
             throw new InvalidOperationException(
@@ -1098,7 +1098,7 @@ public class RelationalModelValidator : ModelValidator
                 {
                     continue;
                 }
-                
+
                 missingConcurrencyTokens?.Remove(columnName);
                 if (!propertyMappings.TryGetValue(columnName, out var duplicateProperty))
                 {
@@ -1700,7 +1700,7 @@ public class RelationalModelValidator : ModelValidator
                        RelationalStrings.AbstractTpc(entityType.DisplayName(), storeObject));
                 }
             }
-            
+
             foreach (var key in entityType.GetKeys())
             {
                 ValidateValueGeneration(entityType, key, logger);
@@ -1739,12 +1739,12 @@ public class RelationalModelValidator : ModelValidator
                 ValidateTphMapping(entityType, StoreObjectType.InsertStoredProcedure);
                 ValidateTphMapping(entityType, StoreObjectType.DeleteStoredProcedure);
                 ValidateTphMapping(entityType, StoreObjectType.UpdateStoredProcedure);
-                
+
                 ValidateDiscriminatorValues(entityType);
             }
             else
             {
-                if (mappingStrategy != RelationalAnnotationNames.TpcMappingStrategy 
+                if (mappingStrategy != RelationalAnnotationNames.TpcMappingStrategy
                     && entityType.FindPrimaryKey() == null)
                 {
                     throw new InvalidOperationException(
@@ -1957,7 +1957,7 @@ public class RelationalModelValidator : ModelValidator
     protected override bool IsRedundant(IForeignKey foreignKey)
         => base.IsRedundant(foreignKey)
             && !foreignKey.DeclaringEntityType.GetMappingFragments().Any();
-    
+
     /// <summary>
     ///     Validates the entity type mapping fragments.
     /// </summary>
@@ -2027,7 +2027,7 @@ public class RelationalModelValidator : ModelValidator
 
                         continue;
                     }
-                    
+
                     if (!property.IsPrimaryKey())
                     {
                         propertiesFound = true;
@@ -2218,7 +2218,7 @@ public class RelationalModelValidator : ModelValidator
                     {
                         yield return declaringStoreObject.Value;
                     }
-                    
+
                     foreach (var fragment in fragments)
                     {
                         overrides = RelationalPropertyOverrides.Find(property, fragment.StoreObject);
@@ -2261,7 +2261,7 @@ public class RelationalModelValidator : ModelValidator
                         queue.Enqueue(containingType);
                     }
                 }
-            }            
+            }
         }
     }
 
