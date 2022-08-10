@@ -823,8 +823,12 @@ public class InversePropertyAttributeConvention :
         Type targetClrType,
         MemberInfo navigationMemberInfo,
         bool shouldCreate = true)
-        => ((InternalEntityTypeBuilder)entityTypeBuilder)
-            .GetTargetEntityTypeBuilder(targetClrType, navigationMemberInfo, shouldCreate ? ConfigurationSource.DataAnnotation : null);
+        => entityTypeBuilder
+            .GetTargetEntityTypeBuilder(
+                targetClrType,
+                navigationMemberInfo,
+                shouldCreate,
+                fromDataAnnotation: true);
 
     private static Dictionary<string, (MemberInfo Navigation, List<(MemberInfo, IConventionEntityType)> References)>?
         GetInverseNavigations(

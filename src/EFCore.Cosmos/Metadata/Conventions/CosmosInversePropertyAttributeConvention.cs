@@ -40,12 +40,11 @@ public class CosmosInversePropertyAttributeConvention : InversePropertyAttribute
         Type targetClrType,
         MemberInfo navigationMemberInfo,
         bool shouldCreate = true)
-        => ((InternalEntityTypeBuilder)entityTypeBuilder)
-#pragma warning disable EF1001 // Internal EF Core API usage.
+        => entityTypeBuilder
             .GetTargetEntityTypeBuilder(
                 targetClrType,
                 navigationMemberInfo,
-                shouldCreate ? ConfigurationSource.DataAnnotation : null,
-                CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(targetClrType, entityTypeBuilder.Metadata.Model));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                shouldCreate,
+                CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(targetClrType, entityTypeBuilder.Metadata.Model),
+                fromDataAnnotation: true);
 }

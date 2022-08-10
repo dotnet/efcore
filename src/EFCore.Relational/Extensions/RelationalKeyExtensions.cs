@@ -87,14 +87,10 @@ public static class RelationalKeyExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured name.</returns>
     public static string? SetName(this IConventionKey key, string? name, bool fromDataAnnotation = false)
-    {
-        key.SetOrRemoveAnnotation(
+        => (string?)key.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.

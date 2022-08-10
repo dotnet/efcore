@@ -45,12 +45,9 @@ public static class RelationalModelExtensions
         this IConventionModel model,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        model.SetOrRemoveAnnotation(
+        => (string?)model.SetOrRemoveAnnotation(
             RelationalAnnotationNames.DefaultSchema,
-            Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation);
-        return value;
-    }
+            Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the configuration source for the default schema.
@@ -104,11 +101,10 @@ public static class RelationalModelExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static int? SetMaxIdentifierLength(this IConventionModel model, int? length, bool fromDataAnnotation = false)
-    {
-        model.SetOrRemoveAnnotation(RelationalAnnotationNames.MaxIdentifierLength, length, fromDataAnnotation);
-
-        return length;
-    }
+        => (int?)model.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.MaxIdentifierLength,
+            length,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the configuration source for <see cref="GetMaxIdentifierLength" />.
@@ -513,12 +509,9 @@ public static class RelationalModelExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured collation.</returns>
     public static string? SetCollation(this IConventionModel model, string? value, bool fromDataAnnotation = false)
-    {
-        model.SetOrRemoveAnnotation(
+        => (string?)model.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Collation,
-            Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation);
-        return value;
-    }
+            Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the configuration source for the collation.

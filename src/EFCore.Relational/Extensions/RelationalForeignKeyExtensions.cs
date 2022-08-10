@@ -114,14 +114,10 @@ public static class RelationalForeignKeyExtensions
         this IConventionForeignKey foreignKey,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        foreignKey.SetOrRemoveAnnotation(
+        => (string?)foreignKey.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.
