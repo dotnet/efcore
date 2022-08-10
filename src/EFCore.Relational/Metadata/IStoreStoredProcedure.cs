@@ -19,12 +19,12 @@ public interface IStoreStoredProcedure : ITableBase
     ///     Gets the entity type mappings.
     /// </summary>
     new IEnumerable<IStoredProcedureMapping> EntityTypeMappings { get; }
-    
+
     /// <summary>
     ///     Gets the return for this stored procedure.
     /// </summary>
     IStoreStoredProcedureReturnValue? ReturnValue { get; }
-    
+
     /// <summary>
     ///     Gets the parameters for this stored procedure.
     /// </summary>
@@ -81,7 +81,7 @@ public interface IStoreStoredProcedure : ITableBase
             builder
                 .Append(indentString)
                 .Append("StoreStoredProcedure: ");
-            
+
             if (Schema != null)
             {
                 builder

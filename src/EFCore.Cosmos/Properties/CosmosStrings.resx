@@ -226,6 +226,9 @@
   <data name="OrphanedNestedDocumentSensitive" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the key value '{keyValue}'.</value>
   </data>
+  <data name="OwnedTypeDifferentContainer" xml:space="preserve">
+    <value>The entity type '{entityType}' is owned by the entity type '{owner}', but is mapped to the container '{container}'. Owned types mapped to a container directly are not supported, remove this configuration to allow the owned type to be embedded in the same document as the owner.</value>
+  </data>
   <data name="PartitionKeyMismatch" xml:space="preserve">
     <value>The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.</value>
   </data>

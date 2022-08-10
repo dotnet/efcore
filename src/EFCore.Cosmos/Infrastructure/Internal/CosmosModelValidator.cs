@@ -60,6 +60,13 @@ public class CosmosModelValidator : ModelValidator
                 continue;
             }
 
+            var ownership = entityType.FindOwnership();
+            if (ownership != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.OwnedTypeDifferentContainer(
+                    entityType.DisplayName(), ownership.PrincipalEntityType.DisplayName(), container));
+            }
+
             if (!containers.TryGetValue(container, out var mappedTypes))
             {
                 mappedTypes = new List<IEntityType>();
