@@ -1,8 +1,6 @@
 variables:
   - name: _BuildConfig
     value: Release
-  - name: _BuildTargetFramework
-    value: net6.0
   - name: _TeamName
     value: AspNetCore
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
@@ -70,7 +68,6 @@ stages:
             variables:
               - _InternalBuildArgs: ''
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-                - group: DotNet-Blob-Feed
                 - _SignType: real
                 - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
             steps:
