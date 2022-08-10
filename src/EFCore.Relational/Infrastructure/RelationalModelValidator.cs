@@ -2452,8 +2452,7 @@ public class RelationalModelValidator : ModelValidator
         {
             // issue #28443
             throw new InvalidOperationException(
-                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(
-                    rootType.DisplayName(), RelationalAnnotationNames.TphMappingStrategy));
+                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(rootType.DisplayName()));
         }
     }
 

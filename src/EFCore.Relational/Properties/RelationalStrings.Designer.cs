@@ -982,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertyExpression);
 
         /// <summary>
-        ///     Entity '{jsonType}' is mapped to JSON and also mapped to a view '{viewName}', however it's owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as it's owner.
+        ///     Entity '{jsonType}' is mapped to JSON and also to a view '{viewName}', but its owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as its owner.
         /// </summary>
         public static string JsonEntityMappedToDifferentViewThanOwner(object? jsonType, object? viewName, object? ownerType, object? ownerViewName)
             => string.Format(
@@ -1006,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nonJsonType, table);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is mapped to JSON and has navigation to a regular entity which is not the owner.
+        ///     Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a regular entity which is not the owner.
         /// </summary>
         public static string JsonEntityReferencingRegularEntity(object? jsonEntity)
             => string.Format(
@@ -1014,7 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity);
 
         /// <summary>
-        ///     Setting default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.
+        ///     Setting a default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.
         /// </summary>
         public static string JsonEntityWithDefaultValueSetOnItsProperty(object? jsonEntity, object? property)
             => string.Format(
@@ -1022,7 +1022,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, property);
 
         /// <summary>
-        ///     Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have JSON property name configured explicitly.
+        ///     Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have its JSON property name configured explicitly.
         /// </summary>
         public static string JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey(object? keyProperty, object? jsonEntity)
             => string.Format(
@@ -1030,7 +1030,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 keyProperty, jsonEntity);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' is part of collection mapped to JSON and has it's ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.
+        ///     Entity type '{jsonEntity}' is part of a collection mapped to JSON and has its ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.
         /// </summary>
         public static string JsonEntityWithExplicitlyConfiguredOrdinalKey(object? jsonEntity)
             => string.Format(
@@ -1038,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity);
 
         /// <summary>
-        ///     Entity type '{jsonEntity}' has incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.
+        ///     Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.
         /// </summary>
         public static string JsonEntityWithIncorrectNumberOfKeyProperties(object? jsonEntity, object? expectedCount, object? actualCount)
             => string.Format(
@@ -1046,7 +1046,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, expectedCount, actualCount);
 
         /// <summary>
-        ///     Entity '{jsonEntity}' is mapped to JSON and it contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.
+        ///     Entity '{jsonEntity}' is mapped to JSON and contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.
         /// </summary>
         public static string JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(object? jsonEntity, object? property)
             => string.Format(
@@ -1054,15 +1054,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, property);
 
         /// <summary>
-        ///     Entity type '{rootType}' references entities mapped to JSON. Only '{tph}' inheritance is supported for those entities.
+        ///     Entity type '{rootType}' references entities mapped to JSON. Only TPH inheritance is supported for those entities.
         /// </summary>
-        public static string JsonEntityWithNonTphInheritanceOnOwner(object? rootType, object? tph)
+        public static string JsonEntityWithNonTphInheritanceOnOwner(object? rootType)
             => string.Format(
-                GetString("JsonEntityWithNonTphInheritanceOnOwner", nameof(rootType), nameof(tph)),
-                rootType, tph);
+                GetString("JsonEntityWithNonTphInheritanceOnOwner", nameof(rootType)),
+                rootType);
 
         /// <summary>
-        ///     Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view.This is not supported.
+        ///     Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view. This is not supported.
         /// </summary>
         public static string JsonEntityWithOwnerNotMappedToTableOrView(object? entity)
             => string.Format(
@@ -1076,7 +1076,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonEntityWithTableSplittingIsNotSupported");
 
         /// <summary>
-        ///     JSON property name should only be configured on nested owned navigations.
+        ///     The JSON property name should only be configured on nested owned navigations.
         /// </summary>
         public static string JsonPropertyNameShouldBeConfiguredOnNestedNavigation
             => GetString("JsonPropertyNameShouldBeConfiguredOnNestedNavigation");
