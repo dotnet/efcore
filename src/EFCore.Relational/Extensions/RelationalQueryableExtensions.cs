@@ -66,7 +66,7 @@ public static class RelationalQueryableExtensions
     ///     <para>
     ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
     ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="FromSqlInterpolated{TEntity}" /> to create parameters.
+    ///         consider using <see cref="FromSql{TEntity}" /> to create parameters.
     ///     </para>
     ///     <para>
     ///         This overload also accepts <see cref="DbParameter" /> instances as parameter values. In addition to using positional
@@ -127,6 +127,46 @@ public static class RelationalQueryableExtensions
     /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
     /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
     public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
+        this DbSet<TEntity> source,
+        [NotParameterized] FormattableString sql)
+        where TEntity : class
+    {
+        Check.NotNull(sql, nameof(sql));
+        Check.NotEmpty(sql.Format, nameof(source));
+
+        var queryableSource = (IQueryable)source;
+        return queryableSource.Provider.CreateQuery<TEntity>(
+            GenerateFromSqlQueryRoot(
+                queryableSource,
+                sql.Format,
+                sql.GetArguments()));
+    }
+
+    /// <summary>
+    ///     Creates a LINQ query based on an interpolated string representing a SQL query.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
+    ///         LINQ operators.
+    ///     </para>
+    ///     <para>
+    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+    ///         attack. You can include interpolated parameter place holders in the SQL query string. Any interpolated parameter values
+    ///         you supply will automatically be converted to a <see cref="DbParameter" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <param name="source">
+    ///     An <see cref="IQueryable{T}" /> to use as the base of the interpolated string SQL query (typically a <see cref="DbSet{TEntity}" />).
+    /// </param>
+    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
+    public static IQueryable<TEntity> FromSql<TEntity>(
         this DbSet<TEntity> source,
         [NotParameterized] FormattableString sql)
         where TEntity : class

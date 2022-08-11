@@ -274,9 +274,30 @@ p1='Sales Representative' (Size = 4000)
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
     }
 
+    public override async Task FromSql_queryable_with_parameters_interpolated(bool async)
+    {
+        await base.FromSql_queryable_with_parameters_interpolated(async);
+
+        AssertSql(
+            @"p0='London' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
+    }
+
     public override async Task FromSqlInterpolated_queryable_with_parameters_inline_interpolated(bool async)
     {
         await base.FromSqlInterpolated_queryable_with_parameters_inline_interpolated(async);
+
+        AssertSql(
+            @"p0='London' (Size = 4000)
+p1='Sales Representative' (Size = 4000)
+
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
+    }
+    public override async Task FromSql_queryable_with_parameters_inline_interpolated(bool async)
+    {
+        await base.FromSql_queryable_with_parameters_inline_interpolated(async);
 
         AssertSql(
             @"p0='London' (Size = 4000)
@@ -289,6 +310,39 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
         bool async)
     {
         await base.FromSqlInterpolated_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(async);
+
+        AssertSql(
+            @"p0='London' (Size = 4000)
+p1='1997-01-01T00:00:00.0000000'
+p2='1998-01-01T00:00:00.0000000'
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region], [m0].[OrderID], [m0].[CustomerID], [m0].[EmployeeID], [m0].[OrderDate]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+) AS [m]
+CROSS JOIN (
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
+) AS [m0]
+WHERE [m].[CustomerID] = [m0].[CustomerID]",
+            //
+            @"p0='Berlin' (Size = 4000)
+p1='1998-04-01T00:00:00.0000000'
+p2='1998-05-01T00:00:00.0000000'
+
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region], [m0].[OrderID], [m0].[CustomerID], [m0].[EmployeeID], [m0].[OrderDate]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+) AS [m]
+CROSS JOIN (
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
+) AS [m0]
+WHERE [m].[CustomerID] = [m0].[CustomerID]");
+    }
+
+    public override async Task FromSql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(
+        bool async)
+    {
+        await base.FromSql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(async);
 
         AssertSql(
             @"p0='London' (Size = 4000)
@@ -534,9 +588,29 @@ ORDER BY [m].[CustomerID], [m0].[OrderID], [o].[OrderID]");
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
     }
 
+    public override async Task FromSql_with_inlined_db_parameter(bool async)
+    {
+        await base.FromSql_with_inlined_db_parameter(async);
+
+        AssertSql(
+            @"@somename='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
+    }
+
     public override async Task FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix(bool async)
     {
         await base.FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix(async);
+
+        AssertSql(
+            @"somename='ALFKI' (Nullable = false) (Size = 5)
+
+SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
+    }
+
+    public override async Task FromSql_with_inlined_db_parameter_without_name_prefix(bool async)
+    {
+        await base.FromSql_with_inlined_db_parameter_without_name_prefix(async);
 
         AssertSql(
             @"somename='ALFKI' (Nullable = false) (Size = 5)

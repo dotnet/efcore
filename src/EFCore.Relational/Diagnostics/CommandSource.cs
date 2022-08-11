@@ -24,7 +24,7 @@ public enum CommandSource
 
     /// <summary>
     ///     The command was generated from a call to <see cref="DbContext.SaveChanges()"/> or
-    ///     <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)"/>
+    ///     <see cref="DbContext.SaveChangesAsync(CancellationToken)"/>
     /// </summary>
     SaveChanges,
 
@@ -34,7 +34,9 @@ public enum CommandSource
     Migrations,
 
     /// <summary>
-    ///     The command was generated from a call to <see cref="RelationalQueryableExtensions.FromSqlRaw{TEntity}"/> or
+    ///     The command was generated from a call to
+    ///     <see cref="RelationalQueryableExtensions.FromSql{TEntity}"/>,
+    ///     <see cref="RelationalQueryableExtensions.FromSqlRaw{TEntity}"/> or
     ///     <see cref="RelationalQueryableExtensions.FromSqlInterpolated{TEntity}"/> 
     /// </summary>
     FromSqlQuery,
@@ -42,7 +44,9 @@ public enum CommandSource
     /// <summary>
     ///     The command was generated from a call to
     ///     <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(DatabaseFacade,string,object[])"/>,
-    ///     <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(DatabaseFacade,string,System.Threading.CancellationToken)"/>,
+    ///     <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(DatabaseFacade,string,CancellationToken)"/>,
+    ///     <see cref="RelationalDatabaseFacadeExtensions.ExecuteSql"/>,
+    ///     <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlAsync"/>,
     ///     <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlInterpolated"/>,
     ///     or <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlInterpolatedAsync"/>.
     /// </summary>
