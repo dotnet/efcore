@@ -397,11 +397,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for sequence annotations.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="sequenceBuilderName">The name of the sequence builder variable.</param>
-    /// <param name="sequence">The sequence.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GenerateSequenceAnnotations(
         string sequenceBuilderName,
         ISequence sequence,
@@ -847,19 +848,19 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         annotations.TryGetAndRemove(RelationalAnnotationNames.TableName, out IAnnotation tableNameAnnotation);
         var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var tableName = (string?)tableNameAnnotation?.Value ?? table?.Name;
-        var explicitName = tableNameAnnotation != null 
-            || entityType.BaseType == null 
+        var explicitName = tableNameAnnotation != null
+            || entityType.BaseType == null
             || entityType.BaseType.GetTableName() != tableName;
-        
+
         annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
         var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
-        
+
         annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
         var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
-        
+
         annotations.TryGetAndRemove(RelationalAnnotationNames.Comment, out IAnnotation commentAnnotation);
         var comment = (string?)commentAnnotation?.Value;
-        
+
         var hasTriggers = entityType.GetTriggers().Any(t => t.TableName == tableName! && t.TableSchema == schema);
         var hasOverrides = table != null
             && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
@@ -868,7 +869,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             || hasTriggers
             || hasOverrides
             || entityType.GetCheckConstraints().Any();
-        
+
         if (!explicitName
             && !requiresTableBuilder)
         {
@@ -879,7 +880,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .AppendLine()
             .Append(entityTypeBuilderName)
             .Append(".ToTable(");
-        
+
         if (explicitName)
         {
             if (tableName == null
@@ -932,7 +933,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                             .AppendLine()
                             .AppendLine("t.ExcludeFromMigrations();");
                     }
-                    
+
                     if (comment != null)
                     {
                         stringBuilder
@@ -1093,11 +1094,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for mapping fragment annotations.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="tableBuilderName">The name of the table builder variable.</param>
-    /// <param name="fragment">The mapping fragment.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GenerateEntityTypeMappingFragmentAnnotations(
         string tableBuilderName,
         IEntityTypeMappingFragment fragment,
@@ -1156,10 +1158,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for check constraint annotations.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="checkConstraint">The check constraint.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GenerateCheckConstraintAnnotations(
         ICheckConstraint checkConstraint,
         IndentedStringBuilder stringBuilder)
@@ -1193,13 +1197,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for <see cref="ITrigger" /> objects.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="tableBuilderName">The name of the table builder variable.</param>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="table">The table name.</param>
-    /// <param name="schema">The table schema.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GenerateTriggers(
         string tableBuilderName,
         IEntityType entityType,
@@ -1219,11 +1222,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for an <see cref="ITrigger" />.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="tableBuilderName">The name of the table builder variable.</param>
-    /// <param name="trigger">The trigger.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GenerateTrigger(
         string tableBuilderName,
         ITrigger trigger,
@@ -1250,11 +1254,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for trigger annotations.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="triggerBuilderName">The name of the builder variable.</param>
-    /// <param name="trigger">The trigger.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GenerateTriggerAnnotations(
         string triggerBuilderName,
         ITrigger trigger,
@@ -1268,12 +1273,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for <see cref="IRelationalPropertyOverrides" /> objects.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="tableBuilderName">The name of the table builder variable.</param>
-    /// <param name="entityType">The entity type.</param>
-    /// <param name="storeObject">The store object identifier.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GeneratePropertyOverrides(
         string tableBuilderName,
         IEntityType entityType,
@@ -1291,11 +1296,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for an <see cref="IRelationalPropertyOverrides" />.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="tableBuilderName">The name of the table builder variable.</param>
-    /// <param name="overrides">The overrides.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GeneratePropertyOverride(
         string tableBuilderName,
         IRelationalPropertyOverrides overrides,
@@ -1324,11 +1330,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     }
 
     /// <summary>
-    ///     Generates code for property overrides annotations.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="propertyBuilderName">The name of the builder variable.</param>
-    /// <param name="overrides">The overrides.</param>
-    /// <param name="stringBuilder">The builder code is added to.</param>
+    [EntityFrameworkInternal]
     protected virtual void GeneratePropertyOverridesAnnotations(
         string propertyBuilderName,
         IRelationalPropertyOverrides overrides,
