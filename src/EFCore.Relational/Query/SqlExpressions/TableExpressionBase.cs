@@ -97,7 +97,39 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression
                 && Equals(tableExpressionBase));
 
     private bool Equals(TableExpressionBase tableExpressionBase)
-        => Alias == tableExpressionBase.Alias;
+    {
+        if (Alias != tableExpressionBase.Alias)
+        {
+            return false;
+        }
+
+        if (_annotations == null)
+        {
+            return tableExpressionBase._annotations == null;
+        }
+
+        if (tableExpressionBase._annotations == null)
+        {
+            return false;
+        }
+
+        if (_annotations.Count != tableExpressionBase._annotations.Count)
+        {
+            return false;
+        }
+
+        foreach (var kvp in _annotations)
+        {
+            if (!tableExpressionBase._annotations.TryGetValue(kvp.Key, out var value)
+                || !Equals(value, kvp.Value))
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
 
     /// <inheritdoc />
     public override int GetHashCode()

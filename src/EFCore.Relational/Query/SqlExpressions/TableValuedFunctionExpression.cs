@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExpression
+public class TableValuedFunctionExpression : TableExpressionBase
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
@@ -26,7 +26,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
             storeFunction.Name[..1].ToLowerInvariant(),
             storeFunction,
             arguments,
-            annotations: null)
+            annotations: new[] { new Annotation(RelationalAnnotationNames.QueryTableSource, storeFunction) })
     {
     }
 
@@ -60,9 +60,6 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     ///     The list of arguments of this function.
     /// </summary>
     public virtual IReadOnlyList<SqlExpression> Arguments { get; }
-
-    /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => StoreFunction;
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

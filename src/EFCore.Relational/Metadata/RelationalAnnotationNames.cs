@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -333,4 +335,9 @@ public static class RelationalAnnotationNames
     ///     The JSON property name for the element that the property/navigation maps to.
     /// </summary>
     public const string JsonPropertyName = Prefix + "JsonPropertyName";
+
+    /// <summary>
+    ///     The <see cref="ITableBase"/> associated with the given <see cref="TableExpressionBase"/>.
+    /// </summary>
+    public const string QueryTableSource = Prefix + "QueryTableSource";
 }

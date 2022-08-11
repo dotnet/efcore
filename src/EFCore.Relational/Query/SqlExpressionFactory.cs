@@ -641,7 +641,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return;
         }
 
-        var table = ((ITableBasedExpression)selectExpression.Tables[0]).Table;
+        var table = (ITableBase)selectExpression.Tables[0].FindAnnotation(RelationalAnnotationNames.QueryTableSource)!.Value!;
         if (table.IsOptional(entityType))
         {
             var entityProjectionExpression = GetMappedEntityProjectionExpression(selectExpression);

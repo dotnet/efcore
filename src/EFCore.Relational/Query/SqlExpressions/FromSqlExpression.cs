@@ -14,10 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase, ITableBasedExpression
+public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase
 {
-    private readonly ITableBase _table;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
     /// </summary>
@@ -25,7 +23,8 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     /// <param name="sql">A user-provided custom SQL for the table source.</param>
     /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
     public FromSqlExpression(ITableBase defaultTableBase, string sql, Expression arguments)
-        : this(defaultTableBase.Name[..1].ToLowerInvariant(), defaultTableBase, sql, arguments, annotations: null)
+        : this(defaultTableBase.Name[..1].ToLowerInvariant(), sql, arguments,
+              new[] { new Annotation(RelationalAnnotationNames.QueryTableSource, defaultTableBase)})
     {
     }
 
@@ -41,13 +40,11 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
 
     private FromSqlExpression(
         string alias,
-        ITableBase tableBase,
         string sql,
         Expression arguments,
         IEnumerable<IAnnotation>? annotations)
         : base(alias, annotations)
     {
-        _table = tableBase;
         Sql = sql;
         Arguments = arguments;
     }
@@ -80,15 +77,12 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual FromSqlExpression Update(Expression arguments)
         => arguments != Arguments
-            ? new FromSqlExpression(Alias, _table, Sql, arguments, GetAnnotations())
+            ? new FromSqlExpression(Alias, Sql, arguments, GetAnnotations())
             : this;
 
     /// <inheritdoc />
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new FromSqlExpression(Alias, _table, Sql, Arguments, annotations);
-
-    /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => _table;
+        => new FromSqlExpression(Alias, Sql, Arguments, annotations);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -96,7 +90,7 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
 
     /// <inheritdoc />
     public virtual TableExpressionBase Clone()
-        => new FromSqlExpression(Alias, _table, Sql, Arguments, GetAnnotations());
+        => new FromSqlExpression(Alias, Sql, Arguments, GetAnnotations());
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
@@ -114,7 +108,6 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
 
     private bool Equals(FromSqlExpression fromSqlExpression)
         => base.Equals(fromSqlExpression)
-            && _table == fromSqlExpression._table
             && Sql == fromSqlExpression.Sql
             && ExpressionEqualityComparer.Instance.Equals(Arguments, fromSqlExpression.Arguments);
 
