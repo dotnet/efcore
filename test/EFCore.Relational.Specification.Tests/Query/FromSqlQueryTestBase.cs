@@ -620,10 +620,49 @@ FROM [Customers]"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_queryable_with_parameters_interpolated(bool async)
+    {
+        var city = "London";
+        var contactTitle = "Sales Representative";
+
+        using var context = CreateContext();
+        var query = context.Set<Customer>().FromSql(
+            NormalizeDelimitersInInterpolatedString(
+                $"SELECT * FROM [Customers] WHERE [City] = {city} AND [ContactTitle] = {contactTitle}"));
+
+        var actual = async
+            ? await query.ToArrayAsync()
+            : query.ToArray();
+
+        Assert.Equal(3, actual.Length);
+        Assert.True(actual.All(c => c.City == "London"));
+        Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_queryable_with_parameters_inline_interpolated(bool async)
     {
         using var context = CreateContext();
         var query = context.Set<Customer>().FromSqlInterpolated(
+            NormalizeDelimitersInInterpolatedString(
+                $"SELECT * FROM [Customers] WHERE [City] = {"London"} AND [ContactTitle] = {"Sales Representative"}"));
+
+        var actual = async
+            ? await query.ToArrayAsync()
+            : query.ToArray();
+
+        Assert.Equal(3, actual.Length);
+        Assert.True(actual.All(c => c.City == "London"));
+        Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_queryable_with_parameters_inline_interpolated(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Set<Customer>().FromSql(
             NormalizeDelimitersInInterpolatedString(
                 $"SELECT * FROM [Customers] WHERE [City] = {"London"} AND [ContactTitle] = {"Sales Representative"}"));
 
@@ -669,6 +708,51 @@ FROM [Customers]"))
             = (from c in context.Set<Customer>().FromSqlRaw(
                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                from o in context.Set<Order>().FromSqlInterpolated(
+                   NormalizeDelimitersInInterpolatedString(
+                       $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
+               where c.CustomerID == o.CustomerID
+               select new { c, o });
+
+        actual = async
+            ? await query.ToArrayAsync()
+            : query.ToArray();
+
+        Assert.Single(actual);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_queryable_multiple_composed_with_parameters_and_closure_parameters_interpolated(
+        bool async)
+    {
+        var city = "London";
+        var startDate = new DateTime(1997, 1, 1);
+        var endDate = new DateTime(1998, 1, 1);
+
+        using var context = CreateContext();
+        var query
+            = from c in context.Set<Customer>().FromSqlRaw(
+                  NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+              from o in context.Set<Order>().FromSql(
+                  NormalizeDelimitersInInterpolatedString(
+                      $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
+              where c.CustomerID == o.CustomerID
+              select new { c, o };
+
+        var actual = async
+            ? await query.ToArrayAsync()
+            : query.ToArray();
+
+        Assert.Equal(25, actual.Length);
+
+        city = "Berlin";
+        startDate = new DateTime(1998, 4, 1);
+        endDate = new DateTime(1998, 5, 1);
+
+        query
+            = (from c in context.Set<Customer>().FromSqlRaw(
+                   NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+               from o in context.Set<Order>().FromSql(
                    NormalizeDelimitersInInterpolatedString(
                        $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
                where c.CustomerID == o.CustomerID
@@ -1121,6 +1205,25 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_with_inlined_db_parameter(bool async)
+    {
+        using var context = CreateContext();
+        var parameter = CreateDbParameter("@somename", "ALFKI");
+
+        var query = context.Customers
+            .FromSql(
+                NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"));
+
+        var actual = async
+            ? await query.ToArrayAsync()
+            : query.ToArray();
+
+        Assert.Single(actual);
+        Assert.True(actual.All(c => c.City == "Berlin"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix(bool async)
     {
         using var context = CreateContext();
@@ -1128,6 +1231,25 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
         var query = context.Customers
             .FromSqlInterpolated(
+                NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"));
+
+        var actual = async
+            ? await query.ToArrayAsync()
+            : query.ToArray();
+
+        Assert.Single(actual);
+        Assert.True(actual.All(c => c.City == "Berlin"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_with_inlined_db_parameter_without_name_prefix(bool async)
+    {
+        using var context = CreateContext();
+        var parameter = CreateDbParameter("somename", "ALFKI");
+
+        var query = context.Customers
+            .FromSql(
                 NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"));
 
         var actual = async

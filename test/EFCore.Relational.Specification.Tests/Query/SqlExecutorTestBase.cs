@@ -178,6 +178,34 @@ public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
+    public virtual void Query_with_parameters_interpolated_2()
+    {
+        var city = "London";
+        var contactTitle = "Sales Representative";
+
+        using var context = CreateContext();
+        var actual = context.Database
+            .ExecuteSql(
+                $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
+
+        Assert.Equal(-1, actual);
+    }
+
+    [ConditionalFact]
+    public virtual void Query_with_DbParameters_interpolated_2()
+    {
+        var city = CreateDbParameter("city", "London");
+        var contactTitle = CreateDbParameter("contactTitle", "Sales Representative");
+
+        using var context = CreateContext();
+        var actual = context.Database
+            .ExecuteSql(
+                $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
+
+        Assert.Equal(-1, actual);
+    }
+
+    [ConditionalFact]
     public virtual async Task Executes_stored_procedure_async()
     {
         using var context = CreateContext();
@@ -261,6 +289,20 @@ public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
         using var context = CreateContext();
         var actual = await context.Database
             .ExecuteSqlInterpolatedAsync(
+                $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
+
+        Assert.Equal(-1, actual);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Query_with_parameters_interpolated_async_2()
+    {
+        var city = "London";
+        var contactTitle = "Sales Representative";
+
+        using var context = CreateContext();
+        var actual = await context.Database
+            .ExecuteSqlAsync(
                 $@"SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = {city} AND ""ContactTitle"" = {contactTitle}");
 
         Assert.Equal(-1, actual);
