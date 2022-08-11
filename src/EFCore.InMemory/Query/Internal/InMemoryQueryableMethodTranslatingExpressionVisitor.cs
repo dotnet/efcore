@@ -1321,11 +1321,6 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
 
             return innerShaper;
         }
-
-        private static Expression AddConvertToObject(Expression expression)
-            => expression.Type.IsValueType
-                ? Expression.Convert(expression, typeof(object))
-                : expression;
     }
 
     private ShapedQueryExpression TranslateTwoParameterSelector(ShapedQueryExpression source, LambdaExpression resultSelector)

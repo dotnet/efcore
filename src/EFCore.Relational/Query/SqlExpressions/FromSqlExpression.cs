@@ -84,6 +84,10 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
             : this;
 
     /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new FromSqlExpression(Alias, _table, Sql, Arguments, annotations);
+
+    /// <inheritdoc />
     ITableBase ITableBasedExpression.Table => _table;
 
     /// <inheritdoc />

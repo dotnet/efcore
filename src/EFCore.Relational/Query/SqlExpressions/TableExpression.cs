@@ -28,23 +28,6 @@ public sealed class TableExpression : TableExpressionBase, IClonableTableExpress
         Table = table;
     }
 
-    /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => Table;
-
-    /// <inheritdoc />
-    protected override void Print(ExpressionPrinter expressionPrinter)
-    {
-        if (!string.IsNullOrEmpty(Schema))
-        {
-            expressionPrinter.Append(Schema).Append(".");
-        }
-
-        expressionPrinter.Append(Name);
-        PrintAnnotations(expressionPrinter);
-
-        expressionPrinter.Append(" AS ").Append(Alias);
-    }
-
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
@@ -71,8 +54,28 @@ public sealed class TableExpression : TableExpressionBase, IClonableTableExpress
     public ITableBase Table { get; }
 
     /// <inheritdoc />
-    public TableExpressionBase Clone()
-        => new TableExpression(Table, GetAnnotations()) { Alias = Alias };
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new TableExpression(Table, annotations) { Alias = Alias };
+
+    /// <inheritdoc />
+    ITableBase ITableBasedExpression.Table => Table;
+
+    /// <inheritdoc />
+    protected override void Print(ExpressionPrinter expressionPrinter)
+    {
+        if (!string.IsNullOrEmpty(Schema))
+        {
+            expressionPrinter.Append(Schema).Append(".");
+        }
+
+        expressionPrinter.Append(Name);
+        PrintAnnotations(expressionPrinter);
+
+        expressionPrinter.Append(" AS ").Append(Alias);
+    }
+
+    /// <inheritdoc />
+    public TableExpressionBase Clone() => CreateWithAnnotations(GetAnnotations());
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

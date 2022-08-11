@@ -69,30 +69,30 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 switch (queryRootExpression)
                 {
                     case TemporalAllQueryRootExpression:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.All;
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.All);
                         break;
 
                     case TemporalAsOfQueryRootExpression asOf:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.AsOf;
-                        tableExpression[SqlServerAnnotationNames.TemporalAsOfPointInTime] = asOf.PointInTime;
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.AsOf);
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime, asOf.PointInTime);
                         break;
 
                     case TemporalBetweenQueryRootExpression between:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.Between;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = between.From;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = between.To;
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.Between);
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, between.From);
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, between.To);
                         break;
 
                     case TemporalContainedInQueryRootExpression containedIn:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.ContainedIn;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = containedIn.From;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = containedIn.To;
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.ContainedIn);
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, containedIn.From);
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, containedIn.To);
                         break;
 
                     case TemporalFromToQueryRootExpression fromTo:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.FromTo;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = fromTo.From;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = fromTo.To;
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.FromTo);
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, fromTo.From);
+                        tableExpression.AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, fromTo.To);
                         break;
 
                     default:

@@ -44,6 +44,10 @@ public class CrossApplyExpression : JoinExpressionBase
             : this;
 
     /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new CrossApplyExpression(Table, GetAnnotations());
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("CROSS APPLY ");

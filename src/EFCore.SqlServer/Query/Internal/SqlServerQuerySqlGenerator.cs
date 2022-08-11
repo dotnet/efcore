@@ -227,7 +227,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
                     .Append(" FOR SYSTEM_TIME ");
 
-                var temporalOperationType = (TemporalOperationType)tableExpression[SqlServerAnnotationNames.TemporalOperationType]!;
+                var temporalOperationType = (TemporalOperationType)tableExpression
+                    .FindAnnotation(SqlServerAnnotationNames.TemporalOperationType)!.Value!;
 
                 switch (temporalOperationType)
                 {
@@ -236,7 +237,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                         break;
 
                     case TemporalOperationType.AsOf:
-                        var pointInTime = (DateTime)tableExpression[SqlServerAnnotationNames.TemporalAsOfPointInTime]!;
+                        var pointInTime = (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime)!.Value!;
 
                         Sql.Append("AS OF ")
                             .Append(_typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(pointInTime));
@@ -246,10 +247,10 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     case TemporalOperationType.ContainedIn:
                     case TemporalOperationType.FromTo:
                         var from = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
-                            (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom]!);
+                            (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom)!.Value!);
 
                         var to = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
-                            (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo]!);
+                            (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo)!.Value!);
 
                         switch (temporalOperationType)
                         {

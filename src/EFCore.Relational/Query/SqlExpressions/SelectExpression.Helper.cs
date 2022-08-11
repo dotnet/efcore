@@ -513,6 +513,9 @@ public sealed partial class SelectExpression
         // This is implementation detail hence visitors are not supposed to see inside unless they really need to.
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
+        protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+            => new TpcTablesExpression(Alias, EntityType, SelectExpressions, annotations);
+
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
             expressionPrinter.AppendLine("(");
