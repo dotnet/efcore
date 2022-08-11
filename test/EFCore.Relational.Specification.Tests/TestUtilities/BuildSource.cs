@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -128,12 +130,60 @@ All diagnostics:
         return assembly;
     }
 
+    public async Task<Assembly> BuildInMemoryWithWithAnalyzersAsync()
+    {
+        var compilation = CSharpCompilation
+            .Create(
+                assemblyName: Path.GetRandomFileName(),
+                Sources.Select(
+                    s => SyntaxFactory.ParseSyntaxTree(
+                        text: s.Value,
+                        path: s.Key,
+                        options: new CSharpParseOptions(
+                            LanguageVersion.Latest,
+                            EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
+                References.SelectMany(r => r.References),
+                CreateOptions())
+            .WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(new UninitializedDbSetDiagnosticSuppressor()));
+
+        var diagnostics = await compilation.GetAllDiagnosticsAsync();
+        if (!diagnostics.IsEmpty)
+        {
+            throw new InvalidOperationException(
+                $@"Build failed.
+
+First diagnostic:
+{diagnostics[0]}
+
+Location:
+{diagnostics[0].Location.SourceTree?.GetRoot().FindNode(diagnostics[0].Location.SourceSpan)}
+
+All diagnostics:
+{string.Join(Environment.NewLine, diagnostics)}");
+        }
+
+        Assembly assembly;
+        using (var stream = new MemoryStream())
+        {
+            var result = compilation.Compilation.Emit(stream);
+            if (!result.Success)
+            {
+                throw new InvalidOperationException(
+                    $@"Failed to emit compilation:
+{string.Join(Environment.NewLine, result.Diagnostics)}");
+            }
+
+            assembly = Assembly.Load(stream.ToArray());
+        }
+
+        return assembly;
+    }
+
     private CSharpCompilationOptions CreateOptions()
         => new(
             OutputKind.DynamicallyLinkedLibrary,
             nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable,
             reportSuppressedDiagnostics: false,
-            generalDiagnosticOption: ReportDiagnostic.Error,
             specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>
             {
                 // Displays the text of a warning defined with the #warning directive

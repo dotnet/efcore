@@ -16,8 +16,8 @@ public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
     }
 
     [ConditionalFact]
-    public void KeylessAttribute_is_generated_for_key_less_entity()
-        => Test(
+    public Task KeylessAttribute_is_generated_for_key_less_entity()
+        => TestAsync(
             modelBuilder => modelBuilder.Entity("Vista").HasNoKey(),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
             code =>
@@ -81,8 +81,8 @@ public partial class TestDbContext : DbContext
             });
 
     [ConditionalFact]
-    public void TableAttribute_is_generated_for_custom_name()
-        => Test(
+    public Task TableAttribute_is_generated_for_custom_name()
+        => TestAsync(
             modelBuilder =>
             {
                 modelBuilder.Entity(
@@ -123,8 +123,8 @@ public partial class Vista
             });
 
     [ConditionalFact]
-    public void TableAttribute_is_not_generated_for_default_schema()
-        => Test(
+    public Task TableAttribute_is_not_generated_for_default_schema()
+        => TestAsync(
             modelBuilder =>
             {
                 modelBuilder.HasDefaultSchema("dbo");
@@ -165,8 +165,8 @@ public partial class Vista
             });
 
     [ConditionalFact]
-    public void TableAttribute_is_generated_for_non_default_schema()
-        => Test(
+    public Task TableAttribute_is_generated_for_non_default_schema()
+        => TestAsync(
             modelBuilder =>
             {
                 modelBuilder.HasDefaultSchema("dbo");
@@ -208,8 +208,8 @@ public partial class Vista
             });
 
     [ConditionalFact]
-    public void TableAttribute_is_not_generated_for_views()
-        => Test(
+    public Task TableAttribute_is_not_generated_for_views()
+        => TestAsync(
             modelBuilder => modelBuilder.Entity("Vista").ToView("Vistas", "dbo"),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
             code =>
@@ -240,8 +240,8 @@ public partial class Vista
             });
 
     [ConditionalFact]
-    public void IndexAttribute_is_generated_for_multiple_indexes_with_name_unique_descending()
-        => Test(
+    public Task IndexAttribute_is_generated_for_multiple_indexes_with_name_unique_descending()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "EntityWithIndexes",
@@ -299,8 +299,8 @@ public partial class EntityWithIndexes
             });
 
     [ConditionalFact]
-    public void IndexAttribute_is_generated_with_ascending_descending()
-        => Test(
+    public Task IndexAttribute_is_generated_with_ascending_descending()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "EntityWithAscendingDescendingIndexes",
@@ -365,8 +365,8 @@ public partial class EntityWithAscendingDescendingIndexes
             });
 
     [ConditionalFact]
-    public void Entity_with_indexes_generates_IndexAttribute_only_for_indexes_without_annotations()
-        => Test(
+    public Task Entity_with_indexes_generates_IndexAttribute_only_for_indexes_without_annotations()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "EntityWithIndexes",
@@ -456,8 +456,8 @@ public partial class TestDbContext : DbContext
                 Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
 
     [ConditionalFact]
-    public void KeyAttribute_is_generated_for_single_property_and_no_fluent_api()
-        => Test(
+    public Task KeyAttribute_is_generated_for_single_property_and_no_fluent_api()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -531,8 +531,8 @@ public partial class TestDbContext : DbContext
                 Assert.Equal("PrimaryKey", model.FindEntityType("TestNamespace.Entity").FindPrimaryKey().Properties[0].Name));
 
     [ConditionalFact]
-    public void KeyAttribute_is_generated_on_multiple_properties_but_and_uses_PrimaryKeyAttribute_for_composite_key()
-        => Test(
+    public Task KeyAttribute_is_generated_on_multiple_properties_but_and_uses_PrimaryKeyAttribute_for_composite_key()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Post",
@@ -609,8 +609,8 @@ public partial class TestDbContext : DbContext
             });
 
     [ConditionalFact]
-    public void Required_and_not_required_properties_without_nrt()
-        => Test(
+    public Task Required_and_not_required_properties_without_nrt()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -661,8 +661,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void Required_and_not_required_properties_with_nrt()
-        => Test(
+    public Task Required_and_not_required_properties_with_nrt()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -712,8 +712,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void Required_and_not_required_navigations_without_nrt()
-        => Test(
+    public Task Required_and_not_required_navigations_without_nrt()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -791,8 +791,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void Required_and_not_required_reference_navigations_with_nrt()
-        => Test(
+    public Task Required_and_not_required_reference_navigations_with_nrt()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -869,8 +869,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void Required_and_not_required_collection_navigations_with_nrt()
-        => Test(
+    public Task Required_and_not_required_collection_navigations_with_nrt()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -954,8 +954,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void RequiredAttribute_is_not_generated_for_key_property()
-        => Test(
+    public Task RequiredAttribute_is_not_generated_for_key_property()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -988,8 +988,8 @@ public partial class Entity
                 Assert.False(model.FindEntityType("TestNamespace.Entity").GetProperty("RequiredString").IsNullable));
 
     [ConditionalFact]
-    public void ColumnAttribute_is_generated_for_property()
-        => Test(
+    public Task ColumnAttribute_is_generated_for_property()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -1088,8 +1088,8 @@ public partial class TestDbContext : DbContext
             });
 
     [ConditionalFact]
-    public void MaxLengthAttribute_is_generated_for_property()
-        => Test(
+    public Task MaxLengthAttribute_is_generated_for_property()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -1133,8 +1133,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void UnicodeAttribute_is_generated_for_property()
-        => Test(
+    public Task UnicodeAttribute_is_generated_for_property()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -1185,8 +1185,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void PrecisionAttribute_is_generated_for_property()
-        => Test(
+    public Task PrecisionAttribute_is_generated_for_property()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -1241,8 +1241,8 @@ public partial class Entity
             });
 
     [ConditionalFact]
-    public void Comments_are_generated()
-        => Test(
+    public Task Comments_are_generated()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -1281,8 +1281,8 @@ public partial class Entity
             model => { });
 
     [ConditionalFact]
-    public void Comments_complex_are_generated()
-        => Test(
+    public Task Comments_complex_are_generated()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -1331,8 +1331,8 @@ public partial class Entity
             model => { });
 
     [ConditionalFact]
-    public void Properties_are_sorted_in_order_of_definition_in_table()
-        => Test(
+    public Task Properties_are_sorted_in_order_of_definition_in_table()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Entity",
@@ -1370,8 +1370,8 @@ public partial class Entity
             model => { });
 
     [ConditionalFact]
-    public void Navigation_properties_are_sorted_after_properties_and_collection_are_initialized_in_ctor()
-        => Test(
+    public Task Navigation_properties_are_sorted_after_properties_and_collection_are_initialized_in_ctor()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Person",
@@ -1450,8 +1450,8 @@ public partial class Person
             });
 
     [ConditionalFact]
-    public void ForeignKeyAttribute_is_generated_for_composite_fk()
-        => Test(
+    public Task ForeignKeyAttribute_is_generated_for_composite_fk()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",
@@ -1549,8 +1549,8 @@ public partial class TestDbContext : DbContext
             });
 
     [ConditionalFact]
-    public void ForeignKeyAttribute_InversePropertyAttribute_is_not_generated_for_alternate_key()
-        => Test(
+    public Task ForeignKeyAttribute_InversePropertyAttribute_is_not_generated_for_alternate_key()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",
@@ -1656,8 +1656,8 @@ public partial class TestDbContext : DbContext
             });
 
     [ConditionalFact]
-    public void InverseProperty_when_navigation_property_with_same_type_and_navigation_name()
-        => Test(
+    public Task InverseProperty_when_navigation_property_with_same_type_and_navigation_name()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",
@@ -1709,8 +1709,8 @@ public partial class Post
             });
 
     [ConditionalFact]
-    public void InverseProperty_when_navigation_property_with_same_type_and_property_name()
-        => Test(
+    public Task InverseProperty_when_navigation_property_with_same_type_and_property_name()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",
@@ -1762,8 +1762,8 @@ public partial class Post
             });
 
     [ConditionalFact]
-    public void InverseProperty_when_navigation_property_with_same_type_and_other_navigation_name()
-        => Test(
+    public Task InverseProperty_when_navigation_property_with_same_type_and_other_navigation_name()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",
@@ -1832,8 +1832,8 @@ public partial class Post
             });
 
     [ConditionalFact]
-    public void Entity_with_custom_annotation()
-        => Test(
+    public Task Entity_with_custom_annotation()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "EntityWithAnnotation",
@@ -1909,8 +1909,8 @@ public partial class TestDbContext : DbContext
             skipBuild: true);
 
     [ConditionalFact]
-    public void Entity_property_with_custom_annotation()
-        => Test(
+    public Task Entity_property_with_custom_annotation()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "EntityWithPropertyAnnotation",
@@ -1986,8 +1986,8 @@ public partial class TestDbContext : DbContext
             skipBuild: true);
 
     [ConditionalFact]
-    public void Scaffold_skip_navigations_default()
-        => Test(
+    public Task Scaffold_skip_navigations_default()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",
@@ -2117,8 +2117,8 @@ public partial class Post
             });
 
     [ConditionalFact]
-    public void Scaffold_skip_navigations_different_key_type()
-        => Test(
+    public Task Scaffold_skip_navigations_different_key_type()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",
@@ -2243,8 +2243,8 @@ public partial class Post
             });
 
     [ConditionalFact]
-    public void Scaffold_skip_navigations_default_data_annotations()
-        => Test(
+    public Task Scaffold_skip_navigations_default_data_annotations()
+        => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
                     "Blog",

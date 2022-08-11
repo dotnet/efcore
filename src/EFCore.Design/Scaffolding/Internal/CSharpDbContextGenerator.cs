@@ -83,9 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(entityType.Name));
             this.Write("> ");
             this.Write(this.ToStringHelper.ToStringWithCulture(entityType.GetDbSetName()));
-            this.Write(" { get; set; }");
-            this.Write(this.ToStringHelper.ToStringWithCulture(Options.UseNullableReferenceTypes ? " = null!;" : ""));
-            this.Write("\r\n\r\n");
+            this.Write(" { get; set; }\r\n\r\n");
 
     }
 
