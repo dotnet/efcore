@@ -56,6 +56,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly List<string?> _aliasForClientProjections = new();
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
+    private SortedDictionary<string, IAnnotation>? _annotations;
+
 #if DEBUG
     private List<string>? _removedAliases;
 #endif
@@ -68,13 +70,22 @@ public sealed partial class SelectExpression : TableExpressionBase
         List<SqlExpression> groupBy,
         List<OrderingExpression> orderings,
         IEnumerable<IAnnotation> annotations)
-        : base(alias, annotations)
+        : base(alias)
     {
         _projection = projections;
         _tables = tables;
         _tableReferences = tableReferences;
         _groupBy = groupBy;
         _orderings = orderings;
+
+        if (annotations != null)
+        {
+            _annotations = new SortedDictionary<string, IAnnotation>();
+            foreach (var annotation in annotations)
+            {
+                _annotations[annotation.Name] = annotation;
+            }
+        }
     }
 
     private SelectExpression(string? alias)
@@ -3775,6 +3786,39 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         return newSelectExpression;
     }
+
+    /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => throw new NotImplementedException("inconceivable");
+
+    /// <inheritdoc />
+    public override TableExpressionBase AddAnnotation(string name, object? value)
+    {
+        var oldAnnotation = FindAnnotation(name);
+        if (oldAnnotation != null)
+        {
+            return Equals(oldAnnotation.Value, value)
+                ? this
+                : throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name, this.Print()));
+        }
+
+        _annotations ??= new();
+        _annotations[name] = new Annotation(name, value);
+
+        return this;
+    }
+
+    /// <inheritdoc />
+    public override IAnnotation? FindAnnotation(string name)
+        => _annotations == null
+            ? null
+            : _annotations.TryGetValue(name, out var annotation)
+                ? annotation
+                : null;
+
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> GetAnnotations()
+        => _annotations?.Values ?? Enumerable.Empty<IAnnotation>();
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

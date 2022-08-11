@@ -92,6 +92,10 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
             : this;
 
     /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new TableValuedFunctionExpression(Alias, StoreFunction, Arguments, annotations);
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         if (!string.IsNullOrEmpty(StoreFunction.Schema))

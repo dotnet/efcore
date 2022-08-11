@@ -1655,11 +1655,11 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                             : foreignKey.PrincipalKey.Properties[0]);
 
                 var sourceTable = FindRootTableExpressionForColumn(sourceColumn);
-                var ownedTable = new TableExpression(targetTable);
+                TableExpressionBase ownedTable = new TableExpression(targetTable);
 
                 foreach (var annotation in sourceTable.GetAnnotations())
                 {
-                    ownedTable.SetAnnotation(annotation.Name, annotation.Value);
+                    ownedTable = ownedTable.AddAnnotation(annotation.Name, annotation.Value);
                 }
 
                 return _sqlExpressionFactory.Select(targetEntityType, ownedTable);
@@ -1687,11 +1687,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 return table;
             }
         }
-
-        private static Expression AddConvertToObject(Expression expression)
-            => expression.Type.IsValueType
-                ? Expression.Convert(expression, typeof(object))
-                : expression;
 
         private EntityProjectionExpression GetEntityProjectionExpression(EntityShaperExpression entityShaperExpression)
             => entityShaperExpression.ValueBufferExpression switch
