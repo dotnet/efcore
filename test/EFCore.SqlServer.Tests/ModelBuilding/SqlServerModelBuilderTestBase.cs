@@ -1445,12 +1445,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(4, ownedEntities.Count());
             Assert.Equal(2, ownedEntities.Where(e => e.IsMappedToJson()).Count());
             Assert.Equal(2, ownedEntities.Where(e => e.IsOwned() && !e.IsMappedToJson()).Count());
-            var reference = ownedEntities.Where(e => e.GetJsonColumnName() == "reference").Single();
+            var reference = ownedEntities.Where(e => e.GetContainerColumnName() == "reference").Single();
             Assert.Equal("Date", reference.GetProperty("Date").GetJsonPropertyName());
             Assert.Equal("Fraction", reference.GetProperty("Fraction").GetJsonPropertyName());
             Assert.Equal("Enum", reference.GetProperty("Enum").GetJsonPropertyName());
 
-            var collection = ownedEntities.Where(e => e.GetJsonColumnName() == "collection").Single();
+            var collection = ownedEntities.Where(e => e.GetContainerColumnName() == "collection").Single();
             Assert.Equal("Date", collection.GetProperty("Date").GetJsonPropertyName());
             Assert.Equal("Fraction", collection.GetProperty("Fraction").GetJsonPropertyName());
             Assert.Equal("Enum", collection.GetProperty("Enum").GetJsonPropertyName());
@@ -1490,7 +1490,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("Enum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
             }
 
-            var jsonColumnNames = ownedEntities.Select(x => x.GetJsonColumnName()).OrderBy(x => x).ToList();
+            var jsonColumnNames = ownedEntities.Select(x => x.GetContainerColumnName()).OrderBy(x => x).ToList();
             Assert.Equal("collection_on_base", jsonColumnNames[0]);
             Assert.Equal("collection_on_derived", jsonColumnNames[1]);
             Assert.Equal("reference_on_base", jsonColumnNames[2]);
@@ -1549,10 +1549,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("Date", outerOwnedEntity.GetProperty("Date").GetJsonPropertyName());
                 Assert.Equal("Fraction", outerOwnedEntity.GetProperty("Fraction").GetJsonPropertyName());
                 Assert.Equal("Enum", outerOwnedEntity.GetProperty("Enum").GetJsonPropertyName());
-                Assert.Equal("Reference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").GetJsonPropertyName());
-                Assert.Equal("Reference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").GetJsonPropertyName());
-                Assert.Equal("Collection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").GetJsonPropertyName());
-                Assert.Equal("Collection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").GetJsonPropertyName());
+                Assert.Equal("Reference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal("Reference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal("Collection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal("Collection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").TargetEntityType.GetJsonPropertyName());
             }
 
             var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
@@ -1707,7 +1707,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             foreach (var outerOwnedEntity in outerOwnedEntities)
             {
                 Assert.False(outerOwnedEntity.IsMappedToJson());
-                Assert.Null(outerOwnedEntity.GetJsonColumnTypeMapping());
+                Assert.Null(outerOwnedEntity.GetContainerColumnTypeMapping());
                 var myEnum = outerOwnedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
 
@@ -1720,7 +1720,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             foreach (var ownedEntity in ownedEntities)
             {
                 Assert.False(ownedEntity.IsMappedToJson());
-                Assert.Null(ownedEntity.GetJsonColumnTypeMapping());
+                Assert.Null(ownedEntity.GetContainerColumnTypeMapping());
                 var myEnum = ownedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
                 Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);
@@ -1842,10 +1842,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("OuterDate", outerOwnedEntity.GetProperty("Date").GetJsonPropertyName());
                 Assert.Equal("OuterFraction", outerOwnedEntity.GetProperty("Fraction").GetJsonPropertyName());
                 Assert.Equal("OuterEnum", outerOwnedEntity.GetProperty("Enum").GetJsonPropertyName());
-                Assert.Equal("RenamedReference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").GetJsonPropertyName());
-                Assert.Equal("RenamedReference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").GetJsonPropertyName());
-                Assert.Equal("RenamedCollection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").GetJsonPropertyName());
-                Assert.Equal("RenamedCollection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").GetJsonPropertyName());
+                Assert.Equal("RenamedReference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal("RenamedReference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal("RenamedCollection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal("RenamedCollection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").TargetEntityType.GetJsonPropertyName());
             }
 
             var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));

@@ -1146,4 +1146,43 @@ public static partial class RelationalEntityTypeBuilderExtensions
             tableName,
             tableSchema,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     Configures the entity mapped to a JSON column, mapping it to the given JSON property,
+    ///     rather than using the navigation name leading to it.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="name">JSON property name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionEntityTypeBuilder? HasJsonPropertyName(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? name,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetJsonPropertyName(name, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetJsonPropertyName(name, fromDataAnnotation);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given value can be used as a JSON property name for the entity type.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="name">JSON property name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given value can be set as JSON property name for this entity type.</returns>
+    public static bool CanSetJsonPropertyName(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string? name,
+        bool fromDataAnnotation = false)
+        => entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.JsonPropertyName, name, fromDataAnnotation);
 }

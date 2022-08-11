@@ -457,17 +457,17 @@ public class RelationalModel : Annotatable, IRelationalModel
             IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal
         };
 
-        var jsonColumnName = mappedType.GetJsonColumnName();
-        if (!string.IsNullOrEmpty(jsonColumnName))
+        var containerColumnName = mappedType.GetContainerColumnName();
+        if (!string.IsNullOrEmpty(containerColumnName))
         {
             var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
             if (!ownership.PrincipalEntityType.IsMappedToJson())
             {
-                Debug.Assert(table.FindColumn(jsonColumnName) == null);
+                Debug.Assert(table.FindColumn(containerColumnName) == null);
 
                 var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
-                var jsonColumn = new JsonColumn(jsonColumnName, jsonColumnTypeMapping.StoreType, table, jsonColumnTypeMapping.ProviderValueComparer);
-                table.Columns.Add(jsonColumnName, jsonColumn);
+                var jsonColumn = new JsonColumn(containerColumnName, jsonColumnTypeMapping.StoreType, table, jsonColumnTypeMapping.ProviderValueComparer);
+                table.Columns.Add(containerColumnName, jsonColumn);
                 jsonColumn.IsNullable = !ownership.IsRequired || !ownership.IsUnique;
 
                 if (ownership.PrincipalEntityType.BaseType != null)
@@ -614,17 +614,17 @@ public class RelationalModel : Annotatable, IRelationalModel
             IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal
         };
 
-        var jsonColumnName = mappedType.GetJsonColumnName();
-        if (!string.IsNullOrEmpty(jsonColumnName))
+        var containerColumnName = mappedType.GetContainerColumnName();
+        if (!string.IsNullOrEmpty(containerColumnName))
         {
             var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
             if (!ownership.PrincipalEntityType.IsMappedToJson())
             {
-                Debug.Assert(view.FindColumn(jsonColumnName) == null);
+                Debug.Assert(view.FindColumn(containerColumnName) == null);
 
                 var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
-                var jsonColumn = new JsonViewColumn(jsonColumnName, jsonColumnTypeMapping.StoreType, view);
-                view.Columns.Add(jsonColumnName, jsonColumn);
+                var jsonColumn = new JsonViewColumn(containerColumnName, jsonColumnTypeMapping.StoreType, view);
+                view.Columns.Add(containerColumnName, jsonColumn);
                 jsonColumn.IsNullable = !ownership.IsRequired || !ownership.IsUnique;
 
                 if (ownership.PrincipalEntityType.BaseType != null)

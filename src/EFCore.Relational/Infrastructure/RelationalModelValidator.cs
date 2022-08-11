@@ -2371,7 +2371,7 @@ public class RelationalModelValidator : ModelValidator
             var rootType = distinctRootTypes[0];
             var jsonEntitiesMappedToSameJsonColumn = mappedTypes
                 .Where(x => x.FindOwnership() is IForeignKey ownership && !ownership.PrincipalEntityType.IsOwned())
-                .GroupBy(x => x.GetJsonColumnName())
+                .GroupBy(x => x.GetContainerColumnName())
                 .Where(x => x.Key is not null)
                 .Select(g => new { g.Key, Count = g.Count() })
                 .Where(x => x.Count > 1)
@@ -2543,7 +2543,7 @@ public class RelationalModelValidator : ModelValidator
     /// </summary>
     /// <param name="storeObject">The store object.</param>
     /// <param name="jsonEntityType">The entity type containing the properties to validate.</param>
-    public virtual void ValidateJsonEntityProperties(
+    protected virtual void ValidateJsonEntityProperties(
         in StoreObjectIdentifier storeObject,
         IEntityType jsonEntityType)
     {
@@ -2572,7 +2572,7 @@ public class RelationalModelValidator : ModelValidator
 
         foreach (var navigation in jsonEntityType.GetDeclaredNavigations())
         {
-            var jsonPropertyName = navigation.GetJsonPropertyName()!;
+            var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
             if (!jsonPropertyNames.Contains(jsonPropertyName))
             {
                 jsonPropertyNames.Add(jsonPropertyName);

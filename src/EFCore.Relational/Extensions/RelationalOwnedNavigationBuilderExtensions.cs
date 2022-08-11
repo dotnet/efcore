@@ -69,7 +69,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        builder.OwnedEntityType.SetJsonColumnName(jsonColumnName);
+        builder.OwnedEntityType.SetContainerColumnName(jsonColumnName);
 
         return builder;
     }
@@ -89,7 +89,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
         this OwnedNavigationBuilder builder,
         string? jsonColumnName)
     {
-        builder.OwnedEntityType.SetJsonColumnName(jsonColumnName);
+        builder.OwnedEntityType.SetContainerColumnName(jsonColumnName);
 
         return builder;
     }
@@ -113,7 +113,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
                 RelationalStrings.JsonPropertyNameShouldBeConfiguredOnNestedNavigation);
         }
 
-        navigationBuilder.Metadata.GetNavigation(pointsToPrincipal: false)!.SetJsonPropertyName(name);
+        navigationBuilder.Metadata.DeclaringEntityType.SetJsonPropertyName(name);
 
         return navigationBuilder;
     }

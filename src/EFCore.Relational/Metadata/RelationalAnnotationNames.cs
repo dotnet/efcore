@@ -320,14 +320,14 @@ public static class RelationalAnnotationNames
     public const string FieldValueGetter = Prefix + "FieldValueGetter";
 
     /// <summary>
-    ///     The name for the annotation specifying JSON column name to which the object is mapped.
+    ///     The name for the annotation specifying container column name to which the object is mapped.
     /// </summary>
-    public const string JsonColumnName = Prefix + "JsonColumnName";
+    public const string ContainerColumnName = Prefix + "ContainerColumnName";
 
     /// <summary>
-    ///     The name for the annotation specifying JSON column type mapping.
+    ///     The name for the annotation specifying container column type mapping.
     /// </summary>
-    public const string JsonColumnTypeMapping = Prefix + "JsonColumnTypeMapping";
+    public const string ContainerColumnTypeMapping = Prefix + "ContainerColumnTypeMapping";
 
     /// <summary>
     ///     The JSON property name for the element that the property/navigation maps to.

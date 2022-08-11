@@ -90,8 +90,8 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.JsonPropertyName,
-            RelationalAnnotationNames.JsonColumnName, // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
-            RelationalAnnotationNames.JsonColumnTypeMapping,
+            RelationalAnnotationNames.ContainerColumnName, // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
+            RelationalAnnotationNames.ContainerColumnTypeMapping,
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -243,8 +243,8 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.Triggers,
             RelationalAnnotationNames.FieldValueGetter,
-            RelationalAnnotationNames.JsonColumnName,
-            RelationalAnnotationNames.JsonColumnTypeMapping,
+            RelationalAnnotationNames.ContainerColumnName,
+            RelationalAnnotationNames.ContainerColumnTypeMapping,
             RelationalAnnotationNames.JsonPropertyName,
         };
 

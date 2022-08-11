@@ -36,7 +36,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         RelationalAnnotationNames.UpdateStoredProcedure,
         RelationalAnnotationNames.MappingFragments,
         RelationalAnnotationNames.RelationalOverrides,
-        RelationalAnnotationNames.JsonColumnTypeMapping
+        RelationalAnnotationNames.ContainerColumnTypeMapping
     };
 
     /// <summary>
@@ -200,17 +200,17 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             }
         }
 
-        if (annotations.TryGetValue(RelationalAnnotationNames.JsonColumnName, out var jsonColumnNameAnnotation)
-            && jsonColumnNameAnnotation != null && jsonColumnNameAnnotation.Value is string jsonColumnName
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnName, out var containerColumnNameAnnotation)
+            && containerColumnNameAnnotation != null && containerColumnNameAnnotation.Value is string containerColumnName
             && entityType.IsOwned())
         {
             methodCallCodeFragments.Add(
                 new MethodCallCodeFragment(
                     nameof(RelationalOwnedNavigationBuilderExtensions.ToJson),
-                    jsonColumnName));
+                    containerColumnName));
 
-            annotations.Remove(RelationalAnnotationNames.JsonColumnName);
-            annotations.Remove(RelationalAnnotationNames.JsonColumnTypeMapping);
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnName);
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnTypeMapping);
         }
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));

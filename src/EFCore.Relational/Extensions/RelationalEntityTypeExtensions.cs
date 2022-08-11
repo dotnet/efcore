@@ -1847,87 +1847,136 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>A value indicating whether the associated entity type is mapped to a JSON column.</returns>
     public static bool IsMappedToJson(this IReadOnlyEntityType entityType)
-        => !string.IsNullOrEmpty(entityType.GetJsonColumnName());
+        => !string.IsNullOrEmpty(entityType.GetContainerColumnName());
 
     /// <summary>
-    ///     Sets the name of the JSON column to which the entity type is mapped.
+    ///     Sets the name of the container column to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to set the JSON column name for.</param>
+    /// <param name="entityType">The entity type to set the container column name for.</param>
     /// <param name="columnName">The name to set.</param>
-    public static void SetJsonColumnName(this IMutableEntityType entityType, string? columnName)
-        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.JsonColumnName, columnName);
+    public static void SetContainerColumnName(this IMutableEntityType entityType, string? columnName)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName);
 
     /// <summary>
-    ///     Sets the name of the JSON column to which the entity type is mapped.
+    ///     Sets the name of the container column to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to set the JSON column name for.</param>
+    /// <param name="entityType">The entity type to set the container column name for.</param>
     /// <param name="columnName">The name to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    public static string? SetJsonColumnName(
+    public static string? SetContainerColumnName(
         this IConventionEntityType entityType,
         string? columnName,
         bool fromDataAnnotation = false)
-        => (string?)entityType.SetAnnotation(RelationalAnnotationNames.JsonColumnName, columnName, fromDataAnnotation)?.Value;
+        => (string?)entityType.SetAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName, fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the JSON column name.
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column name.
     /// </summary>
-    /// <param name="entityType">The entity type to set the JSON column name for.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for the JSON column name.</returns>
-    public static ConfigurationSource? GetJsonColumnNameConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.JsonColumnName)
+    /// <param name="entityType">The entity type to set the container column name for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the container column name.</returns>
+    public static ConfigurationSource? GetContainerColumnNameConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Gets the JSON column name to which the entity type is mapped.
+    ///     Gets the container column name to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to get the JSON column name for.</param>
-    /// <returns>The JSON column name to which the entity type is mapped.</returns>
-    public static string? GetJsonColumnName(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.JsonColumnName)?.Value is string jsonColumnName
-            ? jsonColumnName
-            : (entityType.FindOwnership()?.PrincipalEntityType.GetJsonColumnName());
+    /// <param name="entityType">The entity type to get the container column name for.</param>
+    /// <returns>The container column name to which the entity type is mapped.</returns>
+    public static string? GetContainerColumnName(this IReadOnlyEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName
+            ? columnName
+            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName());
 
     /// <summary>
-    ///     Sets the type mapping for the JSON column to which the entity type is mapped.
+    ///     Sets the type mapping for the container column to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to set the JSON column type mapping for.</param>
+    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
     /// <param name="typeMapping">The type mapping to set.</param>
-    public static void SetJsonColumnTypeMapping(this IMutableEntityType entityType, RelationalTypeMapping typeMapping)
-        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.JsonColumnTypeMapping, typeMapping);
+    public static void SetContainerColumnTypeMapping(this IMutableEntityType entityType, RelationalTypeMapping typeMapping)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping);
 
     /// <summary>
-    ///     Sets the type mapping for the JSON column to which the entity type is mapped.
+    ///     Sets the type mapping for the container column to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to set the JSON column type mapping for.</param>
+    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
     /// <param name="typeMapping">The type mapping to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    public static RelationalTypeMapping? SetJsonColumnTypeMapping(
+    public static RelationalTypeMapping? SetContainerColumnTypeMapping(
         this IConventionEntityType entityType,
         RelationalTypeMapping? typeMapping,
         bool fromDataAnnotation = false)
-        => (RelationalTypeMapping?)entityType.SetAnnotation(RelationalAnnotationNames.JsonColumnTypeMapping, typeMapping, fromDataAnnotation)?.Value;
+        => (RelationalTypeMapping?)entityType.SetAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping, fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the JSON column type mapping.
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column type mapping.
     /// </summary>
-    /// <param name="entityType">The entity type to set the JSON column type mapping for.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for the JSON column type mapping.</returns>
-    public static ConfigurationSource? GetJsonColumnTypeMappingConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.JsonColumnTypeMapping)
+    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the container column type mapping.</returns>
+    public static ConfigurationSource? GetContainerColumnTypeMappingConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping)
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Gets the JSON column type mapping to which the entity type is mapped.
+    ///     Gets the container column type mapping to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to get the JSON column type mapping for.</param>
-    /// <returns>The JSON column type mapping to which the entity type is mapped.</returns>
-    public static RelationalTypeMapping? GetJsonColumnTypeMapping(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.JsonColumnTypeMapping)?.Value is RelationalTypeMapping jsonColumnTypeMapping
-            ? jsonColumnTypeMapping
-            : (entityType.FindOwnership()?.PrincipalEntityType.GetJsonColumnTypeMapping());
+    /// <param name="entityType">The entity type to get the container column type mapping for.</param>
+    /// <returns>The container column type mapping to which the entity type is mapped.</returns>
+    public static RelationalTypeMapping? GetContainerColumnTypeMapping(this IReadOnlyEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping)?.Value is RelationalTypeMapping typeMapping
+            ? typeMapping
+            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnTypeMapping());
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="name">The name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetJsonPropertyName(
+        this IConventionEntityType entityType,
+        string? name,
+        bool fromDataAnnotation = false)
+        => (string?)entityType.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name, nameof(name)),
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.
+    /// </summary>
+    /// <remarks>
+    ///     Unless configured explicitly, navigation name is used.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>
+    ///     The value for the JSON property used to store this entity type.
+    ///     <see langword="null" /> is returned for entities that are not mapped to a JSON column.
+    /// </returns>
+    public static string? GetJsonPropertyName(this IReadOnlyEntityType entityType)
+        => (string?)entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
+            ?? (!entityType.IsMappedToJson() ? null : entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name);
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="name">The name to be used.</param>
+    public static void SetJsonPropertyName(this IMutableEntityType entityType, string? name)
+        => entityType.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name, nameof(name)));
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity Type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given navigation.</returns>
+    public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
 
     #endregion
 }

@@ -44,7 +44,7 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name != RelationalAnnotationNames.JsonColumnName)
+        if (name != RelationalAnnotationNames.ContainerColumnName)
         {
             return;
         }
@@ -55,11 +55,11 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
             var jsonColumnTypeMapping = ((IRelationalTypeMappingSource)Dependencies.TypeMappingSource).FindMapping(
                 typeof(JsonElement))!;
 
-            entityTypeBuilder.Metadata.SetJsonColumnTypeMapping(jsonColumnTypeMapping);
+            entityTypeBuilder.Metadata.SetContainerColumnTypeMapping(jsonColumnTypeMapping);
         }
         else
         {
-            entityTypeBuilder.Metadata.SetJsonColumnTypeMapping(null);
+            entityTypeBuilder.Metadata.SetContainerColumnTypeMapping(null);
         }
     }
 

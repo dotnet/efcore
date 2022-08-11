@@ -3661,12 +3661,13 @@ namespace RootNamespace
 
                                             b3.ToTable(""EntityWithOneProperty"");
 
+                                            b3.HasAnnotation(""Relational:JsonPropertyName"", ""JsonProps"");
+
                                             b3.WithOwner()
                                                 .HasForeignKey(""EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId"");
                                         });
 
-                                    b2.Navigation(""Properties"")
-                                        .HasAnnotation(""Relational:JsonPropertyName"", ""JsonProps"");
+                                    b2.Navigation(""Properties"");
                                 });
 
                             b1.Navigation(""EntityWithOneProperty"");
@@ -3697,7 +3698,7 @@ namespace RootNamespace
                 Assert.Equal("NotKey", RelationalPropertyExtensions.GetJsonPropertyName(ownedProperties1[1]));
 
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
-                Assert.Equal("EntityWithTwoProperties", ownedType1.GetJsonColumnName());
+                Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
 
                 var ownership2 = ownedType1.FindNavigation(nameof(EntityWithStringKey)).ForeignKey;
                 Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownership2.Properties[0].Name);
@@ -3712,7 +3713,7 @@ namespace RootNamespace
                 Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownedProperties2[0].Name);
 
                 var navigation3 = ownedType2.FindNavigation(nameof(EntityWithStringKey.Properties));
-                Assert.Equal("JsonProps", navigation3.GetJsonPropertyName());
+                Assert.Equal("JsonProps", navigation3.TargetEntityType.GetJsonPropertyName());
                 var ownership3 = navigation3.ForeignKey;
                 Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", ownership3.Properties[0].Name);
                 Assert.Equal(nameof(EntityWithStringKey.Properties), ownership3.PrincipalToDependent.Name);

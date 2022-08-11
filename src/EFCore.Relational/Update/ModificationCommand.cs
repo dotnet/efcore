@@ -289,8 +289,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 // for JSON entry, traverse to the entry for root JSON entity
                 // and build entire JSON structure based on it
                 // this will be the column modification command
-                var jsonColumnName = entry.EntityType.GetJsonColumnName()!;
-                var jsonColumnTypeMapping = entry.EntityType.GetJsonColumnTypeMapping()!;
+                var jsonColumnName = entry.EntityType.GetContainerColumnName()!;
+                var jsonColumnTypeMapping = entry.EntityType.GetContainerColumnTypeMapping()!;
 
                 var currentEntry = entry;
                 var currentOwnership = currentEntry.EntityType.FindOwnership()!;
@@ -493,7 +493,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         foreach (var navigation in entityType.GetNavigations())
         {
-            var jsonPropertyName = navigation.GetJsonPropertyName()!;
+            var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
             var ownedNavigationValue = entry.GetCurrentValue(navigation)!;
             var navigationJson = CreateJson(
                 ownedNavigationValue,
