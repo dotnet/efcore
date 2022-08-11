@@ -846,12 +846,11 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
 
                     b.Property(e => e.NonNullIntToNullString).HasConversion(new NonNullIntToNullStringConverter());
                     b.Property(e => e.NonNullIntToNonNullString).HasConversion(new NonNullIntToNonNullStringConverter());
-                    b.Property(e => e.NullIntToNullString).HasConversion(new NullIntToNullStringConverter()).IsRequired(false);
-                    b.Property(e => e.NullIntToNonNullString).HasConversion(new NullIntToNonNullStringConverter()).IsRequired(false);
+                    b.Property(e => e.NullIntToNullString).HasConversion(new NullIntToNullStringConverter());
+                    b.Property(e => e.NullIntToNonNullString).HasConversion(new NullIntToNonNullStringConverter());
 
-                    b.Property(e => e.NullStringToNonNullString).HasConversion(new NullStringToNonNullStringConverter()).IsRequired();
-                    b.Property(e => e.NonNullStringToNullString).HasConversion(new NonNullStringToNullStringConverter())
-                        .IsRequired(false);
+                    b.Property(e => e.NullStringToNonNullString).HasConversion(new NullStringToNonNullStringConverter());
+                    b.Property(e => e.NonNullStringToNullString).HasConversion(new NonNullStringToNullStringConverter());
 
                     b.Property(e => e.NullableListOfInt).HasConversion(
                         (ValueConverter?)new ListOfIntToJsonConverter(), new ListOfIntComparer());
@@ -873,6 +872,8 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
             : base(v => v ?? "<null>", v => v == "<null>" ? null : v, convertsNulls: true)
         {
         }
+
+        public override bool CanReturnNullToProvider => false;
     }
 
     protected class NonNullStringToNullStringConverter : ValueConverter<string, string?>
@@ -881,6 +882,8 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
             : base(v => v == "<null>" ? null : v, v => v ?? "<null>", convertsNulls: true)
         {
         }
+
+        public override bool CanReturnNullFromProvider => false;
     }
 
     protected class NullIntToNonNullStringConverter : ValueConverter<int?, string>
@@ -889,6 +892,8 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
             : base(v => v == null ? "<null>" : v.ToString()!, v => v == "<null>" ? null : int.Parse(v), convertsNulls: true)
         {
         }
+
+        public override bool CanReturnNullToProvider => false;
     }
 
     protected class NullIntToNullStringConverter : ValueConverter<int?, string?>
@@ -905,6 +910,9 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
             : base(v => v.ToString()!, v => v == "<null>" ? 0 : int.Parse(v), convertsNulls: true)
         {
         }
+
+        public override bool CanReturnNullFromProvider => false;
+        public override bool CanReturnNullToProvider => false;
     }
 
     protected class NonNullIntToNullStringConverter : ValueConverter<int, string?>
@@ -913,6 +921,8 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
             : base(v => v.ToString()!, v => v == null ? 0 : int.Parse(v), convertsNulls: true)
         {
         }
+
+        public override bool CanReturnNullFromProvider => false;
     }
 
     protected enum TheExperience : ushort

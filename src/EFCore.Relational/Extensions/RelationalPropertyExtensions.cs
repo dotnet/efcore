@@ -1100,7 +1100,13 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The <see cref="IReadOnlyProperty" />.</param>
     /// <returns><see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise.</returns>
     public static bool IsColumnNullable(this IReadOnlyProperty property)
-        => property.IsNullable
+        => (property.IsNullable
+                && (property.FindTypeMapping()?.Converter is not ValueConverter nullableConverter
+                    || !nullableConverter.ConvertsNulls
+                    || nullableConverter.CanReturnNullToProvider))
+            || (!property.IsNullable
+                && property.FindTypeMapping()?.Converter is ValueConverter nonNullableConverter
+                && nonNullableConverter.CanReturnNullToProvider)
             || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null);
 
     /// <summary>
@@ -1128,8 +1134,7 @@ public static class RelationalPropertyExtensions
             return sharedTableRootProperty.IsColumnNullable(storeObject);
         }
 
-        return property.IsNullable
-            || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null)
+        return property.IsColumnNullable()
             || IsOptionalSharingDependent(property.DeclaringEntityType, storeObject, 0);
     }
 

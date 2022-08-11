@@ -154,8 +154,8 @@ public abstract class ValueConverter
     public virtual ConverterMappingHints? MappingHints { get; }
 
     /// <summary>
-    ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
-    ///     values always remain null.
+    ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion.
+    ///     Otherwise <see langword="null" /> values always remain <see langword="null" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -167,6 +167,22 @@ public abstract class ValueConverter
     ///     </para>
     /// </remarks>
     public virtual bool ConvertsNulls { get; }
+
+    /// <summary>
+    ///     If <see langword="true" />, then when writing data to the store the converted values can have nulls.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    public virtual bool CanReturnNullToProvider => ConvertsNulls;
+
+    /// <summary>
+    ///     If <see langword="true" />, then when reading data from the store the converted values can have nulls.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    public virtual bool CanReturnNullFromProvider => ConvertsNulls;
 
     /// <summary>
     ///     Checks that the type used with a value converter is supported by that converter and throws if not.

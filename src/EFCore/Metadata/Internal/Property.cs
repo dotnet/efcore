@@ -184,7 +184,16 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     }
 
     private bool DefaultIsNullable
-        => ClrType.IsNullableType();
+    {
+        get
+        {
+            var nullable = ClrType.IsNullableType();
+            return nullable
+                && (TypeMapping?.Converter is not ValueConverter nullableConverter
+                    || !nullableConverter.ConvertsNulls
+                    || nullableConverter.CanReturnNullFromProvider);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
