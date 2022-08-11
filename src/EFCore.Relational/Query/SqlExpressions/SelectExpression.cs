@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public sealed partial class SelectExpression : TableExpressionBase
 {
     private const string DiscriminatorColumnAlias = "Discriminator";
+    private const string SqlQuerySingleColumnAlias = "Value";
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
     private static readonly Dictionary<ExpressionType, ExpressionType> MirroredOperationMap =
@@ -100,6 +101,18 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             _projectionMapping[new ProjectionMember()] = projection;
         }
+    }
+
+    internal SelectExpression(Type type, RelationalTypeMapping typeMapping, FromSqlExpression fromSqlExpression)
+        : base(null)
+    {
+        var tableReferenceExpression = new TableReferenceExpression(this, fromSqlExpression.Alias!);
+        AddTable(fromSqlExpression, tableReferenceExpression);
+
+        var columnExpression = new ConcreteColumnExpression(
+            SqlQuerySingleColumnAlias, tableReferenceExpression, type, typeMapping, type.IsNullableType());
+
+        _projectionMapping[new ProjectionMember()] = columnExpression;
     }
 
     internal SelectExpression(IEntityType entityType, ISqlExpressionFactory sqlExpressionFactory)
@@ -3211,7 +3224,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 pe => pe.Expression is ColumnExpression column
                     && string.Equals(fromSql.Alias, column.TableAlias, StringComparison.OrdinalIgnoreCase))
             && _projectionMapping.TryGetValue(new ProjectionMember(), out var mapping)
-            && mapping.Type == typeof(Dictionary<IProperty, int>);
+            && mapping.Type == (fromSql.Table == null ? typeof(int) : typeof(Dictionary<IProperty, int>));
 
     /// <summary>
     ///     Prepares the <see cref="SelectExpression" /> to apply aggregate operation over it.

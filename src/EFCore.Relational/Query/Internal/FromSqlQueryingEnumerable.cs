@@ -134,7 +134,12 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             var columnName = columnNames[i];
             if (!readerColumns.TryGetValue(columnName, out var ordinal))
             {
-                throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
+                if (columnNames.Count != 1)
+                {
+                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
+                }
+
+                ordinal = 0;
             }
 
             indexMap[i] = ordinal;

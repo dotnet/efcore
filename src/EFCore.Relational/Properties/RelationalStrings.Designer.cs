@@ -764,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column);
 
         /// <summary>
-        ///     'FromSqlRaw' or 'FromSqlInterpolated' was called with non-composable SQL and with a query composing over it. Consider calling 'AsEnumerable' after the method to perform the composition on the client side.
+        ///     'FromSql' or 'SqlQuery' was called with non-composable SQL and with a query composing over it. Consider calling 'AsEnumerable' after the method to perform the composition on the client side.
         /// </summary>
         public static string FromSqlNonComposable
             => GetString("FromSqlNonComposable");
@@ -1424,6 +1424,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SqlQueryOverrideMismatch", nameof(propertySpecification), nameof(query)),
                 propertySpecification, query);
+
+        /// <summary>
+        ///     The element type '{elementType}' used in 'SqlQuery' method is not natively supported by your database provider. Either use a supported element type, or use ModelConfigurationBuilder.DefaultTypeMapping to define a mapping for your type.
+        /// </summary>
+        public static string SqlQueryUnmappedType(object? elementType)
+            => string.Format(
+                GetString("SqlQueryUnmappedType", nameof(elementType)),
+                elementType);
 
         /// <summary>
         ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.

@@ -799,10 +799,27 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         public int Height { get; set; }
     }
 
+    public class HolderClass
+    {
+        public int Id { get; set; }
+        public HoldingEnum HoldingEnum { get; set; }
+    }
+
+    public enum HoldingEnum
+    {
+        Value1,
+        Value2
+    }
+
     public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
     {
         protected override string StoreName
             => "CustomConverters";
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.DefaultTypeMapping<HoldingEnum>().HasConversion<string>();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -1319,6 +1336,8 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         (v1, v2) => v1.SequenceEqual(v2),
                         v => v.GetHashCode(),
                         v => new List<Layout>(v)));
+
+            modelBuilder.Entity<HolderClass>().HasData(new HolderClass { Id = 1, HoldingEnum = HoldingEnum.Value2 });
         }
 
         private static class StringToDictionarySerializer

@@ -160,6 +160,8 @@ EmailTemplate.Id ---> [uniqueidentifier]
 EmailTemplate.TemplateType ---> [int] [Precision = 10 Scale = 0]
 EntityWithValueWrapper.Id ---> [int] [Precision = 10 Scale = 0]
 EntityWithValueWrapper.Wrapper ---> [nullable nvarchar] [MaxLength = -1]
+HolderClass.HoldingEnum ---> [int] [Precision = 10 Scale = 0]
+HolderClass.Id ---> [int] [Precision = 10 Scale = 0]
 Load.Fuel ---> [float] [Precision = 53]
 Load.LoadId ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 7]
@@ -294,6 +296,24 @@ WHERE [b].[Id] = 1");
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
+
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task SqlQuery_with_converted_type_using_model_configuration_builder_works(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Database.SqlQueryRaw<HoldingEnum>("SELECT [HoldingEnum] FROM [HolderClass]");
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(HoldingEnum.Value2, result.Single());
+
+        AssertSql(
+            @"SELECT [HoldingEnum] FROM [HolderClass]");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
