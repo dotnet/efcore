@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -349,23 +350,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             }
 
             if (annotations.TryGetAndRemove(
-                    RelationalAnnotationNames.Triggers,
-                    out SortedDictionary<string, ITrigger> triggers))
-            {
-                parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
-                var triggersVariable = Dependencies.CSharpHelper.Identifier("triggers", parameters.ScopeVariables, capitalize: false);
-                parameters.MainBuilder
-                    .Append("var ").Append(triggersVariable).AppendLine(" = new SortedDictionary<string, ITrigger>();").AppendLine();
-
-                foreach (var (_, trigger) in triggers)
-                {
-                    Create(trigger, triggersVariable, parameters);
-                }
-
-                GenerateSimpleAnnotation(RelationalAnnotationNames.Triggers, triggersVariable, parameters);
-            }
-
-            if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.InsertStoredProcedure,
                     out StoredProcedure insertStoredProcedure))
             {
@@ -444,46 +428,11 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     public virtual void Generate(IEntityTypeMappingFragment fragment, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         => GenerateSimpleAnnotations(parameters);
 
-    private void Create(ITrigger trigger, string triggersVariable, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-    {
-        var code = Dependencies.CSharpHelper;
-        var triggerVariable = code.Identifier(trigger.ModelName, parameters.ScopeVariables, capitalize: false);
-        var mainBuilder = parameters.MainBuilder;
-        mainBuilder
-            .Append("var ").Append(triggerVariable).AppendLine(" = new RuntimeTrigger(").IncrementIndent()
-            .Append(parameters.TargetName).AppendLine(",")
-            .Append(code.Literal(trigger.ModelName)).AppendLine(",")
-            .Append(code.Literal(trigger.Name)).AppendLine(",")
-            .Append(code.Literal(trigger.TableName)).AppendLine(",")
-            .Append(code.Literal(trigger.TableSchema))
-            .AppendLine(");")
-            .DecrementIndent()
-            .AppendLine();
-
-        CreateAnnotations(
-            trigger,
-            Generate,
-            parameters with { TargetName = triggerVariable });
-
-        mainBuilder
-            .Append(triggersVariable).Append("[").Append(code.Literal(trigger.ModelName)).Append("] = ")
-            .Append(triggerVariable).AppendLine(";")
-            .AppendLine();
-    }
-
-    /// <summary>
-    ///     Generates code to create the given annotations.
-    /// </summary>
-    /// <param name="trigger">The trigger to which the annotations are applied.</param>
-    /// <param name="parameters">Additional parameters used during code generation.</param>
-    public virtual void Generate(ITrigger trigger, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => GenerateSimpleAnnotations(parameters);
-
     private void Create(IStoredProcedure storedProcedure, string sprocVariable, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         AddNamespace(typeof(RuntimeStoredProcedure), parameters.Namespaces);
         AddNamespace(typeof(ParameterDirection), parameters.Namespaces);
-        
+
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
         mainBuilder
@@ -495,13 +444,13 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .AppendLine(");")
             .DecrementIndent()
             .AppendLine();
-        
+
         parameters = parameters with { TargetName = sprocVariable };
         foreach (var parameter in storedProcedure.Parameters)
         {
             Create(parameter, parameters);
         }
-        
+
         foreach (var resultColumn in storedProcedure.ResultColumns)
         {
             Create(resultColumn, parameters);
@@ -536,7 +485,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append(code.Literal(parameter.PropertyName!)).Append(", ")
             .Append(code.Literal(parameter.ForOriginalValue))
             .AppendLine(");").DecrementIndent();
-        
+
         CreateAnnotations(
             parameter,
             Generate,
@@ -564,7 +513,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append(code.Literal(resultColumn.ForRowsAffected)).Append(", ")
             .Append(code.Literal(resultColumn.PropertyName!))
             .AppendLine(");").DecrementIndent();
-        
+
         CreateAnnotations(
             resultColumn,
             Generate,

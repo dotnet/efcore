@@ -1090,6 +1090,15 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         return this;
     }
 
+    /// <summary>
+    ///     Configures a trigger for the the entity type.
+    /// </summary>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>A builder that can be used to configure the trigger.</returns>
+    public static TriggerBuilder HasTrigger(string modelName, IMutableEntityType entityType)
+        => new(((EntityType)entityType).Builder.HasTrigger(modelName, ConfigurationSource.Explicit)!.Metadata);
+
     #region Hidden System.Object members
 
     /// <summary>

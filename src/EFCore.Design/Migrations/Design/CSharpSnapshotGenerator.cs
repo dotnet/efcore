@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -847,20 +849,20 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         annotations.TryGetAndRemove(RelationalAnnotationNames.TableName, out IAnnotation tableNameAnnotation);
         var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var tableName = (string?)tableNameAnnotation?.Value ?? table?.Name;
-        var explicitName = tableNameAnnotation != null 
-            || entityType.BaseType == null 
+        var explicitName = tableNameAnnotation != null
+            || entityType.BaseType == null
             || entityType.BaseType.GetTableName() != tableName;
-        
+
         annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
         var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
-        
+
         annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
         var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
-        
+
         annotations.TryGetAndRemove(RelationalAnnotationNames.Comment, out IAnnotation commentAnnotation);
         var comment = (string?)commentAnnotation?.Value;
-        
-        var hasTriggers = entityType.GetTriggers().Any(t => t.TableName == tableName! && t.TableSchema == schema);
+
+        var hasTriggers = entityType.GetDeclaredTriggers().Any(t => t.GetTableName() == tableName! && t.GetTableSchema() == schema);
         var hasOverrides = table != null
             && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
         var requiresTableBuilder = isExcludedFromMigrations
@@ -868,7 +870,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             || hasTriggers
             || hasOverrides
             || entityType.GetCheckConstraints().Any();
-        
+
         if (!explicitName
             && !requiresTableBuilder)
         {
@@ -879,7 +881,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .AppendLine()
             .Append(entityTypeBuilderName)
             .Append(".ToTable(");
-        
+
         if (explicitName)
         {
             if (tableName == null
@@ -932,7 +934,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                             .AppendLine()
                             .AppendLine("t.ExcludeFromMigrations();");
                     }
-                    
+
                     if (comment != null)
                     {
                         stringBuilder
@@ -1106,6 +1108,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(fragment.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
         if (annotations.Count > 0)
         {
             GenerateAnnotations(tableBuilderName, fragment, stringBuilder, annotations, inChainedCall: false);
@@ -1169,6 +1172,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(checkConstraint.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
         using (stringBuilder.Indent())
         {
             if (hasNonDefaultName)
@@ -1207,9 +1211,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         string? schema,
         IndentedStringBuilder stringBuilder)
     {
-        foreach (var trigger in entityType.GetTriggers())
+        foreach (var trigger in entityType.GetDeclaredTriggers())
         {
-            if (trigger.TableName != table || trigger.TableSchema != schema)
+            if (trigger.GetTableName() != table || trigger.GetTableSchema() != schema)
             {
                 continue;
             }
@@ -1237,15 +1241,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (trigger.Name != trigger.GetDefaultName()!)
-        {
-            stringBuilder
-                .AppendLine()
-                .Append(".HasName(")
-                .Append(Code.Literal(trigger.Name))
-                .Append(")");
-        }
-
         GenerateTriggerAnnotations(triggerBuilderName, trigger, stringBuilder);
     }
 
@@ -1263,6 +1258,18 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(trigger.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
+        if (annotations.TryGetAndRemove(RelationalAnnotationNames.Name, out IAnnotation nameAnnotation))
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".HasName(")
+                .Append(Code.Literal((string?)nameAnnotation.Value))
+                .Append(")");
+        }
+
+        annotations.Remove(RelationalAnnotationNames.TableName);
+        annotations.Remove(RelationalAnnotationNames.Schema);
 
         GenerateAnnotations(triggerBuilderName, trigger, stringBuilder, annotations, inChainedCall: true);
     }
@@ -1337,6 +1344,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(overrides.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
         GenerateAnnotations(propertyBuilderName, overrides, stringBuilder, annotations, inChainedCall: true);
     }
 

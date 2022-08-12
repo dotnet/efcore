@@ -79,7 +79,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
             ? null
             : (object?)GetDefaultDiscriminatorValue();
     }
-    
+
     /// <summary>
     ///     Returns the default discriminator value that would be used for this entity type.
     /// </summary>
@@ -749,6 +749,18 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </remarks>
     /// <returns>The service properties defined on this entity type.</returns>
     IEnumerable<IReadOnlyServiceProperty> GetServiceProperties();
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    IReadOnlyTrigger? FindDeclaredTrigger(string name);
+
+    /// <summary>
+    ///     Returns the declared triggers on the entity type.
+    /// </summary>
+    IEnumerable<IReadOnlyTrigger> GetDeclaredTriggers();
 
     /// <summary>
     ///     <para>

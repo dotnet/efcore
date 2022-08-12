@@ -74,13 +74,17 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
     /// </remarks>
-    public virtual TriggerBuilder HasTrigger(string modelName)
-        => new((Trigger)InternalTriggerBuilder.HasTrigger(
-            (IConventionEntityType)Metadata,
-            modelName,
-            Name,
-            Schema,
-            ConfigurationSource.Explicit)!);
+    public virtual TableTriggerBuilder HasTrigger(string modelName)
+    {
+        var trigger = EntityTypeBuilder.HasTrigger(modelName, Metadata).Metadata;
+        if (Name != null)
+        {
+            trigger.SetTableName(Name);
+            trigger.SetTableSchema(Schema);
+        }
+
+        return new(trigger);
+    }
 
     /// <summary>
     ///     Configures a database check constraint when targeting a relational database.
@@ -97,7 +101,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     {
         Check.NotEmpty(name, nameof(name));
         Check.NullButNotEmpty(sql, nameof(sql));
-        
+
         var checkConstraint = InternalCheckConstraintBuilder.HasCheckConstraint(
             (IConventionEntityType)Metadata,
             name,
@@ -106,7 +110,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
 
         return new((IMutableCheckConstraint)checkConstraint);
     }
-    
+
     /// <summary>
     ///     Configures a comment to be applied to the table
     /// </summary>

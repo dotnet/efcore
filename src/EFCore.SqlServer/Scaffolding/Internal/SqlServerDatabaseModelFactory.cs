@@ -1324,16 +1324,13 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
 
             var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
 
-            var triggers = new HashSet<string>();
-            table[RelationalAnnotationNames.Triggers] = triggers;
-
             foreach (var triggerRecord in tableGroup)
             {
                 var triggerName = triggerRecord.GetFieldValue<string>("trigger_name");
 
                 // We don't actually scaffold anything beyond the fact that there's a trigger with a given name.
                 // This is to modify the SaveChanges logic to not use OUTPUT without INTO, which is incompatible with triggers.
-                triggers.Add(triggerName);
+                table.Triggers.Add(triggerName);
             }
         }
     }

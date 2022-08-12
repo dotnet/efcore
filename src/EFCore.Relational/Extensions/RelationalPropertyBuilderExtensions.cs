@@ -357,7 +357,7 @@ public static class RelationalPropertyBuilderExtensions
         bool? fixedLength,
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
-    
+
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a
     ///     relational database.

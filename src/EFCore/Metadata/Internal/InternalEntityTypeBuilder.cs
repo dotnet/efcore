@@ -148,7 +148,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
         return keyBuilder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -172,7 +172,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 return false;
             }
         }
-        
+
         var previousPrimaryKey = Metadata.FindPrimaryKey();
         if (previousPrimaryKey != null
             && previousPrimaryKey.Properties.Select(p => p.Name).SequenceEqual(propertyNames))
@@ -1434,6 +1434,29 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalTriggerBuilder? HasTrigger(
+        string modelName,
+        ConfigurationSource configurationSource)
+    {
+        var entityType = Metadata;
+        var trigger = entityType.FindDeclaredTrigger(modelName);
+        if (trigger != null)
+        {
+            trigger.UpdateConfigurationSource(configurationSource);
+            return trigger.Builder;
+        }
+
+        trigger = entityType.AddTrigger(modelName, configurationSource);
+
+        return trigger?.Builder;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalEntityTypeBuilder? HasQueryFilter(
         LambdaExpression? filter,
         ConfigurationSource configurationSource)
@@ -2489,7 +2512,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -4187,7 +4210,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<SkipNavigation>? navigationsToDetach = null;
         List<(InternalSkipNavigationBuilder Navigation, InternalSkipNavigationBuilder Inverse)>? detachedNavigations = null;
         InternalSkipNavigationBuilder builder;
-        
+
         var navigationName = navigationProperty.Name;
         if (navigationName != null)
         {
@@ -4922,7 +4945,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         RemoveUnusedDiscriminatorProperty(discriminatorProperty, configurationSource);
 
         rootTypeBuilder.Metadata.SetDiscriminatorProperty(discriminatorProperty, configurationSource);
-        
+
         RemoveIncompatibleDiscriminatorValues(Metadata, discriminatorProperty, configurationSource);
 
         discriminatorPropertyBuilder.IsRequired(true, ConfigurationSource.Convention);
@@ -4981,7 +5004,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
 
         Metadata.SetDiscriminatorProperty(null, configurationSource);
-        
+
         RemoveIncompatibleDiscriminatorValues(Metadata, null, configurationSource);
 
         if (configurationSource == ConfigurationSource.Explicit)
@@ -5315,7 +5338,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         => CanSetPrimaryKey(
             propertyNames,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -5428,7 +5451,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             propertyNames,
             name,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -5934,6 +5957,18 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             (SkipNavigation)skipNavigation,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionTriggerBuilder? IConventionEntityTypeBuilder.HasTrigger(string modelName, bool fromDataAnnotation)
+        => HasTrigger(
+            modelName,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionEntityTypeBuilder.CanHaveTrigger(string modelName, bool fromDataAnnotation)
+        => true;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -6151,7 +6186,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     [DebuggerStepThrough]
     bool IConventionEntityTypeBuilder.CanRemoveDiscriminator(bool fromDataAnnotation)
         => CanRemoveDiscriminator(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

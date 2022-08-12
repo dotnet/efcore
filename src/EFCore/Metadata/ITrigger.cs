@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a database trigger on a table.
+///     Represents a store trigger.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -14,15 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///         See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public interface IMutableTrigger : IReadOnlyTrigger, IMutableAnnotatable
+public interface ITrigger : IReadOnlyTrigger, IAnnotatable
 {
     /// <summary>
-    ///     Gets the <see cref="IMutableEntityType" /> on which this trigger is defined.
+    ///     Gets the entity type on which this trigger is defined.
     /// </summary>
-    new IMutableEntityType EntityType { get; }
-
-    /// <summary>
-    ///     Gets or sets the name of the trigger in the database.
-    /// </summary>
-    new string? Name { get; set; }
+    new IEntityType EntityType { get; }
 }

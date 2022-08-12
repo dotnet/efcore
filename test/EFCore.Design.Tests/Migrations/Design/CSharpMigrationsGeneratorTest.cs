@@ -241,7 +241,6 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
-            RelationalAnnotationNames.Triggers,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.ContainerColumnName,
             RelationalAnnotationNames.ContainerColumnTypeMapping,

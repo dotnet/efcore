@@ -2306,7 +2306,7 @@ public class RelationalModelValidator : ModelValidator
     /// </summary>
     /// <param name="model">The model to validate.</param>
     /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateTriggers(
+    protected override void ValidateTriggers(
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
@@ -2317,21 +2317,15 @@ public class RelationalModelValidator : ModelValidator
 
             foreach (var trigger in entityType.GetDeclaredTriggers())
             {
-                if (tableName is null)
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.TriggerOnUnmappedEntityType(trigger.ModelName, entityType.DisplayName()));
-                }
-
-                if ((trigger.TableName != tableName
-                    || trigger.TableSchema != tableSchema)
+                if ((trigger.GetTableName() != tableName
+                    || trigger.GetTableSchema() != tableSchema)
                     && entityType.GetMappingFragments(StoreObjectType.Table)
-                        .All(f => trigger.TableName != f.StoreObject.Name || trigger.TableSchema != f.StoreObject.Schema))
+                        .All(f => trigger.GetTableName() != f.StoreObject.Name || trigger.GetTableSchema() != f.StoreObject.Schema))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.TriggerWithMismatchedTable(
                             trigger.ModelName,
-                            (trigger.TableName, trigger.TableSchema).FormatTable(),
+                            (trigger.GetTableName()!, trigger.GetTableSchema()).FormatTable(),
                             entityType.DisplayName(),
                             entityType.GetSchemaQualifiedTableName())
                     );

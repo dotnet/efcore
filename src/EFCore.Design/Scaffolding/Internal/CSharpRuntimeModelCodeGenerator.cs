@@ -547,6 +547,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 Create(index, propertyVariables, parameters, nullable);
             }
 
+            foreach (var trigger in entityType.GetDeclaredTriggers())
+            {
+                Create(trigger, parameters);
+            }
+
             mainBuilder
                 .Append("return ")
                 .Append(entityTypeVariable)
@@ -1320,6 +1325,26 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         mainBuilder
             .AppendLine("}");
+    }
+
+    private void Create(ITrigger trigger, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var triggerVariable = _code.Identifier(trigger.ModelName, parameters.ScopeVariables, capitalize: false);
+
+        var mainBuilder = parameters.MainBuilder;
+        mainBuilder
+            .Append("var ").Append(triggerVariable).Append(" = ").Append(parameters.TargetName).AppendLine(".AddTrigger(")
+            .IncrementIndent()
+            .Append(_code.Literal(trigger.ModelName))
+            .AppendLine(");")
+            .DecrementIndent();
+
+        CreateAnnotations(
+            trigger,
+            _annotationCodeGenerator.Generate,
+            parameters with { TargetName = triggerVariable });
+
+        mainBuilder.AppendLine();
     }
 
     private void CreateAnnotations(

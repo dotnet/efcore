@@ -98,13 +98,6 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                         typeof(ICheckConstraint))
                 },
                 {
-                    typeof(IReadOnlyTrigger),
-                    (typeof(IMutableTrigger),
-                        typeof(IConventionTrigger),
-                        typeof(IConventionTriggerBuilder),
-                        typeof(ITrigger))
-                },
-                {
                     typeof(IReadOnlyEntityTypeMappingFragment),
                     (typeof(IMutableEntityTypeMappingFragment),
                         typeof(IConventionEntityTypeMappingFragment),
@@ -177,6 +170,7 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(SplitViewBuilder<>),
             typeof(OwnedNavigationSplitViewBuilder),
             typeof(OwnedNavigationSplitViewBuilder<,>),
+            typeof(TableTriggerBuilder),
             typeof(TableValuedFunctionBuilder),
             typeof(TableValuedFunctionBuilder<>),
             typeof(OwnedNavigationTableValuedFunctionBuilder),

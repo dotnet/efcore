@@ -28,7 +28,6 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     private static readonly ISet<string> IgnoredRelationalAnnotations = new HashSet<string>
     {
         RelationalAnnotationNames.CheckConstraints,
-        RelationalAnnotationNames.Triggers,
         RelationalAnnotationNames.Sequences,
         RelationalAnnotationNames.DbFunctions,
         RelationalAnnotationNames.DeleteStoredProcedure,
@@ -122,6 +121,18 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         IForeignKey foreignKey,
         IDictionary<string, IAnnotation> annotations)
         => RemoveConventionalAnnotationsHelper(foreignKey, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(
+        INavigation navigation,
+        IDictionary<string, IAnnotation> annotations)
+        => RemoveConventionalAnnotationsHelper(navigation, annotations, IsHandledByConvention);
+
+    /// <inheritdoc />
+    public virtual void RemoveAnnotationsHandledByConventions(
+        ISkipNavigation navigation,
+        IDictionary<string, IAnnotation> annotations)
+        => RemoveConventionalAnnotationsHelper(navigation, annotations, IsHandledByConvention);
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(IIndex index, IDictionary<string, IAnnotation> annotations)
@@ -541,6 +552,32 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     /// <param name="annotation">The <see cref="IAnnotation" />.</param>
     /// <returns><see langword="false" />.</returns>
     protected virtual bool IsHandledByConvention(IForeignKey foreignKey, IAnnotation annotation)
+        => false;
+
+    /// <summary>
+    ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+    ///     applied to the given <paramref name="navigation" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="false" />.
+    /// </remarks>
+    /// <param name="navigation">The <see cref="INavigation" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="false" />.</returns>
+    protected virtual bool IsHandledByConvention(INavigation navigation, IAnnotation annotation)
+        => false;
+
+    /// <summary>
+    ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+    ///     applied to the given <paramref name="navigation" />.
+    /// </summary>
+    /// <remarks>
+    ///     The default implementation always returns <see langword="false" />.
+    /// </remarks>
+    /// <param name="navigation">The <see cref="ISkipNavigation" />.</param>
+    /// <param name="annotation">The <see cref="IAnnotation" />.</param>
+    /// <returns><see langword="false" />.</returns>
+    protected virtual bool IsHandledByConvention(ISkipNavigation navigation, IAnnotation annotation)
         => false;
 
     /// <summary>

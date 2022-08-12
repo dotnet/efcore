@@ -67,7 +67,7 @@ public static class RelationalIndexExtensions
     /// <returns>The default name that would be used for this index.</returns>
     public static string? GetDefaultDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         => index.GetDefaultDatabaseName(storeObject, null);
-    
+
     /// <summary>
     ///     Sets the name of the index in the database.
     /// </summary>

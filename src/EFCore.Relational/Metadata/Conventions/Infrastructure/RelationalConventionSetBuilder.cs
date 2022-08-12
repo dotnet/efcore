@@ -69,7 +69,6 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.Add(new TableNameFromDbSetConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new PropertyOverridesConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new CheckConstraintConvention(Dependencies, RelationalDependencies));
-        conventionSet.Add(new TriggerConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new StoredProcedureConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new TableValuedDbFunctionConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new StoreGenerationConvention(Dependencies, RelationalDependencies));

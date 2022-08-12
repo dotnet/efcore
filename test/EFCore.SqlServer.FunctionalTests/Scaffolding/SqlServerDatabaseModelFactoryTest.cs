@@ -912,7 +912,7 @@ END;" },
             dbModel =>
             {
                 var table = dbModel.Tables.Single();
-                var triggers = (HashSet<string>)table[RelationalAnnotationNames.Triggers]!;
+                var triggers = table.Triggers;
 
                 Assert.Collection(triggers.OrderBy(t => t),
                     t => Assert.Equal("Trigger1", t),

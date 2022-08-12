@@ -891,4 +891,33 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to remove.</param>
     /// <returns>The removed property, or <see langword="null" /> if the property was not found.</returns>
     IMutableServiceProperty? RemoveServiceProperty(IReadOnlyServiceProperty property);
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    new IMutableTrigger? FindDeclaredTrigger(string name);
+
+    /// <summary>
+    ///     Returns the declared triggers on the entity type.
+    /// </summary>
+    new IEnumerable<IMutableTrigger> GetDeclaredTriggers();
+
+    /// <summary>
+    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
+    ///     entity type.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger.</returns>
+    IMutableTrigger AddTrigger(string name);
+
+    /// <summary>
+    ///     Removes the trigger with the given name.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>
+    ///     The removed trigger or <see langword="null" /> if no trigger with the given name was found.
+    /// </returns>
+    IMutableTrigger? RemoveTrigger(string name);
 }

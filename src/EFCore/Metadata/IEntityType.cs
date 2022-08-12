@@ -564,4 +564,16 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </remarks>
     /// <returns>The service properties defined on this entity type.</returns>
     new IEnumerable<IServiceProperty> GetServiceProperties();
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    new ITrigger? FindDeclaredTrigger(string name);
+
+    /// <summary>
+    ///     Returns the declared triggers on the entity type.
+    /// </summary>
+    new IEnumerable<ITrigger> GetDeclaredTriggers();
 }

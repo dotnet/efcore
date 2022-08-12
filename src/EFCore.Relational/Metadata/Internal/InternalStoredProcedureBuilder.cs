@@ -55,7 +55,7 @@ public class InternalStoredProcedureBuilder :
 
         return sproc.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -154,7 +154,7 @@ public class InternalStoredProcedureBuilder :
     public virtual bool CanSetSchema(string? schema, ConfigurationSource configurationSource)
         => configurationSource.Overrides(Metadata.GetSchemaConfigurationSource())
             || Metadata.Schema == schema;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -171,14 +171,14 @@ public class InternalStoredProcedureBuilder :
             {
                 return null;
             }
-            
+
             parameter = Metadata.AddParameter(propertyName);
         }
 
         Metadata.UpdateConfigurationSource(configurationSource);
         return parameter.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -200,7 +200,7 @@ public class InternalStoredProcedureBuilder :
     public virtual bool CanHaveParameter(string propertyName, ConfigurationSource configurationSource)
         => Metadata.FindParameter(propertyName) != null
             || configurationSource.Overrides(Metadata.GetConfigurationSource());
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -217,14 +217,14 @@ public class InternalStoredProcedureBuilder :
             {
                 return null;
             }
-            
+
             parameter = Metadata.AddOriginalValueParameter(propertyName);
         }
 
         Metadata.UpdateConfigurationSource(configurationSource);
         return parameter.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -246,7 +246,7 @@ public class InternalStoredProcedureBuilder :
     public virtual bool CanHaveOriginalValueParameter(string propertyName, ConfigurationSource configurationSource)
         => Metadata.FindOriginalValueParameter(propertyName) != null
             || configurationSource.Overrides(Metadata.GetConfigurationSource());
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -263,14 +263,14 @@ public class InternalStoredProcedureBuilder :
             {
                 return null;
             }
-            
+
             parameter = Metadata.AddRowsAffectedParameter();
         }
 
         Metadata.UpdateConfigurationSource(configurationSource);
         return parameter.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -315,7 +315,7 @@ public class InternalStoredProcedureBuilder :
         Metadata.UpdateConfigurationSource(configurationSource);
         return resultColumn.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -361,7 +361,7 @@ public class InternalStoredProcedureBuilder :
         Metadata.UpdateConfigurationSource(configurationSource);
         return resultColumn.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -382,7 +382,7 @@ public class InternalStoredProcedureBuilder :
     public virtual bool CanHaveRowsAffectedResultColumn(ConfigurationSource configurationSource)
         => Metadata.FindRowsAffectedResultColumn() != null
             || configurationSource.Overrides(Metadata.GetConfigurationSource());
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -452,19 +452,19 @@ public class InternalStoredProcedureBuilder :
     bool IConventionStoredProcedureBuilder.CanHaveParameter(string propertyName, bool fromDataAnnotation)
         => CanHaveParameter(propertyName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureBuilder.HasOriginalValueParameter(
         string propertyName, bool fromDataAnnotation)
         => HasOriginalValueParameter(propertyName,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveOriginalValueParameter(string propertyName, bool fromDataAnnotation)
         => CanHaveOriginalValueParameter(propertyName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureBuilder.HasRowsAffectedParameter(bool fromDataAnnotation)
@@ -486,13 +486,13 @@ public class InternalStoredProcedureBuilder :
     bool IConventionStoredProcedureBuilder.CanHaveResultColumn(string propertyName, bool fromDataAnnotation)
         => CanHaveResultColumn(propertyName,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureBuilder.HasRowsAffectedResultColumn(
         string propertyName, bool fromDataAnnotation)
         => HasRowsAffectedResultColumn(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveRowsAffectedResultColumn(string propertyName, bool fromDataAnnotation)
