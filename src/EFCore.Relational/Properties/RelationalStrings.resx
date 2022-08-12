@@ -485,7 +485,7 @@
     <value>The following lambda argument to 'SetProperty' does not represent a valid property to be set: '{propertyExpression}'.</value>
   </data>
   <data name="JsonEntityMappedToDifferentViewThanOwner" xml:space="preserve">
-    <value>Entity '{jsonType}' is mapped to JSON and also mapped to a view '{viewName}', however it's owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as it's owner.</value>
+    <value>Entity '{jsonType}' is mapped to JSON and also to a view '{viewName}', but its owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as its owner.</value>
   </data>
   <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
     <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
@@ -494,34 +494,34 @@
     <value>Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.</value>
   </data>
   <data name="JsonEntityReferencingRegularEntity" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' is mapped to JSON and has navigation to a regular entity which is not the owner.</value>
+    <value>Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a regular entity which is not the owner.</value>
   </data>
   <data name="JsonEntityWithDefaultValueSetOnItsProperty" xml:space="preserve">
-    <value>Setting default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.</value>
+    <value>Setting a default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.</value>
   </data>
   <data name="JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey" xml:space="preserve">
-    <value>Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have JSON property name configured explicitly.</value>
+    <value>Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have its JSON property name configured explicitly.</value>
   </data>
   <data name="JsonEntityWithExplicitlyConfiguredOrdinalKey" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' is part of collection mapped to JSON and has it's ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.</value>
+    <value>Entity type '{jsonEntity}' is part of a collection mapped to JSON and has its ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.</value>
   </data>
   <data name="JsonEntityWithIncorrectNumberOfKeyProperties" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' has incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
+    <value>Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
   </data>
   <data name="JsonEntityWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
-    <value>Entity '{jsonEntity}' is mapped to JSON and it contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.</value>
+    <value>Entity '{jsonEntity}' is mapped to JSON and contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.</value>
   </data>
   <data name="JsonEntityWithNonTphInheritanceOnOwner" xml:space="preserve">
-    <value>Entity type '{rootType}' references entities mapped to JSON. Only '{tph}' inheritance is supported for those entities.</value>
+    <value>Entity type '{rootType}' references entities mapped to JSON. Only TPH inheritance is supported for those entities.</value>
   </data>
   <data name="JsonEntityWithOwnerNotMappedToTableOrView" xml:space="preserve">
-    <value>Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view.This is not supported.</value>
+    <value>Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view. This is not supported.</value>
   </data>
   <data name="JsonEntityWithTableSplittingIsNotSupported" xml:space="preserve">
     <value>Table splitting is not supported for entities containing entities mapped to JSON.</value>
   </data>
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
-    <value>JSON property name should only be configured on nested owned navigations.</value>
+    <value>The JSON property name should only be configured on nested owned navigations.</value>
   </data>
   <data name="KeylessMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>

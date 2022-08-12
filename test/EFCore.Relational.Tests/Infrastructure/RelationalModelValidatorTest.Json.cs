@@ -126,8 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             });
 
             VerifyError(
-                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(
-                    nameof(ValidatorJsonEntityInheritanceBase), "TPH"),
+                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(nameof(ValidatorJsonEntityInheritanceBase)),
                 modelBuilder);
         }
 
@@ -149,8 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             });
 
             VerifyError(
-                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(
-                    nameof(ValidatorJsonEntityInheritanceBase), "TPH"),
+                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(nameof(ValidatorJsonEntityInheritanceBase)),
                 modelBuilder);
         }
 
@@ -175,8 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             });
 
             VerifyError(
-                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(
-                    nameof(ValidatorJsonEntityInheritanceBase), "TPH"),
+                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(nameof(ValidatorJsonEntityInheritanceBase)),
                 modelBuilder);
         }
 
@@ -198,8 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             });
 
             VerifyError(
-                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(
-                    nameof(ValidatorJsonEntityInheritanceBase), "TPH"),
+                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(nameof(ValidatorJsonEntityInheritanceBase)),
                 modelBuilder);
         }
 
@@ -218,8 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             });
 
             VerifyError(
-                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(
-                    nameof(ValidatorJsonEntityInheritanceBase), "TPH"),
+                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(nameof(ValidatorJsonEntityInheritanceBase)),
                 modelBuilder);
         }
 
@@ -278,9 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 });
             });
 
-            VerifyError(
-                "Setting default value on properties of an entity mapped to JSON is not supported. Entity: 'ValidatorJsonOwnedRoot', property: 'Name'.",
-                modelBuilder);
+            VerifyError(RelationalStrings.JsonEntityWithDefaultValueSetOnItsProperty("ValidatorJsonOwnedRoot", "Name"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -323,9 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 });
             });
 
-            VerifyError(
-                "Entity type 'ValidatorJsonOwnedExplicitOrdinal' is part of collection mapped to JSON and has it's ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.",
-                modelBuilder);
+            VerifyError(RelationalStrings.JsonEntityWithExplicitlyConfiguredOrdinalKey("ValidatorJsonOwnedExplicitOrdinal"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -365,8 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 b.Ignore(x => x.OwnedCollection);
             });
 
-            VerifyError(
-                "Entity 'ValidatorJsonOwnedRoot' is mapped to JSON and it contains multiple properties or navigations which are mapped to the same JSON property 'Foo'. Each property should map to a unique JSON property.",
+            VerifyError(RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty("ValidatorJsonOwnedRoot", "Foo"),
                 modelBuilder);
         }
 
@@ -384,8 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     bb.OwnsOne(x => x.NestedReference, bbb => bbb.HasJsonPropertyName("Name"));
                     bb.Ignore(x => x.NestedCollection);
                 });
-b.Ignore(x => x.OwnedCollection);
-});
+                b.Ignore(x => x.OwnedCollection);
+            });
 
             VerifyError(
                 RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(
