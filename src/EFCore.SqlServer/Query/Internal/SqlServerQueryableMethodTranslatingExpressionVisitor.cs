@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -61,44 +62,30 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
         {
             var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(queryRootExpression.EntityType);
-
-            var tableExpressions = ExtractTableExpressions(selectExpression);
-            ValidateAllTablesHaveSameAnnotations(tableExpressions);
-            foreach (var tableExpression in tableExpressions)
+            Func<TableExpression, TableExpressionBase> annotationApplyingFunc = queryRootExpression switch
             {
-                switch (queryRootExpression)
-                {
-                    case TemporalAllQueryRootExpression:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.All;
-                        break;
+                TemporalAllQueryRootExpression => te => te
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.All),
+                TemporalAsOfQueryRootExpression asOf => te => te
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.AsOf)
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime, asOf.PointInTime),
+                TemporalBetweenQueryRootExpression between => te => te
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.Between)
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, between.From)
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, between.To),
+                TemporalContainedInQueryRootExpression containedIn => te => te
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.ContainedIn)
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, containedIn.From)
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, containedIn.To),
+                TemporalFromToQueryRootExpression fromTo => te => te
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.FromTo)
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, fromTo.From)
+                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, fromTo.To),
+                _ => throw new InvalidOperationException(queryRootExpression.Print()),
+            };
 
-                    case TemporalAsOfQueryRootExpression asOf:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.AsOf;
-                        tableExpression[SqlServerAnnotationNames.TemporalAsOfPointInTime] = asOf.PointInTime;
-                        break;
-
-                    case TemporalBetweenQueryRootExpression between:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.Between;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = between.From;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = between.To;
-                        break;
-
-                    case TemporalContainedInQueryRootExpression containedIn:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.ContainedIn;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = containedIn.From;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = containedIn.To;
-                        break;
-
-                    case TemporalFromToQueryRootExpression fromTo:
-                        tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.FromTo;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = fromTo.From;
-                        tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = fromTo.To;
-                        break;
-
-                    default:
-                        throw new InvalidOperationException(queryRootExpression.Print());
-                }
-            }
+            selectExpression = (SelectExpression)new TemporalAnnotationApplyingExpressionVisitor(annotationApplyingFunc)
+                .Visit(selectExpression);
 
             return new ShapedQueryExpression(
                 selectExpression,
@@ -159,59 +146,21 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         return false;
     }
 
-    private List<TableExpressionBase> ExtractTableExpressions(TableExpressionBase tableExpressionBase)
+    private sealed class TemporalAnnotationApplyingExpressionVisitor : ExpressionVisitor
     {
-        if (tableExpressionBase is JoinExpressionBase joinExpression)
+        private readonly Func<TableExpression, TableExpressionBase> _annotationApplyingFunc;
+
+        public TemporalAnnotationApplyingExpressionVisitor(Func<TableExpression, TableExpressionBase> annotationApplyingFunc)
         {
-            tableExpressionBase = joinExpression.Table;
+            _annotationApplyingFunc = annotationApplyingFunc;
         }
 
-        if (tableExpressionBase is TableExpression tableExpression)
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
-            return new List<TableExpressionBase> { tableExpression };
-        }
-
-        if (tableExpressionBase is SelectExpression selectExpression)
-        {
-            var result = new List<TableExpressionBase>();
-            foreach (var table in selectExpression.Tables)
-            {
-                result.AddRange(ExtractTableExpressions(table));
-            }
-
-            return result;
-        }
-
-        if (tableExpressionBase is SetOperationBase setOperationBase)
-        {
-            var result = new List<TableExpressionBase>();
-            result.AddRange(ExtractTableExpressions(setOperationBase.Source1));
-            result.AddRange(ExtractTableExpressions(setOperationBase.Source2));
-
-            return result;
-        }
-
-        throw new InvalidOperationException("Unsupported table expression base type.");
-    }
-
-    private void ValidateAllTablesHaveSameAnnotations(List<TableExpressionBase> tableExpressions)
-    {
-        List<IAnnotation>? expectedAnnotations = null;
-        foreach (var tableExpression in tableExpressions)
-        {
-            if (expectedAnnotations == null)
-            {
-                expectedAnnotations = new List<IAnnotation>(tableExpression.GetAnnotations().OrderBy(x => x.Name));
-            }
-            else
-            {
-                var annotations = tableExpression.GetAnnotations().OrderBy(x => x.Name).ToList();
-                if (expectedAnnotations.Count != annotations.Count
-                    || expectedAnnotations.Zip(annotations, (e, a) => e.Name != a.Name || e.Value != a.Value).Any())
-                {
-                    throw new InvalidOperationException("Annotations for all tables representing an entity type must match.");
-                }
-            }
+            return expression is TableExpression tableExpression
+                ? _annotationApplyingFunc(tableExpression)
+                : base.Visit(expression);
         }
     }
 }
