@@ -96,6 +96,14 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                         convention.ProcessIndexAnnotations(annotations, source, target, runtime));
             }
 
+            foreach (var trigger in entityType.GetDeclaredTriggers())
+            {
+                var runtimeTrigger = Create(trigger, runtimeEntityType);
+                CreateAnnotations(
+                    trigger, runtimeTrigger, static (convention, annotations, source, target, runtime) =>
+                        convention.ProcessTriggerAnnotations(annotations, source, target, runtime));
+            }
+
             runtimeEntityType.ConstructorBinding = Create(entityType.ConstructorBinding, runtimeEntityType);
             runtimeEntityType.ServiceOnlyConstructorBinding =
                 Create(((IRuntimeEntityType)entityType).ServiceOnlyConstructorBinding, runtimeEntityType);
@@ -479,6 +487,34 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             foreignKey.IsRequired,
             foreignKey.IsRequiredDependent,
             foreignKey.IsOwnership);
+    }
+
+    private static RuntimeTrigger Create(ITrigger trigger, RuntimeEntityType runtimeEntityType)
+        => runtimeEntityType.AddTrigger(trigger.ModelName);
+
+    /// <summary>
+    ///     Updates the trigger annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="trigger">The source trigger.</param>
+    /// <param name="runtimeTrigger">The target trigger that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessTriggerAnnotations(
+        Dictionary<string, object?> annotations,
+        ITrigger trigger,
+        RuntimeTrigger runtimeTrigger,
+        bool runtime)
+    {
+        if (!runtime)
+        {
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key))
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
     }
 
     /// <summary>

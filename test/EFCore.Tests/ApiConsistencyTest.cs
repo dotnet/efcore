@@ -45,6 +45,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(EntityTypeBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
+            typeof(TriggerBuilder),
             typeof(InvertibleRelationshipBuilderBase),
             typeof(KeyBuilder),
             typeof(KeyBuilder<>),

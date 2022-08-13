@@ -60,6 +60,7 @@ public class ModelValidator : IModelValidator
         ValidateQueryFilters(model, logger);
         ValidateData(model, logger);
         ValidateTypeMappings(model, logger);
+        ValidateTriggers(model, logger);
         LogShadowProperties(model, logger);
     }
 
@@ -875,7 +876,7 @@ public class ModelValidator : IModelValidator
                 {
                     _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
                 }
-                
+
                 var providerComparer = property.GetProviderValueComparer();
                 if (providerComparer == null)
                 {
@@ -1076,6 +1077,17 @@ public class ModelValidator : IModelValidator
                 identityMap.Add(keyValues, entry);
             }
         }
+    }
+
+    /// <summary>
+    ///     Validates triggers.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateTriggers(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
     }
 
     /// <summary>

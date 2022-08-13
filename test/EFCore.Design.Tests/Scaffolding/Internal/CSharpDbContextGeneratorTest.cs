@@ -1237,11 +1237,11 @@ public partial class TestDbContext : DbContext
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.Employee")!;
-                    var triggers = entityType.GetTriggers();
+                    var triggers = entityType.GetDeclaredTriggers();
 
-                    Assert.Collection(triggers.OrderBy(t => t.Name),
-                        t => Assert.Equal("Trigger1", t.Name),
-                        t => Assert.Equal("Trigger2", t.Name));
+                    Assert.Collection(triggers,
+                        t => Assert.Equal("Trigger1", t.GetName()),
+                        t => Assert.Equal("Trigger2", t.GetName()));
                 });
 
         [ConditionalFact]

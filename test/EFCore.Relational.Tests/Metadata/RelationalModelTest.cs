@@ -736,10 +736,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.False(customerTable.IsOptional(extraSpecialCustomerType));
             }
 
-            var orderTrigger = Assert.Single(orderType.GetTriggers());
-            Assert.Equal("Order_Trigger", orderTrigger.Name);
-            Assert.Equal("Order", orderTrigger.TableName);
-            Assert.Null(orderTrigger.TableSchema);
+            var orderTrigger = Assert.Single(orderType.GetDeclaredTriggers());
+            Assert.Equal("Order_Trigger", orderTrigger.GetName());
+            Assert.Equal("Order", orderTrigger.GetTableName());
+            Assert.Null(orderTrigger.GetTableSchema());
 
             var customerPk = specialCustomerType.FindPrimaryKey();
 

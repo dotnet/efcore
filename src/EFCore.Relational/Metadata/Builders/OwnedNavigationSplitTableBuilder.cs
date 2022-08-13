@@ -78,13 +78,14 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
     /// </remarks>
-    public virtual TriggerBuilder HasTrigger(string modelName)
-        => new((Trigger)InternalTriggerBuilder.HasTrigger(
-            (IConventionEntityType)MappingFragment.EntityType,
-            modelName,
-            Name,
-            Schema,
-            ConfigurationSource.Explicit)!);
+    public virtual TableTriggerBuilder HasTrigger(string modelName)
+    {
+        var trigger = EntityTypeBuilder.HasTrigger(modelName, OwnedNavigationBuilder.OwnedEntityType).Metadata;
+        trigger.SetTableName(Name);
+        trigger.SetTableSchema(Schema);
+
+        return new(trigger);
+    }
 
     /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used

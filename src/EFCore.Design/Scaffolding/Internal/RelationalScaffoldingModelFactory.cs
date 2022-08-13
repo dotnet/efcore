@@ -335,14 +335,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         VisitUniqueConstraints(builder, table.UniqueConstraints);
         VisitIndexes(builder, table.Indexes);
 
-        if (table.FindAnnotation(RelationalAnnotationNames.Triggers) is { Value: HashSet<string> triggers })
+        foreach (var triggerName in table.Triggers)
         {
-            foreach (var triggerName in triggers)
-            {
-                builder.ToTable(table.Name, table.Schema, tb => tb.HasTrigger(triggerName));
-            }
-
-            table.RemoveAnnotation(RelationalAnnotationNames.Triggers);
+            builder.ToTable(table.Name, table.Schema, tb => tb.HasTrigger(triggerName));
         }
 
         builder.Metadata.AddAnnotations(table.GetAnnotations());

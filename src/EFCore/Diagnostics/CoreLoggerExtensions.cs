@@ -257,7 +257,7 @@ public static class CoreLoggerExtensions
                 definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = createEventData?.Invoke(context, exception, entries, definition) 
+            var eventData = createEventData?.Invoke(context, exception, entries, definition)
                 ?? CreateConcurrencyExceptionEventData(context, exception, entries, definition);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -302,7 +302,7 @@ public static class CoreLoggerExtensions
                 definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = createEventData?.Invoke(context, exception, entries, definition) 
+            var eventData = createEventData?.Invoke(context, exception, entries, definition)
                 ?? CreateConcurrencyExceptionEventData(context, exception, entries, definition);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);

@@ -6,9 +6,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <summary>
 ///     Represents a database trigger on a table.
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
-/// </remarks>
 public class RuntimeTrigger : AnnotatableBase, ITrigger
 {
     /// <summary>
@@ -16,42 +13,16 @@ public class RuntimeTrigger : AnnotatableBase, ITrigger
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="modelName">The name in the model.</param>
-    /// <param name="name">The name in the database.</param>
-    /// <param name="tableName">The name of the table.</param>
-    /// <param name="tableSchema">The schema of the table.</param>
     public RuntimeTrigger(
         RuntimeEntityType entityType,
-        string modelName,
-        string name,
-        string tableName,
-        string? tableSchema)
+        string modelName)
     {
         EntityType = entityType;
         ModelName = modelName;
-        Name = name;
-        TableName = tableName;
-        TableSchema = tableSchema;
     }
 
     /// <inheritdoc />
     public virtual string ModelName { get; }
-    
-    /// <inheritdoc />
-    public virtual string Name { get; }
-
-    /// <inheritdoc />
-    public virtual string? GetName(in StoreObjectIdentifier storeObject)
-        => storeObject.StoreObjectType == StoreObjectType.Table
-                && TableName == storeObject.Name
-                && TableSchema == storeObject.Schema
-            ? Name
-            : null;
-
-    /// <inheritdoc />
-    public virtual string TableName { get; }
-
-    /// <inheritdoc />
-    public virtual string? TableSchema { get; }
 
     /// <inheritdoc />
     public virtual IEntityType EntityType { get; }

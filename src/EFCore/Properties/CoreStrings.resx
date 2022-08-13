@@ -408,6 +408,9 @@
   <data name="DuplicatePropertyInKey" xml:space="preserve">
     <value>The properties {propertyList} cannot be used for a key, because they contain a duplicate: '{property}'.</value>
   </data>
+  <data name="DuplicateTrigger" xml:space="preserve">
+    <value>The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.</value>
+  </data>
   <data name="EntityEqualityOnCompositeKeyEntitySubqueryNotSupported" xml:space="preserve">
     <value>Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.</value>
   </data>
@@ -836,7 +839,7 @@
   </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>
-    <comment>Debug CoreEventId.OptimisticConcurrencyException Exception?</comment>
+    <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>
   </data>
   <data name="LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction" xml:space="preserve">
     <value>Entity '{principalEntityType}' has a global query filter defined and is the required end of a relationship with the entity '{declaringEntityType}'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.</value>

@@ -2087,6 +2087,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
             HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
 
+
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
             string annotation,
             object? value);
@@ -2373,19 +2374,19 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestTriggerBuilder HasAnnotation(string annotation, object? value);
     }
 
-    public class NonGenericTestTriggerBuilder : TestTriggerBuilder, IInfrastructure<TriggerBuilder>
+    public class NonGenericTestTriggerBuilder : TestTriggerBuilder, IInfrastructure<TableTriggerBuilder>
     {
-        public NonGenericTestTriggerBuilder(TriggerBuilder triggerBuilder)
+        public NonGenericTestTriggerBuilder(TableTriggerBuilder triggerBuilder)
         {
             TriggerBuilder = triggerBuilder;
         }
 
-        private TriggerBuilder TriggerBuilder { get; }
+        private TableTriggerBuilder TriggerBuilder { get; }
 
-        TriggerBuilder IInfrastructure<TriggerBuilder>.Instance
+        TableTriggerBuilder IInfrastructure<TableTriggerBuilder>.Instance
             => TriggerBuilder;
 
-        protected virtual TestTriggerBuilder Wrap(TriggerBuilder checkConstraintBuilder)
+        protected virtual TestTriggerBuilder Wrap(TableTriggerBuilder checkConstraintBuilder)
             => new NonGenericTestTriggerBuilder(checkConstraintBuilder);
 
         public override TestTriggerBuilder HasName(string name)

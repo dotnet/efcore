@@ -407,14 +407,14 @@ public static class ScaffoldingModelExtensions
             toTableNestedCalls.Add(new MethodCallCodeFragment(nameof(TableBuilder.HasComment), comment));
         }
 
-        if (entityType.GetTriggers().Any())
+        if (entityType.GetDeclaredTriggers().Any())
         {
             toTableHandledByConventions = false;
             toTableHandledByDataAnnotations = false;
 
-            foreach (var trigger in entityType.GetTriggers())
+            foreach (var trigger in entityType.GetDeclaredTriggers())
             {
-                toTableNestedCalls.Add(new MethodCallCodeFragment(nameof(TableBuilder.HasTrigger), trigger.Name));
+                toTableNestedCalls.Add(new MethodCallCodeFragment(nameof(TableBuilder.HasTrigger), trigger.ModelName));
             }
         }
 

@@ -989,7 +989,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     insertStoredProcedureMappings,
                     includesDerivedTypes,
                     relationalTypeMappingSource);
-                
+
                 if (tableMapping != null)
                 {
                     Check.DebugAssert(tableMapping.InsertStoredProcedureMapping == null,
@@ -1015,7 +1015,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     deleteStoredProcedureMappings,
                     includesDerivedTypes,
                     relationalTypeMappingSource);
-                
+
                 if (tableMapping != null)
                 {
                     Check.DebugAssert(tableMapping.DeleteStoredProcedureMapping == null,
@@ -1041,7 +1041,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     updateStoredProcedureMappings,
                     includesDerivedTypes,
                     relationalTypeMappingSource);
-                
+
                 if (tableMapping != null)
                 {
                     Check.DebugAssert(tableMapping.UpdateStoredProcedureMapping == null,
@@ -1061,7 +1061,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             mappedType = mappedType.BaseType;
         }
-        
+
         if (insertStoredProcedureMappings?.Count > 0)
         {
             insertStoredProcedureMappings.Reverse();
@@ -1325,7 +1325,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             {
                 storeParameter.IsNullable = false;
             }
-            
+
             ((IRuntimeStoredProcedureParameter)parameter).StoreParameter = storeParameter;
             return storeParameter;
         }
@@ -1500,7 +1500,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
             }
 
-            // Triggers cannot be inherited
+            // Triggers are not inherited
             foreach (var trigger in entityType.GetDeclaredTriggers())
             {
                 var name = trigger.GetName(storeObject);
@@ -1509,8 +1509,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                     continue;
                 }
 
-                Check.DebugAssert(trigger.TableName == table.Name, "Mismatch in trigger table name");
-                Check.DebugAssert(trigger.TableSchema == table.Schema, "Mismatch in trigger table schema");
+                Check.DebugAssert(trigger.GetTableName() == table.Name, "Mismatch in trigger table name");
+                Check.DebugAssert(trigger.GetTableSchema() == table.Schema, "Mismatch in trigger table schema");
 
                 if (!table.Triggers.ContainsKey(name))
                 {

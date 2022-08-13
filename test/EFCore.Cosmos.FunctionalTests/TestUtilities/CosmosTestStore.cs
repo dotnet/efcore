@@ -658,5 +658,17 @@ public class CosmosTestStore : TestStore
 
         IEnumerable<IReadOnlySkipNavigation> IReadOnlyEntityType.GetSkipNavigations()
             => throw new NotImplementedException();
+
+        IReadOnlyTrigger IReadOnlyEntityType.FindDeclaredTrigger(string name)
+            => throw new NotImplementedException();
+
+        ITrigger IEntityType.FindDeclaredTrigger(string name)
+            => throw new NotImplementedException();
+
+        IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
+            => throw new NotImplementedException();
+
+        IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
+            => throw new NotImplementedException();
     }
 }

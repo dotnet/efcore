@@ -57,6 +57,11 @@ public class DatabaseTable : Annotatable
     /// </summary>
     public virtual IList<DatabaseForeignKey> ForeignKeys { get; } = new List<DatabaseForeignKey>();
 
+    /// <summary>
+    ///     The list of triggers defined on the table.
+    /// </summary>
+    public virtual HashSet<string> Triggers { get; } = new HashSet<string>();
+
     /// <inheritdoc />
     public override string ToString()
     {

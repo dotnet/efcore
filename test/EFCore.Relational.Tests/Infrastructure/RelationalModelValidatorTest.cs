@@ -3263,20 +3263,6 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_triggers_on_unmapped_entity_types()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Animal>(
-            x =>
-                {
-                    x.ToTable(tb => tb.HasTrigger("Animal_Trigger"));
-                    x.ToTable(name: null);
-                });
-
-        VerifyError(RelationalStrings.TriggerOnUnmappedEntityType("Animal_Trigger", "Animal"), modelBuilder);
-    }
-
-    [ConditionalFact]
     public virtual void Throws_when_non_tph_entity_type_short_names_are_not_unique()
     {
         var modelBuilder = CreateConventionModelBuilder();

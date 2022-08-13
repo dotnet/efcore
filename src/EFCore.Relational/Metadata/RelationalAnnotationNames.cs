@@ -86,7 +86,7 @@ public static class RelationalAnnotationNames
     ///     The name for mapped insert stored procedure annotations.
     /// </summary>
     public const string InsertStoredProcedure = Prefix + "InsertStoredProcedure";
-    
+
     /// <summary>
     ///     The name for mapped update stored procedure annotations.
     /// </summary>
@@ -143,11 +143,6 @@ public static class RelationalAnnotationNames
     ///     The name for functions annotation.
     /// </summary>
     public const string DbFunctions = Prefix + "DbFunctions";
-
-    /// <summary>
-    ///     The name for trigger annotation.
-    /// </summary>
-    public const string Triggers = Prefix + "Triggers";
 
     /// <summary>
     ///     The name for the annotation containing the maximum length for database identifiers.
@@ -303,7 +298,7 @@ public static class RelationalAnnotationNames
     ///     The name for the annotation that contains entity type mapping fragments.
     /// </summary>
     public const string MappingFragments = Prefix + "MappingFragments";
-    
+
     /// <summary>
     ///     The name for the annotation that contains table-specific facet overrides.
     /// </summary>

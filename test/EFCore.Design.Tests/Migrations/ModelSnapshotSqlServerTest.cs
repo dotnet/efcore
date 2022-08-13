@@ -990,9 +990,9 @@ public class ModelSnapshotSqlServerTest
                     splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
                 Assert.Equal("bar", fragment["foo"]);
 
-                var trigger = orderEntityType.GetTriggers().Single();
-                Assert.Equal(splitTable.Name, trigger.TableName);
-                Assert.Equal(splitTable.Schema, trigger.TableSchema);
+                var trigger = orderEntityType.GetDeclaredTriggers().Single();
+                Assert.Equal(splitTable.Name, trigger.GetTableName());
+                Assert.Equal(splitTable.Schema, trigger.GetTableSchema());
                 Assert.Equal("rab", trigger["oof"]);
 
                 var billingFragment = billingEntityType.GetMappingFragments().Single();
@@ -1402,8 +1402,8 @@ public class ModelSnapshotSqlServerTest
                 });"),
             o =>
             {
-                var trigger = Assert.Single(o.GetEntityTypes().Single().GetTriggers());
-                Assert.Equal("SomeTrigger", trigger.Name);
+                var trigger = Assert.Single(o.GetEntityTypes().Single().GetDeclaredTriggers());
+                Assert.Equal("SomeTrigger", trigger.GetName());
             });
 
     [ConditionalFact]
@@ -1449,9 +1449,9 @@ public class ModelSnapshotSqlServerTest
                 Assert.True(entityType.IsTableExcludedFromMigrations());
 
                 Assert.Collection(
-                    entityType.GetTriggers().OrderBy(t => t.Name),
-                    t => Assert.Equal("SomeTrigger1", t.Name),
-                    t => Assert.Equal("SomeTrigger2", t.Name));
+                    entityType.GetDeclaredTriggers(),
+                    t => Assert.Equal("SomeTrigger1", t.GetName()),
+                    t => Assert.Equal("SomeTrigger2", t.GetName()));
             });
 
     [ConditionalFact]

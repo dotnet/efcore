@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -241,7 +243,7 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     ///     <see langword="null" /> otherwise.
     /// </returns>
     IConventionKeyBuilder? PrimaryKey(IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
-    
+
     /// <summary>
     ///     Returns a value indicating whether the given properties can be set as the primary key for this entity type.
     /// </summary>
@@ -377,7 +379,7 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
         IReadOnlyList<IConventionProperty> properties,
         string name,
         bool fromDataAnnotation = false);
-    
+
     /// <summary>
     ///     Returns a value indicating whether and index on the given properties can be added to this entity type.
     /// </summary>
@@ -848,6 +850,32 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
         IConventionEntityType targetEntityType,
         bool? collection = null,
         bool? onDependent = null,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures a database trigger when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the check constraint was configured, <see langword="null" /> otherwise.</returns>
+    IConventionTriggerBuilder? HasTrigger(
+        string modelName,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the trigger can be configured.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    bool CanHaveTrigger(
+        string modelName,
         bool fromDataAnnotation = false);
 
     /// <summary>

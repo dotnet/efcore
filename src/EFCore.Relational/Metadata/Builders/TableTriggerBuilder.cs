@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,36 +13,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
 /// </remarks>
-public class TriggerBuilder : IInfrastructure<IConventionTriggerBuilder>
+public class TableTriggerBuilder : TriggerBuilder
 {
     /// <summary>
-    ///     Creates a new builder for the given <see cref="ITrigger" />.
+    ///     Creates a new builder for the given trigger.
     /// </summary>
-    /// <param name="trigger">The <see cref="IMutableTrigger" /> to configure.</param>
-    public TriggerBuilder(IMutableTrigger trigger)
-        => Builder = ((Trigger)trigger).Builder;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    protected virtual InternalTriggerBuilder Builder { [DebuggerStepThrough] get; }
-
-    /// <inheritdoc />
-    IConventionTriggerBuilder IInfrastructure<IConventionTriggerBuilder>.Instance
+    /// <param name="trigger">The trigger to configure.</param>
+    public TableTriggerBuilder(IMutableTrigger trigger)
+        : base(trigger)
     {
-        [DebuggerStepThrough]
-        get => Builder;
     }
-
-    /// <summary>
-    ///     The trigger being configured.
-    /// </summary>
-    public virtual IMutableTrigger Metadata
-        => Builder.Metadata;
 
     /// <summary>
     ///     Sets the database name of the trigger.
@@ -51,9 +32,9 @@ public class TriggerBuilder : IInfrastructure<IConventionTriggerBuilder>
     /// </remarks>
     /// <param name="name">The database name of the trigger.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual TriggerBuilder HasName(string name)
+    public virtual TableTriggerBuilder HasName(string? name)
     {
-        Builder.HasName(name, ConfigurationSource.Explicit);
+        Metadata.SetName(name);
 
         return this;
     }
@@ -65,14 +46,8 @@ public class TriggerBuilder : IInfrastructure<IConventionTriggerBuilder>
     /// <param name="annotation">The key of the annotation to be added or updated.</param>
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual TriggerBuilder HasAnnotation(string annotation, object? value)
-    {
-        Check.NotEmpty(annotation, nameof(annotation));
-
-        Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
-
-        return this;
-    }
+    public new virtual TableTriggerBuilder HasAnnotation(string annotation, object? value)
+        => (TableTriggerBuilder)base.HasAnnotation(annotation, value);
 
     #region Hidden System.Object members
 

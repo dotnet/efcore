@@ -60,7 +60,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             {
                 continue;
             }
-            
+
             if (type.IsGenericType
                 && type.BaseType != typeof(object)
                 && !type.BaseType.IsGenericType)
@@ -85,7 +85,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                     }
                 }
             }
-            
+
             if (!type.IsGenericType
                 && type.BaseType == typeof(object))
             {
@@ -246,7 +246,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             {
                 return $"{conventionType.Name} should derive from IConventionAnnotatable";
             }
-            
+
             if (!typeof(IAnnotatable).IsAssignableFrom(runtimeType))
             {
                 return $"{runtimeType.Name} should derive from IAnnotatable";
@@ -1142,6 +1142,12 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         typeof(IIndex))
                 },
                 {
+                    typeof(IReadOnlyTrigger), (typeof(IMutableTrigger),
+                        typeof(IConventionTrigger),
+                        typeof(IConventionTriggerBuilder),
+                        typeof(ITrigger))
+                },
+                {
                     typeof(IReadOnlyProperty), (typeof(IMutableProperty),
                         typeof(IConventionProperty),
                         typeof(IConventionPropertyBuilder),
@@ -1209,7 +1215,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                             parameterGenerator(
                                 type.IsGenericType ? type.GenericTypeArguments : Array.Empty<Type>(),
                                 mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>())));
-        
+
         protected virtual void Initialize()
         {
             foreach (var typeTuple in MetadataTypes.Values)
