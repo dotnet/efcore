@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase, ITableBasedExpression
+public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase
 {
     private readonly ITableBase _table;
 
@@ -73,6 +73,11 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     public virtual Expression Arguments { get; }
 
     /// <summary>
+    ///     The <see cref="ITableBase"/> associated with given table source if any, <see langword="null" /> otherwise.
+    /// </summary>
+    public virtual ITableBase? Table => _table;
+
+    /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.
     /// </summary>
@@ -86,9 +91,6 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     /// <inheritdoc />
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
         => new FromSqlExpression(Alias, _table, Sql, Arguments, annotations);
-
-    /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => _table;
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
