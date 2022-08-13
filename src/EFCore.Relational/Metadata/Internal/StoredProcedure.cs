@@ -22,14 +22,12 @@ public class StoredProcedure :
     private string? _schema;
     private string? _name;
     private InternalStoredProcedureBuilder? _builder;
-    private bool _areTransactionsSuppressed;
     private bool _isRowsAffectedReturned;
     private IStoreStoredProcedure? _storeStoredProcedure;
 
     private ConfigurationSource _configurationSource;
     private ConfigurationSource? _schemaConfigurationSource;
     private ConfigurationSource? _nameConfigurationSource;
-    private ConfigurationSource? _areTransactionsSuppressedConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -424,30 +422,6 @@ public class StoredProcedure :
     public virtual ConfigurationSource? GetNameConfigurationSource()
         => _nameConfigurationSource;
 
-    /// <inheritdoc />
-    public virtual bool AreTransactionsSuppressed
-    {
-        get => _areTransactionsSuppressed;
-        set => SetAreTransactionsSuppressed(value, ConfigurationSource.Explicit);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool SetAreTransactionsSuppressed(bool areTransactionsSuppressed, ConfigurationSource configurationSource)
-    {
-        EnsureMutable();
-
-        _areTransactionsSuppressed = areTransactionsSuppressed;
-
-        _areTransactionsSuppressedConfigurationSource = configurationSource.Max(_areTransactionsSuppressedConfigurationSource);
-
-        return areTransactionsSuppressed;
-    }
-    
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -480,15 +454,6 @@ public class StoredProcedure :
         
         return rowsAffectedReturned;
     }
-    
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetAreTransactionsSuppressedConfigurationSource()
-        => _areTransactionsSuppressedConfigurationSource;
 
     private static void UpdateOverrides(
         StoreObjectIdentifier oldId,
@@ -835,15 +800,9 @@ public class StoredProcedure :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    bool IConventionStoredProcedure.SetAreTransactionsSuppressed(bool areTransactionsSuppressed, bool fromDataAnnotation)
-        => SetAreTransactionsSuppressed(
-            areTransactionsSuppressed, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
-    /// <inheritdoc />
-    [DebuggerStepThrough]
     bool IConventionStoredProcedure.SetIsRowsAffectedReturned(bool rowsAffectedReturned, bool fromDataAnnotation)
         => SetIsRowsAffectedReturned(rowsAffectedReturned);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindParameter(string propertyName)

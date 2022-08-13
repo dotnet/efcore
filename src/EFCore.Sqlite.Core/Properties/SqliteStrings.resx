@@ -198,4 +198,7 @@
   <data name="SequencesNotSupported" xml:space="preserve">
     <value>SQLite does not support sequences. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
+  <data name="StoredProceduresNotSupported" xml:space="preserve">
+    <value>SQLite does not support stored procedures, but one has been configured on entity type '{entityType}'. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
+  </data>
 </root>

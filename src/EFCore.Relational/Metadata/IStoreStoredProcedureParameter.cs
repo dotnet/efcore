@@ -20,7 +20,7 @@ public interface IStoreStoredProcedureParameter : IColumnBase
     ///     Gets the property mappings.
     /// </summary>
     new IReadOnlyList<IStoredProcedureParameterMapping> PropertyMappings { get; }
-    
+
     /// <summary>
     ///     Gets the direction of the parameter.
     /// </summary>

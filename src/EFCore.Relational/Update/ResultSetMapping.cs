@@ -15,20 +15,38 @@ namespace Microsoft.EntityFrameworkCore.Update;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
+[Flags]
 public enum ResultSetMapping
 {
     /// <summary>
-    ///     The command does not have any result set mapping.
+    ///     The command does not have any results, neither as rows nor as output parameters.
     /// </summary>
-    NoResultSet,
+    NoResults = 0,
 
     /// <summary>
-    ///     The command maps to a result in the result set, but this is not the last result.
+    ///     The command maps to a row in the result set.
     /// </summary>
-    NotLastInResultSet,
+    HasResultRow = 1,
+
+    /// <summary>
+    ///     The command maps to a non-last row in the result set.
+    /// </summary>
+    NotLastInResultSet = 3,
 
     /// <summary>
     ///     The command maps to the last result in the result set.
     /// </summary>
-    LastInResultSet
+    LastInResultSet = 5,
+
+    /// <summary>
+    ///     When rows with database-generated values are returned in non-deterministic ordering, it is necessary to project out a synthetic
+    ///     position value, in order to look up the correct <see cref="ModificationCommand" /> and propagate the values. When this bit is
+    ///     enabled, the current result row contains such a position value.
+    /// </summary>
+    IsPositionalResultMappingEnabled = 9,
+
+    /// <summary>
+    ///     The command has output parameters.
+    /// </summary>
+    HasOutputParameters = 16
 }

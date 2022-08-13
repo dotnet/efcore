@@ -33,7 +33,7 @@ public interface IColumnModification
     /// <summary>
     ///     The column.
     /// </summary>
-    public IColumn? Column { get; }
+    public IColumnBase? Column { get; }
 
     /// <summary>
     ///     The relational type mapping for the column.

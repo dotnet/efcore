@@ -73,6 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         public static string SequencesNotSupported
             => GetString("SequencesNotSupported");
 
+        /// <summary>
+        ///     SQLite does not support stored procedures. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
+        /// </summary>
+        public static string StoredProceduresNotSupported(object? entityType)
+            => string.Format(
+                GetString("StoredProceduresNotSupported", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

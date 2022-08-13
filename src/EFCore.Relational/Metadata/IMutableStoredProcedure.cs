@@ -27,12 +27,6 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     new IMutableEntityType EntityType { get; }
 
     /// <summary>
-    ///     Returns a value indicating whether automatic creation of transactions is disabled when executing this stored procedure.
-    /// </summary>
-    /// <returns>The configured value.</returns>
-    new bool AreTransactionsSuppressed { get; set; }
-
-    /// <summary>
     ///     Gets or sets a value indicating whether this stored procedure returns the number of rows affected.
     /// </summary>
     new bool IsRowsAffectedReturned { get; set; }

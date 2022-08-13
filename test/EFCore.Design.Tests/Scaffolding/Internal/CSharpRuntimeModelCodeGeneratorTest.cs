@@ -2632,8 +2632,7 @@ namespace TestNamespace
                 runtimeEntityType,
                 ""PrincipalBase_Insert"",
                 ""TPC"",
-                false,
-                true);
+                false);
 
             var principalBaseId = insertSproc.AddParameter(
                 ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
@@ -2649,8 +2648,7 @@ namespace TestNamespace
                 runtimeEntityType,
                 ""PrincipalBase_Delete"",
                 ""TPC"",
-                true,
-                false);
+                true);
 
             var id = deleteSproc.AddParameter(
                 ""Id"", ParameterDirection.Input, false, ""Id"", false);
@@ -2660,7 +2658,6 @@ namespace TestNamespace
                 runtimeEntityType,
                 ""PrincipalBase_Update"",
                 ""TPC"",
-                false,
                 false);
 
             var principalBaseId0 = updateSproc.AddParameter(
@@ -2719,7 +2716,6 @@ namespace TestNamespace
                 runtimeEntityType,
                 ""Derived_Insert"",
                 ""TPC"",
-                false,
                 false);
 
             var principalBaseId = insertSproc.AddParameter(
@@ -2735,7 +2731,6 @@ namespace TestNamespace
                 runtimeEntityType,
                 ""Derived_Delete"",
                 ""TPC"",
-                false,
                 false);
 
             var id = deleteSproc.AddParameter(
@@ -2746,7 +2741,6 @@ namespace TestNamespace
                 runtimeEntityType,
                 ""Derived_Update"",
                 ""Derived"",
-                false,
                 false);
 
             var principalBaseId0 = updateSproc.AddParameter(
@@ -2796,7 +2790,6 @@ namespace TestNamespace
                     Assert.Equal("TPC", insertSproc.Schema);
                     Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(insertSproc.ResultColumns);
-                    Assert.True(insertSproc.AreTransactionsSuppressed);
                     Assert.False(insertSproc.IsRowsAffectedReturned);
                     Assert.Equal("bar1", insertSproc["foo"]);
                     Assert.Same(principalBase, insertSproc.EntityType);
@@ -2809,7 +2802,6 @@ namespace TestNamespace
                     Assert.Equal("TPC", updateSproc.Schema);
                     Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
-                    Assert.False(updateSproc.AreTransactionsSuppressed);
                     Assert.False(updateSproc.IsRowsAffectedReturned);
                     Assert.Empty(updateSproc.GetAnnotations());
                     Assert.Same(principalBase, updateSproc.EntityType);
@@ -2821,7 +2813,6 @@ namespace TestNamespace
                     Assert.Equal("TPC", deleteSproc.Schema);
                     Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.Name));
                     Assert.Empty(deleteSproc.ResultColumns);
-                    Assert.False(deleteSproc.AreTransactionsSuppressed);
                     Assert.True(deleteSproc.IsRowsAffectedReturned);
                     Assert.Same(principalBase, deleteSproc.EntityType);
                     Assert.Equal("Id", deleteSproc.Parameters.Last().Name);
@@ -2851,7 +2842,6 @@ namespace TestNamespace
                     Assert.Equal("TPC", insertSproc.Schema);
                     Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId" }, insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Equal(new[] { "Id" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
-                    Assert.False(insertSproc.AreTransactionsSuppressed);
                     Assert.Null(insertSproc["foo"]);
                     Assert.Same(principalDerived, insertSproc.EntityType);
                     Assert.Equal("DerivedId", insertSproc.ResultColumns.Last().Name);
@@ -2864,7 +2854,6 @@ namespace TestNamespace
                     Assert.Equal("Derived", updateSproc.Schema);
                     Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
-                    Assert.False(updateSproc.AreTransactionsSuppressed);
                     Assert.Empty(updateSproc.GetAnnotations());
                     Assert.Same(principalDerived, updateSproc.EntityType);
                     Assert.Equal("Id", updateSproc.Parameters.Last().Name);
@@ -2875,7 +2864,6 @@ namespace TestNamespace
                     Assert.Equal("TPC", deleteSproc.Schema);
                     Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(deleteSproc.ResultColumns);
-                    Assert.False(deleteSproc.AreTransactionsSuppressed);
                     Assert.Same(principalDerived, deleteSproc.EntityType);
                     Assert.Equal("Id", deleteSproc.Parameters.Last().Name);
                     Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.DeleteStoredProcedure).Value));
@@ -2949,7 +2937,7 @@ namespace TestNamespace
                         eb.ToTable("PrincipalBase");
                         eb.ToView("PrincipalBaseView", tb => tb.Property(e => e.Id).HasAnnotation("foo", "bar2"));
 
-                        eb.InsertUsingStoredProcedure(s => s.SuppressTransactions()
+                        eb.InsertUsingStoredProcedure(s => s
                             .HasParameter("PrincipalBaseId")
                             .HasParameter("PrincipalDerivedId")
                             .HasParameter(p => p.Id, pb => pb.HasName("BaseId").IsOutput().HasAnnotation("foo", "bar"))

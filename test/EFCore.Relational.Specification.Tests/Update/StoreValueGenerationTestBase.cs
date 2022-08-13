@@ -14,7 +14,8 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
     {
         Fixture = fixture;
 
-        fixture.Reseed();
+        fixture.CleanData();
+        fixture.Seed();
 
         ClearLog();
     }

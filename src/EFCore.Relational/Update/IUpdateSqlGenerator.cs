@@ -160,4 +160,18 @@ public interface IUpdateSqlGenerator
         IReadOnlyModificationCommand command,
         int commandPosition)
         => AppendUpdateOperation(commandStringBuilder, command, commandPosition, out _);
+
+    /// <summary>
+    ///     Appends SQL for calling a stored procedure.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="command">The command that represents the stored procedure call.</param>
+    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
+    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    ResultSetMapping AppendStoredProcedureCall(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction);
 }

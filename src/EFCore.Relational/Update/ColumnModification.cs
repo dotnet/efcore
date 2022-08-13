@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore.Update;
 
 /// <summary>
@@ -63,7 +65,7 @@ public class ColumnModification : IColumnModification
     public virtual IProperty? Property { get; }
 
     /// <inheritdoc />
-    public virtual IColumn? Column { get; }
+    public virtual IColumnBase? Column { get; }
 
     /// <inheritdoc />
     public virtual RelationalTypeMapping? TypeMapping { get; }
@@ -89,7 +91,7 @@ public class ColumnModification : IColumnModification
 
     /// <inheritdoc />
     public virtual bool UseCurrentValueParameter
-        => UseParameter && UseCurrentValue;
+        => (UseParameter && UseCurrentValue) || (IsRead && Column is IStoreStoredProcedureParameter or IStoreStoredProcedureReturnValue);
 
     /// <inheritdoc />
     public virtual bool UseOriginalValue

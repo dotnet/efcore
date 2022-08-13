@@ -168,8 +168,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         Func<string> generateParameterName)
     {
         var commands = new List<IModificationCommand>();
-        Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>? sharedTablesCommandsMap =
-            null;
+        Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>? sharedTablesCommandsMap = null;
         foreach (var entry in entries)
         {
             if (entry.SharedIdentityEntry != null
@@ -178,22 +177,33 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
-            var mappings = entry.EntityType.GetTableMappings();
-            IModificationCommand? firstCommands = null;
-            foreach (var mapping in mappings)
+            var foundMapping = false;
+
+            foreach (var tableMapping in entry.EntityType.GetTableMappings())
             {
-                var table = mapping.Table;
+                var sprocMapping = entry.EntityState switch
+                {
+                    EntityState.Added => tableMapping.InsertStoredProcedureMapping,
+                    EntityState.Modified => tableMapping.UpdateStoredProcedureMapping,
+                    EntityState.Deleted => tableMapping.DeleteStoredProcedureMapping,
+
+                    _ => throw new ArgumentOutOfRangeException("Unexpected entry.EntityState: " + entry.EntityState)
+                };
+
+                var table = tableMapping.Table;
 
                 IModificationCommand command;
                 var isMainEntry = true;
                 if (table.IsShared)
                 {
-                    sharedTablesCommandsMap ??= new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommand>>();
+                    Check.DebugAssert(sprocMapping is null, "Shared table with sproc mapping");
+
+                    sharedTablesCommandsMap ??= new();
 
                     var tableKey = (table.Name, table.Schema);
                     if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
                     {
-                        sharedCommandsMap = new SharedTableEntryMap<IModificationCommand>(table, updateAdapter);
+                        sharedCommandsMap = new(table, updateAdapter);
                         sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
                     }
 
@@ -209,21 +219,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 {
                     command = Dependencies.ModificationCommandFactory.CreateModificationCommand(
                         new ModificationCommandParameters(
-                            table, _sensitiveLoggingEnabled, _detailedErrorsEnabled, comparer: null, generateParameterName,
-                            Dependencies.UpdateLogger));
+                            table, sprocMapping?.StoreStoredProcedure, _sensitiveLoggingEnabled, _detailedErrorsEnabled,
+                            comparer: null, generateParameterName, Dependencies.UpdateLogger));
                 }
 
                 command.AddEntry(entry, isMainEntry);
                 commands.Add(command);
 
-                if (firstCommands == null)
-                {
-                    Check.DebugAssert(firstCommands == null, "firstCommand == null");
-                    firstCommands = command;
-                }
+                foundMapping = true;
             }
 
-            if (firstCommands == null)
+            if (!foundMapping)
             {
                 throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
             }

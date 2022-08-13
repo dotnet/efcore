@@ -361,6 +361,16 @@ public class RelationalModelValidator : ModelValidator
             _ => new Dictionary<string, IProperty>()
         };
 
+        if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy
+            && storeObjectIdentifier.StoreObjectType == StoreObjectType.InsertStoredProcedure
+            && entityType.BaseType?.GetInsertStoredProcedure() != null)
+        {
+            foreach (var property in primaryKey.Properties)
+            {
+                storeGeneratedProperties.Remove(property.Name);
+            }
+        }
+
         var resultColumnNames = new HashSet<string>();
         foreach (var resultColumn in sproc.ResultColumns)
         {

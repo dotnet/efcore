@@ -26,7 +26,10 @@ public class SqlServerTestStore : RelationalTestStore
     public static SqlServerTestStore GetOrCreateInitialized(string name)
         => new SqlServerTestStore(name).InitializeSqlServer(null, (Func<DbContext>)null, null);
 
-    public static SqlServerTestStore GetOrCreate(string name, string scriptPath, bool? multipleActiveResultSets = null)
+    public static SqlServerTestStore GetOrCreateWithInitScript(string name, string initScript)
+        => new(name, initScript: initScript);
+
+    public static SqlServerTestStore GetOrCreateWithScriptPath(string name, string scriptPath, bool? multipleActiveResultSets = null)
         => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets);
 
     public static SqlServerTestStore Create(string name, bool useFileName = false)
@@ -37,12 +40,14 @@ public class SqlServerTestStore : RelationalTestStore
             .InitializeSqlServer(null, (Func<DbContext>)null, null);
 
     private readonly string _fileName;
+    private readonly string _initScript;
     private readonly string _scriptPath;
 
     private SqlServerTestStore(
         string name,
         bool useFileName = false,
         bool? multipleActiveResultSets = null,
+        string initScript = null,
         string scriptPath = null,
         bool shared = true)
         : base(name, shared)
@@ -50,6 +55,11 @@ public class SqlServerTestStore : RelationalTestStore
         if (useFileName)
         {
             _fileName = Path.Combine(CurrentDirectory, name + ".mdf");
+        }
+
+        if (initScript != null)
+        {
+            _initScript = initScript;
         }
 
         if (scriptPath != null)
@@ -79,12 +89,18 @@ public class SqlServerTestStore : RelationalTestStore
         {
             if (_scriptPath != null)
             {
-                ExecuteScript(_scriptPath);
+                ExecuteScript(File.ReadAllText(_scriptPath));
             }
             else
             {
                 using var context = createContext();
                 context.Database.EnsureCreatedResiliently();
+
+                if (_initScript != null)
+                {
+                    ExecuteScript(_initScript);
+                }
+
                 seed?.Invoke(context);
             }
         }
@@ -102,8 +118,7 @@ public class SqlServerTestStore : RelationalTestStore
             if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
             {
                 // Only reseed scripted databases during CI runs
-                if (_scriptPath != null
-                    && !TestEnvironment.IsCI)
+                if (_scriptPath != null && !TestEnvironment.IsCI)
                 {
                     return false;
                 }
@@ -134,9 +149,8 @@ public class SqlServerTestStore : RelationalTestStore
     public override void Clean(DbContext context)
         => context.Database.EnsureClean();
 
-    public void ExecuteScript(string scriptPath)
+    public void ExecuteScript(string script)
     {
-        var script = File.ReadAllText(scriptPath);
         Execute(
             Connection, command =>
             {

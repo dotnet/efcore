@@ -232,14 +232,6 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.HasRowsAffectedReturnValue(rowsAffectedReturned);
 
     /// <summary>
-    ///     Prevents automatically creating a transaction when executing this stored procedure.
-    /// </summary>
-    /// <param name="suppress">A value indicating whether the automatic transactions should be prevented.</param>
-    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> SuppressTransactions(bool suppress = true)
-        => (OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>)base.SuppressTransactions(suppress);
-
-    /// <summary>
     ///     Adds or updates an annotation on the stored procedure. If an annotation with the key specified in
     ///     <paramref name="annotation" /> already exists, its value will be updated.
     /// </summary>
