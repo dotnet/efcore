@@ -34,6 +34,50 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_noncomparable_key_property_with_comparer()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNonComparableKey>(
+            eb =>
+            {
+                eb.Property(e => e.Id).HasConversion(typeof(NotComparable), typeof(CustomValueComparer<NotComparable>));
+                eb.HasKey(e => e.Id);
+            });
+
+        VerifyError(
+            CoreStrings.NonComparableKeyType(nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id), nameof(NotComparable)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_noncomparable_key_property_with_provider_comparer()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNonComparableKey>(
+            eb =>
+            {
+                eb.Property(e => e.Id).HasConversion(
+                    typeof(CastingConverter<NotComparable, NotComparable>), null, typeof(CustomValueComparer<NotComparable>));
+                eb.HasKey(e => e.Id);
+            });
+
+        VerifyError(
+            CoreStrings.NonComparableKeyTypes(
+                nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id), nameof(NotComparable), nameof(NotComparable)),
+            modelBuilder);
+    }
+
+    public class CustomValueComparer<T> : ValueComparer<T> // Doesn't implement IComparer
+    {
+        public CustomValueComparer()
+            : base(false)
+        {
+        }
+    }
+
+    [ConditionalFact]
     public virtual void Detects_unique_index_property_which_cannot_be_compared()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1396,7 +1440,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         VerifyError(CoreStrings.DiscriminatorValueIncompatible("1", nameof(A), "int"), modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_missing_discriminator_value_on_base()
     {
@@ -1412,7 +1456,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         entityA.SetDiscriminatorProperty(entityA.AddProperty("D", typeof(int)));
         entityA.RemoveDiscriminatorValue();
-        
+
         entityC.SetDiscriminatorValue(1);
 
         VerifyError(CoreStrings.NoDiscriminatorValue(entityA.DisplayName()), modelBuilder);
@@ -1433,7 +1477,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         entityAbstract.SetDiscriminatorProperty(entityAbstract.AddProperty("D", typeof(int)));
         entityAbstract.SetDiscriminatorValue(0);
-        
+
         entityGeneric.RemoveDiscriminatorValue();
 
         VerifyError(CoreStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), modelBuilder);

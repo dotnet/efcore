@@ -875,7 +875,7 @@ public class ModelValidator : IModelValidator
                 {
                     _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
                 }
-                
+
                 var providerComparer = property.GetProviderValueComparer();
                 if (providerComparer == null)
                 {
