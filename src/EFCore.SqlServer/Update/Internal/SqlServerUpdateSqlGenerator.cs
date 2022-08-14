@@ -126,11 +126,11 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         IReadOnlyList<IColumnModification> writeOperations,
         IReadOnlyList<IColumnModification> readOperations,
         IReadOnlyList<IColumnModification> conditionOperations,
-        string? additionalReadValues = null)
+        bool appendReturningOneClause = false)
     {
         // In SQL Server the OUTPUT clause is placed differently (before the WHERE instead of at the end)
         AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
-        AppendOutputClause(commandStringBuilder, readOperations, additionalReadValues);
+        AppendOutputClause(commandStringBuilder, readOperations, appendReturningOneClause ? "1" : null);
         AppendWhereClause(commandStringBuilder, conditionOperations);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
@@ -166,11 +166,11 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         string? schema,
         IReadOnlyList<IColumnModification> readOperations,
         IReadOnlyList<IColumnModification> conditionOperations,
-        string? additionalReadValues = null)
+        bool appendReturningOneClause = false)
     {
         // In SQL Server the OUTPUT clause is placed differently (before the WHERE instead of at the end)
         AppendDeleteCommandHeader(commandStringBuilder, name, schema);
-        AppendOutputClause(commandStringBuilder, readOperations, additionalReadValues);
+        AppendOutputClause(commandStringBuilder, readOperations, appendReturningOneClause ? "1" : null);
         AppendWhereClause(commandStringBuilder, conditionOperations);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }

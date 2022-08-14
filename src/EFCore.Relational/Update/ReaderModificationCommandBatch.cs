@@ -33,7 +33,8 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
     /// </summary>
     /// <param name="dependencies">Service dependencies.</param>
-    protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
+    /// <param name="maxBatchSize">The maximum batch size. Defaults to 1000.</param>
+    protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int? maxBatchSize = null)
     {
         Dependencies = dependencies;
 
@@ -42,6 +43,8 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         UpdateSqlGenerator = dependencies.UpdateSqlGenerator;
         UpdateSqlGenerator.AppendBatchHeader(SqlBuilder);
         _batchHeaderLength = SqlBuilder.Length;
+
+        MaxBatchSize = maxBatchSize ?? 1000;
     }
 
     /// <summary>
@@ -62,8 +65,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <summary>
     ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch.
     /// </summary>
-    protected virtual int MaxBatchSize
-        => 1000;
+    protected virtual int MaxBatchSize { get; }
 
     /// <summary>
     ///     Gets the command text builder for the commands in the batch.

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
-
 namespace Microsoft.EntityFrameworkCore.Update;
 
 /// <summary>
@@ -23,8 +21,9 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     ///     Creates a new <see cref="AffectedCountModificationCommandBatch" /> instance.
     /// </summary>
     /// <param name="dependencies">Service dependencies.</param>
-    protected AffectedCountModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
-        : base(dependencies)
+    /// <param name="maxBatchSize">The maximum batch size. Defaults to 1000.</param>
+    protected AffectedCountModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int? maxBatchSize = null)
+        : base(dependencies, maxBatchSize)
     {
     }
 

@@ -134,7 +134,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
 
         AppendUpdateCommand(
             commandStringBuilder, name, schema, writeOperations, readOperations, conditionOperations,
-            additionalReadValues: readOperations.Count == 0 ? "1" : null);
+            appendReturningOneClause: readOperations.Count == 0);
 
         return ResultSetMapping.LastInResultSet;
     }
@@ -175,7 +175,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         requiresTransaction = false;
 
         AppendDeleteCommand(
-            commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations, additionalReadValues: "1");
+            commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations, appendReturningOneClause: true);
 
         return ResultSetMapping.LastInResultSet;
     }
@@ -211,7 +211,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="writeOperations">The operations for each column.</param>
     /// <param name="readOperations">The operations for column values to be read back.</param>
     /// <param name="conditionOperations">The operations used to generate the <c>WHERE</c> clause for the update.</param>
-    /// <param name="additionalReadValues">Additional values to be read back.</param>
+    /// <param name="appendReturningOneClause">Whether to append an additional constant of 1 to be read back.</param>
     protected virtual void AppendUpdateCommand(
         StringBuilder commandStringBuilder,
         string name,
@@ -219,11 +219,11 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         IReadOnlyList<IColumnModification> writeOperations,
         IReadOnlyList<IColumnModification> readOperations,
         IReadOnlyList<IColumnModification> conditionOperations,
-        string? additionalReadValues = null)
+        bool appendReturningOneClause = false)
     {
         AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
         AppendWhereClause(commandStringBuilder, conditionOperations);
-        AppendReturningClause(commandStringBuilder, readOperations, additionalReadValues);
+        AppendReturningClause(commandStringBuilder, readOperations, appendReturningOneClause ? "1" : null);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
@@ -235,18 +235,18 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
     /// <param name="readOperations">The operations for column values to be read back.</param>
     /// <param name="conditionOperations">The operations used to generate the <c>WHERE</c> clause for the delete.</param>
-    /// <param name="additionalReadValues">Additional values to be read back.</param>
+    /// <param name="appendReturningOneClause">Whether to append an additional constant of 1 to be read back.</param>
     protected virtual void AppendDeleteCommand(
         StringBuilder commandStringBuilder,
         string name,
         string? schema,
         IReadOnlyList<IColumnModification> readOperations,
         IReadOnlyList<IColumnModification> conditionOperations,
-        string? additionalReadValues = null)
+        bool appendReturningOneClause = false)
     {
         AppendDeleteCommandHeader(commandStringBuilder, name, schema);
         AppendWhereClause(commandStringBuilder, conditionOperations);
-        AppendReturningClause(commandStringBuilder, readOperations, additionalReadValues);
+        AppendReturningClause(commandStringBuilder, readOperations, appendReturningOneClause ? "1" : null);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
@@ -478,7 +478,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                     commandStringBuilder.Append(", ");
                 }
 
-                commandStringBuilder.Append(additionalValues);
+                commandStringBuilder.Append("1");
             }
         }
     }
