@@ -26,10 +26,11 @@ public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServer
         => Task.CompletedTask;
 
     // Test relies on savepoints, which are disabled when MARS is enabled
-    public override Task SaveChanges_uses_explicit_transaction_with_failure_behavior(bool async, bool autoTransaction)
+    public override Task SaveChanges_uses_explicit_transaction_with_failure_behavior(
+        bool async, AutoTransactionBehavior autoTransactionBehavior)
         => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets
             ? Task.CompletedTask
-            : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransaction);
+            : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransactionBehavior);
 
     [ConditionalTheory]
     [InlineData(true)]

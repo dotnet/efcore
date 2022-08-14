@@ -869,7 +869,7 @@ public class DbContext :
             || _configurationSnapshot.HasDatabaseConfiguration)
         {
             var database = Database;
-            database.AutoTransactionsEnabled = _configurationSnapshot.AutoTransactionsEnabled;
+            database.AutoTransactionBehavior = _configurationSnapshot.AutoTransactionBehavior;
             database.AutoSavepointsEnabled = _configurationSnapshot.AutoSavepointsEnabled;
         }
 
@@ -917,7 +917,7 @@ public class DbContext :
             changeDetectorEvents != null,
             _changeTracker?.AutoDetectChangesEnabled ?? true,
             _changeTracker?.QueryTrackingBehavior ?? QueryTrackingBehavior.TrackAll,
-            _database?.AutoTransactionsEnabled ?? true,
+            _database?.AutoTransactionBehavior ?? AutoTransactionBehavior.WhenNeeded,
             _database?.AutoSavepointsEnabled ?? true,
             _changeTracker?.LazyLoadingEnabled ?? true,
             _changeTracker?.CascadeDeleteTiming ?? CascadeTiming.Immediate,
