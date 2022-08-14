@@ -10,15 +10,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-/// Design-time model extensions.
+///     Design-time model extensions.
 /// </summary>
 public static class ScaffoldingModelExtensions
 {
     /// <summary>
-    /// Check whether an entity type could be considered a many-to-many join entity type.
+    ///     Check whether an entity type could be considered a many-to-many join entity type.
     /// </summary>
     /// <param name="entityType">The entity type to check.</param>
-    /// <returns><see langword="true"/> if the entity type could be considered a join entity type.</returns>
+    /// <returns><see langword="true" /> if the entity type could be considered a join entity type.</returns>
     public static bool IsSimpleManyToManyJoinEntityType(this IEntityType entityType)
     {
         if (!entityType.GetNavigations().Any()
@@ -46,18 +46,21 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets a value indicating whether the specified skip navigation represents the left side of the relationship.
+    ///     Gets a value indicating whether the specified skip navigation represents the left side of the relationship.
     /// </summary>
     /// <param name="skipNavigation">The skip navigation to check.</param>
-    /// <returns><see langword="true"/> if it represents the left side.</returns>
+    /// <returns><see langword="true" /> if it represents the left side.</returns>
     /// <remarks>
-    /// The designation of left and right is arbitrary but deterministic. This method exists primarily to avoid configuring the same many-to-many relationship from both of its ends.
+    ///     The designation of left and right is arbitrary but deterministic. This method exists primarily to avoid configuring the same
+    ///     many-to-many relationship from both of its ends.
     /// </remarks>
     public static bool IsLeftNavigation(this ISkipNavigation skipNavigation)
-        => skipNavigation.JoinEntityType.FindPrimaryKey()!.Properties[0].GetContainingForeignKeys().Single().PrincipalEntityType == skipNavigation.DeclaringEntityType;
+        => skipNavigation.JoinEntityType.FindPrimaryKey()!.Properties[0].GetContainingForeignKeys().Single().PrincipalEntityType
+            == skipNavigation.DeclaringEntityType;
 
     /// <summary>
-    /// Gets the name that should be used for the <see cref="DbSet{TEntity}"/> property on the <see cref="DbContext"/> class for this entity type.
+    ///     Gets the name that should be used for the <see cref="DbSet{TEntity}" /> property on the <see cref="DbContext" /> class for this entity
+    ///     type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>The property name.</returns>
@@ -66,10 +69,10 @@ public static class ScaffoldingModelExtensions
             ?? entityType.ShortName();
 
     /// <summary>
-    /// Gets a value indicating whether the key would be configured by conventions.
+    ///     Gets a value indicating whether the key would be configured by conventions.
     /// </summary>
     /// <param name="key">The key to check.</param>
-    /// <returns><see langword="true"/> if the key would be configured by conventions.</returns>
+    /// <returns><see langword="true" /> if the key would be configured by conventions.</returns>
     public static bool IsHandledByConventions(this IKey key)
         => key is IConventionKey conventionKey
             && conventionKey.Properties.SequenceEqual(
@@ -78,11 +81,11 @@ public static class ScaffoldingModelExtensions
                     conventionKey.DeclaringEntityType.GetProperties()));
 
     /// <summary>
-    /// Gets value indicating whether this index can be entirely reperesented by a data annotation.
+    ///     Gets value indicating whether this index can be entirely reperesented by a data annotation.
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
-    /// <returns><see langword="true"/> if this index can be reperesented by a data annotation.</returns>
+    /// <returns><see langword="true" /> if this index can be reperesented by a data annotation.</returns>
     public static bool HasDataAnnotation(this IIndex index, IAnnotationCodeGenerator annotationCodeGenerator)
     {
         var indexAnnotations = annotationCodeGenerator.FilterIgnoredAnnotations(index.GetAnnotations())
@@ -94,16 +97,25 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the data annotations to configure an entity type.
+    ///     Gets the data annotations to configure an entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
     /// <returns>The data annotations.</returns>
-    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(this IEntityType entityType, IAnnotationCodeGenerator annotationCodeGenerator)
+    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(
+        this IEntityType entityType,
+        IAnnotationCodeGenerator annotationCodeGenerator)
     {
-        if (entityType.FindPrimaryKey() == null)
+        var primaryKey = entityType.FindPrimaryKey();
+        if (primaryKey == null)
         {
             yield return new AttributeCodeFragment(typeof(KeylessAttribute));
+        }
+        else if (primaryKey.Properties.Count > 1)
+        {
+            yield return new AttributeCodeFragment(
+                typeof(PrimaryKeyAttribute),
+                primaryKey.Properties.Select(p => p.Name).Cast<object?>().ToArray());
         }
 
         var tableName = entityType.GetTableName();
@@ -118,14 +130,15 @@ public static class ScaffoldingModelExtensions
             if (needsSchema)
             {
                 tableNamedArgs.Add(nameof(TableAttribute.Schema), schema);
-            };
+            }
 
             yield return new AttributeCodeFragment(typeof(TableAttribute), new object?[] { tableName }, tableNamedArgs);
         }
 
         foreach (var index in entityType.GetIndexes()
-            .Where(i => ((IConventionIndex)i).GetConfigurationSource() != ConfigurationSource.Convention
-                && i.HasDataAnnotation(annotationCodeGenerator)))
+                     .Where(
+                         i => ((IConventionIndex)i).GetConfigurationSource() != ConfigurationSource.Convention
+                             && i.HasDataAnnotation(annotationCodeGenerator)))
         {
             var indexArgs = new List<object?>();
             var indexNamedArgs = new Dictionary<string, object?>();
@@ -167,12 +180,14 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the data annotations to configure a property.
+    ///     Gets the data annotations to configure a property.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
     /// <returns>The data annotations.</returns>
-    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(this IProperty property, IAnnotationCodeGenerator annotationCodeGenerator)
+    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(
+        this IProperty property,
+        IAnnotationCodeGenerator annotationCodeGenerator)
     {
         if (property.FindContainingPrimaryKey() != null)
         {
@@ -263,12 +278,14 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the data annotations to configure a navigation property.
+    ///     Gets the data annotations to configure a navigation property.
     /// </summary>
     /// <param name="navigation">The navigation property.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
     /// <returns>The data annotations.</returns>
-    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(this INavigation navigation, IAnnotationCodeGenerator annotationCodeGenerator)
+    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(
+        this INavigation navigation,
+        IAnnotationCodeGenerator annotationCodeGenerator)
     {
         if (navigation.IsOnDependent
             && navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
@@ -286,12 +303,14 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the data annotations to configure a skip navigation property.
+    ///     Gets the data annotations to configure a skip navigation property.
     /// </summary>
     /// <param name="skipNavigation">The skip navigation property.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
     /// <returns>The data annotations.</returns>
-    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(this ISkipNavigation skipNavigation, IAnnotationCodeGenerator annotationCodeGenerator)
+    public static IEnumerable<AttributeCodeFragment> GetDataAnnotations(
+        this ISkipNavigation skipNavigation,
+        IAnnotationCodeGenerator annotationCodeGenerator)
     {
         if (skipNavigation.ForeignKey!.PrincipalKey.IsPrimaryKey())
         {
@@ -304,7 +323,7 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the fluent API calls to configure a model.
+    ///     Gets the fluent API calls to configure a model.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
@@ -331,13 +350,14 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the fluent API calls to configure an entity type.
+    ///     Gets the fluent API calls to configure an entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
     /// <returns>The fluent API calls.</returns>
     public static FluentApiCodeFragment? GetFluentApiCalls(
-        this IEntityType entityType, IAnnotationCodeGenerator annotationCodeGenerator)
+        this IEntityType entityType,
+        IAnnotationCodeGenerator annotationCodeGenerator)
     {
         FluentApiCodeFragment? root = null;
 
@@ -365,10 +385,7 @@ public static class ScaffoldingModelExtensions
 
         if (entityType.FindPrimaryKey() is null)
         {
-            var hasNoKey = new FluentApiCodeFragment(nameof(EntityTypeBuilder.HasNoKey))
-            {
-                HasDataAnnotation = true
-            };
+            var hasNoKey = new FluentApiCodeFragment(nameof(EntityTypeBuilder.HasNoKey)) { HasDataAnnotation = true };
 
             root = root?.Chain(hasNoKey) ?? hasNoKey;
         }
@@ -424,10 +441,10 @@ public static class ScaffoldingModelExtensions
             {
                 toTableArguments.Add(new NestedClosureCodeFragment("tb", toTableNestedCalls));
             }
+
             var toTable = new FluentApiCodeFragment(nameof(RelationalEntityTypeBuilderExtensions.ToTable))
             {
-                Arguments = toTableArguments,
-                HasDataAnnotation = toTableHandledByDataAnnotations
+                Arguments = toTableArguments, HasDataAnnotation = toTableHandledByDataAnnotations
             };
 
             root = root?.Chain(toTable) ?? toTable;
@@ -440,10 +457,7 @@ public static class ScaffoldingModelExtensions
         if (explicitViewSchema
             || viewName != null)
         {
-            var toView = new FluentApiCodeFragment(nameof(RelationalEntityTypeBuilderExtensions.ToView))
-            {
-                Arguments = { viewName }
-            };
+            var toView = new FluentApiCodeFragment(nameof(RelationalEntityTypeBuilderExtensions.ToView)) { Arguments = { viewName } };
 
             if (explicitViewSchema)
             {
@@ -459,7 +473,8 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(annotationsRoot) ?? annotationsRoot;
         }
 
-        annotationsRoot = GenerateAnnotations(entityType, annotationsHandledByDataAnnotations, annotationCodeGenerator, hasDataAnnotation: true);
+        annotationsRoot = GenerateAnnotations(
+            entityType, annotationsHandledByDataAnnotations, annotationCodeGenerator, hasDataAnnotation: true);
         if (annotationsRoot is not null)
         {
             root = root?.Chain(annotationsRoot) ?? annotationsRoot;
@@ -469,7 +484,7 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the fluent API calls to configure a key.
+    ///     Gets the fluent API calls to configure a key.
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
@@ -492,7 +507,7 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the fluent API calls to configure an index.
+    ///     Gets the fluent API calls to configure an index.
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
@@ -534,7 +549,7 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the fluent API calls to configure a property.
+    ///     Gets the fluent API calls to configure a property.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
@@ -566,10 +581,7 @@ public static class ScaffoldingModelExtensions
             && property.ClrType.IsNullableType()
             && !property.IsPrimaryKey())
         {
-            var isRequired = new FluentApiCodeFragment(nameof(PropertyBuilder.IsRequired))
-            {
-                HasDataAnnotation = true
-            };
+            var isRequired = new FluentApiCodeFragment(nameof(PropertyBuilder.IsRequired)) { HasDataAnnotation = true };
 
             root = root?.Chain(isRequired) ?? isRequired;
         }
@@ -579,8 +591,7 @@ public static class ScaffoldingModelExtensions
         {
             var hasMaxLength = new FluentApiCodeFragment(nameof(PropertyBuilder.HasMaxLength))
             {
-                Arguments = { maxLength.Value },
-                HasDataAnnotation = true
+                Arguments = { maxLength.Value }, HasDataAnnotation = true
             };
 
             root = root?.Chain(hasMaxLength) ?? hasMaxLength;
@@ -592,12 +603,7 @@ public static class ScaffoldingModelExtensions
         {
             var hasPrecision = new FluentApiCodeFragment(nameof(PropertyBuilder.HasPrecision))
             {
-                Arguments =
-                {
-                    precision.Value,
-                    scale.Value
-                },
-                HasDataAnnotation = true
+                Arguments = { precision.Value, scale.Value }, HasDataAnnotation = true
             };
 
             root = root?.Chain(hasPrecision) ?? hasPrecision;
@@ -606,8 +612,7 @@ public static class ScaffoldingModelExtensions
         {
             var hasPrecision = new FluentApiCodeFragment(nameof(PropertyBuilder.HasPrecision))
             {
-                Arguments = { precision.Value },
-                HasDataAnnotation = true
+                Arguments = { precision.Value }, HasDataAnnotation = true
             };
 
             root = root?.Chain(hasPrecision) ?? hasPrecision;
@@ -615,10 +620,7 @@ public static class ScaffoldingModelExtensions
 
         if (property.IsUnicode() != null)
         {
-            var isUnicode = new FluentApiCodeFragment(nameof(PropertyBuilder.IsUnicode))
-            {
-                HasDataAnnotation = true
-            };
+            var isUnicode = new FluentApiCodeFragment(nameof(PropertyBuilder.IsUnicode)) { HasDataAnnotation = true };
 
             if (property.IsUnicode() == false)
             {
@@ -662,7 +664,8 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(annotationsRoot) ?? annotationsRoot;
         }
 
-        annotationsRoot = GenerateAnnotations(property, annotationsHandledByDataAnnotations, annotationCodeGenerator, hasDataAnnotation: true);
+        annotationsRoot = GenerateAnnotations(
+            property, annotationsHandledByDataAnnotations, annotationCodeGenerator, hasDataAnnotation: true);
         if (annotationsRoot is not null)
         {
             root = root?.Chain(annotationsRoot) ?? annotationsRoot;
@@ -672,13 +675,16 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the fluent API calls to configure a foreign key.
+    ///     Gets the fluent API calls to configure a foreign key.
     /// </summary>
     /// <param name="foreignKey">The foreign key.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
     /// <param name="useStrings">A value indicating wheter to use string fluent API overloads instead of ones that take a property accessor lambda.</param>
     /// <returns>The fluent API calls.</returns>
-    public static FluentApiCodeFragment? GetFluentApiCalls(this IForeignKey foreignKey, IAnnotationCodeGenerator annotationCodeGenerator, bool useStrings = false)
+    public static FluentApiCodeFragment? GetFluentApiCalls(
+        this IForeignKey foreignKey,
+        IAnnotationCodeGenerator annotationCodeGenerator,
+        bool useStrings = false)
     {
         FluentApiCodeFragment? root = null;
 
@@ -709,10 +715,7 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(hasPrincipalKey) ?? hasPrincipalKey;
         }
 
-        var hasForeignKey = new FluentApiCodeFragment(nameof(ReferenceReferenceBuilder.HasForeignKey))
-        {
-            HasDataAnnotation = true
-        };
+        var hasForeignKey = new FluentApiCodeFragment(nameof(ReferenceReferenceBuilder.HasForeignKey)) { HasDataAnnotation = true };
 
         if (foreignKey.IsUnique)
         {
@@ -754,7 +757,7 @@ public static class ScaffoldingModelExtensions
     }
 
     /// <summary>
-    /// Gets the fluent API calls to configure a sequence.
+    ///     Gets the fluent API calls to configure a sequence.
     /// </summary>
     /// <param name="sequence">The sequence.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
@@ -765,40 +768,28 @@ public static class ScaffoldingModelExtensions
 
         if (sequence.StartValue != Sequence.DefaultStartValue)
         {
-            var startsAt = new FluentApiCodeFragment(nameof(SequenceBuilder.StartsAt))
-            {
-                Arguments = { sequence.StartValue }
-            };
+            var startsAt = new FluentApiCodeFragment(nameof(SequenceBuilder.StartsAt)) { Arguments = { sequence.StartValue } };
 
             root = root?.Chain(startsAt) ?? startsAt;
         }
 
         if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
         {
-            var incrementsBy = new FluentApiCodeFragment(nameof(SequenceBuilder.IncrementsBy))
-            {
-                Arguments = { sequence.IncrementBy }
-            };
+            var incrementsBy = new FluentApiCodeFragment(nameof(SequenceBuilder.IncrementsBy)) { Arguments = { sequence.IncrementBy } };
 
             root = root?.Chain(incrementsBy) ?? incrementsBy;
         }
 
         if (sequence.MinValue != Sequence.DefaultMinValue)
         {
-            var hasMin = new FluentApiCodeFragment(nameof(SequenceBuilder.HasMin))
-            {
-                Arguments = { sequence.MinValue }
-            };
+            var hasMin = new FluentApiCodeFragment(nameof(SequenceBuilder.HasMin)) { Arguments = { sequence.MinValue } };
 
             root = root?.Chain(hasMin) ?? hasMin;
         }
 
         if (sequence.MaxValue != Sequence.DefaultMaxValue)
         {
-            var hasMax = new FluentApiCodeFragment(nameof(SequenceBuilder.HasMax))
-            {
-                Arguments = { sequence.MaxValue }
-            };
+            var hasMax = new FluentApiCodeFragment(nameof(SequenceBuilder.HasMax)) { Arguments = { sequence.MaxValue } };
 
             root = root?.Chain(hasMax) ?? hasMax;
         }
@@ -813,7 +804,11 @@ public static class ScaffoldingModelExtensions
         return root;
     }
 
-    private static FluentApiCodeFragment? GenerateAnnotations(IAnnotatable annotatable, Dictionary<string, IAnnotation> annotations, IAnnotationCodeGenerator annotationCodeGenerator, bool hasDataAnnotation = false)
+    private static FluentApiCodeFragment? GenerateAnnotations(
+        IAnnotatable annotatable,
+        Dictionary<string, IAnnotation> annotations,
+        IAnnotationCodeGenerator annotationCodeGenerator,
+        bool hasDataAnnotation = false)
     {
         FluentApiCodeFragment? root = null;
 
@@ -829,12 +824,7 @@ public static class ScaffoldingModelExtensions
         {
             var hasAnnotation = new FluentApiCodeFragment(nameof(ModelBuilder.HasAnnotation))
             {
-                Arguments =
-                {
-                    annotation.Name,
-                    annotation.Value
-                },
-                HasDataAnnotation = hasDataAnnotation
+                Arguments = { annotation.Name, annotation.Value }, HasDataAnnotation = hasDataAnnotation
             };
 
             root = root?.Chain(hasAnnotation) ?? hasAnnotation;

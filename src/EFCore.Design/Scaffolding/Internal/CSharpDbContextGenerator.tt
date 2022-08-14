@@ -122,7 +122,6 @@ public partial class <#= Options.ContextName #> : DbContext
         {
             var keyFluentApiCalls = key.GetFluentApiCalls(annotationCodeGenerator);
             if (keyFluentApiCalls != null
-                || key.Properties.Count > 1
                 || (!key.IsHandledByConventions() && !Options.UseDataAnnotations))
             {
                 if (keyFluentApiCalls != null)

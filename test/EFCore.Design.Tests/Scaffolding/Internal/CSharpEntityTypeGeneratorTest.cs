@@ -531,7 +531,7 @@ public partial class TestDbContext : DbContext
                 Assert.Equal("PrimaryKey", model.FindEntityType("TestNamespace.Entity").FindPrimaryKey().Properties[0].Name));
 
     [ConditionalFact]
-    public void KeyAttribute_is_generated_on_multiple_properties_but_configuring_using_fluent_api_for_composite_key()
+    public void KeyAttribute_is_generated_on_multiple_properties_but_and_uses_PrimaryKeyAttribute_for_composite_key()
         => Test(
             modelBuilder => modelBuilder
                 .Entity(
@@ -554,6 +554,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
+[PrimaryKey(""Key"", ""Serial"")]
 public partial class Post
 {
     [Key]
@@ -593,11 +594,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Post>(entity =>
-        {
-            entity.HasKey(e => new { e.Key, e.Serial });
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -1531,11 +1527,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Blog>(entity =>
-        {
-            entity.HasKey(e => new { e.Id1, e.Id2 });
-        });
-
         modelBuilder.Entity<Post>(entity =>
         {
             entity.Property(e => e.Id).UseIdentityColumn();

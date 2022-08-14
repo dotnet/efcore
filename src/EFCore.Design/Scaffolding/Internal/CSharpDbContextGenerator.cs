@@ -149,7 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var keyFluentApiCalls = key.GetFluentApiCalls(annotationCodeGenerator);
             if (keyFluentApiCalls != null
-                || key.Properties.Count > 1
                 || (!key.IsHandledByConventions() && !Options.UseDataAnnotations))
             {
                 if (keyFluentApiCalls != null)
