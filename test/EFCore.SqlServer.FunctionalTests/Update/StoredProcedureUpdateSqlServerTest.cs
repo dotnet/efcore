@@ -12,7 +12,7 @@ public class StoredProcedureUpdateSqlServerTest
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Insert_with_output_parameter(bool async)
