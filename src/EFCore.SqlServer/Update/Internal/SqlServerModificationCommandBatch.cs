@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
@@ -15,9 +14,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 /// </summary>
 public class SqlServerModificationCommandBatch : AffectedCountModificationCommandBatch
 {
+    // https://docs.microsoft.com/sql/sql-server/maximum-capacity-specifications-for-sql-server
     private const int DefaultNetworkPacketSizeBytes = 4096;
     private const int MaxScriptLength = 65536 * DefaultNetworkPacketSizeBytes / 2;
-    private const int MaxParameterCount = 2100;
+
+    /// <summary>
+    ///     The SQL Server limit on parameters, including two extra parameters to sp_executesql (@stmt and @params).
+    /// </summary>
+    private const int MaxParameterCount = 2100 - 2;
+
     private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
 
     /// <summary>
@@ -60,7 +65,6 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         if (_pendingBulkInsertCommands.Count > 0)
         {
             _pendingBulkInsertCommands.RemoveAt(_pendingBulkInsertCommands.Count - 1);
-            return;
         }
 
         base.RollbackLastCommand();
@@ -73,9 +77,30 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsValid()
-        => SqlBuilder.Length < MaxScriptLength
-            // A single implicit parameter for the command text itself
-            && ParameterValues.Count + 1 < MaxParameterCount;
+    {
+        if (ParameterValues.Count > MaxParameterCount)
+        {
+            return false;
+        }
+
+        var sqlLength = SqlBuilder.Length;
+
+        if (_pendingBulkInsertCommands.Count > 0)
+        {
+            // Conservative heuristic for the length of the pending bulk insert commands.
+            // See EXEC sp_server_info.
+            var numColumns = _pendingBulkInsertCommands[0].ColumnModifications.Count;
+
+            sqlLength +=
+                numColumns * 128 // column name lengths
+                + 128 // schema name length
+                + 128 // table name length
+                + _pendingBulkInsertCommands.Count * numColumns * 6 // column parameter placeholders
+                + 300; // some extra fixed overhead
+        }
+
+        return sqlLength < MaxScriptLength;
+    }
 
     private void ApplyPendingBulkInsertCommands()
     {
@@ -93,10 +118,8 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
 
         SetRequiresTransaction(!wasCachedCommandTextEmpty || requiresTransaction);
 
-        foreach (var pendingCommand in _pendingBulkInsertCommands)
+        for (var i = 0; i < _pendingBulkInsertCommands.Count; i++)
         {
-            AddParameters(pendingCommand);
-
             CommandResultSet.Add(resultSetMapping);
         }
 
@@ -126,6 +149,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             }
 
             _pendingBulkInsertCommands.Add(modificationCommand);
+            AddParameters(modificationCommand);
         }
         else
         {
