@@ -1503,7 +1503,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
                     }
 
-                    return ExpressionExtensions.BuildEqualsExpression(l, r);
+                    return ExpressionExtensions.CreateEqualsExpression(l, r);
                 })
             .Aggregate((a, b) => Expression.AndAlso(a, b));
 

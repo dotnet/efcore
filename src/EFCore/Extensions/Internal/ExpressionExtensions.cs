@@ -223,7 +223,7 @@ public static class ExpressionExtensions
             => property.ClrType.IsValueType
                 && property.ClrType.UnwrapNullableType() is Type nonNullableType
                 && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
-                    ? Infrastructure.ExpressionExtensions.BuildEqualsExpression(
+                    ? Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                         Expression.Call(
                             EF.PropertyMethod.MakeGenericMethod(typeof(object)),
                             entityParameterExpression,

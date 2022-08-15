@@ -394,7 +394,7 @@ public static class ExpressionExtensions
     /// <param name="right">The right expression in equality comparison.</param>
     /// <param name="negated">If the comparison is non-equality.</param>
     /// <returns>An expression to compare left and right expressions.</returns>
-    public static Expression BuildEqualsExpression(
+    public static Expression CreateEqualsExpression(
         Expression left,
         Expression right,
         bool negated = false)

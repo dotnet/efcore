@@ -76,5 +76,7 @@ public enum CommandSource
     /// <summary>
     ///     The command was generated as part of an 'ExecuteUpdate' operation.
     /// </summary>
-    ExecuteUpdate,
+#pragma warning disable CS0618 // Type or member is obsolete
+    ExecuteUpdate = BulkUpdate,
+#pragma warning restore CS0618 // Type or member is obsolete
 }
