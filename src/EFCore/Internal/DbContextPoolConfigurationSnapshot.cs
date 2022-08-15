@@ -24,7 +24,7 @@ public sealed class DbContextPoolConfigurationSnapshot
         bool hasChangeDetectorConfiguration,
         bool autoDetectChangesEnabled,
         QueryTrackingBehavior queryTrackingBehavior,
-        bool autoTransactionsEnabled,
+        AutoTransactionBehavior autoTransactionBehavior,
         bool autoSavepointsEnabled,
         bool lazyLoadingEnabled,
         CascadeTiming cascadeDeleteTiming,
@@ -47,8 +47,8 @@ public sealed class DbContextPoolConfigurationSnapshot
         HasChangeDetectorConfiguration = hasChangeDetectorConfiguration;
         AutoDetectChangesEnabled = autoDetectChangesEnabled;
         QueryTrackingBehavior = queryTrackingBehavior;
-        AutoTransactionsEnabled = autoTransactionsEnabled;
         AutoSavepointsEnabled = autoSavepointsEnabled;
+        AutoTransactionBehavior = autoTransactionBehavior;
         LazyLoadingEnabled = lazyLoadingEnabled;
         CascadeDeleteTiming = cascadeDeleteTiming;
         DeleteOrphansTiming = deleteOrphansTiming;
@@ -143,7 +143,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public bool AutoTransactionsEnabled { get; }
+    public AutoTransactionBehavior AutoTransactionBehavior { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

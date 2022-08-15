@@ -109,7 +109,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
             ChangeTracker.AutoDetectChangesEnabled = false;
             ChangeTracker.LazyLoadingEnabled = false;
-            Database.AutoTransactionsEnabled = false;
+            Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
             Database.AutoSavepointsEnabled = false;
             ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
             ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
@@ -772,7 +772,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
-        context1.Database.AutoTransactionsEnabled = true;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
         context1.Database.AutoSavepointsEnabled = true;
         context1.Database.SetCommandTimeout(1);
         context1.ChangeTracker.Tracking += ChangeTracker_OnTracking;
@@ -803,7 +803,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.False(context2.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.Never, context2.Database.AutoTransactionBehavior);
         Assert.False(context2.Database.AutoSavepointsEnabled);
         Assert.Null(context1.Database.GetCommandTimeout());
 
@@ -870,7 +870,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
-        context1.Database.AutoTransactionsEnabled = true;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
         context1.Database.AutoSavepointsEnabled = true;
         context1.ChangeTracker.Tracking += ChangeTracker_OnTracking;
         context1.ChangeTracker.Tracked += ChangeTracker_OnTracked;
@@ -922,7 +922,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
-        context.Database.AutoTransactionsEnabled = true;
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
         context.Database.AutoSavepointsEnabled = true;
         context.ChangeTracker.Tracking += ChangeTracker_OnTracking;
         context.ChangeTracker.Tracked += ChangeTracker_OnTracked;
@@ -943,7 +943,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Equal(QueryTrackingBehavior.NoTracking, context.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.DeleteOrphansTiming);
-        Assert.True(context.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.WhenNeeded, context.Database.AutoTransactionBehavior);
         Assert.True(context.Database.AutoSavepointsEnabled);
 
         Assert.False(_changeTracker_OnTracking);
@@ -1049,7 +1049,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1!.ChangeTracker.AutoDetectChangesEnabled = false;
         context1.ChangeTracker.LazyLoadingEnabled = false;
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-        context1.Database.AutoTransactionsEnabled = false;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context1.Database.AutoSavepointsEnabled = false;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
@@ -1068,7 +1068,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.True(context2.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.WhenNeeded, context2.Database.AutoTransactionBehavior);
         Assert.True(context2.Database.AutoSavepointsEnabled);
     }
 
@@ -1086,7 +1086,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.ChangeTracker.AutoDetectChangesEnabled = false;
         context1.ChangeTracker.LazyLoadingEnabled = false;
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-        context1.Database.AutoTransactionsEnabled = false;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context1.Database.AutoSavepointsEnabled = false;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
@@ -1102,7 +1102,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.True(context2.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.WhenNeeded, context2.Database.AutoTransactionBehavior);
         Assert.True(context2.Database.AutoSavepointsEnabled);
     }
 

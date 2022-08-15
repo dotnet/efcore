@@ -1235,7 +1235,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
-        => !Context.Database.AutoTransactionsEnabled
+        => Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never
             ? SaveChanges(this, acceptAllChangesOnSuccess)
             : Dependencies.ExecutionStrategy.Execute(
                 (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
@@ -1291,7 +1291,7 @@ public class StateManager : IStateManager
     public virtual Task<int> SaveChangesAsync(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
-        => !Context.Database.AutoTransactionsEnabled
+        => Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never
             ? SaveChangesAsync(this, acceptAllChangesOnSuccess, cancellationToken)
             : Dependencies.ExecutionStrategy.ExecuteAsync(
                 (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
