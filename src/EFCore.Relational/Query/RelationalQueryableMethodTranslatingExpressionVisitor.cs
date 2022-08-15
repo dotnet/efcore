@@ -1130,6 +1130,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         foreach (var (propertyExpression, valueExpression) in propertyValueLambdaExpressions)
         {
             var left = RemapLambdaBody(source, propertyExpression);
+            left = left.UnwrapTypeConversion(out _);
             if (!IsValidPropertyAccess(left, out var ese))
             {
                 AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
@@ -1148,6 +1149,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
 
             var right = RemapLambdaBody(source, valueExpression);
+            if (right.Type != left.Type)
+            {
+                right = Expression.Convert(right, left.Type);
+            }
             // We generate equality between property = value while translating sothat value infer tye type mapping from property correctly.
             // Later we decompose it back into left/right components so that the equality is not in the tree which can get affected by
             // null semantics or other visitor.
@@ -1305,7 +1310,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <param name="selectExpression">The select expression to validate.</param>
     /// <param name="entityShaperExpression">The entity shaper expression on which the delete operation is being applied.</param>
     /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
-    /// <returns> das </returns>
+    /// <returns>Returns <see langword="true" /> if the current select expression can be used for delete as-is, <see langword="false" /> otherwise.</returns>
     protected virtual bool IsValidSelectExpressionForExecuteDelete(
         SelectExpression selectExpression,
         EntityShaperExpression entityShaperExpression,
@@ -1330,13 +1335,12 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         return false;
     }
 
-    // TODO: Update this documentation.
     /// <summary>
-    ///     Validates if the current select expression can be used for execute update operation or it requires to be pushed into a subquery.
+    ///     Validates if the current select expression can be used for execute update operation or it requires to be joined as a subquery.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         By default, only single-table select expressions are supported, and optionally with a predicate.
+    ///         By default, only muli-table select expressions are supported, and optionally with a predicate.
     ///     </para>
     ///     <para>
     ///         Providers can override this to allow more select expression features to be supported without pushing down into a subquery.
@@ -1347,7 +1351,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <param name="selectExpression">The select expression to validate.</param>
     /// <param name="entityShaperExpression">The entity shaper expression on which the update operation is being applied.</param>
     /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
-    /// <returns> das </returns>
+    /// <returns>Returns <see langword="true" /> if the current select expression can be used for update as-is, <see langword="false" /> otherwise.</returns>
     protected virtual bool IsValidSelectExpressionForExecuteUpdate(
         SelectExpression selectExpression,
         EntityShaperExpression entityShaperExpression,
@@ -1359,13 +1363,30 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
             && selectExpression.GroupBy.Count == 0
             && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] is TableExpression expression)
+            && selectExpression.Orderings.Count == 0)
         {
-            tableExpression = expression;
+            TableExpressionBase table;
+            if (selectExpression.Tables.Count == 1)
+            {
+                table = selectExpression.Tables[0];
+            }
+            else
+            {
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
+                var column = entityProjectionExpression.BindProperty(entityShaperExpression.EntityType.GetProperties().First());
+                table = column.Table;
+                if (table is JoinExpressionBase joinExpressionBase)
+                {
+                    table = joinExpressionBase.Table;
+                }
+            }
 
-            return true;
+            if (table is TableExpression te)
+            {
+                tableExpression = te;
+                return true;
+            }
         }
 
         tableExpression = null;

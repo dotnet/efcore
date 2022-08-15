@@ -1237,8 +1237,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
             && selectExpression.GroupBy.Count == 0
-            && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] == updateExpression.Table
             && selectExpression.Projection.Count == 0)
         {
             _relationalCommandBuilder.Append("UPDATE ");
@@ -1255,13 +1253,58 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
                     },
                     joinAction: e => e.AppendLine(","));
-                _relationalCommandBuilder.AppendLine();
             }
 
-            if (selectExpression.Predicate != null)
+            var predicate = selectExpression.Predicate;
+            var firstTablePrinted = false;
+            if (selectExpression.Tables.Count > 1)
+            {
+                _relationalCommandBuilder.AppendLine().Append("FROM ");
+                for (var i = 0; i < selectExpression.Tables.Count; i++)
+                {
+                    var table = selectExpression.Tables[i];
+                    var joinExpression = table as JoinExpressionBase;
+
+                    if (ReferenceEquals(updateExpression.Table, joinExpression?.Table ?? table))
+                    {
+                        LiftPredicate(table);
+                        continue;
+                    }
+
+                    if (firstTablePrinted)
+                    {
+                        _relationalCommandBuilder.AppendLine();
+                    }
+                    else
+                    {
+                        firstTablePrinted = true;
+                        LiftPredicate(table);
+                        table = joinExpression?.Table ?? table;
+                    }
+
+                    Visit(table);
+
+                    void LiftPredicate(TableExpressionBase joinTable)
+                    {
+                        if (joinTable is PredicateJoinExpressionBase predicateJoinExpression)
+                        {
+                            predicate = predicate == null
+                                ? predicateJoinExpression.JoinPredicate
+                                : new SqlBinaryExpression(
+                                    ExpressionType.AndAlso,
+                                    predicateJoinExpression.JoinPredicate,
+                                    predicate,
+                                    typeof(bool),
+                                    predicate.TypeMapping);
+                        }
+                    }
+                }
+            }
+
+            if (predicate != null)
             {
                 _relationalCommandBuilder.AppendLine().Append("WHERE ");
-                Visit(selectExpression.Predicate);
+                Visit(predicate);
             }
 
             return updateExpression;

@@ -345,6 +345,29 @@ WHERE [OrderID] < 10300"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_where_parameter_in_predicate(bool async)
+    {
+        var customer = "ALFKI";
+        await AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == customer),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 1,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+        customer = null;
+        await AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == customer),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 0,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_where_parameter(bool async)
     {
         var value = "Abc";
@@ -356,6 +379,113 @@ WHERE [OrderID] < 10300"))
                 rowsAffectedCount: 8,
                 (b, a) => a.ForEach(c => Assert.Equal("Abc", c.ContactName)));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_take_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Take(4),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 4,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_group_by_aggregate_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID == ss.Set<Order>()
+                        .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.Key).FirstOrDefault()),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 1,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_group_by_first_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID == ss.Set<Order>()
+                        .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().CustomerID).FirstOrDefault()),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 1,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory(Skip = "Issue#26753")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_group_by_first_constant_2(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>()
+                    .Where(c => c == ss.Set<Order>()
+                        .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().Customer).FirstOrDefault()),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 1,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory(Skip = "Issue#28524")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_group_by_first_constant_3(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>()
+                    .Where(c => ss.Set<Order>()
+                        .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().Customer).Contains(c)),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 1,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_distinct_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Distinct(),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => a.ForEach(c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_using_navigation(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Order>().Where(o => o.Customer.City == "Seattle"),
+            e => e,
+            s => s.SetProperty(c => c.OrderDate, c => null),
+            rowsAffectedCount: 14,
+            (b, a) => a.ForEach(c => Assert.Null(c.OrderDate)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_using_navigation_2(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.Order.Customer.City == "Seattle"),
+            e => e,
+            s => s.SetProperty(c => c.Quantity, c => 1),
+            rowsAffectedCount: 40,
+            (b, a) => a.ForEach(c => Assert.Equal(1, c.Quantity)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_where_select_many(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).SelectMany(c => c.Orders),
+            e => e,
+            s => s.SetProperty(c => c.OrderDate, c => null),
+            rowsAffectedCount: 63,
+            (b, a) => a.ForEach(c => Assert.Null(c.OrderDate)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -146,6 +146,52 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         return false;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool IsValidSelectExpressionForExecuteUpdate(
+        SelectExpression selectExpression,
+        EntityShaperExpression entityShaperExpression,
+        [NotNullWhen(true)] out TableExpression? tableExpression)
+    {
+        if (selectExpression.Offset == null
+            // If entity type has primary key then Distinct is no-op
+            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0)
+        {
+            TableExpressionBase table;
+            if (selectExpression.Tables.Count == 1)
+            {
+                table = selectExpression.Tables[0];
+            }
+            else
+            {
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+                var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
+                var column = entityProjectionExpression.BindProperty(entityShaperExpression.EntityType.GetProperties().First());
+                table = column.Table;
+                if (table is JoinExpressionBase joinExpressionBase)
+                {
+                    table = joinExpressionBase.Table;
+                }
+            }
+
+            if (table is TableExpression te)
+            {
+                tableExpression = te;
+                return true;
+            }
+        }
+
+        tableExpression = null;
+        return false;
+    }
+
     private sealed class TemporalAnnotationApplyingExpressionVisitor : ExpressionVisitor
     {
         private readonly Func<TableExpression, TableExpressionBase> _annotationApplyingFunc;

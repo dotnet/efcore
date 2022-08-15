@@ -80,15 +80,14 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         var selectExpression = updateExpression.SelectExpression;
 
         if (selectExpression.Offset == null
-            && selectExpression.Limit == null
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
             && selectExpression.GroupBy.Count == 0
-            && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] == updateExpression.Table
             && selectExpression.Projection.Count == 0)
         {
             Sql.Append("UPDATE ");
+            GenerateTop(selectExpression);
+
             Sql.AppendLine($"{Dependencies.SqlGenerationHelper.DelimitIdentifier(updateExpression.Table.Alias)}");
             using (Sql.Indent())
             {
