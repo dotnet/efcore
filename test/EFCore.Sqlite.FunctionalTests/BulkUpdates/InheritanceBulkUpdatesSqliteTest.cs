@@ -78,7 +78,6 @@ WHERE (
         AssertExecuteUpdateSql(
             @"UPDATE ""Animals"" AS ""a""
     SET ""Name"" = 'Animal'
-
 WHERE ""a"".""Name"" = 'Great spotted kiwi'");
     }
 
@@ -96,7 +95,6 @@ WHERE ""a"".""Name"" = 'Great spotted kiwi'");
         AssertExecuteUpdateSql(
             @"UPDATE ""Animals"" AS ""a""
     SET ""Name"" = 'Kiwi'
-
 WHERE ""a"".""Discriminator"" = 'Kiwi' AND ""a"".""Name"" = 'Great spotted kiwi'");
     }
 
@@ -107,7 +105,6 @@ WHERE ""a"".""Discriminator"" = 'Kiwi' AND ""a"".""Name"" = 'Great spotted kiwi'
         AssertExecuteUpdateSql(
             @"UPDATE ""Countries"" AS ""c""
     SET ""Name"" = 'Monovia'
-
 WHERE (
     SELECT COUNT(*)
     FROM ""Animals"" AS ""a""
@@ -121,7 +118,6 @@ WHERE (
         AssertExecuteUpdateSql(
             @"UPDATE ""Countries"" AS ""c""
     SET ""Name"" = 'Monovia'
-
 WHERE (
     SELECT COUNT(*)
     FROM ""Animals"" AS ""a""

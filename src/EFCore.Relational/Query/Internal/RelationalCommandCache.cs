@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;

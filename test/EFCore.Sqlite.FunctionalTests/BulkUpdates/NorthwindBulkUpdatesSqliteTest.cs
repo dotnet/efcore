@@ -488,8 +488,33 @@ WHERE EXISTS (
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
     SET ""ContactName"" = 'Updated'
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_where_parameter_in_predicate(bool async)
+    {
+        await base.Update_where_parameter_in_predicate(async);
+
+        AssertExecuteUpdateSql(
+            @"@__customer_0='ALFKI' (Size = 5)
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+WHERE ""c"".""CustomerID"" = @__customer_0",
+                //
+                @"@__customer_0='ALFKI' (Size = 5)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" = @__customer_0",
+                //
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE 0",
+                //
+                @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+WHERE 0");
     }
 
     public override async Task Update_where_parameter(bool async)
@@ -501,8 +526,113 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
 UPDATE ""Customers"" AS ""c""
     SET ""ContactName"" = @__value_0
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    [ConditionalTheory(Skip = "Issue#28661")]
+    public override async Task Update_where_take_constant(bool async)
+    {
+        await base.Update_where_take_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_0='4'
+
+UPDATE TOP(@__p_0) [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_group_by_aggregate_constant(bool async)
+    {
+        await base.Update_where_group_by_aggregate_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+WHERE ""c"".""CustomerID"" = (
+    SELECT ""o"".""CustomerID""
+    FROM ""Orders"" AS ""o""
+    GROUP BY ""o"".""CustomerID""
+    HAVING COUNT(*) > 11
+    LIMIT 1)");
+    }
+
+    public override async Task Update_where_group_by_first_constant(bool async)
+    {
+        await base.Update_where_group_by_first_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+WHERE ""c"".""CustomerID"" = (
+    SELECT (
+        SELECT ""o0"".""CustomerID""
+        FROM ""Orders"" AS ""o0""
+        WHERE ""o"".""CustomerID"" = ""o0"".""CustomerID"" OR (""o"".""CustomerID"" IS NULL AND ""o0"".""CustomerID"" IS NULL)
+        LIMIT 1)
+    FROM ""Orders"" AS ""o""
+    GROUP BY ""o"".""CustomerID""
+    HAVING COUNT(*) > 11
+    LIMIT 1)");
+    }
+
+    public override async Task Update_where_group_by_first_constant_2(bool async)
+    {
+        await base.Update_where_group_by_first_constant_2(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_where_group_by_first_constant_3(bool async)
+    {
+        await base.Update_where_group_by_first_constant_3(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_where_distinct_constant(bool async)
+    {
+        await base.Update_where_distinct_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_where_using_navigation(bool async)
+    {
+        await base.Update_where_using_navigation(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Orders"" AS ""o""
+    SET ""OrderDate"" = NULL
+FROM ""Customers"" AS ""c""
+WHERE ""o"".""CustomerID"" = ""c"".""CustomerID"" AND ""c"".""City"" = 'Seattle'");
+    }
+
+    public override async Task Update_where_using_navigation_2(bool async)
+    {
+        await base.Update_where_using_navigation_2(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Order Details"" AS ""o""
+    SET ""Quantity"" = CAST(1 AS INTEGER)
+FROM ""Orders"" AS ""o0""
+LEFT JOIN ""Customers"" AS ""c"" ON ""o0"".""CustomerID"" = ""c"".""CustomerID""
+WHERE ""o"".""OrderID"" = ""o0"".""OrderID"" AND ""c"".""City"" = 'Seattle'");
+    }
+
+    public override async Task Update_where_select_many(bool async)
+    {
+        await base.Update_where_select_many(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Orders"" AS ""o""
+    SET ""OrderDate"" = NULL
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" = ""o"".""CustomerID"" AND (""c"".""CustomerID"" LIKE 'F%')");
     }
 
     public override async Task Update_where_using_property_plus_constant(bool async)
@@ -512,7 +642,6 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
     SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || 'Abc'
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -525,7 +654,6 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
 UPDATE ""Customers"" AS ""c""
     SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || @__value_0
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -536,7 +664,6 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
     SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || ""c"".""CustomerID""
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -547,7 +674,6 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
     SET ""ContactName"" = 'Updated'
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -558,7 +684,6 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
     SET ""ContactName"" = NULL
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -586,7 +711,6 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 UPDATE ""Customers"" AS ""c""
     SET ""City"" = 'Seattle',
     ""ContactName"" = @__value_0
-
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 

@@ -97,7 +97,6 @@ WHERE (
         AssertExecuteUpdateSql(
             @"UPDATE ""Countries"" AS ""c""
     SET ""Name"" = 'Monovia'
-
 WHERE (
     SELECT COUNT(*)
     FROM ""Animals"" AS ""a""
@@ -114,7 +113,6 @@ WHERE (
         AssertExecuteUpdateSql(
             @"UPDATE ""Countries"" AS ""c""
     SET ""Name"" = 'Monovia'
-
 WHERE (
     SELECT COUNT(*)
     FROM ""Animals"" AS ""a""

@@ -513,6 +513,34 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
+    public override async Task Update_where_parameter_in_predicate(bool async)
+    {
+        await base.Update_where_parameter_in_predicate(async);
+
+        AssertExecuteUpdateSql(
+            @"@__customer_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__customer_0",
+                //
+                @"@__customer_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__customer_0",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1",
+                //
+                @"UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE 0 = 1");
+    }
+
     public override async Task Update_where_parameter(bool async)
     {
         await base.Update_where_parameter(async);
@@ -523,6 +551,114 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 UPDATE [c]
     SET [c].[ContactName] = @__value_0
 FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_take_constant(bool async)
+    {
+        await base.Update_where_take_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_0='4'
+
+UPDATE TOP(@__p_0) [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_group_by_aggregate_constant(bool async)
+    {
+        await base.Update_where_group_by_aggregate_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = (
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 11)");
+    }
+
+    public override async Task Update_where_group_by_first_constant(bool async)
+    {
+        await base.Update_where_group_by_first_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = (
+    SELECT TOP(1) (
+        SELECT TOP(1) [o0].[CustomerID]
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 11)");
+    }
+
+    public override async Task Update_where_group_by_first_constant_2(bool async)
+    {
+        await base.Update_where_group_by_first_constant_2(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_where_group_by_first_constant_3(bool async)
+    {
+        await base.Update_where_group_by_first_constant_3(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_where_distinct_constant(bool async)
+    {
+        await base.Update_where_distinct_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_where_using_navigation(bool async)
+    {
+        await base.Update_where_using_navigation(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [o]
+    SET [o].[OrderDate] = NULL
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [c].[City] = N'Seattle'");
+    }
+
+    public override async Task Update_where_using_navigation_2(bool async)
+    {
+        await base.Update_where_using_navigation_2(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [o]
+    SET [o].[Quantity] = CAST(1 AS smallint)
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+WHERE [c].[City] = N'Seattle'");
+    }
+
+    public override async Task Update_where_select_many(bool async)
+    {
+        await base.Update_where_select_many(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [o]
+    SET [o].[OrderDate] = NULL
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
