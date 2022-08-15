@@ -47,10 +47,12 @@ public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDepend
     [EntityFrameworkInternal]
     public RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
         IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
-        ISqlExpressionFactory sqlExpressionFactory)
+        ISqlExpressionFactory sqlExpressionFactory,
+        IRelationalTypeMappingSource typeMappingSource)
     {
         RelationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
         SqlExpressionFactory = sqlExpressionFactory;
+        TypeMappingSource = typeMappingSource;
     }
 
     /// <summary>
@@ -62,4 +64,9 @@ public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDepend
     ///     The SQL expression factory.
     /// </summary>
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
+
+    /// <summary>
+    ///     The relational type mapping souce.
+    /// </summary>
+    public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 }

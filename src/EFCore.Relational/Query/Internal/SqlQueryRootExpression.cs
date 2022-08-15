@@ -1,7 +1,7 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal;
+namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDependencies
+public sealed class SqlQueryRootExpression : QueryRootExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,30 +17,15 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public RelationalDatabaseFacadeDependencies(
-        IDbContextTransactionManager transactionManager,
-        IDatabaseCreator databaseCreator,
-        IExecutionStrategy executionStrategy,
-        IExecutionStrategyFactory executionStrategyFactory,
-        IEnumerable<IDatabaseProvider> databaseProviders,
-        IRelationalCommandDiagnosticsLogger commandLogger,
-        IConcurrencyDetector concurrencyDetector,
-        IRelationalConnection relationalConnection,
-        IRawSqlCommandBuilder rawSqlCommandBuilder,
-        ICoreSingletonOptions coreOptions,
-        IAsyncQueryProvider queryProvider)
+    public SqlQueryRootExpression(
+        IAsyncQueryProvider queryProvider,
+        Type elementType,
+        string sql,
+        Expression argument)
+        : base(queryProvider, elementType)
     {
-        TransactionManager = transactionManager;
-        DatabaseCreator = databaseCreator;
-        ExecutionStrategy = executionStrategy;
-        ExecutionStrategyFactory = executionStrategyFactory;
-        DatabaseProviders = databaseProviders;
-        CommandLogger = commandLogger;
-        ConcurrencyDetector = concurrencyDetector;
-        RelationalConnection = relationalConnection;
-        RawSqlCommandBuilder = rawSqlCommandBuilder;
-        CoreOptions = coreOptions;
-        QueryProvider = queryProvider;
+        Sql = sql;
+        Argument = argument;
     }
 
     /// <summary>
@@ -49,7 +34,15 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IDbContextTransactionManager TransactionManager { get; init; }
+    public SqlQueryRootExpression(
+        Type elementType,
+        string sql,
+        Expression argument)
+        : base(elementType)
+    {
+        Sql = sql;
+        Argument = argument;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +50,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IDatabaseCreator DatabaseCreator { get; init; }
+    public string Sql { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,7 +58,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IExecutionStrategy ExecutionStrategy { get; init; }
+    public Expression Argument { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +66,8 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
+    public override Expression DetachQueryProvider()
+        => new SqlQueryRootExpression(ElementType, Sql, Argument);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,7 +75,14 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<IDatabaseProvider> DatabaseProviders { get; init; }
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+    {
+        var argument = visitor.Visit(Argument);
+
+        return argument != Argument
+            ? new SqlQueryRootExpression(ElementType, Sql, argument)
+            : this;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -89,18 +90,12 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IRelationalCommandDiagnosticsLogger CommandLogger { get; init; }
-
-    IDiagnosticsLogger<DbLoggerCategory.Database.Command> IDatabaseFacadeDependencies.CommandLogger
-        => CommandLogger;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IConcurrencyDetector ConcurrencyDetector { get; init; }
+    protected override void Print(ExpressionPrinter expressionPrinter)
+    {
+        expressionPrinter.Append($"SqlQuery<{ElementType.ShortDisplayName()}>({Sql}, ");
+        expressionPrinter.Visit(Argument);
+        expressionPrinter.AppendLine(")");
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -108,7 +103,16 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IRelationalConnection RelationalConnection { get; init; }
+    public override bool Equals(object? obj)
+        => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is SqlQueryRootExpression sqlQueryRootExpression
+                && Equals(sqlQueryRootExpression));
+
+    private bool Equals(SqlQueryRootExpression sqlQueryRootExpression)
+        => base.Equals(sqlQueryRootExpression)
+            && Sql == sqlQueryRootExpression.Sql
+            && ExpressionEqualityComparer.Instance.Equals(Argument, sqlQueryRootExpression.Argument);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,21 +120,6 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IRawSqlCommandBuilder RawSqlCommandBuilder { get; init; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ICoreSingletonOptions CoreOptions { get; init; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IAsyncQueryProvider QueryProvider { get; init; }
+    public override int GetHashCode()
+        => HashCode.Combine(base.GetHashCode(), Sql, ExpressionEqualityComparer.Instance.GetHashCode(Argument));
 }

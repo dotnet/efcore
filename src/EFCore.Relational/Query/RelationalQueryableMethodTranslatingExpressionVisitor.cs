@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -150,6 +151,30 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     clonedSelectExpression,
                     new QueryExpressionReplacingExpressionVisitor(shapedQueryExpression.QueryExpression, clonedSelectExpression)
                         .Visit(shapedQueryExpression.ShaperExpression));
+
+            case SqlQueryRootExpression sqlQueryRootExpression:
+                var typeMapping = RelationalDependencies.TypeMappingSource.FindMapping(sqlQueryRootExpression.ElementType);
+                if (typeMapping == null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.SqlQueryUnmappedType(sqlQueryRootExpression.ElementType.DisplayName()));
+                }
+
+                var selectExpression = new SelectExpression(sqlQueryRootExpression.Type, typeMapping,
+                    new FromSqlExpression("t", sqlQueryRootExpression.Sql, sqlQueryRootExpression.Argument));
+
+                Expression shaperExpression = new ProjectionBindingExpression(
+                    selectExpression, new ProjectionMember(), sqlQueryRootExpression.ElementType.MakeNullable());
+
+                if (sqlQueryRootExpression.ElementType != shaperExpression.Type)
+                {
+                    Check.DebugAssert(sqlQueryRootExpression.ElementType.MakeNullable() == shaperExpression.Type,
+                        "expression.Type must be nullable of targetType");
+
+                    shaperExpression = Expression.Convert(shaperExpression, sqlQueryRootExpression.ElementType);
+                }
+
+                return new ShapedQueryExpression(selectExpression, shaperExpression);
 
             default:
                 return base.VisitExtension(extensionExpression);

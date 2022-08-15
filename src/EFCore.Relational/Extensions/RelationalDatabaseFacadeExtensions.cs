@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
@@ -290,6 +292,102 @@ public static class RelationalDatabaseFacadeExtensions
         {
             concurrencyDetector?.ExitCriticalSection();
         }
+    }
+
+    /// <summary>
+    ///     Creates a LINQ query based on a raw SQL query, which returns a result set of a scalar type natively supported by the database
+    ///     provider.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         To use this method with a return type that isn't natively supported by the database provider, use the
+    ///         <see cref="ModelConfigurationBuilder.DefaultTypeMapping{TScalar}(Action{TypeMappingConfigurationBuilder{TScalar}})" />
+    ///         method.
+    ///     </para>
+    ///     <para>
+    ///         The returned <see cref="IQueryable{TResult}" /> can be composed over using LINQ to build more complex queries.
+    ///     </para>
+    ///     <para>
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///     </para>
+    ///     <para>
+    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///     </para>
+    ///     <para>
+    ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
+    ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
+    ///         consider using <see cref="SqlQuery{TResult}(DatabaseFacade, FormattableString)" /> to create parameters.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sql">The raw SQL query.</param>
+    /// <param name="parameters">The values to be assigned to parameters.</param>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the raw SQL query.</returns>
+    [StringFormatMethod("sql")]
+    public static IQueryable<TResult> SqlQueryRaw<TResult>(
+        this DatabaseFacade databaseFacade,
+        [NotParameterized] string sql,
+        params object[] parameters)
+    {
+        Check.NotNull(sql, nameof(sql));
+        Check.NotNull(parameters, nameof(parameters));
+
+        var facadeDependencies = GetFacadeDependencies(databaseFacade);
+
+        return facadeDependencies.QueryProvider
+            .CreateQuery<TResult>(new SqlQueryRootExpression(
+                facadeDependencies.QueryProvider, typeof(TResult), sql, Expression.Constant(parameters)));
+    }
+
+    /// <summary>
+    ///     Creates a LINQ query based on a raw SQL query, which returns a result set of a scalar type natively supported by the database
+    ///     provider.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         To use this method with a return type that isn't natively supported by the database provider, use the
+    ///         <see cref="ModelConfigurationBuilder.DefaultTypeMapping{TScalar}(Action{TypeMappingConfigurationBuilder{TScalar}})" />
+    ///         method.
+    ///     </para>
+    ///     <para>
+    ///         The returned <see cref="IQueryable{TResult}" /> can be composed over using LINQ to build more complex queries.
+    ///     </para>
+    ///     <para>
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///     </para>
+    ///     <para>
+    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
+    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
+    public static IQueryable<TResult> SqlQuery<TResult>(
+        this DatabaseFacade databaseFacade,
+        [NotParameterized] FormattableString sql)
+    {
+        Check.NotNull(sql, nameof(sql));
+        Check.NotNull(sql.Format, nameof(sql.Format));
+
+        var facadeDependencies = GetFacadeDependencies(databaseFacade);
+
+        return facadeDependencies.QueryProvider
+            .CreateQuery<TResult>(new SqlQueryRootExpression(
+                facadeDependencies.QueryProvider, typeof(TResult), sql.Format, Expression.Constant(sql.GetArguments())));
     }
 
     /// <summary>

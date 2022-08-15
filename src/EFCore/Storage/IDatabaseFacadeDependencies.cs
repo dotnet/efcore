@@ -64,5 +64,10 @@ public interface IDatabaseFacadeDependencies
     /// <summary>
     ///     The core options.
     /// </summary>
-    public ICoreSingletonOptions CoreOptions { get; }
+    ICoreSingletonOptions CoreOptions { get; }
+
+    /// <summary>
+    ///     The async query provider.
+    /// </summary>
+    IAsyncQueryProvider QueryProvider { get; }
 }

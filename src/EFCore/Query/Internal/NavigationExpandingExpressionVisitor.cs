@@ -176,6 +176,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 return ApplyQueryFilter(entityType, navigationExpansionExpression);
 
+            case QueryRootExpression queryRootExpression:
+                var currentTree = new NavigationTreeExpression(Expression.Default(queryRootExpression.ElementType));
+                var parameterName = GetParameterName("e");
+
+                return new NavigationExpansionExpression(queryRootExpression, currentTree, currentTree, parameterName);
+
             case NavigationExpansionExpression:
             case OwnedNavigationReference:
                 return extensionExpression;
