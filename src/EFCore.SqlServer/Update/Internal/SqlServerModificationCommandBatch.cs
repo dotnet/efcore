@@ -29,8 +29,9 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     public SqlServerModificationCommandBatch(
         ModificationCommandBatchFactoryDependencies dependencies,
         int maxBatchSize)
-        : base(dependencies)
-        => MaxBatchSize = maxBatchSize;
+        : base(dependencies, maxBatchSize)
+    {
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,14 +41,6 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// </summary>
     protected new virtual ISqlServerUpdateSqlGenerator UpdateSqlGenerator
         => (ISqlServerUpdateSqlGenerator)base.UpdateSqlGenerator;
-
-    /// <summary>
-    ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch.
-    /// </summary>
-    /// <remarks>
-    ///     For SQL Server, this is 42 by default, and cannot exceed 1000.
-    /// </remarks>
-    protected override int MaxBatchSize { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
