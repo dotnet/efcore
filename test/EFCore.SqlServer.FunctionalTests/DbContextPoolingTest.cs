@@ -446,6 +446,50 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         }
     }
 
+    [ConditionalFact]
+    public void Does_not_throw_when_parameterless_and_correct_constructor()
+    {
+        var serviceProvider
+            = new ServiceCollection().AddDbContextPool<WithParameterlessConstructorContext>(_ => { })
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<WithParameterlessConstructorContext>();
+
+        Assert.Equal("Options", context.ConstructorUsed);
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_when_parameterless_and_correct_constructor_using_factory_pool()
+    {
+        var serviceProvider
+            = new ServiceCollection().AddPooledDbContextFactory<WithParameterlessConstructorContext>(_ => { })
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+
+        var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<WithParameterlessConstructorContext>>();
+        using var context = factory.CreateDbContext();
+
+        Assert.Equal("Options", context.ConstructorUsed);
+    }
+    private class WithParameterlessConstructorContext : DbContext
+    {
+        public string ConstructorUsed { get; set; }
+
+        public WithParameterlessConstructorContext()
+        {
+            ConstructorUsed = "Parameterless";
+        }
+
+        public WithParameterlessConstructorContext(DbContextOptions<WithParameterlessConstructorContext> options)
+            : base(options)
+        {
+            ConstructorUsed = "Options";
+        }
+    }
+
     [ConditionalTheory]
     [InlineData(false, false)]
     [InlineData(true, false)]
