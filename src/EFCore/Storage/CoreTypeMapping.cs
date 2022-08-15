@@ -200,7 +200,7 @@ public abstract class CoreTypeMapping
             this,
             static c => (c.Converter?.ProviderClrType ?? c.ClrType) == c.ClrType
                     ? c.KeyComparer
-                    : ValueComparer.CreateDefault(c.Converter?.ProviderClrType ?? c.ClrType, favorStructuralComparisons: true));
+                    : ValueComparer.CreateDefault(c.Converter!.ProviderClrType, favorStructuralComparisons: true));
 
     /// <summary>
     ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />

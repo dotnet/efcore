@@ -400,9 +400,9 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
         public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>();
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer);
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>();
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer, ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,

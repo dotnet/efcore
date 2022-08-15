@@ -597,14 +597,14 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
             => Wrap(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
 
-        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>()
-            => Wrap(PropertyBuilder.HasConversion<TProvider>());
+        public override TestPropertyBuilder<TProperty> HasConversion<TConversion>()
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConversion)));
 
-        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer)
-            => Wrap(PropertyBuilder.HasConversion<TProvider>(valueComparer));
+        public override TestPropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConversion), valueComparer));
 
-        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType)
-            => Wrap(PropertyBuilder.HasConversion<TProvider>(valueComparer, providerComparerType));
+        public override TestPropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer, ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConversion), valueComparer, providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,

@@ -27,6 +27,39 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             modelBuilder);
     }
 
+    public override void Detects_noncomparable_key_property_with_comparer()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNonComparableKey>(
+            eb =>
+            {
+                eb.Property(e => e.Id).HasConversion(typeof(NotComparable), typeof(CustomValueComparer<NotComparable>));
+                eb.HasKey(e => e.Id);
+            });
+
+        VerifyError(
+            CoreStrings.PropertyNotMapped(nameof(NotComparable), nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id)),
+            modelBuilder);
+    }
+
+    public override void Detects_noncomparable_key_property_with_provider_comparer()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNonComparableKey>(
+            eb =>
+            {
+                eb.Property(e => e.Id).HasConversion(
+                    typeof(CastingConverter<NotComparable, NotComparable>), null, typeof(CustomValueComparer<NotComparable>));
+                eb.HasKey(e => e.Id);
+            });
+
+        VerifyError(
+            CoreStrings.PropertyNotMapped(nameof(NotComparable), nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id)),
+            modelBuilder);
+    }
+
     public override void Detects_unique_index_property_which_cannot_be_compared()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -2613,7 +2646,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.StoredProcedureKeyless(nameof(Animal), "Animal_Insert"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_tableless_entity_type_mapped_to_some_stored_procedures()
     {
@@ -2723,7 +2756,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.StoredProcedureResultColumnNotFound("Missing", nameof(Animal), "dbo.Update"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_duplicate_parameter()
     {
@@ -2738,7 +2771,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.StoredProcedureDuplicateParameterName("Id", "Animal_Insert"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_duplicate_result_column()
     {
@@ -2822,7 +2855,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.StoredProcedureResultColumnDelete(nameof(Animal), nameof(Animal.Name), "Delete"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_generated_properties_mapped_to_result_and_parameter()
     {
@@ -2838,7 +2871,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.StoredProcedureResultColumnParameterConflict(nameof(Animal), nameof(Animal.Name), "Animal_Update"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_generated_properties_mapped_to_original_and_current_parameter()
     {
@@ -2854,7 +2887,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             RelationalStrings.StoredProcedureOutputParameterConflict(nameof(Animal), nameof(Animal.Name), "Animal_Update"),
             modelBuilder);
     }
-    
+
     [ConditionalFact]
     public virtual void Detects_unmapped_concurrency_token()
     {
