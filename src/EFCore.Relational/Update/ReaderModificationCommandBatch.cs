@@ -121,13 +121,10 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             return true;
         }
 
-        RollbackLastCommand();
+        Check.DebugAssert(ReferenceEquals(modificationCommand, _modificationCommands[^1]),
+            "ReferenceEquals(modificationCommand, _modificationCommands[^1])");
 
-        // The command's column modifications had their parameter names generated, that needs to be rolled back as well.
-        foreach (var columnModification in modificationCommand.ColumnModifications)
-        {
-            columnModification.ResetParameterNames();
-        }
+        RollbackLastCommand(modificationCommand);
 
         return false;
     }
@@ -135,7 +132,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <summary>
     ///     Rolls back the last command added. Used when adding a command caused the batch to become invalid (e.g. CommandText too long).
     /// </summary>
-    protected virtual void RollbackLastCommand()
+    protected virtual void RollbackLastCommand(IReadOnlyModificationCommand modificationCommand)
     {
         _modificationCommands.RemoveAt(_modificationCommands.Count - 1);
 
@@ -153,6 +150,12 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
             RelationalCommandBuilder.RemoveParameterAt(parameterIndex);
             ParameterValues.Remove(parameter.InvariantName);
+        }
+
+        // The command's column modifications had their parameter names generated, that needs to be rolled back as well.
+        foreach (var columnModification in modificationCommand.ColumnModifications)
+        {
+            columnModification.ResetParameterNames();
         }
     }
 
