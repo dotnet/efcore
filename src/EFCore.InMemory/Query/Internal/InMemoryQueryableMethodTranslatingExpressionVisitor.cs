@@ -535,7 +535,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         var left = RemapLambdaBody(outer, outerKeySelector);
         var right = RemapLambdaBody(inner, innerKeySelector);
 
-        var joinCondition = TranslateExpression(EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(left, right));
+        var joinCondition = TranslateExpression(EntityFrameworkCore.Infrastructure.ExpressionExtensions.CreateEqualsExpression(left, right));
 
         var (outerKeyBody, innerKeyBody) = DecomposeJoinCondition(joinCondition);
 
@@ -1251,7 +1251,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                         : foreignKey.Properties,
                     makeNullable);
 
-                var keyComparison = EntityFrameworkCore.Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKey, innerKey);
+                var keyComparison = EntityFrameworkCore.Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey);
 
                 var predicate = makeNullable
                     ? Expression.AndAlso(

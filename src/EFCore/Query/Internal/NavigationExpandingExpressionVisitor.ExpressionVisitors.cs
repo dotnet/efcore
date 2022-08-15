@@ -302,7 +302,7 @@ public partial class NavigationExpandingExpressionVisitor
                             QueryableMethods.Where.MakeGenericMethod(innerSourceElementType),
                             innerSource,
                             Expression.Quote(Expression.Lambda(
-                                Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKey,innerKey), innerSourceParameter))),
+                                Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey,innerKey), innerSourceParameter))),
                         outerSourceParameter);
 
                     secondaryExpansion = Expression.Call(
@@ -415,7 +415,7 @@ public partial class NavigationExpandingExpressionVisitor
                                 })
                             .Aggregate((l, r) => Expression.AndAlso(l, r))
                         : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
-                    Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKey, innerKey));
+                    Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
 
                 // Caller should take care of wrapping MaterializeCollectionNavigation
                 return Expression.Call(

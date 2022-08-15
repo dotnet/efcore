@@ -243,7 +243,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
             var anyLambdaParameter = Expression.Parameter(typeArgument, "p");
             var anyLambda = Expression.Lambda(
-                Infrastructure.ExpressionExtensions.BuildEqualsExpression(anyLambdaParameter, methodCallExpression.Arguments[1]),
+                Infrastructure.ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, methodCallExpression.Arguments[1]),
                 anyLambdaParameter);
 
             return Expression.Call(null, anyMethod, new[] { Visit(methodCallExpression.Arguments[0]), anyLambda });

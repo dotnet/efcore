@@ -1599,7 +1599,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var innerKeyLambda = RemapLambdaExpression(innerSource, innerKeySelector);
 
         var keyComparison = _removeRedundantNavigationComparisonExpressionVisitor
-            .Visit(Infrastructure.ExpressionExtensions.BuildEqualsExpression(outerKeyLambda, innerKeyLambda));
+            .Visit(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKeyLambda, innerKeyLambda));
 
         Expression left;
         Expression right;

@@ -1440,7 +1440,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         return leftExpressions.Zip(
                 rightExpressions,
-                (l, r) => Infrastructure.ExpressionExtensions.BuildEqualsExpression(l, r))
+                (l, r) => Infrastructure.ExpressionExtensions.CreateEqualsExpression(l, r))
             .Aggregate((a, b) => Expression.AndAlso(a, b));
     }
 
@@ -1571,7 +1571,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     var condition = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table)
                         .Where(e => !e.IsNullable)
                         .Select(
-                            p => Infrastructure.ExpressionExtensions.BuildEqualsExpression(
+                            p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                                     CreatePropertyAccessExpression(nonNullEntityReference, p),
                                     Expression.Constant(null, p.ClrType.MakeNullable()),
                                     nodeType != ExpressionType.Equal))
@@ -1584,7 +1584,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
             result = Visit(
                 nullComparedEntityTypePrimaryKeyProperties.Select(
-                    p => Infrastructure.ExpressionExtensions.BuildEqualsExpression(
+                    p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                             CreatePropertyAccessExpression(nonNullEntityReference, p),
                             Expression.Constant(null, p.ClrType.MakeNullable()),
                             nodeType != ExpressionType.Equal))
@@ -1636,7 +1636,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         result = Visit(
             primaryKeyProperties.Select(
-                p => Infrastructure.ExpressionExtensions.BuildEqualsExpression(
+                p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                         CreatePropertyAccessExpression(left, p),
                         CreatePropertyAccessExpression(right, p),
                         nodeType != ExpressionType.Equal))
