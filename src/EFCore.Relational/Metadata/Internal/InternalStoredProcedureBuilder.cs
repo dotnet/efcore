@@ -489,12 +489,11 @@ public class InternalStoredProcedureBuilder :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureBuilder.HasRowsAffectedResultColumn(
-        string propertyName, bool fromDataAnnotation)
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureBuilder.HasRowsAffectedResultColumn(bool fromDataAnnotation)
         => HasRowsAffectedResultColumn(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    bool IConventionStoredProcedureBuilder.CanHaveRowsAffectedResultColumn(string propertyName, bool fromDataAnnotation)
+    bool IConventionStoredProcedureBuilder.CanHaveRowsAffectedResultColumn(bool fromDataAnnotation)
         => CanHaveRowsAffectedResultColumn(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

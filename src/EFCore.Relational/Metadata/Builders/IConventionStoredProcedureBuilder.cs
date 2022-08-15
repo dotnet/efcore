@@ -142,18 +142,16 @@ public interface IConventionStoredProcedureBuilder : IConventionAnnotatableBuild
     /// <summary>
     ///     Configures a new column that contains the rows affected for this stored procedure if no such column exists.
     /// </summary>
-    /// <param name="propertyName">The property name.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The builder instance if the configuration was applied, <see langword="null" /> otherwise.
     /// </returns>
-    IConventionStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn(string propertyName, bool fromDataAnnotation = false);
+    IConventionStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn(bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether a column that contains the rows affected can be used for stored procedure.
     /// </summary>
-    /// <param name="propertyName">The property name.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the column of the result can be used for the stored procedure.</returns>
-    bool CanHaveRowsAffectedResultColumn(string propertyName, bool fromDataAnnotation = false);
+    bool CanHaveRowsAffectedResultColumn(bool fromDataAnnotation = false);
 }
