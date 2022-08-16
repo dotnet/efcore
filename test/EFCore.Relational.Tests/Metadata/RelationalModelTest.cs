@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertSprocs(model, mapping, mappedToTables: true);
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "#28703")]
         [InlineData(Mapping.TPH)]
         [InlineData(Mapping.TPT)]
         [InlineData(Mapping.TPC)]
