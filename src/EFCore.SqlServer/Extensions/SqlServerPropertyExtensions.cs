@@ -741,7 +741,7 @@ public static class SqlServerPropertyExtensions
         {
             return (SqlServerValueGenerationStrategy?)@override.Value ?? SqlServerValueGenerationStrategy.None;
         }
-        
+
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
         if (annotation?.Value != null
             && StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) == storeObject)
