@@ -61,6 +61,8 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
         conventionSet.Replace<ValueGenerationConvention>(
             new SqlServerValueGenerationConvention(Dependencies, RelationalDependencies));
         conventionSet.Replace<RuntimeModelConvention>(new SqlServerRuntimeModelConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<SharedTableConvention>(
+            new SqlServerSharedTableConvention(Dependencies, RelationalDependencies));
 
         var sqlServerTemporalConvention = new SqlServerTemporalConvention(Dependencies, RelationalDependencies);
         ConventionSet.AddBefore(
