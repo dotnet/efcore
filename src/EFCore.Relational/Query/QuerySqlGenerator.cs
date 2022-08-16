@@ -1237,7 +1237,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
             && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0)
+            && selectExpression.Projection.Count == 0
+            && selectExpression.Tables.All(e => !(e is LeftJoinExpression || e is OuterApplyExpression)))
         {
             _relationalCommandBuilder.Append("UPDATE ");
             Visit(updateExpression.Table);
