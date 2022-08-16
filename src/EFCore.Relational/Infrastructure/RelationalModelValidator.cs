@@ -242,7 +242,8 @@ public class RelationalModelValidator : ModelValidator
             }
 
             if (sprocCount > 0
-                && sprocCount < 3
+                // TODO: Support this with #28703
+                //&& sprocCount < 3
                 && entityType.GetTableName() == null)
             {
                 throw new InvalidOperationException(RelationalStrings.StoredProcedureUnmapped(entityType.DisplayName()));
