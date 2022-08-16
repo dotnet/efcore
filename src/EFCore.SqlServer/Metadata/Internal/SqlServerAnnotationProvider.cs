@@ -219,8 +219,7 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         }
 
         var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
-        var identityProperty = column.PropertyMappings.Where(
-                m => m.TableMapping.EntityType == m.Property.DeclaringEntityType)
+        var identityProperty = column.PropertyMappings
             .Select(m => m.Property)
             .FirstOrDefault(
                 p => p.GetValueGenerationStrategy(table)

@@ -783,6 +783,59 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             @"ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY(100, 5);");
     }
 
+    [ConditionalFact]
+    public virtual async Task Add_column_identity_seed_increment_for_TPC()
+    {
+        await Test(
+            builder =>
+            {
+                builder.Entity("Animal").UseTpcMappingStrategy().Property<string>("Id");
+                builder.Entity("Cat").HasBaseType("Animal").ToTable("Cats");
+                builder.Entity("Dog").HasBaseType("Animal").ToTable("Dogs");
+            },
+            builder => { },
+            builder =>
+            {
+                builder.Entity("Animal")
+                    .Property<int>("IdentityColumn");
+                builder.Entity("Cat").ToTable("Cats", tb => tb.Property("IdentityColumn").UseIdentityColumn(1, 2));
+                builder.Entity("Dog").ToTable("Dogs", tb => tb.Property("IdentityColumn").UseIdentityColumn(2, 2));
+            },
+            model =>
+            {
+                Assert.Collection(model.Tables,
+                    t =>
+                    {
+                        Assert.Equal("Animal", t.Name);
+                        var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
+                        Assert.Null(column.ValueGenerated);
+                    },
+                    t =>
+                    {
+                        Assert.Equal("Cats", t.Name);
+                        var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
+                        Assert.Equal(ValueGenerated.OnAdd, column.ValueGenerated);
+                        // TODO: Do we not reverse-engineer identity facets?
+                        // Assert.Equal(100, column[SqlServerAnnotationNames.IdentitySeed]);
+                        // Assert.Equal(5, column[SqlServerAnnotationNames.IdentityIncrement]);
+                    },
+                    t =>
+                    {
+                        Assert.Equal("Dogs", t.Name);
+                        var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
+                        Assert.Equal(ValueGenerated.OnAdd, column.ValueGenerated);
+                        // TODO: Do we not reverse-engineer identity facets?
+                        // Assert.Equal(100, column[SqlServerAnnotationNames.IdentitySeed]);
+                        // Assert.Equal(5, column[SqlServerAnnotationNames.IdentityIncrement]);
+                    });
+            });
+
+        AssertSql(
+            @"ALTER TABLE [Dogs] ADD [IdentityColumn] int NOT NULL IDENTITY(2, 2);",
+            "ALTER TABLE [Cats] ADD [IdentityColumn] int NOT NULL IDENTITY(1, 2);",
+            "ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;");
+    }
+
     public override async Task Alter_column_change_type()
     {
         await base.Alter_column_change_type();
