@@ -168,9 +168,9 @@ WHERE EXISTS (
     WHERE ""t"".""OrderID"" = ""o"".""OrderID"" AND ""t"".""ProductID"" = ""o"".""ProductID"")");
     }
 
-    public override async Task Delete_Where_predicate_with_group_by_aggregate(bool async)
+    public override async Task Delete_Where_predicate_with_GroupBy_aggregate(bool async)
     {
-        await base.Delete_Where_predicate_with_group_by_aggregate(async);
+        await base.Delete_Where_predicate_with_GroupBy_aggregate(async);
 
         AssertSql(
             @"DELETE FROM ""Order Details"" AS ""o""
@@ -186,9 +186,9 @@ WHERE ""o"".""OrderID"" < (
     LIMIT 1)");
     }
 
-    public override async Task Delete_Where_predicate_with_group_by_aggregate_2(bool async)
+    public override async Task Delete_Where_predicate_with_GroupBy_aggregate_2(bool async)
     {
-        await base.Delete_Where_predicate_with_group_by_aggregate_2(async);
+        await base.Delete_Where_predicate_with_GroupBy_aggregate_2(async);
 
         AssertSql();
     }
@@ -481,9 +481,9 @@ WHERE EXISTS (
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Delete_with_outer_apply(async))).Message);
 
-    public override async Task Update_where_constant(bool async)
+    public override async Task Update_Where_set_constant(bool async)
     {
-        await base.Update_where_constant(async);
+        await base.Update_Where_set_constant(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -491,9 +491,9 @@ WHERE EXISTS (
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
-    public override async Task Update_where_parameter_in_predicate(bool async)
+    public override async Task Update_Where_parameter_set_constant(bool async)
     {
-        await base.Update_where_parameter_in_predicate(async);
+        await base.Update_Where_parameter_set_constant(async);
 
         AssertExecuteUpdateSql(
             @"@__customer_0='ALFKI' (Size = 5)
@@ -517,9 +517,9 @@ WHERE 0",
 WHERE 0");
     }
 
-    public override async Task Update_where_parameter(bool async)
+    public override async Task Update_Where_set_parameter(bool async)
     {
-        await base.Update_where_parameter(async);
+        await base.Update_Where_set_parameter(async);
 
         AssertExecuteUpdateSql(
             @"@__value_0='Abc' (Size = 3)
@@ -529,23 +529,162 @@ UPDATE ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
-    [ConditionalTheory(Skip = "Issue#28661")]
-    public override async Task Update_where_take_constant(bool async)
+    public override async Task Update_Where_Skip_set_constant(bool async)
     {
-        await base.Update_where_take_constant(async);
+        await base.Update_Where_Skip_set_constant(async);
 
         AssertExecuteUpdateSql(
             @"@__p_0='4'
 
-UPDATE TOP(@__p_0) [c]
-    SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'F%'");
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    LIMIT -1 OFFSET @__p_0
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
     }
 
-    public override async Task Update_where_group_by_aggregate_constant(bool async)
+    public override async Task Update_Where_Take_set_constant(bool async)
     {
-        await base.Update_where_group_by_aggregate_constant(async);
+        await base.Update_Where_Take_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_0='4'
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    LIMIT @__p_0
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Where_Skip_Take_set_constant(bool async)
+    {
+        await base.Update_Where_Skip_Take_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_1='4'
+@__p_0='2'
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    LIMIT @__p_1 OFFSET @__p_0
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Where_OrderBy_set_constant(bool async)
+    {
+        await base.Update_Where_OrderBy_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Where_OrderBy_Skip_set_constant(bool async)
+    {
+        await base.Update_Where_OrderBy_Skip_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_0='4'
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    ORDER BY ""c0"".""City""
+    LIMIT -1 OFFSET @__p_0
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Where_OrderBy_Take_set_constant(bool async)
+    {
+        await base.Update_Where_OrderBy_Take_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_0='4'
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    ORDER BY ""c0"".""City""
+    LIMIT @__p_0
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Where_OrderBy_Skip_Take_set_constant(bool async)
+    {
+        await base.Update_Where_OrderBy_Skip_Take_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_1='4'
+@__p_0='2'
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    ORDER BY ""c0"".""City""
+    LIMIT @__p_1 OFFSET @__p_0
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Where_OrderBy_Skip_Take_Skip_Take_set_constant(bool async)
+    {
+        await base.Update_Where_OrderBy_Skip_Take_Skip_Take_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_1='6'
+@__p_0='2'
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""t"".""CustomerID"", ""t"".""Address"", ""t"".""City"", ""t"".""CompanyName"", ""t"".""ContactName"", ""t"".""ContactTitle"", ""t"".""Country"", ""t"".""Fax"", ""t"".""Phone"", ""t"".""PostalCode"", ""t"".""Region""
+    FROM (
+        SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+        FROM ""Customers"" AS ""c0""
+        WHERE ""c0"".""CustomerID"" LIKE 'F%'
+        ORDER BY ""c0"".""City""
+        LIMIT @__p_1 OFFSET @__p_0
+    ) AS ""t""
+    ORDER BY ""t"".""City""
+    LIMIT @__p_0 OFFSET @__p_0
+) AS ""t0""
+WHERE ""c"".""CustomerID"" = ""t0"".""CustomerID""");
+    }
+
+    public override async Task Update_Where_GroupBy_aggregate_set_constant(bool async)
+    {
+        await base.Update_Where_GroupBy_aggregate_set_constant(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -558,9 +697,9 @@ WHERE ""c"".""CustomerID"" = (
     LIMIT 1)");
     }
 
-    public override async Task Update_where_group_by_first_constant(bool async)
+    public override async Task Update_Where_GroupBy_First_set_constant(bool async)
     {
-        await base.Update_where_group_by_first_constant(async);
+        await base.Update_Where_GroupBy_First_set_constant(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -577,23 +716,23 @@ WHERE ""c"".""CustomerID"" = (
     LIMIT 1)");
     }
 
-    public override async Task Update_where_group_by_first_constant_2(bool async)
+    public override async Task Update_Where_GroupBy_First_set_constant_2(bool async)
     {
-        await base.Update_where_group_by_first_constant_2(async);
+        await base.Update_Where_GroupBy_First_set_constant_2(async);
 
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_where_group_by_first_constant_3(bool async)
+    public override async Task Update_Where_GroupBy_First_set_constant_3(bool async)
     {
-        await base.Update_where_group_by_first_constant_3(async);
+        await base.Update_Where_GroupBy_First_set_constant_3(async);
 
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_where_distinct_constant(bool async)
+    public override async Task Update_Where_Distinct_set_constant(bool async)
     {
-        await base.Update_where_distinct_constant(async);
+        await base.Update_Where_Distinct_set_constant(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -601,32 +740,42 @@ WHERE ""c"".""CustomerID"" = (
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
-    public override async Task Update_where_using_navigation(bool async)
+    public override async Task Update_Where_using_navigation_set_null(bool async)
     {
-        await base.Update_where_using_navigation(async);
+        await base.Update_Where_using_navigation_set_null(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Orders"" AS ""o""
     SET ""OrderDate"" = NULL
-FROM ""Customers"" AS ""c""
-WHERE ""o"".""CustomerID"" = ""c"".""CustomerID"" AND ""c"".""City"" = 'Seattle'");
+FROM (
+    SELECT ""o0"".""OrderID"", ""o0"".""CustomerID"", ""o0"".""EmployeeID"", ""o0"".""OrderDate"", ""c"".""CustomerID"" AS ""CustomerID0""
+    FROM ""Orders"" AS ""o0""
+    LEFT JOIN ""Customers"" AS ""c"" ON ""o0"".""CustomerID"" = ""c"".""CustomerID""
+    WHERE ""c"".""City"" = 'Seattle'
+) AS ""t""
+WHERE ""o"".""OrderID"" = ""t"".""OrderID""");
     }
 
-    public override async Task Update_where_using_navigation_2(bool async)
+    public override async Task Update_Where_using_navigation_2_set_constant(bool async)
     {
-        await base.Update_where_using_navigation_2(async);
+        await base.Update_Where_using_navigation_2_set_constant(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Order Details"" AS ""o""
     SET ""Quantity"" = CAST(1 AS INTEGER)
-FROM ""Orders"" AS ""o0""
-LEFT JOIN ""Customers"" AS ""c"" ON ""o0"".""CustomerID"" = ""c"".""CustomerID""
-WHERE ""o"".""OrderID"" = ""o0"".""OrderID"" AND ""c"".""City"" = 'Seattle'");
+FROM (
+    SELECT ""o0"".""OrderID"", ""o0"".""ProductID"", ""o0"".""Discount"", ""o0"".""Quantity"", ""o0"".""UnitPrice"", ""o1"".""OrderID"" AS ""OrderID0"", ""c"".""CustomerID""
+    FROM ""Order Details"" AS ""o0""
+    INNER JOIN ""Orders"" AS ""o1"" ON ""o0"".""OrderID"" = ""o1"".""OrderID""
+    LEFT JOIN ""Customers"" AS ""c"" ON ""o1"".""CustomerID"" = ""c"".""CustomerID""
+    WHERE ""c"".""City"" = 'Seattle'
+) AS ""t""
+WHERE ""o"".""OrderID"" = ""t"".""OrderID"" AND ""o"".""ProductID"" = ""t"".""ProductID""");
     }
 
-    public override async Task Update_where_select_many(bool async)
+    public override async Task Update_Where_SelectMany_set_null(bool async)
     {
-        await base.Update_where_select_many(async);
+        await base.Update_Where_SelectMany_set_null(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Orders"" AS ""o""
@@ -635,9 +784,9 @@ FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = ""o"".""CustomerID"" AND (""c"".""CustomerID"" LIKE 'F%')");
     }
 
-    public override async Task Update_where_using_property_plus_constant(bool async)
+    public override async Task Update_Where_set_property_plus_constant(bool async)
     {
-        await base.Update_where_using_property_plus_constant(async);
+        await base.Update_Where_set_property_plus_constant(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -645,9 +794,9 @@ WHERE ""c"".""CustomerID"" = ""o"".""CustomerID"" AND (""c"".""CustomerID"" LIKE
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
-    public override async Task Update_where_using_property_plus_parameter(bool async)
+    public override async Task Update_Where_set_property_plus_parameter(bool async)
     {
-        await base.Update_where_using_property_plus_parameter(async);
+        await base.Update_Where_set_property_plus_parameter(async);
 
         AssertExecuteUpdateSql(
             @"@__value_0='Abc' (Size = 3)
@@ -657,9 +806,9 @@ UPDATE ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
-    public override async Task Update_where_using_property_plus_property(bool async)
+    public override async Task Update_Where_set_property_plus_property(bool async)
     {
-        await base.Update_where_using_property_plus_property(async);
+        await base.Update_Where_set_property_plus_property(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -667,9 +816,9 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
-    public override async Task Update_where_constant_using_ef_property(bool async)
+    public override async Task Update_Where_set_constant_using_ef_property(bool async)
     {
-        await base.Update_where_constant_using_ef_property(async);
+        await base.Update_Where_set_constant_using_ef_property(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -677,9 +826,9 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
-    public override async Task Update_where_null(bool async)
+    public override async Task Update_Where_set_null(bool async)
     {
-        await base.Update_where_null(async);
+        await base.Update_Where_set_null(async);
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
@@ -701,9 +850,9 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_where_multi_property_update(bool async)
+    public override async Task Update_Where_multiple_set(bool async)
     {
-        await base.Update_where_multi_property_update(async);
+        await base.Update_Where_multiple_set(async);
 
         AssertExecuteUpdateSql(
             @"@__value_0='Abc' (Size = 3)
@@ -721,18 +870,218 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_multiple_entity_update(bool async)
+    public override async Task Update_multiple_entity_throws(bool async)
     {
-        await base.Update_multiple_entity_update(async);
+        await base.Update_multiple_entity_throws(async);
 
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_unmapped_property(bool async)
+    public override async Task Update_unmapped_property_throws(bool async)
     {
-        await base.Update_unmapped_property(async);
+        await base.Update_unmapped_property_throws(async);
 
         AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_Union_set_constant(bool async)
+    {
+        await base.Update_Union_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    UNION
+    SELECT ""c1"".""CustomerID"", ""c1"".""Address"", ""c1"".""City"", ""c1"".""CompanyName"", ""c1"".""ContactName"", ""c1"".""ContactTitle"", ""c1"".""Country"", ""c1"".""Fax"", ""c1"".""Phone"", ""c1"".""PostalCode"", ""c1"".""Region""
+    FROM ""Customers"" AS ""c1""
+    WHERE ""c1"".""CustomerID"" LIKE 'A%'
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Concat_set_constant(bool async)
+    {
+        await base.Update_Concat_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    UNION ALL
+    SELECT ""c1"".""CustomerID"", ""c1"".""Address"", ""c1"".""City"", ""c1"".""CompanyName"", ""c1"".""ContactName"", ""c1"".""ContactTitle"", ""c1"".""Country"", ""c1"".""Fax"", ""c1"".""Phone"", ""c1"".""PostalCode"", ""c1"".""Region""
+    FROM ""Customers"" AS ""c1""
+    WHERE ""c1"".""CustomerID"" LIKE 'A%'
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Except_set_constant(bool async)
+    {
+        await base.Update_Except_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    EXCEPT
+    SELECT ""c1"".""CustomerID"", ""c1"".""Address"", ""c1"".""City"", ""c1"".""CompanyName"", ""c1"".""ContactName"", ""c1"".""ContactTitle"", ""c1"".""Country"", ""c1"".""Fax"", ""c1"".""Phone"", ""c1"".""PostalCode"", ""c1"".""Region""
+    FROM ""Customers"" AS ""c1""
+    WHERE ""c1"".""CustomerID"" LIKE 'A%'
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_Intersect_set_constant(bool async)
+    {
+        await base.Update_Intersect_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+    INTERSECT
+    SELECT ""c1"".""CustomerID"", ""c1"".""Address"", ""c1"".""City"", ""c1"".""CompanyName"", ""c1"".""ContactName"", ""c1"".""ContactTitle"", ""c1"".""Country"", ""c1"".""Fax"", ""c1"".""Phone"", ""c1"".""PostalCode"", ""c1"".""Region""
+    FROM ""Customers"" AS ""c1""
+    WHERE ""c1"".""CustomerID"" LIKE 'A%'
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
+    }
+
+    public override async Task Update_with_join_set_constant(bool async)
+    {
+        await base.Update_with_join_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    WHERE ""o"".""OrderID"" < 10300
+) AS ""t""
+WHERE ""c"".""CustomerID"" = ""t"".""CustomerID"" AND (""c"".""CustomerID"" LIKE 'F%')");
+    }
+
+    public override async Task Update_with_left_join_set_constant(bool async)
+    {
+        await base.Update_with_left_join_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region"", ""t"".""OrderID"", ""t"".""CustomerID"" AS ""CustomerID0"", ""t"".""EmployeeID"", ""t"".""OrderDate""
+    FROM ""Customers"" AS ""c0""
+    LEFT JOIN (
+        SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+        FROM ""Orders"" AS ""o""
+        WHERE ""o"".""OrderID"" < 10300
+    ) AS ""t"" ON ""c0"".""CustomerID"" = ""t"".""CustomerID""
+    WHERE ""c0"".""CustomerID"" LIKE 'F%'
+) AS ""t0""
+WHERE ""c"".""CustomerID"" = ""t0"".""CustomerID""");
+    }
+
+    public override async Task Update_with_cross_join_set_constant(bool async)
+    {
+        await base.Update_with_cross_join_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    WHERE ""o"".""OrderID"" < 10300
+) AS ""t""
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_with_cross_apply_set_constant(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_cross_apply_set_constant(async))).Message);
+
+    public override async Task Update_with_outer_apply_set_constant(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_outer_apply_set_constant(async))).Message);
+
+    public override async Task Update_FromSql_set_constant(bool async)
+    {
+        await base.Update_FromSql_set_constant(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_Where_SelectMany_subquery_set_null(bool async)
+    {
+        await base.Update_Where_SelectMany_subquery_set_null(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Orders"" AS ""o""
+    SET ""OrderDate"" = NULL
+FROM (
+    SELECT ""t"".""OrderID"", ""t"".""CustomerID"", ""t"".""EmployeeID"", ""t"".""OrderDate"", ""c"".""CustomerID"" AS ""CustomerID0""
+    FROM ""Customers"" AS ""c""
+    INNER JOIN (
+        SELECT ""o0"".""OrderID"", ""o0"".""CustomerID"", ""o0"".""EmployeeID"", ""o0"".""OrderDate""
+        FROM ""Orders"" AS ""o0""
+        WHERE CAST(strftime('%Y', ""o0"".""OrderDate"") AS INTEGER) = 1997
+    ) AS ""t"" ON ""c"".""CustomerID"" = ""t"".""CustomerID""
+    WHERE ""c"".""CustomerID"" LIKE 'F%'
+) AS ""t0""
+WHERE ""o"".""OrderID"" = ""t0"".""OrderID""");
+    }
+
+    public override async Task Update_Where_Join_set_property_from_joined_single_result_table(bool async)
+    {
+        await base.Update_Where_Join_set_property_from_joined_single_result_table(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_Where_Join_set_property_from_joined_table(bool async)
+    {
+        await base.Update_Where_Join_set_property_from_joined_table(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""City"" = ""t"".""City""
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""CustomerID"" = 'ALFKI'
+) AS ""t""
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_Where_Join_set_property_from_joined_single_result_scalar(bool async)
+    {
+        await base.Update_Where_Join_set_property_from_joined_single_result_scalar(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""City"" = CAST(CAST(strftime('%Y', (
+        SELECT ""o"".""OrderDate""
+        FROM ""Orders"" AS ""o""
+        WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""
+        ORDER BY ""o"".""OrderDate"" DESC
+        LIMIT 1)) AS INTEGER) AS TEXT)
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
     private void AssertSql(params string[] expected)

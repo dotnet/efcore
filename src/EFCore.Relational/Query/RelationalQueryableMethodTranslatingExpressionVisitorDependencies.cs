@@ -48,11 +48,13 @@ public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDepend
     public RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
         IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
         ISqlExpressionFactory sqlExpressionFactory,
-        IRelationalTypeMappingSource typeMappingSource)
+        IRelationalTypeMappingSource typeMappingSource,
+        IModel model)
     {
         RelationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
         SqlExpressionFactory = sqlExpressionFactory;
         TypeMappingSource = typeMappingSource;
+        Model = model;
     }
 
     /// <summary>
@@ -69,4 +71,9 @@ public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDepend
     ///     The relational type mapping souce.
     /// </summary>
     public IRelationalTypeMappingSource TypeMappingSource { get; init; }
+
+    /// <summary>
+    ///     The model.
+    /// </summary>
+    public IModel Model { get; init; }
 }
