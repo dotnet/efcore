@@ -412,6 +412,18 @@ WHERE EXISTS (
     WHERE [m].[OrderID] = [o].[OrderID] AND [m].[ProductID] = [o].[ProductID])");
     }
 
+    public override async Task Delete_Where_optional_navigation_predicate(bool async)
+    {
+        await base.Delete_Where_optional_navigation_predicate(async);
+
+        AssertSql(
+            @"DELETE FROM [o]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+WHERE [c].[City] IS NOT NULL AND ([c].[City] LIKE N'Se%')");
+    }
+
     public override async Task Delete_with_join(bool async)
     {
         await base.Delete_with_join(async);

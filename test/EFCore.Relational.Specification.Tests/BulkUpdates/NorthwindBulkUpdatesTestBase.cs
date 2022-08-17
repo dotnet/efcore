@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.VisualBasic;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
@@ -278,6 +277,16 @@ WHERE [OrderID] < 10300"))
                     .ExecuteDelete());
         }
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_Where_optional_navigation_predicate(bool async)
+        => AssertDelete(
+            async,
+            ss => from od in ss.Set<OrderDetail>()
+                  where od.Order.Customer.City.StartsWith("Se")
+                  select od,
+            rowsAffectedCount: 66);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
