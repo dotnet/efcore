@@ -44,6 +44,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ConnectionStringConflictingConfiguration");
 
         /// <summary>
+        ///     The entity type '{entityType}' is mapped to the container '{container}' but it is also configured as being contained in property '{property}'.
+        /// </summary>
+        public static string ContainerContainingPropertyConflict(object? entityType, object? container, object? property)
+            => string.Format(
+                GetString("ContainerContainingPropertyConflict", nameof(entityType), nameof(container), nameof(property)),
+                entityType, container, property);
+
+        /// <summary>
         ///     Cosmos-specific methods can only be used when the context is using the Cosmos provider.
         /// </summary>
         public static string CosmosNotInUse

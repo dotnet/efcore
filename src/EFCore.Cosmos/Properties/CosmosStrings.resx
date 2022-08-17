@@ -126,6 +126,9 @@
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
     <value>Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.</value>
   </data>
+  <data name="ContainerContainingPropertyConflict" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the container '{container}' but it is also configured as being contained in property '{property}'.</value>
+  </data>
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
   </data>
