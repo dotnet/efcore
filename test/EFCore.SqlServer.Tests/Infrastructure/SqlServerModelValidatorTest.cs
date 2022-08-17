@@ -11,20 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
-    public override void Detects_duplicate_column_names()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
-        modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name");
-
-        VerifyError(
-            RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(Animal), nameof(Animal.Id),
-                nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "int", "nvarchar(max)"),
-            modelBuilder);
-    }
-
     public override void Detects_duplicate_columns_in_derived_types_with_different_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -838,27 +824,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Temporal_all_properties_mapped_to_period_column_must_have_value_generated_OnAddOrUpdate()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start2").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate();
-        modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn");
-        modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start").HasColumnName("StartColumn")));
+        modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb =>
+            ttb.HasPeriodStart("Start").HasColumnName("StartColumn").GetInfrastructure().ValueGeneratedNever()));
 
         VerifyError(
             SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
-                nameof(Dog), "Start3", nameof(ValueGenerated.OnAddOrUpdate)), modelBuilder);
-    }
-
-    [ConditionalFact]
-    public void Temporal_all_properties_mapped_to_period_column_cant_have_default_values()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start2").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate();
-        modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValue(DateTime.MinValue);
-        modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start").HasColumnName("StartColumn")));
-
-        VerifyError(
-            SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
-                nameof(Dog), "Start3"), modelBuilder);
+                nameof(Dog), "Start", nameof(ValueGenerated.OnAddOrUpdate)), modelBuilder);
     }
 
     [ConditionalFact]
