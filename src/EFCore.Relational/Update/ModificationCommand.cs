@@ -467,17 +467,26 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         _requiresResultPropagation = true;
                     }
 
+                    // Check if a parameter with the same value already exists, if it does no need to generate a new name
+                    var parameterNameGenerator = _generateParameterName!;
+                    var value = entry.GetCurrentValue(property);
+                    var sameValueModification = columnModifications.FirstOrDefault(cm => cm.Value != null && cm.Value.Equals(value));
+                    if (sameValueModification != null)
+                    {
+                        parameterNameGenerator = () => sameValueModification.ParameterName!;
+                    }
+
                     var columnModificationParameters = new ColumnModificationParameters(
-                        entry,
-                        property,
-                        column,
-                        _generateParameterName!,
-                        columnMapping.TypeMapping,
-                        readValue,
-                        writeValue,
-                        isKey,
-                        isCondition,
-                        _sensitiveLoggingEnabled);
+                    entry,
+                    property,
+                    column,
+                    parameterNameGenerator,
+                    columnMapping.TypeMapping,
+                    readValue,
+                    writeValue,
+                    isKey,
+                    isCondition,
+                    _sensitiveLoggingEnabled);
 
                     var columnModification = CreateColumnModification(columnModificationParameters);
 

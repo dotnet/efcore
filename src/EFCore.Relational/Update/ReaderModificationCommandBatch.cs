@@ -307,9 +307,13 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         // parameter. This will happen below.
         if (columnModification.UseCurrentValueParameter && direction != ParameterDirection.InputOutput)
         {
-            AddParameterCore(columnModification.ParameterName, direction == ParameterDirection.Output
-                ? null
-                : columnModification.Value);
+            // Check if parameter is already added
+            if (!ParameterValues.Any(pv => pv.Key == columnModification.ParameterName))
+            {
+                AddParameterCore(columnModification.ParameterName, direction == ParameterDirection.Output
+                    ? null
+                    : columnModification.Value);
+            }
         }
 
         if (columnModification.UseOriginalValueParameter)
