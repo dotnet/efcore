@@ -107,12 +107,6 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
             modelBuilder.Entity<Product>(
                 eb =>
                 {
-                    eb.ToTable(tb =>
-                    {
-                        tb.HasTrigger("TRG_InsertProduct");
-                        tb.HasTrigger("TRG_UpdateProduct");
-                        tb.HasTrigger("TRG_DeleteProduct");
-                    });
                     eb.Property(e => e.Version)
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken();
@@ -121,6 +115,14 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
 
             modelBuilder.Entity<ProductBackup>()
                 .Property(e => e.Id).ValueGeneratedNever();
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Conventions.Add(p =>
+                new BlankTriggerAddingConvention(
+                    p.GetRequiredService<ProviderConventionSetBuilderDependencies>(),
+                    p.GetRequiredService<RelationalConventionSetBuilderDependencies>()));
         }
     }
 
