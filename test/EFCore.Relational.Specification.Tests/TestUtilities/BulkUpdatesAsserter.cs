@@ -82,10 +82,7 @@ public class BulkUpdatesAsserter
 
                     var after = processedQuery.AsNoTracking().Select(entitySelector).OrderBy(elementSorter).ToList();
 
-                    if (asserter != null)
-                    {
-                        asserter(before, after);
-                    }
+                    asserter?.Invoke(before, after);
                 });
         }
         else
@@ -104,10 +101,7 @@ public class BulkUpdatesAsserter
 
                     var after = processedQuery.AsNoTracking().Select(entitySelector).OrderBy(elementSorter).ToList();
 
-                    if (asserter != null)
-                    {
-                        asserter(before, after);
-                    }
+                    asserter?.Invoke(before, after);
                 });
         }
     }

@@ -332,9 +332,6 @@
   <data name="TemporalPeriodPropertyMustBeNonNullableDateTime" xml:space="preserve">
     <value>Period property '{entityType}.{propertyName}' must be non-nullable and of type '{dateTimeType}'.</value>
   </data>
-  <data name="TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue" xml:space="preserve">
-    <value>Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.</value>
-  </data>
   <data name="TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate" xml:space="preserve">
     <value>Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.</value>
   </data>
