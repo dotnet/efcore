@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestModelSource : ModelSource
@@ -26,6 +28,7 @@ public class TestModelSource : ModelSource
         var modelConfigurationBuilder = new ModelConfigurationBuilder(
             conventionSetBuilder.CreateConventionSet(),
             context.GetInfrastructure());
+        context.ConfigureConventions(modelConfigurationBuilder);
         _configureConventions?.Invoke(modelConfigurationBuilder);
         var modelBuilder = modelConfigurationBuilder.CreateModelBuilder(modelDependencies);
 
