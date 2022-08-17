@@ -291,13 +291,23 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_conflicting_containing_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().ToContainer("Orders");
+        modelBuilder.Entity<Order>().ToContainer("Orders").Metadata.SetContainingPropertyName("Prop");
+
+        VerifyError(CosmosStrings.ContainerContainingPropertyConflict(nameof(Order), "Orders", "Prop"), modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_missing_discriminator()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasNoDiscriminator();
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
-        VerifyError(CosmosStrings.NoDiscriminatorProperty(typeof(Customer).Name, "Orders"), modelBuilder);
+        VerifyError(CosmosStrings.NoDiscriminatorProperty(nameof(Customer), "Orders"), modelBuilder);
     }
 
     [ConditionalFact]

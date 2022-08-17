@@ -264,6 +264,22 @@ public interface ICSharpHelper
     string Literal<T>(T[] values, bool vertical = false);
 
     /// <summary>
+    ///     Generates a list literal.
+    /// </summary>
+    /// <param name="values">The list.</param>
+    /// <param name="vertical">A value indicating whether to layout the literal vertically.</param>
+    /// <returns>The literal.</returns>
+    string Literal<T>(List<T> values, bool vertical = false);
+
+    /// <summary>
+    ///     Generates a dictionary literal.
+    /// </summary>
+    /// <param name="values">The dictionary.</param>
+    /// <param name="vertical">A value indicating whether to layout the literal vertically.</param>
+    /// <returns>The literal.</returns>
+    string Literal<TKey, TValue>(Dictionary<TKey, TValue> values, bool vertical = false) where TKey : notnull;
+
+    /// <summary>
     ///     Generates a valid C# namespace from the specified parts.
     /// </summary>
     /// <param name="name">The base parts of the namespace.</param>
