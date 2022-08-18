@@ -9,33 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqliteModelValidatorTest : RelationalModelValidatorTest
 {
-    public override void Detects_duplicate_column_names()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
-        modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name");
-
-        VerifyError(
-            RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(Animal), nameof(Animal.Id),
-                nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
-            modelBuilder);
-    }
-
-    public override void Detects_duplicate_columns_in_derived_types_with_different_types()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Animal>();
-
-        modelBuilder.Entity<Cat>().Property(c => c.Type).IsRequired().HasColumnName("Type");
-        modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type");
-
-        VerifyError(
-            RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder);
-    }
-
     [ConditionalFact]
     public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_srid()
     {

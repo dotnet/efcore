@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table, maxLength1, maxLength2);
 
         /// <summary>
-        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different nullability settings.
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different column nullability settings.
         /// </summary>
         public static string DuplicateColumnNameNullabilityMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
@@ -452,6 +452,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateColumnNameProviderTypeMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table), nameof(type1), nameof(type2)),
                 entityType1, property1, entityType2, property2, columnName, table, type1, type2);
+
+        /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to unique different columns.
+        /// </summary>
+        public static string DuplicateColumnNameSameHierarchy(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
+            => string.Format(
+                GetString("DuplicateColumnNameSameHierarchy", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different scales ('{scale1}' and '{scale2}').
@@ -1576,14 +1584,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, sproc);
 
         /// <summary>
-        ///     Stored procedure '{sproc]' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.
-        /// </summary>
-        public static string StoredProcedureRowsAffectedNotPopulated(object? sproc)
-            => string.Format(
-                GetString("StoredProcedureRowsAffectedNotPopulated", nameof(sproc)),
-                sproc);
-
-        /// <summary>
         ///     The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.
         /// </summary>
         public static string StoredProcedureOverrideMismatch(object? propertySpecification, object? sproc)
@@ -1654,6 +1654,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("StoredProcedureResultColumnParameterConflict", nameof(entityType), nameof(property), nameof(sproc)),
                 entityType, property, sproc);
+
+        /// <summary>
+        ///     Stored procedure '{sproc}' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedNotPopulated(object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedNotPopulated", nameof(sproc)),
+                sproc);
 
         /// <summary>
         ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.

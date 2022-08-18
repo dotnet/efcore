@@ -3,9 +3,6 @@
 
 #nullable enable
 
-// ReSharper disable InconsistentNaming
-using static Microsoft.EntityFrameworkCore.ChangeTracking.MemberEntryTest;
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
@@ -69,6 +66,32 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             indexBuilder.HasFilter(null);
 
             Assert.Null(index.GetFilter());
+        }
+
+        [ConditionalFact]
+        public void Indexes_can_have_same_name_across_tables()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Customer>()
+                .HasIndex(e => e.Id, "Ix_Id")
+                .IsUnique();
+            modelBuilder.Entity<CustomerDetails>()
+                .HasIndex(e => e.CustomerId, "Ix_Id")
+                .IsUnique();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var customerIndex = model.FindEntityType(typeof(Customer))!.GetIndexes().Single();
+            Assert.Equal("Ix_Id", customerIndex.Name);
+            Assert.Equal("Ix_Id", customerIndex.GetDatabaseName());
+            Assert.Equal("Ix_Id", customerIndex.GetDatabaseName(
+                StoreObjectIdentifier.Table("Customer")));
+
+            var detailsIndex = model.FindEntityType(typeof(CustomerDetails))!.GetIndexes().Single();
+            Assert.Equal("Ix_Id", detailsIndex.Name);
+            Assert.Equal("Ix_Id", detailsIndex.GetDatabaseName());
+            Assert.Equal("Ix_Id", detailsIndex.GetDatabaseName(
+                StoreObjectIdentifier.Table("CustomerDetails")));
         }
 
         [ConditionalFact]
@@ -1020,7 +1043,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(nameof(Order), owned.GetTableName());
             Assert.Null(owned.GetSchema());
         }
-        
+
         public override void Can_configure_owned_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1290,12 +1313,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                     }));
 
             modelBuilder.Entity<Customer>()
-                .Property<DateTime>("MappedStart")
+                .Property<DateTime>("Start")
                 .HasColumnName("PeriodStartColumn")
                 .ValueGeneratedOnAddOrUpdate();
 
             modelBuilder.Entity<Customer>()
-                .Property<DateTime>("MappedEnd")
+                .Property<DateTime>("End")
                 .HasColumnName("PeriodEndColumn")
                 .ValueGeneratedOnAddOrUpdate();
 
@@ -1303,7 +1326,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(7, entity.GetProperties().Count());
+            Assert.Equal(5, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
@@ -1321,12 +1344,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(periodEnd.IsShadowProperty());
             Assert.Equal(typeof(DateTime), periodEnd.ClrType);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
-
-            var propertyMappedToStart = entity.GetProperty("MappedStart");
-            Assert.Equal("PeriodStartColumn", propertyMappedToStart[RelationalAnnotationNames.ColumnName]);
-
-            var propertyMappedToEnd = entity.GetProperty("MappedEnd");
-            Assert.Equal("PeriodEndColumn", propertyMappedToEnd[RelationalAnnotationNames.ColumnName]);
         }
 
         [ConditionalFact]
@@ -1995,7 +2012,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
             => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
     }
-    
+
     public abstract class TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
         where TOwnerEntity : class
         where TDependentEntity : class

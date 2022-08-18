@@ -479,6 +479,20 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_properties_mapped_to_the_same_column_within_hierarchy()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0));
+        modelBuilder.Entity<C>().Property<int?>("PC").HasColumnName(nameof(A.P0));
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameSameHierarchy(
+                nameof(A), nameof(A.P0), nameof(C), "PC", nameof(A.P0), nameof(A)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -869,35 +883,18 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             LogLevel.Error);
     }
 
-
-
-    [ConditionalFact]
-    public virtual void Detects_duplicate_column_names()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
-        modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").IsRequired();
-
-        VerifyError(
-            RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(Animal), nameof(Animal.Id),
-                nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "default_int_mapping", "just_string(max)"),
-            modelBuilder);
-    }
-
     [ConditionalFact]
     public virtual void Detects_duplicate_columns_in_derived_types_with_different_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
 
-        modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").IsRequired();
-        modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type");
+        modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").HasColumnType("someInt");
+        modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type").HasColumnType("default_int_mapping");
 
         VerifyError(
             RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), nameof(Animal), "just_string(max)",
+                nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), nameof(Animal), "someInt",
                 "default_int_mapping"), modelBuilder);
     }
 
@@ -1018,16 +1015,20 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_nullability()
+    public virtual void Detects_duplicate_column_names_with_different_column_nullability()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>();
-        modelBuilder.Entity<Dog>().Property<int?>("OtherId").HasColumnName("Id");
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<B>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
+        modelBuilder.Entity<A>().HasOne<G>().WithOne(g => g.A).HasForeignKey<G>(a => a.Id).HasPrincipalKey<A>(b => b.Id)
+            .Metadata.IsRequiredDependent = true;
+        modelBuilder.Entity<A>().ToTable("Table").Ignore(a => a.P0);
+        modelBuilder.Entity<B>().ToTable("Table").Property(b => b.P0).HasColumnName(nameof(A.P0));
+        modelBuilder.Entity<G>().ToTable("Table").Property(g => g.P0).HasColumnName(nameof(A.P0)).IsRequired();
 
         VerifyError(
             RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                nameof(Animal), nameof(Animal.Id), nameof(Dog), "OtherId", nameof(Animal.Id), nameof(Animal)),
+                nameof(B), nameof(B.P0), nameof(G), nameof(G.P0), nameof(A.P0), "Table"),
             modelBuilder);
     }
 
@@ -1686,7 +1687,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_missing_concurrency_token_on_the_base_type_without_convention()
+    public virtual void Passes_with_missing_concurrency_token_on_the_base_type_without_convention()
     {
         var modelBuilder = CreateModelBuilderWithoutConvention<TableSharingConcurrencyTokenConvention>();
         modelBuilder.Entity<Person>().ToTable(nameof(Animal))
@@ -1695,9 +1696,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>()
             .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
 
-        VerifyError(
-            RelationalStrings.MissingConcurrencyColumn(nameof(Animal), "Version", nameof(Animal)),
-            modelBuilder);
+        Validate(modelBuilder);
     }
 
     [ConditionalFact]
@@ -1723,7 +1722,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>()
             .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
 
-        var model = Validate(modelBuilder);
+        Validate(modelBuilder);
     }
 
     [ConditionalFact]

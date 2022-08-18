@@ -1117,6 +1117,19 @@ public class RelationalModelValidator : ModelValidator
                     continue;
                 }
 
+                if (property.DeclaringEntityType.IsAssignableFrom(duplicateProperty.DeclaringEntityType)
+                    || duplicateProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateColumnNameSameHierarchy(
+                            duplicateProperty.DeclaringEntityType.DisplayName(),
+                            duplicateProperty.Name,
+                            property.DeclaringEntityType.DisplayName(),
+                            property.Name,
+                            columnName,
+                            storeObject.DisplayName()));
+                }
+
                 ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
             }
 
