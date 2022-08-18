@@ -109,7 +109,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
                                         .Select(g => g.First()).First().OrderID),
             rowsAffectedCount: 284);
 
-    [ConditionalTheory(Skip = "Issue#28524")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_Where_predicate_with_GroupBy_aggregate_2(bool async)
         => AssertDelete(
@@ -119,7 +119,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
                             .GroupBy(o => o.CustomerID)
                             .Where(g => g.Count() > 9)
                             .Select(g => g.First()).Contains(e.Order)),
-            rowsAffectedCount: 40);
+            rowsAffectedCount: 109);
 
     [ConditionalTheory(Skip = "Issue#28525")]
     [MemberData(nameof(IsAsyncData))]
@@ -130,6 +130,15 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
                     .GroupBy(od => od.OrderID)
                     .Where(g => g.Count() > 5)
                     .Select(g => g.First()),
+            rowsAffectedCount: 284);
+
+    [ConditionalTheory(Skip = "Issue#26753")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_GroupBy_Where_Select_2(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<OrderDetail>()
+                    .Where(od => od == ss.Set<OrderDetail>().GroupBy(od => od.OrderID).Where(g => g.Count() > 5).Select(g => g.First()).FirstOrDefault()),
             rowsAffectedCount: 284);
 
     [ConditionalTheory]
@@ -516,7 +525,7 @@ WHERE [OrderID] < 10300"))
             rowsAffectedCount: 1,
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
 
-    [ConditionalTheory(Skip = "Issue#28524")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_GroupBy_First_set_constant_3(bool async)
         => AssertUpdate(
@@ -526,7 +535,7 @@ WHERE [OrderID] < 10300"))
                         .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().Customer).Contains(c)),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
-            rowsAffectedCount: 1,
+            rowsAffectedCount: 24,
             (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
 
     [ConditionalTheory]
@@ -869,7 +878,7 @@ WHERE [CustomerID] LIKE 'A%'"))
         rowsAffectedCount: 35,
         (b, a) => Assert.All(a, c => Assert.Null(c.OrderDate)));
 
-    [ConditionalTheory(Skip = "Issue#28752")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_Join_set_property_from_joined_single_result_table(bool async)
     => AssertUpdate(
@@ -877,9 +886,19 @@ WHERE [CustomerID] LIKE 'A%'"))
         ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
               select new { c, LastOrder = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault() },
         e => e.c,
-        s => s.SetProperty(c => c.c.City, c => c.LastOrder.OrderDate.ToString()),
-        rowsAffectedCount: 35,
-        (b, a) => Assert.All(a, c => Assert.NotNull(c.City)));
+        s => s.SetProperty(c => c.c.City, c => c.LastOrder.OrderDate.Value.Year.ToString()),
+        rowsAffectedCount: 8,
+        (b, a) => Assert.All(a, c =>
+        {
+            if (c.CustomerID == "FISSA")
+            {
+                Assert.Null(c.City);
+            }
+            else
+            {
+                Assert.NotNull(c.City);
+            }
+        }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

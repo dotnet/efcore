@@ -7,6 +7,9 @@ public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtur
 {
     protected override string StoreName => "InheritanceBulkUpdatesTest";
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 }
