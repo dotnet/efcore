@@ -19,10 +19,20 @@ public abstract class TPTFiltersInheritanceBulkUpdatesTestBase<TFixture> : Filte
             RelationalStrings.ExecuteOperationOnTPT("ExecuteDelete", "Animal"),
             () => base.Delete_where_hierarchy(async));
 
+    public override Task Delete_where_hierarchy_subquery(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPT("ExecuteDelete", "Animal"),
+            () => base.Delete_where_hierarchy_subquery(async));
+
     public override Task Delete_where_hierarchy_derived(bool async)
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnTPT("ExecuteDelete", "Kiwi"),
             () => base.Delete_where_hierarchy_derived(async));
+
+    public override Task Delete_GroupBy_Where_Select_First_3(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPT("ExecuteDelete", "Animal"),
+            () => base.Delete_GroupBy_Where_Select_First_3(async));
 
     [ConditionalTheory(Skip = "Issue#28532")]
     public override Task Delete_where_using_hierarchy(bool async)

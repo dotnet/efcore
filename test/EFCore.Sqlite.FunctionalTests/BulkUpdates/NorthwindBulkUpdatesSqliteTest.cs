@@ -190,12 +190,33 @@ WHERE ""o"".""OrderID"" < (
     {
         await base.Delete_Where_predicate_with_GroupBy_aggregate_2(async);
 
-        AssertSql();
+        AssertSql(
+            @"DELETE FROM ""Order Details"" AS ""o""
+WHERE EXISTS (
+    SELECT 1
+    FROM ""Order Details"" AS ""o0""
+    INNER JOIN ""Orders"" AS ""o1"" ON ""o0"".""OrderID"" = ""o1"".""OrderID""
+    WHERE EXISTS (
+        SELECT 1
+        FROM ""Orders"" AS ""o2""
+        GROUP BY ""o2"".""CustomerID""
+        HAVING COUNT(*) > 9 AND (
+            SELECT ""o3"".""OrderID""
+            FROM ""Orders"" AS ""o3""
+            WHERE ""o2"".""CustomerID"" = ""o3"".""CustomerID"" OR (""o2"".""CustomerID"" IS NULL AND ""o3"".""CustomerID"" IS NULL)
+            LIMIT 1) = ""o1"".""OrderID"") AND ""o0"".""OrderID"" = ""o"".""OrderID"" AND ""o0"".""ProductID"" = ""o"".""ProductID"")");
     }
 
     public override async Task Delete_GroupBy_Where_Select(bool async)
     {
         await base.Delete_GroupBy_Where_Select(async);
+
+        AssertSql();
+    }
+
+    public override async Task Delete_GroupBy_Where_Select_2(bool async)
+    {
+        await base.Delete_GroupBy_Where_Select_2(async);
 
         AssertSql();
     }
@@ -741,7 +762,19 @@ WHERE ""c"".""CustomerID"" = (
     {
         await base.Update_Where_GroupBy_First_set_constant_3(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+WHERE EXISTS (
+    SELECT 1
+    FROM ""Orders"" AS ""o""
+    GROUP BY ""o"".""CustomerID""
+    HAVING COUNT(*) > 11 AND (
+        SELECT ""c0"".""CustomerID""
+        FROM ""Orders"" AS ""o0""
+        LEFT JOIN ""Customers"" AS ""c0"" ON ""o0"".""CustomerID"" = ""c0"".""CustomerID""
+        WHERE ""o"".""CustomerID"" = ""o0"".""CustomerID"" OR (""o"".""CustomerID"" IS NULL AND ""o0"".""CustomerID"" IS NULL)
+        LIMIT 1) = ""c"".""CustomerID"")");
     }
 
     public override async Task Update_Where_Distinct_set_constant(bool async)
@@ -1065,7 +1098,15 @@ WHERE ""o"".""OrderID"" = ""t0"".""OrderID""");
     {
         await base.Update_Where_Join_set_property_from_joined_single_result_table(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+    SET ""City"" = CAST(CAST(strftime('%Y', (
+        SELECT ""o"".""OrderDate""
+        FROM ""Orders"" AS ""o""
+        WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""
+        ORDER BY ""o"".""OrderDate"" DESC
+        LIMIT 1)) AS INTEGER) AS TEXT)
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
     public override async Task Update_Where_Join_set_property_from_joined_table(bool async)

@@ -1079,13 +1079,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         var clrType = entityType.ClrType;
         var entityParameter = Expression.Parameter(clrType);
         Expression predicateBody;
-        //if (pk.Properties.Count == 1)
-        //{
-        //    predicateBody = Expression.Call(
-        //        EnumerableMethods.Contains.MakeGenericMethod(clrType), source, entityParameter);
-        //}
-        //else
-        //{
         var innerParameter = Expression.Parameter(clrType);
         predicateBody = Expression.Call(
             QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
@@ -1093,7 +1086,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             Expression.Quote(Expression.Lambda(
                 Infrastructure.ExpressionExtensions.CreateEqualsExpression(innerParameter, entityParameter),
                 innerParameter)));
-        //}
 
         var newSource = Expression.Call(
             QueryableMethods.Where.MakeGenericMethod(clrType),
