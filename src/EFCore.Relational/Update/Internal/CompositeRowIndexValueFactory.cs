@@ -60,9 +60,9 @@ public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndex
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object? CreateValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+    public virtual object? CreateEquatableIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
         => TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue)
-            ? new ValueIndex<object?[]>(_index, keyValue, EqualityComparer)
+            ? new EquatableKeyValue<object?[]>(_index, keyValue, EqualityComparer)
             : null;
 
     /// <summary>
@@ -71,7 +71,7 @@ public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndex
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object[]? CreateValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+    public virtual object[]? CreateIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
         => TryCreateIndexValue(command, fromOriginalValues, out var keyValue)
             ? (object[])keyValue
             : null;

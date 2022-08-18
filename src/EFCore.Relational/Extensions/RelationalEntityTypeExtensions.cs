@@ -1375,22 +1375,13 @@ public static class RelationalEntityTypeExtensions
 
         foreach (var foreignKey in entityType.GetForeignKeys())
         {
-            if (!foreignKey.PrincipalKey.IsPrimaryKey()
-                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                || !foreignKey.Properties.SequenceEqual(primaryKey.Properties)
-                || !IsMapped(foreignKey, storeObject))
+            if (!foreignKey.IsRowInternal(storeObject))
             {
                 continue;
             }
 
             yield return foreignKey;
         }
-
-        static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
-            => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject))
-                && (StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject));
     }
 
     /// <summary>

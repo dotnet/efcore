@@ -39,7 +39,7 @@ public interface IKey : IReadOnlyKey, IAnnotatable
 
     /// <summary>
     ///     <para>
-    ///         Gets a factory for key values based on the index key values taken from various forms of entity data.
+    ///         Gets a factory for key values based on the key values taken from various forms of entity data.
     ///     </para>
     ///     <para>
     ///         This method is typically used by database providers (and other extensions). It is generally
@@ -50,4 +50,16 @@ public interface IKey : IReadOnlyKey, IAnnotatable
     /// <returns>The factory.</returns>
     IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
         where TKey : notnull;
+
+    /// <summary>
+    ///     <para>
+    ///         Gets a factory for key values based on the key values taken from various forms of entity data.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <returns>The factory.</returns>
+    IPrincipalKeyValueFactory GetPrincipalKeyValueFactory();
 }

@@ -84,6 +84,19 @@ public interface IForeignKey : IReadOnlyForeignKey, IAnnotatable
     ///     </para>
     /// </summary>
     /// <typeparam name="TKey">The type of key instances.</typeparam>
-    /// <returns>A new factory.</returns>
-    IDependentKeyValueFactory<TKey>? GetDependentKeyValueFactory<TKey>();
+    /// <returns>The factory.</returns>
+    IDependentKeyValueFactory<TKey> GetDependentKeyValueFactory<TKey>();
+
+    /// <summary>
+    ///     <para>
+    ///         Creates a factory for key values based on the foreign key values taken
+    ///         from various forms of entity data.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <returns>The factory.</returns>
+    IDependentKeyValueFactory GetDependentKeyValueFactory();
 }

@@ -797,7 +797,7 @@ public class ConventionSet
 
         return false;
     }
-    
+
     /// <summary>
     ///     Removes the convention of the given type.
     /// </summary>

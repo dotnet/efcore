@@ -12,7 +12,7 @@ public interface IMutableStoredProcedureResultColumn : IReadOnlyStoredProcedureR
     ///     Gets the stored procedure to which this result column belongs.
     /// </summary>
     new IMutableStoredProcedure StoredProcedure { get; }
-    
+
     /// <summary>
     ///     Gets or sets the result column name.
     /// </summary>

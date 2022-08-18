@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincipalKeyValueFactory<object[]>
 {
+    private readonly IKey _key;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -20,6 +22,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     public CompositePrincipalKeyValueFactory(IKey key)
         : base(key.Properties)
     {
+        _key = key;
     }
 
     /// <summary>
@@ -117,4 +120,18 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
 
         return values;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object CreateEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
+        => new EquatableKeyValue<object[]>(
+            _key,
+            fromOriginalValues
+                ? CreateFromOriginalValues(entry)
+                : CreateFromCurrentValues(entry),
+            EqualityComparer);
 }

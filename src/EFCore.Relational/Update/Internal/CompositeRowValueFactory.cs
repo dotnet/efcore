@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -109,7 +108,7 @@ public abstract class CompositeRowValueFactory
                     value = fromOriginalValues ? entry.GetOriginalProviderValue(property) : entry.GetCurrentProviderValue(property);
                     if (!fromOriginalValues
                         && (entry.EntityState == EntityState.Added
-                            || (entry.EntityState == EntityState.Modified && entry.IsModified(property))))
+                            || entry.EntityState == EntityState.Modified && entry.IsModified(property)))
                     {
                         break;
                     }
@@ -198,18 +197,17 @@ public abstract class CompositeRowValueFactory
 
         public int GetHashCode(object?[] obj)
         {
-            var hashCode = 0;
+            var hashCode = new HashCode();
 
             // ReSharper disable once ForCanBeConvertedToForeach
             // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < obj.Length; i++)
             {
                 var value = obj[i];
-                var hash = value == null ? 0 : _hashCodes[i](value);
-                hashCode = (hashCode * 397) ^ hash;
+                hashCode.Add(value == null ? 0 : _hashCodes[i](value));
             }
 
-            return hashCode;
+            return hashCode.ToHashCode();
         }
     }
 }

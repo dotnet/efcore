@@ -413,7 +413,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal("bar", model["foo"]);
         }
-        
+
         [ConditionalFact]
         public virtual void Conventions_can_be_removed()
         {
@@ -427,7 +427,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Null(model["foo"]);
         }
-        
+
         [ConditionalFact]
         public virtual void Conventions_can_be_replaced()
         {
@@ -439,7 +439,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal("bar", model["foo"]);
         }
-        
+
         protected class TestConvention : IModelInitializedConvention
         {
             public void ProcessModelInitialized(
@@ -449,14 +449,14 @@ public abstract partial class ModelBuilderTest
                 modelBuilder.HasAnnotation("foo", "bar");
             }
         }
-        
+
         protected class TestDbSetFindingConvention : DbSetFindingConvention
         {
             public TestDbSetFindingConvention(ProviderConventionSetBuilderDependencies dependencies)
                 : base(dependencies)
             {
             }
-            
+
             public override void ProcessModelInitialized(
                 IConventionModelBuilder modelBuilder,
                 IConventionContext<IConventionModelBuilder> context)

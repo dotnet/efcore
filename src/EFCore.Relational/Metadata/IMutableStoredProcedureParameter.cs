@@ -14,12 +14,12 @@ public interface IMutableStoredProcedureParameter : IReadOnlyStoredProcedurePara
     ///     Gets the stored procedure to which this parameter belongs.
     /// </summary>
     new IMutableStoredProcedure StoredProcedure { get; }
-    
+
     /// <summary>
     ///     Gets or sets the parameter name.
     /// </summary>
     new string Name { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the direction of the parameter.
     /// </summary>
