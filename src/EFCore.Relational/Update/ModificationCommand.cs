@@ -477,16 +477,16 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     }
 
                     var columnModificationParameters = new ColumnModificationParameters(
-                    entry,
-                    property,
-                    column,
-                    parameterNameGenerator,
-                    columnMapping.TypeMapping,
-                    readValue,
-                    writeValue,
-                    isKey,
-                    isCondition,
-                    _sensitiveLoggingEnabled);
+                        entry,
+                        property,
+                        column,
+                        parameterNameGenerator,
+                        columnMapping.TypeMapping,
+                        readValue,
+                        writeValue,
+                        isKey,
+                        isCondition,
+                        _sensitiveLoggingEnabled);
 
                     var columnModification = CreateColumnModification(columnModificationParameters);
 
