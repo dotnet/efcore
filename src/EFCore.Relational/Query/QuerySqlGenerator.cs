@@ -83,7 +83,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         switch (queryExpression)
         {
             case SelectExpression selectExpression:
-                GenerateTagsHeaderComment(selectExpression);
+                GenerateTagsHeaderComment(selectExpression.Tags);
 
                 if (selectExpression.IsNonComposedFromSql())
                 {
@@ -93,6 +93,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 {
                     VisitSelect(selectExpression);
                 }
+                break;
+
+            case UpdateExpression updateExpression:
+                GenerateTagsHeaderComment(updateExpression.Tags);
+                VisitUpdate(updateExpression);
+                break;
+
+            case DeleteExpression deleteExpression:
+                GenerateTagsHeaderComment(deleteExpression.Tags);
+                VisitDelete(deleteExpression);
                 break;
 
             default:
@@ -117,11 +127,29 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     ///     Generates the head comment for tags.
     /// </summary>
     /// <param name="selectExpression">A select expression to generate tags for.</param>
+    [Obsolete("Use the method which takes tags instead.")]
     protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
     {
         if (selectExpression.Tags.Count > 0)
         {
             foreach (var tag in selectExpression.Tags)
+            {
+                _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
+            }
+
+            _relationalCommandBuilder.AppendLine();
+        }
+    }
+
+    /// <summary>
+    ///     Generates the head comment for tags.
+    /// </summary>
+    /// <param name="tags">A set of tags to print as comment.</param>
+    protected virtual void GenerateTagsHeaderComment(ISet<string> tags)
+    {
+        if (tags.Count > 0)
+        {
+            foreach (var tag in tags)
             {
                 _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
             }

@@ -56,11 +56,24 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     /// <returns>An expression which executes a non-query operation.</returns>
     protected virtual Expression VisitNonQuery(NonQueryExpression nonQueryExpression)
     {
+        // Apply tags
+        var innerExpression = nonQueryExpression.Expression;
+        switch (innerExpression)
+        {
+            case UpdateExpression updateExpression:
+                innerExpression = updateExpression.ApplyTags(_tags);
+                break;
+
+            case DeleteExpression deleteExpression:
+                innerExpression = deleteExpression.ApplyTags(_tags);
+                break;
+        }
+
         var relationalCommandCache = new RelationalCommandCache(
             Dependencies.MemoryCache,
             RelationalDependencies.QuerySqlGeneratorFactory,
             RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-            nonQueryExpression.Expression,
+            innerExpression,
             _useRelationalNulls);
 
         return Expression.Call(

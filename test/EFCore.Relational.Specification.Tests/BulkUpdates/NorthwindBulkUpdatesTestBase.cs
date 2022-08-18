@@ -16,6 +16,14 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_Where_TagWith(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<OrderDetail>().Where(e => e.OrderID < 10300).TagWith("MyDelete"),
+            rowsAffectedCount: 140);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_Where(bool async)
         => AssertDelete(
             async,
@@ -349,6 +357,17 @@ WHERE [OrderID] < 10300"))
                   from o in ss.Set<Order>().Where(o => o.OrderID < od.OrderID).OrderBy(e => e.OrderID).Skip(0).Take(100).DefaultIfEmpty()
                   select od,
             rowsAffectedCount: 74);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_Where_set_constant_TagWith(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).TagWith("MyUpdate"),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
