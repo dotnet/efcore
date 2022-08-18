@@ -1313,12 +1313,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                     }));
 
             modelBuilder.Entity<Customer>()
-                .Property<DateTime>("MappedStart")
+                .Property<DateTime>("Start")
                 .HasColumnName("PeriodStartColumn")
                 .ValueGeneratedOnAddOrUpdate();
 
             modelBuilder.Entity<Customer>()
-                .Property<DateTime>("MappedEnd")
+                .Property<DateTime>("End")
                 .HasColumnName("PeriodEndColumn")
                 .ValueGeneratedOnAddOrUpdate();
 
@@ -1326,7 +1326,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(7, entity.GetProperties().Count());
+            Assert.Equal(5, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
@@ -1344,12 +1344,6 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(periodEnd.IsShadowProperty());
             Assert.Equal(typeof(DateTime), periodEnd.ClrType);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
-
-            var propertyMappedToStart = entity.GetProperty("MappedStart");
-            Assert.Equal("PeriodStartColumn", propertyMappedToStart[RelationalAnnotationNames.ColumnName]);
-
-            var propertyMappedToEnd = entity.GetProperty("MappedEnd");
-            Assert.Equal("PeriodEndColumn", propertyMappedToEnd[RelationalAnnotationNames.ColumnName]);
         }
 
         [ConditionalFact]

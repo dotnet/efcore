@@ -334,14 +334,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, propertyName, dateTimeType);
 
         /// <summary>
-        ///     Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.
-        /// </summary>
-        public static string TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(object? entityType, object? propertyName)
-            => string.Format(
-                GetString("TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue", nameof(entityType), nameof(propertyName)),
-                entityType, propertyName);
-
-        /// <summary>
         ///     Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.
         /// </summary>
         public static string TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(object? entityType, object? propertyName, object? valueGeneratedValue)

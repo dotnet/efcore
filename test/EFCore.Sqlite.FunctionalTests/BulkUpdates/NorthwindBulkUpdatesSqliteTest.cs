@@ -408,6 +408,20 @@ WHERE EXISTS (
     WHERE ""m"".""OrderID"" = ""o"".""OrderID"" AND ""m"".""ProductID"" = ""o"".""ProductID"")");
     }
 
+    public override async Task Delete_Where_optional_navigation_predicate(bool async)
+    {
+        await base.Delete_Where_optional_navigation_predicate(async);
+
+        AssertSql(
+            @"DELETE FROM ""Order Details"" AS ""o""
+WHERE EXISTS (
+    SELECT 1
+    FROM ""Order Details"" AS ""o0""
+    INNER JOIN ""Orders"" AS ""o1"" ON ""o0"".""OrderID"" = ""o1"".""OrderID""
+    LEFT JOIN ""Customers"" AS ""c"" ON ""o1"".""CustomerID"" = ""c"".""CustomerID""
+    WHERE ""c"".""City"" IS NOT NULL AND (""c"".""City"" LIKE 'Se%') AND ""o0"".""OrderID"" = ""o"".""OrderID"" AND ""o0"".""ProductID"" = ""o"".""ProductID"")");
+    }
+
     public override async Task Delete_with_join(bool async)
     {
         await base.Delete_with_join(async);
