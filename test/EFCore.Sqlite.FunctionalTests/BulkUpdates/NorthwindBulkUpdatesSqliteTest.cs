@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
@@ -548,6 +549,12 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
     SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
+
+    public override Task Update_Where_set_default(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.UnableToTranslateSetProperty(
+                "c => c.ContactName", "c => EF.Default<string>()", SqliteStrings.DefaultNotSupported),
+            () => base.Update_Where_set_default(async));
 
     public override async Task Update_Where_parameter_set_constant(bool async)
     {

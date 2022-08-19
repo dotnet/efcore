@@ -568,6 +568,17 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
+    public override async Task Update_Where_set_default(bool async)
+    {
+        await base.Update_Where_set_default(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = DEFAULT
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
     public override async Task Update_Where_parameter_set_constant(bool async)
     {
         await base.Update_Where_parameter_set_constant(async);

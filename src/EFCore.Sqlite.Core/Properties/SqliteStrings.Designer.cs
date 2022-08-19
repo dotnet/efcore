@@ -38,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             => GetString("ApplyNotSupported");
 
         /// <summary>
+        ///     Translating this operation requires the 'DEFAULT', which is not supported on SQLite.
+        /// </summary>
+        public static string DefaultNotSupported
+            => GetString("DefaultNotSupported");
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.
         /// </summary>
         public static string DuplicateColumnNameSridMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
@@ -74,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             => GetString("SequencesNotSupported");
 
         /// <summary>
-        ///     SQLite does not support stored procedures. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
+        ///     SQLite does not support stored procedures, but one has been configured on entity type '{entityType}'. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string StoredProceduresNotSupported(object? entityType)
             => string.Format(
