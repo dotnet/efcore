@@ -57,7 +57,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     /// Gets or sets a value indicating whether this method call has an equivalent data annotation.
     /// </summary>
     /// <value>A value indicating whether this method call has an equivalent data annotation.</value>
-    public virtual bool HasDataAnnotation { get; set; }
+    public virtual bool IsHandledByDataAnnotations { get; set; }
 
     /// <summary>
     /// Gets the next method call to chain after this.
@@ -149,7 +149,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
                     DeclaringType = currentLink.DeclaringType,
                     TypeArguments = currentLink.TypeArguments,
                     Arguments = currentLink.Arguments,
-                    HasDataAnnotation = currentLink.HasDataAnnotation
+                    IsHandledByDataAnnotations = currentLink.IsHandledByDataAnnotations
                 };
                 newRoot = newRoot?.Chain(unchained) ?? unchained;
             }

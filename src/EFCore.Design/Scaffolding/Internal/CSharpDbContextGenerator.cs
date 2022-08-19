@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var keyFluentApiCalls = key.GetFluentApiCalls(annotationCodeGenerator);
             if (keyFluentApiCalls != null
-                || (!key.IsHandledByConventions() && !Options.UseDataAnnotations))
+                || (!key.IsHandledByConvention() && !Options.UseDataAnnotations))
             {
                 if (keyFluentApiCalls != null)
                 {
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         var entityTypeFluentApiCalls = entityType.GetFluentApiCalls(annotationCodeGenerator)
-            ?.FilterChain(c => !(Options.UseDataAnnotations && c.HasDataAnnotation));
+            ?.FilterChain(c => !(Options.UseDataAnnotations && c.IsHandledByDataAnnotations));
         if (entityTypeFluentApiCalls != null)
         {
             usings.AddRange(entityTypeFluentApiCalls.GetRequiredUsings());
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         foreach (var index in entityType.GetIndexes()
-            .Where(i => !(Options.UseDataAnnotations && i.HasDataAnnotation(annotationCodeGenerator))))
+            .Where(i => !(Options.UseDataAnnotations && i.IsHandledByDataAnnotations(annotationCodeGenerator))))
         {
             if (anyEntityTypeConfiguration)
             {
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         foreach (var property in entityType.GetProperties())
         {
             var propertyFluentApiCalls = property.GetFluentApiCalls(annotationCodeGenerator)
-                ?.FilterChain(c => !(Options.UseDataAnnotations && c.HasDataAnnotation)
+                ?.FilterChain(c => !(Options.UseDataAnnotations && c.IsHandledByDataAnnotations)
                     && !(c.Method == "IsRequired" && Options.UseNullableReferenceTypes && !property.ClrType.IsValueType));
             if (propertyFluentApiCalls == null)
             {
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         foreach (var foreignKey in entityType.GetForeignKeys())
         {
             var foreignKeyFluentApiCalls = foreignKey.GetFluentApiCalls(annotationCodeGenerator)
-                ?.FilterChain(c => !(Options.UseDataAnnotations && c.HasDataAnnotation));
+                ?.FilterChain(c => !(Options.UseDataAnnotations && c.IsHandledByDataAnnotations));
             if (foreignKeyFluentApiCalls == null)
             {
                 continue;
