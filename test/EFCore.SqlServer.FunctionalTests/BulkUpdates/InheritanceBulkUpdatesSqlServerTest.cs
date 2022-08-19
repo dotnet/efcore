@@ -127,7 +127,7 @@ WHERE EXISTS (
 
         AssertExecuteUpdateSql(
             @"UPDATE [a]
-    SET [a].[Name] = N'Animal'
+SET [a].[Name] = N'Animal'
 FROM [Animals] AS [a]
 WHERE [a].[Name] = N'Great spotted kiwi'");
     }
@@ -145,7 +145,7 @@ WHERE [a].[Name] = N'Great spotted kiwi'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [a]
-    SET [a].[Name] = N'Kiwi'
+SET [a].[Name] = N'Kiwi'
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi' AND [a].[Name] = N'Great spotted kiwi'");
     }
@@ -156,7 +156,7 @@ WHERE [a].[Discriminator] = N'Kiwi' AND [a].[Name] = N'Great spotted kiwi'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[Name] = N'Monovia'
+SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -170,7 +170,7 @@ WHERE (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[Name] = N'Monovia'
+SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)

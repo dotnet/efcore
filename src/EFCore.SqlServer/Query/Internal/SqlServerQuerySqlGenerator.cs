@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -91,22 +92,23 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             GenerateTop(selectExpression);
 
             Sql.AppendLine($"{Dependencies.SqlGenerationHelper.DelimitIdentifier(updateExpression.Table.Alias)}");
+            Sql.Append("SET ");
+            Visit(updateExpression.ColumnValueSetters[0].Column);
+            Sql.Append(" = ");
+            Visit(updateExpression.ColumnValueSetters[0].Value);
+
             using (Sql.Indent())
             {
-                Sql.Append("SET ");
-                GenerateList(updateExpression.ColumnValueSetters,
-                    e =>
-                    {
-                        Visit(e.Column);
-                        Sql.Append(" = ");
-                        Visit(e.Value);
-
-                    },
-                    joinAction: e => e.AppendLine(","));
-                Sql.AppendLine();
+                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                {
+                    Sql.AppendLine(",");
+                    Visit(columnValueSetter.Column);
+                    Sql.Append(" = ");
+                    Visit(columnValueSetter.Value);
+                }
             }
 
-            Sql.Append("FROM ");
+            Sql.AppendLine().Append("FROM ");
             GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
 
             if (selectExpression.Predicate != null)

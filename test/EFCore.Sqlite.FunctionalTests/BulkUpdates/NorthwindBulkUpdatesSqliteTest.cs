@@ -536,7 +536,7 @@ WHERE EXISTS (
             @"-- MyUpdate
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -546,7 +546,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -564,7 +564,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
             @"@__customer_0='ALFKI' (Size = 5)
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" = @__customer_0",
                 //
                 @"@__customer_0='ALFKI' (Size = 5)
@@ -578,7 +578,7 @@ FROM ""Customers"" AS ""c""
 WHERE 0",
                 //
                 @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE 0");
     }
 
@@ -590,7 +590,7 @@ WHERE 0");
             @"@__value_0='Abc' (Size = 3)
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = @__value_0
+SET ""ContactName"" = @__value_0
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -602,7 +602,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
             @"@__p_0='4'
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -620,7 +620,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
             @"@__p_0='4'
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -639,7 +639,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 @__p_0='2'
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -655,7 +655,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -672,7 +672,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
             @"@__p_0='4'
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -691,7 +691,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
             @"@__p_0='4'
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -711,7 +711,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 @__p_0='2'
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -731,7 +731,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 @__p_0='2'
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""t"".""CustomerID"", ""t"".""Address"", ""t"".""City"", ""t"".""CompanyName"", ""t"".""ContactName"", ""t"".""ContactTitle"", ""t"".""Country"", ""t"".""Fax"", ""t"".""Phone"", ""t"".""PostalCode"", ""t"".""Region""
     FROM (
@@ -753,7 +753,7 @@ WHERE ""c"".""CustomerID"" = ""t0"".""CustomerID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" = (
     SELECT ""o"".""CustomerID""
     FROM ""Orders"" AS ""o""
@@ -768,7 +768,7 @@ WHERE ""c"".""CustomerID"" = (
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" = (
     SELECT (
         SELECT ""o0"".""CustomerID""
@@ -794,7 +794,7 @@ WHERE ""c"".""CustomerID"" = (
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE EXISTS (
     SELECT 1
     FROM ""Orders"" AS ""o""
@@ -813,7 +813,7 @@ WHERE EXISTS (
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -823,7 +823,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Orders"" AS ""o""
-    SET ""OrderDate"" = NULL
+SET ""OrderDate"" = NULL
 FROM (
     SELECT ""o0"".""OrderID"", ""o0"".""CustomerID"", ""o0"".""EmployeeID"", ""o0"".""OrderDate"", ""c"".""CustomerID"" AS ""CustomerID0""
     FROM ""Orders"" AS ""o0""
@@ -839,7 +839,7 @@ WHERE ""o"".""OrderID"" = ""t"".""OrderID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Order Details"" AS ""o""
-    SET ""Quantity"" = CAST(1 AS INTEGER)
+SET ""Quantity"" = CAST(1 AS INTEGER)
 FROM (
     SELECT ""o0"".""OrderID"", ""o0"".""ProductID"", ""o0"".""Discount"", ""o0"".""Quantity"", ""o0"".""UnitPrice"", ""o1"".""OrderID"" AS ""OrderID0"", ""c"".""CustomerID""
     FROM ""Order Details"" AS ""o0""
@@ -856,7 +856,7 @@ WHERE ""o"".""OrderID"" = ""t"".""OrderID"" AND ""o"".""ProductID"" = ""t"".""Pr
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Orders"" AS ""o""
-    SET ""OrderDate"" = NULL
+SET ""OrderDate"" = NULL
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = ""o"".""CustomerID"" AND (""c"".""CustomerID"" LIKE 'F%')");
     }
@@ -867,7 +867,7 @@ WHERE ""c"".""CustomerID"" = ""o"".""CustomerID"" AND (""c"".""CustomerID"" LIKE
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || 'Abc'
+SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || 'Abc'
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -879,7 +879,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
             @"@__value_0='Abc' (Size = 3)
 
 UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || @__value_0
+SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || @__value_0
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -889,7 +889,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || ""c"".""CustomerID""
+SET ""ContactName"" = COALESCE(""c"".""ContactName"", '') || ""c"".""CustomerID""
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -899,7 +899,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -909,7 +909,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = NULL
+SET ""ContactName"" = NULL
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -935,7 +935,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
             @"@__value_0='Abc' (Size = 3)
 
 UPDATE ""Customers"" AS ""c""
-    SET ""City"" = 'Seattle',
+SET ""City"" = 'Seattle',
     ""ContactName"" = @__value_0
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
@@ -967,7 +967,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -986,7 +986,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -1005,7 +1005,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -1024,7 +1024,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -1043,7 +1043,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
     FROM ""Orders"" AS ""o""
@@ -1058,7 +1058,7 @@ WHERE ""c"".""CustomerID"" = ""t"".""CustomerID"" AND (""c"".""CustomerID"" LIKE
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region"", ""t"".""OrderID"", ""t"".""CustomerID"" AS ""CustomerID0"", ""t"".""EmployeeID"", ""t"".""OrderDate""
     FROM ""Customers"" AS ""c0""
@@ -1078,7 +1078,7 @@ WHERE ""c"".""CustomerID"" = ""t0"".""CustomerID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""ContactName"" = 'Updated'
+SET ""ContactName"" = 'Updated'
 FROM (
     SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
     FROM ""Orders"" AS ""o""
@@ -1110,7 +1110,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Orders"" AS ""o""
-    SET ""OrderDate"" = NULL
+SET ""OrderDate"" = NULL
 FROM (
     SELECT ""t"".""OrderID"", ""t"".""CustomerID"", ""t"".""EmployeeID"", ""t"".""OrderDate"", ""c"".""CustomerID"" AS ""CustomerID0""
     FROM ""Customers"" AS ""c""
@@ -1130,12 +1130,12 @@ WHERE ""o"".""OrderID"" = ""t0"".""OrderID""");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""City"" = CAST(CAST(strftime('%Y', (
-        SELECT ""o"".""OrderDate""
-        FROM ""Orders"" AS ""o""
-        WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""
-        ORDER BY ""o"".""OrderDate"" DESC
-        LIMIT 1)) AS INTEGER) AS TEXT)
+SET ""City"" = CAST(CAST(strftime('%Y', (
+    SELECT ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""
+    ORDER BY ""o"".""OrderDate"" DESC
+    LIMIT 1)) AS INTEGER) AS TEXT)
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
@@ -1145,7 +1145,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""City"" = ""t"".""City""
+SET ""City"" = ""t"".""City""
 FROM (
     SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
     FROM ""Customers"" AS ""c0""
@@ -1160,12 +1160,12 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Customers"" AS ""c""
-    SET ""City"" = CAST(CAST(strftime('%Y', (
-        SELECT ""o"".""OrderDate""
-        FROM ""Orders"" AS ""o""
-        WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""
-        ORDER BY ""o"".""OrderDate"" DESC
-        LIMIT 1)) AS INTEGER) AS TEXT)
+SET ""City"" = CAST(CAST(strftime('%Y', (
+    SELECT ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    WHERE ""c"".""CustomerID"" = ""o"".""CustomerID""
+    ORDER BY ""o"".""OrderDate"" DESC
+    LIMIT 1)) AS INTEGER) AS TEXT)
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 

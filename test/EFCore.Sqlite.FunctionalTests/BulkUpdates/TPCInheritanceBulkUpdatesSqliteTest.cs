@@ -119,7 +119,7 @@ WHERE (
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Kiwi"" AS ""k""
-    SET ""Name"" = 'Kiwi'
+SET ""Name"" = 'Kiwi'
 WHERE ""k"".""Name"" = 'Great spotted kiwi'");
     }
 
@@ -129,7 +129,7 @@ WHERE ""k"".""Name"" = 'Great spotted kiwi'");
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Countries"" AS ""c""
-    SET ""Name"" = 'Monovia'
+SET ""Name"" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM (
@@ -148,7 +148,7 @@ WHERE (
 
         AssertExecuteUpdateSql(
             @"UPDATE ""Countries"" AS ""c""
-    SET ""Name"" = 'Monovia'
+SET ""Name"" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM (

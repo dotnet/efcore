@@ -120,25 +120,21 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
         }
         expressionPrinter.AppendLine();
         expressionPrinter.AppendLine($"UPDATE {Table.Name} AS {Table.Alias}");
-        expressionPrinter.AppendLine("SET");
+        expressionPrinter.AppendLine("SET ");
+        expressionPrinter.Visit(ColumnValueSetters[0].Column);
+        expressionPrinter.Append(" = ");
+        expressionPrinter.Visit(ColumnValueSetters[0].Value);
         using (expressionPrinter.Indent())
         {
-            var first = true;
-            foreach (var columnValueSetter in ColumnValueSetters)
+            foreach (var columnValueSetter in ColumnValueSetters.Skip(1))
             {
-                if (first)
-                {
-                    first = false;
-                }
-                else
-                {
-                    expressionPrinter.AppendLine(",");
-                }
+                expressionPrinter.AppendLine(",");
                 expressionPrinter.Visit(columnValueSetter.Column);
                 expressionPrinter.Append(" = ");
                 expressionPrinter.Visit(columnValueSetter.Value);
             }
         }
+        expressionPrinter.AppendLine();
         expressionPrinter.Visit(SelectExpression);
     }
 
