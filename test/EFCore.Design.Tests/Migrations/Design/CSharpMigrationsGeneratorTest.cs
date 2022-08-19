@@ -580,7 +580,7 @@ namespace MyNamespace
             migrationCode,
             ignoreLineEndingDifferences: true);
 
-        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configureModel: c => c.RemoveAllConventions());
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configureConventions: c => c.RemoveAllConventions());
         modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
         modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, IDbFunction>());
         modelBuilder.Entity(

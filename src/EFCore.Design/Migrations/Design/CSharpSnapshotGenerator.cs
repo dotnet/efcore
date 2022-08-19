@@ -1263,7 +1263,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         {
             stringBuilder
                 .AppendLine()
-                .Append(".HasName(")
+                .Append(".HasDatabaseName(")
                 .Append(Code.Literal((string?)nameAnnotation.Value))
                 .Append(")");
         }

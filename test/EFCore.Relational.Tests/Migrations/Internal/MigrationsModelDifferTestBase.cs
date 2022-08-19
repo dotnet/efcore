@@ -115,7 +115,7 @@ public abstract class MigrationsModelDifferTestBase
     protected abstract TestHelpers TestHelpers { get; }
 
     protected virtual TestHelpers.TestModelBuilder CreateModelBuilder(bool skipConventions)
-        => TestHelpers.CreateConventionBuilder(configureModel: skipConventions ? c => c.RemoveAllConventions() : null);
+        => TestHelpers.CreateConventionBuilder(configureConventions: skipConventions ? c => c.RemoveAllConventions() : null);
 
     protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         => new MigrationsModelDiffer(

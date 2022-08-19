@@ -1503,7 +1503,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             // Triggers are not inherited
             foreach (var trigger in entityType.GetDeclaredTriggers())
             {
-                var name = trigger.GetName(storeObject);
+                var name = trigger.GetDatabaseName(storeObject);
                 if (name == null)
                 {
                     continue;

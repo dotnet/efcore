@@ -17,7 +17,7 @@ public static class RelationalTriggerExtensions
     /// </summary>
     /// <param name="trigger">The trigger.</param>
     /// <returns>The name of the trigger in the database.</returns>
-    public static string? GetName(this IReadOnlyTrigger trigger)
+    public static string? GetDatabaseName(this IReadOnlyTrigger trigger)
     {
         if (trigger.EntityType.GetTableName() == null)
         {
@@ -25,7 +25,7 @@ public static class RelationalTriggerExtensions
         }
 
         var annotation = trigger.FindAnnotation(RelationalAnnotationNames.Name);
-        return annotation != null ? (string?)annotation.Value : trigger.GetDefaultName();
+        return annotation != null ? (string?)annotation.Value : trigger.GetDefaultDatabaseName();
     }
 
     /// <summary>
@@ -33,10 +33,10 @@ public static class RelationalTriggerExtensions
     /// </summary>
     /// <param name="trigger">The trigger.</param>
     /// <returns>The default name that would be used for this trigger in the database.</returns>
-    public static string? GetDefaultName(this IReadOnlyTrigger trigger)
+    public static string? GetDefaultDatabaseName(this IReadOnlyTrigger trigger)
     {
         var table = StoreObjectIdentifier.Create(trigger.EntityType, StoreObjectType.Table);
-        return !table.HasValue ? null : trigger.GetDefaultName(table.Value);
+        return !table.HasValue ? null : trigger.GetDefaultDatabaseName(table.Value);
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public static class RelationalTriggerExtensions
     /// <param name="trigger">The trigger.</param>
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The database name of the trigger for the given store object.</returns>
-    public static string? GetName(this IReadOnlyTrigger trigger, in StoreObjectIdentifier storeObject)
+    public static string? GetDatabaseName(this IReadOnlyTrigger trigger, in StoreObjectIdentifier storeObject)
     {
         var triggerTable = trigger.GetTableName();
         if (storeObject.StoreObjectType != StoreObjectType.Table
@@ -57,7 +57,7 @@ public static class RelationalTriggerExtensions
         }
 
         var annotation = trigger.FindAnnotation(RelationalAnnotationNames.Name);
-        return annotation != null ? (string?)annotation.Value : trigger.GetDefaultName(storeObject);
+        return annotation != null ? (string?)annotation.Value : trigger.GetDefaultDatabaseName(storeObject);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public static class RelationalTriggerExtensions
     /// <param name="trigger">The trigger.</param>
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The default name that would be used for this trigger.</returns>
-    public static string? GetDefaultName(this IReadOnlyTrigger trigger, in StoreObjectIdentifier storeObject)
+    public static string? GetDefaultDatabaseName(this IReadOnlyTrigger trigger, in StoreObjectIdentifier storeObject)
         => storeObject.StoreObjectType == StoreObjectType.Table
             ? Uniquifier.Truncate(trigger.ModelName, trigger.EntityType.Model.GetMaxIdentifierLength())
             : null;
@@ -76,7 +76,7 @@ public static class RelationalTriggerExtensions
     /// </summary>
     /// <param name="trigger">The trigger.</param>
     /// <param name="name">The name of the trigger in the database.</param>
-    public static void SetName(this IMutableTrigger trigger, string? name)
+    public static void SetDatabaseName(this IMutableTrigger trigger, string? name)
         => trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
             Check.NullButNotEmpty(name, nameof(name)));
@@ -88,7 +88,7 @@ public static class RelationalTriggerExtensions
     /// <param name="name">The name of the trigger in the database.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    public static string? SetName(this IConventionTrigger trigger, string? name, bool fromDataAnnotation = false)
+    public static string? SetDatabaseName(this IConventionTrigger trigger, string? name, bool fromDataAnnotation = false)
         => (string?)trigger.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
             Check.NullButNotEmpty(name, nameof(name)),
@@ -99,7 +99,7 @@ public static class RelationalTriggerExtensions
     /// </summary>
     /// <param name="trigger">The trigger.</param>
     /// <returns>The configuration source for the database name.</returns>
-    public static ConfigurationSource? GetNameConfigurationSource(this IConventionTrigger trigger)
+    public static ConfigurationSource? GetDatabaseNameConfigurationSource(this IConventionTrigger trigger)
         => trigger.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
 
     /// <summary>
