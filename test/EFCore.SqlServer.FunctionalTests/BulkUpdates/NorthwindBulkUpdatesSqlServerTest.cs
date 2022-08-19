@@ -14,6 +14,18 @@ public class NorthwindBulkUpdatesSqlServerTest : NorthwindBulkUpdatesTestBase<No
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task Delete_Where_TagWith(bool async)
+    {
+        await base.Delete_Where_TagWith(async);
+
+        AssertSql(
+            @"-- MyDelete
+
+DELETE FROM [o]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] < 10300");
+    }
+
     public override async Task Delete_Where(bool async)
     {
         await base.Delete_Where(async);
@@ -530,6 +542,19 @@ OUTER APPLY (
     OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY
 ) AS [t]
 WHERE [o].[OrderID] < 10276");
+    }
+
+    public override async Task Update_Where_set_constant_TagWith(bool async)
+    {
+        await base.Update_Where_set_constant_TagWith(async);
+
+        AssertExecuteUpdateSql(
+            @"-- MyUpdate
+
+UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
     public override async Task Update_Where_set_constant(bool async)

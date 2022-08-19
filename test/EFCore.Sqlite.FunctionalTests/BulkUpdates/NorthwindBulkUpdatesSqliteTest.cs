@@ -16,6 +16,17 @@ public class NorthwindBulkUpdatesSqliteTest : NorthwindBulkUpdatesTestBase<North
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task Delete_Where_TagWith(bool async)
+    {
+        await base.Delete_Where_TagWith(async);
+
+        AssertSql(
+            @"-- MyDelete
+
+DELETE FROM ""Order Details"" AS ""o""
+WHERE ""o"".""OrderID"" < 10300");
+    }
+
     public override async Task Delete_Where(bool async)
     {
         await base.Delete_Where(async);
@@ -515,6 +526,18 @@ WHERE EXISTS (
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Delete_with_outer_apply(async))).Message);
+
+    public override async Task Update_Where_set_constant_TagWith(bool async)
+    {
+        await base.Update_Where_set_constant_TagWith(async);
+
+        AssertExecuteUpdateSql(
+            @"-- MyUpdate
+
+UPDATE ""Customers"" AS ""c""
+    SET ""ContactName"" = 'Updated'
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
 
     public override async Task Update_Where_set_constant(bool async)
     {
