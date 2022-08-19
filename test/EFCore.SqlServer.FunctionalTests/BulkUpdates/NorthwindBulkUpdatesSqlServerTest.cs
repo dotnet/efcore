@@ -552,7 +552,7 @@ WHERE [o].[OrderID] < 10276");
             @"-- MyUpdate
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -563,7 +563,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -574,7 +574,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = DEFAULT
+SET [c].[ContactName] = DEFAULT
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -587,7 +587,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
             @"@__customer_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__customer_0",
                 //
@@ -602,7 +602,7 @@ FROM [Customers] AS [c]
 WHERE 0 = 1",
                 //
                 @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE 0 = 1");
     }
@@ -615,7 +615,7 @@ WHERE 0 = 1");
             @"@__value_0='Abc' (Size = 4000)
 
 UPDATE [c]
-    SET [c].[ContactName] = @__value_0
+SET [c].[ContactName] = @__value_0
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -628,7 +628,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
             @"@__p_0='4'
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -647,7 +647,7 @@ INNER JOIN (
             @"@__p_0='4'
 
 UPDATE TOP(@__p_0) [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -661,7 +661,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 @__p_1='4'
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -678,7 +678,7 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -695,7 +695,7 @@ INNER JOIN (
             @"@__p_0='4'
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -714,7 +714,7 @@ INNER JOIN (
             @"@__p_0='4'
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -733,7 +733,7 @@ INNER JOIN (
 @__p_1='4'
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -753,7 +753,7 @@ INNER JOIN (
 @__p_1='6'
 
 UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
@@ -775,7 +775,7 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = (
     SELECT TOP(1) [o].[CustomerID]
@@ -790,7 +790,7 @@ WHERE [c].[CustomerID] = (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = (
     SELECT TOP(1) (
@@ -815,7 +815,7 @@ WHERE [c].[CustomerID] = (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
@@ -834,7 +834,7 @@ WHERE EXISTS (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -845,7 +845,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [o]
-    SET [o].[OrderDate] = NULL
+SET [o].[OrderDate] = NULL
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [c].[City] = N'Seattle'");
@@ -857,7 +857,7 @@ WHERE [c].[City] = N'Seattle'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [o]
-    SET [o].[Quantity] = CAST(1 AS smallint)
+SET [o].[Quantity] = CAST(1 AS smallint)
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -870,7 +870,7 @@ WHERE [c].[City] = N'Seattle'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [o]
-    SET [o].[OrderDate] = NULL
+SET [o].[OrderDate] = NULL
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'");
@@ -882,7 +882,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + N'Abc'
+SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + N'Abc'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -895,7 +895,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
             @"@__value_0='Abc' (Size = 4000)
 
 UPDATE [c]
-    SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @__value_0
+SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @__value_0
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -906,7 +906,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + [c].[CustomerID]
+SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -917,7 +917,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -928,7 +928,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = NULL
+SET [c].[ContactName] = NULL
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -955,7 +955,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
             @"@__value_0='Abc' (Size = 4000)
 
 UPDATE [c]
-    SET [c].[City] = N'Seattle',
+SET [c].[City] = N'Seattle',
     [c].[ContactName] = @__value_0
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
@@ -988,7 +988,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -1007,7 +1007,7 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -1026,7 +1026,7 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -1045,7 +1045,7 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -1064,7 +1064,7 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1080,7 +1080,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 LEFT JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1096,7 +1096,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1112,7 +1112,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 CROSS APPLY (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1128,7 +1128,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[ContactName] = N'Updated'
+SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1151,7 +1151,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [o]
-    SET [o].[OrderDate] = NULL
+SET [o].[OrderDate] = NULL
 FROM [Orders] AS [o]
 INNER JOIN (
     SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [c].[CustomerID] AS [CustomerID0]
@@ -1171,11 +1171,11 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[City] = CONVERT(varchar(11), DATEPART(year, (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC)))
+SET [c].[City] = CONVERT(varchar(11), DATEPART(year, (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderDate] DESC)))
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -1186,7 +1186,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[City] = [t].[City]
+SET [c].[City] = [t].[City]
 FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -1202,11 +1202,11 @@ WHERE [c].[CustomerID] LIKE N'F%'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[City] = CONVERT(varchar(11), DATEPART(year, (
-        SELECT TOP(1) [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderDate] DESC)))
+SET [c].[City] = CONVERT(varchar(11), DATEPART(year, (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderDate] DESC)))
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }

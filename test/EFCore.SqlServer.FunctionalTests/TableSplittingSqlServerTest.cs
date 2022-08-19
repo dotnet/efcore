@@ -168,7 +168,7 @@ ORDER BY [v].[Name]");
 
         AssertSql(
             @"UPDATE [v]
-    SET [v].[SeatingCapacity] = 1
+SET [v].[SeatingCapacity] = 1
 FROM [Vehicles] AS [v]",
                 //
                 @"SELECT CASE

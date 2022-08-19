@@ -117,7 +117,7 @@ WHERE (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[Name] = N'Monovia'
+SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -134,7 +134,7 @@ WHERE (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[Name] = N'Monovia'
+SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)

@@ -18,7 +18,7 @@ public class TableSplittingSqliteTest : TableSplittingTestBase
 
         AssertSql(
             @"UPDATE ""Vehicles"" AS ""v""
-    SET ""SeatingCapacity"" = 1",
+SET ""SeatingCapacity"" = 1",
                 //
                 @"SELECT NOT EXISTS (
     SELECT 1
