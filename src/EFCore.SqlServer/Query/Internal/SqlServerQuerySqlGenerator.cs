@@ -94,7 +94,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             using (Sql.Indent())
             {
                 Sql.Append("SET ");
-                GenerateList(updateExpression.SetColumnValues,
+                GenerateList(updateExpression.ColumnValueSetters,
                     e =>
                     {
                         Visit(e.Column);

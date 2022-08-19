@@ -90,29 +90,29 @@ public class SqlNullabilityProcessor
     private UpdateExpression VisitUpdate(UpdateExpression updateExpression)
     {
         var selectExpression = Visit(updateExpression.SelectExpression);
-        List<SetColumnValue>? setColumnValues = null;
-        for (var (i, n) = (0, updateExpression.SetColumnValues.Count); i < n; i++)
+        List<ColumnValueSetter>? columnValueSetters = null;
+        for (var (i, n) = (0, updateExpression.ColumnValueSetters.Count); i < n; i++)
         {
-            var setColumnValue = updateExpression.SetColumnValues[i];
-            var newValue = Visit(setColumnValue.Value, out _);
-            if (setColumnValues != null)
+            var columnValueSetter = updateExpression.ColumnValueSetters[i];
+            var newValue = Visit(columnValueSetter.Value, out _);
+            if (columnValueSetters != null)
             {
-                setColumnValues.Add(new SetColumnValue(setColumnValue.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
-            else if (!ReferenceEquals(newValue, setColumnValue.Value))
+            else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                setColumnValues = new(n);
+                columnValueSetters = new(n);
                 for (var j = 0; j < i; j++)
                 {
-                    setColumnValues.Add(updateExpression.SetColumnValues[j]);
+                    columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
                 }
-                setColumnValues.Add(new SetColumnValue(setColumnValue.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
         }
 
         return selectExpression != updateExpression.SelectExpression
-            || setColumnValues != null
-            ? new UpdateExpression(updateExpression.Table, selectExpression, setColumnValues ?? updateExpression.SetColumnValues)
+            || columnValueSetters != null
+            ? updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters)
             : updateExpression;
     }
 
