@@ -1104,18 +1104,18 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <summary>
-    ///     Translates <see cref="RelationalQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyStatements{TSource}, SetPropertyStatements{TSource}}})" /> method
+    ///     Translates <see cref="RelationalQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}}})" /> method
     ///     over the given source.
     /// </summary>
     /// <param name="source">The shaped query on which the operator is applied.</param>
-    /// <param name="setPropertyStatements">The lambda expression containing <see cref="SetPropertyStatements{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})"/> statements.</param>
+    /// <param name="setPropertyCalls">The lambda expression containing <see cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})"/> statements.</param>
     /// <returns>The non query after translation.</returns>
     protected virtual NonQueryExpression? TranslateExecuteUpdate(
         ShapedQueryExpression source,
-        LambdaExpression setPropertyStatements)
+        LambdaExpression setPropertyCalls)
     {
         var propertyValueLambdaExpressions = new List<(LambdaExpression, LambdaExpression)>();
-        PopulateSetPropertyStatements(setPropertyStatements.Body, propertyValueLambdaExpressions, setPropertyStatements.Parameters[0]);
+        PopulateSetPropertyCalls(setPropertyCalls.Body, propertyValueLambdaExpressions, setPropertyCalls.Parameters[0]);
         if (TranslationErrorDetails != null)
         {
             return null;
@@ -1248,7 +1248,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             List<(LambdaExpression, LambdaExpression)> propertyValueLambdaExpressions,
             List<Expression>? leftExpressions)
         {
-            var setColumnValues = new List<SetColumnValue>();
+            var columnValueSetters = new List<ColumnValueSetter>();
             for (var i = 0; i < propertyValueLambdaExpressions.Count; i++)
             {
                 var (propertyExpression, valueExpression) = propertyValueLambdaExpressions[i];
@@ -1274,7 +1274,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 var translation = visitor._sqlTranslator.Translate(setter);
                 if (translation is SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: ColumnExpression column } sqlBinaryExpression)
                 {
-                    setColumnValues.Add(new SetColumnValue(column, sqlBinaryExpression.Right));
+                    columnValueSetters.Add(new ColumnValueSetter(column, sqlBinaryExpression.Right));
                 }
                 else
                 {
@@ -1288,10 +1288,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             selectExpression.ReplaceProjection(new List<Expression>());
             selectExpression.ApplyProjection();
 
-            return new NonQueryExpression(new UpdateExpression(tableExpression, selectExpression, setColumnValues));
+            return new NonQueryExpression(new UpdateExpression(tableExpression, selectExpression, columnValueSetters));
         }
 
-        void PopulateSetPropertyStatements(
+        void PopulateSetPropertyCalls(
             Expression expression, List<(LambdaExpression, LambdaExpression)> list, ParameterExpression parameter)
         {
             switch (expression)
@@ -1302,13 +1302,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                 case MethodCallExpression methodCallExpression
                 when methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.Name == nameof(SetPropertyStatements<int>.SetProperty)
+                    && methodCallExpression.Method.Name == nameof(SetPropertyCalls<int>.SetProperty)
                     && methodCallExpression.Method.DeclaringType!.IsGenericType
-                    && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyStatements<>):
+                    && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>):
 
                     list.Add((methodCallExpression.Arguments[0].UnwrapLambdaFromQuote(),
                     methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()));
-                    PopulateSetPropertyStatements(methodCallExpression.Object!, list, parameter);
+                    PopulateSetPropertyCalls(methodCallExpression.Object!, list, parameter);
 
                     break;
 

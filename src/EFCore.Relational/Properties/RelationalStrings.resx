@@ -443,7 +443,7 @@
     <value>Unable to translate a collection subquery in a projection since either parent or the subquery doesn't project necessary information required to uniquely identify it and correctly generate results on the client side. This can happen when trying to correlate on keyless entity type. This can also happen for some cases of projection before 'Distinct' or some shapes of grouping key in case of 'GroupBy'. These should either contain all key properties of the entity that the operation is applied on, or only contain simple property access expressions.</value>
   </data>
   <data name="InvalidArgumentToExecuteUpdate" xml:space="preserve">
-    <value>The 'setPropertyStatements' argument to 'ExecuteUpdate' may only contain a chain of 'SetProperty' expressing the properties to be updated.</value>
+    <value>The 'setPropertyCalls' argument to 'ExecuteUpdate' may only contain a chain of 'SetProperty' expressing the properties to be updated.</value>
   </data>
   <data name="InvalidCommandTimeout" xml:space="preserve">
     <value>The specified 'CommandTimeout' value '{value}' is not valid. It must be a positive number.</value>

@@ -872,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("InsufficientInformationToIdentifyElementOfCollectionJoin");
 
         /// <summary>
-        ///     The 'setPropertyStatements' argument to 'ExecuteUpdate' may only contain a chain of 'SetProperty' expressing the properties to be updated.
+        ///     The 'setPropertyCalls' argument to 'ExecuteUpdate' may only contain a chain of 'SetProperty' expressing the properties to be updated.
         /// </summary>
         public static string InvalidArgumentToExecuteUpdate
             => GetString("InvalidArgumentToExecuteUpdate");
