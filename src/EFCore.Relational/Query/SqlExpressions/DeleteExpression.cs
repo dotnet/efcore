@@ -19,10 +19,21 @@ public sealed class DeleteExpression : Expression, IPrintableExpression
     /// <param name="table">A table on which the delete operation is being applied.</param>
     /// <param name="selectExpression">A select expression which is used to determine which rows to delete.</param>
     public DeleteExpression(TableExpression table, SelectExpression selectExpression)
+        : this(table, selectExpression, new HashSet<string>())
+    {
+    }
+
+    private DeleteExpression(TableExpression table, SelectExpression selectExpression, ISet<string> tags)
     {
         Table = table;
         SelectExpression = selectExpression;
+        Tags = tags;
     }
+
+    /// <summary>
+    ///     The list of tags applied to this <see cref="DeleteExpression" />.
+    /// </summary>
+    public ISet<string> Tags { get; }
 
     /// <summary>
     ///     The table on which the delete operation is being applied.
@@ -33,6 +44,13 @@ public sealed class DeleteExpression : Expression, IPrintableExpression
     ///     The select expression which is used to determine which rows to delete.
     /// </summary>
     public SelectExpression SelectExpression { get; }
+
+    /// <summary>
+    ///     Applies a given set of tags.
+    /// </summary>
+    /// <param name="tags">A list of tags to apply.</param>
+    public DeleteExpression ApplyTags(ISet<string> tags)
+        => new(Table, SelectExpression, tags);
 
     /// <inheritdoc />
     public override Type Type
@@ -58,12 +76,17 @@ public sealed class DeleteExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public DeleteExpression Update(SelectExpression selectExpression)
         => selectExpression != SelectExpression
-            ? new DeleteExpression(Table, selectExpression)
+            ? new DeleteExpression(Table, selectExpression, Tags)
             : this;
 
     /// <inheritdoc />
     public void Print(ExpressionPrinter expressionPrinter)
     {
+        foreach (var tag in Tags)
+        {
+            expressionPrinter.Append($"-- {tag}");
+        }
+        expressionPrinter.AppendLine();
         expressionPrinter.AppendLine($"DELETE FROM {Table.Name} AS {Table.Alias}");
         expressionPrinter.Visit(SelectExpression);
     }

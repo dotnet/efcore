@@ -21,11 +21,23 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
     /// <param name="selectExpression">A select expression which is used to determine which rows to update and to get data from additional tables.</param>
     /// <param name="setColumnValues">A list of <see cref="SetColumnValue"/> which specifies columns and their corresponding values to update.</param>
     public UpdateExpression(TableExpression table, SelectExpression selectExpression, IReadOnlyList<SetColumnValue> setColumnValues)
+        : this(table, selectExpression, setColumnValues, new HashSet<string>())
+    {
+    }
+
+    private UpdateExpression(
+        TableExpression table, SelectExpression selectExpression, IReadOnlyList<SetColumnValue> setColumnValues, ISet<string> tags)
     {
         Table = table;
         SelectExpression = selectExpression;
         SetColumnValues = setColumnValues;
+        Tags = tags;
     }
+
+    /// <summary>
+    ///     The list of tags applied to this <see cref="UpdateExpression" />.
+    /// </summary>
+    public ISet<string> Tags { get; }
 
     /// <summary>
     ///     The table on which the update operation is being applied.
@@ -41,6 +53,13 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
     ///     The list of <see cref="SetColumnValue"/> which specifies columns and their corresponding values to update.
     /// </summary>
     public IReadOnlyList<SetColumnValue> SetColumnValues { get; }
+
+    /// <summary>
+    ///     Applies a given set of tags.
+    /// </summary>
+    /// <param name="tags">A list of tags to apply.</param>
+    public UpdateExpression ApplyTags(ISet<string> tags)
+        => new(Table, SelectExpression, SetColumnValues, tags);
 
     /// <inheritdoc />
     public override Type Type
@@ -89,12 +108,17 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public UpdateExpression Update(SelectExpression selectExpression, IReadOnlyList<SetColumnValue> setColumnValues)
         => selectExpression != SelectExpression || !SetColumnValues.SequenceEqual(setColumnValues)
-            ? new UpdateExpression(Table, selectExpression, setColumnValues)
+            ? new UpdateExpression(Table, selectExpression, setColumnValues, Tags)
             : this;
 
     /// <inheritdoc />
     public void Print(ExpressionPrinter expressionPrinter)
     {
+        foreach (var tag in Tags)
+        {
+            expressionPrinter.Append($"-- {tag}");
+        }
+        expressionPrinter.AppendLine();
         expressionPrinter.AppendLine($"UPDATE {Table.Name} AS {Table.Alias}");
         expressionPrinter.AppendLine("SET");
         using (expressionPrinter.Indent())
