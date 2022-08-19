@@ -607,7 +607,7 @@ public class SharedTableConvention : IModelFinalizingConvention
     {
         foreach (var trigger in entityType.GetDeclaredTriggers())
         {
-            var triggerName = trigger.GetName(storeObject);
+            var triggerName = trigger.GetDatabaseName(storeObject);
             if (triggerName == null)
             {
                 continue;
@@ -659,10 +659,10 @@ public class SharedTableConvention : IModelFinalizingConvention
         Dictionary<string, T> triggers,
         int maxLength)
     {
-        if (trigger.Builder.CanSetName(null))
+        if (trigger.Builder.CanSetDatabaseName(null))
         {
             triggerName = Uniquifier.Uniquify(triggerName, triggers, n => n, maxLength);
-            trigger.Builder.HasName(triggerName);
+            trigger.Builder.HasDatabaseName(triggerName);
             return triggerName;
         }
 

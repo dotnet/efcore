@@ -19,15 +19,15 @@ public static class RelationalTriggerBuilderExtensions
     /// <param name="name">The database name of the trigger.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
-    public static IConventionTriggerBuilder? HasName(
+    public static IConventionTriggerBuilder? HasDatabaseName(
         this IConventionTriggerBuilder triggerBuilder, string? name, bool fromDataAnnotation = false)
     {
-        if (!triggerBuilder.CanSetName(name, fromDataAnnotation))
+        if (!triggerBuilder.CanSetDatabaseName(name, fromDataAnnotation))
         {
             return null;
         }
 
-        triggerBuilder.Metadata.SetName(name, fromDataAnnotation);
+        triggerBuilder.Metadata.SetDatabaseName(name, fromDataAnnotation);
         return triggerBuilder;
     }
 
@@ -38,7 +38,7 @@ public static class RelationalTriggerBuilderExtensions
     /// <param name="name">The database name of the trigger.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the database name can be set for the trigger.</returns>
-    public static bool CanSetName(this IConventionTriggerBuilder triggerBuilder, string? name, bool fromDataAnnotation = false)
+    public static bool CanSetDatabaseName(this IConventionTriggerBuilder triggerBuilder, string? name, bool fromDataAnnotation = false)
         => triggerBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
 
     /// <summary>

@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -32,9 +30,9 @@ public class TableTriggerBuilder : TriggerBuilder
     /// </remarks>
     /// <param name="name">The database name of the trigger.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual TableTriggerBuilder HasName(string? name)
+    public virtual TableTriggerBuilder HasDatabaseName(string? name)
     {
-        Metadata.SetName(name);
+        Metadata.SetDatabaseName(name);
 
         return this;
     }

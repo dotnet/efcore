@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -73,7 +71,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit);
         return this;
     }
-    
+
     /// <summary>
     ///     Configures a new parameter if no parameter mapped to the given property exists.
     /// </summary>
@@ -154,7 +152,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit);
         return this;
     }
-    
+
     /// <summary>
     ///     Configures a new parameter that holds the original value if no parameter mapped to the given property exists.
     /// </summary>
@@ -222,7 +220,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
     public new virtual StoredProcedureBuilder<TEntity> HasResultColumn(
         string propertyName, Action<StoredProcedureResultColumnBuilder> buildAction)
         => (StoredProcedureBuilder<TEntity>)base.HasResultColumn(propertyName, buildAction);
-    
+
     /// <summary>
     ///     Configures a new column of the result for this stored procedure. This is used for database generated columns.
     /// </summary>
@@ -251,7 +249,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit);
         return this;
     }
-    
+
     /// <summary>
     ///     Configures a new column of the result for this stored procedure. This is used for database generated columns.
     /// </summary>
@@ -285,7 +283,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
-    
+
     /// <summary>
     ///     Configures a new column of the result that returns the rows affected for this stored procedure
     ///     if no such column exists.
@@ -293,7 +291,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual StoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn()
         => (StoredProcedureBuilder<TEntity>)base.HasRowsAffectedResultColumn();
-    
+
     /// <summary>
     ///     Configures a new column of the result that returns the rows affected for this stored procedure
     ///     if no such column exists.

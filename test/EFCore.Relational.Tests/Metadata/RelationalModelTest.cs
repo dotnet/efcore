@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             var orderTrigger = Assert.Single(orderType.GetDeclaredTriggers());
-            Assert.Equal("Order_Trigger", orderTrigger.GetName());
+            Assert.Equal("Order_Trigger", orderTrigger.GetDatabaseName());
             Assert.Equal("Order", orderTrigger.GetTableName());
             Assert.Null(orderTrigger.GetTableSchema());
 

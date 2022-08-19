@@ -1378,7 +1378,7 @@ public class ModelSnapshotSqlServerTest
             builder =>
             {
                 builder.Entity<EntityWithOneProperty>()
-                    .ToTable(tb => tb.HasTrigger("SomeTrigger").HasAnnotation("foo", "bar"));
+                    .ToTable(tb => tb.HasTrigger("SomeTrigger").HasAnnotation("foo", "bar").HasDatabaseName("SomeTrg"));
                 builder.Ignore<EntityWithTwoProperties>();
             },
             AddBoilerPlate(
@@ -1397,13 +1397,15 @@ public class ModelSnapshotSqlServerTest
                     b.ToTable(""EntityWithOneProperty"", t =>
                         {
                             t.HasTrigger(""SomeTrigger"")
+                                .HasDatabaseName(""SomeTrg"")
                                 .HasAnnotation(""foo"", ""bar"");
                         });
                 });"),
             o =>
             {
                 var trigger = Assert.Single(o.GetEntityTypes().Single().GetDeclaredTriggers());
-                Assert.Equal("SomeTrigger", trigger.GetName());
+                Assert.Equal("SomeTrigger", trigger.ModelName);
+                Assert.Equal("SomeTrg", trigger.GetDatabaseName());
             });
 
     [ConditionalFact]
@@ -1450,8 +1452,8 @@ public class ModelSnapshotSqlServerTest
 
                 Assert.Collection(
                     entityType.GetDeclaredTriggers(),
-                    t => Assert.Equal("SomeTrigger1", t.GetName()),
-                    t => Assert.Equal("SomeTrigger2", t.GetName()));
+                    t => Assert.Equal("SomeTrigger1", t.GetDatabaseName()),
+                    t => Assert.Equal("SomeTrigger2", t.GetDatabaseName()));
             });
 
     [ConditionalFact]
