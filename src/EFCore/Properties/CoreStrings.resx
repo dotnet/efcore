@@ -336,6 +336,9 @@
   <data name="DebugViewQueryStringError" xml:space="preserve">
     <value>Error creating query string: {message}.</value>
   </data>
+  <data name="DefaultMethodInvoked" xml:space="preserve">
+    <value>The EF.Default&lt;T&gt; property may only be used within Entity Framework ExecuteUpdate method.</value>
+  </data>
   <data name="DeleteBehaviorAttributeNotOnNavigationProperty" xml:space="preserve">
     <value>The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.</value>
   </data>

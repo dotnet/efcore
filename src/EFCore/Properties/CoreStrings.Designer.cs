@@ -599,6 +599,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 message);
 
         /// <summary>
+        ///     The EF.Default&lt;T&gt; property may only be used within Entity Framework ExecuteUpdate method.
+        /// </summary>
+        public static string DefaultMethodInvoked
+            => GetString("DefaultMethodInvoked");
+
+        /// <summary>
         ///     The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.
         /// </summary>
         public static string DeleteBehaviorAttributeNotOnNavigationProperty
