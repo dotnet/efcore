@@ -1661,7 +1661,7 @@ public class RelationalModelValidator : ModelValidator
         var triggerMappings = new Dictionary<string, ITrigger>();
         foreach (var trigger in mappedTypes.SelectMany(et => et.GetDeclaredTriggers()))
         {
-            var triggerName = trigger.GetName(storeObject);
+            var triggerName = trigger.GetDatabaseName(storeObject);
             if (triggerName == null)
             {
                 continue;

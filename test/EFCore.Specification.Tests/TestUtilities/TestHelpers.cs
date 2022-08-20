@@ -118,7 +118,7 @@ public abstract class TestHelpers
     public TestModelBuilder CreateConventionBuilder(
         IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger = null,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null,
-        Action<TestModelConfigurationBuilder> configureModel = null,
+        Action<TestModelConfigurationBuilder> configureConventions = null,
         Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureContext = null,
         IServiceCollection customServices = null)
     {
@@ -139,12 +139,12 @@ public abstract class TestHelpers
                 customServices,
                 configureContext(UseProviderOptions(new DbContextOptionsBuilder())).Options);
 
-        return CreateConventionBuilder(services, configureModel, validationLogger);
+        return CreateConventionBuilder(services, configureConventions, validationLogger);
     }
 
     public TestModelBuilder CreateConventionBuilder(
         IServiceProvider contextServices,
-        Action<TestModelConfigurationBuilder> configure = null,
+        Action<TestModelConfigurationBuilder> configureConventions = null,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
     {
         var modelCreationDependencies = contextServices.GetRequiredService<ModelCreationDependencies>();
@@ -153,7 +153,7 @@ public abstract class TestHelpers
             modelCreationDependencies.ConventionSetBuilder.CreateConventionSet(),
             contextServices);
 
-        configure?.Invoke(modelConfigurationBuilder);
+        configureConventions?.Invoke(modelConfigurationBuilder);
 
         return modelConfigurationBuilder.CreateModelBuilder(
             modelCreationDependencies.ModelDependencies,

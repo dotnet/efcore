@@ -663,7 +663,7 @@ public class RelationalBuilderExtensionsTest
         Assert.NotNull(trigger);
         Assert.Same(entityType, trigger.EntityType);
         Assert.Equal("Customer_Trigger", trigger.ModelName);
-        Assert.Equal("Customer_Trigger", trigger.GetName());
+        Assert.Equal("Customer_Trigger", trigger.GetDatabaseName());
     }
 
     [ConditionalFact]
@@ -674,18 +674,18 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasName("Table1"));
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasDatabaseName("Table1"));
 
         modelBuilder
             .Entity<Customer>()
-            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasName("Table2"));
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasDatabaseName("Table2"));
 
         var trigger = entityType.FindDeclaredTrigger("Customer_Trigger");
 
         Assert.NotNull(trigger);
         Assert.Equal(entityType, trigger.EntityType);
         Assert.Equal("Customer_Trigger", trigger.ModelName);
-        Assert.Equal("Table2", trigger.GetName());
+        Assert.Equal("Table2", trigger.GetDatabaseName());
     }
 
     [ConditionalFact]

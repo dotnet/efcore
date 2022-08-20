@@ -122,7 +122,7 @@ public partial class <#= Options.ContextName #> : DbContext
         {
             var keyFluentApiCalls = key.GetFluentApiCalls(annotationCodeGenerator);
             if (keyFluentApiCalls != null
-                || (!key.IsHandledByConventions() && !Options.UseDataAnnotations))
+                || (!key.IsHandledByConvention() && !Options.UseDataAnnotations))
             {
                 if (keyFluentApiCalls != null)
                 {
@@ -136,7 +136,7 @@ public partial class <#= Options.ContextName #> : DbContext
         }
 
         var entityTypeFluentApiCalls = entityType.GetFluentApiCalls(annotationCodeGenerator)
-            ?.FilterChain(c => !(Options.UseDataAnnotations && c.HasDataAnnotation));
+            ?.FilterChain(c => !(Options.UseDataAnnotations && c.IsHandledByDataAnnotations));
         if (entityTypeFluentApiCalls != null)
         {
             usings.AddRange(entityTypeFluentApiCalls.GetRequiredUsings());
@@ -152,7 +152,7 @@ public partial class <#= Options.ContextName #> : DbContext
         }
 
         foreach (var index in entityType.GetIndexes()
-            .Where(i => !(Options.UseDataAnnotations && i.HasDataAnnotation(annotationCodeGenerator))))
+            .Where(i => !(Options.UseDataAnnotations && i.IsHandledByDataAnnotations(annotationCodeGenerator))))
         {
             if (anyEntityTypeConfiguration)
             {
@@ -174,7 +174,7 @@ public partial class <#= Options.ContextName #> : DbContext
         foreach (var property in entityType.GetProperties())
         {
             var propertyFluentApiCalls = property.GetFluentApiCalls(annotationCodeGenerator)
-                ?.FilterChain(c => !(Options.UseDataAnnotations && c.HasDataAnnotation)
+                ?.FilterChain(c => !(Options.UseDataAnnotations && c.IsHandledByDataAnnotations)
                     && !(c.Method == "IsRequired" && Options.UseNullableReferenceTypes && !property.ClrType.IsValueType));
             if (propertyFluentApiCalls == null)
             {
@@ -197,7 +197,7 @@ public partial class <#= Options.ContextName #> : DbContext
         foreach (var foreignKey in entityType.GetForeignKeys())
         {
             var foreignKeyFluentApiCalls = foreignKey.GetFluentApiCalls(annotationCodeGenerator)
-                ?.FilterChain(c => !(Options.UseDataAnnotations && c.HasDataAnnotation));
+                ?.FilterChain(c => !(Options.UseDataAnnotations && c.IsHandledByDataAnnotations));
             if (foreignKeyFluentApiCalls == null)
             {
                 continue;

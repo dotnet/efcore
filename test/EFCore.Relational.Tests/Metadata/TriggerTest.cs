@@ -19,7 +19,7 @@ public class TriggerTest
 
         Assert.NotNull(trigger);
         Assert.Same(entityType, trigger.EntityType);
-        Assert.Equal("Customer_Trigger", trigger.GetName());
+        Assert.Equal("Customer_Trigger", trigger.GetDatabaseName());
         Assert.Equal("Customer", trigger.GetTableName());
         Assert.Null(trigger.GetTableSchema());
         Assert.Equal(ConfigurationSource.Explicit, ((IConventionTrigger)trigger).GetConfigurationSource());
@@ -39,7 +39,7 @@ public class TriggerTest
 
         Assert.NotNull(trigger);
         Assert.Same(entityType, trigger.EntityType);
-        Assert.Equal("Customer_Trigger", trigger.GetName());
+        Assert.Equal("Customer_Trigger", trigger.GetDatabaseName());
         Assert.Equal("CustomerTable", trigger.GetTableName());
         Assert.Equal("dbo", trigger.GetTableSchema());
         Assert.Equal(ConfigurationSource.Explicit, ((IConventionTrigger)trigger).GetConfigurationSource());
