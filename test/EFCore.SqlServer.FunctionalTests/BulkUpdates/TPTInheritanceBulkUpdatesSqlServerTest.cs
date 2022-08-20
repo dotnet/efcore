@@ -57,6 +57,27 @@ public class TPTInheritanceBulkUpdatesSqlServerTest : TPTInheritanceBulkUpdatesT
         AssertSql();
     }
 
+    public override async Task Delete_GroupBy_Where_Select_First(bool async)
+    {
+        await base.Delete_GroupBy_Where_Select_First(async);
+
+        AssertSql();
+    }
+
+    public override async Task Delete_GroupBy_Where_Select_First_2(bool async)
+    {
+        await base.Delete_GroupBy_Where_Select_First_2(async);
+
+        AssertSql();
+    }
+
+    public override async Task Delete_GroupBy_Where_Select_First_3(bool async)
+    {
+        await base.Delete_GroupBy_Where_Select_First_3(async);
+
+        AssertSql();
+    }
+
     public override async Task Update_where_hierarchy(bool async)
     {
         await base.Update_where_hierarchy(async);

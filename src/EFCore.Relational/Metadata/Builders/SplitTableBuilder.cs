@@ -80,7 +80,7 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     /// </remarks>
     public virtual TableTriggerBuilder HasTrigger(string modelName)
     {
-        var trigger = EntityTypeBuilder.HasTrigger(modelName, EntityTypeBuilder.Metadata).Metadata;
+        var trigger = EntityTypeBuilder.HasTrigger(EntityTypeBuilder.Metadata, modelName).Metadata;
         trigger.SetTableName(Name);
         trigger.SetTableSchema(Schema);
 

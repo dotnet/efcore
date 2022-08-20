@@ -80,7 +80,7 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
     /// </remarks>
     public virtual TableTriggerBuilder HasTrigger(string modelName)
     {
-        var trigger = EntityTypeBuilder.HasTrigger(modelName, OwnedNavigationBuilder.OwnedEntityType).Metadata;
+        var trigger = EntityTypeBuilder.HasTrigger(OwnedNavigationBuilder.OwnedEntityType, modelName).Metadata;
         trigger.SetTableName(Name);
         trigger.SetTableSchema(Schema);
 

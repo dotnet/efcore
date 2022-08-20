@@ -77,7 +77,7 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     /// </remarks>
     public virtual TableTriggerBuilder HasTrigger(string modelName)
     {
-        var trigger = EntityTypeBuilder.HasTrigger(modelName, Metadata).Metadata;
+        var trigger = EntityTypeBuilder.HasTrigger(Metadata, modelName).Metadata;
         if (Name != null)
         {
             trigger.SetTableName(Name);

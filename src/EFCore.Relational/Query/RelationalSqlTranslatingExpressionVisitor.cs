@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -606,8 +605,82 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 return new EntityReferenceExpression(entityShaperExpression);
 
             case ProjectionBindingExpression projectionBindingExpression:
-                return ((SelectExpression)projectionBindingExpression.QueryExpression)
-                    .GetProjection(projectionBindingExpression);
+                return Visit(((SelectExpression)projectionBindingExpression.QueryExpression)
+                    .GetProjection(projectionBindingExpression));
+
+            case ShapedQueryExpression shapedQueryExpression:
+                if (shapedQueryExpression.ResultCardinality == ResultCardinality.Enumerable)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var shaperExpression = shapedQueryExpression.ShaperExpression;
+                ProjectionBindingExpression? mappedProjectionBindingExpression = null;
+
+                var innerExpression = shaperExpression;
+                Type? convertedType = null;
+                if (shaperExpression is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert)
+                {
+                    convertedType = unaryExpression.Type;
+                    innerExpression = unaryExpression.Operand;
+                }
+
+                if (innerExpression is EntityShaperExpression ese
+                    && (convertedType == null
+                        || convertedType.IsAssignableFrom(ese.Type)))
+                {
+                    return new EntityReferenceExpression(shapedQueryExpression.UpdateShaperExpression(innerExpression));
+                }
+
+                if (innerExpression is ProjectionBindingExpression pbe
+                    && (convertedType == null
+                        || convertedType.MakeNullable() == innerExpression.Type))
+                {
+                    mappedProjectionBindingExpression = pbe;
+                }
+
+                if (mappedProjectionBindingExpression == null
+                    && shaperExpression is BlockExpression blockExpression
+                    && blockExpression.Expressions.Count == 2
+                    && blockExpression.Expressions[0] is BinaryExpression binaryExpression
+                    && binaryExpression.NodeType == ExpressionType.Assign
+                    && binaryExpression.Right is ProjectionBindingExpression pbe2)
+                {
+                    mappedProjectionBindingExpression = pbe2;
+                }
+
+                if (mappedProjectionBindingExpression == null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var subquery = (SelectExpression)shapedQueryExpression.QueryExpression;
+                var projection = subquery.GetProjection(mappedProjectionBindingExpression);
+                if (projection is not SqlExpression sqlExpression)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                if (subquery.Tables.Count == 0)
+                {
+                    return sqlExpression;
+                }
+
+                subquery.ReplaceProjection(new List<Expression> { sqlExpression });
+                subquery.ApplyProjection();
+
+                SqlExpression scalarSubqueryExpression = new ScalarSubqueryExpression(subquery);
+
+                if (shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault
+                    && !shaperExpression.Type.IsNullableType())
+                {
+                    scalarSubqueryExpression = _sqlExpressionFactory.Coalesce(
+                        scalarSubqueryExpression,
+                        (SqlExpression)Visit(shaperExpression.Type.GetDefaultValueConstant()));
+                }
+
+                return scalarSubqueryExpression;
 
             default:
                 return QueryCompilationContext.NotTranslatedExpression;
@@ -632,7 +705,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         var innerExpression = Visit(memberExpression.Expression);
 
         return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member))
-            ?? (TranslationFailed(memberExpression.Expression, Visit(memberExpression.Expression), out var sqlInnerExpression)
+            ?? (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
                 ? QueryCompilationContext.NotTranslatedExpression
                 : Dependencies.MemberTranslatorProvider.Translate(
                     sqlInnerExpression, memberExpression.Member, memberExpression.Type, _queryCompilationContext.Logger))
@@ -660,6 +733,12 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 return result;
             }
+        }
+
+        // EF.Default
+        if (methodCallExpression.Method.IsEFDefaultMethod())
+        {
+            return new SqlFragmentExpression("DEFAULT");
         }
 
         var method = methodCallExpression.Method;
@@ -792,9 +871,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     : method;
 
                 var enumerableSource = Visit(arguments[0]);
-                if (enumerableSource is EnumerableExpression)
+                if (enumerableSource is EnumerableExpression ee)
                 {
-                    enumerableExpression = (EnumerableExpression)enumerableSource;
+                    enumerableExpression = ee;
                     switch (method.Name)
                     {
                         case nameof(Queryable.AsQueryable)
@@ -928,10 +1007,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && !skipVisitChildren)
             {
                 var @object = Visit(methodCallExpression.Object);
-                if (@object is EnumerableExpression)
+                if (@object is EnumerableExpression eeo)
                 {
                     // This is safe since if enumerableExpression is non-null then it was static method
-                    enumerableExpression = (EnumerableExpression)@object;
+                    enumerableExpression = eeo;
                 }
                 else if (TranslationFailed(methodCallExpression.Object, @object, out sqlObject))
                 {
@@ -944,7 +1023,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     {
                         var argument = arguments[i];
                         var visitedArgument = Visit(argument);
-                        if (visitedArgument is EnumerableExpression)
+                        if (visitedArgument is EnumerableExpression eea)
                         {
                             if (enumerableExpression != null)
                             {
@@ -952,7 +1031,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                                 break;
                             }
 
-                            enumerableExpression = (EnumerableExpression)visitedArgument;
+                            enumerableExpression = eea;
                             continue;
                         }
 
@@ -1009,83 +1088,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         // Subquery case
         var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-        if (subqueryTranslation != null)
-        {
-            if (subqueryTranslation.ResultCardinality == ResultCardinality.Enumerable)
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
 
-            var shaperExpression = subqueryTranslation.ShaperExpression;
-            ProjectionBindingExpression? mappedProjectionBindingExpression = null;
-
-            var innerExpression = shaperExpression;
-            Type? convertedType = null;
-            if (shaperExpression is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert)
-            {
-                convertedType = unaryExpression.Type;
-                innerExpression = unaryExpression.Operand;
-            }
-
-            if (innerExpression is EntityShaperExpression ese
-                && (convertedType == null
-                    || convertedType.IsAssignableFrom(ese.Type)))
-            {
-                return new EntityReferenceExpression(subqueryTranslation.UpdateShaperExpression(innerExpression));
-            }
-
-            if (innerExpression is ProjectionBindingExpression pbe
-                && (convertedType == null
-                    || convertedType.MakeNullable() == innerExpression.Type))
-            {
-                mappedProjectionBindingExpression = pbe;
-            }
-
-            if (mappedProjectionBindingExpression == null
-                && shaperExpression is BlockExpression blockExpression
-                && blockExpression.Expressions.Count == 2
-                && blockExpression.Expressions[0] is BinaryExpression binaryExpression
-                && binaryExpression.NodeType == ExpressionType.Assign
-                && binaryExpression.Right is ProjectionBindingExpression pbe2)
-            {
-                mappedProjectionBindingExpression = pbe2;
-            }
-
-            if (mappedProjectionBindingExpression == null)
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-
-            var subquery = (SelectExpression)subqueryTranslation.QueryExpression;
-            var projection = subquery.GetProjection(mappedProjectionBindingExpression);
-            if (projection is not SqlExpression sqlExpression)
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-
-            if (subquery.Tables.Count == 0)
-            {
-                return sqlExpression;
-            }
-
-            subquery.ReplaceProjection(new List<Expression> { sqlExpression });
-            subquery.ApplyProjection();
-
-            SqlExpression scalarSubqueryExpression = new ScalarSubqueryExpression(subquery);
-
-            if (subqueryTranslation.ResultCardinality == ResultCardinality.SingleOrDefault
-                && !shaperExpression.Type.IsNullableType())
-            {
-                scalarSubqueryExpression = _sqlExpressionFactory.Coalesce(
-                    scalarSubqueryExpression,
-                    (SqlExpression)Visit(shaperExpression.Type.GetDefaultValueConstant()));
-            }
-
-            return scalarSubqueryExpression;
-        }
-
-        return QueryCompilationContext.NotTranslatedExpression;
+        return subqueryTranslation == null
+            ? QueryCompilationContext.NotTranslatedExpression
+            : Visit(subqueryTranslation);
     }
 
     /// <inheritdoc />
@@ -1394,12 +1400,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         var lambdaBody = RemapLambda(enumerableExpression, lambdaExpression);
         var predicate = TranslateInternal(lambdaBody);
-        if (predicate == null)
-        {
-            return null;
-        }
-
-        return enumerableExpression.ApplyPredicate(predicate);
+        return predicate == null ? null : enumerableExpression.ApplyPredicate(predicate);
     }
 
     private static Expression TryRemoveImplicitConvert(Expression expression)

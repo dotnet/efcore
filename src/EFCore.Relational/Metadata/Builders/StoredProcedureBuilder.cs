@@ -214,7 +214,7 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
             property = entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties())
                 .FirstOrDefault(p => p.Name == propertyName);
         }
-        
+
         if (property == null)
         {
             throw new InvalidOperationException(CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));

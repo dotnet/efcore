@@ -2370,7 +2370,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class TestTriggerBuilder
     {
-        public abstract TestTriggerBuilder HasName(string name);
+        public abstract TestTriggerBuilder HasDatabaseName(string name);
         public abstract TestTriggerBuilder HasAnnotation(string annotation, object? value);
     }
 
@@ -2389,8 +2389,8 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         protected virtual TestTriggerBuilder Wrap(TableTriggerBuilder checkConstraintBuilder)
             => new NonGenericTestTriggerBuilder(checkConstraintBuilder);
 
-        public override TestTriggerBuilder HasName(string name)
-            => Wrap(TriggerBuilder.HasName(name));
+        public override TestTriggerBuilder HasDatabaseName(string name)
+            => Wrap(TriggerBuilder.HasDatabaseName(name));
 
         public override TestTriggerBuilder HasAnnotation(string annotation, object? value)
             => Wrap(TriggerBuilder.HasAnnotation(annotation, value));

@@ -14,6 +14,18 @@ public class NorthwindBulkUpdatesSqlServerTest : NorthwindBulkUpdatesTestBase<No
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task Delete_Where_TagWith(bool async)
+    {
+        await base.Delete_Where_TagWith(async);
+
+        AssertSql(
+            @"-- MyDelete
+
+DELETE FROM [o]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] < 10300");
+    }
+
     public override async Task Delete_Where(bool async)
     {
         await base.Delete_Where(async);
@@ -190,12 +202,30 @@ WHERE [o].[OrderID] < (
     {
         await base.Delete_Where_predicate_with_GroupBy_aggregate_2(async);
 
-        AssertSql();
+        AssertSql(
+            @"DELETE FROM [o]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o1]
+    GROUP BY [o1].[CustomerID]
+    HAVING COUNT(*) > 9 AND (
+        SELECT TOP(1) [o2].[OrderID]
+        FROM [Orders] AS [o2]
+        WHERE [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) = [o0].[OrderID])");
     }
 
     public override async Task Delete_GroupBy_Where_Select(bool async)
     {
         await base.Delete_GroupBy_Where_Select(async);
+
+        AssertSql();
+    }
+
+    public override async Task Delete_GroupBy_Where_Select_2(bool async)
+    {
+        await base.Delete_GroupBy_Where_Select_2(async);
 
         AssertSql();
     }
@@ -514,6 +544,19 @@ OUTER APPLY (
 WHERE [o].[OrderID] < 10276");
     }
 
+    public override async Task Update_Where_set_constant_TagWith(bool async)
+    {
+        await base.Update_Where_set_constant_TagWith(async);
+
+        AssertExecuteUpdateSql(
+            @"-- MyUpdate
+
+UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
     public override async Task Update_Where_set_constant(bool async)
     {
         await base.Update_Where_set_constant(async);
@@ -521,6 +564,17 @@ WHERE [o].[OrderID] < 10276");
         AssertExecuteUpdateSql(
             @"UPDATE [c]
     SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_Where_set_default(bool async)
+    {
+        await base.Update_Where_set_default(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = DEFAULT
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
@@ -759,7 +813,19 @@ WHERE [c].[CustomerID] = (
     {
         await base.Update_Where_GroupBy_First_set_constant_3(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 11 AND (
+        SELECT TOP(1) [c0].[CustomerID]
+        FROM [Orders] AS [o0]
+        LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) = [c].[CustomerID])");
     }
 
     public override async Task Update_Where_Distinct_set_constant(bool async)
@@ -1103,7 +1169,15 @@ INNER JOIN (
     {
         await base.Update_Where_Join_set_property_from_joined_single_result_table(async);
 
-        AssertExecuteUpdateSql();
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+    SET [c].[City] = CONVERT(varchar(11), DATEPART(year, (
+        SELECT TOP(1) [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderDate] DESC)))
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
     public override async Task Update_Where_Join_set_property_from_joined_table(bool async)

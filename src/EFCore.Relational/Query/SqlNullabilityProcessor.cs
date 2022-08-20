@@ -112,7 +112,7 @@ public class SqlNullabilityProcessor
 
         return selectExpression != updateExpression.SelectExpression
             || setColumnValues != null
-            ? new UpdateExpression(updateExpression.Table, selectExpression, setColumnValues ?? updateExpression.SetColumnValues)
+            ? updateExpression.Update(selectExpression, setColumnValues ?? updateExpression.SetColumnValues)
             : updateExpression;
     }
 

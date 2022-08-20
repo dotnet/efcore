@@ -1240,8 +1240,8 @@ public partial class TestDbContext : DbContext
                     var triggers = entityType.GetDeclaredTriggers();
 
                     Assert.Collection(triggers,
-                        t => Assert.Equal("Trigger1", t.GetName()),
-                        t => Assert.Equal("Trigger2", t.GetName()));
+                        t => Assert.Equal("Trigger1", t.GetDatabaseName()),
+                        t => Assert.Equal("Trigger2", t.GetDatabaseName()));
                 });
 
         [ConditionalFact]
