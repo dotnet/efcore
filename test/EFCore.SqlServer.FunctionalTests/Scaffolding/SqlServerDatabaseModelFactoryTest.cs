@@ -914,9 +914,9 @@ END;" },
                 var table = dbModel.Tables.Single();
                 var triggers = table.Triggers;
 
-                Assert.Collection(triggers.OrderBy(t => t),
-                    t => Assert.Equal("Trigger1", t),
-                    t => Assert.Equal("Trigger2", t));
+                Assert.Collection(triggers.OrderBy(t => t.Name),
+                    t => Assert.Equal("Trigger1", t.Name),
+                    t => Assert.Equal("Trigger2", t.Name));
 
             },
             "DROP TABLE SomeTable;");

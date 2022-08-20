@@ -335,9 +335,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         VisitUniqueConstraints(builder, table.UniqueConstraints);
         VisitIndexes(builder, table.Indexes);
 
-        foreach (var triggerName in table.Triggers)
+        foreach (var trigger in table.Triggers)
         {
-            builder.ToTable(table.Name, table.Schema, tb => tb.HasTrigger(triggerName));
+            builder.ToTable(table.Name, table.Schema, tb => tb.HasTrigger(trigger.Name));
         }
 
         builder.Metadata.AddAnnotations(table.GetAnnotations());
