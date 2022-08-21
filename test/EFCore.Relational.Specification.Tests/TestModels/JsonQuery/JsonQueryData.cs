@@ -8,12 +8,18 @@ public class JsonQueryData : ISetSource
     public JsonQueryData()
     {
         JsonEntitiesBasic = CreateJsonEntitiesBasic();
+        JsonEntitiesBasicForReference = CreateJsonEntitiesBasicForReference();
+        JsonEntitiesBasicForCollection = CreateJsonEntitiesBasicForCollection();
+        WireUp(JsonEntitiesBasic, JsonEntitiesBasicForReference, JsonEntitiesBasicForCollection);
+
         JsonEntitiesCustomNaming = CreateJsonEntitiesCustomNaming();
         JsonEntitiesSingleOwned = CreateJsonEntitiesSingleOwned();
         JsonEntitiesInheritance = CreateJsonEntitiesInheritance();
     }
 
     public IReadOnlyList<JsonEntityBasic> JsonEntitiesBasic { get; }
+    public IReadOnlyList<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; }
+    public IReadOnlyList<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; }
     public IReadOnlyList<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; }
     public IReadOnlyList<JsonEntitySingleOwned> JsonEntitiesSingleOwned { get; set; }
     public IReadOnlyList<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
@@ -275,6 +281,46 @@ public class JsonQueryData : ISetSource
         e1_c2.Owner = entity1;
 
         return new List<JsonEntityBasic> { entity1 };
+    }
+
+
+    public static IReadOnlyList<JsonEntityBasicForReference> CreateJsonEntitiesBasicForReference()
+    {
+        var entity1 = new JsonEntityBasicForReference { Id = 1, Name = "EntityReference1" };
+
+        return new List<JsonEntityBasicForReference> { entity1 };
+    }
+
+    public static IReadOnlyList<JsonEntityBasicForCollection> CreateJsonEntitiesBasicForCollection()
+    {
+        var entity1 = new JsonEntityBasicForCollection { Id = 1, Name = "EntityCollection1" };
+        var entity2 = new JsonEntityBasicForCollection { Id = 2, Name = "EntityCollection2" };
+        var entity3 = new JsonEntityBasicForCollection { Id = 3, Name = "EntityCollection3" };
+
+        return new List<JsonEntityBasicForCollection> { entity1, entity2, entity3 };
+    }
+
+    public static void WireUp(
+        IReadOnlyList<JsonEntityBasic> entitiesBasic,
+        IReadOnlyList<JsonEntityBasicForReference> entitiesBasicForReference,
+        IReadOnlyList<JsonEntityBasicForCollection> entitiesBasicForCollection)
+    {
+        entitiesBasic[0].EntityReference = entitiesBasicForReference[0];
+        entitiesBasicForReference[0].Parent = entitiesBasic[0];
+        entitiesBasicForReference[0].ParentId = entitiesBasic[0].Id;
+
+        entitiesBasic[0].EntityCollection = new List<JsonEntityBasicForCollection> {
+            entitiesBasicForCollection[0],
+            entitiesBasicForCollection[1],
+            entitiesBasicForCollection[2]
+        };
+
+        entitiesBasicForCollection[0].Parent = entitiesBasic[0];
+        entitiesBasicForCollection[0].Parent.Id = entitiesBasic[0].Id;
+        entitiesBasicForCollection[1].Parent = entitiesBasic[0];
+        entitiesBasicForCollection[1].Parent.Id = entitiesBasic[0].Id;
+        entitiesBasicForCollection[2].Parent = entitiesBasic[0];
+        entitiesBasicForCollection[2].Parent.Id = entitiesBasic[0].Id;
     }
 
     public static IReadOnlyList<JsonEntityCustomNaming> CreateJsonEntitiesCustomNaming()

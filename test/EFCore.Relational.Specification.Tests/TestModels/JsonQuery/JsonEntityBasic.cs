@@ -10,5 +10,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
 
         public JsonOwnedRoot OwnedReferenceRoot { get; set; }
         public List<JsonOwnedRoot> OwnedCollectionRoot { get; set; }
+
+        public JsonEntityBasicForReference EntityReference { get; set; }
+        public List<JsonEntityBasicForCollection> EntityCollection { get; set; }
     }
 }
