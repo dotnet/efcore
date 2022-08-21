@@ -765,9 +765,9 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     {
         var parentSearchCondition = _isSearchCondition;
         _isSearchCondition = false;
-        var jsonPath = (SqlExpression)Visit(jsonScalarExpression.JsonPath);
+        var jsonPath = (SqlExpression)Visit(jsonScalarExpression.Path);
         _isSearchCondition = parentSearchCondition;
 
-        return jsonScalarExpression.Update(jsonScalarExpression.JsonColumn, jsonPath, jsonScalarExpression.IsNullable);
+        return jsonScalarExpression.Update(jsonScalarExpression.JsonColumn, jsonPath);
     }
 }
