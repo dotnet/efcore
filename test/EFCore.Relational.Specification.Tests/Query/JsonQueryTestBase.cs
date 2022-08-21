@@ -634,5 +634,45 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>()
             .GroupBy(x => x.OwnedReferenceRoot.Name).Select(x => new { x.Key, Count = x.Count() }));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_with_include_on_json_entity(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Include(x => x.OwnedReferenceRoot),
+            entryCount: 40);
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_with_include_on_entity_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Include(x => x.EntityReference),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
+                new ExpectedInclude<JsonEntityBasic>(x => x.EntityReference)),
+            entryCount: 41);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_with_include_on_entity_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Include(x => x.EntityCollection),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
+                new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)),
+            entryCount: 43);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_with_include_on_entity_collection_and_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Include(x => x.EntityReference).Include(x => x.EntityCollection),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
+                new ExpectedInclude<JsonEntityBasic>(x => x.EntityReference),
+                new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)),
+            entryCount: 44);
 }
