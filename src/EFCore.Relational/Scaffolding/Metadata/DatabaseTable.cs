@@ -60,7 +60,7 @@ public class DatabaseTable : Annotatable
     /// <summary>
     ///     The list of triggers defined on the table.
     /// </summary>
-    public virtual HashSet<string> Triggers { get; } = new HashSet<string>();
+    public virtual IList<DatabaseTrigger> Triggers { get; } = new List<DatabaseTrigger>();
 
     /// <inheritdoc />
     public override string ToString()
