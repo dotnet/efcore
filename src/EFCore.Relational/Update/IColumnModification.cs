@@ -28,6 +28,9 @@ public interface IColumnModification
     /// <summary>
     ///     The property that maps to the column.
     /// </summary>
+    /// <remarks>
+    ///     In case of JSON column single scalar property modification, the scalar property that is being modified.
+    /// </remarks>
     public IProperty? Property { get; }
 
     /// <summary>

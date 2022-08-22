@@ -97,6 +97,18 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
         modelBuilder.Ignore<JsonEntityCustomNaming>();
         modelBuilder.Ignore<JsonEntitySingleOwned>();
 
+        modelBuilder.Entity<JsonEntityAllTypes>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(x => x.Reference, b =>
+        {
+            b.ToJson();
+            b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+        });
+        modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(x => x.Collection, b =>
+        {
+            b.ToJson();
+            b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+        });
+
         base.OnModelCreating(modelBuilder, context);
     }
 
@@ -104,9 +116,11 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
     {
         var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
         var jsonEntitiesInheritance = JsonQueryData.CreateJsonEntitiesInheritance();
+        var jsonEntitiesAllTypes = JsonQueryData.CreateJsonEntitiesAllTypes();
 
         context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
         context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
+        context.JsonEntitiesAllTypes.AddRange(jsonEntitiesAllTypes);
         context.SaveChanges();
     }
 }

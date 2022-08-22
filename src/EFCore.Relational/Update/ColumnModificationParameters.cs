@@ -236,14 +236,14 @@ public readonly record struct ColumnModificationParameters
     }
 
     /// <summary>
-    ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
+    ///     Creates a new <see cref="ColumnModificationParameters" /> instance specific for updating objects mapped to JSON column.
     /// </summary>
-    /// <param name="columnName">The name of the column.</param>
-    /// <param name="originalValue">The original value of the property mapped to this column.</param>
-    /// <param name="value">The current value of the property mapped to this column.</param>
-    /// <param name="jsonPath">The JSON path leading to the JSON element that needs to be updated.</param>
-    /// <param name="columnType">The database type of the column.</param>
+    /// <param name="columnName">The name of the JSON column.</param>
+    /// <param name="value">The current value of the JSON element located at the given JSON path.</param>
+    /// <param name="property">In case of JSON column single scalar property modification, the scalar property that is being modified, null otherwise.</param>
+    /// <param name="columnType">The database type of the JSON column.</param>
     /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
+    /// <param name="jsonPath">The JSON path leading to the JSON element that needs to be updated.</param>
     /// <param name="read">Indicates whether a value must be read from the database for the column.</param>
     /// <param name="write">Indicates whether a value must be written to the database for the column.</param>
     /// <param name="key">Indicates whether the column part of a primary or alternate key.</param>
@@ -252,8 +252,8 @@ public readonly record struct ColumnModificationParameters
     /// <param name="isNullable">A value indicating whether the value could be null.</param>
     public ColumnModificationParameters(
         string columnName,
-        object? originalValue,
         object? value,
+        IProperty? property,
         string? columnType,
         RelationalTypeMapping? typeMapping,
         string jsonPath,
@@ -266,12 +266,11 @@ public readonly record struct ColumnModificationParameters
     {
         Column = null;
         ColumnName = columnName;
-        OriginalValue = originalValue;
+        OriginalValue = null;
         Value = value;
-        Property = null;
+        Property = property;
         ColumnType = columnType;
         TypeMapping = typeMapping;
-        JsonPath = jsonPath;
         IsRead = read;
         IsWrite = write;
         IsKey = key;
@@ -281,5 +280,6 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = null;
         Entry = null;
+        JsonPath = jsonPath;
     }
 }
