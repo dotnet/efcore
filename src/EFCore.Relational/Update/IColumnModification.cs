@@ -123,6 +123,11 @@ public interface IColumnModification
     public object? Value { get; set; }
 
     /// <summary>
+    ///     In case of JSON column modification, the JSON path leading to the JSON element that needs to be updated.
+    /// </summary>
+    public string? JsonPath { get; }
+
+    /// <summary>
     ///     Adds a modification affecting the same database value.
     /// </summary>
     /// <param name="modification">The modification for the shared column.</param>

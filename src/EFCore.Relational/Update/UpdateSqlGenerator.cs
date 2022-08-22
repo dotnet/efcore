@@ -317,15 +317,34 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                     var (g, n, s) = p;
                     g.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
                     sb.Append(" = ");
-                    if (!o.UseCurrentValueParameter)
-                    {
-                        AppendSqlLiteral(sb, o, n, s);
-                    }
-                    else
-                    {
-                        g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
-                    }
+                    AppendUpdateColumnValue(g.SqlGenerationHelper, o, sb, n, s);
                 });
+    }
+
+    /// <summary>
+    ///     Appends a SQL fragment representing the value that is assigned to a column which is being updated.
+    /// </summary>
+    /// <param name="updateSqlGeneratorHelper">The update sql generator helper.</param>
+    /// <param name="columnModification">The operation representing the data to be updated.</param>
+    /// <param name="stringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="name">The name of the table.</param>
+    /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
+    protected virtual void AppendUpdateColumnValue(
+        ISqlGenerationHelper updateSqlGeneratorHelper,
+        IColumnModification columnModification,
+        StringBuilder stringBuilder,
+        string name,
+        string? schema)
+    {
+        if (!columnModification.UseCurrentValueParameter)
+        {
+            AppendSqlLiteral(stringBuilder, columnModification, name, schema);
+        }
+        else
+        {
+            updateSqlGeneratorHelper.GenerateParameterNamePlaceholder(
+                stringBuilder, columnModification.ParameterName);
+        }
     }
 
     /// <inheritdoc />
