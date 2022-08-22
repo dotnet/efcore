@@ -1138,6 +1138,69 @@ OUTER APPLY (
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
+    public override async Task Update_with_cross_join_left_join_set_constant(bool async)
+    {
+        await base.Update_with_cross_join_left_join_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+CROSS JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[City] IS NOT NULL AND ([c0].[City] LIKE N'S%')
+) AS [t]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_with_cross_join_cross_apply_set_constant(bool async)
+    {
+        await base.Update_with_cross_join_cross_apply_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+CROSS JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[City] IS NOT NULL AND ([c0].[City] LIKE N'S%')
+) AS [t]
+CROSS APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300 AND DATEPART(year, [o].[OrderDate]) < CAST(LEN([c].[ContactName]) AS int)
+) AS [t0]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
+    public override async Task Update_with_cross_join_outer_apply_set_constant(bool async)
+    {
+        await base.Update_with_cross_join_outer_apply_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [c]
+SET [c].[ContactName] = N'Updated'
+FROM [Customers] AS [c]
+CROSS JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[City] IS NOT NULL AND ([c0].[City] LIKE N'S%')
+) AS [t]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300 AND DATEPART(year, [o].[OrderDate]) < CAST(LEN([c].[ContactName]) AS int)
+) AS [t0]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
     public override async Task Update_FromSql_set_constant(bool async)
     {
         await base.Update_FromSql_set_constant(async);

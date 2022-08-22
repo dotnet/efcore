@@ -1266,7 +1266,10 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             && selectExpression.Orderings.Count == 0
             && selectExpression.GroupBy.Count == 0
             && selectExpression.Projection.Count == 0
-            && selectExpression.Tables.All(e => !(e is LeftJoinExpression || e is OuterApplyExpression)))
+            && (selectExpression.Tables.Count == 1
+                || !ReferenceEquals(selectExpression.Tables[0], updateExpression.Table)
+                || selectExpression.Tables[1] is InnerJoinExpression
+                || selectExpression.Tables[1] is CrossJoinExpression))
         {
             _relationalCommandBuilder.Append("UPDATE ");
             Visit(updateExpression.Table);

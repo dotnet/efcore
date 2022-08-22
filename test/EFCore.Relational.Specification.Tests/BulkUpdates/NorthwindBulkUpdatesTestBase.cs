@@ -868,6 +868,50 @@ WHERE [OrderID] < 10300"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_cross_join_left_join_set_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
+                  join o in ss.Set<Order>().Where(o => o.OrderID < 10300)
+                    on c.CustomerID equals o.CustomerID into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select new { c, c2, o },
+            e => e.c,
+            s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_cross_join_cross_apply_set_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length)
+                  select new { c, o },
+            e => e.c,
+            s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
+            rowsAffectedCount: 0,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_cross_join_outer_apply_set_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length).DefaultIfEmpty()
+                  select new { c, c2, o },
+            e => e.c,
+            s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_FromSql_set_constant(bool async)
     {
         if (async)

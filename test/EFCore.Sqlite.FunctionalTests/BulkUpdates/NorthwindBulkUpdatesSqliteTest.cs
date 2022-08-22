@@ -840,14 +840,9 @@ WHERE ""o"".""OrderID"" = ""t"".""OrderID""");
         AssertExecuteUpdateSql(
             @"UPDATE ""Order Details"" AS ""o""
 SET ""Quantity"" = CAST(1 AS INTEGER)
-FROM (
-    SELECT ""o0"".""OrderID"", ""o0"".""ProductID"", ""o0"".""Discount"", ""o0"".""Quantity"", ""o0"".""UnitPrice"", ""o1"".""OrderID"" AS ""OrderID0"", ""c"".""CustomerID""
-    FROM ""Order Details"" AS ""o0""
-    INNER JOIN ""Orders"" AS ""o1"" ON ""o0"".""OrderID"" = ""o1"".""OrderID""
-    LEFT JOIN ""Customers"" AS ""c"" ON ""o1"".""CustomerID"" = ""c"".""CustomerID""
-    WHERE ""c"".""City"" = 'Seattle'
-) AS ""t""
-WHERE ""o"".""OrderID"" = ""t"".""OrderID"" AND ""o"".""ProductID"" = ""t"".""ProductID""");
+FROM ""Orders"" AS ""o0""
+LEFT JOIN ""Customers"" AS ""c"" ON ""o0"".""CustomerID"" = ""c"".""CustomerID""
+WHERE ""o"".""OrderID"" = ""o0"".""OrderID"" AND ""c"".""City"" = 'Seattle'");
     }
 
     public override async Task Update_Where_SelectMany_set_null(bool async)
@@ -1096,6 +1091,36 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_outer_apply_set_constant(async))).Message);
+
+    public override async Task Update_with_cross_join_left_join_set_constant(bool async)
+    {
+        await base.Update_with_cross_join_left_join_set_constant(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+SET ""ContactName"" = 'Updated'
+FROM (
+    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
+    FROM ""Customers"" AS ""c0""
+    WHERE ""c0"".""City"" IS NOT NULL AND (""c0"".""City"" LIKE 'S%')
+) AS ""t""
+LEFT JOIN (
+    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+    FROM ""Orders"" AS ""o""
+    WHERE ""o"".""OrderID"" < 10300
+) AS ""t0"" ON ""c"".""CustomerID"" = ""t0"".""CustomerID""
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_with_cross_join_cross_apply_set_constant(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_cross_join_cross_apply_set_constant(async))).Message);
+
+    public override async Task Update_with_cross_join_outer_apply_set_constant(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_cross_join_outer_apply_set_constant(async))).Message);
 
     public override async Task Update_FromSql_set_constant(bool async)
     {
