@@ -1330,7 +1330,7 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
 
                 // We don't actually scaffold anything beyond the fact that there's a trigger with a given name.
                 // This is to modify the SaveChanges logic to not use OUTPUT without INTO, which is incompatible with triggers.
-                table.Triggers.Add(triggerName);
+                table.Triggers.Add(new DatabaseTrigger { Name = triggerName });
             }
         }
     }
