@@ -1274,7 +1274,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             using (_relationalCommandBuilder.Indent())
             {
                 _relationalCommandBuilder.Append("SET ");
-                GenerateList(updateExpression.SetColumnValues,
+                GenerateList(updateExpression.ColumnValueSetters,
                     e =>
                     {
                         _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(e.Column.Name)} = ");

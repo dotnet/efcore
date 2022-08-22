@@ -13,14 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="jsonColumn">A column containg JSON.</param>
         /// <param name="property">A property representing the result of this expression.</param>
-        /// <param name="jsonPath">A JSON path leading to the scalar from the root of the JSON stored in the column.</param>
+        /// <param name="path">A JSON path leading to the scalar from the root of the JSON stored in the column.</param>
         /// <param name="nullable">A value indicating whether the expression is nullable.</param>
         public JsonScalarExpression(
             ColumnExpression jsonColumn,
             IProperty property,
-            SqlExpression jsonPath,
+            SqlExpression path,
             bool nullable)
-            : this(jsonColumn, property.ClrType, property.FindRelationalTypeMapping()!, jsonPath, nullable)
+            : this(jsonColumn, property.ClrType, property.FindRelationalTypeMapping()!, path, nullable)
         {
         }
 
@@ -28,12 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ColumnExpression jsonColumn,
             Type type,
             RelationalTypeMapping typeMapping,
-            SqlExpression jsonPath,
+            SqlExpression path,
             bool nullable)
             : base(type, typeMapping)
         {
             JsonColumn = jsonColumn;
-            JsonPath = jsonPath;
+            Path = path;
             IsNullable = nullable;
         }
 
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The JSON path leading to the scalar from the root of the JSON stored in the column.
         /// </summary>
-        public virtual SqlExpression JsonPath { get; }
+        public virtual SqlExpression Path { get; }
 
         /// <summary>
         ///     The value indicating whether the expression is nullable.
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     jsonColumn,
                     Type,
                     TypeMapping!,
-                    JsonPath,
+                    Path,
                     IsNullable || jsonColumnMadeNullable)
                 : this;
         }
@@ -73,17 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     return this expression.
         /// </summary>
         /// <param name="jsonColumn">The <see cref="JsonColumn" /> property of the result.</param>
-        /// <param name="jsonPath">The <see cref="JsonPath" /> property of the result.</param>
-        /// <param name="nullable">The <see cref="IsNullable" /> property of the result.</param>
+        /// <param name="path">The <see cref="Path" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual JsonScalarExpression Update(
             ColumnExpression jsonColumn,
-            SqlExpression jsonPath,
-            bool nullable)
+            SqlExpression path)
             => jsonColumn != JsonColumn
-            || jsonPath != JsonPath
-            || nullable != IsNullable
-                ? new JsonScalarExpression(jsonColumn, Type, TypeMapping!, jsonPath, nullable)
+            || path != Path
+                ? new JsonScalarExpression(jsonColumn, Type, TypeMapping!, path, IsNullable)
                 : this;
 
         /// <inheritdoc />
@@ -92,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append("JsonScalarExpression(column: ");
             expressionPrinter.Visit(JsonColumn);
             expressionPrinter.Append("  Path: ");
-            expressionPrinter.Visit(JsonPath);
+            expressionPrinter.Visit(Path);
             expressionPrinter.Append(")");
         }
 
@@ -100,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override bool Equals(object? obj)
             => obj is JsonScalarExpression jsonScalarExpression
                 && JsonColumn.Equals(jsonScalarExpression.JsonColumn)
-                && JsonPath.Equals(jsonScalarExpression.JsonPath);
+                && Path.Equals(jsonScalarExpression.Path);
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => HashCode.Combine(base.GetHashCode(), JsonColumn, JsonPath);
+            => HashCode.Combine(base.GetHashCode(), JsonColumn, Path);
     }
 }

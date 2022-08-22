@@ -94,7 +94,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             using (Sql.Indent())
             {
                 Sql.Append("SET ");
-                GenerateList(updateExpression.SetColumnValues,
+                GenerateList(updateExpression.ColumnValueSetters,
                     e =>
                     {
                         Visit(e.Column);
@@ -309,9 +309,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         var jsonPathStrings = new List<string>();
 
-        if (jsonScalarExpression.JsonPath != null)
+        if (jsonScalarExpression.Path != null)
         {
-            var currentPath = jsonScalarExpression.JsonPath;
+            var currentPath = jsonScalarExpression.Path;
             while (currentPath is SqlBinaryExpression sqlBinary && sqlBinary.OperatorType == ExpressionType.Add)
             {
                 currentPath = sqlBinary.Left;

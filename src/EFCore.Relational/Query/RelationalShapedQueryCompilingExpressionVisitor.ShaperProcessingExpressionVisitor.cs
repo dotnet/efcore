@@ -452,7 +452,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 collection: false,
                                 jsonElementParameter,
                                 keyValuesParameter,
-                                outerEntityInstanceParameter: null,
+                                parentEntityExpression: null,
                                 navigation: null);
 
                             var visitedShaperResult = Visit(shaperResult);
@@ -518,7 +518,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         collection: true,
                         jsonElementParameter,
                         keyValuesParameter,
-                        outerEntityInstanceParameter: null,
+                        parentEntityExpression: null,
                         navigation);
 
                     var visitedShaperResult = Visit(shaperResult);
@@ -786,12 +786,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 collection: includeExpression.NavigationExpression is CollectionResultExpression,
                                 jsonElementParameter,
                                 keyValuesParameter,
-                                outerEntityInstanceParameter: (ParameterExpression)entity,
+                                parentEntityExpression: entity,
                                 navigation: (INavigation)includeExpression.Navigation);
 
                             var visitedShaperResult = Visit(shaperResult);
 
-                            _expressions.Add(visitedShaperResult);
+                            _includeExpressions.Add(visitedShaperResult);
 
                             return entity;
                         }
@@ -1074,7 +1074,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool collection,
             ParameterExpression jsonElementParameter,
             ParameterExpression keyValuesParameter,
-            ParameterExpression? outerEntityInstanceParameter,
+            Expression? parentEntityExpression,
             INavigation? navigation)
         {
             var jsonElementShaperLambdaParameter = Expression.Parameter(typeof(JsonElement));
@@ -1141,7 +1141,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 keyValuesShaperLambdaParameter,
                 jsonElementShaperLambdaParameter);
 
-            if (outerEntityInstanceParameter != null)
+            if (parentEntityExpression != null)
             {
                 Debug.Assert(navigation != null, "Navigation shouldn't be null when including.");
 
@@ -1152,9 +1152,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     navigation.Inverse);
 
                 // inheritance scenario - navigation defined on derived
-                var outerEntityInstanceExpression = outerEntityInstanceParameter.Type != navigation.DeclaringEntityType.ClrType
-                    ? Expression.Convert(outerEntityInstanceParameter, navigation.DeclaringEntityType.ClrType)
-                    : (Expression)outerEntityInstanceParameter;
+                var includingEntityExpression = parentEntityExpression.Type != navigation.DeclaringEntityType.ClrType
+                    ? Expression.Convert(parentEntityExpression, navigation.DeclaringEntityType.ClrType)
+                    : parentEntityExpression;
 
                 if (navigation.IsCollection)
                 {
@@ -1166,15 +1166,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             QueryCompilationContext.QueryContextParameter,
                             jsonElementParameter,
                             keyValuesParameter,
-                            outerEntityInstanceExpression,
+                            includingEntityExpression,
                             shaperLambda,
                             fixup);
 
-                    return navigation.DeclaringEntityType.ClrType.IsAssignableFrom(outerEntityInstanceParameter.Type)
+                    return navigation.DeclaringEntityType.ClrType.IsAssignableFrom(parentEntityExpression.Type)
                         ? includeJsonEntityCollectionMethodCall
                         : Expression.IfThen(
                             Expression.TypeIs(
-                                outerEntityInstanceParameter,
+                                parentEntityExpression,
                                 navigation.DeclaringEntityType.ClrType),
                             includeJsonEntityCollectionMethodCall);
                 }
@@ -1187,15 +1187,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         QueryCompilationContext.QueryContextParameter,
                         jsonElementParameter,
                         keyValuesParameter,
-                        outerEntityInstanceExpression,
+                        includingEntityExpression,
                         shaperLambda,
                         fixup);
 
-                return navigation.DeclaringEntityType.ClrType.IsAssignableFrom(outerEntityInstanceParameter.Type)
+                return navigation.DeclaringEntityType.ClrType.IsAssignableFrom(parentEntityExpression.Type)
                     ? includeJsonEntityReferenceMethodCall
                     : Expression.IfThen(
                         Expression.TypeIs(
-                            outerEntityInstanceParameter,
+                            parentEntityExpression,
                             navigation.DeclaringEntityType.ClrType),
                         includeJsonEntityReferenceMethodCall);
             }
