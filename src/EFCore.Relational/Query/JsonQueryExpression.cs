@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                   collection,
                   keyPropertyMap,
                   type,
-                  jsonPath: new SqlConstantExpression(Constant("$"), typeMapping: null),
+                  path: new SqlConstantExpression(Constant("$"), typeMapping: null),
                   jsonColumn.IsNullable)
         {
         }
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool collection,
             IReadOnlyDictionary<IProperty, ColumnExpression> keyPropertyMap,
             Type type,
-            SqlExpression jsonPath,
+            SqlExpression path,
             bool nullable)
         {
             Check.DebugAssert(entityType.FindPrimaryKey() != null, "primary key is null.");
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             IsCollection = collection;
             _keyPropertyMap = keyPropertyMap;
             Type = type;
-            JsonPath = jsonPath;
+            Path = path;
             _nullable = nullable;
         }
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The JSON path leading to the entity from the root of the JSON stored in the column.
         /// </summary>
-        public virtual SqlExpression JsonPath { get; }
+        public virtual SqlExpression Path { get; }
 
         /// <summary>
         ///     The value indicating whether this expression is nullable.
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var newPath = new SqlBinaryExpression(
                 ExpressionType.Add,
-                JsonPath,
+                Path,
                 pathSegment,
                 typeof(string),
                 typeMapping: null);
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var newJsonPath = new SqlBinaryExpression(
                 ExpressionType.Add,
-                JsonPath,
+                Path,
                 pathSegment,
                 typeof(string),
                 typeMapping: null);
@@ -190,12 +190,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Makes this JSON query expression nullable re-using existing nullable key properties
         /// </summary>
         /// <returns>A new expression which has <see cref="IsNullable" /> property set to true.</returns>
-        [EntityFrameworkInternal]
-        public virtual JsonQueryExpression MakeNullable(IReadOnlyDictionary<IProperty, ColumnExpression> nullableKeyPropertyMap)
+        internal virtual JsonQueryExpression MakeNullable(IReadOnlyDictionary<IProperty, ColumnExpression> nullableKeyPropertyMap)
             => Update(
                 JsonColumn.MakeNullable(),
                 nullableKeyPropertyMap,
-                JsonPath,
+                Path,
                 nullable: true);
 
         /// <inheritdoc />
@@ -203,14 +202,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             expressionPrinter.Append("JsonQueryExpression(");
             expressionPrinter.Visit(JsonColumn);
-            expressionPrinter.Append($", \"{string.Join(".", JsonPath)}\")");
+            expressionPrinter.Append($", \"{string.Join(".", Path)}\")");
         }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var jsonColumn = (ColumnExpression)visitor.Visit(JsonColumn);
-            var jsonPath = (SqlExpression)visitor.Visit(JsonPath);
+            var jsonPath = (SqlExpression)visitor.Visit(Path);
 
             // TODO: also visit columns in the _keyPropertyMap?
             return Update(jsonColumn, _keyPropertyMap, jsonPath, IsNullable);
@@ -222,19 +221,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="jsonColumn">The <see cref="JsonColumn" /> property of the result.</param>
         /// <param name="keyPropertyMap">The map of key properties and columns they map to.</param>
-        /// <param name="jsonPath">The <see cref="JsonPath" /> property of the result.</param>
+        /// <param name="path">The <see cref="Path" /> property of the result.</param>
         /// <param name="nullable">The <see cref="IsNullable" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual JsonQueryExpression Update(
             ColumnExpression jsonColumn,
             IReadOnlyDictionary<IProperty, ColumnExpression> keyPropertyMap,
-            SqlExpression jsonPath,
+            SqlExpression path,
             bool nullable)
             => jsonColumn != JsonColumn
             || keyPropertyMap.Count != _keyPropertyMap.Count
             || keyPropertyMap.Zip(_keyPropertyMap, (n, o) => n.Value != o.Value).Any(x => x)
-            || jsonPath != JsonPath
-                ? new JsonQueryExpression(EntityType, jsonColumn, IsCollection, keyPropertyMap, Type, jsonPath, nullable)
+            || path != Path
+                ? new JsonQueryExpression(EntityType, jsonColumn, IsCollection, keyPropertyMap, Type, path, nullable)
                 : this;
 
         /// <inheritdoc />
@@ -248,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => EntityType.Equals(jsonQueryExpression.EntityType)
                 && JsonColumn.Equals(jsonQueryExpression.JsonColumn)
                 && IsCollection.Equals(jsonQueryExpression.IsCollection)
-                && JsonPath.Equals(jsonQueryExpression.JsonPath)
+                && Path.Equals(jsonQueryExpression.Path)
                 && IsNullable == jsonQueryExpression.IsNullable
                 && KeyPropertyMapEquals(jsonQueryExpression._keyPropertyMap);
 
@@ -273,6 +272,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         public override int GetHashCode()
             // not incorporating _keyPropertyMap into the hash, too much work 
-            => HashCode.Combine(EntityType, JsonColumn, IsCollection, JsonPath, IsNullable);
+            => HashCode.Combine(EntityType, JsonColumn, IsCollection, Path, IsNullable);
     }
 }
