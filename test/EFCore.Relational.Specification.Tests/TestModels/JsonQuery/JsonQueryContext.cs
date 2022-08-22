@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
         }
 
         public DbSet<JsonEntityBasic> JsonEntitiesBasic { get; set; }
+        public DbSet<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; set; }
+        public DbSet<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; set; }
         public DbSet<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; }
         public DbSet<JsonEntitySingleOwned> JsonEntitiesSingleOwned { get; set; }
         public DbSet<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
@@ -18,11 +20,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
         public static void Seed(JsonQueryContext context)
         {
             var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
+            var jsonEntitiesBasicForReference = JsonQueryData.CreateJsonEntitiesBasicForReference();
+            var jsonEntitiesBasicForCollection = JsonQueryData.CreateJsonEntitiesBasicForCollection();
+            JsonQueryData.WireUp(jsonEntitiesBasic, jsonEntitiesBasicForReference, jsonEntitiesBasicForCollection);
+
             var jsonEntitiesCustomNaming = JsonQueryData.CreateJsonEntitiesCustomNaming();
             var jsonEntitiesSingleOwned = JsonQueryData.CreateJsonEntitiesSingleOwned();
             var jsonEntitiesInheritance = JsonQueryData.CreateJsonEntitiesInheritance();
 
             context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
+            context.JsonEntitiesBasicForReference.AddRange(jsonEntitiesBasicForReference);
+            context.JsonEntitiesBasicForCollection.AddRange(jsonEntitiesBasicForCollection);
             context.JsonEntitiesCustomNaming.AddRange(jsonEntitiesCustomNaming);
             context.JsonEntitiesSingleOwned.AddRange(jsonEntitiesSingleOwned);
             context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);

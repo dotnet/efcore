@@ -553,6 +553,48 @@ FROM (
 GROUP BY [t].[Key]");
     }
 
+    public override async Task Json_with_include_on_json_entity(bool async)
+    {
+        await base.Json_with_include_on_json_entity(async);
+
+        AssertSql(
+            @"SELECT [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+FROM [JsonEntitiesBasic] AS [j]");
+    }
+
+    public override async Task Json_with_include_on_entity_reference(bool async)
+    {
+        await base.Json_with_include_on_entity_reference(async);
+
+        AssertSql(
+            @"SELECT [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$'), [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]");
+    }
+
+    public override async Task Json_with_include_on_entity_collection(bool async)
+    {
+        await base.Json_with_include_on_entity_collection(async);
+
+        AssertSql(
+            @"SELECT [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$'), [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id]");
+    }
+
+    public override async Task Json_with_include_on_entity_collection_and_reference(bool async)
+    {
+        await base.Json_with_include_on_entity_collection_and_reference(async);
+
+        AssertSql(
+            @"SELECT [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$'), [j0].[Id], [j0].[Name], [j0].[ParentId], [j1].[Id], [j1].[Name], [j1].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
+ORDER BY [j].[Id], [j0].[Id]");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
