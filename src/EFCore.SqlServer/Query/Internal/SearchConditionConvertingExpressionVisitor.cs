@@ -732,27 +732,27 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         var selectExpression = (SelectExpression)Visit(updateExpression.SelectExpression);
         var parentSearchCondition = _isSearchCondition;
         _isSearchCondition = false;
-        List<SetColumnValue>? setColumnValues = null;
-        for (var (i, n) = (0, updateExpression.SetColumnValues.Count); i < n; i++)
+        List<ColumnValueSetter>? columnValueSetters = null;
+        for (var (i, n) = (0, updateExpression.ColumnValueSetters.Count); i < n; i++)
         {
-            var setColumnValue = updateExpression.SetColumnValues[i];
-            var newValue = (SqlExpression)Visit(setColumnValue.Value);
-            if (setColumnValues != null)
+            var columnValueSetter = updateExpression.ColumnValueSetters[i];
+            var newValue = (SqlExpression)Visit(columnValueSetter.Value);
+            if (columnValueSetters != null)
             {
-                setColumnValues.Add(new SetColumnValue(setColumnValue.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
-            else if (!ReferenceEquals(newValue, setColumnValue.Value))
+            else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                setColumnValues = new();
+                columnValueSetters = new();
                 for (var j = 0; j < i; j++)
                 {
-                    setColumnValues.Add(updateExpression.SetColumnValues[j]);
+                    columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
                 }
-                setColumnValues.Add(new SetColumnValue(setColumnValue.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
         }
         _isSearchCondition = parentSearchCondition;
-        return updateExpression.Update(selectExpression, setColumnValues ?? updateExpression.SetColumnValues);
+        return updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters);
     }
 
     /// <summary>

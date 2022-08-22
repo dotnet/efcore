@@ -59,7 +59,7 @@ public class BulkUpdatesAsserter
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, TEntity>> entitySelector,
-        Expression<Func<SetPropertyStatements<TResult>, SetPropertyStatements<TResult>>> setPropertyStatements,
+        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
         int rowsAffectedCount,
         Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter)
         where TResult : class
@@ -76,7 +76,7 @@ public class BulkUpdatesAsserter
 
                     var before = processedQuery.AsNoTracking().Select(entitySelector).OrderBy(elementSorter).ToList();
 
-                    var result = await processedQuery.ExecuteUpdateAsync(setPropertyStatements);
+                    var result = await processedQuery.ExecuteUpdateAsync(setPropertyCalls);
 
                     Assert.Equal(rowsAffectedCount, result);
 
@@ -95,7 +95,7 @@ public class BulkUpdatesAsserter
 
                     var before = processedQuery.AsNoTracking().Select(entitySelector).OrderBy(elementSorter).ToList();
 
-                    var result = processedQuery.ExecuteUpdate(setPropertyStatements);
+                    var result = processedQuery.ExecuteUpdate(setPropertyCalls);
 
                     Assert.Equal(rowsAffectedCount, result);
 

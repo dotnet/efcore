@@ -98,7 +98,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         bool async,
         Func<TContext> contextCreator,
         Func<TContext, IQueryable<TResult>> query,
-        Expression<Func<SetPropertyStatements<TResult>, SetPropertyStatements<TResult>>> setPropertyStatements,
+        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
         int rowsAffectedCount)
         where TResult : class
         where TContext : DbContext
@@ -111,7 +111,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                 {
                     var processedQuery = query(context);
 
-                    var result = await processedQuery.ExecuteUpdateAsync(setPropertyStatements);
+                    var result = await processedQuery.ExecuteUpdateAsync(setPropertyCalls);
 
                     Assert.Equal(rowsAffectedCount, result);
                 });
@@ -124,7 +124,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                 {
                     var processedQuery = query(context);
 
-                    var result = processedQuery.ExecuteUpdate(setPropertyStatements);
+                    var result = processedQuery.ExecuteUpdate(setPropertyCalls);
 
                     Assert.Equal(rowsAffectedCount, result);
                 });

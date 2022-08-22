@@ -12,14 +12,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class SetColumnValue
+public class ColumnValueSetter
 {
     /// <summary>
-    ///     Creates a new instance of the <see cref="SetColumnValue" /> class.
+    ///     Creates a new instance of the <see cref="ColumnValueSetter" /> class.
     /// </summary>
     /// <param name="column">A column to be updated.</param>
     /// <param name="value">A value to be assigned to the column.</param>
-    public SetColumnValue(ColumnExpression column, SqlExpression value)
+    public ColumnValueSetter(ColumnExpression column, SqlExpression value)
     {
         Column = column;
         Value = value;
@@ -39,12 +39,12 @@ public class SetColumnValue
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SetColumnValue setColumnValue
-                && Equals(setColumnValue));
+                || obj is ColumnValueSetter columnValueSetter
+                && Equals(columnValueSetter));
 
-    private bool Equals(SetColumnValue setColumnValue)
-        => Column == setColumnValue.Column
-        && Value == setColumnValue.Value;
+    private bool Equals(ColumnValueSetter columnValueSetter)
+        => Column == columnValueSetter.Column
+        && Value == columnValueSetter.Value;
 
     /// <inheritdoc />
     public override int GetHashCode() => HashCode.Combine(Column, Value);

@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -18,8 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
 /// <typeparam name="TSource">The type of source element on which ExecuteUpdate operation is being applied.</typeparam>
-public sealed class SetPropertyStatements<TSource>
+public sealed class SetPropertyCalls<TSource>
 {
+    private SetPropertyCalls()
+    {
+    }
+
     /// <summary>
     ///     Specifies a property and corresponding value it should be updated to in ExecuteUpdate method.
     /// </summary>
@@ -27,10 +33,41 @@ public sealed class SetPropertyStatements<TSource>
     /// <param name="propertyExpression">A property access expression.</param>
     /// <param name="valueExpression">A value expression.</param>
     /// <returns>The same instance so that multiple calls to <see cref="SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})"/> can be chained.</returns>
-    public SetPropertyStatements<TSource> SetProperty<TProperty>(
+    public SetPropertyCalls<TSource> SetProperty<TProperty>(
             Expression<Func<TSource, TProperty>> propertyExpression,
             Expression<Func<TSource, TProperty>> valueExpression)
     {
         throw new InvalidOperationException(RelationalStrings.SetPropertyMethodInvoked);
     }
+
+    #region Hidden System.Object members
+
+    /// <summary>
+    ///     Returns a string that represents the current object.
+    /// </summary>
+    /// <returns>A string that represents the current object.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public override string? ToString()
+        => base.ToString();
+
+    /// <summary>
+    ///     Determines whether the specified object is equal to the current object.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current object.</param>
+    /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    // ReSharper disable once BaseObjectEqualsIsObjectEquals
+    public override bool Equals(object? obj)
+        => base.Equals(obj);
+
+    /// <summary>
+    ///     Serves as the default hash function.
+    /// </summary>
+    /// <returns>A hash code for the current object.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
+    public override int GetHashCode()
+        => base.GetHashCode();
+
+    #endregion
 }
