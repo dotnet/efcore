@@ -126,6 +126,20 @@ SET NOCOUNT ON;
 EXEC [WithOutputParameter_Delete] @p0;");
     }
 
+    public override async Task Delete_and_insert(bool async)
+    {
+        await base.Delete_and_insert(async);
+
+        AssertSql(
+            @"@p0='1'
+@p1='Entity2' (Size = 4000)
+@p2='2' (Direction = Output)
+
+SET NOCOUNT ON;
+EXEC [WithOutputParameter_Delete] @p0;
+EXEC [WithOutputParameter_Insert] @p1, @p2 OUTPUT;");
+    }
+
     public override async Task Rows_affected_parameter(bool async)
     {
         await base.Rows_affected_parameter(async);
