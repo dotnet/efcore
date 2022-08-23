@@ -31,11 +31,11 @@ public abstract class BulkUpdatesTestBase<TFixture> : IClassFixture<TFixture>
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, TEntity>> entitySelector,
-        Expression<Func<SetPropertyStatements<TResult>, SetPropertyStatements<TResult>>> setPropertyStatements,
+        Expression<Func<SetPropertyCalls<TResult>, SetPropertyCalls<TResult>>> setPropertyCalls,
         int rowsAffectedCount,
         Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter = null)
         where TResult : class
-        => BulkUpdatesAsserter.AssertUpdate(async, query, entitySelector, setPropertyStatements, rowsAffectedCount, asserter);
+        => BulkUpdatesAsserter.AssertUpdate(async, query, entitySelector, setPropertyCalls, rowsAffectedCount, asserter);
 
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
         => Assert.Contains(

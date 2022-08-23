@@ -1382,7 +1382,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 var ordered = projections
                     .OrderBy(x => $"{x.JsonColumn.TableAlias}.{x.JsonColumn.Name}")
-                    .ThenBy(x => BreakJsonPathIntoComponents(x.JsonPath).Count);
+                    .ThenBy(x => BreakJsonPathIntoComponents(x.Path).Count);
 
                 var needed = new List<JsonScalarExpression>();
                 foreach (var orderedElement in ordered)
@@ -1395,7 +1395,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                             orderedElement.JsonColumn,
                             orderedElement.JsonColumn.Type,
                             orderedElement.JsonColumn.TypeMapping!,
-                            orderedElement.JsonPath,
+                            orderedElement.Path,
                             orderedElement.IsNullable);
 
                         needed.Add(jsonScalarExpression);
@@ -1433,8 +1433,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             var additionalPath = new string[0];
 
             // this will be more tricky once we support more complicated json path options
-            additionalPath = BreakJsonPathIntoComponents(jsonQueryExpression.JsonPath)
-                .Skip(BreakJsonPathIntoComponents(jsonScalarToAdd.JsonPath).Count)
+            additionalPath = BreakJsonPathIntoComponents(jsonQueryExpression.Path)
+                .Skip(BreakJsonPathIntoComponents(jsonScalarToAdd.Path).Count)
                 .Select(x => (string)((SqlConstantExpression)x).Value!)
                 .ToArray();
 
@@ -1481,8 +1481,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 return false;
             }
 
-            var sourcePath = BreakJsonPathIntoComponents(sourceExpression.JsonPath);
-            var targetPath = BreakJsonPathIntoComponents(targetExpression.JsonPath);
+            var sourcePath = BreakJsonPathIntoComponents(sourceExpression.Path);
+            var targetPath = BreakJsonPathIntoComponents(targetExpression.Path);
 
             if (targetPath.Count < sourcePath.Count)
             {
@@ -3436,7 +3436,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 jsonQueryExpression.JsonColumn,
                 jsonQueryExpression.JsonColumn.TypeMapping!.ClrType,
                 jsonQueryExpression.JsonColumn.TypeMapping,
-                jsonQueryExpression.JsonPath,
+                jsonQueryExpression.Path,
                 jsonQueryExpression.IsNullable);
 
             var newJsonColumn = subquery.GenerateOuterColumn(subqueryTableReferenceExpression, jsonScalarExpression);
@@ -3461,7 +3461,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             return jsonQueryExpression.Update(
                 newJsonColumn,
                 newKeyPropertyMap,
-                jsonPath: new SqlConstantExpression(Expression.Constant("$"), typeMapping: null),
+                path: new SqlConstantExpression(Constant("$"), typeMapping: null),
                 newJsonColumn.IsNullable);
         }
     }

@@ -1271,17 +1271,17 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             _relationalCommandBuilder.Append("UPDATE ");
             Visit(updateExpression.Table);
             _relationalCommandBuilder.AppendLine();
+            _relationalCommandBuilder.Append("SET ");
+            _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(updateExpression.ColumnValueSetters[0].Column.Name)} = ");
+            Visit(updateExpression.ColumnValueSetters[0].Value);
             using (_relationalCommandBuilder.Indent())
             {
-                _relationalCommandBuilder.Append("SET ");
-                GenerateList(updateExpression.SetColumnValues,
-                    e =>
-                    {
-                        _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(e.Column.Name)} = ");
-                        Visit(e.Value);
-
-                    },
-                    joinAction: e => e.AppendLine(","));
+                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                {
+                    _relationalCommandBuilder.AppendLine(",");
+                    _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(columnValueSetter.Column.Name)} = ");
+                    Visit(columnValueSetter.Value);
+                }
             }
 
             var predicate = selectExpression.Predicate;

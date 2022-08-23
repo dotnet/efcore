@@ -122,7 +122,7 @@ WHERE (
 
         AssertExecuteUpdateSql(
             @"UPDATE [k]
-    SET [k].[Name] = N'Kiwi'
+SET [k].[Name] = N'Kiwi'
 FROM [Kiwi] AS [k]
 WHERE [k].[Name] = N'Great spotted kiwi'");
     }
@@ -133,7 +133,7 @@ WHERE [k].[Name] = N'Great spotted kiwi'");
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[Name] = N'Monovia'
+SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -153,7 +153,7 @@ WHERE (
 
         AssertExecuteUpdateSql(
             @"UPDATE [c]
-    SET [c].[Name] = N'Monovia'
+SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)

@@ -25,6 +25,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
     public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(JsonEntityBasic), e => ((JsonEntityBasic)e)?.Id },
+        { typeof(JsonEntityBasicForReference), e => ((JsonEntityBasicForReference)e)?.Id },
+        { typeof(JsonEntityBasicForCollection), e => ((JsonEntityBasicForCollection)e)?.Id },
         { typeof(JsonEntityCustomNaming), e => ((JsonEntityCustomNaming)e)?.Id },
         { typeof(JsonEntitySingleOwned), e => ((JsonEntitySingleOwned)e)?.Id },
         { typeof(JsonEntityInheritanceBase), e => ((JsonEntityInheritanceBase)e)?.Id },
@@ -52,6 +54,36 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                     {
                         AssertOwnedRoot(ee.OwnedCollectionRoot[i], aa.OwnedCollectionRoot[i]);
                     }
+                }
+            }
+        },
+        {
+            typeof(JsonEntityBasicForReference), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (JsonEntityBasicForReference)e;
+                    var aa = (JsonEntityBasicForReference)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
+                }
+            }
+        },
+        {
+            typeof(JsonEntityBasicForCollection), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (JsonEntityBasicForCollection)e;
+                    var aa = (JsonEntityBasicForCollection)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.ParentId, aa.ParentId);
                 }
             }
         },
@@ -282,6 +314,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityBasicForReference>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityBasicForCollection>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityBasic>().OwnsOne(x => x.OwnedReferenceRoot, b =>
         {
             b.ToJson();

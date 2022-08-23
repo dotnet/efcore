@@ -342,13 +342,13 @@ public static class RelationalQueryableExtensions
     ///     </para>
     /// </remarks>
     /// <param name="source">The source query.</param>
-    /// <param name="setPropertyStatements">A collection of set property statements specifying properties to update.</param>
+    /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
     /// <returns>The total number of rows updated in the database.</returns>
     public static int ExecuteUpdate<TSource>(
         this IQueryable<TSource> source,
-        Expression<Func<SetPropertyStatements<TSource>, SetPropertyStatements<TSource>>> setPropertyStatements)
+        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls)
         => source.Provider.Execute<int>(
-            Expression.Call(ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyStatements));
+            Expression.Call(ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls));
 
     /// <summary>
     ///     Asynchronously updates database rows for the entity instances which match the LINQ query from the database.
@@ -366,17 +366,17 @@ public static class RelationalQueryableExtensions
     ///     </para>
     /// </remarks>
     /// <param name="source">The source query.</param>
-    /// <param name="setPropertyStatements">A collection of set property statements specifying properties to update.</param>
+    /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The total number of rows updated in the database.</returns>
     public static Task<int> ExecuteUpdateAsync<TSource>(
         this IQueryable<TSource> source,
-        Expression<Func<SetPropertyStatements<TSource>, SetPropertyStatements<TSource>>> setPropertyStatements,
+        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls,
         CancellationToken cancellationToken = default)
         => source.Provider is IAsyncQueryProvider provider
             ? provider.ExecuteAsync<Task<int>>(
                 Expression.Call(
-                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyStatements), cancellationToken)
+                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls), cancellationToken)
             : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
 
     internal static readonly MethodInfo ExecuteUpdateMethodInfo
