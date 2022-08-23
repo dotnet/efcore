@@ -82,20 +82,25 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 reader.DbDataReader.Close();
 
                 var parameterCounter = 0;
+                IReadOnlyModificationCommand command;
 
-                for (commandIndex = 0; commandIndex < CommandResultSet.Count; commandIndex++)
+                for (commandIndex = 0;
+                     commandIndex < CommandResultSet.Count;
+                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
                 {
+                    command = ModificationCommands[commandIndex];
+
                     if (!CommandResultSet[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
                     {
                         continue;
                     }
 
-                    var command = ModificationCommands[commandIndex];
-
+                    // Note: we assume that the return value is the parameter at position 0, and skip it here for the purpose of calculating
+                    // the right baseParameterIndex to pass to PropagateOutputParameters below.
                     var rowsAffectedDbParameter = command.RowsAffectedColumn is IStoreStoredProcedureParameter rowsAffectedParameter
                         ? reader.DbCommand.Parameters[parameterCounter + rowsAffectedParameter.Position]
                         : command.StoreStoredProcedure!.ReturnValue is not null
-                            ? reader.DbCommand.Parameters[parameterCounter] // TODO: Assumption that the return value is the 1st parameter.
+                            ? reader.DbCommand.Parameters[parameterCounter++]
                             : null;
 
                     if (rowsAffectedDbParameter is not null)
@@ -111,24 +116,14 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                         else
                         {
                             throw new InvalidOperationException(
-                                RelationalStrings.StoredProcedureRowsAffectedNotPopulated(command.StoreStoredProcedure!.SchemaQualifiedName));
+                                RelationalStrings.StoredProcedureRowsAffectedNotPopulated(
+                                    command.StoreStoredProcedure!.SchemaQualifiedName));
                         }
                     }
 
                     if (command.RequiresResultPropagation)
                     {
-                        // TODO: this assumes that the return value is the parameter at position 0.
-                        // I think that this by-position logic may be getting too complicated... The alternative would be to have the column modification
-                        // reference its DbParameter directly; we already "mutate" column modification for generating parameter names, so maybe this is
-                        // ok...
-                        if (command.StoreStoredProcedure!.ReturnValue is not null)
-                        {
-                            parameterCounter++;
-                        }
-
                         command.PropagateOutputParameters(reader.DbCommand.Parameters, parameterCounter);
-
-                        parameterCounter += command.StoreStoredProcedure!.Parameters.Count;
                     }
                 }
             }
@@ -202,20 +197,25 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 await reader.DbDataReader.CloseAsync().ConfigureAwait(false);
 
                 var parameterCounter = 0;
+                IReadOnlyModificationCommand command;
 
-                for (commandIndex = 0; commandIndex < CommandResultSet.Count; commandIndex++)
+                for (commandIndex = 0;
+                     commandIndex < CommandResultSet.Count;
+                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
                 {
+                    command = ModificationCommands[commandIndex];
+
                     if (!CommandResultSet[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
                     {
                         continue;
                     }
 
-                    var command = ModificationCommands[commandIndex];
-
+                    // Note: we assume that the return value is the parameter at position 0, and skip it here for the purpose of calculating
+                    // the right baseParameterIndex to pass to PropagateOutputParameters below.
                     var rowsAffectedDbParameter = command.RowsAffectedColumn is IStoreStoredProcedureParameter rowsAffectedParameter
                         ? reader.DbCommand.Parameters[parameterCounter + rowsAffectedParameter.Position]
                         : command.StoreStoredProcedure!.ReturnValue is not null
-                            ? reader.DbCommand.Parameters[parameterCounter] // TODO: Assumption that the return value is the 1st parameter.
+                            ? reader.DbCommand.Parameters[parameterCounter++]
                             : null;
 
                     if (rowsAffectedDbParameter is not null)
@@ -232,24 +232,14 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                         else
                         {
                             throw new InvalidOperationException(
-                                RelationalStrings.StoredProcedureRowsAffectedNotPopulated(command.StoreStoredProcedure!.SchemaQualifiedName));
+                                RelationalStrings.StoredProcedureRowsAffectedNotPopulated(
+                                    command.StoreStoredProcedure!.SchemaQualifiedName));
                         }
                     }
 
                     if (command.RequiresResultPropagation)
                     {
-                        // TODO: this assumes that the return value is the parameter at position 0.
-                        // I think that this by-position logic may be getting too complicated... The alternative would be to have the column modification
-                        // reference its DbParameter directly; we already "mutate" column modification for generating parameter names, so maybe this is
-                        // ok...
-                        if (command.StoreStoredProcedure!.ReturnValue is not null)
-                        {
-                            parameterCounter++;
-                        }
-
                         command.PropagateOutputParameters(reader.DbCommand.Parameters, parameterCounter);
-
-                        parameterCounter += command.StoreStoredProcedure!.Parameters.Count;
                     }
                 }
             }
