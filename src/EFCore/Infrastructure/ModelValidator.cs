@@ -927,19 +927,24 @@ public class ModelValidator : IModelValidator
                 }
             }
 
-            var requiredNavigationWithQueryFilter = entityType
-                .GetNavigations()
-                .FirstOrDefault(
-                    n => !n.IsCollection
-                        && n.ForeignKey.IsRequired
-                        && n.IsOnDependent
-                        && n.ForeignKey.PrincipalEntityType.GetQueryFilter() != null
-                        && n.ForeignKey.DeclaringEntityType.GetQueryFilter() == null);
-
-            if (requiredNavigationWithQueryFilter != null)
+            if (!entityType.IsOwned())
             {
-                logger.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(
-                    requiredNavigationWithQueryFilter.ForeignKey);
+                // Owned type doesn't allow to define query filter
+                // So we don't check navigations there. We assume the owner will propagate filtering
+                var requiredNavigationWithQueryFilter = entityType
+                    .GetNavigations()
+                    .FirstOrDefault(
+                        n => !n.IsCollection
+                            && n.ForeignKey.IsRequired
+                            && n.IsOnDependent
+                            && n.ForeignKey.PrincipalEntityType.GetRootType().GetQueryFilter() != null
+                            && n.ForeignKey.DeclaringEntityType.GetRootType().GetQueryFilter() == null);
+
+                if (requiredNavigationWithQueryFilter != null)
+                {
+                    logger.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(
+                        requiredNavigationWithQueryFilter.ForeignKey);
+                }
             }
         }
     }
