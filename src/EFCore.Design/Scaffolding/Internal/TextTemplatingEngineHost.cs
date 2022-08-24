@@ -119,7 +119,7 @@ public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplat
     /// </summary>
     public virtual void Initialize()
     {
-        _session = null;
+        _session?.Clear();
         _errors = null;
         _extension = null;
         _outputEncoding = null;

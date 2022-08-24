@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
@@ -326,6 +327,7 @@ My entity type configuration template");
         var generator = CreateGenerator();
         var model = new ModelBuilder()
             .Entity("Entity1", b => { })
+            .Entity("Entity2", b => { })
             .FinalizeModel();
 
         var result = generator.GenerateModel(
@@ -339,9 +341,11 @@ My entity type configuration template");
 
         Assert.Equal("Context.vb", result.ContextFile.Path);
 
-        Assert.Equal(2, result.AdditionalFiles.Count);
+        Assert.Equal(4, result.AdditionalFiles.Count);
         Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1.fs");
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity2.fs");
         Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1Configuration.py");
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity2Configuration.py");
     }
 
     [ConditionalFact]
@@ -387,8 +391,7 @@ My entity type configuration template");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
-            @"<# Warning(""This is a warning"");
-Error(""This is an error""); #>");
+            @"<# Error(""This is an error""); #>");
 
         var reporter = new TestOperationReporter();
         var generator = CreateGenerator(reporter);
@@ -411,13 +414,60 @@ Error(""This is an error""); #>");
             reporter.Messages,
             x =>
             {
+                Assert.Equal(LogLevel.Error, x.Level);
+                Assert.Contains("This is an error", x.Message);
+            });
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_reports_warnings()
+    {
+        using var projectDir = new TempDirectory();
+
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        File.WriteAllText(
+            contextTemplate,
+            @"<# Warning(""Warning about DbContext""); #>");
+        var entityTypeTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
+        File.WriteAllText(
+            entityTypeTemplate,
+            @"<#@ assembly name=""Microsoft.EntityFrameworkCore"" #>
+<#@ parameter name=""EntityType"" type=""Microsoft.EntityFrameworkCore.Metadata.IEntityType"" #>
+<# Warning(""Warning about "" + EntityType.Name); #>");
+
+        var reporter = new TestOperationReporter();
+        var generator = CreateGenerator(reporter);
+        var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
+            .Entity("Entity2", b => { })
+            .FinalizeModel();
+
+        var result = generator.GenerateModel(
+            model,
+            new()
+            {
+                ContextName = "Context",
+                ConnectionString = @"Name=DefaultConnection",
+                ProjectDir = projectDir
+            });
+
+        Assert.Collection(
+            reporter.Messages,
+            x =>
+            {
                 Assert.Equal(LogLevel.Warning, x.Level);
-                Assert.Contains("This is a warning", x.Message);
+                Assert.Contains("Warning about DbContext", x.Message);
             },
             x =>
             {
-                Assert.Equal(LogLevel.Error, x.Level);
-                Assert.Contains("This is an error", x.Message);
+                Assert.Equal(LogLevel.Warning, x.Level);
+                Assert.Contains("Warning about Entity1", x.Message);
+            },
+            x =>
+            {
+                Assert.Equal(LogLevel.Warning, x.Level);
+                Assert.Contains("Warning about Entity2", x.Message);
             });
     }
 
