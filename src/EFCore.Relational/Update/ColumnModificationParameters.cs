@@ -198,7 +198,7 @@ public readonly record struct ColumnModificationParameters
     /// <param name="columnIsCondition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
     /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
     public ColumnModificationParameters(
-        IUpdateEntry entry,
+        IUpdateEntry? entry,
         IProperty? property,
         IColumnBase column,
         Func<string> generateParameterName,

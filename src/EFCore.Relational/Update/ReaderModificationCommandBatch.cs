@@ -266,25 +266,10 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <param name="modificationCommand">The modification command for which to add parameters.</param>
     protected virtual void AddParameters(IReadOnlyModificationCommand modificationCommand)
     {
-        IEnumerable<IColumnModification> columnModifications;
-
-        if (modificationCommand.StoreStoredProcedure is null)
-        {
-            columnModifications = modificationCommand.ColumnModifications;
-        }
-        else
-        {
-            if (modificationCommand.StoreStoredProcedure.ReturnValue is not null)
-            {
-                AddParameter(modificationCommand.ColumnModifications.First(c => c.Column is IStoreStoredProcedureReturnValue));
-            }
-
-            columnModifications = modificationCommand.ColumnModifications
-                .Where(c => c.Column is IStoreStoredProcedureParameter)
-                .OrderBy(c => ((IStoreStoredProcedureParameter)c.Column!).Position);
-        }
-
-        foreach (var columnModification in columnModifications)
+        Check.DebugAssert(!modificationCommand.ColumnModifications.Any(m => m.Column is IStoreStoredProcedureReturnValue)
+            || modificationCommand.ColumnModifications[0].Column is IStoreStoredProcedureReturnValue,
+            "ResultValue column modification in non-first position");
+        foreach (var columnModification in modificationCommand.ColumnModifications)
         {
             AddParameter(columnModification);
         }

@@ -180,6 +180,15 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                         .HasRowsAffectedReturnValue());
             });
 
+        modelBuilder.Entity<TphChild1>();
+
+        modelBuilder.Entity<TphChild2>(
+            b =>
+            {
+                b.Property(w => w.Child2OutputParameterProperty).HasDefaultValue(8);
+                b.Property(w => w.Child2ResultColumnProperty).HasDefaultValue(9);
+            });
+
         modelBuilder.Entity<TphParent>(
             b =>
             {
@@ -191,10 +200,11 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                         .HasParameter(w => w.Id, pb => pb.IsOutput())
                         .HasParameter("Discriminator")
                         .HasParameter(w => w.Name)
-                        .HasParameter(nameof(TphChild.ChildProperty)));
+                        .HasParameter(nameof(TphChild1.Child1Property))
+                        .HasParameter(nameof(TphChild2.Child2InputProperty))
+                        .HasParameter(nameof(TphChild2.Child2OutputParameterProperty), o => o.IsOutput())
+                        .HasResultColumn(nameof(TphChild2.Child2ResultColumnProperty)));
             });
-
-        modelBuilder.Entity<TphChild>().ToTable("Tph");
 
         modelBuilder.Entity<TptParent>(
             b =>

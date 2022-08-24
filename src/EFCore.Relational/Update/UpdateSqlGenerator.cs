@@ -355,13 +355,16 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
 
         // Only positional parameter style supported for now, see #28439
 
-        var orderedParameterModifications = command.ColumnModifications
-            .Where(c => c.Column is IStoreStoredProcedureParameter)
-            .OrderBy(c => ((IStoreStoredProcedureParameter)c.Column!).Position);
-
-        foreach (var columnModification in orderedParameterModifications)
+        // Note: the column modifications are already ordered according to the sproc parameter ordering
+        // (see ModificationCommand.GenerateColumnModifications)
+        for (var i = 0; i < command.ColumnModifications.Count; i++)
         {
-            var parameter = (IStoreStoredProcedureParameter)columnModification.Column!;
+            var columnModification = command.ColumnModifications[i];
+
+            if (columnModification.Column is not IStoreStoredProcedureParameter parameter)
+            {
+                continue;
+            }
 
             if (first)
             {
