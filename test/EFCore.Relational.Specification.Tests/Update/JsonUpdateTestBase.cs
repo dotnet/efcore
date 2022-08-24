@@ -5,9 +5,17 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContext>
+public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
+    where TFixture : JsonUpdateFixtureBase, new()
 {
-    protected override string StoreName => "JsonUpdateTest";
+    public TFixture Fixture { get; }
+
+    protected JsonUpdateTestBase(TFixture fixture)
+    {
+        Fixture = fixture;
+    }
+
+    public JsonQueryContext CreateContext() => Fixture.CreateContext();
 
     [ConditionalFact]
     public virtual Task Add_entity_with_json()
@@ -42,6 +50,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 };
 
                 context.Set<JsonEntityBasic>().Add(newEntity);
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -104,6 +113,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                         OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "ss3" }
                     }
                 };
+                ClearLog();
                 await context.SaveChangesAsync();
             },
 
@@ -133,7 +143,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
             {
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
-                entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf = null;
+                entity.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedReferenceLeaf = null;
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -141,16 +151,17 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
 
-                Assert.Null(entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf);
+                Assert.Null(entity.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedReferenceLeaf);
                 var newLeaf = new JsonOwnedLeaf { SomethingSomething = "ss3" };
-                entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf = newLeaf;
-                
+                entity.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedReferenceLeaf = newLeaf;
+
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
             {
                 var updatedEntity = await context.JsonEntitiesBasic.SingleAsync();
-                var updatedReference = updatedEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf;
+                var updatedReference = updatedEntity.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedReferenceLeaf;
                 Assert.Equal("ss3", updatedReference.SomethingSomething);
             });
 
@@ -184,6 +195,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 };
 
                 entity.OwnedCollectionRoot.Add(newRoot);
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -227,6 +239,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 };
 
                 entity.OwnedReferenceRoot.OwnedCollectionBranch.Add(newBranch);
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -255,6 +268,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var entity = query.Single();
                 var newLeaf = new JsonOwnedLeaf { SomethingSomething = "ss1" };
                 entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf.Add(newLeaf);
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -276,6 +290,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var entity = query.Single();
 
                 context.Set<JsonEntityBasic>().Remove(entity);
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -295,6 +310,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedReferenceRoot = null;
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -313,6 +329,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf = null;
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -331,6 +348,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedCollectionRoot = null;
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -349,6 +367,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedReferenceRoot.OwnedCollectionBranch = null;
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -367,6 +386,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedCollectionRoot[0].Name = "Modified";
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -387,6 +407,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedCollectionRoot[1].Name = "Modified";
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -407,6 +428,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 var query = await context.JsonEntitiesBasic.ToListAsync();
                 var entity = query.Single();
                 entity.OwnedCollectionRoot[0].OwnedCollectionBranch[0].Date = new DateTime(2111, 11, 11);
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -439,6 +461,7 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 };
 
                 entity.CollectionOnDerived.Add(newBranch);
+                ClearLog();
                 await context.SaveChangesAsync();
             },
             async context =>
@@ -456,109 +479,134 @@ public abstract class JsonUpdateTestBase: SharedStoreFixtureBase<JsonQueryContex
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
 
+    [ConditionalFact]
+    public virtual Task Edit_element_in_json_multiple_levels_partial_update()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+                entity.OwnedReferenceRoot.OwnedReferenceBranch.Date = new DateTime(2111, 11, 11);
+                entity.OwnedReferenceRoot.Name = "edit";
+                entity.OwnedCollectionRoot[0].OwnedCollectionBranch[1].OwnedCollectionLeaf[0].SomethingSomething = "yet another change";
+                entity.OwnedCollectionRoot[0].OwnedCollectionBranch[1].OwnedCollectionLeaf[1].SomethingSomething = "and another";
+                entity.OwnedCollectionRoot[0].OwnedCollectionBranch[0].OwnedCollectionLeaf[0].SomethingSomething = "...and another";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal(new DateTime(2111, 11, 11), result.OwnedReferenceRoot.OwnedReferenceBranch.Date);
+                Assert.Equal("edit", result.OwnedReferenceRoot.Name);
+                Assert.Equal("yet another change", result.OwnedCollectionRoot[0].OwnedCollectionBranch[1].OwnedCollectionLeaf[0].SomethingSomething);
+                Assert.Equal("and another", result.OwnedCollectionRoot[0].OwnedCollectionBranch[1].OwnedCollectionLeaf[1].SomethingSomething);
+                Assert.Equal("...and another", result.OwnedCollectionRoot[0].OwnedCollectionBranch[0].OwnedCollectionLeaf[0].SomethingSomething);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+                entity.OwnedReferenceRoot.OwnedCollectionBranch[0].Fraction = 4321.3m;
+                entity.OwnedReferenceRoot.OwnedCollectionBranch.Add(new JsonOwnedBranch
+                {
+                    Date = new DateTime(2222, 11, 11),
+                    Enum = JsonEnum.Three,
+                    Fraction = 45.32m,
+                    OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "cc" },
+                });
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal(4321.3m, result.OwnedReferenceRoot.OwnedCollectionBranch[0].Fraction);
+
+                Assert.Equal(new DateTime(2222, 11, 11), result.OwnedReferenceRoot.OwnedCollectionBranch[2].Date);
+                Assert.Equal(JsonEnum.Three, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Enum);
+                Assert.Equal(45.32m, result.OwnedReferenceRoot.OwnedCollectionBranch[2].Fraction);
+                Assert.Equal("cc", result.OwnedReferenceRoot.OwnedCollectionBranch[2].OwnedReferenceLeaf.SomethingSomething);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_two_elements_in_the_same_json_collection()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+                entity.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[0].SomethingSomething = "edit1";
+                entity.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1].SomethingSomething = "edit2";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal("edit1", result.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[0].SomethingSomething);
+                Assert.Equal("edit2", result.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1].SomethingSomething);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_two_elements_in_the_same_json_collection_at_the_root()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+                entity.OwnedCollectionRoot[0].Name = "edit1";
+                entity.OwnedCollectionRoot[1].Name = "edit2";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal("edit1", result.OwnedCollectionRoot[0].Name);
+                Assert.Equal("edit2", result.OwnedCollectionRoot[1].Name);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_collection_element_and_reference_at_once()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+                entity.OwnedReferenceRoot.OwnedCollectionBranch[1].OwnedCollectionLeaf[0].SomethingSomething = "edit1";
+                entity.OwnedReferenceRoot.OwnedCollectionBranch[1].OwnedReferenceLeaf.SomethingSomething = "edit2";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync();
+                Assert.Equal("edit1", result.OwnedReferenceRoot.OwnedCollectionBranch[1].OwnedCollectionLeaf[0].SomethingSomething);
+                Assert.Equal("edit2", result.OwnedReferenceRoot.OwnedCollectionBranch[1].OwnedReferenceLeaf.SomethingSomething);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override void Seed(JsonQueryContext context)
-    {
-        var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
-        var jsonEntitiesInheritance = JsonQueryData.CreateJsonEntitiesInheritance();
-
-        context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
-        context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
-        context.SaveChanges();
-    }
-
-    protected override void Clean(DbContext context)
-    {
-        base.Clean(context);
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-    {
-        modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityBasic>().OwnsOne(x => x.OwnedReferenceRoot, b =>
-        {
-            b.ToJson();
-            b.WithOwner(x => x.Owner);
-            b.OwnsOne(x => x.OwnedReferenceBranch, bb =>
-            {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf).WithOwner(x => x.Parent);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-            });
-            b.OwnsMany(x => x.OwnedCollectionBranch, bb =>
-            {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.Navigation(x => x.OwnedReferenceLeaf).IsRequired(false);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf).WithOwner(x => x.Parent);
-            });
-        });
-
-        modelBuilder.Entity<JsonEntityBasic>().Navigation(x => x.OwnedReferenceRoot).IsRequired(false);
-
-        modelBuilder.Entity<JsonEntityBasic>().OwnsMany(x => x.OwnedCollectionRoot, b =>
-        {
-            b.OwnsOne(x => x.OwnedReferenceBranch, bb =>
-            {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf).WithOwner(x => x.Parent);
-            });
-
-            b.OwnsMany(x => x.OwnedCollectionBranch, bb =>
-            {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf).WithOwner(x => x.Parent);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-            });
-            b.ToJson();
-        });
-
-        modelBuilder.Entity<JsonEntityInheritanceBase>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
-        {
-            b.OwnsOne(x => x.ReferenceOnBase, bb =>
-            {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-            });
-
-            b.OwnsMany(x => x.CollectionOnBase, bb =>
-            {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-            });
-        });
-
-        modelBuilder.Entity<JsonEntityInheritanceDerived>(b =>
-        {
-            b.HasBaseType<JsonEntityInheritanceBase>();
-            b.OwnsOne(x => x.ReferenceOnDerived, bb =>
-            {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-            });
-
-            b.OwnsMany(x => x.CollectionOnDerived, bb =>
-            {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-            });
-        });
-
-        modelBuilder.Ignore<JsonEntityCustomNaming>();
-        modelBuilder.Ignore<JsonEntitySingleOwned>();
-
-        base.OnModelCreating(modelBuilder, context);
-    }
+    protected abstract void ClearLog();
 }

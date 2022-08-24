@@ -76,7 +76,7 @@ public readonly record struct ColumnModificationParameters
     ///     Indicates whether the column is part of a primary or alternate key.
     /// </summary>
     public bool IsKey { get; init; }
-    
+
     /// <summary>
     ///     The column.
     /// </summary>
@@ -91,6 +91,11 @@ public readonly record struct ColumnModificationParameters
     ///     The database type of the column.
     /// </summary>
     public string? ColumnType { get; init; }
+
+    /// <summary>
+    ///     In case of JSON column modification, the JSON path leading to the JSON element that needs to be updated.
+    /// </summary>
+    public string? JsonPath { get; init; }
 
     /// <summary>
     ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
@@ -137,8 +142,9 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = null;
         Entry = null;
+        JsonPath = null;
     }
-    
+
     /// <summary>
     ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
     /// </summary>
@@ -182,6 +188,7 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = null;
         Entry = null;
+        JsonPath = null;
     }
 
     /// <summary>
@@ -225,5 +232,54 @@ public readonly record struct ColumnModificationParameters
 
         GenerateParameterName = generateParameterName;
         Entry = entry;
+        JsonPath = null;
+    }
+
+    /// <summary>
+    ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
+    /// </summary>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="originalValue">The original value of the property mapped to this column.</param>
+    /// <param name="value">The current value of the property mapped to this column.</param>
+    /// <param name="jsonPath">The JSON path leading to the JSON element that needs to be updated.</param>
+    /// <param name="columnType">The database type of the column.</param>
+    /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
+    /// <param name="read">Indicates whether a value must be read from the database for the column.</param>
+    /// <param name="write">Indicates whether a value must be written to the database for the column.</param>
+    /// <param name="key">Indicates whether the column part of a primary or alternate key.</param>
+    /// <param name="condition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+    /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+    /// <param name="isNullable">A value indicating whether the value could be null.</param>
+    public ColumnModificationParameters(
+        string columnName,
+        object? originalValue,
+        object? value,
+        string? columnType,
+        RelationalTypeMapping? typeMapping,
+        string jsonPath,
+        bool read,
+        bool write,
+        bool key,
+        bool condition,
+        bool sensitiveLoggingEnabled,
+        bool? isNullable = null)
+    {
+        Column = null;
+        ColumnName = columnName;
+        OriginalValue = originalValue;
+        Value = value;
+        Property = null;
+        ColumnType = columnType;
+        TypeMapping = typeMapping;
+        JsonPath = jsonPath;
+        IsRead = read;
+        IsWrite = write;
+        IsKey = key;
+        IsCondition = condition;
+        SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+        IsNullable = isNullable;
+
+        GenerateParameterName = null;
+        Entry = null;
     }
 }

@@ -135,6 +135,33 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
+    /// <inheritdoc />
+    protected override void AppendUpdateColumnValue(
+        ISqlGenerationHelper updateSqlGeneratorHelper,
+        IColumnModification columnModification,
+        StringBuilder stringBuilder,
+        string name,
+        string? schema)
+    {
+        if (columnModification.JsonPath != null
+            && columnModification.JsonPath != "$")
+        {
+            stringBuilder.Append("JSON_MODIFY(");
+            updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
+
+            // using strict so that we don't remove json elements when they are assigned NULL value
+            stringBuilder.Append(", 'strict ");
+            stringBuilder.Append(columnModification.JsonPath);
+            stringBuilder.Append("', JSON_QUERY(");
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+            stringBuilder.Append("))");
+        }
+        else
+        {
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
