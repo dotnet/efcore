@@ -237,7 +237,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_non_entity_projection(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnNonEntityType("ExecuteDelete"),
+            RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250).Select(e => e.ProductID),
@@ -247,7 +247,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_non_entity_projection_2(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnNonEntityType("ExecuteDelete"),
+            RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
@@ -258,7 +258,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_non_entity_projection_3(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnNonEntityType("ExecuteDelete"),
+            RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)

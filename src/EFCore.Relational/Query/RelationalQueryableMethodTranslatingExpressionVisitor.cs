@@ -1015,7 +1015,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     {
         if (source.ShaperExpression is not EntityShaperExpression entityShaperExpression)
         {
-            AddTranslationErrorDetails(RelationalStrings.ExecuteOperationOnNonEntityType(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            AddTranslationErrorDetails(RelationalStrings.ExecuteDeleteOnNonEntityType);
             return null;
         }
 
@@ -1053,8 +1053,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     && tableExpression.Table.EntityTypeMappings.Any(e => e.EntityType.GetRootType() != entityType.GetRootType())))
             {
                 AddTranslationErrorDetails(
-                    RelationalStrings.ExecuteDeleteOnTableSplitting(
-                        nameof(RelationalQueryableExtensions.ExecuteDelete), tableExpression.Table.SchemaQualifiedName));
+                    RelationalStrings.ExecuteDeleteOnTableSplitting(tableExpression.Table.SchemaQualifiedName));
 
                 return null;
             }

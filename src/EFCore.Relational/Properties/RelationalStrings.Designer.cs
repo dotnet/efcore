@@ -708,12 +708,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expectedType);
 
         /// <summary>
-        ///     The operation '{operation}' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.
+        ///     The operation 'ExecuteDelete' requires an entity type which corresponds to the database table to be modified. The current operation is being applied on a non-entity projection. Remove any projection to non-entity types.
         /// </summary>
-        public static string ExecuteDeleteOnTableSplitting(object? operation, object? tableName)
+        public static string ExecuteDeleteOnNonEntityType
+            => GetString("ExecuteDeleteOnNonEntityType");
+
+        /// <summary>
+        ///     The operation 'ExecuteDelete' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.
+        /// </summary>
+        public static string ExecuteDeleteOnTableSplitting(object? tableName)
             => string.Format(
-                GetString("ExecuteDeleteOnTableSplitting", nameof(operation), nameof(tableName)),
-                operation, tableName);
+                GetString("ExecuteDeleteOnTableSplitting", nameof(tableName)),
+                tableName);
 
         /// <summary>
         ///     The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting is not supported.
@@ -730,14 +736,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator", nameof(operation), nameof(entityType)),
                 operation, entityType);
-
-        /// <summary>
-        ///     The operation '{operation}' requires an entity type which corresponds to the database table to be modified. The current operation is being applied on a non-entity projection. Remove any projection to non-entity types.
-        /// </summary>
-        public static string ExecuteOperationOnNonEntityType(object? operation)
-            => string.Format(
-                GetString("ExecuteOperationOnNonEntityType", nameof(operation)),
-                operation);
 
         /// <summary>
         ///     The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.
