@@ -2433,4 +2433,14 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             async,
             ss => ss.Set<Customer>().Where(c => c.GetType() != typeof(Order)),
             entryCount: 91);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Case_block_simplification_works_correctly(bool async)
+#pragma warning disable IDE0029 // Use coalesce expression
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => (c.Region == null ? "OR" : c.Region) == "OR"),
+            entryCount: 64);
+#pragma warning restore IDE0029 // Use coalesce expression
 }

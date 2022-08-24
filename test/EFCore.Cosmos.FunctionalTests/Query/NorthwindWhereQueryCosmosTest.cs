@@ -2259,6 +2259,16 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
     }
 
+    public override async Task Case_block_simplification_works_correctly(bool async)
+    {
+        await base.Case_block_simplification_works_correctly(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Region""] = null) ? ""OR"" : c[""Region""]) = ""OR""))");
+    }
+
     public override async Task Where_compare_null_with_cast_to_object(bool async)
     {
         await base.Where_compare_null_with_cast_to_object(async);
