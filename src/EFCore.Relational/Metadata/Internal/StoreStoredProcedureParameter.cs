@@ -44,7 +44,7 @@ public class StoreStoredProcedureParameter
     /// </summary>
     public virtual StoreStoredProcedure StoredProcedure
         => (StoreStoredProcedure)Table;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -52,7 +52,7 @@ public class StoreStoredProcedureParameter
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ParameterDirection Direction { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -60,7 +60,7 @@ public class StoreStoredProcedureParameter
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int Position { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

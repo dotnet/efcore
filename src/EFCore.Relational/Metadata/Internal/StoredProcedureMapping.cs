@@ -39,7 +39,7 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
 
     /// <inheritdoc />
     public virtual StoreObjectIdentifier StoredProcedureIdentifier { get; }
-    
+
     /// <inheritdoc />
     public virtual ITableMapping? TableMapping { get; }
 

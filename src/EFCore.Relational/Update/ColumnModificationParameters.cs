@@ -76,7 +76,7 @@ public readonly record struct ColumnModificationParameters
     ///     Indicates whether the column is part of a primary or alternate key.
     /// </summary>
     public bool IsKey { get; init; }
-    
+
     /// <summary>
     ///     The column.
     /// </summary>
@@ -138,7 +138,7 @@ public readonly record struct ColumnModificationParameters
         GenerateParameterName = null;
         Entry = null;
     }
-    
+
     /// <summary>
     ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
     /// </summary>

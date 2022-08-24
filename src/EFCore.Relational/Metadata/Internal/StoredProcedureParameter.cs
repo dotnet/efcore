@@ -77,7 +77,7 @@ public class StoredProcedureParameter :
     /// </summary>
     public virtual void SetRemovedFromModel()
         => _builder = null;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -94,7 +94,7 @@ public class StoredProcedureParameter :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual StoredProcedure StoredProcedure { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -110,7 +110,7 @@ public class StoredProcedureParameter :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string? PropertyName { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -172,7 +172,7 @@ public class StoredProcedureParameter :
 
         return name;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -181,7 +181,7 @@ public class StoredProcedureParameter :
     /// </summary>
     public virtual ConfigurationSource? GetNameConfigurationSource()
         => _nameConfigurationSource;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -208,7 +208,7 @@ public class StoredProcedureParameter :
                 RelationalStrings.StoredProcedureParameterInvalidConfiguration(
                     nameof(Direction), Name, ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()?.DisplayName()));
         }
-        
+
         if (!IsValid(direction))
         {
             throw new InvalidOperationException(RelationalStrings.StoredProcedureParameterInvalidDirection(
@@ -276,28 +276,28 @@ public class StoredProcedureParameter :
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     IMutableStoredProcedure IMutableStoredProcedureParameter.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     IConventionStoredProcedure IConventionStoredProcedureParameter.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     IStoredProcedure IStoredProcedureParameter.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     IConventionStoredProcedureParameterBuilder IConventionStoredProcedureParameter.Builder
     {
@@ -308,7 +308,7 @@ public class StoredProcedureParameter :
     /// <inheritdoc />
     string IConventionStoredProcedureParameter.SetName(string name, bool fromDataAnnotation)
         => SetName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    
+
     /// <inheritdoc />
     ParameterDirection IConventionStoredProcedureParameter.SetDirection(ParameterDirection direction, bool fromDataAnnotation)
         => SetDirection(direction, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

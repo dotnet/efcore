@@ -39,7 +39,7 @@ public class RuntimeStoredProcedureParameter : AnnotatableBase, IRuntimeStoredPr
         _name = name;
         _direction = direction;
     }
-    
+
     /// <summary>
     ///     Gets the stored procedure to which this parameter belongs.
     /// </summary>
@@ -72,56 +72,56 @@ public class RuntimeStoredProcedureParameter : AnnotatableBase, IRuntimeStoredPr
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     IStoredProcedure IStoredProcedureParameter.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     string IReadOnlyStoredProcedureParameter.Name
     {
         [DebuggerStepThrough]
         get => _name;
     }
-    
+
     /// <inheritdoc />
     string? IReadOnlyStoredProcedureParameter.PropertyName
     {
         [DebuggerStepThrough]
         get => _propertyName;
     }
-    
+
     /// <inheritdoc />
     ParameterDirection IReadOnlyStoredProcedureParameter.Direction
     {
         [DebuggerStepThrough]
         get => _direction;
     }
-    
+
     /// <inheritdoc />
     bool? IReadOnlyStoredProcedureParameter.ForOriginalValue
     {
         [DebuggerStepThrough]
         get => _forOriginalValue;
     }
-    
+
     /// <inheritdoc />
     bool IReadOnlyStoredProcedureParameter.ForRowsAffected
     {
         [DebuggerStepThrough]
         get => _forRowsAffected;
     }
-    
+
     /// <inheritdoc />
     IStoreStoredProcedureParameter IStoredProcedureParameter.StoreParameter
     {
         [DebuggerStepThrough]
         get => _storeParameter!;
     }
-    
+
     /// <inheritdoc />
     IStoreStoredProcedureParameter IRuntimeStoredProcedureParameter.StoreParameter
     {
