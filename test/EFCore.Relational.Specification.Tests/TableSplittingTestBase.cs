@@ -631,7 +631,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                 UseTransaction,
                 async context => Assert.Contains(
                     RelationalStrings.NonQueryTranslationFailedWithDetails(
-                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("ExecuteDelete", "Vehicles"))[21..],
+                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"))[21..],
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Vehicle>().ExecuteDeleteAsync())).Message));
         }
         else
@@ -641,7 +641,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                 UseTransaction,
                 context => Assert.Contains(
                     RelationalStrings.NonQueryTranslationFailedWithDetails(
-                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("ExecuteDelete", "Vehicles"))[21..],
+                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"))[21..],
                     Assert.Throws<InvalidOperationException>(() => context.Set<Vehicle>().ExecuteDelete()).Message));
         }
     }
