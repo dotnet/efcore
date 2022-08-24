@@ -135,10 +135,26 @@ public class StoredProcedureParameter :
     /// </summary>
     public virtual string Name
     {
-        get => _name ?? (ForRowsAffected
-            ? "RowsAffected"
-            : GetProperty().GetDefaultColumnName(
-                ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value)!);
+        get
+        {
+            if (_name != null)
+            {
+                return _name;
+            }
+
+            if (ForRowsAffected)
+            {
+                return "RowsAffected";
+            }
+            else
+            {
+                var baseName = GetProperty().GetDefaultColumnName(
+                    ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value)!;
+                return ForOriginalValue ?? false
+                    ? Uniquifier.Truncate(baseName + "_Original", GetProperty().DeclaringEntityType.Model.GetMaxIdentifierLength())
+                    : baseName;
+            }
+        }
         set => SetName(value, ConfigurationSource.Explicit);
     }
 

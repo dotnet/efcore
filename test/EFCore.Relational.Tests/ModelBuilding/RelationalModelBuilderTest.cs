@@ -423,6 +423,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                     s => s.HasAnnotation("foo", "bar3")
                         .HasParameter(b => b.Id, p => p.HasName("DeleteId"))
                         .HasRowsAffectedResultColumn()
+                        .HasParameter("RowVersion")
                         .HasOriginalValueParameter("RowVersion"));
 
             modelBuilder.Entity<SpecialBookLabel>()
@@ -454,6 +455,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("Update", updateSproc.Name);
             Assert.Equal("dbo", updateSproc.Schema);
             Assert.Equal(new[] { "Id", "BookId", null, "RowVersion", "RowVersion" }, updateSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "UpdateId", "BookId", "RowsAffected", "OriginalRowVersion", "RowVersion" }, updateSproc.Parameters.Select(p => p.Name));
             Assert.Empty(updateSproc.ResultColumns);
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookLabel, updateSproc.EntityType);
@@ -480,7 +482,8 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             var deleteSproc = bookLabel.GetDeleteStoredProcedure()!;
             Assert.Equal("BookLabel_Delete", deleteSproc.Name);
             Assert.Equal("mySchema", deleteSproc.Schema);
-            Assert.Equal(new[] { "Id", "RowVersion" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "Id", "RowVersion", "RowVersion" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "DeleteId", "RowVersion", "RowVersion_Original" }, deleteSproc.Parameters.Select(p => p.Name));
             Assert.Equal(new[] { "RowsAffected" }, deleteSproc.ResultColumns.Select(p => p.Name));
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookLabel, deleteSproc.EntityType);
