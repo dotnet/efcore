@@ -31,6 +31,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         { typeof(JsonEntitySingleOwned), e => ((JsonEntitySingleOwned)e)?.Id },
         { typeof(JsonEntityInheritanceBase), e => ((JsonEntityInheritanceBase)e)?.Id },
         { typeof(JsonEntityInheritanceDerived), e => ((JsonEntityInheritanceDerived)e)?.Id },
+        { typeof(JsonEntityAllTypes), e => ((JsonEntityAllTypes)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -240,6 +241,27 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 }
             }
         },
+        {
+            typeof(JsonEntityAllTypes), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (JsonEntityAllTypes)e;
+                    var aa = (JsonEntityAllTypes)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+
+                    AssertAllTypes(ee.Reference, aa.Reference);
+
+                    Assert.Equal(ee.Collection?.Count ?? 0, aa.Collection?.Count ?? 0);
+                    for (var i = 0; i < ee.Collection.Count; i++)
+                    {
+                        AssertAllTypes(ee.Collection[i], aa.Collection[i]);
+                    }
+                }
+            }
+        },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     private static void AssertOwnedRoot(JsonOwnedRoot expected, JsonOwnedRoot actual)
@@ -291,6 +313,25 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
     {
         Assert.Equal(expected.Date, actual.Date);
         Assert.Equal(expected.Fraction, actual.Fraction);
+    }
+
+    public static void AssertAllTypes(JsonOwnedAllTypes expected, JsonOwnedAllTypes actual)
+    {
+        Assert.Equal(expected.TestBoolean, actual.TestBoolean);
+        Assert.Equal(expected.TestCharacter, actual.TestCharacter);
+        Assert.Equal(expected.TestDateTime, actual.TestDateTime);
+        Assert.Equal(expected.TestDateTimeOffset, actual.TestDateTimeOffset);
+        Assert.Equal(expected.TestDouble, actual.TestDouble);
+        Assert.Equal(expected.TestGuid, actual.TestGuid);
+        Assert.Equal(expected.TestInt16, actual.TestInt16);
+        Assert.Equal(expected.TestInt32, actual.TestInt32);
+        Assert.Equal(expected.TestInt64, actual.TestInt64);
+        Assert.Equal(expected.TestSignedByte, actual.TestSignedByte);
+        Assert.Equal(expected.TestSingle, actual.TestSingle);
+        Assert.Equal(expected.TestTimeSpan, actual.TestTimeSpan);
+        Assert.Equal(expected.TestUnsignedInt16, actual.TestUnsignedInt16);
+        Assert.Equal(expected.TestUnsignedInt32, actual.TestUnsignedInt32);
+        Assert.Equal(expected.TestUnsignedInt64, actual.TestUnsignedInt64);
     }
 
     protected override string StoreName { get; } = "JsonQueryTest";
@@ -419,6 +460,18 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 bb.OwnsMany(x => x.OwnedCollectionLeaf);
                 bb.Property(x => x.Fraction).HasPrecision(18, 2);
             });
+        });
+
+        modelBuilder.Entity<JsonEntityAllTypes>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(x => x.Reference, b =>
+        {
+            b.ToJson();
+            b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+        });
+        modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(x => x.Collection, b =>
+        {
+            b.ToJson();
+            b.Property(x => x.TestDecimal).HasPrecision(18, 3);
         });
     }
 }

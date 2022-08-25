@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
         public DbSet<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; }
         public DbSet<JsonEntitySingleOwned> JsonEntitiesSingleOwned { get; set; }
         public DbSet<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
+        public DbSet<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; }
 
         public static void Seed(JsonQueryContext context)
         {
@@ -27,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
             var jsonEntitiesCustomNaming = JsonQueryData.CreateJsonEntitiesCustomNaming();
             var jsonEntitiesSingleOwned = JsonQueryData.CreateJsonEntitiesSingleOwned();
             var jsonEntitiesInheritance = JsonQueryData.CreateJsonEntitiesInheritance();
+            var jsonEntitiesAllTypes = JsonQueryData.CreateJsonEntitiesAllTypes();
 
             context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
             context.JsonEntitiesBasicForReference.AddRange(jsonEntitiesBasicForReference);
@@ -34,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
             context.JsonEntitiesCustomNaming.AddRange(jsonEntitiesCustomNaming);
             context.JsonEntitiesSingleOwned.AddRange(jsonEntitiesSingleOwned);
             context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
+            context.JsonEntitiesAllTypes.AddRange(jsonEntitiesAllTypes);
             context.SaveChanges();
         }
     }

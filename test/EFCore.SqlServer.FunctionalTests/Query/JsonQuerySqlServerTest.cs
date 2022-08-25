@@ -595,6 +595,24 @@ LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
 ORDER BY [j].[Id], [j0].[Id]");
     }
 
+    public override async Task Json_all_types_entity_projection(bool async)
+    {
+        await base.Json_all_types_entity_projection(async);
+
+        AssertSql(
+            @"SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]");
+    }
+
+    public override async Task Json_all_types_projection_individual_properties(bool async)
+    {
+        await base.Json_all_types_projection_individual_properties(async);
+
+        AssertSql(
+            @"SELECT CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit) AS [TestBoolean], CAST(JSON_VALUE([j].[Reference],'$.TestByte') AS tinyint) AS [TestByte], CAST(JSON_VALUE([j].[Reference],'$.TestCharacter') AS nvarchar(1)) AS [TestCharacter], CAST(JSON_VALUE([j].[Reference],'$.TestDateTime') AS datetime2) AS [TestDateTime], CAST(JSON_VALUE([j].[Reference],'$.TestDateTimeOffset') AS datetimeoffset) AS [TestDateTimeOffset], CAST(JSON_VALUE([j].[Reference],'$.TestDecimal') AS decimal(18,3)) AS [TestDecimal], CAST(JSON_VALUE([j].[Reference],'$.TestDouble') AS float) AS [TestDouble], CAST(JSON_VALUE([j].[Reference],'$.TestGuid') AS uniqueidentifier) AS [TestGuid], CAST(JSON_VALUE([j].[Reference],'$.TestInt16') AS smallint) AS [TestInt16], CAST(JSON_VALUE([j].[Reference],'$.TestInt32') AS int) AS [TestInt32], CAST(JSON_VALUE([j].[Reference],'$.TestInt64') AS bigint) AS [TestInt64], CAST(JSON_VALUE([j].[Reference],'$.TestSignedByte') AS smallint) AS [TestSignedByte], CAST(JSON_VALUE([j].[Reference],'$.TestSingle') AS real) AS [TestSingle], CAST(JSON_VALUE([j].[Reference],'$.TestTimeSpan') AS time) AS [TestTimeSpan], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt16') AS int) AS [TestUnsignedInt16], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt32') AS bigint) AS [TestUnsignedInt32], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt64') AS decimal(20,0)) AS [TestUnsignedInt64]
+FROM [JsonEntitiesAllTypes] AS [j]");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

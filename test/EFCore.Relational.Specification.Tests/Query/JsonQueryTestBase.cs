@@ -675,4 +675,38 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 new ExpectedInclude<JsonEntityBasic>(x => x.EntityReference),
                 new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)),
             entryCount: 44);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_all_types_entity_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>(),
+            entryCount: 3);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_all_types_projection_individual_properties(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => new
+            {
+                x.Reference.TestBoolean,
+                x.Reference.TestByte,
+                x.Reference.TestCharacter,
+                x.Reference.TestDateTime,
+                x.Reference.TestDateTimeOffset,
+                x.Reference.TestDecimal,
+                x.Reference.TestDouble,
+                x.Reference.TestGuid,
+                x.Reference.TestInt16,
+                x.Reference.TestInt32,
+                x.Reference.TestInt64,
+                x.Reference.TestSignedByte,
+                x.Reference.TestSingle,
+                x.Reference.TestTimeSpan,
+                x.Reference.TestUnsignedInt16,
+                x.Reference.TestUnsignedInt32,
+                x.Reference.TestUnsignedInt64
+            }));
 }
