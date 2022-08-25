@@ -370,15 +370,15 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     continue;
                 }
 
-                foreach (var columnMapping in tableMapping.ColumnMappings)
-                {
-                    HandleColumnModification(columnMapping);
-                }
-
                 optionalDependentWithAllNull =
                     entry.EntityState is EntityState.Modified or EntityState.Added
                     && tableMapping.Table.IsOptional(entry.EntityType)
                     && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+
+                foreach (var columnMapping in tableMapping.ColumnMappings)
+                {
+                    HandleColumnModification(columnMapping);
+                }
             }
             else // Stored procedure mapping case
             {
@@ -423,18 +423,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 // In TPH, the sproc has parameters for all entity types in the hierarchy; we must generate null column modifications
                 // for parameters for unrelated entity types.
                 // Enumerate over the sproc parameters in order, trying to match a corresponding parameter mapping.
-                using var parameterMappingEnumerator = storedProcedureMapping.ParameterMappings
-                    .Where(c => c.Column is IStoreStoredProcedureParameter)
-                    .OrderBy(c => ((IStoreStoredProcedureParameter)c.Column).Position)
-                    .GetEnumerator();
-                var hasParameterMapping = parameterMappingEnumerator.MoveNext();
-
+                // Note that we produce the column modifications in the same order as their sproc parameters; this is important and assumed
+                // later in the pipeline.
                 foreach (var parameter in StoreStoredProcedure.Parameters)
                 {
-                    if (hasParameterMapping && ReferenceEquals(parameterMappingEnumerator.Current.Parameter.StoreParameter, parameter))
+                    if (parameter.FindParameterMapping(entry.EntityType) is { } parameterMapping)
                     {
-                        HandleColumnModification(parameterMappingEnumerator.Current);
-                        hasParameterMapping = parameterMappingEnumerator.MoveNext();
+                        HandleColumnModification(parameterMapping);
                         continue;
                     }
 
@@ -453,9 +448,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         _sensitiveLoggingEnabled)));
                 }
 
-                Check.DebugAssert(!hasParameterMapping, "Remaining sproc parameter mapping but no more parameters");
-
-                // Note that we only column modifications for mapped result columns, even though the sproc may return additional result
+                // Note that we only add column modifications for mapped result columns, even though the sproc may return additional result
                 // columns (e.g. for siblings in TPH). Our result propagation accesses result columns directly by their position.
                 foreach (var columnMapping in storedProcedureMapping.ResultColumnMappings)
                 {
