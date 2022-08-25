@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -309,21 +308,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         Visit(jsonScalarExpression.JsonColumn);
 
-        var jsonPathStrings = new List<string>();
-
-        if (jsonScalarExpression.Path != null)
-        {
-            var currentPath = jsonScalarExpression.Path;
-            while (currentPath is SqlBinaryExpression sqlBinary && sqlBinary.OperatorType == ExpressionType.Add)
-            {
-                currentPath = sqlBinary.Left;
-                jsonPathStrings.Insert(0, (string)((SqlConstantExpression)sqlBinary.Right).Value!);
-            }
-
-            jsonPathStrings.Insert(0, (string)((SqlConstantExpression)currentPath).Value!);
-        }
-
-        Sql.Append($",'{string.Join(".", jsonPathStrings)}')");
+        Sql.Append($",'{string.Join("", jsonScalarExpression.Path.Select(e => e.ToString()))}')");
 
         if (jsonScalarExpression.Type != typeof(JsonElement))
         {
