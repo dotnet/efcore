@@ -514,7 +514,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
     {
         await using var context = CreateContext();
 
-        var entity1 = new TphChild { Name = "Child", ChildProperty = 8 };
+        var entity1 = new TphChild1 { Name = "Child", Child1Property = 8 };
         context.TphChild.Add(entity1);
         await SaveChanges(context, async);
 
@@ -525,7 +525,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
             var entity2 = context.TphChild.Single(b => b.Id == entity1.Id);
 
             Assert.Equal("Child", entity2.Name);
-            Assert.Equal(8, entity2.ChildProperty);
+            Assert.Equal(8, entity2.Child1Property);
         }
     }
 

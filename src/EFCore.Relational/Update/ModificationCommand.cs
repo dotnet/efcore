@@ -360,7 +360,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
 
-            IEnumerable<IColumnMappingBase> columnMappings;
             var optionalDependentWithAllNull = false;
 
             if (StoreStoredProcedure is null)
@@ -371,25 +370,24 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     continue;
                 }
 
-                columnMappings = tableMapping.ColumnMappings;
-
                 optionalDependentWithAllNull =
                     entry.EntityState is EntityState.Modified or EntityState.Added
                     && tableMapping.Table.IsOptional(entry.EntityType)
                     && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+
+                foreach (var columnMapping in tableMapping.ColumnMappings)
+                {
+                    HandleColumnModification(columnMapping);
+                }
             }
-            else
+            else // Stored procedure mapping case
             {
                 var storedProcedureMapping = GetStoredProcedureMapping(entry.EntityType, EntityState);
                 Check.DebugAssert(storedProcedureMapping is not null, "No sproc mapping but StoredProcedure is not null");
-
-                columnMappings = storedProcedureMapping.ParameterMappings
-                    .Concat((IEnumerable<IColumnMappingBase>)storedProcedureMapping.ResultColumnMappings);
-
-                // Stored procedures may have an additional rows affected parameter, result column or return value, which does not have a
-                // property/column mapping but still needs to have be represented via a column modification.
                 var storedProcedure = storedProcedureMapping.StoredProcedure;
 
+                // Stored procedures may have an additional rows affected result column or return value, which does not have a
+                // property/column mapping but still needs to have be represented via a column modification.
                 IColumnBase? rowsAffectedColumnBase = null;
 
                 if (storedProcedure.FindRowsAffectedParameter() is { } rowsAffectedParameter)
@@ -405,10 +403,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     rowsAffectedColumnBase = rowsAffectedReturnValue;
                 }
 
-                if (rowsAffectedColumnBase is not null)
+                // Add a column modification for rows affected result column/return value.
+                // A rows affected output parameter is added below in the correct position, with the rest of the parameters.
+                if (rowsAffectedColumnBase is IStoreStoredProcedureResultColumn or IStoreStoredProcedureReturnValue)
                 {
                     columnModifications.Add(CreateColumnModification(new ColumnModificationParameters(
-                        entry,
+                        entry: null,
                         property: null,
                         rowsAffectedColumnBase,
                         _generateParameterName!,
@@ -419,9 +419,56 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         columnIsCondition: false,
                         _sensitiveLoggingEnabled)));
                 }
+
+                // In TPH, the sproc has parameters for all entity types in the hierarchy; we must generate null column modifications
+                // for parameters for unrelated entity types.
+                // Enumerate over the sproc parameters in order, trying to match a corresponding parameter mapping.
+                // Note that we produce the column modifications in the same order as their sproc parameters; this is important and assumed
+                // later in the pipeline.
+                foreach (var parameter in StoreStoredProcedure.Parameters)
+                {
+                    if (parameter.FindParameterMapping(entry.EntityType) is { } parameterMapping)
+                    {
+                        HandleColumnModification(parameterMapping);
+                        continue;
+                    }
+
+                    // The parameter has no corresponding mapping; this is either a sibling property in a TPH hierarchy or a rows affected
+                    // output parameter or return value.
+                    columnModifications.Add(CreateColumnModification(new ColumnModificationParameters(
+                        entry: null,
+                        property: null,
+                        parameter,
+                        _generateParameterName!,
+                        parameter.StoreTypeMapping,
+                        valueIsRead: parameter.Direction.HasFlag(ParameterDirection.Output),
+                        valueIsWrite: parameter.Direction.HasFlag(ParameterDirection.Input),
+                        columnIsKey: false,
+                        columnIsCondition: false,
+                        _sensitiveLoggingEnabled)));
+                }
+
+                // Note that we only add column modifications for mapped result columns, even though the sproc may return additional result
+                // columns (e.g. for siblings in TPH). Our result propagation accesses result columns directly by their position.
+                foreach (var columnMapping in storedProcedureMapping.ResultColumnMappings)
+                {
+                    HandleColumnModification(columnMapping);
+                }
             }
 
-            foreach (var columnMapping in columnMappings)
+            if (optionalDependentWithAllNull && _logger != null)
+            {
+                if (_sensitiveLoggingEnabled)
+                {
+                    _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry);
+                }
+                else
+                {
+                    _logger.OptionalDependentWithAllNullPropertiesWarning(entry);
+                }
+            }
+
+            void HandleColumnModification(IColumnMappingBase columnMapping)
             {
                 var property = columnMapping.Property;
                 var column = columnMapping.Column;
@@ -488,7 +535,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         {
                             columnPropagator.ColumnModification.AddSharedColumnModification(columnModification);
 
-                            continue;
+                            return;
                         }
 
                         columnPropagator.ColumnModification = columnModification;
@@ -509,18 +556,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     && entry.GetCurrentValue(property) is not null)
                 {
                     optionalDependentWithAllNull = false;
-                }
-            }
-
-            if (optionalDependentWithAllNull && _logger != null)
-            {
-                if (_sensitiveLoggingEnabled)
-                {
-                    _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry);
-                }
-                else
-                {
-                    _logger.OptionalDependentWithAllNullPropertiesWarning(entry);
                 }
             }
         }
