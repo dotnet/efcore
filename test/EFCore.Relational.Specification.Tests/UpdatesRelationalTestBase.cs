@@ -109,6 +109,45 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
     }
 
     [ConditionalFact]
+    public virtual void Swap_filtered_unique_index_values()
+    {
+        var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
+        var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
+
+        ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var product1 = context.Products.Find(productId1)!;
+                var product2 = context.Products.Find(productId2)!;
+
+                product2.Name = null;
+                product2.Price = product1.Price;
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var product1 = context.Products.Find(productId1)!;
+                var product2 = context.Products.Find(productId2)!;
+
+                product2.Name = product1.Name;
+                product1.Name = null;
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var product1 = context.Products.Find(productId1)!;
+                var product2 = context.Products.Find(productId2)!;
+
+                Assert.Equal(1.49M, product1.Price);
+                Assert.Null(product1.Name);
+                Assert.Equal(1.49M, product2.Price);
+                Assert.Equal("Apple Cider", product2.Name);
+            });
+    }
+
+    [ConditionalFact]
     public abstract void Identifiers_are_generated_correctly();
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -132,6 +171,8 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             modelBuilder.Entity<ProductViewTable>().HasBaseType((string)null).ToTable("ProductView");
             modelBuilder.Entity<ProductTableWithView>().HasBaseType((string)null).ToView("ProductView").ToTable("ProductTable");
             modelBuilder.Entity<ProductTableView>().HasBaseType((string)null).ToView("ProductTable");
+
+            modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique().HasFilter("Name IS NOT NULL");
 
             modelBuilder
                 .Entity<
