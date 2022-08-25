@@ -1092,6 +1092,7 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_outer_apply_set_constant(async))).Message);
 
+    [ConditionalTheory(Skip = "Issue#28886")]
     public override async Task Update_with_cross_join_left_join_set_constant(bool async)
     {
         await base.Update_with_cross_join_left_join_set_constant(async);
