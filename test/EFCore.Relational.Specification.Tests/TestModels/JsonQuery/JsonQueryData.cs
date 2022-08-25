@@ -15,6 +15,7 @@ public class JsonQueryData : ISetSource
         JsonEntitiesCustomNaming = CreateJsonEntitiesCustomNaming();
         JsonEntitiesSingleOwned = CreateJsonEntitiesSingleOwned();
         JsonEntitiesInheritance = CreateJsonEntitiesInheritance();
+        JsonEntitiesAllTypes = CreateJsonEntitiesAllTypes();
     }
 
     public IReadOnlyList<JsonEntityBasic> JsonEntitiesBasic { get; }
@@ -23,6 +24,7 @@ public class JsonQueryData : ISetSource
     public IReadOnlyList<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; }
     public IReadOnlyList<JsonEntitySingleOwned> JsonEntitiesSingleOwned { get; set; }
     public IReadOnlyList<JsonEntityInheritanceBase> JsonEntitiesInheritance { get; set; }
+    public IReadOnlyList<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; }
 
     public static IReadOnlyList<JsonEntityBasic> CreateJsonEntitiesBasic()
     {
@@ -704,6 +706,56 @@ public class JsonQueryData : ISetSource
         return new List<JsonEntityInheritanceBase> { baseEntity, derivedEntity };
     }
 
+    public static IReadOnlyList<JsonEntityAllTypes> CreateJsonEntitiesAllTypes()
+    {
+        var r = new JsonOwnedAllTypes
+        {
+            TestInt16 = -1234,
+            TestInt32 = -123456789,
+            TestInt64 = -1234567890123456789L,
+            TestDouble = -1.23456789,
+            TestDecimal = -1234567890.01M,
+            TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+            TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+            TestSingle = -1.234F,
+            TestBoolean = true,
+            TestByte = 255,
+            TestGuid = new Guid("12345678-1234-4321-7777-987654321000"),
+            TestUnsignedInt16 = 1234,
+            TestUnsignedInt32 = 1234565789U,
+            TestUnsignedInt64 = 1234567890123456789UL,
+            TestCharacter = 'a',
+            TestSignedByte = -128,
+        };
+
+        var c = new JsonOwnedAllTypes
+        {
+            TestInt16 = -12,
+            TestInt32 = -12345,
+            TestInt64 = -1234567890L,
+            TestDouble = -1.2345,
+            TestDecimal = -123450.01M,
+            TestDateTime = DateTime.Parse("11/11/2100 12:34:56"),
+            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("11/11/2200 12:34:56"), TimeSpan.FromHours(-5.0)),
+            TestTimeSpan = new TimeSpan(0, 6, 5, 4, 3),
+            TestSingle = -1.4F,
+            TestBoolean = false,
+            TestByte = 25,
+            TestGuid = new Guid("00000000-0000-0000-0000-000000000000"),
+            TestUnsignedInt16 = 12,
+            TestUnsignedInt32 = 12345U,
+            TestUnsignedInt64 = 1234567867UL,
+            TestCharacter = 'h',
+            TestSignedByte = -18,
+        };
+
+        return new List<JsonEntityAllTypes>
+        {
+            new JsonEntityAllTypes { Id = 1, Reference = r, Collection = new List<JsonOwnedAllTypes> { c } }
+        };
+    }
+
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
     {
@@ -730,6 +782,11 @@ public class JsonQueryData : ISetSource
         if (typeof(TEntity) == typeof(JsonEntityInheritanceDerived))
         {
             return (IQueryable<TEntity>)JsonEntitiesInheritance.OfType<JsonEntityInheritanceDerived>().AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(JsonEntityAllTypes))
+        {
+            return (IQueryable<TEntity>)JsonEntitiesAllTypes.OfType<JsonEntityAllTypes>().AsQueryable();
         }
 
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

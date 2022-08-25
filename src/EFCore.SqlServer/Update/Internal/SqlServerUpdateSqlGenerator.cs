@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
+using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -152,9 +153,37 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
             // using strict so that we don't remove json elements when they are assigned NULL value
             stringBuilder.Append(", 'strict ");
             stringBuilder.Append(columnModification.JsonPath);
-            stringBuilder.Append("', JSON_QUERY(");
-            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-            stringBuilder.Append("))");
+            stringBuilder.Append("', ");
+
+            if (columnModification.Property != null)
+            {
+                var needsTypeConversion = columnModification.Property.ClrType.IsNumeric()
+                    || columnModification.Property.ClrType == typeof(bool);
+
+                if (needsTypeConversion)
+                {
+                    stringBuilder.Append("CAST(");
+                }
+
+                stringBuilder.Append("JSON_VALUE(");
+                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+                stringBuilder.Append(", '$[0]')");
+
+                if (needsTypeConversion)
+                {
+                    stringBuilder.Append(" AS ");
+                    stringBuilder.Append(columnModification.Property.GetRelationalTypeMapping().StoreType);
+                    stringBuilder.Append(")");
+                }
+            }
+            else
+            {
+                stringBuilder.Append("JSON_QUERY(");
+                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+                stringBuilder.Append(")");
+            }
+
+            stringBuilder.Append(")");
         }
         else
         {

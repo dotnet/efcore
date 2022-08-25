@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Data;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -251,6 +252,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     protected virtual IColumnModification CreateColumnModification(in ColumnModificationParameters columnModificationParameters)
         => new ColumnModification(columnModificationParameters);
 
+    private sealed class JsonPartialUpdateInfo
+    {
+        public List<JsonPartialUpdatePathEntry> Path { get; } = new();
+        public IProperty? Property { get; set; }
+        public object? PropertyValue { get; set; }
+    }
+
     private record struct JsonPartialUpdatePathEntry
     {
         public JsonPartialUpdatePathEntry(
@@ -322,19 +330,16 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         if (jsonEntry)
         {
-            var jsonColumnsUpdateMap = new Dictionary<string, List<JsonPartialUpdatePathEntry>>();
+            var jsonColumnsUpdateMap = new Dictionary<string, JsonPartialUpdateInfo>();
             var processedEntries = new List<IUpdateEntry>();
             foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
             {
-                var modifiedMembers = entry.ToEntityEntry().Members.Where(m => m is not NavigationEntry && m.IsModified).ToList();
+                var modifiedMembers = entry.ToEntityEntry().Properties.Where(m => m.IsModified).ToList();
                 var jsonColumn = entry.EntityType.GetContainerColumnName()!;
                 var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
-                processedEntries.Add(entry);
 
                 if (jsonPartialUpdateInfo == null)
                 {
-                    // this entry is a subtree of an entry that we already processed
-                    // so we already need to update the parent - no need to have extra entry for the subtree
                     continue;
                 }
 
@@ -348,52 +353,60 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
             }
 
-            foreach (var (jsonColumnName, updatePath) in jsonColumnsUpdateMap)
+            foreach (var (jsonColumnName, updateInfo) in jsonColumnsUpdateMap)
             {
-                var finalUpdatePathElement = updatePath.Last();
+                var finalUpdatePathElement = updateInfo.Path.Last();
                 var navigation = finalUpdatePathElement.Navigation;
 
                 var jsonColumnTypeMapping = navigation.TargetEntityType.GetContainerColumnTypeMapping()!;
                 var navigationValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(navigation);
 
                 var json = default(JsonNode?);
-                if (finalUpdatePathElement.Ordinal != null && navigationValue != null)
+                var jsonPathString = string.Join(
+                    ".", updateInfo.Path.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
+
+                if (updateInfo.Property != null)
                 {
-                    int i = 0;
-                    foreach (var navigationValueElement in (IEnumerable)navigationValue)
-                    {
-                        if (i == finalUpdatePathElement.Ordinal)
-                        {
-                            json = CreateJson(
-                                navigationValueElement,
-                                finalUpdatePathElement.ParentEntry,
-                                navigation.TargetEntityType,
-                                ordinal: null,
-                                isCollection: false);
-
-                            break;
-                        }
-
-                        i++;
-                    }
+                    json = new JsonArray(JsonValue.Create(updateInfo.PropertyValue));
+                    jsonPathString = jsonPathString + "." + updateInfo.Property.GetJsonPropertyName();
                 }
                 else
                 {
-                    json = CreateJson(
-                        navigationValue,
-                        finalUpdatePathElement.ParentEntry,
-                        navigation.TargetEntityType,
-                        ordinal: null,
-                        isCollection: navigation.IsCollection);
-                }
+                    if (finalUpdatePathElement.Ordinal != null && navigationValue != null)
+                    {
+                        var i = 0;
+                        foreach (var navigationValueElement in (IEnumerable)navigationValue)
+                        {
+                            if (i == finalUpdatePathElement.Ordinal)
+                            {
+                                json = CreateJson(
+                                    navigationValueElement,
+                                    finalUpdatePathElement.ParentEntry,
+                                    navigation.TargetEntityType,
+                                    ordinal: null,
+                                    isCollection: false);
 
-                var jsonPathString = string.Join(
-                    ".", updatePath.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
+                                break;
+                            }
+
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        json = CreateJson(
+                            navigationValue,
+                            finalUpdatePathElement.ParentEntry,
+                            navigation.TargetEntityType,
+                            ordinal: null,
+                            isCollection: navigation.IsCollection);
+                    }
+                }
 
                 var columnModificationParameters = new ColumnModificationParameters(
                         jsonColumnName,
-                        originalValue: null,
                         value: json?.ToJsonString(),
+                        property: updateInfo.Property,
                         columnType: jsonColumnTypeMapping.StoreType,
                         jsonColumnTypeMapping,
                         jsonPath: jsonPathString,
@@ -582,9 +595,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         return columnModifications;
 
-        static List<JsonPartialUpdatePathEntry>? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
+        static JsonPartialUpdateInfo? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
         {
-            var result = new List<JsonPartialUpdatePathEntry>();
+            var result = new JsonPartialUpdateInfo();
             var currentEntry = entry;
             var currentOwnership = currentEntry.EntityType.FindOwnership()!;
 
@@ -617,7 +630,20 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     currentEntry,
                     currentOwnership.GetNavigation(pointsToPrincipal: false)!);
 
-                result.Insert(0, pathEntry);
+                result.Path.Insert(0, pathEntry);
+            }
+
+            var modifiedMembers = entry.ToEntityEntry().Properties.Where(m => m.IsModified).ToList();
+            if (modifiedMembers.Count == 1)
+            {
+                result.Property = modifiedMembers.Single().Metadata;
+                result.PropertyValue = entry.GetCurrentProviderValue(result.Property);
+            }
+            else
+            {
+                // only add to processed entries list if we are planning to update the entire entity
+                // (rather than just a single property on that entity)
+                processedEntries.Add(entry);
             }
 
             // parent entity got deleted, no need to do any json-specific processing
@@ -629,36 +655,36 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             return result;
         }
 
-        static List<JsonPartialUpdatePathEntry> FindCommonJsonPartialUpdateInfo(
-            List<JsonPartialUpdatePathEntry> first,
-            List<JsonPartialUpdatePathEntry> second)
+        static JsonPartialUpdateInfo FindCommonJsonPartialUpdateInfo(
+            JsonPartialUpdateInfo first,
+            JsonPartialUpdateInfo second)
         {
-            var result = new List<JsonPartialUpdatePathEntry>();
-            for (var i = 0; i < Math.Min(first.Count, second.Count); i++)
+            var result = new JsonPartialUpdateInfo();
+            for (var i = 0; i < Math.Min(first.Path.Count, second.Path.Count); i++)
             {
-                if (first[i].PropertyName == second[i].PropertyName)
+                if (first.Path[i].PropertyName == second.Path[i].PropertyName)
                 {
-                    if (first[i].Ordinal == second[i].Ordinal)
+                    if (first.Path[i].Ordinal == second.Path[i].Ordinal)
                     {
-                        result.Add(first[i]);
+                        result.Path.Add(first.Path[i]);
                         continue;
                     }
                     else
                     {
                         var common = new JsonPartialUpdatePathEntry(
-                            first[i].PropertyName,
+                            first.Path[i].PropertyName,
                             null,
-                            first[i].ParentEntry,
-                            first[i].Navigation);
+                            first.Path[i].ParentEntry,
+                            first.Path[i].Navigation);
 
-                        result.Add(common);
+                        result.Path.Add(common);
                     }
 
                     break;
                 }
             }
 
-            Debug.Assert(result.Count > 0, "Common denominator should always have at least one node - the root.");
+            Debug.Assert(result.Path.Count > 0, "Common denominator should always have at least one node - the root.");
 
             return result;
         }
