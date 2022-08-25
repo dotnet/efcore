@@ -691,6 +691,29 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual Task Alter_column_make_required_with_null_data()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("SomeColumn");
+                    e.HasData(new Dictionary<string, object>
+                    {
+                        { "Id", 1 },
+                        { "SomeColumn", null }
+                    });
+                }),
+            builder => { },
+            builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name != "Id");
+                Assert.False(column.IsNullable);
+            });
+
+    [ConditionalFact]
     public virtual Task Alter_column_make_required_with_index()
         => Test(
             builder => builder.Entity(

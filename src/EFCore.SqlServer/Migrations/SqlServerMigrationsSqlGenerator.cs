@@ -343,6 +343,42 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             (oldDefaultValue, oldDefaultValueSql) = (null, null);
         }
 
+        // The column is being made non-nullable. Generate an update statement before doing that, to convert any existing null values to
+        // the default value (otherwise SQL Server fails).
+        if (!operation.IsNullable
+            && operation.OldColumn.IsNullable
+            && (operation.DefaultValueSql is not null || operation.DefaultValue is not null))
+        {
+            string defaultValueSql;
+            if (operation.DefaultValueSql is not null)
+            {
+                defaultValueSql = operation.DefaultValueSql;
+            }
+            else
+            {
+                Check.DebugAssert(operation.DefaultValue is not null, "operation.DefaultValue is not null");
+
+                var typeMapping = (columnType != null
+                        ? Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
+                        : null)
+                    ?? Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
+
+                defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
+            }
+
+            builder
+                .Append("UPDATE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" SET ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" = ")
+                .Append(defaultValueSql)
+                .Append(" WHERE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" IS NULL")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+        }
+
         if (alterStatementNeeded)
         {
             builder
