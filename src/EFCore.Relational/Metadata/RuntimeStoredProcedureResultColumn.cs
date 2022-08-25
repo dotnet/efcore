@@ -33,7 +33,7 @@ public class RuntimeStoredProcedureResultColumn : AnnotatableBase, IRuntimeStore
         _forRowsAffected = forRowsAffected;
         _name = name;
     }
-    
+
     /// <summary>
     ///     Gets the stored procedure to which this parameter belongs.
     /// </summary>
@@ -66,42 +66,42 @@ public class RuntimeStoredProcedureResultColumn : AnnotatableBase, IRuntimeStore
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     IStoredProcedure IStoredProcedureResultColumn.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
-    
+
     /// <inheritdoc />
     string IReadOnlyStoredProcedureResultColumn.Name
     {
         [DebuggerStepThrough]
         get => _name;
     }
-    
+
     /// <inheritdoc />
     string? IReadOnlyStoredProcedureResultColumn.PropertyName
     {
         [DebuggerStepThrough]
         get => _propertyName;
     }
-    
+
     /// <inheritdoc />
     bool IReadOnlyStoredProcedureResultColumn.ForRowsAffected
     {
         [DebuggerStepThrough]
         get => _forRowsAffected;
     }
-    
+
     /// <inheritdoc />
     IStoreStoredProcedureResultColumn IStoredProcedureResultColumn.StoreResultColumn
     {
         [DebuggerStepThrough]
         get => _storeResultColumn!;
     }
-    
+
     /// <inheritdoc />
     IStoreStoredProcedureResultColumn IRuntimeStoredProcedureResultColumn.StoreResultColumn
     {
