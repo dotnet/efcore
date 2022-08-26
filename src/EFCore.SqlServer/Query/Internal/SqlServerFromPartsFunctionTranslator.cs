@@ -114,8 +114,8 @@ public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
                 arguments.Skip(1),
                 nullable: true,
                 argumentsPropagateNullability: arguments.Skip(1).Select(_ => true),
-                DateFromPartsMethodInfo.ReturnType,
-                _typeMappingSource.FindMapping(DateFromPartsMethodInfo.ReturnType, value.ReturnType));
+                method.ReturnType,
+                _typeMappingSource.FindMapping(method.ReturnType, value.ReturnType));
         }
 
         return null;
