@@ -273,6 +273,17 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Join_non_aggregate(bool async)
+    {
+        var foo = "foo";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => string.Join("|", new[] { c.CompanyName, foo, null, "bar" }) == "Around the Horn|foo||bar"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task String_Concat(bool async)
         => AssertQuery(
             async,

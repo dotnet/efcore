@@ -360,6 +360,21 @@ GROUP BY [c].[City]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    public override async Task String_Join_non_aggregate(bool async)
+    {
+        await base.String_Join_non_aggregate(async);
+
+        AssertSql(
+            """
+@__foo_0='foo' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CONCAT_WS(N'|', [c].[CompanyName], COALESCE(@__foo_0, N''), N'', N'bar') = N'Around the Horn|foo||bar'
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task String_Concat(bool async)
     {
         await base.String_Concat(async);

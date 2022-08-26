@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -19,6 +20,8 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 {
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
+    private readonly int _sqlServerCompatibilityLevel;
 
     private static readonly HashSet<string> DateTimeDataTypes
         =
@@ -59,6 +62,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     private static readonly MethodInfo StringContainsMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
 
+    private static readonly MethodInfo StringJoinMethodInfo
+        = typeof(string).GetRuntimeMethod(nameof(string.Join), [typeof(string), typeof(string[])])!;
+
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqlServerSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;
 
@@ -74,11 +80,14 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     public SqlServerSqlTranslatingExpressionVisitor(
         RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
         SqlServerQueryCompilationContext queryCompilationContext,
-        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
     {
         _queryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+        _typeMappingSource = dependencies.TypeMappingSource;
+        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
     }
 
     /// <summary>
@@ -197,6 +206,60 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.Contains, out var translation3))
         {
             return translation3;
+        }
+
+        // Translate non-aggregate string.Join to CONCAT_WS (for aggregate string.Join, see SqlServerStringAggregateMethodTranslator)
+        if (method == StringJoinMethodInfo
+            && methodCallExpression.Arguments[1] is NewArrayExpression newArrayExpression
+            && _sqlServerCompatibilityLevel >= 140)
+        {
+            if (TranslationFailed(methodCallExpression.Arguments[0], Visit(methodCallExpression.Arguments[0]), out var delimiter))
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            var arguments = new SqlExpression[newArrayExpression.Expressions.Count + 1];
+            arguments[0] = delimiter!;
+
+            var isUnicode = delimiter!.TypeMapping?.IsUnicode == true;
+
+            for (var i = 0; i < newArrayExpression.Expressions.Count; i++)
+            {
+                var argument = newArrayExpression.Expressions[i];
+                if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                // CONCAT_WS returns a type with a length that varies based on actual inputs (i.e. the sum of all argument lengths, plus
+                // the length needed for the delimiters). We don't know column values (or even parameter values, so we always return max.
+                // We do vary return varchar(max) or nvarchar(max) based on whether we saw any nvarchar mapping.
+                if (sqlArgument!.TypeMapping?.IsUnicode == true)
+                {
+                    isUnicode = true;
+                }
+
+                // CONCAT_WS filters out nulls, but string.Join treats them as empty strings; so coalesce (which is a no-op for non-nullable
+                // arguments).
+                arguments[i + 1] = sqlArgument switch
+                {
+                    ColumnExpression { IsNullable: false } => sqlArgument,
+                    SqlConstantExpression constantExpression => constantExpression.Value is null
+                        ? _sqlExpressionFactory.Constant(string.Empty)
+                        : constantExpression,
+                    _ => Dependencies.SqlExpressionFactory.Coalesce(sqlArgument, _sqlExpressionFactory.Constant(string.Empty))
+                };
+            }
+
+            // CONCAT_WS never returns null; a null delimiter is interpreted as an empty string, and null arguments are skipped
+            // (but we coalesce them above in any case).
+            return Dependencies.SqlExpressionFactory.Function(
+                "CONCAT_WS",
+                arguments,
+                nullable: false,
+                argumentsPropagateNullability: new bool[arguments.Length],
+                typeof(string),
+                _typeMappingSource.FindMapping(isUnicode ? "nvarchar(max)" : "varchar(max)"));
         }
 
         return base.VisitMethodCall(methodCallExpression);
@@ -513,6 +576,20 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                         typeof(byte[])),
                     resultType)
                 : QueryCompilationContext.NotTranslatedExpression;
+    }
+
+    [DebuggerStepThrough]
+    private static bool TranslationFailed(Expression? original, Expression? translation, out SqlExpression? castTranslation)
+    {
+        if (original != null
+            && translation is not SqlExpression)
+        {
+            castTranslation = null;
+            return true;
+        }
+
+        castTranslation = translation as SqlExpression;
+        return false;
     }
 
     private static string? GetProviderType(SqlExpression expression)
