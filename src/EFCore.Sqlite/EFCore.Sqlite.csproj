@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.1-pre20220822172036" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SqlitePCLRawVersion)" />
   </ItemGroup>
 
   <ItemGroup>
