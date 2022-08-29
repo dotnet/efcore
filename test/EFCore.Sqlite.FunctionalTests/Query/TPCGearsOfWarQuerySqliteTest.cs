@@ -368,7 +368,7 @@ WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
 
     public override Task Where_TimeOnly_subtract_TimeOnly(bool async)
         // TimeSpan. Issue #18844.
-        => Assert.ThrowsAsync<InvalidCastException>(() => base.Where_TimeOnly_subtract_TimeOnly(async));
+        => AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
