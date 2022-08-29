@@ -1549,6 +1549,50 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Required_navigation_on_derived_type_with_query_filter_on_both_sides_doesnt_issue_a_warning()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Blog>().HasMany(x => x.PicturePosts).WithOne(x => x.Blog).IsRequired();
+        modelBuilder.Entity<Blog>(e => e.HasQueryFilter(b => b.IsDeleted == false));
+        modelBuilder.Entity<Post>(e => e.HasQueryFilter(p => p.IsDeleted == false));
+
+        var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+            CreateValidationLogger()).GenerateMessage(nameof(Blog), nameof(PicturePost));
+
+        VerifyLogDoesNotContain(message, modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Required_navigation_targeting_derived_type_with_no_query_filter_issues_a_warning()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Post>(e => e.HasQueryFilter(p => p.IsDeleted == false).Ignore(e => e.Blog));
+        modelBuilder.Entity<PicturePost>().HasMany(e => e.Pictures).WithOne(e => e.PicturePost).IsRequired();
+
+        var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+            CreateValidationLogger()).GenerateMessage(nameof(PicturePost), nameof(Picture));
+
+        VerifyWarning(message, modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Required_navigation_on_owned_type_with_query_filter_on_owner_doesnt_issue_a_warning()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Blog>(e =>
+        {
+            e.Ignore(i => i.PicturePosts);
+            e.HasQueryFilter(b => b.IsDeleted == false);
+            e.OwnsMany(i => i.BlogOwnedEntities);
+        });
+
+        var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
+            CreateValidationLogger()).GenerateMessage(nameof(Blog), nameof(BlogOwnedEntity));
+
+        VerifyLogDoesNotContain(message, modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Shared_type_inheritance_throws()
     {
         var modelBuilder = CreateConventionModelBuilder();

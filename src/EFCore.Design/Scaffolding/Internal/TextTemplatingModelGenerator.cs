@@ -5,7 +5,7 @@ using System.CodeDom.Compiler;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Engine = Mono.TextTemplating.TemplatingEngine;
+using Mono.TextTemplating;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
@@ -23,7 +23,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
     private readonly IOperationReporter _reporter;
     private readonly IServiceProvider _serviceProvider;
-    private Engine? _engine;
+    private TemplatingEngine? _engine;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,8 +47,8 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual Engine Engine
-        => _engine ??= new Engine();
+    protected virtual TemplatingEngine Engine
+        => _engine ??= new TemplatingEngine();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -107,7 +107,9 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         {
             host.TemplateFile = contextTemplate;
 
-            generatedCode = ProcessTemplate(contextTemplate, host);
+            generatedCode = Engine.ProcessTemplate(File.ReadAllText(contextTemplate), host);
+            CheckEncoding(host.OutputEncoding);
+            HandleErrors(host);
         }
         else
         {
@@ -153,23 +155,41 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         {
             host.TemplateFile = entityTypeTemplate;
 
-            foreach (var entityType in model.GetEntityTypes())
+            CompiledTemplate? compiledEntityTypeTemplate = null;
+            string? entityTypeExtension = null;
+            try
             {
-                host.Initialize();
-                host.Session.Add("EntityType", entityType);
-                host.Session.Add("Options", options);
-                host.Session.Add("NamespaceHint", options.ModelNamespace);
-                host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
-
-                generatedCode = ProcessTemplate(entityTypeTemplate, host);
-                if (string.IsNullOrWhiteSpace(generatedCode))
+                foreach (var entityType in model.GetEntityTypes())
                 {
-                    continue;
-                }
+                    host.Initialize();
+                    host.Session.Add("EntityType", entityType);
+                    host.Session.Add("Options", options);
+                    host.Session.Add("NamespaceHint", options.ModelNamespace);
+                    host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
 
-                var entityTypeFileName = entityType.Name + host.Extension;
-                resultingFiles.AdditionalFiles.Add(
-                    new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+                    if (compiledEntityTypeTemplate is null)
+                    {
+                        compiledEntityTypeTemplate = Engine.CompileTemplate(File.ReadAllText(entityTypeTemplate), host);
+                        entityTypeExtension = host.Extension;
+                        CheckEncoding(host.OutputEncoding);
+                    }
+
+                    generatedCode = compiledEntityTypeTemplate.Process();
+                    HandleErrors(host);
+
+                    if (string.IsNullOrWhiteSpace(generatedCode))
+                    {
+                        continue;
+                    }
+
+                    var entityTypeFileName = entityType.Name + entityTypeExtension;
+                    resultingFiles.AdditionalFiles.Add(
+                        new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+                }
+            }
+            finally
+            {
+                compiledEntityTypeTemplate?.Dispose();
             }
         }
 
@@ -178,54 +198,71 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         {
             host.TemplateFile = configurationTemplate;
 
-            foreach (var entityType in model.GetEntityTypes())
+            CompiledTemplate? compiledConfigurationTemplate = null;
+            string? configurationExtension = null;
+            try
             {
-                host.Initialize();
-                host.Session.Add("EntityType", entityType);
-                host.Session.Add("Options", options);
-                host.Session.Add("NamespaceHint", options.ContextNamespace ?? options.ModelNamespace);
-                host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
-
-                generatedCode = ProcessTemplate(configurationTemplate, host);
-                if (string.IsNullOrWhiteSpace(generatedCode))
+                foreach (var entityType in model.GetEntityTypes())
                 {
-                    continue;
-                }
+                    host.Initialize();
+                    host.Session.Add("EntityType", entityType);
+                    host.Session.Add("Options", options);
+                    host.Session.Add("NamespaceHint", options.ContextNamespace ?? options.ModelNamespace);
+                    host.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
 
-                var configurationFileName = entityType.Name + "Configuration" + host.Extension;
-                resultingFiles.AdditionalFiles.Add(
-                    new ScaffoldedFile
+                    if (compiledConfigurationTemplate is null)
                     {
-                        Path = options.ContextDir != null
-                            ? Path.Combine(options.ContextDir, configurationFileName)
-                            : configurationFileName,
-                        Code = generatedCode
-                    });
+                        compiledConfigurationTemplate = Engine.CompileTemplate(File.ReadAllText(configurationTemplate), host);
+                        configurationExtension = host.Extension;
+                        CheckEncoding(host.OutputEncoding);
+                    }
+
+                    generatedCode = compiledConfigurationTemplate.Process();
+                    HandleErrors(host);
+
+                    if (string.IsNullOrWhiteSpace(generatedCode))
+                    {
+                        continue;
+                    }
+
+                    var configurationFileName = entityType.Name + "Configuration" + configurationExtension;
+                    resultingFiles.AdditionalFiles.Add(
+                        new ScaffoldedFile
+                        {
+                            Path = options.ContextDir != null
+                                ? Path.Combine(options.ContextDir, configurationFileName)
+                                : configurationFileName,
+                            Code = generatedCode
+                        });
+                }
+            }
+            finally
+            {
+                compiledConfigurationTemplate?.Dispose();
             }
         }
 
         return resultingFiles;
     }
 
-    private string ProcessTemplate(string inputFile, TextTemplatingEngineHost host)
+    private void CheckEncoding(Encoding outputEncoding)
     {
-        var output = Engine.ProcessTemplate(File.ReadAllText(inputFile), host);
+        if (outputEncoding != Encoding.UTF8)
+        {
+            _reporter.WriteWarning(DesignStrings.EncodingIgnored(outputEncoding.WebName));
+        }
+    }
 
+    private void HandleErrors(TextTemplatingEngineHost host)
+    {
         foreach (CompilerError error in host.Errors)
         {
             _reporter.Write(error);
         }
 
-        if (host.OutputEncoding != Encoding.UTF8)
-        {
-            _reporter.WriteWarning(DesignStrings.EncodingIgnored(host.OutputEncoding.WebName));
-        }
-
         if (host.Errors.HasErrors)
         {
-            throw new OperationException(DesignStrings.ErrorGeneratingOutput(inputFile));
+            throw new OperationException(DesignStrings.ErrorGeneratingOutput(host.TemplateFile));
         }
-
-        return output;
     }
 }

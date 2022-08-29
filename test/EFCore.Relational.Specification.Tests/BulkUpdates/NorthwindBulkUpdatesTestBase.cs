@@ -237,7 +237,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_non_entity_projection(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnNonEntityType("ExecuteDelete"),
+            RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250).Select(e => e.ProductID),
@@ -247,7 +247,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_non_entity_projection_2(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnNonEntityType("ExecuteDelete"),
+            RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
@@ -258,7 +258,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_non_entity_projection_3(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnNonEntityType("ExecuteDelete"),
+            RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
@@ -861,6 +861,50 @@ WHERE [OrderID] < 10300"))
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                   from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length).DefaultIfEmpty()
                   select new { c, o },
+            e => e.c,
+            s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_cross_join_left_join_set_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
+                  join o in ss.Set<Order>().Where(o => o.OrderID < 10300)
+                    on c.CustomerID equals o.CustomerID into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select new { c, c2, o },
+            e => e.c,
+            s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_cross_join_cross_apply_set_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length)
+                  select new { c, o },
+            e => e.c,
+            s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
+            rowsAffectedCount: 0,
+            (b, a) => Assert.All(a, c => Assert.Equal("Updated", c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_cross_join_outer_apply_set_constant(bool async)
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
+                  from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length).DefaultIfEmpty()
+                  select new { c, c2, o },
             e => e.c,
             s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
             rowsAffectedCount: 8,

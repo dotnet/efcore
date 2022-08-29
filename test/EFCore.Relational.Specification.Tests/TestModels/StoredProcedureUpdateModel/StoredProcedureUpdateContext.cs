@@ -53,7 +53,7 @@ public class StoredProcedureUpdateContext : PoolableDbContext
         => Set<Entity>(nameof(WithInputOutputParameterOnNonConcurrencyToken));
 
     public DbSet<TphParent> TphParent { get; set; }
-    public DbSet<TphChild> TphChild { get; set; }
+    public DbSet<TphChild1> TphChild { get; set; }
     public DbSet<TptParent> TptParent { get; set; }
     public DbSet<TptChild> TptChild { get; set; }
     public DbSet<TptMixedParent> TptMixedParent { get; set; }

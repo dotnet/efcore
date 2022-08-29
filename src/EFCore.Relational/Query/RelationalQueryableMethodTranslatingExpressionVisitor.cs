@@ -1015,7 +1015,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     {
         if (source.ShaperExpression is not EntityShaperExpression entityShaperExpression)
         {
-            AddTranslationErrorDetails(RelationalStrings.ExecuteOperationOnNonEntityType(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            AddTranslationErrorDetails(RelationalStrings.ExecuteDeleteOnNonEntityType);
             return null;
         }
 
@@ -1053,8 +1053,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     && tableExpression.Table.EntityTypeMappings.Any(e => e.EntityType.GetRootType() != entityType.GetRootType())))
             {
                 AddTranslationErrorDetails(
-                    RelationalStrings.ExecuteDeleteOnTableSplitting(
-                        nameof(RelationalQueryableExtensions.ExecuteDelete), tableExpression.Table.SchemaQualifiedName));
+                    RelationalStrings.ExecuteDeleteOnTableSplitting(tableExpression.Table.SchemaQualifiedName));
 
                 return null;
             }
@@ -1424,6 +1423,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         EntityShaperExpression entityShaperExpression,
         [NotNullWhen(true)] out TableExpression? tableExpression)
     {
+        tableExpression = null;
         if (selectExpression.Offset == null
             && selectExpression.Limit == null
             // If entity type has primary key then Distinct is no-op
@@ -1431,7 +1431,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             && selectExpression.GroupBy.Count == 0
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0
-            && selectExpression.Tables.All(e => !(e is LeftJoinExpression || e is OuterApplyExpression)))
+            && selectExpression.Tables.Count > 0)
         {
             TableExpressionBase table;
             if (selectExpression.Tables.Count == 1)
@@ -1444,6 +1444,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
                 var column = entityProjectionExpression.BindProperty(entityShaperExpression.EntityType.GetProperties().First());
                 table = column.Table;
+                if (ReferenceEquals(selectExpression.Tables[0], table))
+                {
+                    // If the table we are looking for it first table, then we need to verify if we can lift the next table in FROM clause
+                    var secondTable = selectExpression.Tables[1];
+                    if (secondTable is not InnerJoinExpression and not CrossJoinExpression)
+                    {
+                        return false;
+                    }
+                }
                 if (table is JoinExpressionBase joinExpressionBase)
                 {
                     table = joinExpressionBase.Table;
@@ -1457,7 +1466,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        tableExpression = null;
         return false;
     }
 

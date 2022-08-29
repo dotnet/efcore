@@ -175,6 +175,29 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_and_insert(bool async)
+    {
+        await using var context = CreateContext();
+
+        var entity1 = new Entity { Name = "Entity1" };
+        context.WithOutputParameter.Add(entity1);
+        await context.SaveChangesAsync();
+
+        ClearLog();
+
+        context.WithOutputParameter.Remove(entity1);
+        context.WithOutputParameter.Add(new Entity { Name = "Entity2" });
+        await SaveChanges(context, async);
+
+        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Equal(0, await context.WithOutputParameter.CountAsync(b => b.Name == "Entity1"));
+            Assert.Equal(1, await context.WithOutputParameter.CountAsync(b => b.Name == "Entity2"));
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Rows_affected_parameter(bool async)
     {
         await using var context = CreateContext();
@@ -491,7 +514,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
     {
         await using var context = CreateContext();
 
-        var entity1 = new TphChild { Name = "Child", ChildProperty = 8 };
+        var entity1 = new TphChild1 { Name = "Child", Child1Property = 8 };
         context.TphChild.Add(entity1);
         await SaveChanges(context, async);
 
@@ -502,7 +525,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
             var entity2 = context.TphChild.Single(b => b.Id == entity1.Id);
 
             Assert.Equal("Child", entity2.Name);
-            Assert.Equal(8, entity2.ChildProperty);
+            Assert.Equal(8, entity2.Child1Property);
         }
     }
 

@@ -861,6 +861,23 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
+ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(max) NOT NULL;
+ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];");
+    }
+
+    public override async Task Alter_column_make_required_with_null_data()
+    {
+        await base.Alter_column_make_required_with_null_data();
+
+        AssertSql(
+            @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(max) NOT NULL;
 ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];");
     }
@@ -878,6 +895,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NOT NULL;
 ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
 CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);");
@@ -896,6 +914,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+UPDATE [People] SET [FirstName] = N'' WHERE [FirstName] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
 ALTER TABLE [People] ADD DEFAULT N'' FOR [FirstName];
 CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]);");
@@ -1127,6 +1146,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NOT NULL;
 ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
 CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOtherColumn]);");
@@ -2053,6 +2073,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+UPDATE [People] SET [SomeField] = N'' WHERE [SomeField] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;
 ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeField];",
             //
@@ -7921,6 +7942,7 @@ FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var0 + '];');
+UPDATE [Entity] SET [Name] = N'' WHERE [Name] IS NULL;
 ALTER TABLE [Entity] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
 ALTER TABLE [Entity] ADD DEFAULT N'' FOR [Name];");
     }

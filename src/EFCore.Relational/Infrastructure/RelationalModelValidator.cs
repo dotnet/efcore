@@ -343,6 +343,11 @@ public class RelationalModelValidator : ModelValidator
 
                     foreach (var property in baseType.GetDeclaredProperties())
                     {
+                        if (property.IsPrimaryKey())
+                        {
+                            continue;
+                        }
+
                         properties.Add(property.Name, property);
                     }
 
@@ -350,8 +355,6 @@ public class RelationalModelValidator : ModelValidator
                 }
             }
         }
-
-        var originalValueProperties = new Dictionary<string, IProperty>(properties);
 
         var storeGeneratedProperties = storeObjectIdentifier.StoreObjectType switch
         {
@@ -418,6 +421,7 @@ public class RelationalModelValidator : ModelValidator
             }
         }
 
+        var originalValueProperties = new Dictionary<string, IProperty>(properties);
         var parameterNames = new HashSet<string>();
         foreach (var parameter in sproc.Parameters)
         {
@@ -615,7 +619,7 @@ public class RelationalModelValidator : ModelValidator
 
         static bool IsNotNullAndFalse(object? value)
             => value != null
-                && (!(value is bool asBool) || asBool);
+                && (value is not bool asBool || asBool);
     }
 
     /// <summary>

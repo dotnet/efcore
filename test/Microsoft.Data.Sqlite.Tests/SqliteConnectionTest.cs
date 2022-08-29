@@ -41,6 +41,7 @@ namespace Microsoft.Data.Sqlite
                 ConnectionString = null
             };
 
+            Assert.NotNull(connection.ConnectionString);
             Assert.Empty(connection.ConnectionString);
         }
 

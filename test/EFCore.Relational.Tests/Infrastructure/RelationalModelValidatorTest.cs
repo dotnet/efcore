@@ -2969,6 +2969,21 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_missing_stored_procedure_parameters_for_abstract_properties_in_TPT()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Abstract>().UseTptMappingStrategy();
+        modelBuilder.Entity<Generic<string>>()
+            .UpdateUsingStoredProcedure("Update", s => s
+                .HasParameter(a => a.Id));
+
+        VerifyError(
+            RelationalStrings.StoredProcedurePropertiesNotMapped("Generic<string>", "Update", "{'P0', 'P1', 'P2', 'P3'}"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_unmatched_stored_procedure_parameters_in_TPT()
     {
         var modelBuilder = CreateConventionModelBuilder();

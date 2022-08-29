@@ -2521,6 +2521,19 @@ WHERE 0 = 1");
 FROM [Customers] AS [c]");
     }
 
+    public override async Task Case_block_simplification_works_correctly(bool async)
+    {
+        await base.Case_block_simplification_works_correctly(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[Region] IS NULL THEN N'OR'
+    ELSE [c].[Region]
+END = N'OR'");
+    }
+
     public override async Task Where_poco_closure(bool async)
     {
         await base.Where_poco_closure(async);

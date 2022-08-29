@@ -126,6 +126,20 @@ SET NOCOUNT ON;
 EXEC [WithOutputParameter_Delete] @p0;");
     }
 
+    public override async Task Delete_and_insert(bool async)
+    {
+        await base.Delete_and_insert(async);
+
+        AssertSql(
+            @"@p0='1'
+@p1='Entity2' (Size = 4000)
+@p2='2' (Direction = Output)
+
+SET NOCOUNT ON;
+EXEC [WithOutputParameter_Delete] @p0;
+EXEC [WithOutputParameter_Insert] @p1, @p2 OUTPUT;");
+    }
+
     public override async Task Rows_affected_parameter(bool async)
     {
         await base.Rows_affected_parameter(async);
@@ -277,13 +291,15 @@ EXEC [WithOriginalAndCurrentValueOnNonConcurrencyToken_Update] @p0, @p1, @p2;");
         await base.Tph(async);
 
         AssertSql(
-            @"@p0='1' (Direction = Output)
-@p1='TphChild' (Nullable = false) (Size = 4000)
+            @"@p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
+@p1='TphChild1' (Nullable = false) (Size = 4000)
 @p2='Child' (Size = 4000)
 @p3='8' (Nullable = true)
+@p4=NULL (DbType = Int32)
+@p5=NULL (Direction = Output) (DbType = Int32)
 
 SET NOCOUNT ON;
-EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3;");
+EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3, @p4, @p5 OUTPUT;");
     }
 
     public override async Task Tpt(bool async)
@@ -521,10 +537,13 @@ END;
 
 GO
 
-CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @ChildProperty int)
+CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child1Property int, @Child2InputProperty int, @Child2OutputParameterProperty int OUT)
 AS BEGIN
-    INSERT INTO [Tph] ([Discriminator], [Name], [ChildProperty]) VALUES (@Discriminator, @Name, @ChildProperty);
+    DECLARE @Table table ([Child2OutputParameterProperty] int);
+    INSERT INTO [Tph] ([Discriminator], [Name], [Child1Property], [Child2InputProperty]) OUTPUT [Inserted].[Child2OutputParameterProperty] INTO @Table VALUES (@Discriminator, @Name, @Child1Property, @Child2InputProperty);
     SET @Id = SCOPE_IDENTITY();
+    SELECT @Child2OutputParameterProperty = [Child2OutputParameterProperty] FROM @Table;
+    SELECT [Child2ResultColumnProperty] FROM [Tph] WHERE [Id] = @Id
 END;
 
 GO

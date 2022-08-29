@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
+using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -133,6 +134,61 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         AppendOutputClause(commandStringBuilder, readOperations, appendReturningOneClause ? "1" : null);
         AppendWhereClause(commandStringBuilder, conditionOperations);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+    }
+
+    /// <inheritdoc />
+    protected override void AppendUpdateColumnValue(
+        ISqlGenerationHelper updateSqlGeneratorHelper,
+        IColumnModification columnModification,
+        StringBuilder stringBuilder,
+        string name,
+        string? schema)
+    {
+        if (columnModification.JsonPath != null
+            && columnModification.JsonPath != "$")
+        {
+            stringBuilder.Append("JSON_MODIFY(");
+            updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
+
+            // using strict so that we don't remove json elements when they are assigned NULL value
+            stringBuilder.Append(", 'strict ");
+            stringBuilder.Append(columnModification.JsonPath);
+            stringBuilder.Append("', ");
+
+            if (columnModification.Property != null)
+            {
+                var needsTypeConversion = columnModification.Property.ClrType.IsNumeric()
+                    || columnModification.Property.ClrType == typeof(bool);
+
+                if (needsTypeConversion)
+                {
+                    stringBuilder.Append("CAST(");
+                }
+
+                stringBuilder.Append("JSON_VALUE(");
+                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+                stringBuilder.Append(", '$[0]')");
+
+                if (needsTypeConversion)
+                {
+                    stringBuilder.Append(" AS ");
+                    stringBuilder.Append(columnModification.Property.GetRelationalTypeMapping().StoreType);
+                    stringBuilder.Append(")");
+                }
+            }
+            else
+            {
+                stringBuilder.Append("JSON_QUERY(");
+                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+                stringBuilder.Append(")");
+            }
+
+            stringBuilder.Append(")");
+        }
+        else
+        {
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+        }
     }
 
     /// <summary>
@@ -591,13 +647,16 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
             // Only positional parameter style supported for now, see #28439
 
-            var orderedParameterModifications = command.ColumnModifications
-                .Where(c => c.Column is IStoreStoredProcedureParameter)
-                .OrderBy(c => ((IStoreStoredProcedureParameter)c.Column!).Position);
-
-            foreach (var columnModification in orderedParameterModifications)
+            // Note: the column modifications are already ordered according to the sproc parameter ordering
+            // (see ModificationCommand.GenerateColumnModifications)
+            for (var i = 0; i < command.ColumnModifications.Count; i++)
             {
-                var parameter = (IStoreStoredProcedureParameter)columnModification.Column!;
+                var columnModification = command.ColumnModifications[i];
+
+                if (columnModification.Column is not IStoreStoredProcedureParameter parameter)
+                {
+                    continue;
+                }
 
                 if (first)
                 {

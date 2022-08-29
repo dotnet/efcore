@@ -1133,13 +1133,28 @@ WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateT
             async,
             ss => ss.Set<Order>(),
             ss => ss.Set<Order>(),
-            c => new TimeSpan(23, 59, 0) > EF.Functions.TimeFromParts(23, 59, 59, c.OrderID % 60, 2),
-            c => new TimeSpan(23, 59, 0) > new TimeSpan(23, 59, 59, c.OrderID % 60));
+            c => new TimeSpan(23, 59, 0) > EF.Functions.TimeFromParts(23, 59, 59, c.OrderID % 60, 3),
+            c => new TimeSpan(23, 59, 0) > new TimeSpan(0, 23, 59, 59, c.OrderID % 60));
 
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 2)");
+WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 3)");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task TimeFromParts_select(bool async)
+    {
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<Order>()
+                .Select(o => EF.Functions.TimeFromParts(23, 59, 59, o.OrderID % 60, 3)),
+            ss => ss.Set<Order>().Select(o => new TimeSpan(0, 23, 59, 59, o.OrderID % 60)));
+
+        AssertSql(
+            @"SELECT TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 3)
+FROM [Orders] AS [o]");
     }
 
     [ConditionalTheory]
