@@ -523,8 +523,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         var currentState = _stateData.EntityState;
 
-        if (currentState == EntityState.Added
-            || currentState == EntityState.Detached
+        if (currentState is EntityState.Added or EntityState.Detached
             || !changeState)
         {
             var index = property.GetOriginalValueIndex();
@@ -573,8 +572,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
 
         if (isModified
-            && (currentState == EntityState.Unchanged
-                || currentState == EntityState.Detached))
+            && currentState is EntityState.Unchanged or EntityState.Detached)
         {
             if (changeState)
             {
@@ -746,7 +744,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void SetStoreGeneratedValue(IProperty property, object? value)
+    public void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true)
     {
         if (property.GetStoreGeneratedIndex() == -1)
         {
@@ -758,7 +756,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             property,
             value,
             isMaterialization: false,
-            setModified: true,
+            setModified,
             isCascadeDelete: false,
             CurrentValueType.StoreGenerated);
     }

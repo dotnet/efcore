@@ -270,6 +270,9 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf.Add(newLeaf);
                 ClearLog();
                 await context.SaveChangesAsync();
+
+                // Do SaveChanges again, see #28813
+                await context.SaveChangesAsync();
             },
             async context =>
             {
