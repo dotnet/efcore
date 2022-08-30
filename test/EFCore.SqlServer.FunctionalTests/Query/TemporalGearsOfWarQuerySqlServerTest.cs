@@ -154,7 +154,7 @@ ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId]");
     {
         // Test infra issue
         Assert.Equal(
-            "SelectListIterator<Gear, String> []",
+            "[]",
             Assert.Throws<EqualException>(
                 () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()).Actual);
 
@@ -170,7 +170,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]");
     {
         // Test infra issue
         Assert.Equal(
-            "SelectListIterator<Gear, String> []",
+            "[]",
             Assert.Throws<EqualException>(
                 () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()).Actual);
 
