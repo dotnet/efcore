@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
@@ -12,10 +11,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SimpleFullyNullableDependentKeyValueFactory<TKey> : DependentKeyValueFactory<TKey>, IDependentKeyValueFactory<TKey>
+public abstract class DependentKeyValueFactory<TKey>
     where TKey : notnull
 {
-    private readonly PropertyAccessors _propertyAccessors;
+    private readonly IForeignKey _foreignKey;
+    private readonly IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,14 +23,12 @@ public class SimpleFullyNullableDependentKeyValueFactory<TKey> : DependentKeyVal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SimpleFullyNullableDependentKeyValueFactory(
+    public DependentKeyValueFactory(
         IForeignKey foreignKey,
         IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
-        : base(foreignKey, principalKeyValueFactory)
     {
-        var property = foreignKey.Properties.Single();
-        _propertyAccessors = property.GetPropertyAccessors();
-        EqualityComparer = property.CreateKeyEqualityComparer<TKey>();
+        _foreignKey = foreignKey;
+        _principalKeyValueFactory = principalKeyValueFactory;
     }
 
     /// <summary>
@@ -39,7 +37,7 @@ public class SimpleFullyNullableDependentKeyValueFactory<TKey> : DependentKeyVal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IEqualityComparer<TKey> EqualityComparer { get; }
+    public abstract IEqualityComparer<TKey> EqualityComparer { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,11 +45,7 @@ public class SimpleFullyNullableDependentKeyValueFactory<TKey> : DependentKeyVal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key)
-    {
-        key = (TKey)_propertyAccessors.ValueBufferGetter!(valueBuffer);
-        return key != null;
-    }
+    public abstract bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,11 +53,7 @@ public class SimpleFullyNullableDependentKeyValueFactory<TKey> : DependentKeyVal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
-    {
-        key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.CurrentValueGetter)(entry);
-        return key != null;
-    }
+    public abstract bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,33 +61,26 @@ public class SimpleFullyNullableDependentKeyValueFactory<TKey> : DependentKeyVal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
-    {
-        key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry);
-        return key != null;
-    }
+    public virtual object CreatePrincipalEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
+        => new EquatableKeyValue<TKey>(
+            _foreignKey,
+            fromOriginalValues
+                ? _principalKeyValueFactory.CreateFromOriginalValues(entry)!
+                : _principalKeyValueFactory.CreateFromCurrentValues(entry)!,
+            EqualityComparer);
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Creates an equatable key object from the foreign key values in the given entry.
     /// </summary>
-    public override bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
-    {
-        key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.OriginalValueGetter!)(entry);
-        return key != null;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
-    {
-        key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.RelationshipSnapshotGetter)(entry);
-        return key != null;
-    }
+    /// <param name="entry">The entry tracking an entity instance.</param>
+    /// <param name="fromOriginalValues">Whether the original or current values should be used.</param>
+    /// <returns>The key object.</returns>
+    public virtual object? CreateDependentEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
+        => fromOriginalValues
+            ? TryCreateFromOriginalValues(entry, out var originalKeyValue)
+                ? new EquatableKeyValue<TKey>(_foreignKey, originalKeyValue, EqualityComparer)
+                : null
+            : TryCreateFromCurrentValues(entry, out var keyValue)
+                ? new EquatableKeyValue<TKey>(_foreignKey, keyValue, EqualityComparer)
+                : null;
 }

@@ -15,7 +15,7 @@ public interface IReadOnlyStoredProcedureParameter : IReadOnlyAnnotatable
     ///     Gets the stored procedure to which this parameter belongs.
     /// </summary>
     IReadOnlyStoredProcedure StoredProcedure { get; }
-    
+
     /// <summary>
     ///     Gets the parameter name.
     /// </summary>
@@ -25,7 +25,7 @@ public interface IReadOnlyStoredProcedureParameter : IReadOnlyAnnotatable
     ///     Gets the name of property mapped to this parameter.
     /// </summary>
     string? PropertyName { get; }
-    
+
     /// <summary>
     ///     Gets the direction of the parameter.
     /// </summary>

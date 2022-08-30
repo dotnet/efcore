@@ -5,6 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
-public class ProductTableView : Product
+public class SpecialCategory : Category
 {
 }

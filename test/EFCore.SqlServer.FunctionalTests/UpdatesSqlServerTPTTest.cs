@@ -1,16 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
-
 #nullable enable
+
+using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class UpdatesSqlServerTest : UpdatesRelationalTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>
+public class UpdatesSqlServerTPTTest : UpdatesRelationalTestBase<UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture>
 {
     // ReSharper disable once UnusedParameter.Local
-    public UpdatesSqlServerTest(UpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public UpdatesSqlServerTPTTest(UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -32,15 +32,14 @@ SET NOCOUNT ON;
 INSERT INTO [ProductBase] ([Bytes], [Discriminator], [ProductWithBytes_Name])
 OUTPUT INSERTED.[Id]
 VALUES (@p0, @p1, @p2);",
-            @"@p0='SpecialCategory' (Nullable = false) (Size = 4000)
-@p1=NULL (Size = 4000)
-@p2='777'
+            @"@p0=NULL (Size = 4000)
+@p1='777'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-INSERT INTO [Categories] ([Discriminator], [Name], [PrincipalId])
+INSERT INTO [Categories] ([Name], [PrincipalId])
 OUTPUT INSERTED.[Id]
-VALUES (@p0, @p1, @p2);");
+VALUES (@p0, @p1);");
     }
 
     [ConditionalFact]
@@ -100,8 +99,11 @@ OUTPUT INSERTED.[PersonId], i._Position;");
         base.Save_replaced_principal();
 
         AssertSql(
-            @"SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
-FROM [Categories] AS [c]",
+            @"SELECT TOP(2) [c].[Id], [c].[Name], [c].[PrincipalId], CASE
+    WHEN [s].[Id] IS NOT NULL THEN N'SpecialCategory'
+END AS [Discriminator]
+FROM [Categories] AS [c]
+LEFT JOIN [SpecialCategory] AS [s] ON [c].[Id] = [s].[Id]",
             //
             @"@__category_PrincipalId_0='778' (Nullable = true)
 
@@ -118,8 +120,11 @@ UPDATE [Categories] SET [Name] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
             //
-            @"SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
-FROM [Categories] AS [c]",
+            @"SELECT TOP(2) [c].[Id], [c].[Name], [c].[PrincipalId], CASE
+    WHEN [s].[Id] IS NOT NULL THEN N'SpecialCategory'
+END AS [Discriminator]
+FROM [Categories] AS [c]
+LEFT JOIN [SpecialCategory] AS [s] ON [c].[Id] = [s].[Id]",
             //
             @"@__category_PrincipalId_0='778' (Nullable = true)
 
@@ -176,10 +181,13 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
     protected void AssertContainsSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-    public class UpdatesSqlServerFixture : UpdatesRelationalFixture
+    public class UpdatesSqlServerTPTFixture : UpdatesRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        protected override string StoreName
+            => "UpdateTestTPT";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
@@ -199,6 +207,9 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
 
             modelBuilder.Entity<ProductBase>()
                 .Property(p => p.Id).HasDefaultValueSql("NEWID()");
+
+            modelBuilder.Entity<Category>()
+                .UseTptMappingStrategy();
         }
     }
 }

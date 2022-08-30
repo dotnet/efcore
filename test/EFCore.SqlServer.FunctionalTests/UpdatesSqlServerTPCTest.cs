@@ -1,16 +1,18 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
+using static Microsoft.EntityFrameworkCore.UpdatesSqlServerTPCTest;
 
 #nullable enable
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class UpdatesSqlServerTest : UpdatesRelationalTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>
+public class UpdatesSqlServerTPCTest : UpdatesRelationalTestBase<UpdatesSqlServerTPCTest.UpdatesSqlServerTPTFixture>
 {
     // ReSharper disable once UnusedParameter.Local
-    public UpdatesSqlServerTest(UpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public UpdatesSqlServerTPCTest(UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -32,15 +34,14 @@ SET NOCOUNT ON;
 INSERT INTO [ProductBase] ([Bytes], [Discriminator], [ProductWithBytes_Name])
 OUTPUT INSERTED.[Id]
 VALUES (@p0, @p1, @p2);",
-            @"@p0='SpecialCategory' (Nullable = false) (Size = 4000)
-@p1=NULL (Size = 4000)
-@p2='777'
+            @"@p0=NULL (Size = 4000)
+@p1='777'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-INSERT INTO [Categories] ([Discriminator], [Name], [PrincipalId])
+INSERT INTO [SpecialCategory] ([Name], [PrincipalId])
 OUTPUT INSERTED.[Id]
-VALUES (@p0, @p1, @p2);");
+VALUES (@p0, @p1);");
     }
 
     [ConditionalFact]
@@ -100,8 +101,14 @@ OUTPUT INSERTED.[PersonId], i._Position;");
         base.Save_replaced_principal();
 
         AssertSql(
-            @"SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
-FROM [Categories] AS [c]",
+            @"SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
+FROM (
+    SELECT [c].[Id], [c].[Name], [c].[PrincipalId], N'Category' AS [Discriminator]
+    FROM [Categories] AS [c]
+    UNION ALL
+    SELECT [s].[Id], [s].[Name], [s].[PrincipalId], N'SpecialCategory' AS [Discriminator]
+    FROM [SpecialCategory] AS [s]
+) AS [t]",
             //
             @"@__category_PrincipalId_0='778' (Nullable = true)
 
@@ -118,8 +125,14 @@ UPDATE [Categories] SET [Name] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
             //
-            @"SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
-FROM [Categories] AS [c]",
+            @"SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
+FROM (
+    SELECT [c].[Id], [c].[Name], [c].[PrincipalId], N'Category' AS [Discriminator]
+    FROM [Categories] AS [c]
+    UNION ALL
+    SELECT [s].[Id], [s].[Name], [s].[PrincipalId], N'SpecialCategory' AS [Discriminator]
+    FROM [SpecialCategory] AS [s]
+) AS [t]",
             //
             @"@__category_PrincipalId_0='778' (Nullable = true)
 
@@ -176,16 +189,20 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
     protected void AssertContainsSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-    public class UpdatesSqlServerFixture : UpdatesRelationalFixture
+    public class UpdatesSqlServerTPTFixture : UpdatesRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        protected override string StoreName
+            => "UpdateTestTPC";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                 w =>
                 {
                     w.Log(SqlServerEventId.DecimalTypeKeyWarning);
+                    w.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
                 });
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -199,6 +216,9 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
 
             modelBuilder.Entity<ProductBase>()
                 .Property(p => p.Id).HasDefaultValueSql("NEWID()");
+
+            modelBuilder.Entity<Category>()
+                .UseTpcMappingStrategy();
         }
     }
 }

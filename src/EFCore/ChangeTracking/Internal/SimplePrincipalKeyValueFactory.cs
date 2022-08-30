@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TKey>
 {
+    private readonly IKey _key;
     private readonly IProperty _property;
     private readonly PropertyAccessors _propertyAccessors;
 
@@ -24,12 +25,13 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SimplePrincipalKeyValueFactory(IProperty property)
+    public SimplePrincipalKeyValueFactory(IKey key)
     {
-        _property = property;
+        _key = key;
+        _property = key.Properties.Single();
         _propertyAccessors = _property.GetPropertyAccessors();
 
-        EqualityComparer = new NoNullsCustomEqualityComparer(property.GetKeyValueComparer());
+        EqualityComparer = new NoNullsCustomEqualityComparer(_property.GetKeyValueComparer());
     }
 
     /// <summary>
@@ -102,6 +104,20 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEqualityComparer<TKey> EqualityComparer { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object CreateEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
+        => new EquatableKeyValue<TKey>(
+            _key,
+            fromOriginalValues
+                ? CreateFromOriginalValues(entry)
+                : CreateFromCurrentValues(entry),
+            EqualityComparer);
 
     private sealed class NoNullsStructuralEqualityComparer : IEqualityComparer<TKey>
     {

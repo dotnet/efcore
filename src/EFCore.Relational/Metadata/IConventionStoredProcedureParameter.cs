@@ -20,7 +20,7 @@ public interface IConventionStoredProcedureParameter : IReadOnlyStoredProcedureP
     /// </summary>
     /// <exception cref="InvalidOperationException">If the stored procedure parameter has been removed from the model.</exception>
     new IConventionStoredProcedureParameterBuilder Builder { get; }
-    
+
     /// <summary>
     ///     Sets the parameter name.
     /// </summary>
@@ -33,7 +33,7 @@ public interface IConventionStoredProcedureParameter : IReadOnlyStoredProcedureP
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyStoredProcedureParameter.Name" />.</returns>
     ConfigurationSource? GetNameConfigurationSource();
-    
+
     /// <summary>
     ///     Sets the direction of the parameter.
     /// </summary>

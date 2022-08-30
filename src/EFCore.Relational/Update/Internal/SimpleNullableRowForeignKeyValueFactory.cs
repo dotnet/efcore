@@ -52,7 +52,7 @@ public class SimpleNullableRowForeignKeyValueFactory<TKey> : RowForeignKeyValueF
             return HandleNullableValue((TKey?)value, out key);
         }
 
-        key = default(TKey);
+        key = default;
         return false;
     }
 

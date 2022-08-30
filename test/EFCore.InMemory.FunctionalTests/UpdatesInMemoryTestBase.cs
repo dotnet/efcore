@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixture>
-    where TFixture : UpdatesInMemoryFixtureBase
+    where TFixture : UpdatesInMemoryTestBase<TFixture>.UpdatesInMemoryFixtureBase
 {
     protected UpdatesInMemoryTestBase(TFixture fixture)
         : base(fixture)
@@ -33,5 +33,14 @@ public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixtu
     {
         await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1, nestedTestOperation2);
         Fixture.Reseed();
+    }
+
+    public abstract class UpdatesInMemoryFixtureBase : UpdatesFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));
     }
 }

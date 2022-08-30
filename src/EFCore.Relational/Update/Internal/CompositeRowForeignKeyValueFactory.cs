@@ -35,8 +35,8 @@ public class CompositeRowForeignKeyValueFactory : CompositeRowValueFactory, IRow
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object CreatePrincipalValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
-        => new ValueIndex<object?[]>(
+    public virtual object CreatePrincipalEquatableKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => new EquatableKeyValue<object?[]>(
             _foreignKey,
             _principalKeyValueFactory.CreateKeyValue(command, fromOriginalValues),
             EqualityComparer);
@@ -47,9 +47,9 @@ public class CompositeRowForeignKeyValueFactory : CompositeRowValueFactory, IRow
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object? CreateDependentValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+    public virtual object? CreateDependentEquatableKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
         => TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue)
-            ? new ValueIndex<object?[]>(_foreignKey, keyValue, EqualityComparer)
+            ? new EquatableKeyValue<object?[]>(_foreignKey, keyValue, EqualityComparer)
             : null;
 
     /// <summary>
