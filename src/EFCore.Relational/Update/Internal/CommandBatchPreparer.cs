@@ -306,7 +306,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         AddSameTableEdges(_modificationCommandGraph);
 
-        return _modificationCommandGraph.BatchingTopologicalSort(static (_, _, edges) => edges.All(e => e is ITable), FormatCycle);
+        return _modificationCommandGraph.BatchingTopologicalSort(
+            static (_, _, edges) => edges.All(e =>
+                e is ITable
+                || (e is ITableIndex index && index.Filter != null)),
+            FormatCycle);
     }
 
     private string FormatCycle(
