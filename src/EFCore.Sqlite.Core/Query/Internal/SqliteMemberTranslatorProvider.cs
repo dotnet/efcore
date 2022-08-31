@@ -20,7 +20,7 @@ public class SqliteMemberTranslatorProvider : RelationalMemberTranslatorProvider
     public SqliteMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
         : base(dependencies)
     {
-        var sqlExpressionFactory = dependencies.SqlExpressionFactory;
+        var sqlExpressionFactory = (SqliteSqlExpressionFactory)dependencies.SqlExpressionFactory;
 
         AddTranslators(
             new IMemberTranslator[]
