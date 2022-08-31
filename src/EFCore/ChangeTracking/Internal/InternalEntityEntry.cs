@@ -407,7 +407,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         {
             StateManager.OnTracking(this, newState, fromQuery: false);
         }
-        
+
         StateManager.ChangingState(this, newState);
     }
 
@@ -923,7 +923,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private object GetOrCreateShadowCollection(INavigationBase navigation)
     {
-        var collection = _shadowValues[navigation.GetShadowIndex()]; 
+        var collection = _shadowValues[navigation.GetShadowIndex()];
         if (collection == null)
         {
             collection = navigation.GetCollectionAccessor()!.Create();
@@ -1251,7 +1251,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         var asProperty = propertyBase as IProperty;
         int propertyIndex;
         CurrentValueType currentValueType;
-        
+
         var valuesEqual = false;
         if (asProperty != null)
         {
@@ -1422,7 +1422,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private static bool AreEqual(object? value, object? otherValue, IProperty property)
         => property.GetValueComparer().Equals(value, otherValue);
-    
+
     private static bool AreEqual(object? value, object? otherValue, IProperty property, Func<object?, object?, bool>? equals)
         => equals != null
             ? equals(value, otherValue)

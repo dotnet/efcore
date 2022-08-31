@@ -5,8 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<
-    StoreValueGenerationSqliteTest.StoreValueGenerationSqliteFixture>
+// Newer Sqlite versions support the RETURNING clause, so we use those (see StoreValueGenerationLegacySqliteTest for older Sqlite versions)
+[SqliteVersionCondition(Min = "3.35.0")]
+public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<StoreValueGenerationSqliteFixture>
 {
     public StoreValueGenerationSqliteTest(StoreValueGenerationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -15,6 +16,7 @@ public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<
         // fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    // We don't currently batch in Sqlite (the perf impact is likely to be minimal, no networking)
     protected override int ShouldExecuteInNumberOfCommands(
         EntityState firstOperationType,
         EntityState? secondOperationType,
@@ -331,32 +333,4 @@ RETURNING 1;");
     }
 
     #endregion Same two operations with different entity types
-
-    public class StoreValueGenerationSqliteFixture : StoreValueGenerationFixtureBase
-    {
-        private string? _cleanDataSql;
-
-        protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
-
-        public override void CleanData()
-        {
-            using var context = CreateContext();
-            context.Database.ExecuteSqlRaw(_cleanDataSql ??= GenerateCleanDataSql());
-        }
-
-        private string GenerateCleanDataSql()
-        {
-            var context = CreateContext();
-            var builder = new StringBuilder();
-
-            foreach (var table in context.Model.GetEntityTypes().SelectMany(e => e.GetTableMappings().Select(m => m.Table.Name)))
-            {
-                builder.AppendLine($"DELETE FROM {table};");
-                builder.AppendLine($"DELETE FROM sqlite_sequence WHERE name='{table}';");
-            }
-
-            return builder.ToString();
-        }
-    }
 }

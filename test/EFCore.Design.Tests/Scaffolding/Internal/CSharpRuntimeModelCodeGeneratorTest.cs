@@ -1870,9 +1870,7 @@ namespace TestNamespace
                     Assert.Equal("AlternateIndex", alternateIndex.Name);
                     Assert.Equal("AIX", alternateIndex.GetDatabaseName());
                     Assert.Null(alternateIndex[RelationalAnnotationNames.Filter]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => alternateIndex.GetFilter()).Message);
+                    Assert.Null(alternateIndex.GetFilter());
 
                     Assert.Equal(new[] { compositeIndex, alternateIndex }, principalAlternateId.GetContainingIndexes());
 

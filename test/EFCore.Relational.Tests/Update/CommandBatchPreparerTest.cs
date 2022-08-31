@@ -438,11 +438,11 @@ public class CommandBatchPreparerTest
 
         var expectedCycle = sensitiveLogging
             ? @"FakeEntity { 'Id': 42 } [Added] <-
-ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
-ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
+ForeignKeyConstraint { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
+ForeignKeyConstraint { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
             : @"FakeEntity [Added] <-
-ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
-ForeignKey { 'RelatedId' } FakeEntity [Added]"
+ForeignKeyConstraint { 'RelatedId' } RelatedFakeEntity [Added] <-
+ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
             + CoreStrings.SensitiveDataDisabled;
 
         Assert.Equal(
@@ -482,12 +482,12 @@ ForeignKey { 'RelatedId' } FakeEntity [Added]"
 
         var expectedCycle = sensitiveLogging
             ? @"FakeEntity { 'Id': 42 } [Added] <-
-ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
-ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <-
+ForeignKeyConstraint { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
+ForeignKeyConstraint { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <-
 Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
             : @"FakeEntity [Added] <-
-ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
-ForeignKey { 'RelatedId' } FakeEntity [Modified] <-
+ForeignKeyConstraint { 'RelatedId' } RelatedFakeEntity [Added] <-
+ForeignKeyConstraint { 'RelatedId' } FakeEntity [Modified] <-
 Index { 'UniqueValue' } FakeEntity [Added]"
             + CoreStrings.SensitiveDataDisabled;
 
@@ -521,11 +521,11 @@ Index { 'UniqueValue' } FakeEntity [Added]"
         var modelData = new UpdateAdapter(stateManager);
 
         var expectedCycle = sensitiveLogging
-            ? @"FakeEntity { 'Id': 1 } [Deleted] ForeignKey { 'RelatedId': 2 } <-
-RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <-
+            ? @"FakeEntity { 'Id': 1 } [Deleted] ForeignKeyConstraint { 'RelatedId': 2 } <-
+RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKeyConstraint { 'RelatedId': 1 } <-
 FakeEntity { 'Id': 1 } [Deleted]"
-            : @"FakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
-RelatedFakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
+            : @"FakeEntity [Deleted] ForeignKeyConstraint { 'RelatedId' } <-
+RelatedFakeEntity [Deleted] ForeignKeyConstraint { 'RelatedId' } <-
 FakeEntity [Deleted]"
             + CoreStrings.SensitiveDataDisabled;
 

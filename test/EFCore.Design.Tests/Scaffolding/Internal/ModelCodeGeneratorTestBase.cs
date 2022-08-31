@@ -18,7 +18,7 @@ public abstract class ModelCodeGeneratorTestBase
         _output = output;
     }
 
-    protected void Test(
+    protected async Task TestAsync(
         Action<ModelBuilder> buildModel,
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
@@ -68,7 +68,7 @@ public abstract class ModelCodeGeneratorTestBase
 
         if (!skipBuild)
         {
-            var assembly = build.BuildInMemory();
+            var assembly = await build.BuildInMemoryWithWithAnalyzersAsync();
 
             if (assertModel != null)
             {

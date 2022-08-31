@@ -62,7 +62,7 @@ public partial class <#= Options.ContextName #> : DbContext
     foreach (var entityType in Model.GetEntityTypes().Where(e => !e.IsSimpleManyToManyJoinEntityType()))
     {
 #>
-    public virtual DbSet<<#= entityType.Name #>> <#= entityType.GetDbSetName() #> { get; set; }<#= Options.UseNullableReferenceTypes ? " = null!;" : "" #>
+    public virtual DbSet<<#= entityType.Name #>> <#= entityType.GetDbSetName() #> { get; set; }
 
 <#
     }

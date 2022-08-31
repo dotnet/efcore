@@ -1143,7 +1143,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         => "{"
             + string.Join(
                 ", ",
-                properties.Select(p => string.IsNullOrEmpty(p) ? "" : "'" + p + "'"))
+                properties.Select(p => string.IsNullOrEmpty(p) ? "<null>" : "'" + p + "'"))
             + "}";
 
     /// <summary>

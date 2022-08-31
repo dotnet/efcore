@@ -646,7 +646,7 @@ WHERE date(""m"".""Date"", CAST(3 AS TEXT) || ' days') = '1990-11-13'");
     public override async Task Where_TimeOnly_subtract_TimeOnly(bool async)
     {
         // TimeSpan. Issue #18844.
-        await Assert.ThrowsAsync<InvalidCastException>(() => base.Where_TimeOnly_subtract_TimeOnly(async));
+        await AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
         AssertSql();
     }

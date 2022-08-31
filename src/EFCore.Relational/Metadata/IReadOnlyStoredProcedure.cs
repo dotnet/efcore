@@ -51,7 +51,7 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
         {
             return StoreObjectIdentifier.DeleteStoredProcedure(name, Schema);
         }
-        
+
         if (EntityType.GetUpdateStoredProcedure() == this)
         {
             return StoreObjectIdentifier.UpdateStoredProcedure(name, Schema);

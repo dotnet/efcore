@@ -84,7 +84,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual IRowIdentityMapFactory RowIdentityMapFactory { get; }        
+    protected virtual IRowIdentityMapFactory RowIdentityMapFactory { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -702,7 +702,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         Check.DebugAssert(columns.Count == 0, "columns is not empty");
 
-        // issue #28539 
+        // issue #28539
         // ideally we should inject JSON column in the place corresponding to the navigation that maps to it in the clr type
         var jsonColumns = table.Columns.Where(x => x is JsonColumn).OrderBy(x => x.Name);
 
@@ -1743,7 +1743,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             AddSeedData(sourceEntityType, _sourceIdentityMaps, EntityState.Deleted);
         }
     }
-    
+
     private void AddSeedData(IEntityType entityType, Dictionary<ITable, IRowIdentityMap> identityMaps, EntityState initialState)
     {
         var sensitiveLoggingEnabled = CommandBatchPreparerDependencies.LoggingOptions.IsSensitiveDataLoggingEnabled;
@@ -1816,13 +1816,13 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                                     BuildValuesString(key),
                                     table.SchemaQualifiedName));
                         }
-                        
+
                         throw new InvalidOperationException(
                             RelationalStrings.DuplicateSeedData(
                                 entityType.DisplayName(),
                                 table.SchemaQualifiedName));
                     }
-                    
+
                     command = existingCommand;
                 }
                 else
@@ -1830,7 +1830,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     command = CommandBatchPreparerDependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
                         new NonTrackedModificationCommandParameters(table, sensitiveLoggingEnabled));
                     command.EntityState = initialState;
-                    
+
                     identityMap.Add(key, command);
                 }
 
@@ -1914,7 +1914,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     writeValue = writeValue
                         && initialState != EntityState.Deleted
                         && property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
-                    
+
                     command.AddColumnModification(
                         new ColumnModificationParameters(
                             column, originalValue: value, value, property, columnMapping.TypeMapping,
@@ -1982,7 +1982,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             return;
         }
-        
+
         var tableMapping = new Dictionary<ITable, (ITable, IRowIdentityMap)?>();
         var unchangedColumns = new List<IColumnModification>();
         var overridenColumns = new List<IColumnModification>();
@@ -2049,10 +2049,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     {
                         targetRow.EntityState = EntityState.Unchanged;
                     }
-                    
+
                     continue;
                 }
-                
+
                 if (sourceTable.IsExcludedFromMigrations
                     || targetTable.IsExcludedFromMigrations)
                 {
@@ -2162,7 +2162,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         DiffContext diffContext)
     {
         TrackData(source, target, diffContext);
-        
+
         DiffData(source, target, diffContext);
 
         var dataOperations = GetDataOperations(forSource: true, diffContext)

@@ -298,13 +298,11 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                var extensionsEnabledForLoad = false;
                 if (_extensions != null
                     && _extensions.Count != 0)
                 {
-                    rc = sqlite3_enable_load_extension(Handle, 1);
+                    rc = sqlite3_db_config(Handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, out _);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
-                    extensionsEnabledForLoad = true;
 
                     foreach (var item in _extensions)
                     {
@@ -312,7 +310,7 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                if (_extensionsEnabled != extensionsEnabledForLoad)
+                if (_extensionsEnabled)
                 {
                     rc = sqlite3_enable_load_extension(Handle, _extensionsEnabled ? 1 : 0);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
@@ -616,21 +614,13 @@ namespace Microsoft.Data.Sqlite
             {
                 int rc;
 
-                var extensionsEnabledForLoad = false;
                 if (!_extensionsEnabled)
                 {
-                    rc = sqlite3_enable_load_extension(Handle, 1);
+                    rc = sqlite3_db_config(Handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, out _);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
-                    extensionsEnabledForLoad = true;
                 }
 
                 LoadExtensionCore(file, proc);
-
-                if (extensionsEnabledForLoad)
-                {
-                    rc = sqlite3_enable_load_extension(Handle, 0);
-                    SqliteException.ThrowExceptionForRC(rc, Handle);
-                }
             }
 
             _extensions ??= new HashSet<(string, string?)>();
@@ -639,19 +629,10 @@ namespace Microsoft.Data.Sqlite
 
         private void LoadExtensionCore(string file, string? proc)
         {
-            if (proc == null)
+            var rc = sqlite3_load_extension(Handle, utf8z.FromString(file), utf8z.FromString(proc), out var errmsg);
+            if (rc != SQLITE_OK)
             {
-                // NB: SQLitePCL.raw doesn't expose sqlite3_load_extension()
-                this.ExecuteNonQuery(
-                    "SELECT load_extension($file);",
-                    new SqliteParameter("$file", file));
-            }
-            else
-            {
-                this.ExecuteNonQuery(
-                    "SELECT load_extension($file, $proc);",
-                    new SqliteParameter("$file", file),
-                    new SqliteParameter("$proc", proc));
+                throw new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
             }
         }
 

@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
@@ -111,8 +110,8 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object CreateValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
-        => new ValueIndex<TKey>(
+    public virtual object CreateEquatableKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => new EquatableKeyValue<TKey>(
             _constraint,
             CreateKeyValue(command, fromOriginalValues),
             EqualityComparer);

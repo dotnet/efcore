@@ -108,9 +108,7 @@ public static class RelationalIndexExtensions
     /// <param name="index">The index.</param>
     /// <returns>The index filter expression.</returns>
     public static string? GetFilter(this IReadOnlyIndex index)
-        => (index is RuntimeIndex)
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
+        => (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
 
     /// <summary>
     ///     Returns the index filter expression.
@@ -120,11 +118,6 @@ public static class RelationalIndexExtensions
     /// <returns>The index filter expression.</returns>
     public static string? GetFilter(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
-        if (index is RuntimeIndex)
-        {
-            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
-        }
-
         var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
         if (annotation != null)
         {
