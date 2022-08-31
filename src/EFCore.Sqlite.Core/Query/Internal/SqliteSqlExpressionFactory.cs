@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public static class SqliteExpression
+public class SqliteSqlExpressionFactory : SqlExpressionFactory
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,8 +19,18 @@ public static class SqliteExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SqlFunctionExpression Strftime(
-        ISqlExpressionFactory sqlExpressionFactory,
+    public SqliteSqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
+        : base(dependencies)
+    {
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlFunctionExpression Strftime(
         Type returnType,
         string format,
         SqlExpression timestring,
@@ -47,10 +57,49 @@ public static class SqliteExpression
             modifiers = strftimeFunction.Arguments.Skip(2).Concat(modifiers);
         }
 
-        var finalArguments = new[] { sqlExpressionFactory.Constant(format), timestring }.Concat(modifiers);
+        if (timestring is SqlFunctionExpression dateFunction
+            && dateFunction.Name == "date")
+        {
+            timestring = dateFunction.Arguments![0];
+            modifiers = dateFunction.Arguments.Skip(1).Concat(modifiers);
+        }
 
-        return sqlExpressionFactory.Function(
+        var finalArguments = new[] { Constant(format), timestring }.Concat(modifiers);
+
+        return Function(
             "strftime",
+            finalArguments,
+            nullable: true,
+            argumentsPropagateNullability: finalArguments.Select(_ => true),
+            returnType,
+            typeMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlFunctionExpression Date(
+        Type returnType,
+        SqlExpression timestring,
+        IEnumerable<SqlExpression>? modifiers = null,
+        RelationalTypeMapping? typeMapping = null)
+    {
+        modifiers ??= Enumerable.Empty<SqlExpression>();
+
+        if (timestring is SqlFunctionExpression dateFunction
+            && dateFunction.Name == "date")
+        {
+            timestring = dateFunction.Arguments![0];
+            modifiers = dateFunction.Arguments.Skip(1).Concat(modifiers);
+        }
+
+        var finalArguments = new[] { timestring }.Concat(modifiers);
+
+        return Function(
+            "date",
             finalArguments,
             nullable: true,
             argumentsPropagateNullability: finalArguments.Select(_ => true),
