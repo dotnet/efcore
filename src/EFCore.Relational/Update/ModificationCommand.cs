@@ -259,25 +259,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         public object? PropertyValue { get; set; }
     }
 
-    private record struct JsonPartialUpdatePathEntry
-    {
-        public JsonPartialUpdatePathEntry(
-            string propertyName,
-            int? ordinal,
-            IUpdateEntry parentEntry,
-            INavigation navigation)
-        {
-            PropertyName = propertyName;
-            Ordinal = ordinal;
-            ParentEntry = parentEntry;
-            Navigation = navigation;
-        }
-
-        public string PropertyName { get; }
-        public int? Ordinal { get; }
-        public IUpdateEntry ParentEntry { get; }
-        public INavigation Navigation { get; }
-    }
+    private record struct JsonPartialUpdatePathEntry(string PropertyName, int? Ordinal, IUpdateEntry ParentEntry, INavigation Navigation);
 
     private List<IColumnModification> GenerateColumnModifications()
     {
@@ -334,7 +316,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var processedEntries = new List<IUpdateEntry>();
             foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
             {
-                var modifiedMembers = entry.ToEntityEntry().Properties.Where(m => m.IsModified).ToList();
                 var jsonColumn = entry.EntityType.GetContainerColumnName()!;
                 var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
 
@@ -423,7 +404,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
-        var processedJsonNavigations = new List<INavigation>();
         foreach (var entry in _entries.Where(x => !x.EntityType.IsMappedToJson()))
         {
             var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
@@ -757,7 +737,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             {
                 if (property.IsOrdinalKeyProperty() && ordinal != null)
                 {
-                    entry.SetStoreGeneratedValue(property, ordinal.Value);
+                    entry.SetStoreGeneratedValue(property, ordinal.Value, setModified: false);
                 }
 
                 continue;
