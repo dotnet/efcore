@@ -2384,14 +2384,15 @@ namespace TestNamespace
             PrincipalBaseEntityType.CreateAnnotations(principalBase);
             PrincipalDerivedEntityType.CreateAnnotations(principalDerived);
 
-            var sequences = new SortedDictionary<(string, string), ISequence>();
+            var sequences = new SortedDictionary<(string, string?), ISequence>();
             var principalBaseSequence = new RuntimeSequence(
                 ""PrincipalBaseSequence"",
                 this,
                 typeof(long),
-                schema: ""TPC"");
+                schema: ""TPC"",
+                modelSchemaIsNull: true);
 
-            sequences[(""PrincipalBaseSequence"", ""TPC"")] = principalBaseSequence;
+            sequences[(""PrincipalBaseSequence"", null)] = principalBaseSequence;
 
             AddAnnotation(""Relational:Sequences"", sequences);
             AddAnnotation(""Relational:DefaultSchema"", ""TPC"");
@@ -2936,6 +2937,9 @@ namespace TestNamespace
                     Assert.Equal(
                         new[] { dependentBase, principalBase, principalDerived },
                         model.GetEntityTypes());
+
+                    var principalBaseSequence = model.FindSequence("PrincipalBaseSequence");
+                    Assert.Equal("TPC", principalBaseSequence.Schema);
                 },
                 typeof(SqlServerNetTopologySuiteDesignTimeServices));
 

@@ -1279,6 +1279,42 @@ public class ModelSnapshotSqlServerTest
             });
 
     [ConditionalFact]
+    public virtual void HiLoSequence_with_default_model_schema()
+        => Test(
+            modelBuilder => modelBuilder
+                .HasDefaultSchema("dbo")
+                .Entity("Entity").Property<int>("Id").UseHiLo(schema: "dbo"),
+            AddBoilerPlate(@"
+            modelBuilder
+                .HasDefaultSchema(""dbo"")
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.HasSequence(""EntityFrameworkHiLoSequence"", ""dbo"")
+                .IncrementsBy(10);
+
+            modelBuilder.Entity(""Entity"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>(""Id""), ""EntityFrameworkHiLoSequence"", ""dbo"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Entity"", ""dbo"");
+                });"),
+            model =>
+            {
+                Assert.Equal("dbo", model.GetDefaultSchema());
+
+                var sequence = Assert.Single(model.GetSequences());
+                Assert.Equal("dbo", sequence.Schema);
+            });
+
+    [ConditionalFact]
     public virtual void CheckConstraint_is_stored_in_snapshot_as_fluent_api()
         => Test(
             builder =>
