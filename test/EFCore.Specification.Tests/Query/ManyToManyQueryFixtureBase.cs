@@ -321,6 +321,10 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
             .HasMany(e => e.TwoSkipShared)
             .WithMany(e => e.OneSkipShared);
 
+        modelBuilder.Entity<EntityRoot>()
+            .HasMany(e => e.BranchSkipShared)
+            .WithMany(e => e.RootSkipShared);
+
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.TwoSkip)
@@ -438,6 +442,10 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         modelBuilder.Entity<UnidirectionalEntityOne>()
             .HasMany(e => e.TwoSkipShared)
             .WithMany();
+
+        modelBuilder.Entity<UnidirectionalEntityBranch>()
+            .HasMany<UnidirectionalEntityRoot>()
+            .WithMany(e => e.BranchSkipShared);
 
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<UnidirectionalEntityOne>()

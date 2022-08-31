@@ -74,6 +74,11 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
             .WithMany(e => e.OneSkipShared)
             .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
 
+        modelBuilder.Entity<EntityRoot>()
+            .HasMany(e => e.BranchSkipShared)
+            .WithMany(e => e.RootSkipShared)
+            .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
+
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.TwoSkip)
@@ -201,6 +206,11 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
         modelBuilder.Entity<UnidirectionalEntityOne>()
             .HasMany(e => e.TwoSkipShared)
             .WithMany()
+            .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
+
+        modelBuilder.Entity<UnidirectionalEntityBranch>()
+            .HasMany<UnidirectionalEntityRoot>()
+            .WithMany(e => e.BranchSkipShared)
             .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
 
         // Nav:2 Payload:No Join:Concrete Extra:None

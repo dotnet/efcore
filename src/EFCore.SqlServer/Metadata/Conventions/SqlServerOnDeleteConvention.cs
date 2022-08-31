@@ -61,7 +61,7 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention, ISkipNavigat
         }
 
         var selfReferencingSkipNavigation = foreignKey.GetReferencingSkipNavigations()
-            .FirstOrDefault(s => s.Inverse != null && s.TargetEntityType == s.DeclaringEntityType);
+            .FirstOrDefault(s => s.Inverse != null && s.TargetEntityType.IsAssignableFrom(s.DeclaringEntityType));
         if (selfReferencingSkipNavigation == null)
         {
             return deleteBehavior;
