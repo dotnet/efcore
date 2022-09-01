@@ -1713,7 +1713,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Passes_with_missing_concurrency_token_property_on_the_base_type()
+    public virtual void Passes_for_missing_concurrency_token_property_on_the_base_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Person>().ToTable(nameof(Animal))
@@ -1726,7 +1726,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Passes_with_missing_concurrency_token_property_on_the_base_type_when_derived_is_sharing()
+    public virtual void Passes_for_missing_concurrency_token_property_on_the_base_type_when_derived_is_sharing()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Person>().ToTable(nameof(Animal))
@@ -1743,14 +1743,20 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Passes_with_missing_concurrency_token_property_on_the_sharing_type()
+    public virtual void Passes_for_missing_concurrency_token_property_on_the_sharing_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Person>().ToTable(nameof(Animal));
         modelBuilder.Entity<Animal>().HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-        modelBuilder.Entity<Animal>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+        modelBuilder.Entity<Animal>().Property<ulong>("Version")
+            .HasConversion<byte[]>().IsRowVersion();
 
-        Validate(modelBuilder);
+        var model = Validate(modelBuilder);
+
+        var personType = model.FindEntityType(typeof(Person))!;
+        var concurrencyProperty = personType.GetDeclaredProperties().Single(p => p.IsConcurrencyToken);
+        Assert.Equal("Version", concurrencyProperty.GetColumnName());
+        Assert.Equal(typeof(byte[]), concurrencyProperty.ClrType);
     }
 
     [ConditionalFact]
@@ -1777,9 +1783,17 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().OwnsOne(
             a => a.FavoritePerson,
             pb => pb.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version"));
-        modelBuilder.Entity<Dog>().Ignore(d => d.FavoritePerson);
+        modelBuilder.Entity<Dog>().OwnsOne(
+            a => a.FavoritePerson);
 
-        Validate(modelBuilder);
+        var model = Validate(modelBuilder);
+
+        var animalType = model.FindEntityType(typeof(Animal))!;
+        Assert.Null(animalType.GetDeclaredProperties().SingleOrDefault(p => p.IsConcurrencyToken));
+
+        var dogType = model.FindEntityType(typeof(Dog))!;
+        var concurrencyProperty = dogType.GetDeclaredProperties().Single(p => p.IsConcurrencyToken);
+        Assert.Equal("Version", concurrencyProperty.GetColumnName());
     }
 
     [ConditionalFact]
