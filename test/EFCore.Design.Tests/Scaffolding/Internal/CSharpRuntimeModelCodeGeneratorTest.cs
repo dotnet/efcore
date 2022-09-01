@@ -892,6 +892,7 @@ namespace Internal
         }
 
         [ConditionalFact]
+        [SqlServerConfiguredCondition]
         public void BigModel()
             => Test(
                 new BigContext(),
