@@ -4,6 +4,7 @@
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json.Linq;
@@ -988,7 +990,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using NetTopologySuite.Geometries;
 
 #pragma warning disable 219, 612, 618
 #nullable enable
@@ -1014,7 +1015,7 @@ namespace TestNamespace
 
             var principalAlternateId = runtimeEntityType.AddProperty(
                 ""PrincipalAlternateId"",
-                typeof(Point),
+                typeof(Guid),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             principalAlternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
@@ -1148,17 +1149,23 @@ namespace TestNamespace
 
             var alternateId = runtimeEntityType.AddProperty(
                 ""AlternateId"",
-                typeof(Point),
+                typeof(Guid),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField(""AlternateId"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
+                afterSaveBehavior: PropertySaveBehavior.Throw);
+            alternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+
+            var point = runtimeEntityType.AddProperty(
+                ""Point"",
+                typeof(Point),
+                nullable: true,
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueConverter: new CastingConverter<Point, Point>(),
                 valueComparer: new CSharpRuntimeModelCodeGeneratorTest.CustomValueComparer<Point>(),
                 providerValueComparer: new CSharpRuntimeModelCodeGeneratorTest.CustomValueComparer<Point>());
-            alternateId.AddAnnotation(""Relational:ColumnType"", ""geometry"");
-            alternateId.AddAnnotation(""Relational:DefaultValue"", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POINT Z(0 0 0)""));
-            alternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+            point.AddAnnotation(""Relational:ColumnType"", ""geometry"");
+            point.AddAnnotation(""Relational:DefaultValue"", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(""SRID=0;POINT Z(0 0 0)""));
+            point.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -1170,12 +1177,6 @@ namespace TestNamespace
 
             var index = runtimeEntityType.AddIndex(
                 new[] { alternateId, id });
-
-            var alternateIndex = runtimeEntityType.AddIndex(
-                new[] { alternateId },
-                name: ""AlternateIndex"",
-                unique: true);
-            alternateIndex.AddAnnotation(""Relational:Name"", ""AIX"");
 
             return runtimeEntityType;
         }
@@ -1229,7 +1230,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
-using NetTopologySuite.Geometries;
 
 #pragma warning disable 219, 612, 618
 #nullable enable
@@ -1268,9 +1268,8 @@ namespace TestNamespace
 
             var principalBaseAlternateId = runtimeEntityType.AddProperty(
                 ""PrincipalBaseAlternateId"",
-                typeof(Point),
+                typeof(Guid),
                 propertyAccessMode: PropertyAccessMode.Field,
-                valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             principalBaseAlternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
@@ -1379,7 +1378,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
-using NetTopologySuite.Geometries;
 
 #pragma warning disable 219, 612, 618
 #nullable enable
@@ -1404,7 +1402,7 @@ namespace TestNamespace
 
             var principalDerivedAlternateId = runtimeEntityType.AddProperty(
                 ""PrincipalDerivedAlternateId"",
-                typeof(Point),
+                typeof(Guid),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             principalDerivedAlternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
@@ -1484,7 +1482,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using NetTopologySuite.Geometries;
 
 #pragma warning disable 219, 612, 618
 #nullable enable
@@ -1512,7 +1509,7 @@ namespace TestNamespace
 
             var derivedsAlternateId = runtimeEntityType.AddProperty(
                 ""DerivedsAlternateId"",
-                typeof(Point),
+                typeof(Guid),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             derivedsAlternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
@@ -1526,7 +1523,7 @@ namespace TestNamespace
 
             var principalsAlternateId = runtimeEntityType.AddProperty(
                 ""PrincipalsAlternateId"",
-                typeof(Point),
+                typeof(Guid),
                 propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             principalsAlternateId.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
@@ -1747,18 +1744,6 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => model.GetPropertyAccessMode()).Message);
-                    Assert.Null(model[SqlServerAnnotationNames.MaxDatabaseSize]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => model.GetDatabaseMaxSize()).Message);
-                    Assert.Null(model[SqlServerAnnotationNames.PerformanceLevelSql]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => model.GetPerformanceLevelSql()).Message);
-                    Assert.Null(model[SqlServerAnnotationNames.ServiceTierSql]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => model.GetServiceTierSql()).Message);
                     Assert.Null(model[SqlServerAnnotationNames.IdentitySeed]);
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
@@ -1817,62 +1802,33 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => principalId.GetIdentityIncrement()).Message);
-                    Assert.Null(principalId[SqlServerAnnotationNames.Sparse]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => principalId.IsSparse()).Message);
 
-                    var principalAlternateId = principalBase.FindProperty(nameof(PrincipalBase.AlternateId));
-                    Assert.Equal(typeof(Point), principalAlternateId.ClrType);
-                    Assert.False(principalAlternateId.IsNullable);
-                    Assert.Equal(ValueGenerated.OnAdd, principalAlternateId.ValueGenerated);
-                    Assert.Equal("AlternateId", principalAlternateId.GetColumnName());
-                    Assert.Equal("geometry", principalAlternateId.GetColumnType());
-                    Assert.Equal(0, ((Point)principalAlternateId.GetDefaultValue()).SRID);
-                    Assert.IsType<CastingConverter<Point, Point>>(principalAlternateId.GetValueConverter());
-                    Assert.IsType<CustomValueComparer<Point>>(principalAlternateId.GetValueComparer());
-                    Assert.IsType<CustomValueComparer<Point>>(principalAlternateId.GetKeyValueComparer());
-                    Assert.IsType<CustomValueComparer<Point>>(principalAlternateId.GetProviderValueComparer());
-                    Assert.Equal(SqlServerValueGenerationStrategy.None, principalAlternateId.GetValueGenerationStrategy());
-                    Assert.Equal(PropertyAccessMode.FieldDuringConstruction, principalAlternateId.GetPropertyAccessMode());
-                    Assert.Null(principalAlternateId[CoreAnnotationNames.PropertyAccessMode]);
+                    var pointProperty = principalBase.FindProperty("Point");
+                    Assert.Equal(typeof(Point), pointProperty.ClrType);
+                    Assert.True(pointProperty.IsNullable);
+                    Assert.Equal(ValueGenerated.OnAdd, pointProperty.ValueGenerated);
+                    Assert.Equal("Point", pointProperty.GetColumnName());
+                    Assert.Equal("geometry", pointProperty.GetColumnType());
+                    Assert.Equal(0, ((Point)pointProperty.GetDefaultValue()).SRID);
+                    Assert.IsType<CastingConverter<Point, Point>>(pointProperty.GetValueConverter());
+                    Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetValueComparer());
+                    Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetKeyValueComparer());
+                    Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetProviderValueComparer());
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, pointProperty.GetValueGenerationStrategy());
+                    Assert.Null(pointProperty[CoreAnnotationNames.PropertyAccessMode]);
 
                     Assert.Null(principalBase.FindDiscriminatorProperty());
 
-                    Assert.Equal(2, principalBase.GetIndexes().Count());
-
-                    var compositeIndex = principalBase.GetIndexes().First();
+                    var principalAlternateId = principalBase.FindProperty(nameof(PrincipalBase.AlternateId));
+                    var compositeIndex = principalBase.GetIndexes().Single();
+                    Assert.Equal(PropertyAccessMode.FieldDuringConstruction, principalAlternateId.GetPropertyAccessMode());
                     Assert.Empty(compositeIndex.GetAnnotations());
                     Assert.Equal(new[] { principalAlternateId, principalId }, compositeIndex.Properties);
                     Assert.False(compositeIndex.IsUnique);
                     Assert.Null(compositeIndex.Name);
                     Assert.Equal("IX_PrincipalBase_AlternateId_Id", compositeIndex.GetDatabaseName());
-                    Assert.Null(compositeIndex[SqlServerAnnotationNames.Clustered]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => compositeIndex.IsClustered()).Message);
-                    Assert.Null(compositeIndex[SqlServerAnnotationNames.CreatedOnline]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => compositeIndex.IsCreatedOnline()).Message);
-                    Assert.Null(compositeIndex[SqlServerAnnotationNames.FillFactor]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => compositeIndex.GetFillFactor()).Message);
-                    Assert.Null(compositeIndex[SqlServerAnnotationNames.Include]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => compositeIndex.GetIncludeProperties()).Message);
 
-                    var alternateIndex = principalBase.GetIndexes().Last();
-                    Assert.Same(principalAlternateId, alternateIndex.Properties.Single());
-                    Assert.True(alternateIndex.IsUnique);
-                    Assert.Equal("AlternateIndex", alternateIndex.Name);
-                    Assert.Equal("AIX", alternateIndex.GetDatabaseName());
-                    Assert.Null(alternateIndex[RelationalAnnotationNames.Filter]);
-                    Assert.Null(alternateIndex.GetFilter());
-
-                    Assert.Equal(new[] { compositeIndex, alternateIndex }, principalAlternateId.GetContainingIndexes());
+                    Assert.Equal(new[] { compositeIndex }, principalAlternateId.GetContainingIndexes());
 
                     Assert.Equal(2, principalBase.GetKeys().Count());
 
@@ -1952,11 +1908,19 @@ namespace TestNamespace
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => principalId.GetIdentitySeed(principalTable)).Message);
 
+                    var detailsProperty = referenceOwnedType.FindProperty(nameof(OwnedType.Details));
+                    Assert.Null(detailsProperty[SqlServerAnnotationNames.Sparse]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.IsSparse()).Message);
+                    Assert.Null(detailsProperty[RelationalAnnotationNames.Collation]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.GetCollation()).Message);
+
                     var ownedFragment = referenceOwnedType.GetMappingFragments().Single();
-                    Assert.Equal(nameof(OwnedType.Details),
-                        referenceOwnedType.FindProperty(nameof(OwnedType.Details)).GetColumnName(ownedFragment.StoreObject));
-                    Assert.Null(referenceOwnedType.FindProperty(nameof(OwnedType.Details))
-                        .GetColumnName(principalTable));
+                    Assert.Equal(nameof(OwnedType.Details), detailsProperty.GetColumnName(ownedFragment.StoreObject));
+                    Assert.Null(detailsProperty.GetColumnName(principalTable));
 
                     var referenceOwnership = referenceOwnedNavigation.ForeignKey;
                     Assert.Empty(referenceOwnership.GetAnnotations());
@@ -2104,10 +2068,6 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => rowid.GetComment()).Message);
-                    Assert.Null(rowid[RelationalAnnotationNames.Collation]);
-                    Assert.Equal(
-                        CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => rowid.GetCollation()).Message);
                     Assert.Null(rowid[RelationalAnnotationNames.ColumnOrder]);
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
@@ -2214,7 +2174,19 @@ namespace TestNamespace
                         },
                         model.GetEntityTypes());
                 },
-                typeof(SqlServerNetTopologySuiteDesignTimeServices));
+                typeof(SqlServerNetTopologySuiteDesignTimeServices),
+                c =>
+                {
+                    c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                        new PrincipalDerived<DependentBase<byte?>>
+                        {
+                            AlternateId = new Guid(),
+                            Dependent = new DependentBase<byte?>(1),
+                            Owned = new OwnedType(c)
+                        });
+
+                    c.SaveChanges();
+                });
 
         public class BigContext : SqlServerContextBase
         {
@@ -2222,33 +2194,24 @@ namespace TestNamespace
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.HasDatabaseMaxSize("20TB")
-                    .HasPerformanceLevel("High")
-                    .HasServiceTier("AB")
-                    .UseCollation("pi-PI")
+                modelBuilder
+                    .UseCollation("Latin1_General_CS_AS")
                     .UseIdentityColumns(3, 2);
 
                 modelBuilder.Entity<PrincipalBase>(
                     eb =>
                     {
-                        eb.Property(e => e.Id).UseIdentityColumn(2, 3).IsSparse()
+                        eb.Property(e => e.Id).UseIdentityColumn(2, 3)
                             .Metadata.SetColumnName("DerivedId", StoreObjectIdentifier.Table("PrincipalDerived"));
+
                         eb.Property(e => e.AlternateId)
-                            .IsRequired()
-                            .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
+                            .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+
+                        eb.Property<Point>("Point")
                             .HasColumnType("geometry")
                             .HasDefaultValue(
                                 NtsGeometryServices.Instance.CreateGeometryFactory(srid: 0).CreatePoint(new CoordinateZM(0, 0, 0, 0)))
                             .HasConversion<CastingConverter<Point, Point>, CustomValueComparer<Point>, CustomValueComparer<Point>>();
-
-                        eb.HasIndex(e => e.AlternateId, "AlternateIndex")
-                            .IsUnique()
-                            .HasDatabaseName("AIX")
-                            .HasFilter("AlternateId <> NULL")
-                            .IsClustered()
-                            .IsCreatedOnline()
-                            .HasFillFactor(40)
-                            .IncludeProperties(e => e.Id);
 
                         eb.HasIndex(e => new { e.AlternateId, e.Id });
 
@@ -2263,17 +2226,22 @@ namespace TestNamespace
                             {
                                 ob.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
                                 ob.UsePropertyAccessMode(PropertyAccessMode.Field);
+                                ob.Property(e => e.Details)
+                                    .IsSparse()
+                                    .UseCollation("Latin1_General_CI_AI");
 
                                 ob.ToTable("PrincipalBase", "mySchema",
                                     t => t.Property("PrincipalBaseId").UseIdentityColumn(2, 3));
 
                                 ob.SplitToTable("Details", s => s.Property(e => e.Details));
+
+                                ob.HasData(new { Number = 10, PrincipalBaseId = 1L, PrincipalBaseAlternateId = new Guid() });
                             });
 
                         eb.Navigation(e => e.Owned).IsRequired().HasField("_ownedField")
                             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                        eb.HasData(new PrincipalBase { Id = 1, AlternateId = new Point(0, 0) });
+                        eb.HasData(new PrincipalBase { Id = 1, AlternateId = new Guid() });
 
                         eb.ToTable("PrincipalBase", "mySchema");
                     });
@@ -2301,7 +2269,6 @@ namespace TestNamespace
                                     jb.Property<byte[]>("rowid")
                                         .IsRowVersion()
                                         .HasComment("RowVersion")
-                                        .UseCollation("ri")
                                         .HasColumnOrder(1);
                                 });
 
@@ -2338,6 +2305,12 @@ namespace TestNamespace
                         eb.Property<decimal>("Money")
                             .HasPrecision(9, 3);
                     });
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
+            {
+                SqlServerTestStore.Create("RuntimeModelTest" + GetType().Name).AddProviderOptions(options);
+                new SqlServerDbContextOptionsBuilder(options).UseNetTopologySuite();
             }
         }
 
@@ -2584,10 +2557,13 @@ namespace TestNamespace
             runtimeEntityType.SetPrimaryKey(key);
 
             var index = runtimeEntityType.AddIndex(
-                new[] { principalBaseId });
-
-            var index0 = runtimeEntityType.AddIndex(
                 new[] { principalDerivedId });
+
+            var principalIndex = runtimeEntityType.AddIndex(
+                new[] { principalBaseId },
+                name: ""PrincipalIndex"",
+                unique: true);
+            principalIndex.AddAnnotation(""Relational:Name"", ""PIX"");
 
             return runtimeEntityType;
         }
@@ -2767,6 +2743,18 @@ namespace TestNamespace
                 model =>
                 {
                     Assert.Equal("TPC", model.GetDefaultSchema());
+                    Assert.Null(model[SqlServerAnnotationNames.MaxDatabaseSize]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => model.GetDatabaseMaxSize()).Message);
+                    Assert.Null(model[SqlServerAnnotationNames.PerformanceLevelSql]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => model.GetPerformanceLevelSql()).Message);
+                    Assert.Null(model[SqlServerAnnotationNames.ServiceTierSql]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => model.GetServiceTierSql()).Message);
 
                     var principalBase = model.FindEntityType(typeof(PrincipalBase));
                     var id = principalBase.FindProperty("Id");
@@ -2780,13 +2768,43 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBaseView", principalBase.GetViewName());
                     Assert.Equal("TPC", principalBase.GetViewSchema());
                     Assert.Equal("Id", id.GetColumnName(StoreObjectIdentifier.Create(principalBase, StoreObjectType.View).Value));
-                    Assert.Equal("bar2",
+                    Assert.Equal(
+                        "bar2",
                         id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.View).Value)["foo"]);
+
+                    var principalBaseId = principalBase.FindProperty("PrincipalBaseId");
+
+                    var alternateIndex = principalBase.GetIndexes().Last();
+                    Assert.Same(principalBaseId, alternateIndex.Properties.Single());
+                    Assert.True(alternateIndex.IsUnique);
+                    Assert.Equal("PrincipalIndex", alternateIndex.Name);
+                    Assert.Equal("PIX", alternateIndex.GetDatabaseName());
+                    Assert.Null(alternateIndex[RelationalAnnotationNames.Filter]);
+                    Assert.Null(alternateIndex.GetFilter());
+                    Assert.Null(alternateIndex[SqlServerAnnotationNames.Clustered]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => alternateIndex.IsClustered()).Message);
+                    Assert.Null(alternateIndex[SqlServerAnnotationNames.CreatedOnline]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => alternateIndex.IsCreatedOnline()).Message);
+                    Assert.Null(alternateIndex[SqlServerAnnotationNames.FillFactor]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => alternateIndex.GetFillFactor()).Message);
+                    Assert.Null(alternateIndex[SqlServerAnnotationNames.Include]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => alternateIndex.GetIncludeProperties()).Message);
+
+                    Assert.Equal(new[] { alternateIndex }, principalBaseId.GetContainingIndexes());
 
                     var insertSproc = principalBase.GetInsertStoredProcedure()!;
                     Assert.Equal("PrincipalBase_Insert", insertSproc.Name);
                     Assert.Equal("TPC", insertSproc.Schema);
-                    Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, insertSproc.Parameters.Select(p => p.PropertyName));
+                    Assert.Equal(
+                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(insertSproc.ResultColumns);
                     Assert.False(insertSproc.IsRowsAffectedReturned);
                     Assert.Equal("bar1", insertSproc["foo"]);
@@ -2798,7 +2816,8 @@ namespace TestNamespace
                     var updateSproc = principalBase.GetUpdateStoredProcedure()!;
                     Assert.Equal("PrincipalBase_Update", updateSproc.Name);
                     Assert.Equal("TPC", updateSproc.Schema);
-                    Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
+                    Assert.Equal(
+                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.False(updateSproc.IsRowsAffectedReturned);
                     Assert.Empty(updateSproc.GetAnnotations());
@@ -2843,19 +2862,25 @@ namespace TestNamespace
                     Assert.Null(insertSproc["foo"]);
                     Assert.Same(principalDerived, insertSproc.EntityType);
                     Assert.Equal("DerivedId", insertSproc.ResultColumns.Last().Name);
-                    Assert.Equal("DerivedId", id.GetColumnName(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.InsertStoredProcedure).Value));
+                    Assert.Equal(
+                        "DerivedId",
+                        id.GetColumnName(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.InsertStoredProcedure).Value));
                     Assert.Equal("bar3", insertSproc.ResultColumns.Last()["foo"]);
-                    Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.InsertStoredProcedure).Value)["foo"]);
+                    Assert.Null(
+                        id.FindOverrides(
+                            StoreObjectIdentifier.Create(principalDerived, StoreObjectType.InsertStoredProcedure).Value)["foo"]);
 
                     updateSproc = principalDerived.GetUpdateStoredProcedure()!;
                     Assert.Equal("Derived_Update", updateSproc.Name);
                     Assert.Equal("Derived", updateSproc.Schema);
-                    Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
+                    Assert.Equal(
+                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.Empty(updateSproc.GetAnnotations());
                     Assert.Same(principalDerived, updateSproc.EntityType);
                     Assert.Equal("Id", updateSproc.Parameters.Last().Name);
-                    Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.UpdateStoredProcedure).Value));
+                    Assert.Null(
+                        id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.UpdateStoredProcedure).Value));
 
                     deleteSproc = principalDerived.GetDeleteStoredProcedure()!;
                     Assert.Equal("Derived_Delete", deleteSproc.Name);
@@ -2864,7 +2889,8 @@ namespace TestNamespace
                     Assert.Empty(deleteSproc.ResultColumns);
                     Assert.Same(principalDerived, deleteSproc.EntityType);
                     Assert.Equal("Id", deleteSproc.Parameters.Last().Name);
-                    Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.DeleteStoredProcedure).Value));
+                    Assert.Null(
+                        id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.DeleteStoredProcedure).Value));
 
                     Assert.Equal("PrincipalDerived<DependentBase<byte?>>", principalDerived.GetDiscriminatorValue());
                     Assert.Null(principalDerived.FindDiscriminatorProperty());
@@ -2907,12 +2933,7 @@ namespace TestNamespace
                     Assert.Same(dependentForeignKey, dependentBase.GetForeignKeys().Single());
 
                     Assert.Equal(
-                        new[]
-                        {
-                            dependentBase,
-                            principalBase,
-                            principalDerived
-                        },
+                        new[] { dependentBase, principalBase, principalDerived },
                         model.GetEntityTypes());
                 },
                 typeof(SqlServerNetTopologySuiteDesignTimeServices));
@@ -2923,7 +2944,10 @@ namespace TestNamespace
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.HasDefaultSchema("TPC");
+                modelBuilder.HasDefaultSchema("TPC")
+                    .HasDatabaseMaxSize("20TB")
+                    .HasPerformanceLevel("High")
+                    .HasServiceTier("AB");
 
                 modelBuilder.Entity<PrincipalBase>(
                     eb =>
@@ -2947,6 +2971,15 @@ namespace TestNamespace
                         eb.DeleteUsingStoredProcedure(s => s
                             .HasRowsAffectedReturnValue()
                             .HasParameter(p => p.Id));
+
+                        eb.HasIndex(new[] { "PrincipalBaseId" }, "PrincipalIndex")
+                            .IsUnique()
+                            .HasDatabaseName("PIX")
+                            .IsClustered()
+                            .HasFilter("AlternateId <> NULL")
+                            .IsCreatedOnline()
+                            .HasFillFactor(40)
+                            .IncludeProperties(e => e.Id);
                     });
 
                 modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
@@ -2997,7 +3030,7 @@ namespace TestNamespace
         public class PrincipalBase : AbstractBase
         {
             public new long? Id { get; set; }
-            public Point AlternateId;
+            public Guid AlternateId;
 
             private OwnedType _ownedField;
             public OwnedType Owned { get => _ownedField; set => _ownedField = value; }
@@ -3013,12 +3046,23 @@ namespace TestNamespace
 
         public class DependentBase<TKey> : AbstractBase
         {
-            private new TKey Id { get; set; }
+            public DependentBase(TKey id)
+            {
+                Id = id;
+            }
+
+            private new TKey Id { get; init; }
+
             public PrincipalDerived<DependentBase<TKey>> Principal { get; set; }
         }
 
         public class DependentDerived<TKey> : DependentBase<TKey>
         {
+            public DependentDerived(TKey id)
+                : base(id)
+            {
+            }
+
             private string Data { get; set; }
         }
 
@@ -4750,6 +4794,7 @@ namespace TestNamespace
             Action<IReadOnlyCollection<ScaffoldedFile>> assertScaffold = null,
             Action<IModel> assertModel = null,
             Type additionalDesignTimeServices = null,
+            Action<DbContext> useContext = null,
             string expectedExceptionMessage = null)
         {
             var model = context.GetService<IDesignTimeModel>().Model;
@@ -4803,19 +4848,35 @@ namespace TestNamespace
 
             var assembly = build.BuildInMemory();
 
-            if (assertModel != null)
-            {
-                var modelType = assembly.GetType(options.ModelNamespace + "." + options.ContextType.Name + "Model");
-                var instancePropertyInfo = modelType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
-                var compiledModel = (IModel)instancePropertyInfo.GetValue(null);
+            var modelType = assembly.GetType(options.ModelNamespace + "." + options.ContextType.Name + "Model");
+            var instancePropertyInfo = modelType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+            var compiledModel = (IModel)instancePropertyInfo.GetValue(null);
 
-                var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
-                assertModel(modelRuntimeInitializer.Initialize(compiledModel, designTime: false));
-            }
+            var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+            compiledModel = modelRuntimeInitializer.Initialize(compiledModel, designTime: false);
+            assertModel(compiledModel);
 
             if (assertScaffold != null)
             {
                 assertScaffold(scaffoldedFiles);
+            }
+
+            if (useContext != null)
+            {
+                using var testStore = SqlServerTestStore.Create("RuntimeModelTest" + context.GetType().Name);
+                testStore.Clean(context);
+
+                var optionsBuilder = testStore.AddProviderOptions(new DbContextOptionsBuilder().UseModel(compiledModel));
+                new SqlServerDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
+                var newContext = new DbContext(optionsBuilder.Options);
+
+                newContext.Database.CreateExecutionStrategy().Execute(
+                    newContext,
+                    c =>
+                    {
+                        using var transaction = context.Database.BeginTransaction();
+                        useContext(c);
+                    });
             }
         }
 

@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -613,15 +612,17 @@ public class ExpressionPrinter : ExpressionVisitor
     {
         if (methodCallExpression.Object != null)
         {
-            if (methodCallExpression.Object is BinaryExpression)
+            switch (methodCallExpression.Object)
             {
-                _stringBuilder.Append("(");
-                Visit(methodCallExpression.Object);
-                _stringBuilder.Append(")");
-            }
-            else
-            {
-                Visit(methodCallExpression.Object);
+                case BinaryExpression:
+                case UnaryExpression:
+                    _stringBuilder.Append("(");
+                    Visit(methodCallExpression.Object);
+                    _stringBuilder.Append(")");
+                    break;
+                default:
+                    Visit(methodCallExpression.Object);
+                    break;
             }
 
             _stringBuilder.Append(".");

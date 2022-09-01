@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -21,8 +22,10 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, IEntityType, ValueGenerator>? _valueGeneratorFactory;
     private readonly ValueConverter? _valueConverter;
-    private readonly ValueComparer? _valueComparer;
-    private readonly ValueComparer? _keyValueComparer;
+    private readonly bool _explicitValueComparer;
+    private ValueComparer? _valueComparer;
+    private readonly bool _explicitKeyValueComparer;
+    private ValueComparer? _keyValueComparer;
     private readonly ValueComparer? _providerValueComparer;
     private CoreTypeMapping? _typeMapping;
 
@@ -95,7 +98,9 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         _typeMapping = typeMapping;
         _valueComparer = valueComparer;
+        _explicitValueComparer = _valueComparer != null;
         _keyValueComparer = keyValueComparer ?? valueComparer;
+        _explicitKeyValueComparer = keyValueComparer != null;
         _providerValueComparer = providerValueComparer;
     }
 
@@ -165,6 +170,68 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
             static property =>
                 property.DeclaringEntityType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!);
         set => _typeMapping = value;
+    }
+
+    private ValueComparer GetValueComparer()
+        => (GetValueComparer(null) ?? TypeMapping.Comparer)
+            .ToNullableComparer(this)!;
+
+    private ValueComparer GetKeyValueComparer()
+        => (GetKeyValueComparer(null) ?? TypeMapping.KeyComparer)
+            .ToNullableComparer(this)!;
+
+    private ValueComparer? GetValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
+    {
+        if (_explicitValueComparer // This condition is needed due to #28944
+            && _valueComparer != null)
+        {
+            return _valueComparer;
+        }
+
+        var principal = (RuntimeProperty?)this.FindFirstDifferentPrincipal();
+        if (principal == null)
+        {
+            return null;
+        }
+
+        if (checkedProperties == null)
+        {
+            checkedProperties = new HashSet<IReadOnlyProperty>();
+        }
+        else if (checkedProperties.Contains(this))
+        {
+            return null;
+        }
+
+        checkedProperties.Add(this);
+        return principal.GetValueComparer(checkedProperties);
+    }
+
+    private ValueComparer? GetKeyValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
+    {
+        if (_explicitKeyValueComparer // This condition is needed due to #28944
+            && _keyValueComparer != null)
+        {
+            return _keyValueComparer;
+        }
+
+        var principal = (RuntimeProperty?)this.FindFirstDifferentPrincipal();
+        if (principal == null)
+        {
+            return null;
+        }
+
+        if (checkedProperties == null)
+        {
+            checkedProperties = new HashSet<IReadOnlyProperty>();
+        }
+        else if (checkedProperties.Contains(this))
+        {
+            return null;
+        }
+
+        checkedProperties.Add(this);
+        return principal.GetKeyValueComparer(checkedProperties);
     }
 
     /// <summary>
@@ -274,22 +341,30 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetValueComparer()
-        => _valueComparer ?? TypeMapping.Comparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _valueComparer, this,
+            static property => property.GetValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer IProperty.GetValueComparer()
-        => _valueComparer ?? TypeMapping.Comparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _valueComparer, this,
+            static property => property.GetValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetKeyValueComparer()
-        => _keyValueComparer ?? TypeMapping.KeyComparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _keyValueComparer, this,
+            static property => property.GetKeyValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer IProperty.GetKeyValueComparer()
-        => _keyValueComparer ?? TypeMapping.KeyComparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _keyValueComparer, this,
+            static property => property.GetKeyValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]
