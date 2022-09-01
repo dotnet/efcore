@@ -80,7 +80,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 Dependencies.UpdateLogger.UnexpectedTrailingResultSetWhenSaving();
             }
 
-            reader.DbDataReader.Close();
+            reader.Close();
 
             if (hasOutputParameters)
             {
@@ -198,7 +198,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 Dependencies.UpdateLogger.UnexpectedTrailingResultSetWhenSaving();
             }
 
-            await reader.DbDataReader.CloseAsync().ConfigureAwait(false);
+            await reader.CloseAsync().ConfigureAwait(false);
 
             if (hasOutputParameters)
             {
