@@ -866,6 +866,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     break;
 
                 case IStoreStoredProcedureResultColumn resultColumn:
+                    if (ReferenceEquals(RowsAffectedColumn, resultColumn))
+                    {
+                        continue;
+                    }
+
                     // For stored procedure result sets, we need to get the column ordering from metadata.
                     readerIndex = resultColumn.Position;
 #if DEBUG

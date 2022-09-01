@@ -809,6 +809,10 @@
     <value>An error occurred using a transaction.</value>
     <comment>Error RelationalEventId.TransactionError</comment>
   </data>
+  <data name="LogUnexpectedTrailingResultSetWhenSaving" xml:space="preserve">
+    <value>An unexpected trailing result set was found when reading the results of a SaveChanges operation; this may indicate that a stored procedure returned a result set without being configured for it in the EF model. Check your stored procedure definitions.</value>
+    <comment>Warning CoreEventId.UnexpectedTrailingResultSetWhenSaving</comment>
+  </data>
   <data name="LogUnnamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
     <comment>Warning RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string</comment>
@@ -854,6 +858,9 @@
   </data>
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value was provided for the required parameter '{parameter}'.</value>
+  </data>
+  <data name="MissingResultSetWhenSaving" xml:space="preserve">
+    <value>A result set was was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
   </data>
   <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
     <value>Cannot add commands to a completed ModificationCommandBatch.</value>
