@@ -238,38 +238,6 @@ namespace Microsoft.Data.Sqlite
             _state = ConnectionState.Open;
             try
             {
-                if (ConnectionOptions.Password.Length != 0)
-                {
-                    if (SQLitePCLExtensions.EncryptionSupported(out var libraryName) == false)
-                    {
-                        throw new InvalidOperationException(Resources.EncryptionNotSupported(libraryName));
-                    }
-
-                    // NB: SQLite doesn't support parameters in PRAGMA statements, so we escape the value using the
-                    //     quote function before concatenating.
-                    var quotedPassword = this.ExecuteScalar<string>(
-                        "SELECT quote($password);",
-                        new SqliteParameter("$password", ConnectionOptions.Password));
-                    this.ExecuteNonQuery("PRAGMA key = " + quotedPassword + ";");
-
-                    if (SQLitePCLExtensions.EncryptionSupported() != false)
-                    {
-                        // NB: Forces decryption. Throws when the key is incorrect.
-                        this.ExecuteNonQuery("SELECT COUNT(*) FROM sqlite_master;");
-                    }
-                }
-
-                if (ConnectionOptions.ForeignKeys.HasValue)
-                {
-                    this.ExecuteNonQuery(
-                        "PRAGMA foreign_keys = " + (ConnectionOptions.ForeignKeys.Value ? "1" : "0") + ";");
-                }
-
-                if (ConnectionOptions.RecursiveTriggers)
-                {
-                    this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
-                }
-
                 if (_collations != null)
                 {
                     foreach (var item in _collations)
