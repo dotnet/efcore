@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Security.Principal;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -70,91 +69,129 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         for (var commandSetIndex = 0; commandSetIndex < commandSets.Count; commandSetIndex++)
         {
-            var commandSet = commandSets[commandSetIndex];
+            var batches = CreateCommandBatches(
+                commandSets[commandSetIndex],
+                commandSetIndex < commandSets.Count - 1,
+                assertColumnModification: true,
+                parameterNameGenerator);
 
-            var batch = Dependencies.ModificationCommandBatchFactory.Create();
-            foreach (var modificationCommand in commandSet)
+            foreach (var batch in batches)
             {
-                (modificationCommand as ModificationCommand)?.AssertColumnsNotInitialized();
-                if (modificationCommand.EntityState == EntityState.Modified
-                    && !modificationCommand.ColumnModifications.Any(m => m.IsWrite))
-                {
-                    continue;
-                }
-
-                if (!batch.TryAddCommand(modificationCommand))
-                {
-                    if (batch.ModificationCommands.Count == 1
-                        || batch.ModificationCommands.Count >= _minBatchSize)
-                    {
-                        if (batch.ModificationCommands.Count > 1)
-                        {
-                            Dependencies.UpdateLogger.BatchReadyForExecution(
-                                batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
-                        }
-
-                        batch.Complete(moreBatchesExpected: true);
-
-                        yield return batch;
-                    }
-                    else
-                    {
-                        Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
-                            batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
-
-                        foreach (var command in batch.ModificationCommands)
-                        {
-                            batch = StartNewBatch(parameterNameGenerator, command);
-                            batch.Complete(moreBatchesExpected: true);
-
-                            yield return batch;
-                        }
-                    }
-
-                    batch = StartNewBatch(parameterNameGenerator, modificationCommand);
-                }
-            }
-
-            var hasMoreCommandSets = commandSetIndex < commandSets.Count - 1;
-
-            if (batch.ModificationCommands.Count == 1
-                || batch.ModificationCommands.Count >= _minBatchSize)
-            {
-                if (batch.ModificationCommands.Count > 1)
-                {
-                    Dependencies.UpdateLogger.BatchReadyForExecution(
-                        batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
-                }
-
-                batch.Complete(moreBatchesExpected: hasMoreCommandSets);
-
                 yield return batch;
-            }
-            else
-            {
-                Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
-                    batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
-
-                for (var commandIndex = 0; commandIndex < batch.ModificationCommands.Count; commandIndex++)
-                {
-                    var singleCommandBatch = StartNewBatch(parameterNameGenerator, batch.ModificationCommands[commandIndex]);
-                    singleCommandBatch.Complete(
-                        moreBatchesExpected: hasMoreCommandSets || commandIndex < batch.ModificationCommands.Count - 1);
-
-                    yield return singleCommandBatch;
-                }
             }
         }
     }
 
-    private ModificationCommandBatch StartNewBatch(
-        ParameterNameGenerator parameterNameGenerator,
-        IReadOnlyModificationCommand modificationCommand)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<ModificationCommandBatch> CreateCommandBatches(
+        IEnumerable<IReadOnlyModificationCommand> commandSet,
+        bool moreCommandSets)
+        => CreateCommandBatches(commandSet, moreCommandSets, assertColumnModification: false);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    private IEnumerable<ModificationCommandBatch> CreateCommandBatches(
+        IEnumerable<IReadOnlyModificationCommand> commandSet,
+        bool moreCommandSets,
+        bool assertColumnModification,
+        ParameterNameGenerator? parameterNameGenerator = null)
     {
-        parameterNameGenerator.Reset();
         var batch = Dependencies.ModificationCommandBatchFactory.Create();
-        batch.TryAddCommand(modificationCommand);
-        return batch;
+
+        foreach (var modificationCommand in commandSet)
+        {
+#if DEBUG
+            if (assertColumnModification)
+            {
+                (modificationCommand as ModificationCommand)?.AssertColumnsNotInitialized();
+            }
+#endif
+
+            if (modificationCommand.EntityState == EntityState.Modified
+                && !modificationCommand.ColumnModifications.Any(m => m.IsWrite))
+            {
+                continue;
+            }
+
+            if (!batch.TryAddCommand(modificationCommand))
+            {
+                if (batch.ModificationCommands.Count == 1
+                    || batch.ModificationCommands.Count >= _minBatchSize)
+                {
+                    if (batch.ModificationCommands.Count > 1)
+                    {
+                        Dependencies.UpdateLogger.BatchReadyForExecution(
+                            batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
+                    }
+
+                    batch.Complete(moreBatchesExpected: true);
+
+                    yield return batch;
+                }
+                else
+                {
+                    Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
+                        batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
+
+                    foreach (var command in batch.ModificationCommands)
+                    {
+                        batch = StartNewBatch(parameterNameGenerator, command);
+                        batch.Complete(moreBatchesExpected: true);
+
+                        yield return batch;
+                    }
+                }
+
+                batch = StartNewBatch(parameterNameGenerator, modificationCommand);
+            }
+        }
+
+        if (batch.ModificationCommands.Count == 1
+            || batch.ModificationCommands.Count >= _minBatchSize)
+        {
+            if (batch.ModificationCommands.Count > 1)
+            {
+                Dependencies.UpdateLogger.BatchReadyForExecution(
+                    batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
+            }
+
+            batch.Complete(moreBatchesExpected: moreCommandSets);
+
+            yield return batch;
+        }
+        else
+        {
+            Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
+                batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
+
+            for (var commandIndex = 0; commandIndex < batch.ModificationCommands.Count; commandIndex++)
+            {
+                var singleCommandBatch = StartNewBatch(parameterNameGenerator, batch.ModificationCommands[commandIndex]);
+                singleCommandBatch.Complete(
+                    moreBatchesExpected: moreCommandSets || commandIndex < batch.ModificationCommands.Count - 1);
+
+                yield return singleCommandBatch;
+            }
+        }
+
+        ModificationCommandBatch StartNewBatch(
+            ParameterNameGenerator? parameterNameGenerator,
+            IReadOnlyModificationCommand modificationCommand)
+        {
+            parameterNameGenerator?.Reset();
+            var batch = Dependencies.ModificationCommandBatchFactory.Create();
+            batch.TryAddCommand(modificationCommand);
+            return batch;
+        }
     }
 
     /// <summary>
