@@ -1555,7 +1555,7 @@ namespace TestNamespace
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""DerivedsId"")!, declaringEntityType.FindProperty(""DerivedsAlternateId"")! },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""Id"")!, principalEntityType.FindProperty(""AlternateId"")! })!,
                 principalEntityType,
-                deleteBehavior: DeleteBehavior.ClientCascade,
+                deleteBehavior: DeleteBehavior.Cascade,
                 required: true);
 
             return runtimeForeignKey;
@@ -1566,7 +1566,7 @@ namespace TestNamespace
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""PrincipalsId"")!, declaringEntityType.FindProperty(""PrincipalsAlternateId"")! },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""Id"")!, principalEntityType.FindProperty(""AlternateId"")! })!,
                 principalEntityType,
-                deleteBehavior: DeleteBehavior.Cascade,
+                deleteBehavior: DeleteBehavior.ClientCascade,
                 required: true);
 
             return runtimeForeignKey;

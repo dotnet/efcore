@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
-public class SqlServerOnDeleteConvention : CascadeDeleteConvention, ISkipNavigationForeignKeyChangedConvention
+public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
+    ISkipNavigationForeignKeyChangedConvention,
+    IEntityTypeAnnotationChangedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerOnDeleteConvention" />.
@@ -60,23 +62,75 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention, ISkipNavigat
             return DeleteBehavior.ClientCascade;
         }
 
-        var selfReferencingSkipNavigation = foreignKey.GetReferencingSkipNavigations()
-            .FirstOrDefault(s => s.Inverse != null && s.TargetEntityType.IsAssignableFrom(s.DeclaringEntityType));
-        if (selfReferencingSkipNavigation == null)
+        return ProcessSkipNavigations(foreignKey.GetReferencingSkipNavigations()) ?? deleteBehavior;
+    }
+
+    private DeleteBehavior? ProcessSkipNavigations(IEnumerable<IConventionSkipNavigation> skipNavigations)
+    {
+        var skipNavigation = skipNavigations
+            .FirstOrDefault(
+                s => s.Inverse != null
+                    && IsMappedToSameTable(s.DeclaringEntityType, s.TargetEntityType));
+
+        if (skipNavigation != null)
         {
-            return deleteBehavior;
+            var isFirstSkipNavigation = IsFirstSkipNavigation(skipNavigation);
+            if (!isFirstSkipNavigation)
+            {
+                skipNavigation = skipNavigation.Inverse!;
+            }
+
+            var inverseSkipNavigation = skipNavigation.Inverse!;
+
+            var deleteBehavior = DefaultDeleteBehavior(skipNavigation);
+            var inverseDeleteBehavior = DefaultDeleteBehavior(inverseSkipNavigation);
+
+            if (deleteBehavior == DeleteBehavior.Cascade
+                && inverseDeleteBehavior == DeleteBehavior.Cascade)
+            {
+                deleteBehavior = DeleteBehavior.ClientCascade;
+            }
+
+            skipNavigation.ForeignKey!.Builder.OnDelete(deleteBehavior);
+            inverseSkipNavigation.ForeignKey!.Builder.OnDelete(inverseDeleteBehavior);
+
+            return isFirstSkipNavigation ? deleteBehavior : inverseDeleteBehavior;
         }
 
-        if (selfReferencingSkipNavigation
-            == selfReferencingSkipNavigation.DeclaringEntityType.GetDeclaredSkipNavigations()
-                .First(s => s == selfReferencingSkipNavigation || s == selfReferencingSkipNavigation.Inverse)
-            && selfReferencingSkipNavigation != selfReferencingSkipNavigation.Inverse)
+        return null;
+
+        DeleteBehavior DefaultDeleteBehavior(IConventionSkipNavigation conventionSkipNavigation)
+            => conventionSkipNavigation.ForeignKey!.IsRequired ? DeleteBehavior.Cascade : DeleteBehavior.ClientSetNull;
+
+        bool IsMappedToSameTable(IConventionEntityType entityType1, IConventionEntityType entityType2)
         {
-            selfReferencingSkipNavigation.Inverse!.ForeignKey?.Builder.OnDelete(
-                GetTargetDeleteBehavior(selfReferencingSkipNavigation.Inverse.ForeignKey));
-            return DeleteBehavior.ClientCascade;
+            var tableName1 = entityType1.GetTableName();
+            var tableName2 = entityType2.GetTableName();
+
+            return tableName1 != null
+                && tableName2 != null
+                && tableName1 == tableName2
+                && entityType1.GetSchema() == entityType2.GetSchema();
         }
 
-        return deleteBehavior;
+        bool IsFirstSkipNavigation(IConventionSkipNavigation navigation)
+            => navigation.DeclaringEntityType != navigation.TargetEntityType
+                ? string.Compare(navigation.DeclaringEntityType.Name, navigation.TargetEntityType.Name, StringComparison.Ordinal) < 0
+                : string.Compare(navigation.Name, navigation.Inverse!.Name, StringComparison.Ordinal) < 0;
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessEntityTypeAnnotationChanged(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        string name,
+        IConventionAnnotation? annotation,
+        IConventionAnnotation? oldAnnotation,
+        IConventionContext<IConventionAnnotation> context)
+    {
+        if (name == RelationalAnnotationNames.TableName
+            || name == RelationalAnnotationNames.Schema)
+        {
+            ProcessSkipNavigations(entityTypeBuilder.Metadata.GetDeclaredSkipNavigations());
+        }
     }
 }

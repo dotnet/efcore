@@ -20,6 +20,14 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
+        modelBuilder.Entity<EntityTableSharing1>().ToTable("TableSharing");
+        modelBuilder.Entity<EntityTableSharing2>(
+            b =>
+            {
+                b.HasOne<EntityTableSharing1>().WithOne().HasForeignKey<EntityTableSharing2>(e => e.Id);
+                b.ToTable("TableSharing");
+            });
+
         modelBuilder.Entity<EntityOne>().ToTable(tb => tb.IsTemporal());
         modelBuilder.Entity<EntityTwo>().ToTable(tb => tb.IsTemporal());
         modelBuilder.Entity<EntityThree>().ToTable(tb => tb.IsTemporal());
@@ -44,6 +52,11 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
         modelBuilder.Entity<EntityRoot>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<EntityBranch>().HasBaseType<EntityRoot>();
         modelBuilder.Entity<EntityLeaf>().HasBaseType<EntityBranch>();
+        modelBuilder.Entity<EntityLeaf>().HasBaseType<EntityBranch>();
+        modelBuilder.Entity<EntityBranch2>().HasBaseType<EntityRoot>();
+        modelBuilder.Entity<EntityLeaf2>().HasBaseType<EntityBranch2>();
+        modelBuilder.Entity<EntityTableSharing1>().Property(e => e.Id).ValueGeneratedNever();
+        modelBuilder.Entity<EntityTableSharing2>().Property(e => e.Id).ValueGeneratedNever();
 
         modelBuilder.Entity<UnidirectionalEntityOne>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<UnidirectionalEntityTwo>().Property(e => e.Id).ValueGeneratedNever();
@@ -78,6 +91,18 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
             .HasMany(e => e.BranchSkipShared)
             .WithMany(e => e.RootSkipShared)
             .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
+
+        modelBuilder.Entity<EntityBranch2>()
+            .HasMany(e => e.SelfSkipSharedLeft)
+            .WithMany(e => e.SelfSkipSharedRight);
+
+        modelBuilder.Entity<EntityBranch2>()
+            .HasMany(e => e.Leaf2SkipShared)
+            .WithMany(e => e.Branch2SkipShared);
+
+        modelBuilder.Entity<EntityTableSharing1>()
+            .HasMany(e => e.TableSharing2Shared)
+            .WithMany(e => e.TableSharing1Shared);
 
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<EntityOne>()
