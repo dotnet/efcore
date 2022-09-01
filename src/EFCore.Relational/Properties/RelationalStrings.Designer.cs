@@ -1198,6 +1198,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter);
 
         /// <summary>
+        ///     A result set was was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.
+        /// </summary>
+        public static string MissingResultSetWhenSaving
+            => GetString("MissingResultSetWhenSaving");
+
+        /// <summary>
         ///     Cannot add commands to a completed ModificationCommandBatch.
         /// </summary>
         public static string ModificationCommandBatchAlreadyComplete
@@ -3658,6 +3664,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.TransactionError,
                             _resourceManager.GetString("LogTransactionError")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     An unexpected trailing result set was found when reading the results of a SaveChanges operation; this may indicate that a stored procedure returned a result set without being configured for it in the EF model. Check your stored procedure definitions.
+        /// </summary>
+        public static EventDefinition LogUnexpectedTrailingResultSetWhenSaving(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUnexpectedTrailingResultSetWhenSaving;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogUnexpectedTrailingResultSetWhenSaving,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.UnexpectedTrailingResultSetWhenSaving,
+                        LogLevel.Warning,
+                        "CoreEventId.UnexpectedTrailingResultSetWhenSaving",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.UnexpectedTrailingResultSetWhenSaving,
+                            _resourceManager.GetString("LogUnexpectedTrailingResultSetWhenSaving")!)));
             }
 
             return (EventDefinition)definition;

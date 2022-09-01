@@ -115,6 +115,19 @@ SET NOCOUNT ON;
 EXEC [WithTwoOutputParameters_Update] @p0, @p1, @p2;");
     }
 
+    public override async Task Update_with_output_parameter_and_rows_affected_result_column(bool async)
+    {
+        await base.Update_with_output_parameter_and_rows_affected_result_column(async);
+
+        AssertSql(
+            @"@p0='1'
+@p1='Updated' (Size = 4000)
+@p2=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
+
+SET NOCOUNT ON;
+EXEC [WithOutputParameterAndRowsAffectedResultColumn_Update] @p0, @p1, @p2 OUTPUT;");
+    }
+
     public override async Task Delete(bool async)
     {
         await base.Delete(async);
@@ -384,6 +397,7 @@ TRUNCATE TABLE [WithInputOutputParameterOnNonConcurrencyToken];
 TRUNCATE TABLE [WithOriginalAndCurrentValueOnNonConcurrencyToken];
 TRUNCATE TABLE [WithOutputParameter];
 TRUNCATE TABLE [WithOutputParameterAndResultColumn];
+TRUNCATE TABLE [WithOutputParameterAndRowsAffectedResultColumn];
 TRUNCATE TABLE [WithOutputParameterAndResultColumnAndResultValue];
 TRUNCATE TABLE [WithResultColumn];
 TRUNCATE TABLE [WithTwoResultColumns];
@@ -458,10 +472,19 @@ END;
 
 GO
 
+CREATE PROCEDURE WithOutputParameterAndRowsAffectedResultColumn_Update(@Id int, @Name varchar(max), @AdditionalProperty int OUT)
+AS BEGIN
+    UPDATE [WithOutputParameterAndRowsAffectedResultColumn] SET [Name] = @Name, @AdditionalProperty = [AdditionalProperty] WHERE [Id] = @Id;
+    SELECT @@ROWCOUNT;
+END;
+
+GO
+
 CREATE PROCEDURE WithTwoOutputParameters_Update(@Id int, @Name varchar(max), @AdditionalProperty int)
 AS UPDATE [WithTwoOutputParameters] SET [Name] = @Name, [AdditionalProperty] = @AdditionalProperty WHERE [Id] = @id;
 
 GO
+
 CREATE PROCEDURE WithRowsAffectedParameter_Update(@Id int, @Name varchar(max), @RowsAffected int OUT)
 AS BEGIN
     UPDATE [WithRowsAffectedParameter] SET [Name] = @Name WHERE [Id] = @Id;

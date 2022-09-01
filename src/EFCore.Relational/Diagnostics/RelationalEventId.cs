@@ -107,7 +107,8 @@ public static class RelationalEventId
         BatchSmallerThanMinBatchSize,
         BatchExecutorFailedToRollbackToSavepoint,
         BatchExecutorFailedToReleaseSavepoint,
-        OptionalDependentWithAllNullPropertiesWarning
+        OptionalDependentWithAllNullPropertiesWarning,
+        UnexpectedTrailingResultSetWhenSaving,
     }
 
     private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
@@ -1001,4 +1002,16 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId OptionalDependentWithAllNullPropertiesWarning
         = MakeUpdateId(Id.OptionalDependentWithAllNullPropertiesWarning);
+
+    /// <summary>
+    ///     An unexpected trailing result set was found when reading the results of a SaveChanges operation; this may indicate that a stored
+    ///     procedure returned a result set without being configured for it in the EF model. Check your stored procedure definitions.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId UnexpectedTrailingResultSetWhenSaving =
+        MakeUpdateId(Id.UnexpectedTrailingResultSetWhenSaving);
 }

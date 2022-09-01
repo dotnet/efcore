@@ -154,6 +154,31 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_with_output_parameter_and_rows_affected_result_column(bool async)
+    {
+        await using var context = CreateContext();
+
+        var entity = new EntityWithAdditionalProperty { Name = "Foo" };
+        context.WithOutputParameterAndRowsAffectedResultColumn.Add(entity);
+        await context.SaveChangesAsync();
+
+        entity.Name = "Updated";
+
+        ClearLog();
+
+        await SaveChanges(context, async);
+
+        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            var actual = await context.WithOutputParameterAndRowsAffectedResultColumn.SingleAsync(w => w.Id == entity.Id);
+
+            Assert.Equal("Updated", actual.Name);
+            Assert.Equal(8, actual.AdditionalProperty);
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete(bool async)
     {
         await using var context = CreateContext();
