@@ -86,7 +86,9 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
             var inverseDeleteBehavior = DefaultDeleteBehavior(inverseSkipNavigation);
 
             if (deleteBehavior == DeleteBehavior.Cascade
-                && inverseDeleteBehavior == DeleteBehavior.Cascade)
+                && inverseDeleteBehavior == DeleteBehavior.Cascade
+                && !(inverseSkipNavigation.ForeignKey!.GetDeleteBehaviorConfigurationSource() == ConfigurationSource.Explicit
+                    && inverseSkipNavigation.ForeignKey!.DeleteBehavior != DeleteBehavior.Cascade))
             {
                 deleteBehavior = DeleteBehavior.ClientCascade;
             }
