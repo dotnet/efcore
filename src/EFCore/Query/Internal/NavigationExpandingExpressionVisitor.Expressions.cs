@@ -330,7 +330,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public ParameterExpression CurrentParameter { get; }
 
-        public Expression GroupingEnumerable { get; }
+        public NavigationExpansionExpression GroupingEnumerable { get; }
 
         public Type SourceElementType
             => CurrentParameter.Type;

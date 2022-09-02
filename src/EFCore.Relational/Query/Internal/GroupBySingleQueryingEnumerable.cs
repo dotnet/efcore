@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -12,12 +12,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalQueryingEnumerable
+public class GroupBySingleQueryingEnumerable<TKey, TElement>
+    : IEnumerable<IGrouping<TKey, TElement>>, IAsyncEnumerable<IGrouping<TKey, TElement>>, IRelationalQueryingEnumerable
 {
     private readonly RelationalQueryContext _relationalQueryContext;
     private readonly RelationalCommandCache _relationalCommandCache;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-    private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
+    private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
+    private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
+    private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+    private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> _elementSelector;
     private readonly Type _contextType;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
     private readonly bool _standAloneStateManager;
@@ -30,11 +34,14 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SingleQueryingEnumerable(
+    public GroupBySingleQueryingEnumerable(
         RelationalQueryContext relationalQueryContext,
         RelationalCommandCache relationalCommandCache,
         IReadOnlyList<ReaderColumn?>? readerColumns,
-        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
+        Func<QueryContext, DbDataReader, TKey> keySelector,
+        Func<QueryContext, DbDataReader, object[]> keyIdentifier,
+        IReadOnlyList<ValueComparer> keyIdentifierValueComparers,
+        Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> elementSelector,
         Type contextType,
         bool standAloneStateManager,
         bool detailedErrorsEnabled,
@@ -43,7 +50,10 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         _relationalQueryContext = relationalQueryContext;
         _relationalCommandCache = relationalCommandCache;
         _readerColumns = readerColumns;
-        _shaper = shaper;
+        _keySelector = keySelector;
+        _keyIdentifier = keyIdentifier;
+        _keyIdentifierValueComparers = keyIdentifierValueComparers;
+        _elementSelector = elementSelector;
         _contextType = contextType;
         _queryLogger = relationalQueryContext.QueryLogger;
         _standAloneStateManager = standAloneStateManager;
@@ -57,7 +67,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerator<IGrouping<TKey, TElement>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
         _relationalQueryContext.CancellationToken = cancellationToken;
 
@@ -70,7 +80,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerator<T> GetEnumerator()
+    public virtual IEnumerator<IGrouping<TKey, TElement>> GetEnumerator()
         => new Enumerator(this);
 
     /// <summary>
@@ -113,12 +123,48 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         return _relationalQueryContext.RelationalQueryStringFactory.Create(dbCommand);
     }
 
-    private sealed class Enumerator : IEnumerator<T>
+    private sealed class InternalGrouping : IGrouping<TKey, TElement>
+    {
+        private readonly List<TElement> _elements;
+
+        public InternalGrouping(TKey key)
+        {
+            Key = key;
+            _elements = new();
+        }
+
+        internal void Add(TElement element) => _elements.Add(element);
+
+        public TKey Key { get; }
+
+        public IEnumerator<TElement> GetEnumerator() => _elements.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
+    {
+        // Ignoring size check on all for perf as they should be same unless bug in code.
+        for (var i = 0; i < left.Length; i++)
+        {
+            if (!valueComparers[i].Equals(left[i], right[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private sealed class Enumerator : IEnumerator<IGrouping<TKey, TElement>>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
+        private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
+        private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> _elementSelector;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -131,12 +177,15 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         private DbDataReader? _dbDataReader;
         private SingleQueryResultCoordinator? _resultCoordinator;
 
-        public Enumerator(SingleQueryingEnumerable<T> queryingEnumerable)
+        public Enumerator(GroupBySingleQueryingEnumerable<TKey, TElement> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandCache = queryingEnumerable._relationalCommandCache;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._shaper;
+            _keySelector = queryingEnumerable._keySelector;
+            _keyIdentifier = queryingEnumerable._keyIdentifier;
+            _keyIdentifierValueComparers = queryingEnumerable._keyIdentifierValueComparers;
+            _elementSelector = queryingEnumerable._elementSelector;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -149,7 +198,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 : null;
         }
 
-        public T Current { get; private set; }
+        public IGrouping<TKey, TElement> Current { get; private set; }
 
         object IEnumerator.Current
             => Current!;
@@ -172,36 +221,55 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
 
                     if (hasNext)
                     {
-                        while (true)
+                        var key = _keySelector(_relationalQueryContext, _dbDataReader!);
+                        var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
+                        var group = new InternalGrouping(key);
+                        do
                         {
                             _resultCoordinator.ResultReady = true;
                             _resultCoordinator.HasNext = null;
-                            Current = _shaper(
+                            var element = _elementSelector(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                             if (_resultCoordinator.ResultReady)
                             {
-                                // We generated a result so null out previously stored values
                                 _resultCoordinator.ResultContext.Values = null;
-                                break;
+                                group.Add(element);
                             }
 
-                            // If we are already pointing to next row, we don't need to call Read
-                            if (_resultCoordinator.HasNext == true)
+                            if (_resultCoordinator!.HasNext ?? _dbDataReader!.Read())
                             {
-                                continue;
+                                if (!_resultCoordinator.ResultReady)
+                                {
+                                    // If result isn't ready, we are still materializing element.
+                                    continue;
+                                }
+
+                                // Check if grouping key changed
+                                if (!CompareIdentifiers(
+                                    _keyIdentifierValueComparers, keyIdentifier, _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                                {
+                                    _resultCoordinator.HasNext = true;
+                                    Current = group;
+                                    break;
+                                }
                             }
-
-                            if (!_dataReader!.Read())
+                            else
                             {
-                                _resultCoordinator.HasNext = false;
-                                // Enumeration has ended, materialize last element
-                                _resultCoordinator.ResultReady = true;
-                                Current = _shaper(
-                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                                // End of enumeration so materialize final element if any and add it.
+                                if (!_resultCoordinator.ResultReady)
+                                {
+                                    _resultCoordinator.HasNext = false;
+                                    _resultCoordinator.ResultReady = true;
+                                    element = _elementSelector(
+                                        _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
+                                    group.Add(element);
+                                }
+                                Current = group;
                                 break;
                             }
                         }
+                        while (true);
                     }
                     else
                     {
@@ -270,12 +338,15 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
     }
 
-    private sealed class AsyncEnumerator : IAsyncEnumerator<T>
+    private sealed class AsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
-        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
+        private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
+        private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
+        private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+        private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> _elementSelector;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -289,12 +360,15 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         private DbDataReader? _dbDataReader;
         private SingleQueryResultCoordinator? _resultCoordinator;
 
-        public AsyncEnumerator(SingleQueryingEnumerable<T> queryingEnumerable)
+        public AsyncEnumerator(GroupBySingleQueryingEnumerable<TKey, TElement> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
             _relationalCommandCache = queryingEnumerable._relationalCommandCache;
             _readerColumns = queryingEnumerable._readerColumns;
-            _shaper = queryingEnumerable._shaper;
+            _keySelector = queryingEnumerable._keySelector;
+            _keyIdentifier = queryingEnumerable._keyIdentifier;
+            _keyIdentifierValueComparers = queryingEnumerable._keyIdentifierValueComparers;
+            _elementSelector = queryingEnumerable._elementSelector;
             _contextType = queryingEnumerable._contextType;
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
@@ -308,7 +382,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 : null;
         }
 
-        public T Current { get; private set; }
+        public IGrouping<TKey, TElement> Current { get; private set; }
 
         public async ValueTask<bool> MoveNextAsync()
         {
@@ -328,41 +402,59 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                             .ConfigureAwait(false);
                     }
 
-                    var hasNext = _resultCoordinator!.HasNext
-                        ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
+                    var hasNext = _resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
 
                     if (hasNext)
                     {
-                        while (true)
+                        var key = _keySelector(_relationalQueryContext, _dbDataReader!);
+                        var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
+                        var group = new InternalGrouping(key);
+                        do
                         {
                             _resultCoordinator.ResultReady = true;
                             _resultCoordinator.HasNext = null;
-                            Current = _shaper(
+                            var element = _elementSelector(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                             if (_resultCoordinator.ResultReady)
                             {
-                                // We generated a result so null out previously stored values
                                 _resultCoordinator.ResultContext.Values = null;
-                                break;
+                                group.Add(element);
                             }
 
-                            // If we are already pointing to next row, we don't need to call Read
-                            if (_resultCoordinator.HasNext == true)
+                            if (_resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
                             {
-                                continue;
+                                if (!_resultCoordinator.ResultReady)
+                                {
+                                    // If result isn't ready, we are still materializing element.
+                                    continue;
+                                }
+
+                                // Check if grouping key changed
+                                if (!CompareIdentifiers(
+                                    _keyIdentifierValueComparers, keyIdentifier, _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                                {
+                                    _resultCoordinator.HasNext = true;
+                                    Current = group;
+                                    break;
+                                }
                             }
-
-                            if (!await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
+                            else
                             {
-                                _resultCoordinator.HasNext = false;
-                                // Enumeration has ended, materialize last element
-                                _resultCoordinator.ResultReady = true;
-                                Current = _shaper(
-                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                                // End of enumeration so materialize final element if any and add it.
+                                if (!_resultCoordinator.ResultReady)
+                                {
+                                    _resultCoordinator.HasNext = false;
+                                    _resultCoordinator.ResultReady = true;
+                                    element = _elementSelector(
+                                        _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
+                                    group.Add(element);
+                                }
+                                Current = group;
                                 break;
                             }
                         }
+                        while (true);
                     }
                     else
                     {

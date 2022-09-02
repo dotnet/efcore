@@ -31,9 +31,9 @@ public class RelationalCollectionShaperExpression : Expression, IPrintableExpres
         Expression parentIdentifier,
         Expression outerIdentifier,
         Expression selfIdentifier,
-        IReadOnlyList<ValueComparer>? parentIdentifierValueComparers,
-        IReadOnlyList<ValueComparer>? outerIdentifierValueComparers,
-        IReadOnlyList<ValueComparer>? selfIdentifierValueComparers,
+        IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
+        IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
+        IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
         Expression innerShaper,
         INavigationBase? navigation,
         Type elementType)
@@ -67,17 +67,17 @@ public class RelationalCollectionShaperExpression : Expression, IPrintableExpres
     /// <summary>
     ///     The list of value comparers to compare parent identifier.
     /// </summary>
-    public virtual IReadOnlyList<ValueComparer>? ParentIdentifierValueComparers { get; }
+    public virtual IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; }
 
     /// <summary>
     ///     The list of value comparers to compare outer identifier.
     /// </summary>
-    public virtual IReadOnlyList<ValueComparer>? OuterIdentifierValueComparers { get; }
+    public virtual IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; }
 
     /// <summary>
     ///     The list of value comparers to compare self identifier.
     /// </summary>
-    public virtual IReadOnlyList<ValueComparer>? SelfIdentifierValueComparers { get; }
+    public virtual IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; }
 
     /// <summary>
     ///     The expression to create inner elements.
