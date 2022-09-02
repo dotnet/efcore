@@ -382,17 +382,6 @@ WHERE [OrderID] < 10300"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_Where_set_default(bool async)
-        => AssertUpdate(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
-            e => e,
-            s => s.SetProperty(c => c.ContactName, c => EF.Default<string>()),
-            rowsAffectedCount: 8,
-            (b, a) => Assert.All(a, c => Assert.Null(c.ContactName)));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_Where_parameter_set_constant(bool async)
     {
         var customer = "ALFKI";

@@ -732,12 +732,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        // EF.Default
-        if (methodCallExpression.Method.IsEFDefaultMethod())
-        {
-            return new SqlFragmentExpression("DEFAULT");
-        }
-
         var method = methodCallExpression.Method;
         var arguments = methodCallExpression.Arguments;
 
