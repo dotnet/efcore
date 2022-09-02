@@ -1340,7 +1340,7 @@ namespace TestNamespace
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""PrincipalBaseId"")!, declaringEntityType.FindProperty(""PrincipalBaseAlternateId"")! },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""PrincipalBaseId"")!, principalEntityType.FindProperty(""PrincipalBaseAlternateId"")! })!,
                 principalEntityType,
-                deleteBehavior: DeleteBehavior.ClientCascade,
+                deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,
                 required: true,
                 requiredDependent: true);
@@ -1681,7 +1681,7 @@ namespace TestNamespace
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""Id"")!, declaringEntityType.FindProperty(""AlternateId"")! },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""Id"")!, principalEntityType.FindProperty(""AlternateId"")! })!,
                 principalEntityType,
-                deleteBehavior: DeleteBehavior.ClientCascade,
+                deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,
                 required: true);
 
@@ -1967,7 +1967,7 @@ namespace TestNamespace
                     Assert.True(tptForeignKey.IsUnique);
                     Assert.Null(tptForeignKey.DependentToPrincipal);
                     Assert.Null(tptForeignKey.PrincipalToDependent);
-                    Assert.Equal(DeleteBehavior.ClientCascade, tptForeignKey.DeleteBehavior);
+                    Assert.Equal(DeleteBehavior.Cascade, tptForeignKey.DeleteBehavior);
                     Assert.Equal(principalKey.Properties, tptForeignKey.Properties);
                     Assert.Same(principalKey, tptForeignKey.PrincipalKey);
 

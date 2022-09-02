@@ -57,11 +57,6 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
             return deleteBehavior;
         }
 
-        if (foreignKey.IsBaseLinking())
-        {
-            return DeleteBehavior.ClientCascade;
-        }
-
         return ProcessSkipNavigations(foreignKey.GetReferencingSkipNavigations()) ?? deleteBehavior;
     }
 
@@ -133,6 +128,15 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
             || name == RelationalAnnotationNames.Schema)
         {
             ProcessSkipNavigations(entityTypeBuilder.Metadata.GetDeclaredSkipNavigations());
+
+            foreach (var foreignKey in entityTypeBuilder.Metadata.GetDeclaredForeignKeys())
+            {
+                var deleteBehavior = GetTargetDeleteBehavior(foreignKey);
+                if (foreignKey.DeleteBehavior != deleteBehavior)
+                {
+                    foreignKey.Builder.OnDelete(deleteBehavior);
+                }
+            }
         }
     }
 }

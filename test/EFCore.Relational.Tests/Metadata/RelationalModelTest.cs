@@ -857,11 +857,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("FK_SpecialCustomer_Customer_Id", specialCustomerTptFkConstraint.Name);
                 Assert.NotNull(specialCustomerTptFkConstraint.MappedForeignKeys.Single());
                 Assert.Same(customerTable, specialCustomerTptFkConstraint.PrincipalTable);
+                Assert.Equal(ReferentialAction.Cascade, specialCustomerTptFkConstraint.OnDeleteAction);
 
                 var anotherSpecialCustomerFkConstraint = foreignKeys[2];
                 Assert.Equal("FK_SpecialCustomer_SpecialCustomer_AnotherRelatedCustomerId", anotherSpecialCustomerFkConstraint.Name);
                 Assert.NotNull(anotherSpecialCustomerFkConstraint.MappedForeignKeys.Single());
                 Assert.Same(specialCustomerTable, anotherSpecialCustomerFkConstraint.PrincipalTable);
+                Assert.Equal(ReferentialAction.Cascade, specialCustomerTptFkConstraint.OnDeleteAction);
 
                 Assert.Equal(new[] { orderCustomerFkConstraint, specialCustomerTptFkConstraint }, customerTable.ReferencingForeignKeyConstraints);
 

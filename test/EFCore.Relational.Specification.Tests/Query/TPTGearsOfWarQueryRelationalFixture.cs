@@ -28,5 +28,11 @@ public abstract class TPTGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtu
         modelBuilder.Entity<LocustHorde>().ToTable("LocustHordes");
 
         modelBuilder.Entity<LocustCommander>().ToTable("LocustCommanders");
+
+        modelBuilder.Entity<Squad>()
+            .HasMany(s => s.Members)
+            .WithOne(g => g.Squad)
+            .HasForeignKey(g => g.SquadId)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }
