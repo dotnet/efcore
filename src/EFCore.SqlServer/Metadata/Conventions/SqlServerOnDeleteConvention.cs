@@ -57,7 +57,8 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
             return deleteBehavior;
         }
 
-        if (foreignKey.IsBaseLinking())
+        if (foreignKey.IsBaseLinking()
+            && IsMappedToSameTable(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType))
         {
             return DeleteBehavior.ClientCascade;
         }
@@ -104,21 +105,21 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
         DeleteBehavior DefaultDeleteBehavior(IConventionSkipNavigation conventionSkipNavigation)
             => conventionSkipNavigation.ForeignKey!.IsRequired ? DeleteBehavior.Cascade : DeleteBehavior.ClientSetNull;
 
-        bool IsMappedToSameTable(IConventionEntityType entityType1, IConventionEntityType entityType2)
-        {
-            var tableName1 = entityType1.GetTableName();
-            var tableName2 = entityType2.GetTableName();
-
-            return tableName1 != null
-                && tableName2 != null
-                && tableName1 == tableName2
-                && entityType1.GetSchema() == entityType2.GetSchema();
-        }
-
         bool IsFirstSkipNavigation(IConventionSkipNavigation navigation)
             => navigation.DeclaringEntityType != navigation.TargetEntityType
                 ? string.Compare(navigation.DeclaringEntityType.Name, navigation.TargetEntityType.Name, StringComparison.Ordinal) < 0
                 : string.Compare(navigation.Name, navigation.Inverse!.Name, StringComparison.Ordinal) < 0;
+    }
+
+    private bool IsMappedToSameTable(IConventionEntityType entityType1, IConventionEntityType entityType2)
+    {
+        var tableName1 = entityType1.GetTableName();
+        var tableName2 = entityType2.GetTableName();
+
+        return tableName1 != null
+            && tableName2 != null
+            && tableName1 == tableName2
+            && entityType1.GetSchema() == entityType2.GetSchema();
     }
 
     /// <inheritdoc />
@@ -133,6 +134,15 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
             || name == RelationalAnnotationNames.Schema)
         {
             ProcessSkipNavigations(entityTypeBuilder.Metadata.GetDeclaredSkipNavigations());
+
+            foreach (var foreignKey in entityTypeBuilder.Metadata.GetDeclaredForeignKeys())
+            {
+                var deleteBehavior = GetTargetDeleteBehavior(foreignKey);
+                if (foreignKey.DeleteBehavior != deleteBehavior)
+                {
+                    foreignKey.Builder.OnDelete(deleteBehavior);
+                }
+            }
         }
     }
 }
