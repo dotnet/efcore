@@ -556,6 +556,12 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
                 "c => c.ContactName", "c => EF.Default<string>()", SqliteStrings.DefaultNotSupported),
             () => base.Update_Where_set_default(async));
 
+    public override Task Update_Where_set_default_value_type(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.UnableToTranslateSetProperty(
+                "c => c.Discount", "c => EF.Default<float>()", SqliteStrings.DefaultNotSupported),
+            () => base.Update_Where_set_default_value_type(async));
+
     public override async Task Update_Where_parameter_set_constant(bool async)
     {
         await base.Update_Where_parameter_set_constant(async);

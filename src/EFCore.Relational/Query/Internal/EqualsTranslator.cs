@@ -60,8 +60,8 @@ public class EqualsTranslator : IMethodCallTranslator
             && right != null)
         {
             if (left.Type == right.Type
-                || (right.Type == typeof(object) && (right is SqlParameterExpression || right is SqlConstantExpression))
-                || (left.Type == typeof(object) && (left is SqlParameterExpression || left is SqlConstantExpression)))
+                || (right.Type == typeof(object) && (right is SqlParameterExpression or SqlConstantExpression or SqlFragmentExpression))
+                || (left.Type == typeof(object) && (left is SqlParameterExpression or SqlConstantExpression or SqlFragmentExpression)))
             {
                 return _sqlExpressionFactory.Equal(left, right);
             }

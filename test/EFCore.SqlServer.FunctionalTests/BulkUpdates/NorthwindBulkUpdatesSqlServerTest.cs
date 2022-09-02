@@ -579,6 +579,18 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
+    public override async Task Update_Where_set_default_value_type(bool async)
+    {
+        await base.Update_Where_set_default_value_type(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE [o]
+SET [o].[Discount] = DEFAULT
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE [o0].[CustomerID] IS NOT NULL AND ([o0].[CustomerID] LIKE N'F%')");
+    }
+
     public override async Task Update_Where_parameter_set_constant(bool async)
     {
         await base.Update_Where_parameter_set_constant(async);

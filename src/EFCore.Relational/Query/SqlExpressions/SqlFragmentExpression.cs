@@ -19,7 +19,7 @@ public class SqlFragmentExpression : SqlExpression
     /// </summary>
     /// <param name="sql">A string token to print in SQL tree.</param>
     public SqlFragmentExpression(string sql)
-        : base(typeof(string), null)
+        : base(typeof(object), null)
     {
         Sql = sql;
     }
