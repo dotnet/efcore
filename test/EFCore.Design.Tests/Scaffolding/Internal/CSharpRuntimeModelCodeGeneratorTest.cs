@@ -1340,7 +1340,7 @@ namespace TestNamespace
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""PrincipalBaseId"")!, declaringEntityType.FindProperty(""PrincipalBaseAlternateId"")! },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""PrincipalBaseId"")!, principalEntityType.FindProperty(""PrincipalBaseAlternateId"")! })!,
                 principalEntityType,
-                deleteBehavior: DeleteBehavior.ClientCascade,
+                deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,
                 required: true,
                 requiredDependent: true);
