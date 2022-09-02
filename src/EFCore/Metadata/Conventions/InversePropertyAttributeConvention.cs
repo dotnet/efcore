@@ -76,14 +76,16 @@ public class InversePropertyAttributeConvention :
         var entityType = entityTypeBuilder.Metadata;
         var targetEntityType = targetEntityTypeBuilder.Metadata;
         var targetClrType = targetEntityType.ClrType;
+        var navigationCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType);
         var inverseNavigationPropertyInfo = targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal))
+                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal)
+                && navigationCandidates.ContainsKey(p))
             ?? targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase)
+                && navigationCandidates.ContainsKey(p));
 
         if (inverseNavigationPropertyInfo == null
-            || !Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType)[inverseNavigationPropertyInfo]
-                .Type.IsAssignableFrom(entityType.ClrType))
+            || !navigationCandidates[inverseNavigationPropertyInfo].Type.IsAssignableFrom(entityType.ClrType))
         {
             throw new InvalidOperationException(
                 CoreStrings.InvalidNavigationWithInverseProperty(

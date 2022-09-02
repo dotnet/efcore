@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     </para>
 /// </summary>
 #if DEBUG
-[DebuggerDisplay("{new ExpressionPrinter().Print(this), nq}")]
+[DebuggerDisplay("{new Microsoft.EntityFrameworkCore.Query.ExpressionPrinter().Print(this), nq}")]
 #endif
 public abstract class SqlExpression : Expression, IPrintableExpression
 {

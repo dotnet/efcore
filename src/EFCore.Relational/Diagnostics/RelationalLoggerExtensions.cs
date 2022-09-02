@@ -3327,4 +3327,31 @@ public static class RelationalLoggerExtensions
         var p = (MigrationColumnOperationEventData)payload;
         return d.GenerateMessage((p.ColumnOperation.Table, p.ColumnOperation.Schema).FormatTable(), p.ColumnOperation.Name);
     }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.UnexpectedTrailingResultSetWhenSaving" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void UnexpectedTrailingResultSetWhenSaving(this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics)
+    {
+        var definition = RelationalResources.LogUnexpectedTrailingResultSetWhenSaving(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                static (definition, _) =>
+                {
+                    var d = (EventDefinition)definition;
+                    return d.GenerateMessage();
+                });
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
 }

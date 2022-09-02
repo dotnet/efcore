@@ -53,7 +53,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 {
                     if (onResultSet == false)
                     {
-                        Check.DebugFail("Missing a result set");
+                        throw new InvalidOperationException(RelationalStrings.MissingResultSetWhenSaving);
                     }
 
                     var lastHandledCommandIndex = command.RequiresResultPropagation
@@ -75,12 +75,15 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
 
-            Debug.Assert(onResultSet != true, "Unexpected result set found at end");
+            if (onResultSet == true)
+            {
+                Dependencies.UpdateLogger.UnexpectedTrailingResultSetWhenSaving();
+            }
+
+            reader.Close();
 
             if (hasOutputParameters)
             {
-                reader.DbDataReader.Close();
-
                 var parameterCounter = 0;
                 IReadOnlyModificationCommand command;
 
@@ -133,7 +136,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
                 ex,
-                ModificationCommands[commandIndex].Entries);
+                ModificationCommands[commandIndex < ModificationCommands.Count ? commandIndex : ModificationCommands.Count - 1].Entries);
         }
     }
 
@@ -168,7 +171,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 {
                     if (onResultSet == false)
                     {
-                        Check.DebugFail("Missing a result set");
+                        throw new InvalidOperationException(RelationalStrings.MissingResultSetWhenSaving);
                     }
 
                     var lastHandledCommandIndex = command.RequiresResultPropagation
@@ -190,12 +193,15 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 }
             }
 
-            Debug.Assert(onResultSet != true, "Unexpected result set found at end");
+            if (onResultSet == true)
+            {
+                Dependencies.UpdateLogger.UnexpectedTrailingResultSetWhenSaving();
+            }
+
+            await reader.CloseAsync().ConfigureAwait(false);
 
             if (hasOutputParameters)
             {
-                await reader.DbDataReader.CloseAsync().ConfigureAwait(false);
-
                 var parameterCounter = 0;
                 IReadOnlyModificationCommand command;
 
@@ -249,7 +255,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
                 ex,
-                ModificationCommands[commandIndex].Entries);
+                ModificationCommands[commandIndex < ModificationCommands.Count ? commandIndex : ModificationCommands.Count - 1].Entries);
         }
     }
 

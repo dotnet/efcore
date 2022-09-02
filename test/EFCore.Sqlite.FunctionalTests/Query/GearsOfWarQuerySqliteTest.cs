@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -557,6 +558,36 @@ WHERE CAST(strftime('%w', ""m"".""Date"") AS INTEGER) = 6");
             @"SELECT ""m"".""Id"", ""m"".""CodeName"", ""m"".""Date"", ""m"".""Duration"", ""m"".""Rating"", ""m"".""Time"", ""m"".""Timeline""
 FROM ""Missions"" AS ""m""
 WHERE date(""m"".""Date"", CAST(3 AS TEXT) || ' years') = '1993-11-10'");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_DateOnly_AddYears_Year(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).Year == 1993).AsTracking(),
+            entryCount: 1);
+
+        AssertSql(
+            @"SELECT ""m"".""Id"", ""m"".""CodeName"", ""m"".""Date"", ""m"".""Duration"", ""m"".""Rating"", ""m"".""Time"", ""m"".""Timeline""
+FROM ""Missions"" AS ""m""
+WHERE CAST(strftime('%Y', ""m"".""Date"", CAST(3 AS TEXT) || ' years') AS INTEGER) = 1993");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_DateOnly_AddYears_AddMonths(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).AddMonths(3) == new DateOnly(1994, 2, 10)).AsTracking(),
+            entryCount: 1);
+
+        AssertSql(
+            @"SELECT ""m"".""Id"", ""m"".""CodeName"", ""m"".""Date"", ""m"".""Duration"", ""m"".""Rating"", ""m"".""Time"", ""m"".""Timeline""
+FROM ""Missions"" AS ""m""
+WHERE date(""m"".""Date"", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' months') = '1994-02-10'");
     }
 
     public override async Task Where_DateOnly_AddMonths(bool async)

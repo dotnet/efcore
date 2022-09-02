@@ -48,6 +48,7 @@ public class ManyToManyData : ISetSource
         context.Set<Dictionary<string, object>>("EntityCompositeKeyEntityTwo").AddRange(CreateJoinTwoToCompositeKeyShareds(context));
         context.Set<Dictionary<string, object>>("EntityRootEntityThree").AddRange(CreateEntityRootEntityThrees(context));
         context.Set<Dictionary<string, object>>("EntityCompositeKeyEntityRoot").AddRange(CreateJoinCompositeKeyToRootShareds(context));
+        context.Set<Dictionary<string, object>>("EntityBranchEntityRoot").AddRange(CreateEntityRootEntityBranches(context));
 
         _unidirectionalOnes = CreateUnidirectionalOnes(context);
         context.Set<UnidirectionalEntityOne>().AddRange(_unidirectionalOnes);
@@ -80,8 +81,8 @@ public class ManyToManyData : ISetSource
             .AddRange(CreateUnidirectionalEntityRootEntityThrees(context));
         context.Set<Dictionary<string, object>>("UnidirectionalEntityCompositeKeyUnidirectionalEntityRoot")
             .AddRange(CreateUnidirectionalJoinCompositeKeyToRootShareds(context));
-
-        var entries = context.ChangeTracker.Entries<UnidirectionalEntityCompositeKey>().ToList();
+        context.Set<Dictionary<string, object>>("UnidirectionalEntityBranchUnidirectionalEntityRoot")
+            .AddRange(CreateUnidirectionalEntityRootUnidirectionalEntityBranches(context));
     }
 
     public IQueryable<TEntity> Set<TEntity>()
@@ -1183,6 +1184,40 @@ public class ManyToManyData : ISetSource
             context?.Set<Dictionary<string, object>>("EntityRootEntityThree"), (e, p) =>
             {
                 e["ThreeSkipSharedId"] = context?.Entry(three).Property(e => e.Id).CurrentValue ?? three.Id;
+                e["RootSkipSharedId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
+            });
+
+
+    private Dictionary<string, object>[] CreateEntityRootEntityBranches(ManyToManyContext context)
+    {
+        var branches = _roots.OfType<EntityBranch>().ToList();
+        return new[]
+        {
+            CreateEntityRootEntityBranch(context, branches[0], _roots[6]),
+            CreateEntityRootEntityBranch(context, branches[0], _roots[7]),
+            CreateEntityRootEntityBranch(context, branches[0], _roots[14]),
+            CreateEntityRootEntityBranch(context, branches[1], _roots[3]),
+            CreateEntityRootEntityBranch(context, branches[1], _roots[15]),
+            CreateEntityRootEntityBranch(context, branches[2], _roots[11]),
+            CreateEntityRootEntityBranch(context, branches[2], _roots[13]),
+            CreateEntityRootEntityBranch(context, branches[2], _roots[19]),
+            CreateEntityRootEntityBranch(context, branches[4], _roots[13]),
+            CreateEntityRootEntityBranch(context, branches[4], _roots[14]),
+            CreateEntityRootEntityBranch(context, branches[4], _roots[15]),
+            CreateEntityRootEntityBranch(context, branches[5], _roots[16]),
+            CreateEntityRootEntityBranch(context, branches[6], _roots[0]),
+            CreateEntityRootEntityBranch(context, branches[6], _roots[5]),
+        };
+    }
+
+    private static Dictionary<string, object> CreateEntityRootEntityBranch(
+        ManyToManyContext context,
+        EntityBranch branch,
+        EntityRoot root)
+        => CreateInstance(
+            context?.Set<Dictionary<string, object>>("EntityBranchEntityRoot"), (e, p) =>
+            {
+                e["BranchSkipSharedId"] = context?.Entry(branch).Property(e => e.Id).CurrentValue ?? branch.Id;
                 e["RootSkipSharedId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
             });
 
@@ -2300,6 +2335,40 @@ public class ManyToManyData : ISetSource
             context?.Set<Dictionary<string, object>>("UnidirectionalEntityRootUnidirectionalEntityThree"), (e, p) =>
             {
                 e["ThreeSkipSharedId"] = context?.Entry(three).Property(e => e.Id).CurrentValue ?? three.Id;
+                e["UnidirectionalEntityRootId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
+            });
+
+
+    private Dictionary<string, object>[] CreateUnidirectionalEntityRootUnidirectionalEntityBranches(ManyToManyContext context)
+    {
+        var branches = _unidirectionalRoots.OfType<UnidirectionalEntityBranch>().ToList();
+        return new[]
+        {
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[0], _unidirectionalRoots[6]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[0], _unidirectionalRoots[7]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[0], _unidirectionalRoots[14]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[1], _unidirectionalRoots[3]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[1], _unidirectionalRoots[15]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[2], _unidirectionalRoots[11]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[2], _unidirectionalRoots[13]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[2], _unidirectionalRoots[19]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[4], _unidirectionalRoots[13]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[4], _unidirectionalRoots[14]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[4], _unidirectionalRoots[15]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[5], _unidirectionalRoots[16]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[6], _unidirectionalRoots[0]),
+            CreateUnidirectionalEntityRootUnidirectionalEntityBranch(context, branches[6], _unidirectionalRoots[5]),
+        };
+    }
+
+    private static Dictionary<string, object> CreateUnidirectionalEntityRootUnidirectionalEntityBranch(
+        ManyToManyContext context,
+        UnidirectionalEntityBranch branch,
+        UnidirectionalEntityRoot root)
+        => CreateInstance(
+            context?.Set<Dictionary<string, object>>("UnidirectionalEntityBranchUnidirectionalEntityRoot"), (e, p) =>
+            {
+                e["BranchSkipSharedId"] = context?.Entry(branch).Property(e => e.Id).CurrentValue ?? branch.Id;
                 e["UnidirectionalEntityRootId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
             });
 

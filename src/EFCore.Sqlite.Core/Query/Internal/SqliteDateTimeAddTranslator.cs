@@ -32,7 +32,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
         { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddDays), new[] { typeof(int) })!, " days" }
     };
 
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +40,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteDateTimeAddTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqliteDateTimeAddTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -105,8 +105,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
                         "rtrim",
                         new SqlExpression[]
                         {
-                            SqliteExpression.Strftime(
-                                _sqlExpressionFactory,
+                            _sqlExpressionFactory.Strftime(
                                 method.ReturnType,
                                 "%Y-%m-%d %H:%M:%f",
                                 instance!,
@@ -133,18 +132,15 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
     {
         if (instance is not null && _methodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
         {
-            return _sqlExpressionFactory.Function(
-                "date",
+            return _sqlExpressionFactory.Date(
+                method.ReturnType,
+                instance,
                 new[]
                 {
-                    instance,
                     _sqlExpressionFactory.Add(
                         _sqlExpressionFactory.Convert(arguments[0], typeof(string)),
                         _sqlExpressionFactory.Constant(unitSuffix))
-                },
-                argumentsPropagateNullability: new[] { true, true },
-                nullable: true,
-                returnType: method.ReturnType);
+                });
         }
 
         return null;

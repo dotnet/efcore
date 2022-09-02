@@ -61,6 +61,21 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                         .HasResultColumn(w => w.AdditionalProperty));
             });
 
+        modelBuilder.SharedTypeEntity<EntityWithAdditionalProperty>(
+            nameof(StoredProcedureUpdateContext.WithOutputParameterAndRowsAffectedResultColumn),
+            b =>
+            {
+                b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+
+                b.UpdateUsingStoredProcedure(
+                    nameof(StoredProcedureUpdateContext.WithOutputParameterAndRowsAffectedResultColumn) + "_Update",
+                    spb => spb
+                        .HasParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
+                        .HasRowsAffectedResultColumn());
+            });
+
         modelBuilder.SharedTypeEntity<EntityWithAdditionalProperty>(nameof(StoredProcedureUpdateContext.WithTwoOutputParameters))
             .UpdateUsingStoredProcedure(
                 nameof(StoredProcedureUpdateContext.WithTwoOutputParameters) + "_Update", spb => spb
