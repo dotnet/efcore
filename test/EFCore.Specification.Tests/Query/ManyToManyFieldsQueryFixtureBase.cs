@@ -269,6 +269,10 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
             .HasMany(e => e.TwoSkipShared)
             .WithMany(e => e.OneSkipShared);
 
+        modelBuilder.Entity<EntityRoot>()
+            .HasMany(e => e.BranchSkipShared)
+            .WithMany(e => e.RootSkipShared);
+
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.TwoSkip)

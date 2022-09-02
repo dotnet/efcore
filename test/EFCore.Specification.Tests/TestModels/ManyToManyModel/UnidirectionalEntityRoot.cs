@@ -8,4 +8,5 @@ public class UnidirectionalEntityRoot
     public virtual int Id { get; set; }
     public virtual string Name { get; set; }
     public virtual ICollection<UnidirectionalEntityThree> ThreeSkipShared { get; set; }
+    public virtual ICollection<UnidirectionalEntityBranch> BranchSkipShared { get; set; }
 }

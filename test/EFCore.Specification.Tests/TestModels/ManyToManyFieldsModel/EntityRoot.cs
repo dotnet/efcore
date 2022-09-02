@@ -9,4 +9,5 @@ public class EntityRoot
     public string Name;
     public ICollection<EntityThree> ThreeSkipShared;
     public ICollection<EntityCompositeKey> CompositeKeySkipShared;
+    public ICollection<EntityBranch> BranchSkipShared;
 }

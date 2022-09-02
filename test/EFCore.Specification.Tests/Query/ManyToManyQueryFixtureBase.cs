@@ -40,6 +40,10 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
         { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
         { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
+        { typeof(EntityBranch2), e => ((EntityBranch2)e)?.Id },
+        { typeof(EntityLeaf2), e => ((EntityLeaf2)e)?.Id },
+        { typeof(EntityTableSharing1), e => ((EntityTableSharing1)e)?.Id },
+        { typeof(EntityTableSharing2), e => ((EntityTableSharing2)e)?.Id },
         { typeof(UnidirectionalEntityOne), e => ((UnidirectionalEntityOne)e)?.Id },
         { typeof(UnidirectionalEntityTwo), e => ((UnidirectionalEntityTwo)e)?.Id },
         { typeof(UnidirectionalEntityThree), e => ((UnidirectionalEntityThree)e)?.Id },
@@ -162,6 +166,69 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
                     Assert.Equal(ee.Name, aa.Name);
                     Assert.Equal(ee.Number, aa.Number);
                     Assert.Equal(ee.IsGreen, aa.IsGreen);
+                }
+            }
+        },
+        {
+            typeof(EntityBranch2), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (EntityBranch2)e;
+                    var aa = (EntityBranch2)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Slumber, aa.Slumber);
+                }
+            }
+        },
+        {
+            typeof(EntityLeaf2), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (EntityLeaf2)e;
+                    var aa = (EntityLeaf2)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                    Assert.Equal(ee.Slumber, aa.Slumber);
+                    Assert.Equal(ee.IsBrown, aa.IsBrown);
+                }
+            }
+        },
+        {
+            typeof(EntityTableSharing1), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (EntityTableSharing1)e;
+                    var aa = (EntityTableSharing1)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        },
+        {
+            typeof(EntityTableSharing2), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+
+                if (a != null)
+                {
+                    var ee = (EntityTableSharing2)e;
+                    var aa = (EntityTableSharing2)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Cucumber, aa.Cucumber);
                 }
             }
         },
@@ -292,6 +359,10 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         modelBuilder.Entity<EntityRoot>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<EntityBranch>().HasBaseType<EntityRoot>();
         modelBuilder.Entity<EntityLeaf>().HasBaseType<EntityBranch>();
+        modelBuilder.Entity<EntityBranch2>().HasBaseType<EntityRoot>();
+        modelBuilder.Entity<EntityLeaf2>().HasBaseType<EntityBranch2>();
+        modelBuilder.Entity<EntityTableSharing1>().Property(e => e.Id).ValueGeneratedNever();
+        modelBuilder.Entity<EntityTableSharing2>().Property(e => e.Id).ValueGeneratedNever();
 
         modelBuilder.Entity<UnidirectionalEntityOne>().Property(e => e.Id).ValueGeneratedNever();
         modelBuilder.Entity<UnidirectionalEntityTwo>().Property(e => e.Id).ValueGeneratedNever();
@@ -320,6 +391,22 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.TwoSkipShared)
             .WithMany(e => e.OneSkipShared);
+
+        modelBuilder.Entity<EntityRoot>()
+            .HasMany(e => e.BranchSkipShared)
+            .WithMany(e => e.RootSkipShared);
+
+        modelBuilder.Entity<EntityBranch2>()
+            .HasMany(e => e.SelfSkipSharedLeft)
+            .WithMany(e => e.SelfSkipSharedRight);
+
+        modelBuilder.Entity<EntityBranch2>()
+            .HasMany(e => e.Leaf2SkipShared)
+            .WithMany(e => e.Branch2SkipShared);
+
+        modelBuilder.Entity<EntityTableSharing1>()
+            .HasMany(e => e.TableSharing2Shared)
+            .WithMany(e => e.TableSharing1Shared);
 
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<EntityOne>()
@@ -438,6 +525,10 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         modelBuilder.Entity<UnidirectionalEntityOne>()
             .HasMany(e => e.TwoSkipShared)
             .WithMany();
+
+        modelBuilder.Entity<UnidirectionalEntityBranch>()
+            .HasMany<UnidirectionalEntityRoot>()
+            .WithMany(e => e.BranchSkipShared);
 
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<UnidirectionalEntityOne>()

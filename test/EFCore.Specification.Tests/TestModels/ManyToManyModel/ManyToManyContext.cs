@@ -17,6 +17,8 @@ public class ManyToManyContext : PoolableDbContext
     public DbSet<EntityThree> EntityThrees { get; set; }
     public DbSet<EntityCompositeKey> EntityCompositeKeys { get; set; }
     public DbSet<EntityRoot> EntityRoots { get; set; }
+    public DbSet<EntityTableSharing1> EntityTableSharing1s { get; set; }
+    public DbSet<EntityTableSharing2> EntityTableSharing2s { get; set; }
     public DbSet<ImplicitManyToManyA> ImplicitManyToManyAs { get; set; }
     public DbSet<ImplicitManyToManyB> ImplicitManyToManyBs { get; set; }
     public DbSet<GeneratedKeysLeft> GeneratedKeysLefts { get; set; }

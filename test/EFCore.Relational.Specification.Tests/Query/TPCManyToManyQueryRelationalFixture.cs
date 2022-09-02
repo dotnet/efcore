@@ -23,6 +23,8 @@ public abstract class TPCManyToManyQueryRelationalFixture : ManyToManyQueryRelat
         modelBuilder.Entity<EntityRoot>().ToTable("Roots");
         modelBuilder.Entity<EntityBranch>().ToTable("Branches");
         modelBuilder.Entity<EntityLeaf>().ToTable("Leaves");
+        modelBuilder.Entity<EntityBranch2>().ToTable("Branch2s");
+        modelBuilder.Entity<EntityLeaf2>().ToTable("Leaf2s");
 
         modelBuilder.Entity<UnidirectionalEntityRoot>().UseTpcMappingStrategy();
         modelBuilder.Entity<UnidirectionalEntityRoot>().ToTable("UnidirectionalRoots");
