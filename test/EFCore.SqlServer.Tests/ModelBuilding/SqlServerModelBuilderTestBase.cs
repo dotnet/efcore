@@ -545,6 +545,62 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
     public abstract class SqlServerOneToMany : RelationalOneToManyTestBase
     {
+        [ConditionalFact]
+        public virtual void Shadow_foreign_keys_to_generic_types_have_terrible_names_that_should_not_change()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<EventBase>().ToTable("Events");
+            modelBuilder.Entity<Activity<Company>>().ToTable("CompanyActivities");
+            modelBuilder.Entity<Activity<User>>().ToTable("UserActivities");
+
+            var model = modelBuilder.FinalizeModel();
+
+            var companyActivityEventType = model.FindEntityType(typeof(ActivityEvent<Company>))!;
+            var eventTable = StoreObjectIdentifier.Create(companyActivityEventType, StoreObjectType.Table)!.Value;
+            var companyActivityEventFk = companyActivityEventType.GetForeignKeys().Single();
+            var companyActivityEventFkProperty = companyActivityEventFk.Properties.Single();
+            Assert.Equal("Activity<Company>Id", companyActivityEventFkProperty.GetColumnName(eventTable));
+            Assert.Equal("FK_Events_CompanyActivities_Activity<Company>Id", companyActivityEventFk.GetConstraintName());
+            Assert.Equal(
+                "FK_Events_CompanyActivities_Activity<Company>Id", companyActivityEventFk.GetConstraintName(
+                    eventTable,
+                    StoreObjectIdentifier.Create(companyActivityEventFk.PrincipalEntityType, StoreObjectType.Table)!.Value));
+
+            var userActivityEventType = model.FindEntityType(typeof(ActivityEvent<User>))!;
+            var userActivityEventFk = userActivityEventType.GetForeignKeys().Single();
+            var userActivityEventFkProperty = userActivityEventFk.Properties.Single();
+            Assert.Equal("Activity<User>Id", userActivityEventFkProperty.GetColumnName(eventTable));
+            Assert.Equal("FK_Events_UserActivities_Activity<User>Id", userActivityEventFk.GetConstraintName());
+            Assert.Equal(
+                "FK_Events_UserActivities_Activity<User>Id", userActivityEventFk.GetConstraintName(
+                    eventTable,
+                    StoreObjectIdentifier.Create(userActivityEventFk.PrincipalEntityType, StoreObjectType.Table)!.Value));
+        }
+
+        protected abstract class EventBase
+        {
+            public string? Id { get; set; }
+        }
+
+        protected class Activity<T>
+        {
+            public string? Id { get; set; }
+            public virtual List<ActivityEvent<T>> Events { get; private set; } = null!;
+        }
+
+        protected class ActivityEvent<TTarget> : EventBase
+        {
+        }
+
+        protected class Company
+        {
+        }
+
+        protected class User
+        {
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
     }
