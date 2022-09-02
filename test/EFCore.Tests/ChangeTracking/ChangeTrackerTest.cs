@@ -3536,6 +3536,19 @@ public class ChangeTrackerTest
         AssertValuesSaved(id, 0, null);
     }
 
+    [ConditionalFact]
+    public void Clearing_change_tracker_resets_local_view_count()
+    {
+        using var context = new LikeAZooContext();
+
+        int originalCount = context.Cats.Local.Count;
+        context.Cats.Add(new Cat(3));
+
+        context.ChangeTracker.Clear();
+
+        Assert.Equal(originalCount, context.Cats.Local.Count);
+    }
+
     private static void AssertValuesSaved(int id, int someInt, string? someString)
     {
         using var context = new TheShadows();
