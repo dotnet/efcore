@@ -671,6 +671,11 @@ public class StateManager : IStateManager
         _needsUnsubscribe = false;
 
         SavingChanges = false;
+
+        foreach (IResettableService set in ((IDbSetCache)Context).GetSets())
+        {
+            set.ResetState();
+        }
     }
 
     /// <summary>
