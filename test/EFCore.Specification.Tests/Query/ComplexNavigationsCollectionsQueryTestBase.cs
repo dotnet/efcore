@@ -2416,4 +2416,85 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
                     AssertCollection(e.Collection, a.Collection, elementSorter: ee => ee.Key);
                 }
             });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_Include_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).GroupBy(l1 => l1.Name),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Level1>(i => i.OneToMany_Optional1))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_Include_collection_nested(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToMany_Optional2).GroupBy(l1 => l1.Name),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+                    new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
+                    new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToManyOptional1"))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_Include_collection_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_FK2).GroupBy(l1 => l1.Name),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+                    new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToManyOptional1"))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_Include_collection_multiple(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).Include(l1 => l1.OneToMany_Required1).GroupBy(l1 => l1.Name),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+                    new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
+                    new ExpectedInclude<Level1>(l2 => l2.OneToMany_Required1))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_Include_collection_reference_same_level(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToMany_Optional1).Include(l1 => l1.OneToOne_Optional_FK1).GroupBy(l1 => l1.Name),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+                    new ExpectedInclude<Level1>(i => i.OneToMany_Optional1),
+                    new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_Include_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).GroupBy(l1 => l1.Name),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+                    new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1))));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_property_entity_Include_reference_multiple(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).Include(l1 => l1.OneToOne_Required_FK1).GroupBy(l1 => l1.Name),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) => AssertGrouping(e, a,
+                elementAsserter: (ee, aa) => AssertInclude(ee, aa,
+                    new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1),
+                    new ExpectedInclude<Level1>(l2 => l2.OneToOne_Required_FK1))));
 }
