@@ -366,6 +366,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 {
                     b.ToTable("Ingredients");
                     b.Ignore(i => i.BigMak);
+                    b.HasIndex(e => e.BurgerId);
                     b.UseTpcMappingStrategy();
                 });
             modelBuilder.Entity<Bun>(
@@ -388,10 +389,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Empty(principalType.GetIndexes());
             Assert.Null(principalType.FindDiscriminatorProperty());
 
-            var ingredientType = model.FindEntityType(typeof(Ingredient));
-
             var bunType = model.FindEntityType(typeof(Bun))!;
-            Assert.Empty(bunType.GetIndexes());
+            Assert.Empty(bunType.GetDeclaredIndexes());
             Assert.Null(bunType.FindDiscriminatorProperty());
             var bunFk = bunType.GetDeclaredForeignKeys().Single();
             Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName());
@@ -404,12 +403,20 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Empty(bunType.GetDeclaredForeignKeys().Where(fk => fk.IsBaseLinking()));
 
             var sesameBunType = model.FindEntityType(typeof(SesameBun))!;
-            Assert.Empty(sesameBunType.GetIndexes());
+            Assert.Empty(sesameBunType.GetDeclaredIndexes());
             Assert.Empty(sesameBunType.GetDeclaredForeignKeys());
             Assert.Equal(
                 "FK_SesameBuns_BigMak_Id", bunFk.GetConstraintName(
                     StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table)!.Value,
                     StoreObjectIdentifier.Create(principalType, StoreObjectType.Table)!.Value));
+
+            var ingredientType = model.FindEntityType(typeof(Ingredient))!;
+            var ingredientIndex = ingredientType.GetDeclaredIndexes().Single();
+            Assert.Equal("IX_Ingredients_BurgerId", ingredientIndex.GetDatabaseName());
+            Assert.Equal("IX_SesameBuns_BurgerId",
+                ingredientIndex.GetDatabaseName(StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table)!.Value));
+            Assert.Equal("IX_Buns_BurgerId",
+                ingredientIndex.GetDatabaseName(StoreObjectIdentifier.Create(bunType, StoreObjectType.Table)!.Value));
         }
 
         [ConditionalFact]
