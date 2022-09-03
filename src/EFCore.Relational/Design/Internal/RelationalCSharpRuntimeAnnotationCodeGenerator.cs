@@ -487,7 +487,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
-        var parameterVariable = code.Identifier(parameter.Name, parameters.ScopeVariables, capitalize: false);
+        var parameterVariable = code.Identifier(parameter.PropertyName ?? parameter.Name, parameters.ScopeVariables, capitalize: false);
 
         mainBuilder
             .Append("var ").Append(parameterVariable).Append(" = ")

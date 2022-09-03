@@ -2614,9 +2614,9 @@ namespace TestNamespace
                 ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId = insertSproc.AddParameter(
                 ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
-            var baseId = insertSproc.AddParameter(
+            var id = insertSproc.AddParameter(
                 ""BaseId"", ParameterDirection.Output, false, ""Id"", false);
-            baseId.AddAnnotation(""foo"", ""bar"");
+            id.AddAnnotation(""foo"", ""bar"");
             insertSproc.AddAnnotation(""foo"", ""bar1"");
             runtimeEntityType.AddAnnotation(""Relational:InsertStoredProcedure"", insertSproc);
 
@@ -2626,7 +2626,7 @@ namespace TestNamespace
                 ""TPC"",
                 true);
 
-            var id = deleteSproc.AddParameter(
+            var id0 = deleteSproc.AddParameter(
                 ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:DeleteStoredProcedure"", deleteSproc);
 
@@ -2640,7 +2640,7 @@ namespace TestNamespace
                 ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId0 = updateSproc.AddParameter(
                 ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
-            var id0 = updateSproc.AddParameter(
+            var id1 = updateSproc.AddParameter(
                 ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:UpdateStoredProcedure"", updateSproc);
 
