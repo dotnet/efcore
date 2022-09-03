@@ -1333,6 +1333,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                         remappedConstant = Constant(newDictionary);
                     }
+                    else if (constantValue is ValueTuple<int, List<ValueTuple<IProperty, int>>, string[]> tuple)
+                    {
+                        var newList = new List<ValueTuple<IProperty, int>>();
+                        foreach (var item in tuple.Item2)
+                        {
+                            newList.Add((item.Item1, projectionIndexMap[item.Item2]));
+                        }
+                        remappedConstant = Constant((projectionIndexMap[tuple.Item1], newList, tuple.Item3));
+                    }
                     else
                     {
                         remappedConstant = Constant(projectionIndexMap[(int)constantValue]);
@@ -1362,7 +1371,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 result[projectionMember] = expression switch
                 {
-                    EntityProjectionExpression entityProjection  => AddEntityProjection(entityProjection),
+                    EntityProjectionExpression entityProjection => AddEntityProjection(entityProjection),
                     JsonQueryExpression jsonQueryExpression => AddJsonProjection(jsonQueryExpression, jsonProjectionDeduplicationMap[jsonQueryExpression]),
                     _ => Constant(AddToProjection((SqlExpression)expression, projectionMember.Last?.Name))
                 };

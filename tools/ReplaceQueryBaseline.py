@@ -17,7 +17,7 @@ for a in open(query_base_line_path).read().split("\n\n--------------------"):
             if (number_string == ''):
                 continue
             test_name_parts = lines[0].split(" : ")[0].split(".")
-            if test_name_parts[2] == "Query" or test_name_parts[2] == "BulkUpdates":
+            if test_name_parts[2] == "Query" or test_name_parts[2] == "BulkUpdates" or test_name_parts[2] == "Update":
                 test_file_identifier = test_name_parts[2] + "\\" + test_name_parts[3] + ".cs"
             else:
                 test_file_identifier = test_name_parts[2] + ".cs"

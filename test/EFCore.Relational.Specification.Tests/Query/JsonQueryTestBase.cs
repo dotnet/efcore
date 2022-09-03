@@ -389,18 +389,18 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => (from e1 in ss.Set<JsonEntitySingleOwned>()
-                  join e2 in ss.Set<JsonEntityBasic>() on e1.Id equals e2.Id into g
-                  from e2 in g.DefaultIfEmpty()
-                  select new
-                  {
-                      Id1 = e1.Id,
-                      Id2 = (int?)e2.Id,
-                      e2,
-                      e2.OwnedReferenceRoot,
-                      e2.OwnedReferenceRoot.OwnedReferenceBranch,
-                      e2.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
-                      e2.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
-                  }),
+                   join e2 in ss.Set<JsonEntityBasic>() on e1.Id equals e2.Id into g
+                   from e2 in g.DefaultIfEmpty()
+                   select new
+                   {
+                       Id1 = e1.Id,
+                       Id2 = (int?)e2.Id,
+                       e2,
+                       e2.OwnedReferenceRoot,
+                       e2.OwnedReferenceRoot.OwnedReferenceBranch,
+                       e2.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                       e2.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
+                   }),
             elementSorter: e => (e.Id1, e?.Id2),
             elementAsserter: (e, a) =>
             {
@@ -663,6 +663,17 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 e, a,
                 new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)),
             entryCount: 43);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Entity_including_collection_with_json(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityBasic>().Include(e => e.JsonEntityBasics),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
+                new ExpectedInclude<EntityBasic>(x => x.JsonEntityBasics)),
+            entryCount: 0);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
