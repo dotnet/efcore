@@ -7,6 +7,7 @@ public class JsonQueryData : ISetSource
 {
     public JsonQueryData()
     {
+        EntitiesBasic = new List<EntityBasic>();
         JsonEntitiesBasic = CreateJsonEntitiesBasic();
         JsonEntitiesBasicForReference = CreateJsonEntitiesBasicForReference();
         JsonEntitiesBasicForCollection = CreateJsonEntitiesBasicForCollection();
@@ -18,6 +19,7 @@ public class JsonQueryData : ISetSource
         JsonEntitiesAllTypes = CreateJsonEntitiesAllTypes();
     }
 
+    public IReadOnlyList<EntityBasic> EntitiesBasic { get; }
     public IReadOnlyList<JsonEntityBasic> JsonEntitiesBasic { get; }
     public IReadOnlyList<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; }
     public IReadOnlyList<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; }
@@ -759,6 +761,11 @@ public class JsonQueryData : ISetSource
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
     {
+        if (typeof(TEntity) == typeof(EntityBasic))
+        {
+            return (IQueryable<TEntity>)EntitiesBasic.AsQueryable();
+        }
+
         if (typeof(TEntity) == typeof(JsonEntityBasic))
         {
             return (IQueryable<TEntity>)JsonEntitiesBasic.AsQueryable();

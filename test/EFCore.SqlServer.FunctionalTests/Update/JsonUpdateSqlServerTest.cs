@@ -25,7 +25,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -43,7 +43,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -80,7 +80,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -91,14 +91,15 @@ FROM [JsonEntitiesBasic] AS [j]");
         AssertSql(
             @"@p0='{""Name"":""RootName"",""Number"":42,""OwnedCollectionBranch"":[],""OwnedReferenceBranch"":{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}}' (Nullable = false) (Size = 276)
 @p1='2'
-@p2='NewEntity' (Size = 4000)
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [Name])
-VALUES (@p0, @p1, @p2);",
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);",
                 //
-                @"SELECT [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -116,7 +117,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -134,7 +135,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -169,7 +170,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -187,7 +188,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -205,7 +206,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -223,7 +224,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -241,7 +242,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -259,7 +260,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -277,7 +278,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -296,7 +297,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p2;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -314,7 +315,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -332,7 +333,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -350,7 +351,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -368,7 +369,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -387,7 +388,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p2;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -406,7 +407,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p2;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -765,7 +766,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -783,7 +784,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -801,7 +802,7 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;",
                 //
-                @"SELECT TOP(2) [j].[Id], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 

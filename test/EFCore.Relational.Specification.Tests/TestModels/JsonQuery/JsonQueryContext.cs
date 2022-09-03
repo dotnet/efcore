@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
         {
         }
 
+        public DbSet<EntityBasic> EntitiesBasic { get; set; }
         public DbSet<JsonEntityBasic> JsonEntitiesBasic { get; set; }
         public DbSet<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; set; }
         public DbSet<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; set; }

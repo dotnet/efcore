@@ -24,6 +24,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
 
     public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
+        { typeof(EntityBasic), e => ((EntityBasic)e)?.Id },
         { typeof(JsonEntityBasic), e => ((JsonEntityBasic)e)?.Id },
         { typeof(JsonEntityBasicForReference), e => ((JsonEntityBasicForReference)e)?.Id },
         { typeof(JsonEntityBasicForCollection), e => ((JsonEntityBasicForCollection)e)?.Id },
@@ -36,6 +37,20 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
 
     public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
+        {
+            typeof(EntityBasic), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (EntityBasic)e;
+                    var aa = (EntityBasic)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+                    Assert.Equal(ee.Name, aa.Name);
+                }
+            }
+        },
         {
             typeof(JsonEntityBasic), (e, a) =>
             {
