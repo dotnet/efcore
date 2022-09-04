@@ -11,13 +11,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteDateTimeAddTranslator : IMethodCallTranslator
+public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo AddMilliseconds
         = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) })!;
 
     private static readonly MethodInfo AddTicks
         = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddTicks), new[] { typeof(long) })!;
+
+    private static readonly MethodInfo ToUnixTimeSeconds
+        = typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeSeconds), Type.EmptyTypes)!;
+
+    private static readonly MethodInfo ToUnixTimeMilliseconds
+        = typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeMilliseconds), Type.EmptyTypes)!;
 
     private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new()
     {
@@ -40,7 +46,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteDateTimeAddTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
+    public SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -60,7 +66,9 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
             ? TranslateDateTime(instance, method, arguments)
             : method.DeclaringType == typeof(DateOnly)
                 ? TranslateDateOnly(instance, method, arguments)
-                : null;
+                : method.DeclaringType == typeof(DateTimeOffset)
+                    ? TranslateDateTimeOffset(instance, method, arguments)
+                    : null;
 
     private SqlExpression? TranslateDateTime(
         SqlExpression? instance,
@@ -141,6 +149,42 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Convert(arguments[0], typeof(string)),
                         _sqlExpressionFactory.Constant(unitSuffix))
                 });
+        }
+
+        return null;
+    }
+
+    private SqlExpression? TranslateDateTimeOffset(
+        SqlExpression? instance,
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments)
+    {
+        if (ToUnixTimeSeconds.Equals(method))
+        {
+            return _sqlExpressionFactory.Function(
+                "unixepoch",
+                new[]
+                {
+                    instance!
+                },
+                argumentsPropagateNullability: new[] { true, true },
+                nullable: true,
+                returnType: method.ReturnType);
+        }
+        else if (ToUnixTimeMilliseconds.Equals(method))
+        {
+            return _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Multiply(
+                        _sqlExpressionFactory.Subtract(
+                            _sqlExpressionFactory.Function(
+                                "julianday",
+                                new[] { instance! },
+                                nullable: true,
+                                argumentsPropagateNullability: new[] { true },
+                                typeof(double)),
+                            _sqlExpressionFactory.Constant(2440587.5)), // NB: Result of julianday('1970-01-01 00:00:00')
+                        _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
+                    typeof(long));
         }
 
         return null;

@@ -9396,6 +9396,44 @@ FROM "Squads" AS "s"
 """);
     }
 
+    public override async Task DateTimeOffset_to_unix_time_milliseconds(bool async)
+    {
+        await base.DateTimeOffset_to_unix_time_milliseconds(async);
+
+        AssertSql(
+            @"@__unixEpochMilliseconds_0='0'
+
+SELECT ""g"".""Nickname"", ""g"".""SquadId"", ""g"".""AssignedCityName"", ""g"".""CityOfBirthName"", ""g"".""Discriminator"", ""g"".""FullName"", ""g"".""HasSoulPatch"", ""g"".""LeaderNickname"", ""g"".""LeaderSquadId"", ""g"".""Rank"", ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name"", ""s1"".""SquadId"", ""s1"".""MissionId""
+FROM ""Gears"" AS ""g""
+INNER JOIN ""Squads"" AS ""s"" ON ""g"".""SquadId"" = ""s"".""Id""
+LEFT JOIN ""SquadMissions"" AS ""s1"" ON ""s"".""Id"" = ""s1"".""SquadId""
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM ""SquadMissions"" AS ""s0""
+    INNER JOIN ""Missions"" AS ""m"" ON ""s0"".""MissionId"" = ""m"".""Id""
+    WHERE ""s"".""Id"" = ""s0"".""SquadId"" AND @__unixEpochMilliseconds_0 = CAST(((julianday(""m"".""Timeline"") - 2440587.5) * 864000000000.0) AS INTEGER)))
+ORDER BY ""g"".""Nickname"", ""g"".""SquadId"", ""s"".""Id"", ""s1"".""SquadId""");
+    }
+
+    public override async Task DateTimeOffset_to_unix_time_seconds(bool async)
+    {
+        await base.DateTimeOffset_to_unix_time_seconds(async);
+
+        AssertSql(
+            @"@__unixEpochSeconds_0='0'
+
+SELECT ""g"".""Nickname"", ""g"".""SquadId"", ""g"".""AssignedCityName"", ""g"".""CityOfBirthName"", ""g"".""Discriminator"", ""g"".""FullName"", ""g"".""HasSoulPatch"", ""g"".""LeaderNickname"", ""g"".""LeaderSquadId"", ""g"".""Rank"", ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name"", ""s1"".""SquadId"", ""s1"".""MissionId""
+FROM ""Gears"" AS ""g""
+INNER JOIN ""Squads"" AS ""s"" ON ""g"".""SquadId"" = ""s"".""Id""
+LEFT JOIN ""SquadMissions"" AS ""s1"" ON ""s"".""Id"" = ""s1"".""SquadId""
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM ""SquadMissions"" AS ""s0""
+    INNER JOIN ""Missions"" AS ""m"" ON ""s0"".""MissionId"" = ""m"".""Id""
+    WHERE ""s"".""Id"" = ""s0"".""SquadId"" AND @__unixEpochSeconds_0 = unixepoch(""m"".""Timeline"")))
+ORDER BY ""g"".""Nickname"", ""g"".""SquadId"", ""s"".""Id"", ""s1"".""SquadId""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

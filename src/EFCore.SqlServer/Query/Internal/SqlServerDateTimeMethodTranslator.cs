@@ -31,6 +31,12 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
         { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) })!, "millisecond" }
     };
 
+    private static readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping = new()
+    {
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeSeconds), Type.EmptyTypes)!, "second" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeMilliseconds), Type.EmptyTypes)!, "millisecond" }
+    };
+
     private static readonly MethodInfo AtTimeZoneDateTimeOffsetMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(string) })!;
@@ -38,6 +44,8 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo AtTimeZoneDateTimeMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTime), typeof(string) })!;
+
+    private static readonly SqlConstantExpression UnixEpoch = new (Expression.Constant(DateTimeOffset.UnixEpoch), null);
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
@@ -131,6 +139,17 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.ApplyTypeMapping(timeZone, _typeMappingSource.FindMapping("varchar")),
                 typeof(DateTimeOffset),
                 resultTypeMapping);
+        }
+
+        if (_methodInfoDateDiffMapping.TryGetValue(method, out var timePart))
+        {
+            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
+               _sqlExpressionFactory.Function(
+                   "DATEDIFF_BIG",
+                   new[] { _sqlExpressionFactory.Fragment(timePart), UnixEpoch, instance! },
+                   nullable: true,
+                   argumentsPropagateNullability: new[] { false, false, true },
+                   typeof(long)));
         }
 
         return null;
