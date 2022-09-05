@@ -29,7 +29,7 @@
     <MicrosoftDotNetBuildTasksTemplatingVersion>7.0.0-beta.22423.1</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
+    <!-- NB: Roslyn version affects the minimum required Visual Studio version -->
     <MicrosoftCodeAnalysisVersion>4.2.0</MicrosoftCodeAnalysisVersion>
-    <SqlitePCLRawVersion>2.1.1-pre20220822172036</SqlitePCLRawVersion>
   </PropertyGroup>
 </Project>
