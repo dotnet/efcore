@@ -176,7 +176,7 @@ public class InMemoryStore : IInMemoryStore
                         continue;
                     }
 
-                    table.Delete(entry, updateLogger);
+                    table.Delete(entry.SharedIdentityEntry, updateLogger);
                 }
 
                 switch (entry.EntityState)
