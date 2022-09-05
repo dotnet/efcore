@@ -334,12 +334,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .Append("(")
             .Append(Code.Literal(sequence.Name));
 
-        if (!string.IsNullOrEmpty(sequence.Schema)
-            && sequence.Model.GetDefaultSchema() != sequence.Schema)
+        if (!string.IsNullOrEmpty(sequence.ModelSchema))
         {
             sequenceBuilderNameBuilder
                 .Append(", ")
-                .Append(Code.Literal(sequence.Schema));
+                .Append(Code.Literal(sequence.ModelSchema));
         }
 
         sequenceBuilderNameBuilder.Append(")");

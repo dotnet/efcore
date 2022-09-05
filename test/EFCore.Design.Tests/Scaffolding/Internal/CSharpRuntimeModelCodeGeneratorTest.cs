@@ -1340,7 +1340,7 @@ namespace TestNamespace
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""PrincipalBaseId"")!, declaringEntityType.FindProperty(""PrincipalBaseAlternateId"")! },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""PrincipalBaseId"")!, principalEntityType.FindProperty(""PrincipalBaseAlternateId"")! })!,
                 principalEntityType,
-                deleteBehavior: DeleteBehavior.ClientCascade,
+                deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,
                 required: true,
                 requiredDependent: true);
@@ -1681,7 +1681,7 @@ namespace TestNamespace
             var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty(""Id"")!, declaringEntityType.FindProperty(""AlternateId"")! },
                 principalEntityType.FindKey(new[] { principalEntityType.FindProperty(""Id"")!, principalEntityType.FindProperty(""AlternateId"")! })!,
                 principalEntityType,
-                deleteBehavior: DeleteBehavior.ClientCascade,
+                deleteBehavior: DeleteBehavior.Cascade,
                 unique: true,
                 required: true);
 
@@ -1967,7 +1967,7 @@ namespace TestNamespace
                     Assert.True(tptForeignKey.IsUnique);
                     Assert.Null(tptForeignKey.DependentToPrincipal);
                     Assert.Null(tptForeignKey.PrincipalToDependent);
-                    Assert.Equal(DeleteBehavior.ClientCascade, tptForeignKey.DeleteBehavior);
+                    Assert.Equal(DeleteBehavior.Cascade, tptForeignKey.DeleteBehavior);
                     Assert.Equal(principalKey.Properties, tptForeignKey.Properties);
                     Assert.Same(principalKey, tptForeignKey.PrincipalKey);
 
@@ -2384,14 +2384,15 @@ namespace TestNamespace
             PrincipalBaseEntityType.CreateAnnotations(principalBase);
             PrincipalDerivedEntityType.CreateAnnotations(principalDerived);
 
-            var sequences = new SortedDictionary<(string, string), ISequence>();
+            var sequences = new SortedDictionary<(string, string?), ISequence>();
             var principalBaseSequence = new RuntimeSequence(
                 ""PrincipalBaseSequence"",
                 this,
                 typeof(long),
-                schema: ""TPC"");
+                schema: ""TPC"",
+                modelSchemaIsNull: true);
 
-            sequences[(""PrincipalBaseSequence"", ""TPC"")] = principalBaseSequence;
+            sequences[(""PrincipalBaseSequence"", null)] = principalBaseSequence;
 
             AddAnnotation(""Relational:Sequences"", sequences);
             AddAnnotation(""Relational:DefaultSchema"", ""TPC"");
@@ -2613,9 +2614,9 @@ namespace TestNamespace
                 ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId = insertSproc.AddParameter(
                 ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
-            var baseId = insertSproc.AddParameter(
+            var id = insertSproc.AddParameter(
                 ""BaseId"", ParameterDirection.Output, false, ""Id"", false);
-            baseId.AddAnnotation(""foo"", ""bar"");
+            id.AddAnnotation(""foo"", ""bar"");
             insertSproc.AddAnnotation(""foo"", ""bar1"");
             runtimeEntityType.AddAnnotation(""Relational:InsertStoredProcedure"", insertSproc);
 
@@ -2625,7 +2626,7 @@ namespace TestNamespace
                 ""TPC"",
                 true);
 
-            var id = deleteSproc.AddParameter(
+            var id0 = deleteSproc.AddParameter(
                 ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:DeleteStoredProcedure"", deleteSproc);
 
@@ -2639,7 +2640,7 @@ namespace TestNamespace
                 ""PrincipalBaseId"", ParameterDirection.Input, false, ""PrincipalBaseId"", false);
             var principalDerivedId0 = updateSproc.AddParameter(
                 ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
-            var id0 = updateSproc.AddParameter(
+            var id1 = updateSproc.AddParameter(
                 ""Id"", ParameterDirection.Input, false, ""Id"", false);
             runtimeEntityType.AddAnnotation(""Relational:UpdateStoredProcedure"", updateSproc);
 
@@ -2936,6 +2937,9 @@ namespace TestNamespace
                     Assert.Equal(
                         new[] { dependentBase, principalBase, principalDerived },
                         model.GetEntityTypes());
+
+                    var principalBaseSequence = model.FindSequence("PrincipalBaseSequence");
+                    Assert.Equal("TPC", principalBaseSequence.Schema);
                 },
                 typeof(SqlServerNetTopologySuiteDesignTimeServices));
 

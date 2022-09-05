@@ -19,6 +19,13 @@ public interface IReadOnlySequence : IReadOnlyAnnotatable
     string Name { get; }
 
     /// <summary>
+    ///    Gets the model schema of the sequence. This is the one specified in
+    ///    <see cref="RelationalModelBuilderExtensions.HasSequence(ModelBuilder, string, string?)" /> and the one to use
+    ///    with <see cref="RelationalModelExtensions.FindSequence(IConventionModel, string, string?)"/>.
+    /// </summary>
+    string? ModelSchema { get; }
+
+    /// <summary>
     ///     Gets the database schema that contains the sequence.
     /// </summary>
     string? Schema { get; }
@@ -80,10 +87,10 @@ public interface IReadOnlySequence : IReadOnlyAnnotatable
             .Append(indentString)
             .Append("Sequence: ");
 
-        if (Schema != null)
+        if (ModelSchema != null)
         {
             builder
-                .Append(Schema)
+                .Append(ModelSchema)
                 .Append('.');
         }
 

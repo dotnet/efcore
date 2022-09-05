@@ -29,7 +29,8 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         ISet<string> namespaces,
-        ISet<string> scopeVariables)
+        ISet<string> scopeVariables,
+        bool nullable)
     {
         TargetName = targetName;
         ClassName = className;
@@ -37,6 +38,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         MethodBuilder = methodBuilder;
         Namespaces = namespaces;
         ScopeVariables = scopeVariables;
+        UseNullableReferenceTypes = nullable;
     }
 
     /// <summary>
@@ -78,4 +80,10 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     ///     Indicates whether the given annotations are runtime annotations.
     /// </summary>
     public bool IsRuntime { get; init; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whther nullable reference types are enabled.
+    /// </summary>
+    /// <value>A value indicating whther nullable reference types are enabled.</value>
+    public bool UseNullableReferenceTypes { get; init; }
 }

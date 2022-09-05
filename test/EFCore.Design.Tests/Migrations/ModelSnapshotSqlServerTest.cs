@@ -538,7 +538,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", null)
                         .WithOne()
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", ""Id"")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });"),
             model =>
@@ -606,7 +606,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", null)
                         .WithOne()
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", ""Id"")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });"),
             o =>
@@ -832,7 +832,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", null)
                         .WithOne()
                         .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", ""Id"")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderBillingDetails"", b1 =>
@@ -863,7 +863,7 @@ public class ModelSnapshotSqlServerTest
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderBillingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", null)
                                 .WithOne()
                                 .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderBillingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
-                                .OnDelete(DeleteBehavior.ClientCascade)
+                                .OnDelete(DeleteBehavior.Cascade)
                                 .IsRequired();
 
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
@@ -912,7 +912,7 @@ public class ModelSnapshotSqlServerTest
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderShippingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", null)
                                 .WithOne()
                                 .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order.OrderShippingDetails#Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+OrderDetails"", ""OrderId"")
-                                .OnDelete(DeleteBehavior.ClientCascade)
+                                .OnDelete(DeleteBehavior.Cascade)
                                 .IsRequired();
 
                             b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+StreetAddress"", ""StreetAddress"", b2 =>
@@ -1276,6 +1276,42 @@ public class ModelSnapshotSqlServerTest
                 Assert.Equal(2, sequence.IncrementBy);
                 Assert.True(sequence.IsCyclic);
                 Assert.Equal("bar", sequence["foo"]);
+            });
+
+    [ConditionalFact]
+    public virtual void HiLoSequence_with_default_model_schema()
+        => Test(
+            modelBuilder => modelBuilder
+                .HasDefaultSchema("dbo")
+                .Entity("Entity").Property<int>("Id").UseHiLo(schema: "dbo"),
+            AddBoilerPlate(@"
+            modelBuilder
+                .HasDefaultSchema(""dbo"")
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.HasSequence(""EntityFrameworkHiLoSequence"", ""dbo"")
+                .IncrementsBy(10);
+
+            modelBuilder.Entity(""Entity"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>(""Id""), ""EntityFrameworkHiLoSequence"", ""dbo"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Entity"", ""dbo"");
+                });"),
+            model =>
+            {
+                Assert.Equal("dbo", model.GetDefaultSchema());
+
+                var sequence = Assert.Single(model.GetSequences());
+                Assert.Equal("dbo", sequence.Schema);
             });
 
     [ConditionalFact]

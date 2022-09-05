@@ -190,7 +190,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
         sequence.EnsureMutable();
 
         var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
-        var tuple = (sequence.Name, sequence.Schema);
+        var tuple = (sequence.Name, sequence.ModelSchema);
         if (sequences == null
             || !sequences.ContainsKey(tuple))
         {
@@ -201,7 +201,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
 
         sequence.Name = name;
 
-        sequences.Add((name, sequence.Schema), sequence);
+        sequences.Add((name, sequence.ModelSchema), sequence);
 
         return sequence;
     }
@@ -279,6 +279,15 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Name { get; set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? ModelSchema
+        => _schema;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

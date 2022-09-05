@@ -303,7 +303,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             sequence.IncrementBy,
             sequence.IsCyclic,
             sequence.MinValue,
-            sequence.MaxValue);
+            sequence.MaxValue,
+            sequence.ModelSchema is null);
 
     /// <summary>
     ///     Updates the sequence annotations that will be set on the read-only object.

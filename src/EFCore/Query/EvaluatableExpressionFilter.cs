@@ -81,8 +81,7 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
                     || Equals(method, RandomNextNoArgs)
                     || Equals(method, RandomNextOneArg)
                     || Equals(method, RandomNextTwoArgs)
-                    || method.DeclaringType == typeof(DbFunctionsExtensions)
-                    || method.IsEFDefaultMethod())
+                    || method.DeclaringType == typeof(DbFunctionsExtensions))
                 {
                     return false;
                 }

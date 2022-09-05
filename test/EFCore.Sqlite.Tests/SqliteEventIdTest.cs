@@ -38,6 +38,9 @@ public class SqliteEventIdTest : EventIdTestBase
         public string Name
             => "SequenceName";
 
+        public string ModelSchema
+            => throw new NotImplementedException();
+
         public string Schema
             => throw new NotImplementedException();
 

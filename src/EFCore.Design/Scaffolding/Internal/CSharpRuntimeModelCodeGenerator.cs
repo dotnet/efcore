@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -328,7 +329,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder,
                     methodBuilder,
                     namespaces,
-                    variables);
+                    variables,
+                    nullable);
 
                 foreach (var typeConfiguration in model.GetTypeMappingConfigurations())
                 {
@@ -471,7 +473,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 CreateSkipNavigation(navigation, navigationNumber++, mainBuilder, methodBuilder, namespaces, className, nullable);
             }
 
-            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className);
+            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className, nullable);
         }
 
         mainBuilder.AppendLine("}");
@@ -522,7 +524,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             Create(entityType, parameters);
 
@@ -1150,7 +1153,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             var navigation = foreignKey.DependentToPrincipal;
             if (navigation != null)
@@ -1249,7 +1253,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             mainBuilder
                 .Append("var ").Append(navigationVariable).Append(" = ")
@@ -1352,7 +1357,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
-        string className)
+        string className,
+        bool nullable)
     {
         mainBuilder.AppendLine()
             .Append("public static void CreateAnnotations")
@@ -1373,7 +1379,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder,
                     methodBuilder,
                     namespaces,
-                    variables));
+                    variables,
+                    nullable));
 
             mainBuilder
                 .AppendLine()

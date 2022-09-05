@@ -160,7 +160,30 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The default base column name to which the property would be mapped.</returns>
     public static string GetDefaultColumnName(this IReadOnlyProperty property)
-        => Uniquifier.Truncate(property.Name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+    {
+        var name = property.Name;
+        if (property.IsShadowProperty()
+            && property.GetContainingForeignKeys().Count() == 1)
+        {
+            var foreignKey = property.GetContainingForeignKeys().First();
+            var principalEntityType = foreignKey.PrincipalEntityType;
+            if (!principalEntityType.HasSharedClrType
+                && principalEntityType.ClrType.IsConstructedGenericType
+                && foreignKey.DependentToPrincipal == null)
+            {
+                var principalProperty = property.FindFirstPrincipal()!;
+                var principalName = principalEntityType.ShortName();
+                if (property.Name.Length == (principalName.Length + principalProperty.Name.Length)
+                    && property.Name.StartsWith(principalName, StringComparison.Ordinal)
+                    && property.Name.EndsWith(principalProperty.Name, StringComparison.Ordinal))
+                {
+                    name = principalEntityType.ClrType.ShortDisplayName() + principalProperty.Name;
+                }
+            }
+        }
+
+        return Uniquifier.Truncate(name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+    }
 
     /// <summary>
     ///     Returns the default column name to which the property would be mapped.
@@ -213,7 +236,7 @@ public static class RelationalPropertyExtensions
             entityType = ownerType;
         }
 
-        var baseName = property.GetDefaultColumnName();
+        var baseName = storeObject.StoreObjectType == StoreObjectType.Table ? property.GetDefaultColumnName() : property.Name;
         if (builder == null)
         {
             return baseName;

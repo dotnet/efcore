@@ -34,18 +34,6 @@ public abstract class TPTFiltersInheritanceBulkUpdatesTestBase<TFixture> : Filte
             RelationalStrings.ExecuteOperationOnTPT("ExecuteDelete", "Animal"),
             () => base.Delete_GroupBy_Where_Select_First_3(async));
 
-    [ConditionalTheory(Skip = "Issue#28532")]
-    public override Task Delete_where_using_hierarchy(bool async)
-    {
-        return base.Delete_where_using_hierarchy(async);
-    }
-
-    [ConditionalTheory(Skip = "Issue#28532")]
-    public override Task Delete_where_using_hierarchy_derived(bool async)
-    {
-        return base.Delete_where_using_hierarchy_derived(async);
-    }
-
     // Keyless entities are mapped as TPH only
     public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async) => Task.CompletedTask;
 
