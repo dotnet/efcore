@@ -11,8 +11,12 @@ variables:
     value: https://localhost:8081
   - name: _CosmosToken
     value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
-  - name: PostBuildSign
-    value: true
+  - ${{ if or(startswith(variables['Build.SourceBranch'], 'refs/heads/release/'), startswith(variables['Build.SourceBranch'], 'refs/heads/internal/release/')) }}:
+    - name: PostBuildSign
+      value: false
+  - ${{ else }}:
+    - name: PostBuildSign
+      value: true
   - ${{ if ne(variables['System.TeamProject'], 'public') }}:
     - group: DotNet-HelixApi-Access
     - group: DotNetBuilds storage account read tokens
