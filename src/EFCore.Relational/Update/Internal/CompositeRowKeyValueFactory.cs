@@ -23,6 +23,8 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
         : base(key.Columns)
     {
         _constraint = key;
+
+        EqualityComparer = CreateEqualityComparer(key.Columns, null);
     }
 
     /// <summary>

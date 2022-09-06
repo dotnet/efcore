@@ -1078,6 +1078,9 @@
   <data name="StoredProcedureUnmapped" xml:space="preserve">
     <value>The entity type '{entityType}' was configured to use some stored procedures and is not mapped to any table. An entity type that isn't mapped to a table must be mapped to insert, update and delete stored procedures.</value>
   </data>
+  <data name="StoredKeyTypesNotConvertable" xml:space="preserve">
+    <value>The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. To use 'SaveChanges` or 'SaveChangesAsync', foreign key column types must be comparable with principal key column types.</value>
+  </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
   </data>

@@ -1748,6 +1748,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. Foreign key column types must be comparable with principal key column types.
+        /// </summary>
+        public static string StoredKeyTypesNotConvertable(object? fkColumnName, object? fkColumnType, object? pkColumnType, object? pkColumnName)
+            => string.Format(
+                GetString("StoredKeyTypesNotConvertable", nameof(fkColumnName), nameof(fkColumnType), nameof(pkColumnType), nameof(pkColumnName)),
+                fkColumnName, fkColumnType, pkColumnType, pkColumnName);
+
+        /// <summary>
         ///     The entity type '{entityType}' is not mapped to the store object '{table}'.
         /// </summary>
         public static string TableNotMappedEntityType(object? entityType, object? table)
