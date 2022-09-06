@@ -2073,26 +2073,22 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_with_subquery_on_inner(bool async)
-        // SelectMany Skip/Take. Issue #19015.
-        => AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                      from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10).DefaultIfEmpty()
-                      select l1.Id));
+        => AssertQueryScalar(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                    join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                    from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10).DefaultIfEmpty()
+                    select l1.Id);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(bool async)
-        // SelectMany Skip/Take. Issue #19015.
-        => AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                      from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10)
-                      select l1.Id));
+        => AssertQueryScalar(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                    join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                    from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10)
+                    select l1.Id);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

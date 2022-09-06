@@ -420,13 +420,18 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Group_Join_from_LINQ_101(bool async)
-        // GroupJoin final operator. Issue #19930.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => from c in ss.Set<CustomerForLinq>()
-                      join o in ss.Set<OrderForLinq>() on c equals o.Customer into ps
-                      select new { Customer = c, Products = ps }));
+        => AssertQuery(
+            async,
+            ss => from c in ss.Set<CustomerForLinq>()
+                  join o in ss.Set<OrderForLinq>() on c equals o.Customer into ps
+                  select new { Customer = c, Products = ps },
+            elementSorter: e => e.Customer.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Customer, a.Customer);
+                AssertCollection(e.Products, a.Products);
+            },
+            entryCount: 11);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

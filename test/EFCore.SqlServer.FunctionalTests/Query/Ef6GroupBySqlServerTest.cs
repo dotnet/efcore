@@ -525,7 +525,16 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
     {
         await base.Group_Join_from_LINQ_101(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [c].[Id], [c].[CompanyName], [c].[Region], [t].[Id], [t].[CustomerId], [t].[OrderDate], [t].[Total], [t].[Id0]
+FROM [CustomerForLinq] AS [c]
+OUTER APPLY (
+    SELECT [o].[Id], [o].[CustomerId], [o].[OrderDate], [o].[Total], [c0].[Id] AS [Id0]
+    FROM [OrderForLinq] AS [o]
+    LEFT JOIN [CustomerForLinq] AS [c0] ON [o].[CustomerId] = [c0].[Id]
+    WHERE [c].[Id] = [c0].[Id]
+) AS [t]
+ORDER BY [c].[Id], [t].[Id]");
     }
 
     public override async Task Whats_new_2021_sample_3(bool async)

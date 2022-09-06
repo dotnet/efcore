@@ -2114,14 +2114,30 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]");
     {
         await base.GroupJoin_with_subquery_on_inner(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [l].[Id]
+FROM [LevelOne] AS [l]
+OUTER APPLY (
+    SELECT TOP(10) [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+    FROM [LevelTwo] AS [l0]
+    WHERE [l].[Id] = [l0].[Level1_Optional_Id] AND [l0].[Id] > 0
+    ORDER BY [l0].[Id]
+) AS [t]");
     }
 
     public override async Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(bool async)
     {
         await base.GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [l].[Id]
+FROM [LevelOne] AS [l]
+CROSS APPLY (
+    SELECT TOP(10) [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+    FROM [LevelTwo] AS [l0]
+    WHERE [l].[Id] = [l0].[Level1_Optional_Id] AND [l0].[Id] > 0
+    ORDER BY [l0].[Id]
+) AS [t]");
     }
 
     public override async Task Optional_navigation_in_subquery_with_unrelated_projection(bool async)
