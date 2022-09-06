@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 {
     private readonly QueryCompilationContext _queryCompilationContext;
-
     private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
+    private readonly GroupJoinConvertingExpressionVisitor _groupJoinConvertingExpressionVisitor = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,6 +27,19 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     public QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext queryCompilationContext)
     {
         _queryCompilationContext = queryCompilationContext;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression Normalize(Expression expression)
+    {
+        var result = Visit(expression);
+
+        return _groupJoinConvertingExpressionVisitor.Visit(result);
     }
 
     /// <summary>
@@ -332,9 +345,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         || innerQueryableElementType != genericType)
                     {
                         while (innerArgument is UnaryExpression
-                               {
-                                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                               } unaryExpression
+                            {
+                                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                            } unaryExpression
                                && unaryExpression.Type.TryGetElementType(typeof(IEnumerable<>)) != null)
                         {
                             innerArgument = unaryExpression.Operand;
@@ -418,7 +431,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             || enumerableType == typeof(IOrderedEnumerable<>) && queryableType == typeof(IOrderedQueryable<>);
     }
 
-    private Expression TryFlattenGroupJoinSelectMany(MethodCallExpression methodCallExpression)
+    private MethodCallExpression TryFlattenGroupJoinSelectMany(MethodCallExpression methodCallExpression)
     {
         var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
         if (genericMethod == QueryableMethods.SelectManyWithCollectionSelector)
@@ -588,6 +601,76 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         return methodCallExpression;
+    }
+
+    private sealed class GroupJoinConvertingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
+            {
+                var genericArguments = methodCallExpression.Method.GetGenericArguments();
+                var outerSource = methodCallExpression.Arguments[0];
+                var innerSource = methodCallExpression.Arguments[1];
+                var outerKeySelector = methodCallExpression.Arguments[2].UnwrapLambdaFromQuote();
+                var innerKeySelector = methodCallExpression.Arguments[3].UnwrapLambdaFromQuote();
+                var resultSelector = methodCallExpression.Arguments[4].UnwrapLambdaFromQuote();
+
+                if (innerSource.Type.IsGenericType
+                    && innerSource.Type.GetGenericTypeDefinition() != typeof(IQueryable<>))
+                {
+                    // In case of collection navigation it can be of enumerable or other type.
+                    innerSource = Expression.Call(
+                        QueryableMethods.AsQueryable.MakeGenericMethod(innerSource.Type.GetSequenceType()),
+                        innerSource);
+                }
+
+                var correlationPredicate = ReplacingExpressionVisitor.Replace(
+                    outerKeySelector.Parameters[0],
+                    resultSelector.Parameters[0],
+                    Expression.AndAlso(
+                        Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                            outerKeySelector.Body,
+                            Expression.Constant(null),
+                            negated: true),
+                        Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                            outerKeySelector.Body,
+                            innerKeySelector.Body)));
+
+                innerSource = Expression.Call(
+                    QueryableMethods.Where.MakeGenericMethod(genericArguments[1]),
+                    innerSource,
+                    Expression.Quote(
+                        Expression.Lambda(
+                            correlationPredicate,
+                            innerKeySelector.Parameters)));
+
+                var selector = ReplacingExpressionVisitor.Replace(
+                    resultSelector.Parameters[1],
+                    innerSource,
+                    resultSelector.Body);
+
+                if (genericArguments[3].IsGenericType
+                    && genericArguments[3].GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    selector = Expression.Call(
+                        EnumerableMethods.AsEnumerable.MakeGenericMethod(genericArguments[3].GetSequenceType()),
+                        selector);
+                }
+
+                return Expression.Call(
+                    QueryableMethods.Select.MakeGenericMethod(genericArguments[0], genericArguments[3]),
+                    outerSource,
+                    Expression.Quote(
+                        Expression.Lambda(
+                            selector,
+                            resultSelector.Parameters[0])));
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
     }
 
     private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor

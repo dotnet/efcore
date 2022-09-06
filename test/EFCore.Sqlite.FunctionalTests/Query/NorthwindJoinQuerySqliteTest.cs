@@ -55,4 +55,34 @@ public class NorthwindJoinQuerySqliteTest : NorthwindJoinQueryRelationalTestBase
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Take_in_collection_projection_with_FirstOrDefault_on_top_level(async))).Message);
+
+    public override async Task GroupJoin_as_final_operator(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupJoin_as_final_operator(async))).Message);
+
+    public override async Task Unflattened_GroupJoin_composed(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Unflattened_GroupJoin_composed(async))).Message);
+
+    public override async Task Unflattened_GroupJoin_composed_2(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Unflattened_GroupJoin_composed_2(async))).Message);
+
+    public override async Task GroupJoin_SelectMany_subquery_with_filter_orderby(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupJoin_SelectMany_subquery_with_filter_orderby(async))).Message);
+
+    public override async Task GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(async))).Message);
 }
