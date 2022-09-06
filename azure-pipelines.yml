@@ -60,7 +60,7 @@ stages:
             enablePublishTestResults: true
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: NetCore1ESPool-Svc-Public
+                name: NetCore-Svc-Public
                 demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Svc-Internal
@@ -191,7 +191,7 @@ stages:
             timeoutInMinutes: 180
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: NetCore1ESPool-Svc-Public
+                name: NetCore-Svc-Public
                 demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Svc-Internal
