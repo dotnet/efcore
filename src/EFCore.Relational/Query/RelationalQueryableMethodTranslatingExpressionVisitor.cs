@@ -452,7 +452,16 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         var translatedKey = TranslateGroupingKey(remappedKeySelector);
         if (translatedKey == null)
         {
-            return null;
+            // This could be group by entity type
+            if (remappedKeySelector is not EntityShaperExpression
+                { ValueBufferExpression : ProjectionBindingExpression })
+            {
+                // ValueBufferExpression can be JsonQuery, ProjectionBindingExpression, EntityProjection
+                // We only allow ProjectionBindingExpression which represents a regular entity
+                return null;
+            }
+
+            translatedKey = remappedKeySelector;
         }
 
         if (elementSelector != null)

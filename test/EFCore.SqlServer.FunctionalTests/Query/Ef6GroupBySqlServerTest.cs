@@ -261,15 +261,10 @@ GROUP BY [a].[FirstName]");
     {
         await base.Grouping_by_all_columns_doesnt_produce_a_groupby_statement(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     [Extent1].[Id] AS [Id],
-        //     [Extent1].[FirstName] AS [FirstName],
-        //     [Extent1].[LastName] AS [LastName],
-        //     [Extent1].[Alias] AS [Alias]
-        //     FROM [dbo].[ArubaOwners] AS [Extent1]";
+        AssertSql(
+            @"SELECT [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_1(bool async)
@@ -294,175 +289,90 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_2(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     (SELECT
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent2]
-        //         WHERE [Extent1].[Id] = [Extent2].[Id]) AS [C1]
-        //     FROM [dbo].[ArubaOwners] AS [Extent1]";
+        AssertSql(
+            @"SELECT COUNT(*)
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_3(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_3(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     (SELECT
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent2]
-        //         WHERE [Extent1].[Id] = [Extent2].[Id]) AS [C1]
-        //     FROM [dbo].[ArubaOwners] AS [Extent1]";
+        AssertSql(
+            @"SELECT COUNT(*)
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_4(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_4(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     [GroupBy1].[K1] AS [Id],
-        //     [GroupBy1].[A1] AS [C1]
-        //     FROM ( SELECT
-        //         [Extent1].[Id] AS [K1],
-        //         [Extent1].[FirstName] AS [K2],
-        //         [Extent1].[LastName] AS [K3],
-        //         [Extent1].[Alias] AS [K4],
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent1]
-        //         GROUP BY [Extent1].[Id], [Extent1].[FirstName], [Extent1].[LastName], [Extent1].[Alias]
-        //     )  AS [GroupBy1]";
+        AssertSql(
+            @"SELECT COUNT(*) AS [Count]
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_5(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_5(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     [GroupBy1].[K1] AS [Id],
-        //     [GroupBy1].[A1] AS [C1]
-        //     FROM ( SELECT
-        //         [Extent1].[Id] AS [K1],
-        //         [Extent1].[FirstName] AS [K2],
-        //         [Extent1].[LastName] AS [K3],
-        //         [Extent1].[Alias] AS [K4],
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent1]
-        //         GROUP BY [Extent1].[Id], [Extent1].[FirstName], [Extent1].[LastName], [Extent1].[Alias]
-        //     )  AS [GroupBy1]";
+        AssertSql(
+            @"SELECT [a].[Id], COUNT(*) AS [Count]
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_6(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_6(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     [GroupBy1].[K1] AS [Id],
-        //     [GroupBy1].[K4] AS [Alias],
-        //     [GroupBy1].[A1] AS [C1]
-        //     FROM ( SELECT
-        //         [Extent1].[Id] AS [K1],
-        //         [Extent1].[FirstName] AS [K2],
-        //         [Extent1].[LastName] AS [K3],
-        //         [Extent1].[Alias] AS [K4],
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent1]
-        //         GROUP BY [Extent1].[Id], [Extent1].[FirstName], [Extent1].[LastName], [Extent1].[Alias]
-        //     )  AS [GroupBy1]";
+        AssertSql(
+            @"SELECT [a].[Id], [a].[Alias], COUNT(*) AS [Count]
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_7(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_7(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     (SELECT
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent2]
-        //         WHERE [Extent1].[Id] = [Extent2].[Id]) AS [C1]
-        //     FROM [dbo].[ArubaOwners] AS [Extent1]";
+        AssertSql(
+            @"SELECT COUNT(*)
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_8(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_8(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     [GroupBy1].[K1] AS [Id],
-        //     [GroupBy1].[A1] AS [C1]
-        //     FROM ( SELECT
-        //         [Extent1].[Id] AS [K1],
-        //         [Extent1].[FirstName] AS [K2],
-        //         [Extent1].[LastName] AS [K3],
-        //         [Extent1].[Alias] AS [K4],
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent1]
-        //         GROUP BY [Extent1].[Id], [Extent1].[FirstName], [Extent1].[LastName], [Extent1].[Alias]
-        //     )  AS [GroupBy1]";
+        AssertSql(
+            @"SELECT [a].[Id], COUNT(*) AS [Count]
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_9(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_9(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     [GroupBy1].[K1] AS [Id],
-        //     [GroupBy1].[K4] AS [Alias],
-        //     [GroupBy1].[A1] AS [C1]
-        //     FROM ( SELECT
-        //         [Extent1].[Id] AS [K1],
-        //         [Extent1].[FirstName] AS [K2],
-        //         [Extent1].[LastName] AS [K3],
-        //         [Extent1].[Alias] AS [K4],
-        //         COUNT(1) AS [A1]
-        //         FROM [dbo].[ArubaOwners] AS [Extent1]
-        //         GROUP BY [Extent1].[Id], [Extent1].[FirstName], [Extent1].[LastName], [Extent1].[Alias]
-        //     )  AS [GroupBy1]";
+        AssertSql(
+            @"SELECT [a].[Id], [a].[Alias], COUNT(*) AS [Count]
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task Grouping_by_all_columns_with_aggregate_function_works_10(bool async)
     {
         await base.Grouping_by_all_columns_with_aggregate_function_works_10(async);
 
-        AssertSql();
-
-        // EF6 SQL:
-        // @"SELECT
-        //     [GroupBy1].[K1] AS [Id],
-        //     [GroupBy1].[A1] AS [C1],
-        //     [GroupBy1].[A2] AS [C2]
-        //     FROM ( SELECT
-        //         [Extent1].[Id] AS [K1],
-        //         [Extent1].[FirstName] AS [K2],
-        //         [Extent1].[LastName] AS [K3],
-        //         [Extent1].[Alias] AS [K4],
-        //         SUM([Extent1].[Id]) AS [A1],
-        //         COUNT(1) AS [A2]
-        //         FROM [dbo].[ArubaOwners] AS [Extent1]
-        //         GROUP BY [Extent1].[Id], [Extent1].[FirstName], [Extent1].[LastName], [Extent1].[Alias]
-        //     )  AS [GroupBy1]";
+        AssertSql(
+            @"SELECT [a].[Id], COALESCE(SUM([a].[Id]), 0) AS [Sum], COUNT(*) AS [Count]
+FROM [ArubaOwner] AS [a]
+GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]");
     }
 
     public override async Task GroupBy_Simple_1_from_LINQ_101(bool async)
@@ -631,7 +541,23 @@ ORDER BY (
     {
         await base.Whats_new_2021_sample_15(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [t0].[Id], [t0].[Age], [t0].[FirstName], [t0].[LastName], [t0].[MiddleInitial]
+FROM (
+    SELECT [f].[Id], [f].[Size]
+    FROM [Person] AS [p]
+    LEFT JOIN [Feet] AS [f] ON [p].[Id] = [f].[Id]
+    GROUP BY [f].[Id], [f].[Size]
+) AS [t]
+LEFT JOIN (
+    SELECT [t1].[Id], [t1].[Age], [t1].[FirstName], [t1].[LastName], [t1].[MiddleInitial], [t1].[Id0], [t1].[Size]
+    FROM (
+        SELECT [p0].[Id], [p0].[Age], [p0].[FirstName], [p0].[LastName], [p0].[MiddleInitial], [f0].[Id] AS [Id0], [f0].[Size], ROW_NUMBER() OVER(PARTITION BY [f0].[Id], [f0].[Size] ORDER BY [p0].[Id] DESC) AS [row]
+        FROM [Person] AS [p0]
+        LEFT JOIN [Feet] AS [f0] ON [p0].[Id] = [f0].[Id]
+    ) AS [t1]
+    WHERE [t1].[row] <= 1
+) AS [t0] ON ([t].[Id] = [t0].[Id0] OR ([t].[Id] IS NULL AND [t0].[Id0] IS NULL)) AND ([t].[Size] = [t0].[Size] OR ([t].[Size] IS NULL AND [t0].[Size] IS NULL))");
     }
 
     public override async Task Whats_new_2021_sample_16(bool async)

@@ -2850,6 +2850,19 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 AssertCollection(e.Data, a.Data);
             });
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_GroupBy_SelectMany(bool async)
+        // Entity equality. Issue #15938.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Order>().Select(
+                        o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
+                    .GroupBy(p => p.Customer)
+                    .SelectMany(g => g),
+                elementSorter: g => g.Order));
+
     #endregion
 
     #region GroupBySelectFirst
@@ -2952,79 +2965,71 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Select_GroupBy_SelectMany(bool async)
-        // Entity equality. Issue #15938.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Order>().Select(
-                        o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
-                    .GroupBy(p => p.Customer)
-                    .SelectMany(g => g),
-                elementSorter: g => g.Order));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_group_key_being_navigation(bool async)
-        // Entity equality. Issue #15938.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<OrderDetail>()
-                    .GroupBy(od => od.Order)
-                    .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
-                elementSorter: e => e.Key));
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.Order)
+                .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
+            elementSorter: e => e.Key.OrderID,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertEqual(e.Aggregate, a.Aggregate);
+            },
+            entryCount: 830);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_group_key_being_nested_navigation(bool async)
-        // Entity equality. Issue #15938.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<OrderDetail>()
-                    .GroupBy(od => od.Order.Customer)
-                    .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
-                elementSorter: e => e.Key));
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.Order.Customer)
+                .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
+            elementSorter: e => e.Key.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertEqual(e.Aggregate, a.Aggregate);
+            },
+            entryCount: 89);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool async)
-        // Entity equality. Issue #15938.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<OrderDetail>()
-                    .GroupBy(od => od.Order)
-                    .Select(g => g.Key)));
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.Order)
+                .Select(g => g.Key),
+            entryCount: 830);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue#29014")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool async)
-        // Entity equality. Issue #15938.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<OrderDetail>()
-                    .GroupBy(od => od.Order)
-                    .Select(
-                        g => new
-                        {
-                            g.Key,
-                            Id1 = g.Key.CustomerID,
-                            Id2 = g.Key.Customer.CustomerID,
-                            Id3 = g.Key.OrderID,
-                            Aggregate = g.Sum(od => od.OrderID)
-                        }),
-                elementSorter: e => e.Id3,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.Key, a.Key);
-                    Assert.Equal(e.Id1, a.Id1);
-                    Assert.Equal(e.Id2, a.Id2);
-                    Assert.Equal(e.Id3, a.Id3);
-                    Assert.Equal(e.Aggregate, a.Aggregate);
-                }));
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.Order)
+                .Select(
+                    g => new
+                    {
+                        g.Key,
+                        Id1 = g.Key.CustomerID,
+                        Id2 = g.Key.Customer.CustomerID,
+                        Id3 = g.Key.OrderID,
+                        Aggregate = g.Sum(od => od.OrderID)
+                    }),
+            elementSorter: e => e.Id3,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+                Assert.Equal(e.Id3, a.Id3);
+                Assert.Equal(e.Aggregate, a.Aggregate);
+            });
 
     #endregion
 
