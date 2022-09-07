@@ -455,6 +455,10 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
 
                 return memberInitExpression.Update(updatedNewExpression, newBindings);
 
+            case EntityShaperExpression entityShaperExpression
+                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                return entityShaperExpression;
+
             default:
                 var translation = TranslateExpression(expression);
                 if (translation == null)

@@ -870,6 +870,22 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
                 return memberInitExpression.Update(updatedNewExpression, memberBindings);
 
+            case EntityShaperExpression entityShaperExpression
+                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                var entityProjectionExpression = (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                    .GetProjection(projectionBindingExpression);
+                var readExpressions = new Dictionary<IProperty, MethodCallExpression>();
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
+                {
+                    readExpressions[property] = (MethodCallExpression)GetGroupingKey(
+                        entityProjectionExpression.BindProperty(property),
+                        groupingExpressions,
+                        groupingKeyAccessExpression);
+                }
+
+                return entityShaperExpression.Update(
+                    new EntityProjectionExpression(entityProjectionExpression.EntityType, readExpressions));
+
             default:
                 var index = groupingExpressions.Count;
                 groupingExpressions.Add(key);

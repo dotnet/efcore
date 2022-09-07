@@ -1857,6 +1857,23 @@ public sealed partial class SelectExpression : TableExpressionBase
                 PopulateGroupByTerms(unaryExpression.Operand, groupByTerms, groupByAliases, name);
                 break;
 
+            case EntityShaperExpression entityShaperExpression
+                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                var entityProjectionExpression = (EntityProjectionExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
+                        .GetProjection(projectionBindingExpression);
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
+                {
+                    PopulateGroupByTerms(entityProjectionExpression.BindProperty(property), groupByTerms, groupByAliases, name: null);
+                }
+
+                if (entityProjectionExpression.DiscriminatorExpression != null)
+                {
+                    PopulateGroupByTerms(
+                        entityProjectionExpression.DiscriminatorExpression, groupByTerms, groupByAliases, name: DiscriminatorColumnAlias);
+                }
+
+                break;
+
             default:
                 throw new InvalidOperationException(RelationalStrings.InvalidKeySelectorForGroupBy(keySelector, keySelector.GetType()));
         }

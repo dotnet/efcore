@@ -2464,21 +2464,34 @@ GROUP BY [c].[Country]");
     {
         await base.GroupBy_with_group_key_being_navigation(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]");
     }
 
     public override async Task GroupBy_with_group_key_being_nested_navigation(bool async)
     {
         await base.GroupBy_with_group_key_being_nested_navigation(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]");
     }
 
     public override async Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool async)
     {
         await base.GroupBy_with_group_key_being_navigation_with_entity_key_projection(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]");
     }
 
     public override async Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool async)

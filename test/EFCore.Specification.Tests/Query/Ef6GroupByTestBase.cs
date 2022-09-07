@@ -109,11 +109,18 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_doesnt_produce_a_groupby_statement(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<ArubaOwner>().GroupBy(o => o).Select(g => g.Key)));
+        => AssertQuery(
+            async,
+            ss => ss.Set<ArubaOwner>().GroupBy(o => o).Select(g => g.Key),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Alias, a.Alias);
+                Assert.Equal(e.FirstName, a.FirstName);
+                Assert.Equal(e.LastName, a.LastName);
+            },
+            entryCount: 10);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -132,111 +139,93 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_2(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => new { c.LastName, c.FirstName }, (k, g) => g.Count())));
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => new { c.LastName, c.FirstName }, (k, g) => g.Count()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_3(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => g.Count())));
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => g.Count()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_4(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => new { Count = g.Count() })));
+        => AssertQuery(
+            async,
+            ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => new { Count = g.Count() }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_5(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => new { k.Id, Count = g.Count() })));
+        => AssertQuery(
+            async,
+            ss => ss.Set<ArubaOwner>().GroupBy(o => o, c => c, (k, g) => new { k.Id, Count = g.Count() }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_6(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<ArubaOwner>().GroupBy(
-                    o => o, c => c, (k, g) => new
-                    {
-                        k.Id,
-                        k.Alias,
-                        Count = g.Count()
-                    })));
+        => AssertQuery(
+            async,
+            ss => ss.Set<ArubaOwner>().GroupBy(
+                o => o, c => c, (k, g) => new
+                {
+                    k.Id,
+                    k.Alias,
+                    Count = g.Count()
+                }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_7(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => from o in ss.Set<ArubaOwner>()
-                      group o by o
-                      into g
-                      select g.Count()));
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<ArubaOwner>()
+                    group o by o
+                    into g
+                    select g.Count());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_8(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => from o in ss.Set<ArubaOwner>()
-                      group o by o
-                      into g
-                      select new { g.Key.Id, Count = g.Count() }));
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<ArubaOwner>()
+                    group o by o
+                    into g
+                    select new { g.Key.Id, Count = g.Count() });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_9(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => from o in ss.Set<ArubaOwner>()
-                      group o by o
-                      into g
-                      select new
-                      {
-                          g.Key.Id,
-                          g.Key.Alias,
-                          Count = g.Count()
-                      }));
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<ArubaOwner>()
+                    group o by o
+                    into g
+                    select new
+                    {
+                        g.Key.Id,
+                        g.Key.Alias,
+                        Count = g.Count()
+                    });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Grouping_by_all_columns_with_aggregate_function_works_10(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => from o in ss.Set<ArubaOwner>()
-                      group o by o
-                      into g
-                      select new
-                      {
-                          g.Key.Id,
-                          Sum = g.Sum(x => x.Id),
-                          Count = g.Count()
-                      }));
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<ArubaOwner>()
+                    group o by o
+                    into g
+                    select new
+                    {
+                        g.Key.Id,
+                        Sum = g.Sum(x => x.Id),
+                        Count = g.Count()
+                    });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -731,7 +720,6 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Whats_new_2021_sample_14(bool async)
-        // GroupBy entityType. Issue #17653.
         => AssertTranslationFailed(
             () => AssertQuery(
                 async,
@@ -742,13 +730,12 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Whats_new_2021_sample_15(bool async)
-        // GroupBy entityType. Issue #17653.
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Person>()
-                    .GroupBy(bp => bp.Feet)
-                    .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault())));
+        => AssertQuery(
+            async,
+            ss => ss.Set<Person>()
+                .GroupBy(bp => bp.Feet)
+                .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()),
+            entryCount: 12);
 
     [ConditionalTheory] // From #12573
     [MemberData(nameof(IsAsyncData))]
