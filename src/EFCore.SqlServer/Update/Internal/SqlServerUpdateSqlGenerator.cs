@@ -614,9 +614,23 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         Check.DebugAssert(command.StoreStoredProcedure is not null, "command.StoredProcedure is not null");
 
         var storedProcedure = command.StoreStoredProcedure;
-        var resultSetMapping = storedProcedure.ResultColumns.Any()
-            ? ResultSetMapping.LastInResultSet
-            : ResultSetMapping.NoResults;
+
+        var resultSetMapping = ResultSetMapping.NoResults;
+
+        foreach (var resultColumn in storedProcedure.ResultColumns)
+        {
+            resultSetMapping = ResultSetMapping.LastInResultSet;
+
+            if (resultColumn == command.RowsAffectedColumn)
+            {
+                resultSetMapping |= ResultSetMapping.ResultSetWithRowsAffectedOnly;
+            }
+            else
+            {
+                resultSetMapping = ResultSetMapping.LastInResultSet;
+                break;
+            }
+        }
 
         Check.DebugAssert(storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
             "Stored procedure call with neither parameters nor result columns");
@@ -933,7 +947,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
             .AppendLine(SqlGenerationHelper.StatementTerminator)
             .AppendLine();
 
-        return ResultSetMapping.LastInResultSet;
+        return ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;
     }
 
     /// <summary>

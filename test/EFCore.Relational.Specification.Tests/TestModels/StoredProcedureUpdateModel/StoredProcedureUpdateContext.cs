@@ -25,9 +25,6 @@ public class StoredProcedureUpdateContext : PoolableDbContext
     public DbSet<EntityWithAdditionalProperty> WithOutputParameterAndRowsAffectedResultColumn
         => Set<EntityWithAdditionalProperty>(nameof(WithOutputParameterAndRowsAffectedResultColumn));
 
-    public DbSet<EntityWithTwoAdditionalProperties> WithOutputParameterAndResultColumnAndResultValue
-        => Set<EntityWithTwoAdditionalProperties>(nameof(WithOutputParameterAndResultColumnAndResultValue));
-
     public DbSet<EntityWithAdditionalProperty> WithTwoOutputParameters
         => Set<EntityWithAdditionalProperty>(nameof(WithTwoOutputParameters));
 

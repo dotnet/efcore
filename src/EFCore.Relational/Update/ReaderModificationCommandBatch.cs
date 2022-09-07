@@ -86,7 +86,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <summary>
     ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
     /// </summary>
-    protected virtual IList<ResultSetMapping> CommandResultSet { get; } = new List<ResultSetMapping>();
+    protected virtual IList<ResultSetMapping> ResultSetMappings { get; } = new List<ResultSetMapping>();
 
     /// <summary>
     ///     The store command generated from this batch when <see cref="Complete" /> is called.
@@ -107,7 +107,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         }
 
         _sqlBuilderPosition = SqlBuilder.Length;
-        _commandResultSetCount = CommandResultSet.Count;
+        _commandResultSetCount = ResultSetMappings.Count;
         _pendingParameters = 0;
 
         AddCommand(modificationCommand);
@@ -138,9 +138,9 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
         SqlBuilder.Length = _sqlBuilderPosition;
 
-        while (CommandResultSet.Count > _commandResultSetCount)
+        while (ResultSetMappings.Count > _commandResultSetCount)
         {
-            CommandResultSet.RemoveAt(CommandResultSet.Count - 1);
+            ResultSetMappings.RemoveAt(ResultSetMappings.Count - 1);
         }
 
         for (var i = 0; i < _pendingParameters; i++)
@@ -195,11 +195,11 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         bool requiresTransaction;
 
-        var commandPosition = CommandResultSet.Count;
+        var commandPosition = ResultSetMappings.Count;
 
         if (modificationCommand.StoreStoredProcedure is not null)
         {
-            CommandResultSet.Add(
+            ResultSetMappings.Add(
                 UpdateSqlGenerator.AppendStoredProcedureCall(
                     SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
         }
@@ -208,17 +208,17 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             switch (modificationCommand.EntityState)
             {
                 case EntityState.Added:
-                    CommandResultSet.Add(
+                    ResultSetMappings.Add(
                         UpdateSqlGenerator.AppendInsertOperation(
                             SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
                 case EntityState.Modified:
-                    CommandResultSet.Add(
+                    ResultSetMappings.Add(
                         UpdateSqlGenerator.AppendUpdateOperation(
                             SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
                 case EntityState.Deleted:
-                    CommandResultSet.Add(
+                    ResultSetMappings.Add(
                         UpdateSqlGenerator.AppendDeleteOperation(
                             SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;

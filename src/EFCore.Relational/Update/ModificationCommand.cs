@@ -34,7 +34,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     private readonly IComparer<IUpdateEntry>? _comparer;
     private readonly List<IUpdateEntry> _entries = new();
     private List<IColumnModification>? _columnModifications;
-    private bool _requiresResultPropagation;
     private bool _mainEntryAdded;
     private EntityState _entityState;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Update>? _logger;
@@ -95,21 +94,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
     /// <inheritdoc />
     public virtual IColumnBase? RowsAffectedColumn { get; private set; }
-
-    /// <summary>
-    ///     Indicates whether the database will return values for some mapped properties
-    ///     that will then need to be propagated back to the tracked entities.
-    /// </summary>
-    public virtual bool RequiresResultPropagation
-    {
-        get
-        {
-            // ReSharper disable once AssignmentIsFullyDiscarded
-            _ = ColumnModifications;
-
-            return _requiresResultPropagation;
-        }
-    }
 
     /// <summary>
     ///     The list of <see cref="IColumnModification" /> needed to perform the insert, update, or delete.
@@ -436,31 +420,26 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
                 // Stored procedures may have an additional rows affected result column or return value, which does not have a
                 // property/column mapping but still needs to have be represented via a column modification.
-                IColumnBase? rowsAffectedColumnBase = null;
-
+                // Note that for rows affected parameters/result columns, we add column modifications below along with regular parameters/
+                // result columns; for return value we do that here.
                 if (storedProcedure.FindRowsAffectedParameter() is { } rowsAffectedParameter)
                 {
-                    rowsAffectedColumnBase = RowsAffectedColumn = rowsAffectedParameter.StoreParameter;
+                    RowsAffectedColumn = rowsAffectedParameter.StoreParameter;
                 }
                 else if (storedProcedure.FindRowsAffectedResultColumn() is { } rowsAffectedResultColumn)
                 {
-                    rowsAffectedColumnBase = RowsAffectedColumn = rowsAffectedResultColumn.StoreResultColumn;
+                    RowsAffectedColumn = rowsAffectedResultColumn.StoreResultColumn;
                 }
                 else if (storedProcedureMapping.StoreStoredProcedure.ReturnValue is { } rowsAffectedReturnValue)
                 {
-                    rowsAffectedColumnBase = rowsAffectedReturnValue;
-                }
+                    RowsAffectedColumn = rowsAffectedReturnValue;
 
-                // Add a column modification for rows affected result column/return value.
-                // A rows affected output parameter is added below in the correct position, with the rest of the parameters.
-                if (rowsAffectedColumnBase is IStoreStoredProcedureResultColumn or IStoreStoredProcedureReturnValue)
-                {
                     columnModifications.Add(CreateColumnModification(new ColumnModificationParameters(
                         entry: null,
                         property: null,
-                        rowsAffectedColumnBase,
+                        rowsAffectedReturnValue,
                         _generateParameterName!,
-                        rowsAffectedColumnBase.StoreTypeMapping,
+                        rowsAffectedReturnValue.StoreTypeMapping,
                         valueIsRead: true,
                         valueIsWrite: false,
                         columnIsKey: false,
@@ -482,25 +461,41 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     }
 
                     // The parameter has no corresponding mapping; this is either a sibling property in a TPH hierarchy or a rows affected
-                    // output parameter or return value.
+                    // output parameter. Note that we set IsRead to false since we don't propagate the output parameter.
                     columnModifications.Add(CreateColumnModification(new ColumnModificationParameters(
                         entry: null,
                         property: null,
                         parameter,
                         _generateParameterName!,
                         parameter.StoreTypeMapping,
-                        valueIsRead: parameter.Direction.HasFlag(ParameterDirection.Output),
+                        valueIsRead: false,
                         valueIsWrite: parameter.Direction.HasFlag(ParameterDirection.Input),
                         columnIsKey: false,
                         columnIsCondition: false,
                         _sensitiveLoggingEnabled)));
                 }
 
-                // Note that we only add column modifications for mapped result columns, even though the sproc may return additional result
-                // columns (e.g. for siblings in TPH). Our result propagation accesses result columns directly by their position.
-                foreach (var columnMapping in storedProcedureMapping.ResultColumnMappings)
+                foreach (var resultColumn in StoreStoredProcedure.ResultColumns)
                 {
-                    HandleColumnModification(columnMapping);
+                    if (resultColumn.FindColumnMapping(entry.EntityType) is { } resultColumnMapping)
+                    {
+                        HandleColumnModification(resultColumnMapping);
+                        continue;
+                    }
+
+                    // The result column has no corresponding mapping; this is either a sibling property in a TPH hierarchy or a rows
+                    // affected result column. Note that we set IsRead to false since we don't propagate the result column.
+                    columnModifications.Add(CreateColumnModification(new ColumnModificationParameters(
+                        entry: null,
+                        property: null,
+                        resultColumn,
+                        _generateParameterName!,
+                        resultColumn.StoreTypeMapping,
+                        valueIsRead: false,
+                        valueIsWrite: false,
+                        columnIsKey: false,
+                        columnIsCondition: false,
+                        _sensitiveLoggingEnabled)));
                 }
             }
 
@@ -557,11 +552,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     || writeValue
                     || isCondition)
                 {
-                    if (readValue)
-                    {
-                        _requiresResultPropagation = true;
-                    }
-
                     var columnModificationParameters = new ColumnModificationParameters(
                         entry,
                         property,

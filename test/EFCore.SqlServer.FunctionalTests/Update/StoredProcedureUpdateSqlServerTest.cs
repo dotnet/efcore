@@ -76,20 +76,6 @@ SET NOCOUNT ON;
 EXEC [WithOutputParameterAndResultColumn_Insert] @p0 OUTPUT, @p1;");
     }
 
-    public override async Task Update_with_output_parameter_and_result_column_and_return_value(bool async)
-    {
-        await base.Update_with_output_parameter_and_result_column_and_return_value(async);
-
-        AssertSql(
-            @"@p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
-@p1='1'
-@p2='Updated' (Size = 4000)
-@p3=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
-
-SET NOCOUNT ON;
-EXEC @p0 = [WithOutputParameterAndResultColumnAndResultValue_Update] @p1, @p2, @p3 OUTPUT;");
-    }
-
     public override async Task Update(bool async)
     {
         await base.Update(async);
@@ -118,6 +104,19 @@ EXEC [WithTwoOutputParameters_Update] @p0, @p1, @p2;");
     public override async Task Update_with_output_parameter_and_rows_affected_result_column(bool async)
     {
         await base.Update_with_output_parameter_and_rows_affected_result_column(async);
+
+        AssertSql(
+            @"@p0='1'
+@p1='Updated' (Size = 4000)
+@p2=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
+
+SET NOCOUNT ON;
+EXEC [WithOutputParameterAndRowsAffectedResultColumn_Update] @p0, @p1, @p2 OUTPUT;");
+    }
+
+    public override async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async)
+    {
+        await base.Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(async);
 
         AssertSql(
             @"@p0='1'
@@ -398,7 +397,6 @@ TRUNCATE TABLE [WithOriginalAndCurrentValueOnNonConcurrencyToken];
 TRUNCATE TABLE [WithOutputParameter];
 TRUNCATE TABLE [WithOutputParameterAndResultColumn];
 TRUNCATE TABLE [WithOutputParameterAndRowsAffectedResultColumn];
-TRUNCATE TABLE [WithOutputParameterAndResultColumnAndResultValue];
 TRUNCATE TABLE [WithResultColumn];
 TRUNCATE TABLE [WithTwoResultColumns];
 TRUNCATE TABLE [WithRowsAffectedParameter];
@@ -547,15 +545,6 @@ CREATE PROCEDURE WithInputOutputParameterOnNonConcurrencyToken_Update(@Id int, @
 AS BEGIN
     SET @Name = @Name + 'WithSuffix';
     UPDATE [WithInputOutputParameterOnNonConcurrencyToken] SET [Name] = @Name WHERE [Id] = @Id;
-END;
-
-GO
-
-CREATE PROCEDURE WithOutputParameterAndResultColumnAndResultValue_Update(@Id int, @Name varchar(max), @AdditionalProperty1 int OUT)
-AS BEGIN
-    UPDATE [WithOutputParameterAndResultColumnAndResultValue] SET [Name] = @Name, @AdditionalProperty1 = [AdditionalProperty1] WHERE [Id] = @Id;
-    SELECT [AdditionalProperty2] FROM [WithOutputParameterAndResultColumnAndResultValue] WHERE [Id] = @Id
-    RETURN @@ROWCOUNT;
 END;
 
 GO

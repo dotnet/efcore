@@ -102,7 +102,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             return;
         }
 
-        var commandPosition = CommandResultSet.Count;
+        var commandPosition = ResultSetMappings.Count;
 
         var wasCachedCommandTextEmpty = IsCommandTextEmpty;
 
@@ -113,12 +113,12 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
 
         for (var i = 0; i < _pendingBulkInsertCommands.Count; i++)
         {
-            CommandResultSet.Add(resultSetMapping);
+            ResultSetMappings.Add(resultSetMapping);
         }
 
         if (resultSetMapping != ResultSetMapping.NoResults)
         {
-            CommandResultSet[^1] = ResultSetMapping.LastInResultSet;
+            ResultSetMappings[^1] = ResultSetMapping.LastInResultSet;
         }
     }
 

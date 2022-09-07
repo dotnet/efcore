@@ -58,7 +58,7 @@ public class SqliteLegacyUpdateSqlGenerator : UpdateAndSelectSqlGenerator
             .AppendLine(SqlGenerationHelper.StatementTerminator)
             .AppendLine();
 
-        return ResultSetMapping.LastInResultSet;
+        return ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;
     }
 
     /// <summary>

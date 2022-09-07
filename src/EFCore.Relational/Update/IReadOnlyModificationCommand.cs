@@ -43,12 +43,6 @@ public interface IReadOnlyModificationCommand
     public IReadOnlyList<IColumnModification> ColumnModifications { get; }
 
     /// <summary>
-    ///     Indicates whether the database will return values for some mapped properties
-    ///     that will then need to be propagated back to the tracked entities.
-    /// </summary>
-    public bool RequiresResultPropagation { get; }
-
-    /// <summary>
     ///     The <see cref="IUpdateEntry" /> that represent the entities that are mapped to the row to update.
     /// </summary>
     public IReadOnlyList<IUpdateEntry> Entries { get; }

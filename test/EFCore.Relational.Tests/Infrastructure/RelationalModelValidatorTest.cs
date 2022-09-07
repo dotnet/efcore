@@ -2919,6 +2919,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_rows_affected_with_result_columns()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>()
+            .UpdateUsingStoredProcedure(
+                s => s
+                    .HasParameter(a => a.Id)
+                    .HasParameter("FavoritePersonId")
+                    .HasResultColumn(a => a.Name)
+                    .HasRowsAffectedReturnValue())
+            .Property(a => a.Name).ValueGeneratedOnUpdate();
+
+        VerifyError(
+            RelationalStrings.StoredProcedureRowsAffectedWithResultColumns(nameof(Animal), "Animal_Update"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_on_valid_UsingDeleteStoredProcedure_in_TPT()
     {
         var modelBuilder = CreateConventionModelBuilder();

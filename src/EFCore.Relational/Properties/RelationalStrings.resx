@@ -1051,6 +1051,9 @@
   <data name="StoredProcedureRowsAffectedReturnConflictingParameter" xml:space="preserve">
     <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.</value>
   </data>
+  <data name="StoredProcedureRowsAffectedWithResultColumns" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}' which returns both result columns and a rows affected value. If the stored procedure returns result columns, a rows affected value isn't needed and can be safely removed.</value>
+  </data>
   <data name="StoredProcedureTableSharing" xml:space="preserve">
     <value>Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.</value>
   </data>

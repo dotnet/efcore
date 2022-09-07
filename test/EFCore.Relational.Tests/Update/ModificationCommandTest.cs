@@ -375,64 +375,6 @@ public class ModificationCommandTest
             Assert.Throws<InvalidOperationException>(() => command.AddEntry(entry, true)).Message);
     }
 
-    [ConditionalFact]
-    public void RequiresResultPropagation_false_for_Delete_operation()
-    {
-        var entry = CreateEntry(
-            EntityState.Deleted, generateKeyValues: true, computeNonKeyValue: true);
-
-        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, false, null);
-        command.AddEntry(entry, true);
-
-        Assert.False(command.RequiresResultPropagation);
-    }
-
-    [ConditionalFact]
-    public void RequiresResultPropagation_true_for_Insert_operation_if_store_generated_columns_exist()
-    {
-        var entry = CreateEntry(
-            EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
-
-        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, false, null);
-        command.AddEntry(entry, true);
-
-        Assert.True(command.RequiresResultPropagation);
-    }
-
-    [ConditionalFact]
-    public void RequiresResultPropagation_false_for_Insert_operation_if_no_store_generated_columns_exist()
-    {
-        var entry = CreateEntry(EntityState.Added);
-
-        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, false, null);
-        command.AddEntry(entry, true);
-
-        Assert.False(command.RequiresResultPropagation);
-    }
-
-    [ConditionalFact]
-    public void RequiresResultPropagation_true_for_Update_operation_if_non_key_store_generated_columns_exist()
-    {
-        var entry = CreateEntry(
-            EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
-
-        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, false, null);
-        command.AddEntry(entry, true);
-
-        Assert.True(command.RequiresResultPropagation);
-    }
-
-    [ConditionalFact]
-    public void RequiresResultPropagation_false_for_Update_operation_if_no_non_key_store_generated_columns_exist()
-    {
-        var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
-
-        var command = CreateModificationCommand(entry, new ParameterNameGenerator().GenerateNext, false, null);
-        command.AddEntry(entry, true);
-
-        Assert.False(command.RequiresResultPropagation);
-    }
-
     private class T1
     {
         public int Id { get; set; }
