@@ -23,7 +23,8 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
     /// </summary>
     [EntityFrameworkInternal]
     public StoredProcedureResultColumnBuilder(
-        InternalStoredProcedureResultColumnBuilder builder, PropertyBuilder? propertyBuilder)
+        InternalStoredProcedureResultColumnBuilder builder,
+        PropertyBuilder? propertyBuilder)
     {
         Builder = builder;
         PropertyBuilder = propertyBuilder;
@@ -81,7 +82,8 @@ public class StoredProcedureResultColumnBuilder : IInfrastructure<PropertyBuilde
         return this;
     }
 
-    PropertyBuilder? IInfrastructure<PropertyBuilder?>.Instance => PropertyBuilder;
+    PropertyBuilder? IInfrastructure<PropertyBuilder?>.Instance
+        => PropertyBuilder;
 
     #region Hidden System.Object members
 

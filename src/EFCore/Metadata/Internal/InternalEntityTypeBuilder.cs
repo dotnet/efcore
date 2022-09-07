@@ -589,7 +589,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
             propertyType ??= existingProperty.ClrType;
 
-            propertiesToDetach = new List<Property> { existingProperty };
+            propertiesToDetach = new() { existingProperty };
         }
         else
         {
@@ -620,7 +620,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var derivedProperty = derivedType.FindDeclaredProperty(propertyName);
                 if (derivedProperty != null)
                 {
-                    propertiesToDetach ??= new List<Property>();
+                    propertiesToDetach ??= new();
 
                     propertiesToDetach.Add(derivedProperty);
                 }
@@ -908,7 +908,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 return null;
             }
 
-            propertiesToDetach = new List<ServiceProperty> { existingProperty };
+            propertiesToDetach = new() { existingProperty };
         }
         else if (configurationSource != ConfigurationSource.Explicit
                  && (!configurationSource.HasValue
@@ -923,7 +923,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var derivedProperty = derivedType.FindDeclaredServiceProperty(propertyName);
                 if (derivedProperty != null)
                 {
-                    propertiesToDetach ??= new List<ServiceProperty>();
+                    propertiesToDetach ??= new();
 
                     propertiesToDetach.Add(derivedProperty);
                 }
@@ -937,7 +937,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             List<InternalServicePropertyBuilder>? detachedProperties = null;
             if (propertiesToDetach != null)
             {
-                detachedProperties = new List<InternalServicePropertyBuilder>();
+                detachedProperties = new();
                 foreach (var propertyToDetach in propertiesToDetach)
                 {
                     detachedProperties.Add(DetachServiceProperty(propertyToDetach)!);
@@ -1627,7 +1627,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                             }
                         }
 
-                        relationshipsToBeDetached ??= new HashSet<ForeignKey>();
+                        relationshipsToBeDetached ??= new();
 
                         relationshipsToBeDetached.Add(referencingForeignKey);
                     }
@@ -1635,7 +1635,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                 if (relationshipsToBeDetached != null)
                 {
-                    detachedRelationships = new List<RelationshipSnapshot>();
+                    detachedRelationships = new();
                     foreach (var relationshipToBeDetached in relationshipsToBeDetached)
                     {
                         detachedRelationships.Add(DetachRelationship(relationshipToBeDetached));
@@ -1665,7 +1665,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                 if (skipNavigationsToDetach != null)
                 {
-                    detachedSkipNavigations = new List<InternalSkipNavigationBuilder>();
+                    detachedSkipNavigations = new();
                     foreach (var skipNavigation in skipNavigationsToDetach)
                     {
                         detachedSkipNavigations.Add(DetachSkipNavigation(skipNavigation)!);
@@ -1697,7 +1697,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                 if (servicePropertiesToDetach != null)
                 {
-                    detachedServiceProperties = new List<InternalServicePropertyBuilder>();
+                    detachedServiceProperties = new();
                     foreach (var serviceProperty in servicePropertiesToDetach)
                     {
                         detachedServiceProperties.Add(DetachServiceProperty(serviceProperty)!);
@@ -1725,7 +1725,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                         .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
                 if (removedInheritedProperties.Count != 0)
                 {
-                    removedInheritedPropertiesToDuplicate = new HashSet<Property>();
+                    removedInheritedPropertiesToDuplicate = new();
                     List<ForeignKey>? relationshipsToBeDetached = null;
                     foreach (var foreignKey in Metadata.GetDerivedTypesInclusive()
                                  .SelectMany(t => t.GetDeclaredForeignKeys()))
@@ -1745,7 +1745,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                             continue;
                         }
 
-                        relationshipsToBeDetached ??= new List<ForeignKey>();
+                        relationshipsToBeDetached ??= new();
 
                         relationshipsToBeDetached.Add(foreignKey);
                     }
@@ -1763,7 +1763,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                         {
                             if (Metadata.IsAssignableFrom(referencingForeignKey.PrincipalEntityType))
                             {
-                                relationshipsToBeDetached ??= new List<ForeignKey>();
+                                relationshipsToBeDetached ??= new();
 
                                 relationshipsToBeDetached.Add(referencingForeignKey);
                             }
@@ -1772,7 +1772,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                     if (relationshipsToBeDetached != null)
                     {
-                        detachedRelationships = new List<RelationshipSnapshot>();
+                        detachedRelationships = new();
                         foreach (var relationshipToBeDetached in relationshipsToBeDetached)
                         {
                             detachedRelationships.Add(DetachRelationship(relationshipToBeDetached));
@@ -1797,14 +1797,14 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                             continue;
                         }
 
-                        indexesToBeDetached ??= new List<Index>();
+                        indexesToBeDetached ??= new();
 
                         indexesToBeDetached.Add(index);
                     }
 
                     if (indexesToBeDetached != null)
                     {
-                        detachedIndexes = new List<InternalIndexBuilder>();
+                        detachedIndexes = new();
                         foreach (var indexToBeDetached in indexesToBeDetached)
                         {
                             detachedIndexes.Add(DetachIndex(indexToBeDetached));
@@ -1909,7 +1909,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                                 member.Name));
                     }
 
-                    membersToBeRemoved ??= new List<T>();
+                    membersToBeRemoved ??= new();
 
                     membersToBeRemoved.Add(member);
                     continue;
@@ -1917,7 +1917,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                 if (baseConfigurationSource != null)
                 {
-                    membersToBeDetached ??= new List<T>();
+                    membersToBeDetached ??= new();
 
                     membersToBeDetached.Add(member);
                 }
@@ -2022,7 +2022,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         {
             foreach (var relationship in propertyToDetach.GetContainingForeignKeys().ToList())
             {
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= new();
 
                 detachedRelationships.Add(DetachRelationship(relationship));
             }
@@ -2035,7 +2035,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         {
             foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
             {
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= new();
 
                 detachedRelationships.Add(DetachRelationship(referencingForeignKey));
             }
@@ -2071,7 +2071,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             }
         }
 
-        return new PropertiesSnapshot(detachedProperties, detachedIndexes, detachedKeys, detachedRelationships);
+        return new(detachedProperties, detachedIndexes, detachedKeys, detachedRelationships);
     }
 
     /// <summary>
@@ -2134,7 +2134,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             dependentEntityType.Model.Builder.HasNoEntityType(dependentEntityType, ConfigurationSource.Explicit);
         }
 
-        return new RelationshipSnapshot(detachedBuilder, ownedSnapshot, referencingSkipNavigations);
+        return new(detachedBuilder, ownedSnapshot, referencingSkipNavigations);
     }
 
     /// <summary>
@@ -2202,7 +2202,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<RelationshipSnapshot>? detachedRelationships = null;
         foreach (var relationshipToBeDetached in entityType.GetDeclaredForeignKeys().ToList())
         {
-            detachedRelationships ??= new List<RelationshipSnapshot>();
+            detachedRelationships ??= new();
 
             var detachedRelationship = DetachRelationship(relationshipToBeDetached, false);
             if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -2215,7 +2215,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<InternalSkipNavigationBuilder>? detachedSkipNavigations = null;
         foreach (var skipNavigationsToBeDetached in entityType.GetDeclaredSkipNavigations().ToList())
         {
-            detachedSkipNavigations ??= new List<InternalSkipNavigationBuilder>();
+            detachedSkipNavigations ??= new();
 
             detachedSkipNavigations.Add(DetachSkipNavigation(skipNavigationsToBeDetached)!);
         }
@@ -2232,7 +2232,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                     continue;
                 }
 
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= new();
 
                 var detachedRelationship = DetachRelationship(relationshipToBeDetached, true);
                 if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -2247,7 +2247,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 continue;
             }
 
-            detachedKeys ??= new List<(InternalKeyBuilder, ConfigurationSource?)>();
+            detachedKeys ??= new();
 
             var detachedKey = DetachKey(keyToDetach);
             if (detachedKey.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
@@ -2259,7 +2259,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<InternalIndexBuilder>? detachedIndexes = null;
         foreach (var index in entityType.GetDeclaredIndexes().ToList())
         {
-            detachedIndexes ??= new List<InternalIndexBuilder>();
+            detachedIndexes ??= new();
 
             var detachedIndex = DetachIndex(index);
             if (detachedIndex.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
@@ -2273,12 +2273,12 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<InternalServicePropertyBuilder>? detachedServiceProperties = null;
         foreach (var servicePropertiesToBeDetached in entityType.GetDeclaredServiceProperties().ToList())
         {
-            detachedServiceProperties ??= new List<InternalServicePropertyBuilder>();
+            detachedServiceProperties ??= new();
 
             detachedServiceProperties.Add(DetachServiceProperty(servicePropertiesToBeDetached)!);
         }
 
-        return new EntityType.Snapshot(
+        return new(
             entityType,
             detachedProperties,
             detachedIndexes,
@@ -2310,7 +2310,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     {
         foreach (var property in properties)
         {
-            if (property.IsInModel == true && property.IsImplicitlyCreated())
+            if (property.IsInModel && property.IsImplicitlyCreated())
             {
                 RemovePropertyIfUnused((Property)(object)property, ConfigurationSource.Convention);
             }
@@ -3732,7 +3732,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         ConfigurationSource? configurationSource,
         bool? targetShouldBeOwned = null)
         => GetTargetEntityTypeBuilder(
-            new TypeIdentity(targetClrType, Metadata.Model),
+            new(targetClrType, Metadata.Model),
             MemberIdentity.Create(navigationInfo),
             configurationSource,
             targetShouldBeOwned);
@@ -3791,11 +3791,11 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         {
             if (Metadata.GetRuntimeProperties().TryGetValue(navigation.Name!, out var propertyInfo))
             {
-                navigation = new MemberIdentity(propertyInfo);
+                navigation = new(propertyInfo);
             }
             else if (Metadata.GetRuntimeFields().TryGetValue(navigation.Name!, out var fieldInfo))
             {
-                navigation = new MemberIdentity(fieldInfo);
+                navigation = new(fieldInfo);
             }
         }
 
@@ -3809,7 +3809,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                 if (targetEntityType.Name == Metadata.Model.GetDisplayName(targetType))
                 {
-                    targetEntityType = new TypeIdentity(targetType, Metadata.Model);
+                    targetEntityType = new(targetType, Metadata.Model);
                 }
             }
         }
@@ -4260,7 +4260,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
                 if (conflictingNavigation != null)
                 {
-                    navigationsToDetach ??= new List<SkipNavigation>();
+                    navigationsToDetach ??= new();
 
                     navigationsToDetach.Add(conflictingNavigation);
                 }
@@ -4952,7 +4952,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         discriminatorPropertyBuilder.HasValueGeneratorFactory(
             typeof(DiscriminatorValueGeneratorFactory), ConfigurationSource.Convention);
 
-        return new DiscriminatorBuilder(Metadata);
+        return new(Metadata);
     }
 
     private void RemoveIncompatibleDiscriminatorValues(

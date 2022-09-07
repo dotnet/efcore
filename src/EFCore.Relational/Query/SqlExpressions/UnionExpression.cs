@@ -58,7 +58,7 @@ public class UnionExpression : SetOperationBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual UnionExpression Update(SelectExpression source1, SelectExpression source2)
         => source1 != Source1 || source2 != Source2
-            ? new UnionExpression(Alias, source1, source2, IsDistinct, GetAnnotations())
+            ? new(Alias, source1, source2, IsDistinct, GetAnnotations())
             : this;
 
     /// <inheritdoc />

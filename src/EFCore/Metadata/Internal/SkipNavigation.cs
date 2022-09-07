@@ -43,7 +43,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
         TargetEntityType = targetEntityType;
         IsCollection = collection;
         IsOnDependent = onDependent;
-        _builder = new InternalSkipNavigationBuilder(this, targetEntityType.Model.Builder);
+        _builder = new(this, targetEntityType.Model.Builder);
     }
 
     private void ProcessForeignKey(ForeignKey foreignKey)

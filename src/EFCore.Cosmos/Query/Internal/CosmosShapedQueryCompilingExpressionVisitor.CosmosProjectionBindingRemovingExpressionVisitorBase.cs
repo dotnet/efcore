@@ -1,14 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Newtonsoft.Json.Linq;
-
-#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -330,7 +330,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             shaperExpressions.RemoveAt(shaperExpressions.Count - 1);
 
             var includesToProcess = _pendingIncludes;
-            _pendingIncludes = new List<IncludeExpression>();
+            _pendingIncludes = new();
 
             foreach (var include in includesToProcess)
             {
@@ -703,7 +703,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 Expression replaceExpression;
-                if (converter.ConvertsNulls == true)
+                if (converter.ConvertsNulls)
                 {
                     replaceExpression = ReplacingExpressionVisitor.Replace(
                         converter.ConvertFromProviderExpression.Parameters.Single(),

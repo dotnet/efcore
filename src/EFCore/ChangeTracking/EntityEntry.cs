@@ -188,7 +188,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
 
     /// <summary>
     ///     Provides access to change tracking information and operations for all properties and navigations of this entity.
-    /// </summary>-
+    /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
     ///     examples.
@@ -287,7 +287,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotNull(property, nameof(property));
 
-        return new PropertyEntry(InternalEntry, property);
+        return new(InternalEntry, property);
     }
 
     /// <summary>
@@ -303,7 +303,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new PropertyEntry(InternalEntry, propertyName);
+        return new(InternalEntry, propertyName);
     }
 
     /// <summary>
@@ -334,7 +334,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotNull(navigation, nameof(navigation));
 
-        return new ReferenceEntry(InternalEntry, (INavigation)navigation);
+        return new(InternalEntry, (INavigation)navigation);
     }
 
     /// <summary>
@@ -354,7 +354,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new ReferenceEntry(InternalEntry, propertyName);
+        return new(InternalEntry, propertyName);
     }
 
     /// <summary>
@@ -387,7 +387,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotNull(navigation, nameof(navigation));
 
-        return new CollectionEntry(InternalEntry, navigation);
+        return new(InternalEntry, navigation);
     }
 
     /// <summary>
@@ -408,7 +408,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new CollectionEntry(InternalEntry, propertyName);
+        return new(InternalEntry, propertyName);
     }
 
     /// <summary>

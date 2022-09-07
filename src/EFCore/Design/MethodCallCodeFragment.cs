@@ -42,18 +42,21 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
         Namespace = methodInfo.DeclaringType?.Namespace;
         DeclaringType = methodInfo.DeclaringType?.Name;
         Method = methodInfo.Name;
-        _arguments = new List<object?>(arguments);
+        _arguments = new(arguments);
     }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MethodCallCodeFragment" /> class.
     /// </summary>
     /// <param name="method">The method's name.</param>
-    /// <param name="arguments">The method call's arguments. Can be a fragment like <see cref="NestedClosureCodeFragment" /> or <see cref="PropertyAccessorCodeFragment"/>.</param>
+    /// <param name="arguments">
+    ///     The method call's arguments. Can be a fragment like <see cref="NestedClosureCodeFragment" /> or
+    ///     <see cref="PropertyAccessorCodeFragment" />.
+    /// </param>
     public MethodCallCodeFragment(string method, params object?[] arguments)
     {
         Method = method;
-        _arguments = new List<object?>(arguments);
+        _arguments = new(arguments);
     }
 
     private MethodCallCodeFragment(

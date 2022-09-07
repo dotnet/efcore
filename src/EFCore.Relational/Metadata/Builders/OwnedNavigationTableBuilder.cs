@@ -28,12 +28,14 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     /// <summary>
     ///     The specified table name.
     /// </summary>
-    public virtual string? Name => StoreObject?.Name;
+    public virtual string? Name
+        => StoreObject?.Name;
 
     /// <summary>
     ///     The specified table schema.
     /// </summary>
-    public virtual string? Schema => StoreObject?.Schema;
+    public virtual string? Schema
+        => StoreObject?.Schema;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +49,8 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     /// <summary>
     ///     The entity type being configured.
     /// </summary>
-    public virtual IMutableEntityType Metadata => OwnedNavigationBuilder.OwnedEntityType;
+    public virtual IMutableEntityType Metadata
+        => OwnedNavigationBuilder.OwnedEntityType;
 
     private OwnedNavigationBuilder OwnedNavigationBuilder { get; }
 
@@ -154,7 +157,8 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     protected virtual StoreObjectIdentifier GetStoreObjectIdentifier()
         => StoreObject ?? throw new InvalidOperationException(RelationalStrings.MappingFragmentMissingName);
 
-    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+        => OwnedNavigationBuilder;
 
     #region Hidden System.Object members
 

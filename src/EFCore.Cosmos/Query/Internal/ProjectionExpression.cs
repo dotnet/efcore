@@ -85,7 +85,7 @@ public class ProjectionExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual ProjectionExpression Update(Expression expression)
         => expression != Expression
-            ? new ProjectionExpression(expression, Alias)
+            ? new(expression, Alias)
             : this;
 
     /// <summary>

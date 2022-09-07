@@ -114,7 +114,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         }
 
         var entityProjection = new EntityProjectionExpression(entityType, propertyExpressionsMap);
-        _projectionMapping[new ProjectionMember()] = entityProjection;
+        _projectionMapping[new()] = entityProjection;
     }
 
     /// <summary>
@@ -251,7 +251,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     {
         if (_scalarServerQuery)
         {
-            _projectionMapping[new ProjectionMember()] = Constant(0);
+            _projectionMapping[new()] = Constant(0);
             return;
         }
 
@@ -598,9 +598,9 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         clonedInMemoryQueryExpression.UpdateServerQueryExpression(_groupingParameter);
         clonedInMemoryQueryExpression._groupingParameter = null;
 
-        return new GroupByShaperExpression(
+        return new(
             groupingKey,
-            new ShapedQueryExpression(
+            new(
                 clonedInMemoryQueryExpression,
                 new QueryExpressionReplacingExpressionVisitor(this, clonedInMemoryQueryExpression).Visit(shaperExpression)));
     }
@@ -672,7 +672,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         var selectorExpressions = _projectionMappingExpressions.Select(e => replacingVisitor.Visit(e)).ToList();
         var outerIndex = selectorExpressions.Count;
-        var innerEntityProjection = (EntityProjectionExpression)innerQueryExpression._projectionMapping[new ProjectionMember()];
+        var innerEntityProjection = (EntityProjectionExpression)innerQueryExpression._projectionMapping[new()];
         var innerReadExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
         foreach (var property in GetAllPropertiesInHierarchy(innerEntityProjection.EntityType))
         {
@@ -685,7 +685,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             _projectionMappingExpressions.Add(readValueExpression);
         }
 
-        innerEntityProjection = new EntityProjectionExpression(innerEntityProjection.EntityType, innerReadExpressionMap);
+        innerEntityProjection = new(innerEntityProjection.EntityType, innerReadExpressionMap);
 
         var resultSelector = Lambda(
             New(
@@ -726,7 +726,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     {
         var clonedInMemoryQueryExpression = Clone();
 
-        return new ShapedQueryExpression(
+        return new(
             clonedInMemoryQueryExpression,
             new QueryExpressionReplacingExpressionVisitor(this, clonedInMemoryQueryExpression).Visit(shaperExpression));
     }
@@ -743,7 +743,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         _projectionMapping.Clear();
         _projectionMappingExpressions.Clear();
         _clientProjections.Clear();
-        _projectionMapping[new ProjectionMember()] = expression;
+        _projectionMapping[new()] = expression;
         _projectionMappingExpressions.Add(expression);
         _groupingParameter = null;
 
@@ -831,7 +831,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
     private InMemoryQueryExpression Clone()
     {
-        _cloningExpressionVisitor ??= new CloningExpressionVisitor();
+        _cloningExpressionVisitor ??= new();
 
         return (InMemoryQueryExpression)_cloningExpressionVisitor.Visit(this);
     }

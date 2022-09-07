@@ -80,7 +80,7 @@ public abstract class ConventionAnnotatable : Annotatable, IConventionAnnotatabl
     /// <summary>
     ///     Sets the annotation with given key and value on this object using given configuration source.
     ///     Removes the existing annotation if an annotation with the specified name already exists and
-    ///     <paramref name="value"/> is <see langword="null"/>.
+    ///     <paramref name="value" /> is <see langword="null" />.
     /// </summary>
     /// <param name="name">The key of the annotation to be added.</param>
     /// <param name="value">The value to be stored in the annotation.</param>

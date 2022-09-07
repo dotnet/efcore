@@ -21,10 +21,10 @@ public class RowIdentityMapFactory : IRowIdentityMapFactory
     /// </summary>
     public virtual IRowIdentityMap Create(IUniqueConstraint key)
         => (IRowIdentityMap)_createMethod
-                .MakeGenericMethod(key.Columns.Count == 1 ? key.Columns.First().ProviderClrType : typeof(object[]))
-                .Invoke(null, new object[] { key })!;
+            .MakeGenericMethod(key.Columns.Count == 1 ? key.Columns.First().ProviderClrType : typeof(object[]))
+            .Invoke(null, new object[] { key })!;
 
-    private readonly static MethodInfo _createMethod = typeof(RowIdentityMapFactory).GetTypeInfo()
+    private static readonly MethodInfo _createMethod = typeof(RowIdentityMapFactory).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreateRowIdentityMap))!;
 
     [UsedImplicitly]

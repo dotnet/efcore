@@ -46,7 +46,7 @@ public class ScopedLoggerFactory : ILoggerFactory
         {
             if (coreOptions.LoggerFactory != null)
             {
-                return new ScopedLoggerFactory(coreOptions.LoggerFactory, dispose: false);
+                return new(coreOptions.LoggerFactory, dispose: false);
             }
 
             var applicationServiceProvider = coreOptions.ApplicationServiceProvider;
@@ -56,12 +56,12 @@ public class ScopedLoggerFactory : ILoggerFactory
                 var loggerFactory = applicationServiceProvider.GetService<ILoggerFactory>();
                 if (loggerFactory != null)
                 {
-                    return new ScopedLoggerFactory(loggerFactory, dispose: false);
+                    return new(loggerFactory, dispose: false);
                 }
             }
         }
 
-        return new ScopedLoggerFactory(new LoggerFactory(), dispose: true);
+        return new(new LoggerFactory(), dispose: true);
     }
 
     /// <summary>

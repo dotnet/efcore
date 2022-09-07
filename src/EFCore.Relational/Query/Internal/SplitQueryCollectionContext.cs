@@ -25,7 +25,7 @@ public class SplitQueryCollectionContext
         Parent = parent;
         Collection = collection;
         ParentIdentifier = parentIdentifier;
-        ResultContext = new ResultContext();
+        ResultContext = new();
     }
 
     /// <summary>

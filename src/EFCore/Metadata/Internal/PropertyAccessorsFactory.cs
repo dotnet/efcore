@@ -34,7 +34,7 @@ public class PropertyAccessorsFactory
     {
         var property = propertyBase as IProperty;
 
-        return new PropertyAccessors(
+        return new(
             CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: true),
             CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: false),
             property == null ? null : CreateOriginalValueGetter<TProperty>(property),

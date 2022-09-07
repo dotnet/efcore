@@ -246,7 +246,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
             }
 
             table.Columns.Add(
-                new DatabaseColumn
+                new()
                 {
                     Table = table,
                     Name = columnName,
@@ -364,7 +364,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
         Check.DebugAssert(!reader.Read(), "Unexpected composite primary key.");
 
-        table.PrimaryKey = new DatabasePrimaryKey
+        table.PrimaryKey = new()
         {
             Table = table,
             Name = string.Empty,

@@ -27,7 +27,8 @@ public abstract class RowForeignKeyValueFactory<TKey> : IRowForeignKeyValueFacto
     public RowForeignKeyValueFactory(IForeignKeyConstraint foreignKey)
     {
         _foreignKey = foreignKey;
-        _principalKeyValueFactory = (IRowKeyValueFactory<TKey>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
+        _principalKeyValueFactory =
+            (IRowKeyValueFactory<TKey>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
     }
 
     /// <summary>
@@ -68,7 +69,8 @@ public abstract class RowForeignKeyValueFactory<TKey> : IRowForeignKeyValueFacto
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract bool TryCreateDependentKeyValue(
-        object?[] keyValues, [NotNullWhen(true)] out TKey? key);
+        object?[] keyValues,
+        [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,7 +79,8 @@ public abstract class RowForeignKeyValueFactory<TKey> : IRowForeignKeyValueFacto
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract bool TryCreateDependentKeyValue(
-        IDictionary<string, object?> keyPropertyValues, [NotNullWhen(true)] out TKey? key);
+        IDictionary<string, object?> keyPropertyValues,
+        [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +89,9 @@ public abstract class RowForeignKeyValueFactory<TKey> : IRowForeignKeyValueFacto
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public abstract bool TryCreateDependentKeyValue(
-        IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out TKey? key);
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues,
+        [NotNullWhen(true)] out TKey? key);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

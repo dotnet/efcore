@@ -140,7 +140,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(
-        ICheckConstraint checkConstraint, IDictionary<string, IAnnotation> annotations)
+        ICheckConstraint checkConstraint,
+        IDictionary<string, IAnnotation> annotations)
         => RemoveConventionalAnnotationsHelper(checkConstraint, annotations, IsHandledByConvention);
 
     /// <inheritdoc />
@@ -149,12 +150,14 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(
-        IRelationalPropertyOverrides overrides, IDictionary<string, IAnnotation> annotations)
+        IRelationalPropertyOverrides overrides,
+        IDictionary<string, IAnnotation> annotations)
         => RemoveConventionalAnnotationsHelper(overrides, annotations, IsHandledByConvention);
 
     /// <inheritdoc />
     public virtual void RemoveAnnotationsHandledByConventions(
-        ISequence sequence, IDictionary<string, IAnnotation> annotations)
+        ISequence sequence,
+        IDictionary<string, IAnnotation> annotations)
         => RemoveConventionalAnnotationsHelper(sequence, annotations, IsHandledByConvention);
 
     /// <inheritdoc />
@@ -204,7 +207,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             {
                 if (entityType.BaseType == null)
                 {
-                    methodCallCodeFragments.Add(new MethodCallCodeFragment(strategyCall));
+                    methodCallCodeFragments.Add(new(strategyCall));
                 }
 
                 annotations.Remove(mappingStrategyAnnotation.Name);
@@ -212,11 +215,12 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         }
 
         if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnName, out var containerColumnNameAnnotation)
-            && containerColumnNameAnnotation != null && containerColumnNameAnnotation.Value is string containerColumnName
+            && containerColumnNameAnnotation != null
+            && containerColumnNameAnnotation.Value is string containerColumnName
             && entityType.IsOwned())
         {
             methodCallCodeFragments.Add(
-                new MethodCallCodeFragment(
+                new(
                     nameof(RelationalOwnedNavigationBuilderExtensions.ToJson),
                     containerColumnName));
 
@@ -256,7 +260,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         {
             methodCallCodeFragments.Add(
                 defaultValue == DBNull.Value
-                    ? new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
+                    ? new(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
                     : new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), defaultValue));
         }
 
@@ -272,7 +276,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         {
             methodCallCodeFragments.Add(
                 defaultValueSql.Length == 0
-                    ? new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))
+                    ? new(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))
                     : new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), defaultValueSql));
         }
 
@@ -280,9 +284,10 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         {
             methodCallCodeFragments.Add(
                 computedColumnSql.Length == 0
-                    ? new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))
+                    ? new(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))
                     : TryGetAndRemove(annotations, RelationalAnnotationNames.IsStored, out bool isStored)
-                        ? new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), computedColumnSql, isStored)
+                        ? new(
+                            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), computedColumnSql, isStored)
                         : new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), computedColumnSql));
         }
 
@@ -290,7 +295,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         {
             methodCallCodeFragments.Add(
                 isFixedLength
-                    ? new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.IsFixedLength))
+                    ? new(nameof(RelationalPropertyBuilderExtensions.IsFixedLength))
                     : new MethodCallCodeFragment(nameof(RelationalPropertyBuilderExtensions.IsFixedLength), false));
         }
 
@@ -314,7 +319,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     {
         var methodCallCodeFragments = new List<MethodCallCodeFragment>();
 
-        GenerateSimpleFluentApiCall(annotations, RelationalAnnotationNames.Name, nameof(RelationalKeyBuilderExtensions.HasName), methodCallCodeFragments);
+        GenerateSimpleFluentApiCall(
+            annotations, RelationalAnnotationNames.Name, nameof(RelationalKeyBuilderExtensions.HasName), methodCallCodeFragments);
 
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(key, annotations, GenerateFluentApi));
 
@@ -430,7 +436,8 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 
     /// <inheritdoc />
     public virtual IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
         => ((IAnnotationCodeGenerator)this).GenerateFluentApiCallsInternal(annotatable, annotations);
 
     /// <inheritdoc />
@@ -455,7 +462,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         if (TryGetAndRemove(annotations, CoreAnnotationNames.MaxLength, out int maxLength))
         {
             attributeCodeFragments.Add(
-                new AttributeCodeFragment(
+                new(
                     property.ClrType == typeof(string)
                         ? typeof(StringLengthAttribute)
                         : typeof(MaxLengthAttribute),
@@ -900,7 +907,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
             if (annotation.Value is object annotationValue)
             {
                 methodCallCodeFragments.Add(
-                    new MethodCallCodeFragment(method, annotationValue));
+                    new(method, annotationValue));
             }
         }
     }

@@ -39,7 +39,7 @@ public class QueryExpressionReplacingExpressionVisitor : ExpressionVisitor
         => expression is ProjectionBindingExpression projectionBindingExpression
             && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldQuery)
                 ? projectionBindingExpression.ProjectionMember != null
-                    ? new ProjectionBindingExpression(
+                    ? new(
                         _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
                     : new ProjectionBindingExpression(
                         _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)

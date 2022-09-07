@@ -18,7 +18,9 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     }
 
     public Multigraph(IComparer<TVertex> secondarySortComparer)
-        => _secondarySortComparer = secondarySortComparer;
+    {
+        _secondarySortComparer = secondarySortComparer;
+    }
 
     public Multigraph(Comparison<TVertex> secondarySortComparer)
         : this(Comparer<TVertex>.Create(secondarySortComparer))
@@ -62,7 +64,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
         if (!_successorMap.TryGetValue(from, out var successorEdges))
         {
-            successorEdges = new Dictionary<TVertex, object?>();
+            successorEdges = new();
             _successorMap.Add(from, successorEdges);
         }
 
@@ -70,7 +72,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (edges is not List<Edge> edgeList)
             {
-                edgeList = new List<Edge> { (Edge)edges! };
+                edgeList = new() { (Edge)edges! };
                 successorEdges[to] = edgeList;
             }
 
@@ -83,7 +85,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
         if (!_predecessorMap.TryGetValue(to, out var predecessorEdges))
         {
-            predecessorEdges = new Dictionary<TVertex, object?>();
+            predecessorEdges = new();
             _predecessorMap.Add(to, predecessorEdges);
         }
 
@@ -91,7 +93,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (edges is not List<Edge> edgeList)
             {
-                edgeList = new List<Edge> { (Edge)edges! };
+                edgeList = new() { (Edge)edges! };
                 predecessorEdges[from] = edgeList;
             }
 
@@ -222,7 +224,8 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                             // already in the current batch, then the next batch will have to be executed in a separate batch.
                             // TODO: Optimization: Instead of currentBatchSet, store a batch counter on each vertex, and check if later
                             // vertexes have a boundary-requiring dependency on a vertex with the same batch counter.
-                            if (withBatching && _predecessorMap[successor].Any(
+                            if (withBatching
+                                && _predecessorMap[successor].Any(
                                     kv =>
                                         (kv.Value is Edge { RequiresBatchingBoundary: true }
                                             || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))

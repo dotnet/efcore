@@ -39,7 +39,7 @@ public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress?, 
     public PhysicalAddressToBytesConverter(ConverterMappingHints? mappingHints)
         : base(
             v => v!.GetAddressBytes(),
-            v => new PhysicalAddress(v!),
+            v => new(v!),
             DefaultHints.With(mappingHints))
     {
     }

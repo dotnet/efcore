@@ -50,7 +50,7 @@ public class CompiledQueryCache : ICompiledQueryCache
         // herd), have only one actually process and block the others.
         // Note that the following synchronization isn't perfect - some race conditions may cause concurrent
         // processing. This is benign (and rare).
-        var compilationLock = Locks.GetOrAdd(cacheKey, _ => new object());
+        var compilationLock = Locks.GetOrAdd(cacheKey, _ => new());
         try
         {
             lock (compilationLock)

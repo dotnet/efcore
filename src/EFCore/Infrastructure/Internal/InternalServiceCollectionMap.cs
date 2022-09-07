@@ -99,7 +99,7 @@ public class InternalServiceCollectionMap : IInternalServiceCollectionMap
         var indexes = GetOrCreateDescriptorIndexes(serviceType);
         if (!indexes.Any())
         {
-            AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, serviceType, lifetime));
+            AddNewDescriptor(indexes, new(serviceType, serviceType, lifetime));
         }
         else if (indexes.Count > 1
                  || ServiceCollection[indexes[0]].ImplementationType != serviceType)
@@ -149,7 +149,7 @@ public class InternalServiceCollectionMap : IInternalServiceCollectionMap
                     {
                         AddNewDescriptor(
                             implementationIndexes,
-                            new ServiceDescriptor(implementationType, implementationType, lifetime));
+                            new(implementationType, implementationType, lifetime));
                     }
 
                     var injectedDescriptor = new ServiceDescriptor(

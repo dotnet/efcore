@@ -58,10 +58,10 @@ public class ClrCollectionAccessorFactory
         }
 
         var memberInfo = GetMostDerivedMemberInfo();
-        var propertyType = navigation.IsIndexerProperty() || navigation.IsShadowProperty() 
-            ? navigation.ClrType 
+        var propertyType = navigation.IsIndexerProperty() || navigation.IsShadowProperty()
+            ? navigation.ClrType
             : memberInfo!.GetMemberType();
-        
+
         var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
 
         if (elementType == null)

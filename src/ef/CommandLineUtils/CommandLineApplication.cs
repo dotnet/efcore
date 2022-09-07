@@ -29,11 +29,11 @@ internal class CommandLineApplication
     public CommandLineApplication(bool throwOnUnexpectedArg = true)
     {
         _throwOnUnexpectedArg = throwOnUnexpectedArg;
-        Options = new List<CommandOption>();
-        Arguments = new List<CommandArgument>();
-        Commands = new List<CommandLineApplication>();
-        RemainingArguments = new List<string>();
-        ApplicationArguments = new List<string>();
+        Options = new();
+        Arguments = new();
+        Commands = new();
+        RemainingArguments = new();
+        ApplicationArguments = new();
         Invoke = _ => 0;
     }
 
@@ -198,9 +198,9 @@ internal class CommandLineApplication
         else
         {
             option = command.Options.SingleOrDefault(
-                opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal))
+                    opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal))
                 ?? command.Options.SingleOrDefault(
-                opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
+                    opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
         }
 
         if (option == null)

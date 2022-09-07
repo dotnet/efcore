@@ -20,7 +20,8 @@ public class ViewBuilder : IInfrastructure<EntityTypeBuilder>
     [EntityFrameworkInternal]
     public ViewBuilder(in StoreObjectIdentifier storeObject, EntityTypeBuilder entityTypeBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.View,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.View,
             "StoreObjectType should be View, not " + storeObject.StoreObjectType);
 
         StoreObject = storeObject;
@@ -30,12 +31,14 @@ public class ViewBuilder : IInfrastructure<EntityTypeBuilder>
     /// <summary>
     ///     The specified view name.
     /// </summary>
-    public virtual string Name => StoreObject.Name;
+    public virtual string Name
+        => StoreObject.Name;
 
     /// <summary>
     ///     The specified view schema.
     /// </summary>
-    public virtual string? Schema => StoreObject.Schema;
+    public virtual string? Schema
+        => StoreObject.Schema;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +70,8 @@ public class ViewBuilder : IInfrastructure<EntityTypeBuilder>
     public virtual ViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
         => new(StoreObject, EntityTypeBuilder.Property<TProperty>(propertyName));
 
-    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance
+        => EntityTypeBuilder;
 
     #region Hidden System.Object members
 

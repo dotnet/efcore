@@ -353,7 +353,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
         => LazyInitializer.EnsureInitialized(
             ref _materializers,
-            () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
+            () => new());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -380,7 +380,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> EmptyMaterializers
         => LazyInitializer.EnsureInitialized(
             ref _emptyMaterializers,
-            () => new ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>());
+            () => new());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -417,7 +417,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                             : CreateInterceptionMaterializeExpression(
                                 e,
                                 "instance",
-                                new HashSet<IPropertyBase>(),
+                                new(),
                                 self._materializationInterceptor,
                                 binding,
                                 bindingInfo,
@@ -425,7 +425,6 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                                 materializationContextExpression),
                         materializationContextExpression)
                     .Compile();
-
             },
             this);
 

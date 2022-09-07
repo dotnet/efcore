@@ -41,7 +41,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
 
         ConfigureWarnings(optionsBuilder);
 
-        sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
+        sqliteOptionsAction?.Invoke(new(optionsBuilder));
 
         return optionsBuilder;
     }
@@ -67,7 +67,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
 
         ConfigureWarnings(optionsBuilder);
 
-        sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
+        sqliteOptionsAction?.Invoke(new(optionsBuilder));
 
         return optionsBuilder;
     }
@@ -99,7 +99,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
 
         ConfigureWarnings(optionsBuilder);
 
-        sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
+        sqliteOptionsAction?.Invoke(new(optionsBuilder));
 
         return optionsBuilder;
     }

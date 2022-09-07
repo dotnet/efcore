@@ -332,9 +332,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         || innerQueryableElementType != genericType)
                     {
                         while (innerArgument is UnaryExpression
-                            {
-                                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                            } unaryExpression
+                               {
+                                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                               } unaryExpression
                                && unaryExpression.Type.TryGetElementType(typeof(IEnumerable<>)) != null)
                         {
                             innerArgument = unaryExpression.Operand;
@@ -488,7 +488,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(genericArguments),
+                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                            genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
                 // TODO: Convert correlated patterns to SelectMany
@@ -579,7 +580,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(genericArguments),
+                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                            genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
             }

@@ -37,8 +37,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         SqlDbType? sqlDbType = null,
         StoreTypePostfix? storeTypePostfix = null)
         : this(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(string)),
+            new(
+                new(typeof(string)),
                 storeType ?? GetDefaultStoreName(unicode, fixedLength),
                 storeTypePostfix ?? StoreTypePostfix.Size,
                 GetDbType(unicode, fixedLength),

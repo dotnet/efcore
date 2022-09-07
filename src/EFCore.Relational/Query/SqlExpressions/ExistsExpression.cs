@@ -26,7 +26,6 @@ public class ExistsExpression : SqlExpression
         RelationalTypeMapping? typeMapping)
         : base(typeof(bool), typeMapping)
     {
-
 #if DEBUG
         if (subquery.IsMutable())
         {
@@ -59,7 +58,7 @@ public class ExistsExpression : SqlExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual ExistsExpression Update(SelectExpression subquery)
         => subquery != Subquery
-            ? new ExistsExpression(subquery, IsNegated, TypeMapping)
+            ? new(subquery, IsNegated, TypeMapping)
             : this;
 
     /// <inheritdoc />

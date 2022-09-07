@@ -129,27 +129,27 @@ public sealed class EntityFrameworkEventSource : EventSource
             // overhead by at all times even when counters aren't enabled.
             // On disable, PollingCounters will stop polling for values so it should be fine to leave them around.
 
-            _activeDbContextsCounter ??= new PollingCounter("active-db-contexts", this, () => Interlocked.Read(ref _activeDbContexts))
+            _activeDbContextsCounter ??= new("active-db-contexts", this, () => Interlocked.Read(ref _activeDbContexts))
             {
                 DisplayName = "Active DbContexts"
             };
 
-            _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => Interlocked.Read(ref _totalQueries))
+            _totalQueriesCounter ??= new("total-queries", this, () => Interlocked.Read(ref _totalQueries))
             {
                 DisplayName = "Queries (Total)"
             };
 
-            _queriesPerSecondCounter ??= new IncrementingPollingCounter(
+            _queriesPerSecondCounter ??= new(
                 "queries-per-second",
                 this,
                 () => Interlocked.Read(ref _totalQueries)) { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
-            _totalSaveChangesCounter ??= new PollingCounter("total-save-changes", this, () => Interlocked.Read(ref _totalSaveChanges))
+            _totalSaveChangesCounter ??= new("total-save-changes", this, () => Interlocked.Read(ref _totalSaveChanges))
             {
                 DisplayName = "SaveChanges (Total)"
             };
 
-            _saveChangesPerSecondCounter ??= new IncrementingPollingCounter(
+            _saveChangesPerSecondCounter ??= new(
                 "save-changes-per-second",
                 this,
                 () => Interlocked.Read(ref _totalSaveChanges))
@@ -157,12 +157,12 @@ public sealed class EntityFrameworkEventSource : EventSource
                 DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
             };
 
-            _compiledQueryCacheHitRateCounter ??= new PollingCounter(
+            _compiledQueryCacheHitRateCounter ??= new(
                 "compiled-query-cache-hit-rate",
                 this,
                 () => _compiledQueryCacheInfo.CalculateAndReset()) { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
 
-            _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
+            _totalExecutionStrategyOperationFailuresCounter ??= new(
                 "total-execution-strategy-operation-failures",
                 this,
                 () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
@@ -170,7 +170,7 @@ public sealed class EntityFrameworkEventSource : EventSource
                 DisplayName = "Execution Strategy Operation Failures (Total)"
             };
 
-            _executionStrategyOperationFailuresPerSecondCounter ??= new IncrementingPollingCounter(
+            _executionStrategyOperationFailuresPerSecondCounter ??= new(
                 "execution-strategy-operation-failures-per-second",
                 this,
                 () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
@@ -178,7 +178,7 @@ public sealed class EntityFrameworkEventSource : EventSource
                 DisplayName = "Execution Strategy Operation Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
             };
 
-            _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
+            _totalOptimisticConcurrencyFailuresCounter ??= new(
                 "total-optimistic-concurrency-failures",
                 this,
                 () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
@@ -186,7 +186,7 @@ public sealed class EntityFrameworkEventSource : EventSource
                 DisplayName = "Optimistic Concurrency Failures (Total)"
             };
 
-            _optimisticConcurrencyFailuresPerSecondCounter ??= new IncrementingPollingCounter(
+            _optimisticConcurrencyFailuresPerSecondCounter ??= new(
                 "optimistic-concurrency-failures-per-second",
                 this,
                 () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
@@ -198,7 +198,7 @@ public sealed class EntityFrameworkEventSource : EventSource
 
     [UsedImplicitly]
     private void ResetCacheInfo()
-        => _compiledQueryCacheInfo = new CacheInfo();
+        => _compiledQueryCacheInfo = new();
 
     [StructLayout(LayoutKind.Explicit)]
     private struct CacheInfo

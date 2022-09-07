@@ -72,6 +72,7 @@ public interface IOperationReporter
                         .Append(",")
                         .Append(error.Column);
                 }
+
                 builder.Append(")");
             }
 

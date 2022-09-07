@@ -139,7 +139,7 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
             scaffoldScale = scaleMapping.Scale != defaultTypeMapping.Scale ? defaultTypeMapping.Scale : null;
         }
 
-        return new TypeScaffoldingInfo(
+        return new(
             mapping.ClrType,
             canInfer,
             scaffoldUnicode,

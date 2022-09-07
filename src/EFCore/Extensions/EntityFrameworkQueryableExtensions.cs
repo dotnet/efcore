@@ -2687,20 +2687,14 @@ public static class EntityFrameworkQueryableExtensions
     #region Tagging
 
     internal static readonly MethodInfo TagWithMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(TagWith), new[]
-        {
-            typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-            typeof(string)
-        })!;
+        = typeof(EntityFrameworkQueryableExtensions).GetMethod(
+            nameof(TagWith), new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string) })!;
 
     internal static readonly MethodInfo TagWithCallSiteMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
-            .GetMethod(nameof(TagWithCallSite), new[]
-            {
-                typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-                typeof(string),
-                typeof(int)
-            })!;
+            .GetMethod(
+                nameof(TagWithCallSite),
+                new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int) })!;
 
     /// <summary>
     ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations

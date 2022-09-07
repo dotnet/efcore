@@ -870,6 +870,7 @@ public class NavigationFixer : INavigationFixer
                                 }
                             }
                         }
+
                         navigationValue = duplicateEntry?[principalToDependent];
                         if (navigationValue != null)
                         {
@@ -959,7 +960,7 @@ public class NavigationFixer : INavigationFixer
                         entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
                     }
                 }
-                
+
                 navigationValue = duplicateEntry?[skipNavigation];
                 if (navigationValue != null)
                 {
@@ -1030,20 +1031,20 @@ public class NavigationFixer : INavigationFixer
                     else
                     {
                         FixupToDependent(
-                            entry, 
-                            referencedEntry, 
-                            navigation.ForeignKey, 
-                            referencedEntry.Entity == navigationValue && setModified, 
+                            entry,
+                            referencedEntry,
+                            navigation.ForeignKey,
+                            referencedEntry.Entity == navigationValue && setModified,
                             fromQuery);
                     }
                 }
                 else
                 {
                     FixupToPrincipal(
-                        entry, 
-                        referencedEntry, 
-                        navigation.ForeignKey, 
-                        referencedEntry.Entity == navigationValue && setModified, 
+                        entry,
+                        referencedEntry,
+                        navigation.ForeignKey,
+                        referencedEntry.Entity == navigationValue && setModified,
                         fromQuery);
 
                     FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
@@ -1089,7 +1090,7 @@ public class NavigationFixer : INavigationFixer
         {
             var joinEntityType = arguments.SkipNavigation.JoinEntityType;
             var joinEntity = _entityMaterializerSource.GetEmptyMaterializer(joinEntityType)
-                (new MaterializationContext(ValueBuffer.Empty, arguments.Entry.Context));
+                (new(ValueBuffer.Empty, arguments.Entry.Context));
 
             joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
 
@@ -1459,7 +1460,7 @@ public class NavigationFixer : INavigationFixer
         {
             return true;
         }
-        
+
         SetForeignKeyProperties(entry, existingEntry, ((INavigation)navigation!).ForeignKey, setModified: true, fromQuery);
 
         return false;

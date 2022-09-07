@@ -35,7 +35,7 @@ public class EntityTypeMappingFragment :
         EntityType = entityType;
         StoreObject = storeObject;
         _configurationSource = configurationSource;
-        _builder = new InternalEntityTypeMappingFragmentBuilder(this, ((IConventionModel)entityType.Model).Builder);
+        _builder = new(this, ((IConventionModel)entityType.Model).Builder);
     }
 
     /// <summary>
@@ -134,19 +134,20 @@ public class EntityTypeMappingFragment :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static EntityTypeMappingFragment MergeInto(
-        IConventionEntityTypeMappingFragment detachedFragment, IConventionEntityTypeMappingFragment existingFragment)
+        IConventionEntityTypeMappingFragment detachedFragment,
+        IConventionEntityTypeMappingFragment existingFragment)
     {
         var isTableExcludedFromMigrationsConfigurationSource = detachedFragment.GetIsTableExcludedFromMigrationsConfigurationSource();
         if (isTableExcludedFromMigrationsConfigurationSource != null)
         {
             existingFragment = ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder).ExcludeTableFromMigrations(
-                detachedFragment.IsTableExcludedFromMigrations, isTableExcludedFromMigrationsConfigurationSource.Value)
+                    detachedFragment.IsTableExcludedFromMigrations, isTableExcludedFromMigrationsConfigurationSource.Value)
                 !.Metadata;
         }
 
         return ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder)
             .MergeAnnotationsFrom((EntityTypeMappingFragment)detachedFragment)
-                .Metadata;
+            .Metadata;
     }
 
     /// <inheritdoc />
@@ -172,8 +173,8 @@ public class EntityTypeMappingFragment :
         _isTableExcludedFromMigrations = excluded;
         _isTableExcludedFromMigrationsConfigurationSource =
             excluded == null
-            ? null
-            : configurationSource.Max(_isTableExcludedFromMigrationsConfigurationSource);
+                ? null
+                : configurationSource.Max(_isTableExcludedFromMigrationsConfigurationSource);
         return excluded;
     }
 
@@ -313,7 +314,8 @@ public class EntityTypeMappingFragment :
     }
 
     bool? IConventionEntityTypeMappingFragment.SetIsTableExcludedFromMigrations(bool? excluded, bool fromDataAnnotation)
-        => SetIsTableExcludedFromMigrations(excluded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => SetIsTableExcludedFromMigrations(
+            excluded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     bool? IReadOnlyEntityTypeMappingFragment.IsTableExcludedFromMigrations
     {

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
-
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -24,7 +22,7 @@ public interface IMutableRelationalPropertyOverrides : IReadOnlyRelationalProper
     new string? ColumnName { get; set; }
 
     /// <summary>
-    ///    Removes the column name override.
+    ///     Removes the column name override.
     /// </summary>
     void RemoveColumnNameOverride();
 }

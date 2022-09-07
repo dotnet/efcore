@@ -41,7 +41,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         EntityType = entityType;
         Entity = entity;
         _shadowValues = entityType.GetEmptyShadowValuesFactory()();
-        _stateData = new StateData(entityType.PropertyCount(), entityType.NavigationCount());
+        _stateData = new(entityType.PropertyCount(), entityType.NavigationCount());
 
         MarkShadowPropertiesNotSet(entityType);
     }
@@ -62,7 +62,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         EntityType = entityType;
         Entity = entity;
         _shadowValues = ((IRuntimeEntityType)entityType).ShadowValuesFactory(valueBuffer);
-        _stateData = new StateData(entityType.PropertyCount(), entityType.NavigationCount());
+        _stateData = new(entityType.PropertyCount(), entityType.NavigationCount());
     }
 
     /// <summary>
@@ -435,7 +435,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     = serviceProperty
                         .ParameterBinding
                         .ServiceDelegate(
-                            new MaterializationContext(
+                            new(
                                 ValueBuffer.Empty,
                                 Context),
                             EntityType,
@@ -1076,7 +1076,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (_originalValues.IsEmpty)
         {
-            _originalValues = new OriginalValues(this);
+            _originalValues = new(this);
         }
     }
 
@@ -1090,7 +1090,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (_temporaryValues.IsEmpty)
         {
-            _temporaryValues = new SidecarValues(((IRuntimeEntityType)EntityType).TemporaryValuesFactory(this));
+            _temporaryValues = new(((IRuntimeEntityType)EntityType).TemporaryValuesFactory(this));
         }
     }
 
@@ -1104,7 +1104,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (_storeGeneratedValues.IsEmpty)
         {
-            _storeGeneratedValues = new SidecarValues(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory());
+            _storeGeneratedValues = new(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory());
         }
     }
 
@@ -1118,7 +1118,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (_relationshipsSnapshot.IsEmpty)
         {
-            _relationshipsSnapshot = new RelationshipsSnapshot(this);
+            _relationshipsSnapshot = new(this);
         }
     }
 
@@ -1264,7 +1264,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             currentValueType = CurrentValueType.Normal;
         }
 
-
         if (!valuesEqual
             || (propertyIndex != -1
                 && (_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown)
@@ -1278,7 +1277,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 && (!asProperty.ClrType.IsNullableType()
                     || asProperty.GetContainingForeignKeys().Any(
                         fk => fk.IsRequired
-                                && (fk.DeleteBehavior == DeleteBehavior.Cascade
+                            && (fk.DeleteBehavior == DeleteBehavior.Cascade
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
             {
@@ -1450,8 +1449,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 }
             }
 
-            _storeGeneratedValues = new SidecarValues();
-            _temporaryValues = new SidecarValues();
+            _storeGeneratedValues = new();
+            _temporaryValues = new();
         }
 
         _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsTemporary, false);
@@ -1674,7 +1673,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (!_storeGeneratedValues.IsEmpty)
         {
-            _storeGeneratedValues = new SidecarValues();
+            _storeGeneratedValues = new();
         }
     }
 

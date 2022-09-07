@@ -20,14 +20,14 @@ public class StoreFunction : TableBase, IStoreFunction
     public StoreFunction(IRuntimeDbFunction dbFunction, RelationalModel model)
         : base(dbFunction.Name, dbFunction.Schema, model)
     {
-        DbFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal) { { dbFunction.ModelName, dbFunction } };
+        DbFunctions = new(StringComparer.Ordinal) { { dbFunction.ModelName, dbFunction } };
         IsBuiltIn = dbFunction.IsBuiltIn;
         ReturnType = dbFunction.StoreType;
 
         Parameters = new StoreFunctionParameter[dbFunction.Parameters.Count];
         for (var i = 0; i < dbFunction.Parameters.Count; i++)
         {
-            Parameters[i] = new StoreFunctionParameter(this, (IRuntimeDbFunctionParameter)dbFunction.Parameters[i]);
+            Parameters[i] = new(this, (IRuntimeDbFunctionParameter)dbFunction.Parameters[i]);
         }
 
         dbFunction.StoreFunction = this;

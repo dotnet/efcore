@@ -373,14 +373,14 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             var entityParameter = Expression.Parameter(entityType);
             var relatedEntityParameter = Expression.Parameter(relatedEntityType);
             var expressions = new List<Expression>();
-            
+
             if (!navigation.IsShadowProperty())
             {
                 expressions.Add(
                     navigation.IsCollection
                         ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
                         : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation));
-            };
+            }
 
             if (inverseNavigation != null
                 && !inverseNavigation.IsShadowProperty())

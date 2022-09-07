@@ -36,7 +36,7 @@ public class TableNameFromDbSetConvention :
             }
             else
             {
-                ambiguousTypes ??= new List<Type>();
+                ambiguousTypes ??= new();
 
                 ambiguousTypes.Add(set.Type);
             }
@@ -76,7 +76,7 @@ public class TableNameFromDbSetConvention :
         if (oldBaseType == null
             && newBaseType != null
             && (entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-                == RelationalAnnotationNames.TphMappingStrategy)
+            == RelationalAnnotationNames.TphMappingStrategy)
         {
             entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
         }
@@ -98,7 +98,7 @@ public class TableNameFromDbSetConvention :
         if (!entityType.HasSharedClrType
             && (entityType.BaseType == null
                 || (entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-                    != RelationalAnnotationNames.TphMappingStrategy)
+                != RelationalAnnotationNames.TphMappingStrategy)
             && _sets.TryGetValue(entityType.ClrType, out var setName))
         {
             entityTypeBuilder.ToTable(setName);
@@ -116,7 +116,7 @@ public class TableNameFromDbSetConvention :
         if (name == RelationalAnnotationNames.MappingStrategy
             && annotation != null
             && (entityTypeBuilder.Metadata.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-                != RelationalAnnotationNames.TphMappingStrategy)
+            != RelationalAnnotationNames.TphMappingStrategy)
         {
             foreach (var deriverEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
@@ -144,7 +144,7 @@ public class TableNameFromDbSetConvention :
                     // Undo the convention change if the entity type is mapped to a view
                     entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
                 }
-                
+
                 if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
                     && entityType.IsAbstract())
                 {

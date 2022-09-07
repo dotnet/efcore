@@ -57,7 +57,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? fallbackPrecision = null,
         int? fallbackScale = null)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(principals, fallbackUnicode, fallbackSize, fallbackPrecision, fallbackScale);
+        _coreTypeMappingInfo = new(principals, fallbackUnicode, fallbackSize, fallbackPrecision, fallbackScale);
 
         IsFixedLength = fixedLength;
         StoreTypeName = storeTypeName;
@@ -82,7 +82,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? scale)
     {
         // Note: Empty string is allowed for store type name because SQLite
-        _coreTypeMappingInfo = new TypeMappingInfo(null, false, unicode, size, null, precision, scale);
+        _coreTypeMappingInfo = new(null, false, unicode, size, null, precision, scale);
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
         IsFixedLength = null;
@@ -107,7 +107,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? precision = null,
         int? scale = null)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(member, unicode, size, precision, scale);
+        _coreTypeMappingInfo = new(member, unicode, size, precision, scale);
 
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
@@ -123,7 +123,7 @@ public readonly record struct RelationalTypeMappingInfo
         in RelationalTypeMappingInfo source,
         in ValueConverterInfo converter)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(
+        _coreTypeMappingInfo = new(
             source._coreTypeMappingInfo,
             converter,
             source.IsUnicode,
@@ -163,7 +163,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? precision = null,
         int? scale = null)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(type, keyOrIndex, unicode, size, rowVersion, precision, scale);
+        _coreTypeMappingInfo = new(type, keyOrIndex, unicode, size, rowVersion, precision, scale);
 
         IsFixedLength = fixedLength;
         StoreTypeName = storeTypeName;

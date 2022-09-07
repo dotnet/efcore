@@ -4,7 +4,6 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.Design;
 
@@ -52,7 +51,7 @@ public class OperationExecutor : MarshalByRefObject
         Check.NotNull(reportHandler, nameof(reportHandler));
         Check.NotNull(args, nameof(args));
 
-        _reporter = new OperationReporter(reportHandler);
+        _reporter = new(reportHandler);
         _targetName = (string)args["targetName"]!;
         _startupTargetName = (string)args["startupTargetName"]!;
         _projectDir = (string)args["projectDir"]!;
@@ -98,7 +97,7 @@ public class OperationExecutor : MarshalByRefObject
 
     private MigrationsOperations MigrationsOperations
         => _migrationsOperations
-            ??= new MigrationsOperations(
+            ??= new(
                 _reporter,
                 Assembly,
                 StartupAssembly,
@@ -110,7 +109,7 @@ public class OperationExecutor : MarshalByRefObject
 
     private DbContextOperations ContextOperations
         => _contextOperations
-            ??= new DbContextOperations(
+            ??= new(
                 _reporter,
                 Assembly,
                 StartupAssembly,
@@ -122,7 +121,7 @@ public class OperationExecutor : MarshalByRefObject
 
     private DatabaseOperations DatabaseOperations
         => _databaseOperations
-            ??= new DatabaseOperations(
+            ??= new(
                 _reporter,
                 Assembly,
                 StartupAssembly,

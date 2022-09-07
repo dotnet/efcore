@@ -86,7 +86,7 @@ public class ColumnsBuilder
         };
         _createTableOperation.Columns.Add(operation);
 
-        return new OperationBuilder<AddColumnOperation>(operation);
+        return new(operation);
     }
 
     #region Hidden System.Object members

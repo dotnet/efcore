@@ -72,7 +72,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         {
             throw new OperationException(DesignStrings.CircularBaseClassDependency);
         }
-    
+
         if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
         {
             throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
@@ -85,7 +85,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             subNamespaceDefaulted = true;
             subNamespace = "Migrations";
         }
-        
+
         var (key, typeInfo) = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
         var migrationNamespace =
@@ -187,7 +187,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             modelSnapshotName,
             Dependencies.Model);
 
-        return new ScaffoldedMigration(
+        return new(
             codeGenerator.FileExtension,
             key,
             migrationCode,
@@ -394,7 +394,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         Directory.CreateDirectory(modelSnapshotDirectory);
         File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
 
-        return new MigrationFiles
+        return new()
         {
             MigrationFile = migrationFile,
             MetadataFile = migrationMetadataFile,

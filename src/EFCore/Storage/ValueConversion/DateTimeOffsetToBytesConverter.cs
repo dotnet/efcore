@@ -61,6 +61,6 @@ public class DateTimeOffsetToBytesConverter : ValueConverter<DateTimeOffset, byt
     {
         var timeBinary = (long)LongToBytes.ConvertFromProvider(bytes)!;
         var offsetMins = (short)ShortToBytes.ConvertFromProvider(bytes.Skip(8).ToArray())!;
-        return new DateTimeOffset(DateTime.FromBinary(timeBinary), new TimeSpan(0, offsetMins, 0));
+        return new(DateTime.FromBinary(timeBinary), new(0, offsetMins, 0));
     }
 }

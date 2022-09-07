@@ -379,7 +379,8 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
             }
         }
 
-        Check.DebugAssert(storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
+        Check.DebugAssert(
+            storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
             "Stored procedure call with neither parameters nor result columns");
 
         commandStringBuilder.Append("CALL ");

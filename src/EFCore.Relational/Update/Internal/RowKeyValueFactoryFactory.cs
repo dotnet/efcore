@@ -26,7 +26,7 @@ public class RowKeyValueFactoryFactory : IRowKeyValueFactoryFactory
                 .Invoke(null, new object[] { key })!
             : new CompositeRowKeyValueFactory(key);
 
-    private readonly static MethodInfo _createMethod = typeof(RowKeyValueFactoryFactory).GetTypeInfo()
+    private static readonly MethodInfo _createMethod = typeof(RowKeyValueFactoryFactory).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreateSimpleFactory))!;
 
     [UsedImplicitly]

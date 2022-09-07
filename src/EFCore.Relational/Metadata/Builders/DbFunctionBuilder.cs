@@ -105,7 +105,7 @@ public class DbFunctionBuilder : DbFunctionBuilderBase
 
         return this;
     }
-    
+
     /// <summary>
     ///     Returns an object that can be used to configure a parameter with the given name.
     ///     If no parameter with the given name exists, then a new parameter will be added.

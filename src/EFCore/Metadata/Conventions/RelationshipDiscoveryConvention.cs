@@ -93,8 +93,8 @@ public class RelationshipDiscoveryConvention :
             {
                 // Current entity type was removed while the target entity type was being added
                 relationshipCandidates[candidateTargetEntityType] =
-                    new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                    new(
+                        candidateTargetEntityTypeBuilder, new(), new(), false);
                 break;
             }
 
@@ -104,8 +104,8 @@ public class RelationshipDiscoveryConvention :
                         || entityType.IsKeyless)))
             {
                 relationshipCandidates[candidateTargetEntityType] =
-                    new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                    new(
+                        candidateTargetEntityTypeBuilder, new(), new(), false);
                 continue;
             }
 
@@ -139,8 +139,8 @@ public class RelationshipDiscoveryConvention :
                 // Only the owner or nested ownees can have navigations to an owned type
                 // Also skip non-ownership navigations from the owner
                 relationshipCandidates[candidateTargetEntityType] =
-                    new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                    new(
+                        candidateTargetEntityTypeBuilder, new(), new(), false);
                 continue;
             }
 
@@ -150,8 +150,8 @@ public class RelationshipDiscoveryConvention :
             {
                 // Don't try to configure a collection on an owned type unless it represents a sub-ownership
                 relationshipCandidates[candidateTargetEntityType] =
-                    new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                    new(
+                        candidateTargetEntityTypeBuilder, new(), new(), false);
                 continue;
             }
 
@@ -247,17 +247,17 @@ public class RelationshipDiscoveryConvention :
             }
 
             relationshipCandidates[candidateTargetEntityType] =
-                new RelationshipCandidate(
+                new(
                     candidateTargetEntityTypeBuilder, navigations, inverseNavigationCandidates, shouldBeOwnership);
 
-            Continue:;
+            Continue: ;
         }
 
         return UpdateTargetEntityTypes(entityTypeBuilder, relationshipCandidates);
 
         bool IsNewSharedType(Type targetClrType, IConventionEntityType entityType)
             => (entityType.Model.IsShared(targetClrType)
-                || targetClrType.IsGenericType
+                    || targetClrType.IsGenericType
                     && targetClrType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                 && ShouldBeOwned(targetClrType, entityType.Model) != true
                 && !entityType.Model.IsOwned(targetClrType)
@@ -306,7 +306,7 @@ public class RelationshipDiscoveryConvention :
             }
 
             candidates.Add(
-                new RelationshipCandidate(
+                new(
                     actualTargetEntityTypeBuilder,
                     relationshipCandidate.NavigationProperties,
                     relationshipCandidate.InverseProperties,
@@ -419,10 +419,10 @@ public class RelationshipDiscoveryConvention :
                     relationshipCandidate.NavigationProperties.Remove(navigationProperty);
 
                     filteredRelationshipCandidates.Add(
-                        new RelationshipCandidate(
+                        new(
                             targetEntityTypeBuilder,
-                            new List<PropertyInfo> { navigationProperty },
-                            new List<PropertyInfo>(),
+                            new() { navigationProperty },
+                            new(),
                             relationshipCandidate.IsOwnership));
 
                     if (relationshipCandidate.TargetTypeBuilder.Metadata == entityTypeBuilder.Metadata
@@ -469,10 +469,10 @@ public class RelationshipDiscoveryConvention :
                     relationshipCandidate.InverseProperties.Remove(compatibleInverse);
 
                     filteredRelationshipCandidates.Add(
-                        new RelationshipCandidate(
+                        new(
                             targetEntityTypeBuilder,
-                            new List<PropertyInfo> { navigationProperty },
-                            new List<PropertyInfo> { compatibleInverse },
+                            new() { navigationProperty },
+                            new() { compatibleInverse },
                             relationshipCandidate.IsOwnership)
                     );
 
@@ -835,8 +835,9 @@ public class RelationshipDiscoveryConvention :
                 }
             }
 
-            relationshipCandidate.NavigationProperties.RemoveAll(p =>
-                p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
+            relationshipCandidate.NavigationProperties.RemoveAll(
+                p =>
+                    p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
         }
 
         if (relationshipCandidate.InverseProperties.Count > 1
@@ -857,8 +858,9 @@ public class RelationshipDiscoveryConvention :
                 }
             }
 
-            relationshipCandidate.InverseProperties.RemoveAll(p =>
-                p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
+            relationshipCandidate.InverseProperties.RemoveAll(
+                p =>
+                    p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
         }
     }
 
@@ -1113,16 +1115,16 @@ public class RelationshipDiscoveryConvention :
         }
     }
 
-        private static bool IsCandidateNavigationProperty(
-            IConventionEntityType sourceEntityType,
-            string navigationName,
-            MemberInfo memberInfo)
-            => sourceEntityType.Builder.IsIgnored(navigationName) == false
-                && sourceEntityType.FindProperty(navigationName) == null
-                && sourceEntityType.FindServiceProperty(navigationName) == null
-                && (memberInfo is not PropertyInfo propertyInfo || propertyInfo.GetIndexParameters().Length == 0)
-                && (!sourceEntityType.IsKeyless
-                    || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
+    private static bool IsCandidateNavigationProperty(
+        IConventionEntityType sourceEntityType,
+        string navigationName,
+        MemberInfo memberInfo)
+        => sourceEntityType.Builder.IsIgnored(navigationName) == false
+            && sourceEntityType.FindProperty(navigationName) == null
+            && sourceEntityType.FindServiceProperty(navigationName) == null
+            && (memberInfo is not PropertyInfo propertyInfo || propertyInfo.GetIndexParameters().Length == 0)
+            && (!sourceEntityType.IsKeyless
+                || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeIgnored(

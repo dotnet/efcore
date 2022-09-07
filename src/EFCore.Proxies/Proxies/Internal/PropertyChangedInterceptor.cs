@@ -116,5 +116,5 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
     }
 
     private void NotifyPropertyChanged(string propertyName, object proxy)
-        => _handler?.Invoke(proxy, new PropertyChangedEventArgs(propertyName));
+        => _handler?.Invoke(proxy, new(propertyName));
 }

@@ -32,7 +32,7 @@ public class EntityProjectionExpression : Expression
         : this(
             entityType,
             propertyExpressionMap,
-            new Dictionary<INavigation, EntityShaperExpression>(),
+            new(),
             discriminatorExpression)
     {
     }
@@ -92,7 +92,7 @@ public class EntityProjectionExpression : Expression
         }
 
         return changed
-            ? new EntityProjectionExpression(EntityType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression)
+            ? new(EntityType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression)
             : this;
     }
 
@@ -129,7 +129,7 @@ public class EntityProjectionExpression : Expression
             }
         }
 
-        return new EntityProjectionExpression(
+        return new(
             EntityType,
             propertyExpressionMap,
             ownedNavigationMap,
@@ -173,7 +173,8 @@ public class EntityProjectionExpression : Expression
         var discriminatorExpression = DiscriminatorExpression;
         if (DiscriminatorExpression is CaseExpression caseExpression)
         {
-            var entityTypesToSelect = derivedType.GetConcreteDerivedTypesInclusive().Select(e => (string)e.GetDiscriminatorValue()!).ToList();
+            var entityTypesToSelect =
+                derivedType.GetConcreteDerivedTypesInclusive().Select(e => (string)e.GetDiscriminatorValue()!).ToList();
             var whenClauses = caseExpression.WhenClauses
                 .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value!))
                 .ToList();
@@ -181,7 +182,7 @@ public class EntityProjectionExpression : Expression
             discriminatorExpression = caseExpression.Update(operand: null, whenClauses, elseResult: null);
         }
 
-        return new EntityProjectionExpression(derivedType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression);
+        return new(derivedType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression);
     }
 
     /// <summary>

@@ -88,7 +88,7 @@ public class CollectionResultShaperExpression : Expression, IPrintableExpression
         Expression projection,
         Expression innerShaper)
         => projection != Projection || innerShaper != InnerShaper
-            ? new CollectionResultShaperExpression(projection, innerShaper, Navigation, ElementType)
+            ? new(projection, innerShaper, Navigation, ElementType)
             : this;
 
     /// <inheritdoc />

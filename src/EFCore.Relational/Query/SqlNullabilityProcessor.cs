@@ -37,8 +37,8 @@ public class SqlNullabilityProcessor
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         UseRelationalNulls = useRelationalNulls;
-        _nonNullableColumns = new List<ColumnExpression>();
-        _nullValueColumns = new List<ColumnExpression>();
+        _nonNullableColumns = new();
+        _nullValueColumns = new();
         ParameterValues = null!;
     }
 
@@ -97,7 +97,7 @@ public class SqlNullabilityProcessor
             var newValue = Visit(columnValueSetter.Value, out _);
             if (columnValueSetters != null)
             {
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
@@ -106,14 +106,15 @@ public class SqlNullabilityProcessor
                 {
                     columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
                 }
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+
+                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
             }
         }
 
         return selectExpression != updateExpression.SelectExpression
             || columnValueSetters != null
-            ? updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters)
-            : updateExpression;
+                ? updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters)
+                : updateExpression;
     }
 
     /// <summary>
@@ -232,7 +233,7 @@ public class SqlNullabilityProcessor
             if (projection != item
                 && projections == selectExpression.Projection)
             {
-                projections = new List<ProjectionExpression>();
+                projections = new();
                 for (var j = 0; j < i; j++)
                 {
                     projections.Add(selectExpression.Projection[j]);
@@ -255,7 +256,7 @@ public class SqlNullabilityProcessor
             if (table != item
                 && tables == selectExpression.Tables)
             {
-                tables = new List<TableExpressionBase>();
+                tables = new();
                 for (var j = 0; j < i; j++)
                 {
                     tables.Add(selectExpression.Tables[j]);
@@ -287,7 +288,7 @@ public class SqlNullabilityProcessor
             if (groupingKey != item
                 && groupBy == selectExpression.GroupBy)
             {
-                groupBy = new List<SqlExpression>();
+                groupBy = new();
                 for (var j = 0; j < i; j++)
                 {
                     groupBy.Add(selectExpression.GroupBy[j]);
@@ -319,7 +320,7 @@ public class SqlNullabilityProcessor
             if (ordering != item
                 && orderings == selectExpression.Orderings)
             {
-                orderings = new List<OrderingExpression>();
+                orderings = new();
                 for (var j = 0; j < i; j++)
                 {
                     orderings.Add(selectExpression.Orderings[j]);
@@ -508,7 +509,7 @@ public class SqlNullabilityProcessor
             var newResult = Visit(whenClause.Result, out var resultNullable);
 
             nullable |= resultNullable;
-            whenClauses.Add(new CaseWhenClause(test, newResult));
+            whenClauses.Add(new(test, newResult));
             RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
             RestoreNullValueColumnsList(currentNonNullableColumnsCount);
 
@@ -1631,7 +1632,7 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-            break;
+                break;
         }
 
         return sqlUnaryExpression;
@@ -1841,7 +1842,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-            break;
+                break;
         }
 
         return sqlUnaryExpression;

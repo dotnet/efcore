@@ -27,7 +27,7 @@ public class SingleQueryCollectionContext
         Collection = collection;
         ParentIdentifier = parentIdentifier;
         OuterIdentifier = outerIdentifier;
-        ResultContext = new ResultContext();
+        ResultContext = new();
         SelfIdentifier = null!;
     }
 

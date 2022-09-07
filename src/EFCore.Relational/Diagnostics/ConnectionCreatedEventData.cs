@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
-///     The <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.ConnectionCreated"/> events.
+///     The <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.ConnectionCreated" /> events.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.

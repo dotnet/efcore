@@ -47,7 +47,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         ClrType = clrType;
         _typeConfigurationSource = typeConfigurationSource;
 
-        _builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
+        _builder = new(this, declaringEntityType.Model.Builder);
     }
 
     /// <summary>
@@ -834,7 +834,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<IProperty>();
+            checkedProperties = new();
         }
         else if (checkedProperties.Contains(this))
         {
@@ -915,7 +915,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetProviderValueComparer()
-        => GetProviderValueComparer(null) ?? (GetEffectiveProviderClrType() == ClrType
+        => GetProviderValueComparer(null)
+            ?? (GetEffectiveProviderClrType() == ClrType
                 ? GetKeyValueComparer()
                 : TypeMapping?.ProviderValueComparer);
 
@@ -936,7 +937,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<IProperty>();
+            checkedProperties = new();
         }
         else if (checkedProperties.Contains(this))
         {

@@ -36,8 +36,8 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     public override object ToObject()
         => MaterializerSource.GetMaterializer(EntityType)(
-            new MaterializationContext(
-                new ValueBuffer(_values),
+            new(
+                new(_values),
                 InternalEntry.Context));
 
     /// <summary>

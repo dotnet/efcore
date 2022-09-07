@@ -26,10 +26,8 @@ public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodC
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         _translators.AddRange(
-            new IAggregateMethodCallTranslator[]
-            {
-                new QueryableAggregateMethodTranslator(_sqlExpressionFactory)
-            }); ;
+            new IAggregateMethodCallTranslator[] { new QueryableAggregateMethodTranslator(_sqlExpressionFactory) });
+        ;
     }
 
     /// <summary>
@@ -39,12 +37,11 @@ public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodC
 
     /// <inheritdoc />
     public virtual SqlExpression? Translate(
-        IModel model,
-        MethodInfo method,
-        EnumerableExpression source,
-        IReadOnlyList<SqlExpression> arguments,
-        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
+            IModel model,
+            MethodInfo method,
+            EnumerableExpression source,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         // TODO: Add support for user defined aggregate functions
         //var dbFunction = model.FindDbFunction(method);
         //if (dbFunction != null)
@@ -54,9 +51,7 @@ public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodC
         //        return dbFunction.Translation.Invoke(
         //            arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList());
         //    }
-
         //    var argumentsPropagateNullability = dbFunction.Parameters.Select(p => p.PropagatesNullability);
-
         //    return dbFunction.IsBuiltIn
         //        ? _sqlExpressionFactory.Function(
         //            dbFunction.Name,
@@ -74,11 +69,9 @@ public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodC
         //            method.ReturnType.UnwrapNullableType(),
         //            dbFunction.TypeMapping);
         //}
-
-        return _plugins.Concat(_translators)
+        => _plugins.Concat(_translators)
             .Select(t => t.Translate(method, source, arguments, logger))
             .FirstOrDefault(t => t != null);
-    }
 
     /// <summary>
     ///     Adds additional translators which will take priority over existing registered translators.

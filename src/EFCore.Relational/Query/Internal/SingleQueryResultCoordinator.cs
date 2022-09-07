@@ -19,7 +19,7 @@ public sealed class SingleQueryResultCoordinator
     /// </summary>
     public SingleQueryResultCoordinator()
     {
-        ResultContext = new ResultContext();
+        ResultContext = new();
     }
 
     /// <summary>

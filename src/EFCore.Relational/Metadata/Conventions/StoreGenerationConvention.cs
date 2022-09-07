@@ -110,7 +110,7 @@ public class StoreGenerationConvention : IPropertyAnnotationChangedConvention, I
                 {
                     continue;
                 }
-                
+
                 Validate(declaredProperty, declaringTable);
             }
         }

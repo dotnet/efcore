@@ -71,7 +71,7 @@ public class LikeExpression : SqlExpression
         SqlExpression pattern,
         SqlExpression? escapeChar)
         => match != Match || pattern != Pattern || escapeChar != EscapeChar
-            ? new LikeExpression(match, pattern, escapeChar, TypeMapping)
+            ? new(match, pattern, escapeChar, TypeMapping)
             : this;
 
     /// <inheritdoc />

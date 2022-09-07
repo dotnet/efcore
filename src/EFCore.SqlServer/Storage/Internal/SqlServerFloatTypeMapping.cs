@@ -24,8 +24,8 @@ public class SqlServerFloatTypeMapping : FloatTypeMapping
         DbType? dbType = System.Data.DbType.Single,
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(float)),
+            new(
+                new(typeof(float)),
                 storeType,
                 storeTypePostfix,
                 dbType))

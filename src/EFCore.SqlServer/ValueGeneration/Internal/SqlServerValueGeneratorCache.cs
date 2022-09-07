@@ -43,7 +43,7 @@ public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValue
 
         return _sequenceGeneratorCache.GetOrAdd(
             GetSequenceName(sequence, connection),
-            _ => new SqlServerSequenceValueGeneratorState(sequence));
+            _ => new(sequence));
     }
 
     private static string GetSequenceName(ISequence sequence, IRelationalConnection connection)

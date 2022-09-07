@@ -35,27 +35,27 @@ public partial class ConventionDispatcher
         {
             _conventionSet = conventionSet;
             _dispatcher = dispatcher;
-            _entityTypeBuilderConventionContext = new ConventionContext<IConventionEntityTypeBuilder>(dispatcher);
-            _entityTypeConventionContext = new ConventionContext<IConventionEntityType>(dispatcher);
-            _relationshipBuilderConventionContext = new ConventionContext<IConventionForeignKeyBuilder>(dispatcher);
-            _foreignKeyConventionContext = new ConventionContext<IConventionForeignKey>(dispatcher);
-            _skipNavigationBuilderConventionContext = new ConventionContext<IConventionSkipNavigationBuilder>(dispatcher);
-            _skipNavigationConventionContext = new ConventionContext<IConventionSkipNavigation>(dispatcher);
-            _navigationConventionBuilderContext = new ConventionContext<IConventionNavigationBuilder>(dispatcher);
-            _navigationConventionContext = new ConventionContext<IConventionNavigation>(dispatcher);
-            _indexBuilderConventionContext = new ConventionContext<IConventionIndexBuilder>(dispatcher);
-            _indexConventionContext = new ConventionContext<IConventionIndex>(dispatcher);
-            _keyBuilderConventionContext = new ConventionContext<IConventionKeyBuilder>(dispatcher);
-            _keyConventionContext = new ConventionContext<IConventionKey>(dispatcher);
-            _propertyBuilderConventionContext = new ConventionContext<IConventionPropertyBuilder>(dispatcher);
-            _propertyConventionContext = new ConventionContext<IConventionProperty>(dispatcher);
-            _modelBuilderConventionContext = new ConventionContext<IConventionModelBuilder>(dispatcher);
-            _annotationConventionContext = new ConventionContext<IConventionAnnotation>(dispatcher);
-            _propertyListConventionContext = new ConventionContext<IReadOnlyList<IConventionProperty>>(dispatcher);
-            _stringConventionContext = new ConventionContext<string>(dispatcher);
-            _fieldInfoConventionContext = new ConventionContext<FieldInfo>(dispatcher);
-            _boolConventionContext = new ConventionContext<bool?>(dispatcher);
-            _boolListConventionContext = new ConventionContext<IReadOnlyList<bool>?>(dispatcher);
+            _entityTypeBuilderConventionContext = new(dispatcher);
+            _entityTypeConventionContext = new(dispatcher);
+            _relationshipBuilderConventionContext = new(dispatcher);
+            _foreignKeyConventionContext = new(dispatcher);
+            _skipNavigationBuilderConventionContext = new(dispatcher);
+            _skipNavigationConventionContext = new(dispatcher);
+            _navigationConventionBuilderContext = new(dispatcher);
+            _navigationConventionContext = new(dispatcher);
+            _indexBuilderConventionContext = new(dispatcher);
+            _indexConventionContext = new(dispatcher);
+            _keyBuilderConventionContext = new(dispatcher);
+            _keyConventionContext = new(dispatcher);
+            _propertyBuilderConventionContext = new(dispatcher);
+            _propertyConventionContext = new(dispatcher);
+            _modelBuilderConventionContext = new(dispatcher);
+            _annotationConventionContext = new(dispatcher);
+            _propertyListConventionContext = new(dispatcher);
+            _stringConventionContext = new(dispatcher);
+            _fieldInfoConventionContext = new(dispatcher);
+            _boolConventionContext = new(dispatcher);
+            _boolListConventionContext = new(dispatcher);
         }
 
         public override void Run(ConventionDispatcher dispatcher)

@@ -1,12 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-
-#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -57,7 +57,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = selectExpression;
         _clientEval = false;
 
-        _projectionMembers.Push(new ProjectionMember());
+        _projectionMembers.Push(new());
 
         var result = Visit(expression);
         if (result == null)

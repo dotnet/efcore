@@ -102,7 +102,7 @@ public class IncludeExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual IncludeExpression Update(Expression entityExpression, Expression navigationExpression)
         => entityExpression != EntityExpression || navigationExpression != NavigationExpression
-            ? new IncludeExpression(entityExpression, navigationExpression, Navigation, SetLoaded)
+            ? new(entityExpression, navigationExpression, Navigation, SetLoaded)
             : this;
 
     /// <inheritdoc />

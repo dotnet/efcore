@@ -57,7 +57,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
             var table = (tableName, entityType.GetSchema());
             if (!tableToEntityTypes.TryGetValue(table, out var mappedTypes))
             {
-                mappedTypes = new List<IConventionEntityType>();
+                mappedTypes = new();
                 tableToEntityTypes[table] = mappedTypes;
             }
 
@@ -83,7 +83,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
                     if (!foundMappedProperty)
                     {
-                        entityTypesMissingConcurrencyColumn ??= new Dictionary<IConventionEntityType, IReadOnlyProperty>();
+                        entityTypesMissingConcurrencyColumn ??= new();
 
                         // store the entity type which is missing the
                         // concurrency token property, mapped to an example
@@ -104,11 +104,10 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                 foreach (var (conventionEntityType, exampleProperty) in entityTypesMissingConcurrencyColumn)
                 {
                     var providerType = exampleProperty.GetProviderClrType()
-                        ?? (exampleProperty.GetValueConverter() ??
-                            exampleProperty.FindTypeMapping()?.Converter)?.ProviderClrType
+                        ?? (exampleProperty.GetValueConverter() ?? exampleProperty.FindTypeMapping()?.Converter)?.ProviderClrType
                         ?? exampleProperty.ClrType;
                     conventionEntityType.Builder.CreateUniqueProperty(
-                        providerType,
+                            providerType,
                             ConcurrencyPropertyPrefix + exampleProperty.Name,
                             !exampleProperty.IsNullable)!
                         .HasColumnName(concurrencyColumnName)!
@@ -160,11 +159,11 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                     continue;
                 }
 
-                concurrencyColumns ??= new Dictionary<string, List<IReadOnlyProperty>>();
+                concurrencyColumns ??= new();
 
                 if (!concurrencyColumns.TryGetValue(columnName, out var properties))
                 {
-                    properties = new List<IReadOnlyProperty>();
+                    properties = new();
                     concurrencyColumns[columnName] = properties;
                 }
 

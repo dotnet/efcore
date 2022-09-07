@@ -61,7 +61,7 @@ public class SqlFunctionExpression : SqlExpression
         }
 
         return changed
-            ? new SqlFunctionExpression(
+            ? new(
                 Name,
                 arguments,
                 Type,
@@ -86,7 +86,7 @@ public class SqlFunctionExpression : SqlExpression
     /// </summary>
     public virtual SqlFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
         => !arguments.SequenceEqual(Arguments)
-            ? new SqlFunctionExpression(Name, arguments, Type, TypeMapping)
+            ? new(Name, arguments, Type, TypeMapping)
             : this;
 
     /// <summary>

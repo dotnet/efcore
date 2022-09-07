@@ -95,7 +95,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
         Name = name;
         _schema = schema;
         _configurationSource = configurationSource;
-        _builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
+        _builder = new(this, ((IConventionModel)model).Builder);
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
         _maxValue = data.MaxValue;
         _type = data.ClrType;
         _isCyclic = data.IsCyclic;
-        _builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
+        _builder = new(this, ((IConventionModel)model).Builder);
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
         var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
         if (sequences == null)
         {
-            sequences = new SortedDictionary<(string, string?), ISequence>();
+            sequences = new();
             model[RelationalAnnotationNames.Sequences] = sequences;
         }
 

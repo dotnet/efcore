@@ -108,7 +108,7 @@ public class SqlBinaryExpression : SqlExpression
     /// </summary>
     public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
         => left != Left || right != Right
-            ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
+            ? new(OperatorType, left, right, Type, TypeMapping)
             : this;
 
     /// <summary>

@@ -65,7 +65,8 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     /// <param name="buildAction">An action that performs configuration of the parameter.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual StoredProcedureBuilder HasParameter(
-        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasParameter(propertyName, ConfigurationSource.Explicit)!;
         buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyName)));
@@ -90,7 +91,8 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     /// <param name="buildAction">An action that performs configuration of the parameter.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual StoredProcedureBuilder HasOriginalValueParameter(
-        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasOriginalValueParameter(propertyName, ConfigurationSource.Explicit)!;
         buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyName)));
@@ -138,7 +140,8 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     /// <param name="buildAction">An action that performs configuration of the column.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual StoredProcedureBuilder HasResultColumn(
-        string propertyName, Action<StoredProcedureResultColumnBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         var resultColumnBuilder = Builder.HasResultColumn(propertyName, ConfigurationSource.Explicit)!;
         buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyName)));
@@ -249,5 +252,6 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
         return entityTypeBuilder.Property(memberInfo.GetMemberType(), memberInfo.Name);
     }
 
-    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance
+        => EntityTypeBuilder;
 }

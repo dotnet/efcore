@@ -161,7 +161,7 @@ public class StoredProcedureResultColumn :
         => ForRowsAffected
             ? _nameConfigurationSource
             : ((IConventionProperty)GetProperty()!)
-                .GetColumnNameConfigurationSource(((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value);
+            .GetColumnNameConfigurationSource(((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value);
 
     private IMutableProperty GetProperty()
         => StoredProcedure.EntityType.FindProperty(PropertyName!)

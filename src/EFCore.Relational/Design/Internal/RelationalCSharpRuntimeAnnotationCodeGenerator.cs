@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -352,7 +351,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);
                 var fragmentsVariable = Dependencies.CSharpHelper.Identifier("fragments", parameters.ScopeVariables, capitalize: false);
                 parameters.MainBuilder
-                    .Append("var ").Append(fragmentsVariable).AppendLine(" = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();");
+                    .Append("var ").Append(fragmentsVariable)
+                    .AppendLine(" = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();");
 
                 foreach (var fragment in fragments.GetValues())
                 {
@@ -580,7 +580,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);
                 var overridesVariable = Dependencies.CSharpHelper.Identifier("overrides", parameters.ScopeVariables, capitalize: false);
                 parameters.MainBuilder.AppendLine()
-                    .Append("var ").Append(overridesVariable).AppendLine(" = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();");
+                    .Append("var ").Append(overridesVariable)
+                    .AppendLine(" = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();");
 
                 foreach (var overrides in tableOverrides.GetValues())
                 {

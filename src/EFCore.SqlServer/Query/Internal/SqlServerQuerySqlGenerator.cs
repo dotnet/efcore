@@ -24,7 +24,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies,
+    public SqlServerQuerySqlGenerator(
+        QuerySqlGeneratorDependencies dependencies,
         IRelationalTypeMappingSource typeMappingSource)
         : base(dependencies)
     {
@@ -239,7 +240,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                         break;
 
                     case TemporalOperationType.AsOf:
-                        var pointInTime = (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime)!.Value!;
+                        var pointInTime =
+                            (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime)!.Value!;
 
                         Sql.Append("AS OF ")
                             .Append(_typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(pointInTime));

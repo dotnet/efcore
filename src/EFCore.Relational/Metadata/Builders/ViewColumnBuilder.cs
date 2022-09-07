@@ -21,7 +21,8 @@ public class ViewColumnBuilder : IInfrastructure<PropertyBuilder>
     [EntityFrameworkInternal]
     public ViewColumnBuilder(in StoreObjectIdentifier storeObject, PropertyBuilder propertyBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.View,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.View,
             "StoreObjectType should be View, not " + storeObject.StoreObjectType);
 
         InternalOverrides = RelationalPropertyOverrides.GetOrCreate(
@@ -32,7 +33,8 @@ public class ViewColumnBuilder : IInfrastructure<PropertyBuilder>
     /// <summary>
     ///     The view-specific overrides being configured.
     /// </summary>
-    public virtual IMutableRelationalPropertyOverrides Overrides => InternalOverrides;
+    public virtual IMutableRelationalPropertyOverrides Overrides
+        => InternalOverrides;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,7 +81,8 @@ public class ViewColumnBuilder : IInfrastructure<PropertyBuilder>
         return this;
     }
 
-    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
+    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance
+        => PropertyBuilder;
 
     #region Hidden System.Object members
 

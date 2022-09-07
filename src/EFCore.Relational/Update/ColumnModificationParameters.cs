@@ -240,7 +240,10 @@ public readonly record struct ColumnModificationParameters
     /// </summary>
     /// <param name="columnName">The name of the JSON column.</param>
     /// <param name="value">The current value of the JSON element located at the given JSON path.</param>
-    /// <param name="property">In case of JSON column single scalar property modification, the scalar property that is being modified, null otherwise.</param>
+    /// <param name="property">
+    ///     In case of JSON column single scalar property modification, the scalar property that is being modified, null
+    ///     otherwise.
+    /// </param>
     /// <param name="columnType">The database type of the JSON column.</param>
     /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
     /// <param name="jsonPath">The JSON path leading to the JSON element that needs to be updated.</param>

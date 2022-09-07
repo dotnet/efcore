@@ -36,7 +36,7 @@ public class TableBuilder<TEntity> : TableBuilder, IInfrastructure<EntityTypeBui
     /// <returns>A builder to further configure the table.</returns>
     public new virtual TableBuilder<TEntity> HasComment(string? comment)
         => (TableBuilder<TEntity>)base.HasComment(comment);
-    
+
     /// <summary>
     ///     Configures the table to be ignored by migrations.
     /// </summary>
@@ -58,6 +58,7 @@ public class TableBuilder<TEntity> : TableBuilder, IInfrastructure<EntityTypeBui
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(GetStoreObjectIdentifier(), EntityTypeBuilder.Property(propertyExpression));
-    
-    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
+
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance
+        => EntityTypeBuilder;
 }

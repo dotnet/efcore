@@ -95,7 +95,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         => _relationalCommandCache
             .GetRelationalCommandTemplate(_relationalQueryContext.ParameterValues)
             .CreateDbCommand(
-                new RelationalCommandParameterObject(
+                new(
                     _relationalQueryContext.Connection,
                     _relationalQueryContext.ParameterValues,
                     null,
@@ -239,7 +239,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
                 enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             enumerator._dataReader = relationalCommand.ExecuteReader(
-                new RelationalCommandParameterObject(
+                new(
                     enumerator._relationalQueryContext.Connection,
                     enumerator._relationalQueryContext.ParameterValues,
                     enumerator._readerColumns,
@@ -361,7 +361,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
                 enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
-                    new RelationalCommandParameterObject(
+                    new(
                         enumerator._relationalQueryContext.Connection,
                         enumerator._relationalQueryContext.ParameterValues,
                         enumerator._readerColumns,

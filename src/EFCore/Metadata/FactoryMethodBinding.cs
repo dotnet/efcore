@@ -91,6 +91,6 @@ public class FactoryMethodBinding : InstantiationBinding
     /// <returns>A copy with replaced parameter bindings.</returns>
     public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
         => _factoryInstance == null
-            ? new FactoryMethodBinding(_factoryMethod, parameterBindings, RuntimeType)
+            ? new(_factoryMethod, parameterBindings, RuntimeType)
             : new FactoryMethodBinding(_factoryInstance, _factoryMethod, parameterBindings, RuntimeType);
 }

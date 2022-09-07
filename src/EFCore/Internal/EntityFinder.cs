@@ -56,7 +56,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         var (key, processedKeyValues, _) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: false, default);
 
         return FindTracked(key, processedKeyValues)
-                ?? _queryRoot.FirstOrDefault(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)));
+            ?? _queryRoot.FirstOrDefault(BuildLambda(key.Properties, new(processedKeyValues)));
     }
 
     /// <summary>
@@ -86,9 +86,9 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
 
         var tracked = FindTracked(key, processedKeyValues);
         return tracked != null
-            ? new ValueTask<TEntity?>(tracked)
+            ? new(tracked)
             : new ValueTask<TEntity?>(
-                _queryRoot.FirstOrDefaultAsync(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)), ct));
+                _queryRoot.FirstOrDefaultAsync(BuildLambda(key.Properties, new(processedKeyValues)), ct));
     }
 
     /// <summary>
@@ -109,10 +109,10 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
 
         var tracked = FindTracked(key, processedKeyValues);
         return tracked != null
-            ? new ValueTask<object?>(tracked)
+            ? new(tracked)
             : new ValueTask<object?>(
                 _queryRoot.FirstOrDefaultAsync(
-                    BuildObjectLambda(key.Properties, new ValueBuffer(processedKeyValues)), ct));
+                    BuildObjectLambda(key.Properties, new(processedKeyValues)), ct));
     }
 
     /// <summary>
@@ -228,12 +228,12 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         }
 
         return _queryRoot.AsNoTracking().IgnoreQueryFilters()
-            .Where(BuildObjectLambda(properties, new ValueBuffer(keyValues)))
+            .Where(BuildObjectLambda(properties, new(keyValues)))
             .Select(BuildProjection(entityType));
     }
 
     private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
-        => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
+        => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new(keyValues))).AsTracking();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -271,10 +271,10 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             ? navigation.ForeignKey.PrincipalKey.Properties
             : navigation.ForeignKey.Properties;
 
-    private (IKey Key, object[] KeyValues,CancellationToken CancellationToken) ValidateKeyPropertiesAndExtractCancellationToken(
-            object[] keyValues,
-            bool async,
-            CancellationToken cancellationToken)
+    private (IKey Key, object[] KeyValues, CancellationToken CancellationToken) ValidateKeyPropertiesAndExtractCancellationToken(
+        object[] keyValues,
+        bool async,
+        CancellationToken cancellationToken)
     {
         var key = _entityType.FindPrimaryKey()!;
         var keyPropertiesCount = key.Properties.Count;

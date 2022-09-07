@@ -344,7 +344,7 @@ public static class SqlServerModelBuilderExtensions
         }
 
         return null;
-        
+
         void RemoveKeySequenceAnnotations()
         {
             if (modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceNameSuffix, null)

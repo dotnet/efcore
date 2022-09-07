@@ -84,7 +84,7 @@ public class InExpression : SqlExpression
     /// </summary>
     public virtual InExpression Update(SqlExpression item, SqlExpression values)
         => item != Item || values != Values
-            ? new InExpression(item, IsNegated, values, TypeMapping!)
+            ? new(item, IsNegated, values, TypeMapping!)
             : this;
 
     /// <summary>

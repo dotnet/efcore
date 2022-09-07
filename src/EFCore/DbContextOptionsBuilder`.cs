@@ -28,7 +28,7 @@ public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
     ///     Initializes a new instance of the <see cref="DbContextOptionsBuilder{TContext}" /> class with no options set.
     /// </summary>
     public DbContextOptionsBuilder()
-        : this(new DbContextOptions<TContext>())
+        : this(new())
     {
     }
 

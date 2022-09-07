@@ -34,7 +34,7 @@ public class IdentityMap<TKey> : IIdentityMap
         _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         Key = key;
         PrincipalKeyValueFactory = principalKeyValueFactory;
-        _identityMap = new Dictionary<TKey, InternalEntityEntry>(principalKeyValueFactory.EqualityComparer);
+        _identityMap = new(principalKeyValueFactory.EqualityComparer);
 
         if (key.IsPrimaryKey())
         {
@@ -337,7 +337,7 @@ public class IdentityMap<TKey> : IIdentityMap
     /// </summary>
     public virtual IDependentsMap GetDependentsMap(IForeignKey foreignKey)
     {
-        _dependentMaps ??= new Dictionary<IForeignKey, IDependentsMap>(LegacyReferenceEqualityComparer.Instance);
+        _dependentMaps ??= new(LegacyReferenceEqualityComparer.Instance);
 
         if (!_dependentMaps.TryGetValue(foreignKey, out var map))
         {

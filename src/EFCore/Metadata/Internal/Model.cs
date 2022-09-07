@@ -31,10 +31,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     private Dictionary<string, ConfigurationSource>? _ownedTypes;
 
     private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
-        new()
-        {
-            { DefaultPropertyBagType, (ConfigurationSource.Explicit, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) }
-        };
+        new() { { DefaultPropertyBagType, (ConfigurationSource.Explicit, new(EntityTypeFullNameComparer.Instance)) } };
 
     private ConventionDispatcher? _conventionDispatcher;
     private IList<IModelFinalizedConvention>? _modelFinalizedConventions;
@@ -51,7 +48,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public Model()
-        : this(new ConventionSet())
+        : this(new())
     {
     }
 
@@ -696,7 +693,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         EnsureMutable();
         var name = GetDisplayName(type);
-        _ownedTypes ??= new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
+        _ownedTypes ??= new(StringComparer.Ordinal);
 
         if (_ownedTypes.TryGetValue(name, out var oldConfigurationSource))
         {
@@ -767,7 +764,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         }
         else
         {
-            _sharedTypes.Add(type, (configurationSource, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)));
+            _sharedTypes.Add(type, (configurationSource, new(EntityTypeFullNameComparer.Instance)));
         }
     }
 

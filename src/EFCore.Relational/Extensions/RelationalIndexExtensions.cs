@@ -22,8 +22,8 @@ public static class RelationalIndexExtensions
     /// <returns>The name of the index in the database.</returns>
     public static string? GetDatabaseName(this IReadOnlyIndex index)
         => index.DeclaringEntityType.GetTableName() == null
-        ? null
-        : (string?)index[RelationalAnnotationNames.Name]
+            ? null
+            : (string?)index[RelationalAnnotationNames.Name]
             ?? index.Name
             ?? index.GetDefaultDatabaseName();
 

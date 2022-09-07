@@ -213,7 +213,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                         _ => _sqlExpressionFactory.LessThan(testLeft, testRight)
                     });
         }
-   }
+    }
 
     private Expression SimplifySqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {
@@ -407,7 +407,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         }
         else
         {
-            result = new List<object>();
+            result = new();
             foreach (var collectionElement in collection)
             {
                 result.Add(collectionElement);

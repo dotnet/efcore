@@ -888,11 +888,12 @@ public class ModelValidator : IModelValidator
 
                 if (providerComparer.Type.UnwrapNullableType() != actualProviderClrType)
                 {
-                    throw new InvalidOperationException(CoreStrings.ComparerPropertyMismatch(
-                        providerComparer.Type.ShortDisplayName(),
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        actualProviderClrType.ShortDisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.ComparerPropertyMismatch(
+                            providerComparer.Type.ShortDisplayName(),
+                            property.DeclaringEntityType.DisplayName(),
+                            property.Name,
+                            actualProviderClrType.ShortDisplayName()));
                 }
             }
         }
@@ -1078,7 +1079,7 @@ public class ModelValidator : IModelValidator
                             entityType.DisplayName(), key.Properties.Format()));
                 }
 
-                entry = new InternalEntityEntry(null!, entityType, seedDatum);
+                entry = new(null!, entityType, seedDatum);
                 identityMap.Add(keyValues, entry);
             }
         }

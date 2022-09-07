@@ -131,7 +131,10 @@ public abstract class DbCommandInterceptor : IDbCommandInterceptor
         => result;
 
     /// <inheritdoc />
-    public virtual ValueTask<InterceptionResult> DataReaderClosingAsync(DbCommand command, DataReaderClosingEventData eventData, InterceptionResult result)
+    public virtual ValueTask<InterceptionResult> DataReaderClosingAsync(
+        DbCommand command,
+        DataReaderClosingEventData eventData,
+        InterceptionResult result)
         => new(result);
 
     /// <inheritdoc />

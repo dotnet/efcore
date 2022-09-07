@@ -140,7 +140,7 @@ public static class InMemoryDbContextOptionsExtensions
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        inMemoryOptionsAction?.Invoke(new InMemoryDbContextOptionsBuilder(optionsBuilder));
+        inMemoryOptionsAction?.Invoke(new(optionsBuilder));
 
         return optionsBuilder;
     }

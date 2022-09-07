@@ -31,7 +31,7 @@ public class OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> :
 
     private OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnedNavigationBuilder
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((IInfrastructure<OwnedNavigationBuilder>)this)
-        .GetInfrastructure();
+            .GetInfrastructure();
 
     /// <summary>
     ///     Maps the property to a column on the current view and returns an object that can be used

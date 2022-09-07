@@ -31,7 +31,7 @@ public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMa
     /// <param name="serviceCollection">The collection to work with.</param>
     public ServiceCollectionMap(IServiceCollection serviceCollection)
     {
-        _map = new InternalServiceCollectionMap(serviceCollection);
+        _map = new(serviceCollection);
     }
 
     /// <summary>
@@ -126,7 +126,7 @@ public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMa
         var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
         if (indexes.Count == 0)
         {
-            _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementationType, lifetime));
+            _map.AddNewDescriptor(indexes, new(serviceType, implementationType, lifetime));
         }
 
         return this;
@@ -255,7 +255,7 @@ public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMa
         var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
         if (indexes.Count == 0)
         {
-            _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, factory, lifetime));
+            _map.AddNewDescriptor(indexes, new(serviceType, factory, lifetime));
         }
 
         return this;
@@ -286,7 +286,7 @@ public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMa
         var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
         if (indexes.Count == 0)
         {
-            _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementation));
+            _map.AddNewDescriptor(indexes, new(serviceType, implementation));
         }
 
         return this;
@@ -383,7 +383,7 @@ public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMa
         var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
         if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
         {
-            _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementationType, lifetime));
+            _map.AddNewDescriptor(indexes, new(serviceType, implementationType, lifetime));
         }
 
         return this;
@@ -455,7 +455,7 @@ public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMa
         var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
         if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
         {
-            _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, factory, lifetime));
+            _map.AddNewDescriptor(indexes, new(serviceType, factory, lifetime));
         }
 
         return this;
@@ -490,7 +490,7 @@ public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMa
         var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
         if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
         {
-            _map.AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, implementation));
+            _map.AddNewDescriptor(indexes, new(serviceType, implementation));
         }
 
         return this;

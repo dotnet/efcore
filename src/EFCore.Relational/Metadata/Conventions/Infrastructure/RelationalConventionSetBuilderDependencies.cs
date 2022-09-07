@@ -57,7 +57,7 @@ public sealed record RelationalConventionSetBuilderDependencies
     ///     The relational annotation provider.
     /// </summary>
     public IRelationalAnnotationProvider RelationalAnnotationProvider { get; init; }
-    
+
     /// <summary>
     ///     For generation of SQL.
     /// </summary>

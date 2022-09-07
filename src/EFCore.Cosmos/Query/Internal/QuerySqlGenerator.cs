@@ -1,12 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -82,12 +82,12 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         _sqlBuilder.Clear();
         _parameterValues = parameterValues;
-        _sqlParameters = new List<SqlParameter>();
-        _parameterNameGenerator = new ParameterNameGenerator();
+        _sqlParameters = new();
+        _parameterNameGenerator = new();
 
         Visit(selectExpression);
 
-        return new CosmosSqlQuery(_sqlBuilder.ToString(), _sqlParameters);
+        return new(_sqlBuilder.ToString(), _sqlParameters);
     }
 
     /// <summary>
@@ -282,7 +282,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 for (var i = 0; i < parameterValues.Length; i++)
                 {
                     var parameterName = _parameterNameGenerator.GenerateNext();
-                    _sqlParameters.Add(new SqlParameter(parameterName, parameterValues[i]));
+                    _sqlParameters.Add(new(parameterName, parameterValues[i]));
                     substitutions[i] = parameterName;
                 }
 
@@ -492,7 +492,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         if (_sqlParameters.All(sp => sp.Name != parameterName))
         {
             var jToken = GenerateJToken(_parameterValues[sqlParameterExpression.Name], sqlParameterExpression.TypeMapping);
-            _sqlParameters.Add(new SqlParameter(parameterName, jToken));
+            _sqlParameters.Add(new(parameterName, jToken));
         }
 
         _sqlBuilder.Append(parameterName);

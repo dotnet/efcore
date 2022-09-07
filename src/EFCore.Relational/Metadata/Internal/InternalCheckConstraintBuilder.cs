@@ -98,7 +98,7 @@ public class InternalCheckConstraintBuilder :
                     return null;
                 }
 
-                checkConstraintsToBeDetached ??= new List<IConventionCheckConstraint>();
+                checkConstraintsToBeDetached ??= new();
 
                 checkConstraintsToBeDetached.Add(derivedCheckConstraint);
             }
@@ -107,7 +107,7 @@ public class InternalCheckConstraintBuilder :
         List<IConventionCheckConstraint>? detachedCheckConstraints = null;
         if (checkConstraintsToBeDetached != null)
         {
-            detachedCheckConstraints = new List<IConventionCheckConstraint>();
+            detachedCheckConstraints = new();
             foreach (var checkConstraintToBeDetached in checkConstraintsToBeDetached)
             {
                 detachedCheckConstraints.Add(

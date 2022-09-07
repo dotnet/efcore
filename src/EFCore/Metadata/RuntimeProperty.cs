@@ -196,7 +196,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<IReadOnlyProperty>();
+            checkedProperties = new();
         }
         else if (checkedProperties.Contains(this))
         {
@@ -223,7 +223,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<IReadOnlyProperty>();
+            checkedProperties = new();
         }
         else if (checkedProperties.Contains(this))
         {

@@ -102,7 +102,7 @@ public class SqlServerDatabaseCreator : RelationalDatabaseCreator
             _connection,
             connection => (int)CreateHasTablesCommand()
                     .ExecuteScalar(
-                        new RelationalCommandParameterObject(
+                        new(
                             connection,
                             null,
                             null,
@@ -122,7 +122,7 @@ public class SqlServerDatabaseCreator : RelationalDatabaseCreator
                 _connection,
                 (connection, ct) => CreateHasTablesCommand()
                     .ExecuteScalarAsync(
-                        new RelationalCommandParameterObject(
+                        new(
                             connection,
                             null,
                             null,
@@ -193,7 +193,7 @@ SELECT 1 ELSE SELECT 0");
                         _rawSqlCommandBuilder
                             .Build("SELECT 1")
                             .ExecuteNonQuery(
-                                new RelationalCommandParameterObject(
+                                new(
                                     _connection,
                                     null,
                                     null,
@@ -256,7 +256,7 @@ SELECT 1 ELSE SELECT 0");
                         await _rawSqlCommandBuilder
                             .Build("SELECT 1")
                             .ExecuteNonQueryAsync(
-                                new RelationalCommandParameterObject(
+                                new(
                                     _connection,
                                     null,
                                     null,

@@ -54,7 +54,7 @@ public class FromSqlExpression : RootReferenceExpression, IPrintableExpression
     /// </summary>
     public virtual FromSqlExpression Update(Expression arguments)
         => arguments != Arguments
-            ? new FromSqlExpression(EntityType, Alias, Sql, arguments)
+            ? new(EntityType, Alias, Sql, arguments)
             : this;
 
     /// <inheritdoc />

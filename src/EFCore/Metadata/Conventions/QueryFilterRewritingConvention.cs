@@ -22,7 +22,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     public QueryFilterRewritingConvention(ProviderConventionSetBuilderDependencies dependencies)
     {
         Dependencies = dependencies;
-        DbSetAccessRewriter = new DbSetAccessRewritingExpressionVisitor(dependencies.ContextType);
+        DbSetAccessRewriter = new(dependencies.ContextType);
     }
 
     /// <summary>
@@ -31,7 +31,8 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
     /// <summary>
-    ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters to <see cref="EntityQueryRootExpression" />.
+    ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters
+    ///     to <see cref="EntityQueryRootExpression" />.
     /// </summary>
     protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; set; }
 

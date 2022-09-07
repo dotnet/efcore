@@ -48,7 +48,7 @@ public class SingleResultShaperExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual SingleResultShaperExpression Update(Expression projection, Expression innerShaper)
         => projection != Projection || innerShaper != InnerShaper
-            ? new SingleResultShaperExpression(projection, innerShaper)
+            ? new(projection, innerShaper)
             : this;
 
     /// <summary>

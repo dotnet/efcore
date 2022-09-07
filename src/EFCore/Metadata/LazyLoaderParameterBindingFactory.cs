@@ -117,7 +117,7 @@ public class LazyLoaderParameterBindingFactory : ServiceParameterBindingFactory
                 typeof(ILazyLoader),
                 entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoader(p.ClrType)).ToArray())
             : parameterType == typeof(Action<object, string>)
-                ? new DependencyInjectionMethodParameterBinding(
+                ? new(
                     typeof(Action<object, string>),
                     typeof(ILazyLoader),
                     LoadMethod,

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -20,7 +21,9 @@ public static class RelationalTriggerBuilderExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
     public static IConventionTriggerBuilder? HasDatabaseName(
-        this IConventionTriggerBuilder triggerBuilder, string? name, bool fromDataAnnotation = false)
+        this IConventionTriggerBuilder triggerBuilder,
+        string? name,
+        bool fromDataAnnotation = false)
     {
         if (!triggerBuilder.CanSetDatabaseName(name, fromDataAnnotation))
         {
@@ -49,7 +52,9 @@ public static class RelationalTriggerBuilderExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
     public static IConventionTriggerBuilder? HasTableName(
-        this IConventionTriggerBuilder triggerBuilder, string? name, bool fromDataAnnotation = false)
+        this IConventionTriggerBuilder triggerBuilder,
+        string? name,
+        bool fromDataAnnotation = false)
     {
         if (!triggerBuilder.CanSetTableName(name, fromDataAnnotation))
         {
@@ -78,7 +83,9 @@ public static class RelationalTriggerBuilderExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
     public static IConventionTriggerBuilder? HasTableSchema(
-        this IConventionTriggerBuilder triggerBuilder, string? schema, bool fromDataAnnotation = false)
+        this IConventionTriggerBuilder triggerBuilder,
+        string? schema,
+        bool fromDataAnnotation = false)
     {
         if (!triggerBuilder.CanSetTableSchema(schema, fromDataAnnotation))
         {

@@ -146,7 +146,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
             additionalFiles.Add(additionalFilePath);
         }
 
-        return new SavedModelFiles(contextPath, additionalFiles);
+        return new(contextPath, additionalFiles);
     }
 
     private static void CheckOutputFiles(

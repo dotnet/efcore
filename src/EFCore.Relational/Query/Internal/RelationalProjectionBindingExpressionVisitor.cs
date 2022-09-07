@@ -43,7 +43,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
         _sqlTranslator = sqlTranslatingExpressionVisitor;
-        _includeFindingExpressionVisitor = new IncludeFindingExpressionVisitor();
+        _includeFindingExpressionVisitor = new();
         _selectExpression = null!;
     }
 
@@ -58,7 +58,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = selectExpression;
         _indexBasedBinding = false;
 
-        _projectionMembers.Push(new ProjectionMember());
+        _projectionMembers.Push(new());
 
         var result = Visit(expression);
 
@@ -68,7 +68,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             _entityProjectionCache = new();
             _jsonQueryCache = new();
             _projectionMapping.Clear();
-            _clientProjections = new List<Expression>();
+            _clientProjections = new();
 
             result = Visit(expression);
 
@@ -168,7 +168,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 _clientProjections!.Add(jsonQueryExpression);
 
                                 return new CollectionResultExpression(
-                                    new ProjectionBindingExpression(_selectExpression, _clientProjections!.Count - 1, jsonQueryExpression.Type),
+                                    new(
+                                        _selectExpression, _clientProjections!.Count - 1, jsonQueryExpression.Type),
                                     materializeCollectionNavigationExpression.Navigation,
                                     materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                             }
@@ -180,7 +181,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                         return new CollectionResultExpression(
                             // expression.Type will be CLR type of the navigation here so that is fine.
-                            new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
+                            new(_selectExpression, _clientProjections.Count - 1, expression.Type),
                             materializeCollectionNavigationExpression.Navigation,
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
@@ -194,10 +195,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 if (expression is MethodCallExpression methodCallExpression)
                 {
                     if (methodCallExpression.Method.IsGenericMethod
-                            && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                            && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
-                            && methodCallExpression.Arguments.Count == 1
-                            && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                        && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                        && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
+                        && methodCallExpression.Arguments.Count == 1
+                        && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
                     {
                         var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                             methodCallExpression.Arguments[0]);
@@ -206,7 +207,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             _clientProjections!.Add(subquery);
                             // expression.Type here will be List<T>
                             return new CollectionResultExpression(
-                                new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
+                                new(_selectExpression, _clientProjections.Count - 1, expression.Type),
                                 navigation: null,
                                 methodCallExpression.Method.GetGenericArguments()[0]);
                         }
@@ -317,13 +318,11 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                         return entityShaperExpression.Update(jsonProjectionBinding);
                     }
-                    else
-                    {
-                        _projectionMapping[_projectionMembers.Peek()] = jsonQueryExpression;
 
-                        return entityShaperExpression.Update(
-                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
-                    }
+                    _projectionMapping[_projectionMembers.Peek()] = jsonQueryExpression;
+
+                    return entityShaperExpression.Update(
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
 
                 if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
@@ -336,7 +335,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         return QueryCompilationContext.NotTranslatedExpression;
                     }
 
-                    var projection = ((SelectExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression);
+                    var projection =
+                        ((SelectExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression);
                     if (projection is JsonQueryExpression jsonQuery)
                     {
                         if (_indexBasedBinding)
@@ -345,13 +345,11 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                             return entityShaperExpression.Update(projectionBinding);
                         }
-                        else
-                        {
-                            _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
 
-                            return entityShaperExpression.Update(
-                                new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
-                        }
+                        _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
+
+                        return entityShaperExpression.Update(
+                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                     }
 
                     entityProjectionExpression = (EntityProjectionExpression)projection;
@@ -405,7 +403,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     _clientProjections!.Add(mappedProjection);
 
                     return collectionResultExpression.Update(
-                        new ProjectionBindingExpression(
+                        new(
                             _selectExpression, _clientProjections.Count - 1, collectionResultExpression.Type));
                 }
 
@@ -659,7 +657,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             existingIndex = _clientProjections.Count - 1;
         }
 
-        return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
+        return new(_selectExpression, existingIndex, type);
     }
 
 #pragma warning disable IDE0052 // Remove unread private members

@@ -1466,7 +1466,7 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
 
     /// <summary>
-    ///     Converts <paramref name="dateTimeOffset" /> to the time zone specified by <paramref name="timeZone"/>.
+    ///     Converts <paramref name="dateTimeOffset" /> to the time zone specified by <paramref name="timeZone" />.
     ///     Corresponds to the SQL Server <c>AT TIME ZONE</c> construct.
     /// </summary>
     /// <remarks>

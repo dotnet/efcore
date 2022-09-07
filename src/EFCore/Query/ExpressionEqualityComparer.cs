@@ -399,7 +399,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                 return false;
             }
 
-            _parameterScope ??= new Dictionary<ParameterExpression, ParameterExpression>();
+            _parameterScope ??= new();
 
             for (var i = 0; i < n; i++)
             {

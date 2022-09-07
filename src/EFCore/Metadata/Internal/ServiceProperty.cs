@@ -35,7 +35,7 @@ public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventio
         DeclaringEntityType = declaringEntityType;
         ClrType = (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!;
 
-        _builder = new InternalServicePropertyBuilder(this, declaringEntityType.Model.Builder);
+        _builder = new(this, declaringEntityType.Model.Builder);
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     public StoreStoredProcedure(IRuntimeStoredProcedure sproc, RelationalModel model)
         : base(sproc.Name, sproc.Schema, model)
     {
-        StoredProcedures = new(StoredProcedureComparer.Instance) { { sproc } };
+        StoredProcedures = new(StoredProcedureComparer.Instance) { sproc };
 
         sproc.StoreStoredProcedure = this;
 

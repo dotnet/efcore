@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 
 /// <summary>
@@ -27,9 +29,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext, subquery: false)
     {
-        _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(queryCompilationContext, this);
-        _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
-        _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
+        _expressionTranslator = new(queryCompilationContext, this);
+        _weakEntityExpandingExpressionVisitor = new(_expressionTranslator);
+        _projectionBindingExpressionVisitor = new(this, _expressionTranslator);
         _model = queryCompilationContext.Model;
     }
 
@@ -43,9 +45,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         InMemoryQueryableMethodTranslatingExpressionVisitor parentVisitor)
         : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
     {
-        _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(QueryCompilationContext, parentVisitor);
-        _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
-        _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
+        _expressionTranslator = new(QueryCompilationContext, parentVisitor);
+        _weakEntityExpandingExpressionVisitor = new(_expressionTranslator);
+        _projectionBindingExpressionVisitor = new(this, _expressionTranslator);
         _model = parentVisitor._model;
     }
 
@@ -116,7 +118,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     {
         var queryExpression = new InMemoryQueryExpression(entityType);
 
-        return new ShapedQueryExpression(
+        return new(
             queryExpression,
             new EntityShaperExpression(
                 entityType,
@@ -251,7 +253,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                     inMemoryQueryExpression.ServerQueryExpression,
                     Expression.Lambda(
                         inMemoryQueryExpression.GetProjection(
-                            new ProjectionBindingExpression(inMemoryQueryExpression, new ProjectionMember(), item.Type)),
+                            new(inMemoryQueryExpression, new ProjectionMember(), item.Type)),
                         inMemoryQueryExpression.CurrentParameter)),
                 item));
 
@@ -535,7 +537,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         var left = RemapLambdaBody(outer, outerKeySelector);
         var right = RemapLambdaBody(inner, innerKeySelector);
 
-        var joinCondition = TranslateExpression(EntityFrameworkCore.Infrastructure.ExpressionExtensions.CreateEqualsExpression(left, right));
+        var joinCondition = TranslateExpression(ExpressionExtensions.CreateEqualsExpression(left, right));
 
         var (outerKeyBody, innerKeyBody) = DecomposeJoinCondition(joinCondition);
 
@@ -1251,7 +1253,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                         : foreignKey.Properties,
                     makeNullable);
 
-                var keyComparison = EntityFrameworkCore.Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey);
+                var keyComparison = ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey);
 
                 var predicate = makeNullable
                     ? Expression.AndAlso(
@@ -1267,7 +1269,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                                 .Aggregate((l, r) => Expression.AndAlso(l, r))
                             : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
                         keyComparison)
-                    : (Expression)keyComparison;
+                    : keyComparison;
 
                 var correlationPredicate = _expressionTranslator.Translate(predicate)!;
                 innerQueryExpression.UpdateServerQueryExpression(
@@ -1359,7 +1361,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
             || selector.Body == selector.Parameters[0]
                 ? Expression.Lambda(
                     inMemoryQueryExpression.GetProjection(
-                        new ProjectionBindingExpression(
+                        new(
                             inMemoryQueryExpression, new ProjectionMember(), returnType)),
                     inMemoryQueryExpression.CurrentParameter)
                 : TranslateLambdaExpression(source, selector, preserveType: true);

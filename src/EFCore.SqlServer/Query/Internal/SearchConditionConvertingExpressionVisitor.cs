@@ -124,7 +124,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             var test = (SqlExpression)Visit(whenClause.Test);
             _isSearchCondition = false;
             var result = (SqlExpression)Visit(whenClause.Result);
-            whenClauses.Add(new CaseWhenClause(test, result));
+            whenClauses.Add(new(test, result));
         }
 
         _isSearchCondition = false;
@@ -739,7 +739,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             var newValue = (SqlExpression)Visit(columnValueSetter.Value);
             if (columnValueSetters != null)
             {
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
@@ -748,9 +748,11 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 {
                     columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
                 }
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+
+                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
             }
         }
+
         _isSearchCondition = parentSearchCondition;
         return updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters);
     }

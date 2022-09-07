@@ -33,8 +33,8 @@ public class StringTypeMapping : RelationalTypeMapping
         bool unicode = false,
         int? size = null)
         : base(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(
+            new(
+                new(
                     typeof(string)), storeType, StoreTypePostfix.None, dbType, unicode, size))
     {
     }

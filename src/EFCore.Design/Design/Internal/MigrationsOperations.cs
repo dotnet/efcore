@@ -43,7 +43,7 @@ public class MigrationsOperations
         _rootNamespace = rootNamespace;
         _language = language;
         args ??= Array.Empty<string>();
-        _contextOperations = new DbContextOperations(
+        _contextOperations = new(
             reporter,
             assembly,
             startupAssembly,
@@ -53,7 +53,7 @@ public class MigrationsOperations
             nullable,
             args);
 
-        _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
+        _servicesBuilder = new(assembly, startupAssembly, reporter, args);
     }
 
     /// <summary>
@@ -147,7 +147,7 @@ public class MigrationsOperations
         {
             try
             {
-                appliedMigrations = new HashSet<string>(
+                appliedMigrations = new(
                     context.Database.GetAppliedMigrations(),
                     StringComparer.OrdinalIgnoreCase);
             }

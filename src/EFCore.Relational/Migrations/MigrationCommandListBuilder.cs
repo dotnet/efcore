@@ -52,7 +52,7 @@ public class MigrationCommandListBuilder
         if (_commandBuilder.CommandTextLength != 0)
         {
             _commands.Add(
-                new MigrationCommand(
+                new(
                     _commandBuilder.Build(),
                     Dependencies.CurrentContext.Context,
                     Dependencies.Logger,

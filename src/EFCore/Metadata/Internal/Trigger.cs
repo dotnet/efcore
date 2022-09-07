@@ -30,7 +30,7 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
         ModelName = modelName;
         _configurationSource = configurationSource;
 
-        _builder = new InternalTriggerBuilder(this, ((IConventionModel)entityType.Model).Builder);
+        _builder = new(this, ((IConventionModel)entityType.Model).Builder);
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
         => new(
             () => ((ITrigger)this).ToDebugString(),
             () => ((ITrigger)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -129,7 +129,7 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
         [DebuggerStepThrough]
         get => EntityType;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

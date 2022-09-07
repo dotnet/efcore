@@ -46,7 +46,7 @@ public class OwnedNavigationTableValuedFunctionBuilder : DbFunctionBuilderBase, 
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual OwnedNavigationTableValuedFunctionBuilder HasSchema(string? schema)
         => (OwnedNavigationTableValuedFunctionBuilder)base.HasSchema(schema);
-    
+
     /// <summary>
     ///     Marks whether the database function is built-in.
     /// </summary>
@@ -88,5 +88,6 @@ public class OwnedNavigationTableValuedFunctionBuilder : DbFunctionBuilderBase, 
         return this;
     }
 
-    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+        => OwnedNavigationBuilder;
 }

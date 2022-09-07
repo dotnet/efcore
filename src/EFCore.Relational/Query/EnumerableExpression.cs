@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -61,7 +60,6 @@ public class EnumerableExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual IReadOnlyList<OrderingExpression> Orderings { get; }
 
-
     /// <summary>
     ///     Applies new selector to the <see cref="EnumerableExpression" />.
     /// </summary>
@@ -112,7 +110,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
         var orderings = new List<OrderingExpression>();
         AppendOrdering(orderings, orderingExpression);
 
-        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings);
+        return new(Selector, IsDistinct, Predicate, orderings);
     }
 
     /// <summary>
@@ -125,7 +123,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
         var orderings = Orderings.ToList();
         AppendOrdering(orderings, orderingExpression);
 
-        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings);
+        return new(Selector, IsDistinct, Predicate, orderings);
     }
 
     private static void AppendOrdering(List<OrderingExpression> orderings, OrderingExpression orderingExpression)
@@ -142,10 +140,12 @@ public class EnumerableExpression : Expression, IPrintableExpression
             CoreStrings.VisitIsNotAllowed($"{nameof(EnumerableExpression)}.{nameof(VisitChildren)}"));
 
     /// <inheritdoc />
-    public override ExpressionType NodeType => ExpressionType.Extension;
+    public override ExpressionType NodeType
+        => ExpressionType.Extension;
 
     /// <inheritdoc />
-    public override Type Type => typeof(IEnumerable<>).MakeGenericType(Selector.Type);
+    public override Type Type
+        => typeof(IEnumerable<>).MakeGenericType(Selector.Type);
 
     /// <inheritdoc />
     public virtual void Print(ExpressionPrinter expressionPrinter)
@@ -186,11 +186,11 @@ public class EnumerableExpression : Expression, IPrintableExpression
 
     private bool Equals(EnumerableExpression enumerableExpression)
         => IsDistinct == enumerableExpression.IsDistinct
-        && (Predicate == null
-            ? enumerableExpression.Predicate == null
-            : Predicate.Equals(enumerableExpression.Predicate))
-        && ExpressionEqualityComparer.Instance.Equals(Selector, enumerableExpression.Selector)
-        && Orderings.SequenceEqual(enumerableExpression.Orderings);
+            && (Predicate == null
+                ? enumerableExpression.Predicate == null
+                : Predicate.Equals(enumerableExpression.Predicate))
+            && ExpressionEqualityComparer.Instance.Equals(Selector, enumerableExpression.Selector)
+            && Orderings.SequenceEqual(enumerableExpression.Orderings);
 
     /// <inheritdoc />
     public override int GetHashCode()

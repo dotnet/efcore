@@ -789,7 +789,7 @@ public static class ExecutionStrategyExtensions
                 }
 
                 return s.Result;
-            }, (_, s) => new ExecutionResult<TResult>(s.CommitFailed && s.VerifySucceeded(s.State), s.Result));
+            }, (_, s) => new(s.CommitFailed && s.VerifySucceeded(s.State), s.Result));
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
@@ -846,7 +846,7 @@ public static class ExecutionStrategyExtensions
                 await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
 
                 return s.Result;
-            }, async (_, s, ct) => new ExecutionResult<TResult>(
+            }, async (_, s, ct) => new(
                 s.CommitFailed && await s.VerifySucceeded(s.State, ct).ConfigureAwait(false),
                 s.Result), cancellationToken);
 

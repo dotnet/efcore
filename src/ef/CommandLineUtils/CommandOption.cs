@@ -12,7 +12,7 @@ internal class CommandOption
     {
         Template = template;
         OptionType = optionType;
-        Values = new List<string?>();
+        Values = new();
 
         foreach (var part in Template.Split(new[] { ' ', '|' }, StringSplitOptions.RemoveEmptyEntries))
         {

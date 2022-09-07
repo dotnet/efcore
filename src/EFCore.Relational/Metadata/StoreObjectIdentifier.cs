@@ -72,7 +72,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(name, nameof(name));
 
-        return new StoreObjectIdentifier(StoreObjectType.Table, name, schema);
+        return new(StoreObjectType.Table, name, schema);
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(name, nameof(name));
 
-        return new StoreObjectIdentifier(StoreObjectType.View, name, schema);
+        return new(StoreObjectType.View, name, schema);
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(entityType, nameof(entityType));
 
-        return new StoreObjectIdentifier(StoreObjectType.SqlQuery, entityType.GetDefaultSqlQueryName());
+        return new(StoreObjectType.SqlQuery, entityType.GetDefaultSqlQueryName());
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(name, nameof(name));
 
-        return new StoreObjectIdentifier(StoreObjectType.SqlQuery, name);
+        return new(StoreObjectType.SqlQuery, name);
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(modelName, nameof(modelName));
 
-        return new StoreObjectIdentifier(StoreObjectType.Function, modelName);
+        return new(StoreObjectType.Function, modelName);
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(name, nameof(name));
 
-        return new StoreObjectIdentifier(StoreObjectType.InsertStoredProcedure, name, schema);
+        return new(StoreObjectType.InsertStoredProcedure, name, schema);
     }
 
     /// <summary>
@@ -147,7 +147,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(name, nameof(name));
 
-        return new StoreObjectIdentifier(StoreObjectType.DeleteStoredProcedure, name, schema);
+        return new(StoreObjectType.DeleteStoredProcedure, name, schema);
     }
 
     /// <summary>
@@ -160,7 +160,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
     {
         Check.NotNull(name, nameof(name));
 
-        return new StoreObjectIdentifier(StoreObjectType.UpdateStoredProcedure, name, schema);
+        return new(StoreObjectType.UpdateStoredProcedure, name, schema);
     }
 
     /// <summary>

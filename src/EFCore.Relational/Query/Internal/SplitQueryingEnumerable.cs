@@ -98,7 +98,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         => _relationalCommandCache
             .GetRelationalCommandTemplate(_relationalQueryContext.ParameterValues)
             .CreateDbCommand(
-                new RelationalCommandParameterObject(
+                new(
                     _relationalQueryContext.Connection,
                     _relationalQueryContext.ParameterValues,
                     null,
@@ -228,7 +228,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                 enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
-                new RelationalCommandParameterObject(
+                new(
                     enumerator._relationalQueryContext.Connection,
                     enumerator._relationalQueryContext.ParameterValues,
                     enumerator._readerColumns,
@@ -238,7 +238,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                     CommandSource.LinqQuery));
             enumerator._dbDataReader = dataReader.DbDataReader;
 
-            enumerator._resultCoordinator = new SplitQueryResultCoordinator();
+            enumerator._resultCoordinator = new();
 
             enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 
@@ -383,7 +383,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                 enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
-                    new RelationalCommandParameterObject(
+                    new(
                         enumerator._relationalQueryContext.Connection,
                         enumerator._relationalQueryContext.ParameterValues,
                         enumerator._readerColumns,
@@ -394,7 +394,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
                 .ConfigureAwait(false);
             enumerator._dbDataReader = dataReader.DbDataReader;
 
-            enumerator._resultCoordinator = new SplitQueryResultCoordinator();
+            enumerator._resultCoordinator = new();
 
             enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 

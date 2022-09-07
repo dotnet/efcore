@@ -84,7 +84,7 @@ public class QueryCompilationContext
         _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
         _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
 
-        _expressionPrinter = new ExpressionPrinter();
+        _expressionPrinter = new();
         _queryExpressionInterceptor = dependencies.Interceptors.Aggregate<IQueryExpressionInterceptor>();
     }
 
@@ -201,7 +201,7 @@ public class QueryCompilationContext
             throw new ArgumentException(CoreStrings.RuntimeParameterMissingParameter, nameof(valueExtractor));
         }
 
-        _runtimeParameters ??= new Dictionary<string, LambdaExpression>();
+        _runtimeParameters ??= new();
 
         _runtimeParameters[name] = valueExtractor;
         return Expression.Parameter(valueExtractor.ReturnType, name);

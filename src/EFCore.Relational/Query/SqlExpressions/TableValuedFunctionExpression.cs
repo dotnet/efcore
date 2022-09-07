@@ -62,7 +62,8 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     public virtual IReadOnlyList<SqlExpression> Arguments { get; }
 
     /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => StoreFunction;
+    ITableBase ITableBasedExpression.Table
+        => StoreFunction;
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -76,7 +77,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
         }
 
         return changed
-            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
+            ? new(Alias, StoreFunction, arguments, GetAnnotations())
             : this;
     }
 
@@ -88,7 +89,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
         => !arguments.SequenceEqual(Arguments)
-            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
+            ? new(Alias, StoreFunction, arguments, GetAnnotations())
             : this;
 
     /// <inheritdoc />

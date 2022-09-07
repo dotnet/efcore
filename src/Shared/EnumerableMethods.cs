@@ -1,13 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
 #nullable enable
+
+using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -206,6 +202,7 @@ internal static class EnumerableMethods
 
     // private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
+
     // private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> AverageWithSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> MaxWithoutSelectorMethods { get; }
@@ -547,13 +544,13 @@ internal static class EnumerableMethods
         };
 
         // AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        AverageWithSelectorMethods = new Dictionary<Type, MethodInfo>();
-        MaxWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        MaxWithSelectorMethods = new Dictionary<Type, MethodInfo>();
-        MinWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        MinWithSelectorMethods = new Dictionary<Type, MethodInfo>();
+        AverageWithSelectorMethods = new();
+        MaxWithoutSelectorMethods = new();
+        MaxWithSelectorMethods = new();
+        MinWithoutSelectorMethods = new();
+        MinWithSelectorMethods = new();
         // SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        SumWithSelectorMethods = new Dictionary<Type, MethodInfo>();
+        SumWithSelectorMethods = new();
 
         foreach (var type in numericTypes)
         {

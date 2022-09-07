@@ -52,11 +52,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         QueryCompilationContext = queryCompilationContext;
 
         _entityMaterializerInjectingExpressionVisitor =
-            new EntityMaterializerInjectingExpressionVisitor(
+            new(
                 dependencies.EntityMaterializerSource,
                 queryCompilationContext.QueryTrackingBehavior);
 
-        _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
+        _constantVerifyingExpressionVisitor = new(dependencies.TypeMappingSource);
 
         if (queryCompilationContext.IsAsync)
         {

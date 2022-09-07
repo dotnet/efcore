@@ -37,11 +37,14 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     protected RelationalGeometryTypeMapping(
         RelationalTypeMappingParameters parameters,
         ValueConverter<TGeometry, TProvider>? converter)
-        : base(parameters.WithCoreParameters(parameters.CoreParameters with
-            {
-                ProviderValueComparer = parameters.CoreParameters.ProviderValueComparer
-                    ?? CreateProviderValueComparer(parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
-            }))
+        : base(
+            parameters.WithCoreParameters(
+                parameters.CoreParameters with
+                {
+                    ProviderValueComparer = parameters.CoreParameters.ProviderValueComparer
+                    ?? CreateProviderValueComparer(
+                        parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
+                }))
     {
         SpatialConverter = converter;
     }
@@ -55,8 +58,8 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     {
         var comparer = new GeometryValueComparer<TGeometry>();
 
-        return new RelationalTypeMappingParameters(
-            new CoreTypeMappingParameters(
+        return new(
+            new(
                 typeof(TGeometry),
                 null,
                 comparer,

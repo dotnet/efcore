@@ -756,10 +756,11 @@ public static class SqlServerPropertyExtensions
             return sharedTableRootProperty.GetValueGenerationStrategy(storeObject, typeMappingSource)
                 == SqlServerValueGenerationStrategy.IdentityColumn
                 && table.StoreObjectType == StoreObjectType.Table
-                && !property.GetContainingForeignKeys().Any(fk =>
-                    !fk.IsBaseLinking()
-                    || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
-                            is StoreObjectIdentifier principal
+                && !property.GetContainingForeignKeys().Any(
+                    fk =>
+                        !fk.IsBaseLinking()
+                        || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
+                                is StoreObjectIdentifier principal
                             && fk.GetConstraintName(table, principal) != null))
                     ? SqlServerValueGenerationStrategy.IdentityColumn
                     : SqlServerValueGenerationStrategy.None;
@@ -771,11 +772,12 @@ public static class SqlServerPropertyExtensions
             || property.GetDefaultValueSql(storeObject) != null
             || property.GetComputedColumnSql(storeObject) != null
             || property.GetContainingForeignKeys()
-                .Any(fk =>
-                    !fk.IsBaseLinking()
-                    || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
-                        is StoreObjectIdentifier principal
-                        && fk.GetConstraintName(table, principal) != null)))
+                .Any(
+                    fk =>
+                        !fk.IsBaseLinking()
+                        || (StoreObjectIdentifier.Create(fk.PrincipalEntityType, StoreObjectType.Table)
+                                is StoreObjectIdentifier principal
+                            && fk.GetConstraintName(table, principal) != null)))
         {
             return SqlServerValueGenerationStrategy.None;
         }
@@ -810,7 +812,7 @@ public static class SqlServerPropertyExtensions
         var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
 
         if ((modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
-            || modelStrategy == SqlServerValueGenerationStrategy.Sequence)
+                || modelStrategy == SqlServerValueGenerationStrategy.Sequence)
             && IsCompatibleWithValueGeneration(property))
         {
             return modelStrategy.Value;
@@ -929,7 +931,9 @@ public static class SqlServerPropertyExtensions
             CheckValueGenerationStrategy(overrides.Property, value),
             fromDataAnnotation)?.Value;
 
-    private static SqlServerValueGenerationStrategy? CheckValueGenerationStrategy(IReadOnlyProperty property, SqlServerValueGenerationStrategy? value)
+    private static SqlServerValueGenerationStrategy? CheckValueGenerationStrategy(
+        IReadOnlyProperty property,
+        SqlServerValueGenerationStrategy? value)
     {
         if (value == null)
         {

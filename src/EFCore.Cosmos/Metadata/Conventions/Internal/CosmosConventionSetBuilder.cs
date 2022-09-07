@@ -59,7 +59,7 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
     {
         using var serviceScope = CreateServiceScope();
         using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
-        return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
+        return new(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
     }
 
     private static IServiceScope CreateServiceScope()

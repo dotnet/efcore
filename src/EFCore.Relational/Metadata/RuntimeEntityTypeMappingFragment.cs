@@ -41,7 +41,8 @@ public class RuntimeEntityTypeMappingFragment : AnnotatableBase, IEntityTypeMapp
     public virtual StoreObjectIdentifier StoreObject { get; }
 
     /// <inheritdoc />
-    public virtual bool? IsTableExcludedFromMigrations => (bool?)this[RelationalAnnotationNames.IsTableExcludedFromMigrations];
+    public virtual bool? IsTableExcludedFromMigrations
+        => (bool?)this[RelationalAnnotationNames.IsTableExcludedFromMigrations];
 
     /// <inheritdoc />
     public override string ToString()

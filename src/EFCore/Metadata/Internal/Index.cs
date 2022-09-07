@@ -41,7 +41,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
         DeclaringEntityType = declaringEntityType;
         _configurationSource = configurationSource;
 
-        _builder = new InternalIndexBuilder(this, declaringEntityType.Model.Builder);
+        _builder = new(this, declaringEntityType.Model.Builder);
     }
 
     /// <summary>
@@ -469,5 +469,4 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     [DebuggerStepThrough]
     IReadOnlyList<bool>? IConventionIndex.SetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation)
         => SetIsDescending(descending, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
 }

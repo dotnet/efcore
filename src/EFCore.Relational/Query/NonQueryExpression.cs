@@ -59,10 +59,12 @@ public class NonQueryExpression : Expression, IPrintableExpression
     public virtual CommandSource CommandSource { get; }
 
     /// <inheritdoc />
-    public override Type Type => typeof(int);
+    public override Type Type
+        => typeof(int);
 
     /// <inheritdoc />
-    public sealed override ExpressionType NodeType => ExpressionType.Extension;
+    public sealed override ExpressionType NodeType
+        => ExpressionType.Extension;
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -80,7 +82,7 @@ public class NonQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual NonQueryExpression Update(Expression expression)
         => expression != Expression
-            ? new NonQueryExpression(expression, CommandSource)
+            ? new(expression, CommandSource)
             : this;
 
     /// <inheritdoc />
@@ -101,5 +103,6 @@ public class NonQueryExpression : Expression, IPrintableExpression
         => Expression == nonQueryExpression.Expression;
 
     /// <inheritdoc />
-    public override int GetHashCode() => Expression.GetHashCode();
+    public override int GetHashCode()
+        => Expression.GetHashCode();
 }

@@ -187,7 +187,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         var (parameters, wrapper) = parametersTuple;
         using var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerStreamAsync(
-                new Azure.Cosmos.ContainerProperties(parameters.Id, "/" + parameters.PartitionKey)
+                new(parameters.Id, "/" + parameters.PartitionKey)
                 {
                     PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
                     DefaultTimeToLive = parameters.DefaultTimeToLive,
@@ -257,7 +257,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         var response = await container.CreateItemStreamAsync(
                 stream,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                partitionKey == null ? PartitionKey.None : new(partitionKey),
                 itemRequestOptions,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -330,7 +330,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         using var response = await container.ReplaceItemStreamAsync(
                 stream,
                 parameters.ResourceId,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                partitionKey == null ? PartitionKey.None : new(partitionKey),
                 itemRequestOptions,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -392,7 +392,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         using var response = await items.DeleteItemStreamAsync(
                 parameters.ResourceId,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                partitionKey == null ? PartitionKey.None : new(partitionKey),
                 itemRequestOptions,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
@@ -452,7 +452,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             }
         }
 
-        return new ItemRequestOptions { IfMatchEtag = (string?)etag, EnableContentResponseOnWrite = enabledContentResponse };
+        return new() { IfMatchEtag = (string?)etag, EnableContentResponseOnWrite = enabledContentResponse };
     }
 
     private static string? CreatePartitionKey(IUpdateEntry entry)
@@ -603,7 +603,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         return container.ReadItemStreamAsync(
             resourceId,
-            string.IsNullOrEmpty(partitionKey) ? PartitionKey.None : new PartitionKey(partitionKey),
+            string.IsNullOrEmpty(partitionKey) ? PartitionKey.None : new(partitionKey),
             cancellationToken: cancellationToken);
     }
 
@@ -622,7 +622,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         var jObject = Serializer.Deserialize<JObject>(jsonReader);
 
-        return new JObject(new JProperty("c", jObject));
+        return new(new JProperty("c", jObject));
     }
 
     /// <summary>
@@ -773,7 +773,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                     _responseMessage.EnsureSuccessStatusCode();
 
                     _responseStream = _responseMessage.Content;
-                    _reader = new StreamReader(_responseStream);
+                    _reader = new(_responseStream);
                     _jsonReader = CreateJsonReader(_reader);
                 }
 
@@ -889,7 +889,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                     _responseMessage.EnsureSuccessStatusCode();
 
                     _responseStream = _responseMessage.Content;
-                    _reader = new StreamReader(_responseStream);
+                    _reader = new(_responseStream);
                     _jsonReader = CreateJsonReader(_reader);
                 }
 

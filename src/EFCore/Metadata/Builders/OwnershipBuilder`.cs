@@ -88,7 +88,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
             Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
             (EntityType)DependentEntityType,
             ConfigurationSource.Explicit)!;
-        return new OwnershipBuilder<TEntity, TDependentEntity>(
+        return new(
             Builder,
             this,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -130,7 +130,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
             Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList(),
             (EntityType)DependentEntityType,
             ConfigurationSource.Explicit)!;
-        return new OwnershipBuilder<TEntity, TDependentEntity>(
+        return new(
             Builder,
             this,
             foreignKeySet: true);
@@ -150,7 +150,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
         Builder = Builder.HasPrincipalKey(
             Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
             ConfigurationSource.Explicit)!;
-        return new OwnershipBuilder<TEntity, TDependentEntity>(
+        return new(
             Builder,
             this,
             principalKeySet: keyPropertyNames.Length > 0);
@@ -179,7 +179,7 @@ public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
         Builder = Builder.HasPrincipalKey(
             Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
             ConfigurationSource.Explicit)!;
-        return new OwnershipBuilder<TEntity, TDependentEntity>(
+        return new(
             Builder,
             this,
             principalKeySet: true);

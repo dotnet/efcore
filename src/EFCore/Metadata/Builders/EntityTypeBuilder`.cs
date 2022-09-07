@@ -342,8 +342,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         string navigationName)
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
-            new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new(typeof(TRelatedEntity), (Model)Metadata.Model),
+            new(Check.NotEmpty(navigationName, nameof(navigationName))));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -373,8 +373,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         string navigationName)
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
+            new(Check.NotEmpty(navigationName, nameof(navigationName))));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -403,8 +403,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         Expression<Func<TEntity, TRelatedEntity?>> navigationExpression)
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
-            new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new(typeof(TRelatedEntity), (Model)Metadata.Model),
+            new(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -435,8 +435,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         Expression<Func<TEntity, TRelatedEntity?>> navigationExpression)
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
+            new(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -471,7 +471,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationName)));
+                new(typeof(TRelatedEntity), (Model)Metadata.Model), new(navigationName)));
         return this;
     }
 
@@ -600,7 +600,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
+                new(ownedTypeName, typeof(TRelatedEntity)), new(navigationName)));
         return this;
     }
 
@@ -638,8 +638,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-                new MemberIdentity(navigationExpression.GetMemberAccess())));
+                new(typeof(TRelatedEntity), (Model)Metadata.Model),
+                new(navigationExpression.GetMemberAccess())));
         return this;
     }
 
@@ -680,7 +680,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
+                new(ownedTypeName, typeof(TRelatedEntity)), new(navigationExpression.GetMemberAccess())));
         return this;
     }
 
@@ -697,7 +697,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
             relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)!.Builder;
         }
 
-        return new OwnedNavigationBuilder<TEntity, TRelatedEntity>(relationship.Metadata);
+        return new(relationship.Metadata);
     }
 
     /// <summary>
@@ -726,8 +726,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         string navigationName)
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
-            new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new(typeof(TRelatedEntity), (Model)Metadata.Model),
+            new(Check.NotEmpty(navigationName, nameof(navigationName))));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -757,8 +757,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         string navigationName)
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
-            new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new(ownedTypeName, typeof(TRelatedEntity)),
+            new(Check.NotEmpty(navigationName, nameof(navigationName))));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -787,8 +787,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         Expression<Func<TEntity, IEnumerable<TRelatedEntity>?>> navigationExpression)
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
-            new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new(typeof(TRelatedEntity), (Model)Metadata.Model),
+            new(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -819,8 +819,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         Expression<Func<TEntity, IEnumerable<TRelatedEntity>?>> navigationExpression)
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
-            new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new(ownedTypeName, typeof(TRelatedEntity)),
+            new(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -855,7 +855,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model), new MemberIdentity(navigationName)));
+                new(typeof(TRelatedEntity), (Model)Metadata.Model), new(navigationName)));
         return this;
     }
 
@@ -984,7 +984,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationName)));
+                new(ownedTypeName, typeof(TRelatedEntity)), new(navigationName)));
         return this;
     }
 
@@ -1022,8 +1022,8 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-                new MemberIdentity(navigationExpression.GetMemberAccess())));
+                new(typeof(TRelatedEntity), (Model)Metadata.Model),
+                new(navigationExpression.GetMemberAccess())));
         return this;
     }
 
@@ -1064,7 +1064,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
-                new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)), new MemberIdentity(navigationExpression.GetMemberAccess())));
+                new(ownedTypeName, typeof(TRelatedEntity)), new(navigationExpression.GetMemberAccess())));
         return this;
     }
 
@@ -1082,7 +1082,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
             relationship = (InternalForeignKeyBuilder)batch.Run(relationship.Metadata)!.Builder;
         }
 
-        return new OwnedNavigationBuilder<TEntity, TRelatedEntity>(relationship.Metadata);
+        return new(relationship.Metadata);
     }
 
     /// <summary>
@@ -1119,7 +1119,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         var foreignKey = HasOneBuilder(
             MemberIdentity.Create(navigationName), relatedEntityType);
 
-        return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+        return new(
             Builder.Metadata,
             relatedEntityType,
             navigationName,
@@ -1163,7 +1163,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
         var foreignKey = HasOneBuilder(
             MemberIdentity.Create(navigationMember), relatedEntityType);
 
-        return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+        return new(
             Builder.Metadata,
             relatedEntityType,
             navigationMember,
@@ -1217,10 +1217,10 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
                 .IsUnique(false, ConfigurationSource.Explicit);
         }
 
-        return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
+        return new(
             Builder.Metadata,
             relatedEntityType,
-            navigationName is null ? MemberIdentity.None : new MemberIdentity(navigationName),
+            navigationName is null ? MemberIdentity.None : new(navigationName),
             relationship?.Metadata,
             skipNavigation);
     }
@@ -1271,10 +1271,10 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
                 .IsUnique(false, ConfigurationSource.Explicit);
         }
 
-        return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
+        return new(
             Builder.Metadata,
             relatedEntityType,
-            navigationMember is null ? MemberIdentity.None : new MemberIdentity(navigationMember),
+            navigationMember is null ? MemberIdentity.None : new(navigationMember),
             relationship?.Metadata,
             skipNavigation);
     }
@@ -1349,7 +1349,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
     {
         base.HasData(data);
 
-        return new DataBuilder<TEntity>();
+        return new();
     }
 
     /// <summary>
@@ -1366,7 +1366,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
     {
         Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-        return new DiscriminatorBuilder<TDiscriminator>(
+        return new(
             Builder.HasDiscriminator(propertyExpression.GetMemberAccess(), ConfigurationSource.Explicit)!);
     }
 

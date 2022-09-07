@@ -73,7 +73,7 @@ public interface IReadOnlyModificationCommand
     /// </summary>
     /// <param name="parameterCollection">The parameter collection from which to propagate output values.</param>
     /// <param name="baseParameterIndex">
-    /// The index in <paramref name="parameterCollection" /> on which parameters for this <see cref="ModificationCommand" /> begin.
+    ///     The index in <paramref name="parameterCollection" /> on which parameters for this <see cref="ModificationCommand" /> begin.
     /// </param>
     public void PropagateOutputParameters(DbParameterCollection parameterCollection, int baseParameterIndex);
 }

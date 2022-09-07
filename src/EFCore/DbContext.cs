@@ -128,7 +128,7 @@ public class DbContext :
         {
             CheckDisposed();
 
-            return _database ??= new DatabaseFacade(this);
+            return _database ??= new(this);
         }
     }
 
@@ -603,7 +603,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
+        SavingChanges?.Invoke(this, new(acceptAllChangesOnSuccess));
 
         var interceptionResult = DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
 
@@ -617,7 +617,7 @@ public class DbContext :
 
             var result = DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
 
-            SavedChanges?.Invoke(this, new SavedChangesEventArgs(acceptAllChangesOnSuccess, result));
+            SavedChanges?.Invoke(this, new(acceptAllChangesOnSuccess, result));
 
             return result;
         }
@@ -627,7 +627,7 @@ public class DbContext :
 
             DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
 
-            SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+            SaveChangesFailed?.Invoke(this, new(acceptAllChangesOnSuccess, exception));
 
             throw;
         }
@@ -641,7 +641,7 @@ public class DbContext :
             {
                 DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
 
-                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+                SaveChangesFailed?.Invoke(this, new(acceptAllChangesOnSuccess, exception));
             }
 
             throw;
@@ -745,7 +745,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
+        SavingChanges?.Invoke(this, new(acceptAllChangesOnSuccess));
 
         var interceptionResult = await DbContextDependencies.UpdateLogger
             .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
@@ -764,7 +764,7 @@ public class DbContext :
                 .SaveChangesCompletedAsync(this, entitiesSaved, cancellationToken)
                 .ConfigureAwait(false);
 
-            SavedChanges?.Invoke(this, new SavedChangesEventArgs(acceptAllChangesOnSuccess, result));
+            SavedChanges?.Invoke(this, new(acceptAllChangesOnSuccess, result));
 
             return result;
         }
@@ -774,7 +774,7 @@ public class DbContext :
 
             await DbContextDependencies.UpdateLogger.SaveChangesFailedAsync(this, exception, cancellationToken).ConfigureAwait(false);
 
-            SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+            SaveChangesFailed?.Invoke(this, new(acceptAllChangesOnSuccess, exception));
 
             throw;
         }
@@ -788,7 +788,7 @@ public class DbContext :
             {
                 await DbContextDependencies.UpdateLogger.SaveChangesFailedAsync(this, exception, cancellationToken).ConfigureAwait(false);
 
-                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+                SaveChangesFailed?.Invoke(this, new(acceptAllChangesOnSuccess, exception));
             }
 
             throw;
@@ -919,8 +919,8 @@ public class DbContext :
     {
         var stateManagerEvents = _dbContextDependencies?.StateManager.CaptureEvents();
         var changeDetectorEvents = _dbContextDependencies?.ChangeDetector.CaptureEvents();
-        
-        _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
+
+        _configurationSnapshot = new(
             _database != null,
             stateManagerEvents != null,
             _changeTracker != null,

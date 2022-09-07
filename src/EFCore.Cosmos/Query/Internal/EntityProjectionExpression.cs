@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
 #nullable disable
+
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -90,7 +90,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     /// </summary>
     public virtual Expression Update(Expression accessExpression)
         => accessExpression != AccessExpression
-            ? new EntityProjectionExpression(EntityType, accessExpression)
+            ? new(EntityType, accessExpression)
             : this;
 
     /// <summary>
@@ -236,7 +236,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
                     derivedType.DisplayName(), EntityType.DisplayName()));
         }
 
-        return new EntityProjectionExpression(derivedType, AccessExpression);
+        return new(derivedType, AccessExpression);
     }
 
     /// <summary>

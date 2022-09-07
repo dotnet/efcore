@@ -82,7 +82,7 @@ public class Migrator : IMigrator
                 _historyRepository.GetCreateScript());
 
             command.ExecuteNonQuery(
-                new RelationalCommandParameterObject(
+                new(
                     _connection,
                     null,
                     null,
@@ -120,7 +120,7 @@ public class Migrator : IMigrator
                 _historyRepository.GetCreateScript());
 
             await command.ExecuteNonQueryAsync(
-                    new RelationalCommandParameterObject(
+                    new(
                         _connection,
                         null,
                         null,
@@ -428,7 +428,7 @@ public class Migrator : IMigrator
         MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
     {
         var insertCommand = _rawSqlCommandBuilder.Build(
-            _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())));
+            _historyRepository.GetInsertScript(new(migration.GetId(), ProductInfo.GetVersion())));
 
         return _migrationsSqlGenerator
             .Generate(migration.UpOperations, FinalizeModel(migration.TargetModel), options)

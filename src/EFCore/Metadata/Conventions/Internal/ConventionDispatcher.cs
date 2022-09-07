@@ -25,9 +25,9 @@ public partial class ConventionDispatcher
     /// </summary>
     public ConventionDispatcher(ConventionSet conventionSet)
     {
-        _immediateConventionScope = new ImmediateConventionScope(conventionSet, this);
+        _immediateConventionScope = new(conventionSet, this);
         _scope = _immediateConventionScope;
-        Tracker = new MetadataTracker();
+        Tracker = new();
     }
 
     /// <summary>

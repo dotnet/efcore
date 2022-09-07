@@ -22,7 +22,7 @@ public class CosmosTypeMapping : CoreTypeMapping
         ValueComparer? comparer = null,
         ValueComparer? keyComparer = null)
         : base(
-            new CoreTypeMappingParameters(
+            new(
                 clrType,
                 converter: null,
                 comparer,

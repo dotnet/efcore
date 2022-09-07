@@ -54,7 +54,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             null,
             StoreObjectType.UpdateStoredProcedure,
             buildAction);
-    
+
     /// <summary>
     ///     Configures the stored procedure that the entity type uses for updates when targeting a relational database.
     /// </summary>
@@ -308,7 +308,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         bool fromDataAnnotation = false)
         => InternalStoredProcedureBuilder.HasStoredProcedure(
             entityTypeBuilder.Metadata, StoreObjectType.UpdateStoredProcedure, fromDataAnnotation);
-    
+
     /// <summary>
     ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
@@ -328,7 +328,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             null,
             StoreObjectType.DeleteStoredProcedure,
             buildAction);
-    
+
     /// <summary>
     ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
@@ -562,7 +562,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             null,
             StoreObjectType.DeleteStoredProcedure,
             buildAction);
-    
+
     /// <summary>
     ///     Configures the stored procedure that the entity type uses for deletes when targeting a relational database.
     /// </summary>
@@ -624,7 +624,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             null,
             StoreObjectType.InsertStoredProcedure,
             buildAction);
-    
+
     /// <summary>
     ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
@@ -646,7 +646,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
             null,
             StoreObjectType.InsertStoredProcedure,
             buildAction);
-    
+
     /// <summary>
     ///     Configures the stored procedure that the entity type uses for inserts when targeting a relational database.
     /// </summary>
@@ -971,7 +971,8 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             ownedNavigationBuilder.OwnedEntityType, sprocType, name, schema);
-        buildAction(new(sprocBuilder.Metadata, ownedNavigationBuilder));
+        buildAction(
+            new(sprocBuilder.Metadata, ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }

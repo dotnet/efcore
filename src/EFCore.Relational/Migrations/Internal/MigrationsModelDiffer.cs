@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -101,7 +101,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool HasDifferences(IRelationalModel? source, IRelationalModel? target)
-        => Diff(source, target, new DiffContext()).Any();
+        => Diff(source, target, new()).Any();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -756,7 +756,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 }
 
                 groups.Add(
-                    clrProperty, new List<IProperty> { property });
+                    clrProperty, new() { property });
             }
 
             var clrType = clrProperty.DeclaringType!;
@@ -1766,7 +1766,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     .ToDictionary(p => p.GetSimpleMemberName());
 
                 getValue = (property, seed) =>
-                    anonymousProperties.TryGetValue(property.Name, out var propertyInfo) ? (propertyInfo.GetValue(seed), true) : (null, false);
+                    anonymousProperties.TryGetValue(property.Name, out var propertyInfo)
+                        ? (propertyInfo.GetValue(seed), true)
+                        : (null, false);
             }
 
             foreach (var mapping in entityType.GetTableMappings())
@@ -1828,7 +1830,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 else
                 {
                     command = CommandBatchPreparerDependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
-                        new NonTrackedModificationCommandParameters(table, sensitiveLoggingEnabled));
+                        new(table, sensitiveLoggingEnabled));
                     command.EntityState = initialState;
 
                     identityMap.Add(key, command);
@@ -1878,7 +1880,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             value = column.DefaultValue;
                         }
                         else if (value == null
-                            && !column.IsNullable)
+                                 && !column.IsNullable)
                         {
                             value = column.ProviderClrType.GetDefaultValue();
                         }
@@ -1916,7 +1918,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         && property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
 
                     command.AddColumnModification(
-                        new ColumnModificationParameters(
+                        new(
                             column, originalValue: value, value, property, columnMapping.TypeMapping,
                             read: false, write: writeValue,
                             key: property.IsPrimaryKey(), condition: false,
@@ -2100,6 +2102,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             anyColumnsModified = true;
                         }
+
                         continue;
                     }
 
@@ -2136,6 +2139,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             unchangedColumn.IsWrite = false;
                         }
+
                         foreach (var overridenColumn in overridenColumns)
                         {
                             overridenColumn.IsWrite = true;
@@ -2216,7 +2220,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             {
                                 batchInsertOperation.Values =
                                     AddToMultidimensionalArray(
-                                        command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.Value).ToList(),
+                                        command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.Value)
+                                            .ToList(),
                                         batchInsertOperation.Values);
                                 continue;
                             }
@@ -2230,7 +2235,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             break;
                         }
 
-                        batchInsertOperation = new InsertDataOperation
+                        batchInsertOperation = new()
                         {
                             Schema = command.Schema,
                             Table = command.TableName,

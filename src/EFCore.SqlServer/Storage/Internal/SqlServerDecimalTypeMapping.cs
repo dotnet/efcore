@@ -27,7 +27,7 @@ public class SqlServerDecimalTypeMapping : DecimalTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
         : base(
             new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(typeof(decimal)),
+                    new(typeof(decimal)),
                     storeType,
                     storeTypePostfix,
                     dbType)

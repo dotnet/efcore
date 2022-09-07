@@ -49,7 +49,7 @@ public class DbContextOperations
             language,
             nullable,
             args,
-            new AppServiceProviderFactory(startupAssembly, reporter))
+            new(startupAssembly, reporter))
     {
     }
 
@@ -79,7 +79,7 @@ public class DbContextOperations
         _nullable = nullable;
         _args = args ?? Array.Empty<string>();
         _appServicesFactory = appServicesFactory;
-        _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
+        _servicesBuilder = new(assembly, startupAssembly, reporter, _args);
     }
 
     /// <summary>
@@ -144,7 +144,7 @@ public class DbContextOperations
         scaffolder.ScaffoldModel(
             context.GetService<IDesignTimeModel>().Model,
             outputDir,
-            new CompiledModelCodeGenerationOptions
+            new()
             {
                 ContextType = contextType,
                 ModelNamespace = finalModelNamespace,

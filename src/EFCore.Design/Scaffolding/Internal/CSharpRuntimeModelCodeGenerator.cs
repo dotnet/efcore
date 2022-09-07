@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -61,13 +60,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var scaffoldedFiles = new List<ScaffoldedFile>();
         var modelCode = CreateModel(options.ModelNamespace, options.ContextType, options.UseNullableReferenceTypes);
         var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
+        scaffoldedFiles.Add(new() { Path = modelFileName, Code = modelCode });
 
         var entityTypeIds = new Dictionary<IEntityType, (string Variable, string Class)>();
         var modelBuilderCode = CreateModelBuilder(
             model, options.ModelNamespace, options.ContextType, entityTypeIds, options.UseNullableReferenceTypes);
         var modelBuilderFileName = options.ContextType.ShortDisplayName() + ModelBuilderSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = modelBuilderFileName, Code = modelBuilderCode });
+        scaffoldedFiles.Add(new() { Path = modelBuilderFileName, Code = modelBuilderCode });
 
         foreach (var (entityType, (_, @class)) in entityTypeIds)
         {
@@ -75,7 +74,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 entityType, options.ModelNamespace, @class, options.UseNullableReferenceTypes);
 
             var entityTypeFileName = @class + FileExtension;
-            scaffoldedFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+            scaffoldedFiles.Add(new() { Path = entityTypeFileName, Code = generatedCode });
         }
 
         return scaffoldedFiles;
@@ -1373,7 +1372,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             CreateAnnotations(
                 entityType,
                 _annotationCodeGenerator.Generate,
-                new CSharpRuntimeAnnotationCodeGeneratorParameters(
+                new(
                     entityTypeVariable,
                     className,
                     mainBuilder,

@@ -31,7 +31,7 @@ public class OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
 
     private OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnedNavigationBuilder
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((IInfrastructure<OwnedNavigationBuilder>)this)
-        .GetInfrastructure();
+            .GetInfrastructure();
 
     /// <summary>
     ///     Configures the table to be ignored by migrations.

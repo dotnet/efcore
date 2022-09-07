@@ -303,7 +303,7 @@ internal class RootCommand : CommandBase
 
             if (!Directory.Exists(path)) // It's not a directory
             {
-                return new List<string> { path };
+                return new() { path };
             }
         }
 

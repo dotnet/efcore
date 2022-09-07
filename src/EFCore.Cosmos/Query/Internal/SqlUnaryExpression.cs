@@ -77,7 +77,7 @@ public class SqlUnaryExpression : SqlExpression
     /// </summary>
     public virtual SqlUnaryExpression Update(SqlExpression operand)
         => operand != Operand
-            ? new SqlUnaryExpression(OperatorType, operand, Type, TypeMapping)
+            ? new(OperatorType, operand, Type, TypeMapping)
             : this;
 
     /// <summary>

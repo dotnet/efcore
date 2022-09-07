@@ -49,7 +49,7 @@ public class MetadataTracker : IReferenceRoot<IConventionForeignKey>
             return reference;
         }
 
-        reference = new Reference<IConventionForeignKey>(foreignKey, this);
+        reference = new(foreignKey, this);
         _trackedForeignKeys.Add(foreignKey, reference);
 
         return reference;

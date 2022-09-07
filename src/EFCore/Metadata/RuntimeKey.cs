@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -135,7 +134,7 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
                 .MakeGenericMethod(key.GetKeyType())
                 .Invoke(key, new object[0])!);
 
-    private readonly static MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
+    private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
 
     private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()

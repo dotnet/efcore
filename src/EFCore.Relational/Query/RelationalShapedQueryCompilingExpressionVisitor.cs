@@ -119,13 +119,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
                         var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 
-                        return relationalCommand.ExecuteNonQuery(new RelationalCommandParameterObject(
-                            state.relationalQueryContext.Connection,
-                            state.relationalQueryContext.ParameterValues,
-                            null,
-                            state.relationalQueryContext.Context,
-                            state.relationalQueryContext.CommandLogger,
-                            state.commandSource));
+                        return relationalCommand.ExecuteNonQuery(
+                            new(
+                                state.relationalQueryContext.Connection,
+                                state.relationalQueryContext.ParameterValues,
+                                null,
+                                state.relationalQueryContext.Context,
+                                state.relationalQueryContext.CommandLogger,
+                                state.commandSource));
                     },
                     null);
             }
@@ -189,13 +190,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
                         var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 
-                        return relationalCommand.ExecuteNonQueryAsync(new RelationalCommandParameterObject(
-                            state.relationalQueryContext.Connection,
-                            state.relationalQueryContext.ParameterValues,
-                            null,
-                            state.relationalQueryContext.Context,
-                            state.relationalQueryContext.CommandLogger,
-                            state.commandSource),
+                        return relationalCommand.ExecuteNonQueryAsync(
+                            new(
+                                state.relationalQueryContext.Connection,
+                                state.relationalQueryContext.ParameterValues,
+                                null,
+                                state.relationalQueryContext.Context,
+                                state.relationalQueryContext.CommandLogger,
+                                state.commandSource),
                             cancellationToken);
                     },
                     null);

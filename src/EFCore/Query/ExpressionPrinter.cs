@@ -61,10 +61,10 @@ public class ExpressionPrinter : ExpressionVisitor
     /// </summary>
     public ExpressionPrinter()
     {
-        _stringBuilder = new IndentedStringBuilder();
-        _parametersInScope = new Dictionary<ParameterExpression, string?>();
-        _namelessParameters = new List<ParameterExpression>();
-        _encounteredParameters = new List<ParameterExpression>();
+        _stringBuilder = new();
+        _parametersInScope = new();
+        _namelessParameters = new();
+        _encounteredParameters = new();
     }
 
     private int? CharacterLimit { get; set; }
@@ -676,7 +676,7 @@ public class ExpressionPrinter : ExpressionVisitor
                     ? extensionMethod
                         ? method.GetParameters().Skip(1).Select(p => p.Name).ToList()
                         : method.GetParameters().Select(p => p.Name).ToList()
-                    : new List<string?>();
+                    : new();
 
             IDisposable? indent = null;
 

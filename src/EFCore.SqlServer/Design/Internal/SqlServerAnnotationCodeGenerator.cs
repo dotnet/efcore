@@ -177,7 +177,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         {
             fragments.Add(
                 isSparse
-                    ? new MethodCallCodeFragment(PropertyIsSparseMethodInfo)
+                    ? new(PropertyIsSparseMethodInfo)
                     : new MethodCallCodeFragment(PropertyIsSparseMethodInfo, false));
         }
 
@@ -187,10 +187,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     /// <inheritdoc />
     public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
         IRelationalPropertyOverrides overrides,
-        IDictionary<String, IAnnotation> annotations)
-    {
-        return base.GenerateFluentApiCalls(overrides, annotations);
-    }
+        IDictionary<string, IAnnotation> annotations)
+        => base.GenerateFluentApiCalls(overrides, annotations);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -208,7 +206,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         {
             fragments.Add(
                 isMemoryOptimized
-                    ? new MethodCallCodeFragment(EntityTypeIsMemoryOptimizedMethodInfo)
+                    ? new(EntityTypeIsMemoryOptimizedMethodInfo)
                     : new MethodCallCodeFragment(EntityTypeIsMemoryOptimizedMethodInfo, false));
         }
 
@@ -247,7 +245,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             {
                 temporalTableBuilderCalls.Add(
                     historyTableSchema != null
-                        ? new MethodCallCodeFragment(TemporalTableUseHistoryTableMethodInfo1, historyTableName, historyTableSchema)
+                        ? new(TemporalTableUseHistoryTableMethodInfo1, historyTableName, historyTableSchema)
                         : new MethodCallCodeFragment(TemporalTableUseHistoryTableMethodInfo2, historyTableName));
             }
 
@@ -256,14 +254,14 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 periodStartColumnName != null
                     ? new MethodCallCodeFragment(TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName)
                         .Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodStartColumnName))
-                    : new MethodCallCodeFragment(TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName));
+                    : new(TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName));
 
             // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd")
             temporalTableBuilderCalls.Add(
                 periodEndColumnName != null
                     ? new MethodCallCodeFragment(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName)
                         .Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodEndColumnName))
-                    : new MethodCallCodeFragment(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName));
+                    : new(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName));
 
             // ToTable(tb => tb.IsTemporal(ttb => { ... }))
             var toTemporalTableCall = new MethodCallCodeFragment(
@@ -314,7 +312,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     protected override MethodCallCodeFragment? GenerateFluentApi(IKey key, IAnnotation annotation)
         => annotation.Name == SqlServerAnnotationNames.Clustered
             ? (bool)annotation.Value! == false
-                ? new MethodCallCodeFragment(KeyIsClusteredMethodInfo, false)
+                ? new(KeyIsClusteredMethodInfo, false)
                 : new MethodCallCodeFragment(KeyIsClusteredMethodInfo)
             : null;
 
@@ -328,11 +326,11 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         => annotation.Name switch
         {
             SqlServerAnnotationNames.Clustered => (bool)annotation.Value! == false
-                ? new MethodCallCodeFragment(IndexIsClusteredMethodInfo, false)
+                ? new(IndexIsClusteredMethodInfo, false)
                 : new MethodCallCodeFragment(IndexIsClusteredMethodInfo),
 
-            SqlServerAnnotationNames.Include => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.FillFactor => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.Include => new(IndexIncludePropertiesMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.FillFactor => new(IndexHasFillFactorMethodInfo, annotation.Value),
 
             _ => null
         };
@@ -377,7 +375,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 var increment = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentityIncrement)
                     ?? model.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.Value as int?
                     ?? 1;
-                return new MethodCallCodeFragment(
+                return new(
                     onModel ? ModelUseIdentityColumnsMethodInfo : PropertyUseIdentityColumnsMethodInfo,
                     (seed, increment) switch
                     {
@@ -390,7 +388,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             {
                 var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName);
                 var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceSchema);
-                return new MethodCallCodeFragment(
+                return new(
                     onModel ? ModelUseHiLoMethodInfo : PropertyUseHiLoMethodInfo,
                     (name, schema) switch
                     {
@@ -407,7 +405,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                     onModel ? SqlServerAnnotationNames.SequenceNameSuffix : SqlServerAnnotationNames.SequenceName);
 
                 var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.SequenceSchema);
-                return new MethodCallCodeFragment(
+                return new(
                     onModel ? ModelUseKeySequencesMethodInfo : PropertyUseSequenceMethodInfo,
                     (name: nameOrSuffix, schema) switch
                     {
@@ -418,7 +416,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             }
 
             case SqlServerValueGenerationStrategy.None:
-                return new MethodCallCodeFragment(
+                return new(
                     ModelHasAnnotationMethodInfo,
                     SqlServerAnnotationNames.ValueGenerationStrategy,
                     SqlServerValueGenerationStrategy.None);
@@ -452,7 +450,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             if (annotation.Value is object annotationValue)
             {
                 methodCallCodeFragments.Add(
-                    new MethodCallCodeFragment(methodInfo, annotationValue));
+                    new(methodInfo, annotationValue));
             }
         }
     }

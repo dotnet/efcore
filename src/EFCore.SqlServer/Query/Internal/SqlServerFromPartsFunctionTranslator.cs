@@ -16,7 +16,7 @@ public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
     private static readonly MethodInfo DateFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.DateFromParts),
-            new[] {typeof(DbFunctions), typeof(int), typeof(int), typeof(int) })!;
+            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int) })!;
 
     private static readonly MethodInfo DateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(

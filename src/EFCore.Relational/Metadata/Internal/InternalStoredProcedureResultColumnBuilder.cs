@@ -20,7 +20,8 @@ public class InternalStoredProcedureResultColumnBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public InternalStoredProcedureResultColumnBuilder(
-        StoredProcedureResultColumn resultColumn, IConventionModelBuilder modelBuilder)
+        StoredProcedureResultColumn resultColumn,
+        IConventionModelBuilder modelBuilder)
         : base(resultColumn, modelBuilder)
     {
     }
@@ -41,7 +42,7 @@ public class InternalStoredProcedureResultColumnBuilder :
         }
 
         Metadata.SetName(name, configurationSource);
-        
+
         return this;
     }
 
@@ -66,7 +67,9 @@ public class InternalStoredProcedureResultColumnBuilder :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureResultColumnBuilder.HasName(string name, bool fromDataAnnotation)
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureResultColumnBuilder.HasName(
+        string name,
+        bool fromDataAnnotation)
         => HasName(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />

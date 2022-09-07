@@ -20,7 +20,7 @@ public class ExecutionStrategyFactory : IExecutionStrategyFactory
     public ExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
     {
         Dependencies = dependencies;
-        _instance = new NonRetryingExecutionStrategy(Dependencies);
+        _instance = new(Dependencies);
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
 ///     A convention that configures the entity type key based on the <see cref="KeyAttribute" /> specified on a property or
-///     <see cref="PrimaryKeyAttribute"/> specified on a CLR type.
+///     <see cref="PrimaryKeyAttribute" /> specified on a CLR type.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.

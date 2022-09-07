@@ -171,7 +171,7 @@ public class CosmosDatabaseWrapper : Database
 
                 if (exception is not DbUpdateConcurrencyException
                     || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                        entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                            entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
                         .ConfigureAwait(false)).IsSuppressed)
                 {
                     throw exception;
@@ -342,7 +342,7 @@ public class CosmosDatabaseWrapper : Database
         if (!_documentCollections.TryGetValue(entityType, out var documentSource))
         {
             _documentCollections.Add(
-                entityType, documentSource = new DocumentSource(entityType, this));
+                entityType, documentSource = new(entityType, this));
         }
 
         return documentSource;
@@ -387,7 +387,7 @@ public class CosmosDatabaseWrapper : Database
             CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
                 => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
             CosmosException { StatusCode: HttpStatusCode.Conflict }
-                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
+                => new(CosmosStrings.UpdateConflict(id), exception, entries),
             _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
         };
     }

@@ -36,9 +36,9 @@ public class DateTimeOffsetToBinaryConverter : ValueConverter<DateTimeOffset, lo
     public DateTimeOffsetToBinaryConverter(ConverterMappingHints? mappingHints)
         : base(
             v => ((v.Ticks / 1000) << 11) | ((long)v.Offset.TotalMinutes & 0x7FF),
-            v => new DateTimeOffset(
+            v => new(
                 new DateTime((v >> 11) * 1000),
-                new TimeSpan(0, (int)((v << 53) >> 53), 0)),
+                new(0, (int)((v << 53) >> 53), 0)),
             mappingHints)
     {
     }

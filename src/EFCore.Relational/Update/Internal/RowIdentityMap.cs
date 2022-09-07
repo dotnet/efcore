@@ -28,7 +28,7 @@ public class RowIdentityMap<TKey> : IRowIdentityMap
     {
         _key = key;
         _principalKeyValueFactory = (IRowKeyValueFactory<TKey>)((UniqueConstraint)_key).GetRowKeyValueFactory();
-        _identityMap = new Dictionary<TKey, INonTrackedModificationCommand>(_principalKeyValueFactory.EqualityComparer);
+        _identityMap = new(_principalKeyValueFactory.EqualityComparer);
     }
 
     /// <summary>
@@ -37,7 +37,8 @@ public class RowIdentityMap<TKey> : IRowIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<INonTrackedModificationCommand> Rows => _identityMap.Values;
+    public virtual IEnumerable<INonTrackedModificationCommand> Rows
+        => _identityMap.Values;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,7 +110,5 @@ public class RowIdentityMap<TKey> : IRowIdentityMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Clear()
-    {
-        _identityMap.Clear();
-    }
+        => _identityMap.Clear();
 }

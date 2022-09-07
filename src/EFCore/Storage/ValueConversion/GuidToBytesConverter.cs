@@ -52,7 +52,7 @@ public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
     public GuidToBytesConverter(ConverterMappingHints? mappingHints)
         : base(
             v => v.ToByteArray(),
-            v => new Guid(v),
+            v => new(v),
             DefaultHints.With(mappingHints))
     {
     }

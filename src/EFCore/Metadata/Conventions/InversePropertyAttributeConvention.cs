@@ -78,11 +78,13 @@ public class InversePropertyAttributeConvention :
         var targetClrType = targetEntityType.ClrType;
         var navigationCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType);
         var inverseNavigationPropertyInfo = targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal)
-                && navigationCandidates.ContainsKey(p))
+                .FirstOrDefault(
+                    p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal)
+                        && navigationCandidates.ContainsKey(p))
             ?? targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase)
-                && navigationCandidates.ContainsKey(p));
+                .FirstOrDefault(
+                    p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase)
+                        && navigationCandidates.ContainsKey(p));
 
         if (inverseNavigationPropertyInfo == null
             || !navigationCandidates[inverseNavigationPropertyInfo].Type.IsAssignableFrom(entityType.ClrType))
@@ -690,7 +692,7 @@ public class InversePropertyAttributeConvention :
         List<(MemberInfo, IConventionEntityType)> referencingNavigationsWithAttribute;
         if (!inverseNavigations.TryGetValue(inverseNavigation.Name, out var inverseTuple))
         {
-            referencingNavigationsWithAttribute = new List<(MemberInfo, IConventionEntityType)>();
+            referencingNavigationsWithAttribute = new();
             inverseNavigations[inverseNavigation.Name] = (inverseNavigation, referencingNavigationsWithAttribute);
         }
         else

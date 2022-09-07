@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -301,8 +302,9 @@ public partial class NavigationExpandingExpressionVisitor
                         Expression.Call(
                             QueryableMethods.Where.MakeGenericMethod(innerSourceElementType),
                             innerSource,
-                            Expression.Quote(Expression.Lambda(
-                                Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey,innerKey), innerSourceParameter))),
+                            Expression.Quote(
+                                Expression.Lambda(
+                                    ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey), innerSourceParameter))),
                         outerSourceParameter);
 
                     secondaryExpansion = Expression.Call(
@@ -415,7 +417,7 @@ public partial class NavigationExpandingExpressionVisitor
                                 })
                             .Aggregate((l, r) => Expression.AndAlso(l, r))
                         : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
-                    Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
+                    ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
 
                 // Caller should take care of wrapping MaterializeCollectionNavigation
                 return Expression.Call(
@@ -474,7 +476,7 @@ public partial class NavigationExpandingExpressionVisitor
 
             entityReference.ForeignKeyExpansionMap[(foreignKey, onDependent)] = innerSource.PendingSelector;
 
-            _source.UpdateCurrentTree(new NavigationTreeNode(_source.CurrentTree, innerSource.CurrentTree));
+            _source.UpdateCurrentTree(new(_source.CurrentTree, innerSource.CurrentTree));
 
             return innerSource.PendingSelector;
         }
@@ -1105,7 +1107,7 @@ public partial class NavigationExpandingExpressionVisitor
                 case NavigationTreeNode navigationTreeNode:
                     if (!_clonedMap.TryGetValue(navigationTreeNode, out var clonedNavigationTreeNode))
                     {
-                        clonedNavigationTreeNode = new NavigationTreeNode(
+                        clonedNavigationTreeNode = new(
                             (NavigationTreeNode)Visit(navigationTreeNode.Left!),
                             (NavigationTreeNode)Visit(navigationTreeNode.Right!));
                         _clonedMap[navigationTreeNode] = clonedNavigationTreeNode;
@@ -1138,7 +1140,7 @@ public partial class NavigationExpandingExpressionVisitor
                 groupByNavigationExpansionExpression.CurrentParameter.Type.GetTypeInfo().GetDeclaredProperty(
                     nameof(IGrouping<int, int>.Key))!);
             _keyMemberInfo = parameterExpression.Type.GetTypeInfo().GetDeclaredProperty(nameof(IGrouping<int, int>.Key))!;
-            _cloningExpressionVisitor = new CloningExpressionVisitor();
+            _cloningExpressionVisitor = new();
         }
 
         public GroupingElementReplacingExpressionVisitor(
@@ -1147,7 +1149,7 @@ public partial class NavigationExpandingExpressionVisitor
         {
             _parameterExpression = parameterExpression;
             _navigationExpansionExpression = navigationExpansionExpression;
-            _cloningExpressionVisitor = new CloningExpressionVisitor();
+            _cloningExpressionVisitor = new();
         }
 
         public bool ContainsGrouping { get; private set; }

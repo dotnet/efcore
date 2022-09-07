@@ -93,6 +93,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 {
                     VisitSelect(selectExpression);
                 }
+
                 break;
 
             case UpdateExpression updateExpression:
@@ -183,7 +184,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                         && string.Equals(
                             column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.Ordinal))
                 .All(e => e);
-
 
     /// <inheritdoc />
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
@@ -621,7 +621,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
         string GetUniqueParameterName(string currentName)
         {
-            _repeatedParameterCounts ??= new Dictionary<string, int>();
+            _repeatedParameterCounts ??= new();
 
             if (!_repeatedParameterCounts.TryGetValue(currentName, out var currentCount))
             {
@@ -1275,7 +1275,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             Visit(updateExpression.Table);
             _relationalCommandBuilder.AppendLine();
             _relationalCommandBuilder.Append("SET ");
-            _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(updateExpression.ColumnValueSetters[0].Column.Name)} = ");
+            _relationalCommandBuilder.Append(
+                $"{_sqlGenerationHelper.DelimitIdentifier(updateExpression.ColumnValueSetters[0].Column.Name)} = ");
             Visit(updateExpression.ColumnValueSetters[0].Value);
             using (_relationalCommandBuilder.Indent())
             {

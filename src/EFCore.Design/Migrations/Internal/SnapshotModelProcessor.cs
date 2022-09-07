@@ -30,7 +30,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         IModelRuntimeInitializer modelRuntimeInitializer)
     {
         _operationReporter = operationReporter;
-        _relationalNames = new HashSet<string>(
+        _relationalNames = new(
             typeof(RelationalAnnotationNames)
                 .GetRuntimeFields()
                 .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))

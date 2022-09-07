@@ -228,7 +228,7 @@ public class ModelConfiguration
         {
             RemoveIgnored(type);
 
-            property = new PropertyConfiguration(type);
+            property = new(type);
             _properties.Add(type, property);
         }
 
@@ -277,7 +277,7 @@ public class ModelConfiguration
                     CoreStrings.UnconfigurableTypeMapping(type.DisplayName(fullName: false)));
             }
 
-            typeMappingConfiguration = new PropertyConfiguration(type);
+            typeMappingConfiguration = new(type);
             _typeMappings.Add(type, typeMappingConfiguration);
         }
 

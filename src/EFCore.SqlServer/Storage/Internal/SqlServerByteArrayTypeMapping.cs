@@ -34,8 +34,8 @@ public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
         SqlDbType? sqlDbType = null,
         StoreTypePostfix? storeTypePostfix = null)
         : this(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(byte[]), null, comparer),
+            new(
+                new(typeof(byte[]), null, comparer),
                 storeType ?? (fixedLength ? "binary" : "varbinary"),
                 storeTypePostfix ?? StoreTypePostfix.Size,
                 System.Data.DbType.Binary,

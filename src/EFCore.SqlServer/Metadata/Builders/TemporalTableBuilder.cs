@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -70,7 +70,7 @@ public class TemporalTableBuilder
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
+        return new(new(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
@@ -89,7 +89,7 @@ public class TemporalTableBuilder
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
+        return new(new(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 

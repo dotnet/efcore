@@ -33,7 +33,7 @@ public class TimeSpanToTicksConverter : ValueConverter<TimeSpan, long>
     ///     facets for the converted data.
     /// </param>
     public TimeSpanToTicksConverter(ConverterMappingHints? mappingHints)
-        : base(v => v.Ticks, v => new TimeSpan(v), mappingHints)
+        : base(v => v.Ticks, v => new(v), mappingHints)
     {
     }
 

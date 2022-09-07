@@ -34,7 +34,7 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     {
         ForeignKey = foreignKey;
 
-        _builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);
+        _builder = new(this, foreignKey.DeclaringEntityType.Model.Builder);
     }
 
     /// <summary>

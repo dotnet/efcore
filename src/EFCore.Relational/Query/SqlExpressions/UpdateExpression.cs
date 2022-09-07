@@ -19,14 +19,20 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
     /// </summary>
     /// <param name="table">A table on which the update operation is being applied.</param>
     /// <param name="selectExpression">A select expression which is used to determine which rows to update and to get data from additional tables.</param>
-    /// <param name="columnValueSetters">A list of <see cref="ColumnValueSetter"/> which specifies columns and their corresponding values to update.</param>
+    /// <param name="columnValueSetters">
+    ///     A list of <see cref="ColumnValueSetter" /> which specifies columns and their corresponding values to
+    ///     update.
+    /// </param>
     public UpdateExpression(TableExpression table, SelectExpression selectExpression, IReadOnlyList<ColumnValueSetter> columnValueSetters)
         : this(table, selectExpression, columnValueSetters, new HashSet<string>())
     {
     }
 
     private UpdateExpression(
-        TableExpression table, SelectExpression selectExpression, IReadOnlyList<ColumnValueSetter> columnValueSetters, ISet<string> tags)
+        TableExpression table,
+        SelectExpression selectExpression,
+        IReadOnlyList<ColumnValueSetter> columnValueSetters,
+        ISet<string> tags)
     {
         Table = table;
         SelectExpression = selectExpression;
@@ -50,7 +56,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
     public SelectExpression SelectExpression { get; }
 
     /// <summary>
-    ///     The list of <see cref="ColumnValueSetter"/> which specifies columns and their corresponding values to update.
+    ///     The list of <see cref="ColumnValueSetter" /> which specifies columns and their corresponding values to update.
     /// </summary>
     public IReadOnlyList<ColumnValueSetter> ColumnValueSetters { get; }
 
@@ -66,7 +72,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
         => typeof(object);
 
     /// <inheritdoc />
-    public sealed override ExpressionType NodeType
+    public override ExpressionType NodeType
         => ExpressionType.Extension;
 
     /// <inheritdoc />
@@ -80,7 +86,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
             var newValue = (SqlExpression)visitor.Visit(columnValueSetter.Value);
             if (columnValueSetters != null)
             {
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
@@ -89,14 +95,15 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
                 {
                     columnValueSetters.Add(ColumnValueSetters[j]);
                 }
-                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+
+                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
             }
         }
 
         return selectExpression != SelectExpression
             || columnValueSetters != null
-            ? new UpdateExpression(Table, selectExpression, columnValueSetters ?? ColumnValueSetters)
-            : this;
+                ? new(Table, selectExpression, columnValueSetters ?? ColumnValueSetters)
+                : this;
     }
 
     /// <summary>
@@ -108,7 +115,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public UpdateExpression Update(SelectExpression selectExpression, IReadOnlyList<ColumnValueSetter> columnValueSetters)
         => selectExpression != SelectExpression || !ColumnValueSetters.SequenceEqual(columnValueSetters)
-            ? new UpdateExpression(Table, selectExpression, columnValueSetters, Tags)
+            ? new(Table, selectExpression, columnValueSetters, Tags)
             : this;
 
     /// <inheritdoc />
@@ -118,6 +125,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
         {
             expressionPrinter.Append($"-- {tag}");
         }
+
         expressionPrinter.AppendLine();
         expressionPrinter.AppendLine($"UPDATE {Table.Name} AS {Table.Alias}");
         expressionPrinter.AppendLine("SET ");
@@ -134,6 +142,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
                 expressionPrinter.Visit(columnValueSetter.Value);
             }
         }
+
         expressionPrinter.AppendLine();
         expressionPrinter.Visit(SelectExpression);
     }
@@ -147,8 +156,8 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
 
     private bool Equals(UpdateExpression updateExpression)
         => Table == updateExpression.Table
-        && SelectExpression == updateExpression.SelectExpression
-        && ColumnValueSetters.SequenceEqual(updateExpression.ColumnValueSetters);
+            && SelectExpression == updateExpression.SelectExpression
+            && ColumnValueSetters.SequenceEqual(updateExpression.ColumnValueSetters);
 
     /// <inheritdoc />
     public override int GetHashCode()
@@ -164,4 +173,3 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
         return hash.ToHashCode();
     }
 }
-

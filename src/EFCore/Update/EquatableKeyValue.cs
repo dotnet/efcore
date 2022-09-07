@@ -4,8 +4,8 @@
 namespace Microsoft.EntityFrameworkCore.Update;
 
 /// <summary>
-///     Objects of this type contain a key value corresponding to a Metadata item and implement <see cref="Equals(object?)"/>
-///     that return <see langword="true"/> only for other objects corresponding to the same Metadata item.
+///     Objects of this type contain a key value corresponding to a Metadata item and implement <see cref="Equals(object?)" />
+///     that return <see langword="true" /> only for other objects corresponding to the same Metadata item.
 /// </summary>
 /// <typeparam name="TKey">The underlying key type.</typeparam>
 public sealed class EquatableKeyValue<TKey>
@@ -15,7 +15,7 @@ public sealed class EquatableKeyValue<TKey>
     private readonly IEqualityComparer<TKey> _keyComparer;
 
     /// <summary>
-    ///     Creates a new instance of <see cref="EquatableKeyValue{TKey}"/>
+    ///     Creates a new instance of <see cref="EquatableKeyValue{TKey}" />
     /// </summary>
     /// <param name="metadata">The associated metadata.</param>
     /// <param name="keyValue">The underlying key value.</param>

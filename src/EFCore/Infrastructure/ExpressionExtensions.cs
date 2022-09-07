@@ -378,12 +378,12 @@ public static class ExpressionExtensions
     }
 
     private static readonly MethodInfo ObjectEqualsMethodInfo
-            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
+        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
 
     /// <summary>
     ///     <para>
     ///         Creates an <see cref="Expression" /> tree representing equality comparison between 2 expressions using
-    ///         <see cref="object.Equals(object?, object?)"/> method.
+    ///         <see cref="object.Equals(object?, object?)" /> method.
     ///     </para>
     ///     <para>
     ///         This method is typically used by database providers (and other extensions). It is generally

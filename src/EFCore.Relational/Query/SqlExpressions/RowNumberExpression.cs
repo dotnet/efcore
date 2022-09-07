@@ -61,7 +61,7 @@ public class RowNumberExpression : SqlExpression
         }
 
         return changed
-            ? new RowNumberExpression(partitions, orderings, TypeMapping)
+            ? new(partitions, orderings, TypeMapping)
             : this;
     }
 
@@ -79,7 +79,7 @@ public class RowNumberExpression : SqlExpression
                 || (Partitions != null && partitions != null && Partitions.SequenceEqual(partitions)))
             && Orderings.SequenceEqual(orderings)
                 ? this
-                : new RowNumberExpression(partitions, orderings, TypeMapping);
+                : new(partitions, orderings, TypeMapping);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

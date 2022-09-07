@@ -62,7 +62,7 @@ public sealed class TableValuedFunctionQueryRootExpression : EntityQueryRootExpr
         }
 
         return changed
-            ? new TableValuedFunctionQueryRootExpression(EntityType, Function, arguments)
+            ? new(EntityType, Function, arguments)
             : this;
     }
 

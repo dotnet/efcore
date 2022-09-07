@@ -70,7 +70,7 @@ public class OwnedNavigationTemporalTableBuilder
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new OwnedNavigationTemporalPeriodPropertyBuilder(new PropertyBuilder(property));
+        return new(new(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
@@ -89,7 +89,7 @@ public class OwnedNavigationTemporalTableBuilder
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new OwnedNavigationTemporalPeriodPropertyBuilder(new PropertyBuilder(property));
+        return new(new(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 

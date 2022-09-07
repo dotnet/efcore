@@ -27,7 +27,7 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
                 .Invoke(null, new object[] { foreignKey })!
             : new CompositeRowForeignKeyValueFactory(foreignKey);
 
-    private readonly static MethodInfo _createMethod = typeof(RowForeignKeyValueFactoryFactory).GetTypeInfo()
+    private static readonly MethodInfo _createMethod = typeof(RowForeignKeyValueFactoryFactory).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreateSimple))!;
 
     [UsedImplicitly]

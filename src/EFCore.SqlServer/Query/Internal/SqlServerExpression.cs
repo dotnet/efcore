@@ -54,7 +54,9 @@ public static class SqlServerExpression
         Type returnType,
         RelationalTypeMapping? typeMapping = null)
         => enumerableExpression.Orderings.Count == 0
-            ? AggregateFunction(sqlExpressionFactory, name, arguments, enumerableExpression, enumerableArgumentIndex, nullable, argumentsPropagateNullability, returnType, typeMapping)
+            ? AggregateFunction(
+                sqlExpressionFactory, name, arguments, enumerableExpression, enumerableArgumentIndex, nullable,
+                argumentsPropagateNullability, returnType, typeMapping)
             : new SqlServerAggregateFunctionExpression(
                 name,
                 ProcessAggregateFunctionArguments(sqlExpressionFactory, arguments, enumerableExpression, enumerableArgumentIndex),

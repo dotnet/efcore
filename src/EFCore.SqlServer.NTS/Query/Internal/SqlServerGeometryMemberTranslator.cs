@@ -38,6 +38,7 @@ public class SqlServerGeometryMemberTranslator : IMemberTranslator
 
     private static readonly MemberInfo OgcGeometryType
         = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.OgcGeometryType))!;
+
     private static readonly MemberInfo Srid
         = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.SRID))!;
 
@@ -98,14 +99,24 @@ public class SqlServerGeometryMemberTranslator : IMemberTranslator
             {
                 var whenClauses = new List<CaseWhenClause>
                 {
-                    new(_sqlExpressionFactory.Constant("Point"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Point)),
-                    new(_sqlExpressionFactory.Constant("LineString"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.LineString)),
-                    new(_sqlExpressionFactory.Constant("Polygon"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Polygon)),
-                    new(_sqlExpressionFactory.Constant("MultiPoint"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiPoint)),
+                    new(
+                        _sqlExpressionFactory.Constant("Point"),
+                        _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Point)),
+                    new(
+                        _sqlExpressionFactory.Constant("LineString"),
+                        _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.LineString)),
+                    new(
+                        _sqlExpressionFactory.Constant("Polygon"),
+                        _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Polygon)),
+                    new(
+                        _sqlExpressionFactory.Constant("MultiPoint"),
+                        _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiPoint)),
                     new(
                         _sqlExpressionFactory.Constant("MultiLineString"),
                         _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiLineString)),
-                    new(_sqlExpressionFactory.Constant("MultiPolygon"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiPolygon)),
+                    new(
+                        _sqlExpressionFactory.Constant("MultiPolygon"),
+                        _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiPolygon)),
                     new(
                         _sqlExpressionFactory.Constant("GeometryCollection"),
                         _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.GeometryCollection)),
@@ -123,7 +134,7 @@ public class SqlServerGeometryMemberTranslator : IMemberTranslator
                 if (isGeography)
                 {
                     whenClauses.Add(
-                        new CaseWhenClause(
+                        new(
                             _sqlExpressionFactory.Constant("FullGlobe"), _sqlExpressionFactory.Constant((OgcGeometryType)126)));
                 }
 

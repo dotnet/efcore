@@ -44,7 +44,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         bool generateContextAccessors)
     {
         _evaluatableExpressionFindingExpressionVisitor
-            = new EvaluatableExpressionFindingExpressionVisitor(evaluatableExpressionFilter, model, parameterize);
+            = new(evaluatableExpressionFilter, model, parameterize);
         _parameterValues = parameterValues;
         _logger = logger;
         _parameterize = parameterize;
@@ -286,7 +286,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         else
         {
             parameterValue = GetValue(expression, out parameterName);
-            cachedValue = new EvaluatedValues { CandidateParameterName = parameterName, Value = parameterValue };
+            cachedValue = new() { CandidateParameterName = parameterName, Value = parameterValue };
             _evaluatedValues[expression] = cachedValue;
         }
 

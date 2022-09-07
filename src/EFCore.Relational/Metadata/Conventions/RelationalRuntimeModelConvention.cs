@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 #nullable enable
+
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -154,7 +154,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
                     var runtimeMappingFragment = Create(fragment, runtimeEntityType);
                     runtimeEntityTypeMappingFragment.Add(fragment.StoreObject, runtimeMappingFragment);
 
-                    CreateAnnotations(fragment, runtimeMappingFragment,
+                    CreateAnnotations(
+                        fragment, runtimeMappingFragment,
                         static (convention, annotations, source, target, runtime) =>
                             convention.ProcessEntityTypeMappingFragmentAnnotations(annotations, source, target, runtime));
                 }
@@ -364,7 +365,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
                     var runtimeOverrides = Create(overrides, runtimeProperty);
                     runtimeTableOverrides.Add(overrides.StoreObject, runtimeOverrides);
 
-                    CreateAnnotations(overrides, runtimeOverrides,
+                    CreateAnnotations(
+                        overrides, runtimeOverrides,
                         static (convention, annotations, source, target, runtime) =>
                             convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
                 }
@@ -489,7 +491,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
     }
 
     private RuntimeStoredProcedureParameter Create(
-        IStoredProcedureParameter parameter, RuntimeStoredProcedure runtimeStoredProcedure)
+        IStoredProcedureParameter parameter,
+        RuntimeStoredProcedure runtimeStoredProcedure)
         => runtimeStoredProcedure.AddParameter(
             parameter.Name,
             parameter.Direction,
@@ -498,7 +501,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             parameter.ForOriginalValue);
 
     private RuntimeStoredProcedureResultColumn Create(
-        IStoredProcedureResultColumn resultColumn, RuntimeStoredProcedure runtimeStoredProcedure)
+        IStoredProcedureResultColumn resultColumn,
+        RuntimeStoredProcedure runtimeStoredProcedure)
         => runtimeStoredProcedure.AddResultColumn(
             resultColumn.Name,
             resultColumn.ForRowsAffected,

@@ -78,7 +78,7 @@ public class SqlConditionalExpression : SqlExpression
         SqlExpression ifTrue,
         SqlExpression ifFalse)
         => test != Test || ifTrue != IfTrue || ifFalse != IfFalse
-            ? new SqlConditionalExpression(test, ifTrue, ifFalse)
+            ? new(test, ifTrue, ifFalse)
             : this;
 
     /// <summary>

@@ -32,7 +32,7 @@ public interface IStoredProcedure : IReadOnlyStoredProcedure, IAnnotatable
     ///     Returns the parameter corresponding to the given property.
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
-    /// <returns>The parameter corresponding to the given property if found; <see langword="null"/> otherwise.</returns>
+    /// <returns>The parameter corresponding to the given property if found; <see langword="null" /> otherwise.</returns>
     new IStoredProcedureParameter? FindParameter(string propertyName);
 
     /// <summary>
@@ -40,7 +40,7 @@ public interface IStoredProcedure : IReadOnlyStoredProcedure, IAnnotatable
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
     /// <returns>
-    ///     The original value parameter corresponding to the given property if found; <see langword="null"/> otherwise.
+    ///     The original value parameter corresponding to the given property if found; <see langword="null" /> otherwise.
     /// </returns>
     new IStoredProcedureParameter? FindOriginalValueParameter(string propertyName);
 
@@ -48,7 +48,7 @@ public interface IStoredProcedure : IReadOnlyStoredProcedure, IAnnotatable
     ///     Returns the rows affected parameter.
     /// </summary>
     /// <returns>
-    ///     The rows affected parameter if found; <see langword="null"/> otherwise.
+    ///     The rows affected parameter if found; <see langword="null" /> otherwise.
     /// </returns>
     new IStoredProcedureParameter? FindRowsAffectedParameter();
 
@@ -58,16 +58,17 @@ public interface IStoredProcedure : IReadOnlyStoredProcedure, IAnnotatable
     new IReadOnlyList<IStoredProcedureResultColumn> ResultColumns { get; }
 
     /// <summary>
-    ///    Returns the result column corresponding to the given property.
+    ///     Returns the result column corresponding to the given property.
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
-    /// <returns>The result column corresponding to the given property if found; <see langword="null"/> otherwise.</returns>
+    /// <returns>The result column corresponding to the given property if found; <see langword="null" /> otherwise.</returns>
     new IStoredProcedureResultColumn? FindResultColumn(string propertyName);
 
     /// <summary>
-    ///    Returns the rows affected result column.
-    /// </summary>>
-    /// <returns>The rows affected result column if found; <see langword="null"/> otherwise.</returns>
+    ///     Returns the rows affected result column.
+    /// </summary>
+    /// >
+    /// <returns>The rows affected result column if found; <see langword="null" /> otherwise.</returns>
     new IStoredProcedureResultColumn? FindRowsAffectedResultColumn();
 
     /// <summary>

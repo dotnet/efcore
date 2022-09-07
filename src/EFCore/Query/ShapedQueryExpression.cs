@@ -80,7 +80,7 @@ public class ShapedQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual ShapedQueryExpression Update(Expression queryExpression, Expression shaperExpression)
         => queryExpression != QueryExpression || shaperExpression != ShaperExpression
-            ? new ShapedQueryExpression(queryExpression, shaperExpression, ResultCardinality)
+            ? new(queryExpression, shaperExpression, ResultCardinality)
             : this;
 
     /// <summary>
@@ -91,7 +91,8 @@ public class ShapedQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if shaper expression did not change, or an expression with the updated shaper expression.</returns>
     public virtual ShapedQueryExpression UpdateQueryExpression(Expression queryExpression)
         => !ReferenceEquals(queryExpression, QueryExpression)
-            ? new ShapedQueryExpression(queryExpression,
+            ? new(
+                queryExpression,
                 ReplacingExpressionVisitor.Replace(QueryExpression, queryExpression, ShaperExpression), ResultCardinality)
             : this;
 
@@ -103,7 +104,7 @@ public class ShapedQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if shaper expression did not change, or an expression with the updated shaper expression.</returns>
     public virtual ShapedQueryExpression UpdateShaperExpression(Expression shaperExpression)
         => shaperExpression != ShaperExpression
-            ? new ShapedQueryExpression(QueryExpression, shaperExpression, ResultCardinality)
+            ? new(QueryExpression, shaperExpression, ResultCardinality)
             : this;
 
     /// <summary>

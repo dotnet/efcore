@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -101,7 +102,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
         using var serviceScope = CreateServiceScope();
         using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
-        return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
+        return new(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
     }
 
     private static IServiceScope CreateServiceScope()

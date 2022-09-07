@@ -34,5 +34,5 @@ public class EntityEntryEventArgs : EventArgs
     ///     The <see cref="EntityEntry" /> for the entity.
     /// </summary>
     public virtual EntityEntry Entry
-        => _entry ??= new EntityEntry(_internalEntityEntry);
+        => _entry ??= new(_internalEntityEntry);
 }

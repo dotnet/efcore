@@ -48,6 +48,6 @@ public class SemanticVersionComparer : IComparer<string>
             semanticVersion = semanticVersion.Substring(0, prereleaseIndex);
         }
 
-        return new Version(semanticVersion);
+        return new(semanticVersion);
     }
 }

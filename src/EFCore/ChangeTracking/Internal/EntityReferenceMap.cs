@@ -48,11 +48,11 @@ public class EntityReferenceMap
         if (_hasSubMap
             && entityType.HasSharedClrType)
         {
-            _sharedTypeReferenceMap ??= new Dictionary<IEntityType, EntityReferenceMap>();
+            _sharedTypeReferenceMap ??= new();
 
             if (!_sharedTypeReferenceMap.TryGetValue(entityType, out var sharedMap))
             {
-                sharedMap = new EntityReferenceMap(hasSubMap: false);
+                sharedMap = new(hasSubMap: false);
                 _sharedTypeReferenceMap[entityType] = sharedMap;
             }
 
@@ -73,24 +73,24 @@ public class EntityReferenceMap
                 switch (state)
                 {
                     case EntityState.Detached:
-                        _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _detachedReferenceMap ??= new(LegacyReferenceEqualityComparer.Instance);
                         _detachedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Unchanged:
                         _unchangedReferenceMap ??=
-                            new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                            new(LegacyReferenceEqualityComparer.Instance);
                         _unchangedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Deleted:
-                        _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _deletedReferenceMap ??= new(LegacyReferenceEqualityComparer.Instance);
                         _deletedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Modified:
-                        _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _modifiedReferenceMap ??= new(LegacyReferenceEqualityComparer.Instance);
                         _modifiedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Added:
-                        _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _addedReferenceMap ??= new(LegacyReferenceEqualityComparer.Instance);
                         _addedReferenceMap[mapKey] = entry;
                         break;
                 }

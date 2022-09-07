@@ -27,8 +27,8 @@ public class SqlServerDoubleTypeMapping : DoubleTypeMapping
         DbType? dbType = System.Data.DbType.Double,
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(double)),
+            new(
+                new(typeof(double)),
                 storeType,
                 storeTypePostfix,
                 dbType))

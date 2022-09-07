@@ -59,9 +59,10 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                         ? ConsumeResultSetWithRowsAffectedOnly(commandIndex, reader)
                         : ConsumeResultSet(commandIndex, reader);
 
-                    Check.DebugAssert(resultSetMapping.HasFlag(ResultSetMapping.LastInResultSet)
-                        ? lastHandledCommandIndex == commandIndex
-                        : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
+                    Check.DebugAssert(
+                        resultSetMapping.HasFlag(ResultSetMapping.LastInResultSet)
+                            ? lastHandledCommandIndex == commandIndex
+                            : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
 
                     commandIndex = lastHandledCommandIndex + 1;
 
@@ -177,9 +178,10 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                         ? await ConsumeResultSetWithRowsAffectedOnlyAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false)
                         : await ConsumeResultSetAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false);
 
-                    Check.DebugAssert(resultSetMapping.HasFlag(ResultSetMapping.LastInResultSet)
-                        ? lastHandledCommandIndex == commandIndex
-                        : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
+                    Check.DebugAssert(
+                        resultSetMapping.HasFlag(ResultSetMapping.LastInResultSet)
+                            ? lastHandledCommandIndex == commandIndex
+                            : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
 
                     commandIndex = lastHandledCommandIndex + 1;
 

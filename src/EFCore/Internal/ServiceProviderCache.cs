@@ -99,12 +99,12 @@ public class ServiceProviderCache
                     if (replacedServices.TryGetValue((descriptor.ServiceType, descriptor.ImplementationType), out var replacementType))
                     {
                         ((IList<ServiceDescriptor>)updatedServices).Add(
-                            new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
+                            new(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                     }
                     else if (replacedServices.TryGetValue((descriptor.ServiceType, null), out replacementType))
                     {
                         ((IList<ServiceDescriptor>)updatedServices).Add(
-                            new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
+                            new(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                     }
                     else
                     {

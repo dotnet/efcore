@@ -51,7 +51,10 @@ public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndex
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out object?[]? key)
+    public virtual bool TryCreateIndexValue(
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues,
+        [NotNullWhen(true)] out object?[]? key)
         => TryCreateDependentKeyValue(command, fromOriginalValues, out key);
 
     /// <summary>

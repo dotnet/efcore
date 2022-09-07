@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Data;
 using System.Text;
 
@@ -63,7 +62,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     protected virtual IRelationalCommandBuilder RelationalCommandBuilder { get; }
 
     /// <summary>
-    ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch.
+    ///     The maximum number of <see cref="ModificationCommand" /> instances that can be added to a single batch.
     /// </summary>
     protected virtual int MaxBatchSize { get; }
 
@@ -121,7 +120,8 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             return true;
         }
 
-        Check.DebugAssert(ReferenceEquals(modificationCommand, _modificationCommands[^1]),
+        Check.DebugAssert(
+            ReferenceEquals(modificationCommand, _modificationCommands[^1]),
             "ReferenceEquals(modificationCommand, _modificationCommands[^1])");
 
         RollbackLastCommand(modificationCommand);
@@ -172,7 +172,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <inheritdoc />
     public override bool AreMoreBatchesExpected
         => _areMoreBatchesExpected;
-    
+
     /// <summary>
     ///     Sets whether the batch requires a transaction in order to execute correctly.
     /// </summary>
@@ -245,7 +245,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         }
 
         _areMoreBatchesExpected = moreBatchesExpected;
-        
+
         // Some database have a mode where autocommit is off, and so executing a command outside of an explicit transaction implicitly
         // creates a new transaction (which needs to be explicitly committed).
         // The below is a hook for allowing providers to turn autocommit on, in case it's off.
@@ -256,7 +256,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
         RelationalCommandBuilder.Append(SqlBuilder.ToString());
 
-        StoreCommand = new RawSqlCommand(RelationalCommandBuilder.Build(), ParameterValues);
+        StoreCommand = new(RelationalCommandBuilder.Build(), ParameterValues);
     }
 
     /// <summary>
@@ -266,7 +266,8 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <param name="modificationCommand">The modification command for which to add parameters.</param>
     protected virtual void AddParameters(IReadOnlyModificationCommand modificationCommand)
     {
-        Check.DebugAssert(!modificationCommand.ColumnModifications.Any(m => m.Column is IStoreStoredProcedureReturnValue)
+        Check.DebugAssert(
+            !modificationCommand.ColumnModifications.Any(m => m.Column is IStoreStoredProcedureReturnValue)
             || modificationCommand.ColumnModifications[0].Column is IStoreStoredProcedureReturnValue,
             "ResultValue column modification in non-first position");
 
@@ -343,7 +344,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         try
         {
             using var dataReader = StoreCommand.RelationalCommand.ExecuteReader(
-                new RelationalCommandParameterObject(
+                new(
                     connection,
                     StoreCommand.ParameterValues,
                     null,
@@ -380,7 +381,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         try
         {
             var dataReader = await StoreCommand.RelationalCommand.ExecuteReaderAsync(
-                new RelationalCommandParameterObject(
+                new(
                     connection,
                     StoreCommand.ParameterValues,
                     null,

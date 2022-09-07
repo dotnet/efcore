@@ -21,7 +21,8 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
     [EntityFrameworkInternal]
     public OwnedNavigationSplitTableBuilder(in StoreObjectIdentifier storeObject, OwnedNavigationBuilder ownedNavigationBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.Table,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.Table,
             "StoreObjectType should be Table, not " + storeObject.StoreObjectType);
 
         InternalMappingFragment = EntityTypeMappingFragment.GetOrCreate(
@@ -32,12 +33,14 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
     /// <summary>
     ///     The specified table name.
     /// </summary>
-    public virtual string Name => MappingFragment.StoreObject.Name;
+    public virtual string Name
+        => MappingFragment.StoreObject.Name;
 
     /// <summary>
     ///     The specified table schema.
     /// </summary>
-    public virtual string? Schema => MappingFragment.StoreObject.Schema;
+    public virtual string? Schema
+        => MappingFragment.StoreObject.Schema;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +54,8 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
     /// <summary>
     ///     The mapping fragment being configured.
     /// </summary>
-    public virtual IMutableEntityTypeMappingFragment MappingFragment => InternalMappingFragment;
+    public virtual IMutableEntityTypeMappingFragment MappingFragment
+        => InternalMappingFragment;
 
     private OwnedNavigationBuilder OwnedNavigationBuilder { get; }
 
@@ -122,7 +126,8 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
         return this;
     }
 
-    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+        => OwnedNavigationBuilder;
 
     #region Hidden System.Object members
 

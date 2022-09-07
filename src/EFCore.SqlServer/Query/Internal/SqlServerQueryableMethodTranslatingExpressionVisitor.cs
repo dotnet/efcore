@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -65,22 +64,22 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             Func<TableExpression, TableExpressionBase> annotationApplyingFunc = queryRootExpression switch
             {
                 TemporalAllQueryRootExpression => te => te
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.All),
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.All),
                 TemporalAsOfQueryRootExpression asOf => te => te
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.AsOf)
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime, asOf.PointInTime),
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.AsOf)
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime, asOf.PointInTime),
                 TemporalBetweenQueryRootExpression between => te => te
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.Between)
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, between.From)
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, between.To),
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.Between)
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, between.From)
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, between.To),
                 TemporalContainedInQueryRootExpression containedIn => te => te
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.ContainedIn)
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, containedIn.From)
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, containedIn.To),
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.ContainedIn)
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, containedIn.From)
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, containedIn.To),
                 TemporalFromToQueryRootExpression fromTo => te => te
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.FromTo)
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, fromTo.From)
-                        .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, fromTo.To),
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalOperationType, TemporalOperationType.FromTo)
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom, fromTo.From)
+                    .AddAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo, fromTo.To),
                 _ => throw new InvalidOperationException(queryRootExpression.Print()),
             };
 
@@ -113,10 +112,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         [NotNullWhen(true)] out TableExpression? tableExpression)
     {
         if (selectExpression.Offset == null
-           && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
-           && selectExpression.GroupBy.Count == 0
-           && selectExpression.Having == null
-           && selectExpression.Orderings.Count == 0)
+            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0)
         {
             TableExpressionBase table;
             if (selectExpression.Tables.Count == 1)
@@ -203,10 +202,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
-        {
-            return expression is TableExpression tableExpression
+            => expression is TableExpression tableExpression
                 ? _annotationApplyingFunc(tableExpression)
                 : base.Visit(expression);
-        }
     }
 }

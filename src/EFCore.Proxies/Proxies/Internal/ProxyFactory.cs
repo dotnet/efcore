@@ -94,7 +94,7 @@ public class ProxyFactory : IProxyFactory
             GetInterfacesToProxy(entityType),
             GenerationOptions,
             constructorArguments,
-            GetNotifyChangeInterceptors(entityType, new LazyLoadingInterceptor(entityType, loader)));
+            GetNotifyChangeInterceptors(entityType, new(entityType, loader)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -175,7 +175,7 @@ public class ProxyFactory : IProxyFactory
         if ((bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true)
         {
             var checkEquality = (bool?)entityType.Model[ProxyAnnotationNames.CheckEquality] == true;
-            
+
             if (!NotifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
             {
                 interceptors.Add(new PropertyChangedInterceptor(entityType, checkEquality));

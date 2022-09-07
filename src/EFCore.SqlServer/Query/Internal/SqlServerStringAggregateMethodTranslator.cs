@@ -43,7 +43,9 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlExpression? Translate(
-        MethodInfo method, EnumerableExpression source, IReadOnlyList<SqlExpression> arguments,
+        MethodInfo method,
+        EnumerableExpression source,
+        IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         // Docs: https://docs.microsoft.com/sql/t-sql/functions/string-agg-transact-sql

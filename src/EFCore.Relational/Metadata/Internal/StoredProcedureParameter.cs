@@ -45,6 +45,7 @@ public class StoredProcedureParameter :
             _direction = ParameterDirection.Output;
             _directionConfigurationSource = ConfigurationSource.Explicit;
         }
+
         _builder = new(this, storedProcedure.Builder.ModelBuilder);
     }
 
@@ -146,14 +147,12 @@ public class StoredProcedureParameter :
             {
                 return "RowsAffected";
             }
-            else
-            {
-                var baseName = GetProperty().GetDefaultColumnName(
-                    ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value)!;
-                return ForOriginalValue ?? false
-                    ? Uniquifier.Truncate(baseName + "_Original", GetProperty().DeclaringEntityType.Model.GetMaxIdentifierLength())
-                    : baseName;
-            }
+
+            var baseName = GetProperty().GetDefaultColumnName(
+                ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value)!;
+            return ForOriginalValue ?? false
+                ? Uniquifier.Truncate(baseName + "_Original", GetProperty().DeclaringEntityType.Model.GetMaxIdentifierLength())
+                : baseName;
         }
         set => SetName(value, ConfigurationSource.Explicit);
     }
@@ -211,8 +210,9 @@ public class StoredProcedureParameter :
 
         if (!IsValid(direction))
         {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureParameterInvalidDirection(
-                direction, Name, ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()?.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureParameterInvalidDirection(
+                    direction, Name, ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()?.DisplayName()));
         }
 
         _direction = direction;
@@ -228,12 +228,13 @@ public class StoredProcedureParameter :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsValid(ParameterDirection direction) => direction switch
-    {
-        ParameterDirection.Output => ForOriginalValue != true,
-        ParameterDirection.ReturnValue => false,
-        _ => true
-    };
+    public virtual bool IsValid(ParameterDirection direction)
+        => direction switch
+        {
+            ParameterDirection.Output => ForOriginalValue != true,
+            ParameterDirection.ReturnValue => false,
+            _ => true
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

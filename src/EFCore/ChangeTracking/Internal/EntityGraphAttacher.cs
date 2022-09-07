@@ -118,7 +118,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                 internalEntityEntry,
                 node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
         {
-            (_visited ??= new HashSet<object>(ReferenceEqualityComparer.Instance)).Add(internalEntityEntry.Entity);
+            (_visited ??= new(ReferenceEqualityComparer.Instance)).Add(internalEntityEntry.Entity);
         }
         else
         {
@@ -154,7 +154,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                 internalEntityEntry,
                 node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
         {
-            (_visited ??= new HashSet<object>()).Add(internalEntityEntry.Entity);
+            (_visited ??= new()).Add(internalEntityEntry.Entity);
         }
         else
         {

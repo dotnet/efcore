@@ -103,9 +103,9 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     public virtual CosmosClient Client
         => _client ??= string.IsNullOrEmpty(_connectionString)
             ? _tokenCredential == null
-                ? new CosmosClient(_endpoint, _key, _options)
+                ? new(_endpoint, _key, _options)
                 : new CosmosClient(_endpoint, _tokenCredential, _options)
-            : new CosmosClient(_connectionString, _options);
+            : new(_connectionString, _options);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

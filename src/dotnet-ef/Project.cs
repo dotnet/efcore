@@ -116,7 +116,7 @@ internal class Project
             platformTarget = metadata["Platform"];
         }
 
-        return new Project(file, framework, configuration, runtime)
+        return new(file, framework, configuration, runtime)
         {
             AssemblyName = metadata["AssemblyName"],
             Language = metadata["Language"],

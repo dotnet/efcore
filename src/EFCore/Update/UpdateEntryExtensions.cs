@@ -225,7 +225,7 @@ public static class UpdateEntryExtensions
                     }
                 }
             }
-            
+
             void AppendValue(object? value)
             {
                 if (value == null)

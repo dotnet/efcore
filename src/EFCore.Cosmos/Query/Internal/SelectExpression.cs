@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
 #nullable disable warnings
+
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -33,8 +33,8 @@ public class SelectExpression : Expression
     public SelectExpression(IEntityType entityType)
     {
         Container = entityType.GetContainer();
-        FromExpression = new RootReferenceExpression(entityType, RootAlias);
-        _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression);
+        FromExpression = new(entityType, RootAlias);
+        _projectionMapping[new()] = new EntityProjectionExpression(entityType, FromExpression);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class SelectExpression : Expression
     {
         Container = entityType.GetContainer();
         FromExpression = new FromSqlExpression(entityType, RootAlias, sql, argument);
-        _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(
+        _projectionMapping[new()] = new EntityProjectionExpression(
             entityType, new RootReferenceExpression(entityType, RootAlias));
     }
 
@@ -273,7 +273,7 @@ public class SelectExpression : Expression
             currentAlias = $"{baseAlias}{counter++}";
         }
 
-        _projection.Add(new ProjectionExpression(expression, currentAlias));
+        _projection.Add(new(expression, currentAlias));
 
         return _projection.Count - 1;
     }
@@ -408,7 +408,7 @@ public class SelectExpression : Expression
         foreach (var existingOrdering in existingOrderings)
         {
             _orderings.Add(
-                new OrderingExpression(
+                new(
                     existingOrdering.Expression,
                     !existingOrdering.IsAscending));
         }
@@ -524,7 +524,7 @@ public class SelectExpression : Expression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(projections, fromExpression, orderings, Container)
+        return new(projections, fromExpression, orderings, Container)
         {
             _projectionMapping = projectionMapping,
             Predicate = predicate,

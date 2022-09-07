@@ -38,8 +38,8 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
         DbType? dbType = System.Data.DbType.DateTimeOffset,
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(DateTimeOffset)),
+            new(
+                new(typeof(DateTimeOffset)),
                 storeType,
                 storeTypePostfix,
                 dbType))

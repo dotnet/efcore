@@ -197,7 +197,7 @@ public static class RelationalQueryableExtensions
             throw new InvalidOperationException(RelationalStrings.MethodOnNonTphRootNotSupported(memberName, entityType.DisplayName()));
         }
 
-        return new FromSqlQueryRootExpression(
+        return new(
             entityQueryRootExpression.QueryProvider!,
             entityType,
             sql,

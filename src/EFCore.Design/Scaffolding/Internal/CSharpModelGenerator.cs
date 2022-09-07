@@ -66,11 +66,7 @@ public class CSharpModelGenerator : ModelCodeGenerator
         }
 
         var host = new TextTemplatingEngineHost(_serviceProvider);
-        var contextTemplate = new CSharpDbContextGenerator
-        {
-            Host = host,
-            Session = host.CreateSession()
-        };
+        var contextTemplate = new CSharpDbContextGenerator { Host = host, Session = host.CreateSession() };
         contextTemplate.Session.Add("Model", model);
         contextTemplate.Session.Add("Options", options);
         contextTemplate.Session.Add("NamespaceHint", options.ContextNamespace ?? options.ModelNamespace);
@@ -83,7 +79,7 @@ public class CSharpModelGenerator : ModelCodeGenerator
         var dbContextFileName = options.ContextName + host.Extension;
         var resultingFiles = new ScaffoldedModel
         {
-            ContextFile = new ScaffoldedFile
+            ContextFile = new()
             {
                 Path = options.ContextDir != null
                     ? Path.Combine(options.ContextDir, dbContextFileName)
@@ -95,11 +91,7 @@ public class CSharpModelGenerator : ModelCodeGenerator
         foreach (var entityType in model.GetEntityTypes())
         {
             host.Initialize();
-            var entityTypeTemplate = new CSharpEntityTypeGenerator
-            {
-                Host = host,
-                Session = host.CreateSession()
-            };
+            var entityTypeTemplate = new CSharpEntityTypeGenerator { Host = host, Session = host.CreateSession() };
             entityTypeTemplate.Session.Add("EntityType", entityType);
             entityTypeTemplate.Session.Add("Options", options);
             entityTypeTemplate.Session.Add("NamespaceHint", options.ModelNamespace);
@@ -115,7 +107,7 @@ public class CSharpModelGenerator : ModelCodeGenerator
             // output EntityType poco .cs file
             var entityTypeFileName = entityType.Name + host.Extension;
             resultingFiles.AdditionalFiles.Add(
-                new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+                new() { Path = entityTypeFileName, Code = generatedCode });
         }
 
         return resultingFiles;

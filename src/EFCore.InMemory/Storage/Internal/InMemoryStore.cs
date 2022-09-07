@@ -136,7 +136,7 @@ public class InMemoryStore : IInMemoryStore
                     var key = _useNameMatching ? (object)et.Name : et;
                     if (_tables.TryGetValue(key, out var table))
                     {
-                        data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
+                        data.Add(new(et, table.SnapshotRows()));
                     }
                 }
             }

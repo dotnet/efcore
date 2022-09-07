@@ -54,7 +54,7 @@ public class MemberClassifier : IMemberClassifier
         if (model.FindAnnotation(CoreAnnotationNames.InverseNavigationCandidates)?.Value
             is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup)
         {
-            inverseCandidatesLookup = new Dictionary<Type, SortedSet<Type>>();
+            inverseCandidatesLookup = new();
             model.SetAnnotation(CoreAnnotationNames.InverseNavigationCandidates, inverseCandidatesLookup);
         }
 
@@ -70,7 +70,7 @@ public class MemberClassifier : IMemberClassifier
 
             if (!inverseCandidatesLookup.TryGetValue(targetType, out var inverseCandidates))
             {
-                inverseCandidates = new SortedSet<Type>(TypeFullNameComparer.Instance);
+                inverseCandidates = new(TypeFullNameComparer.Instance);
                 inverseCandidatesLookup[targetType] = inverseCandidates;
             }
 

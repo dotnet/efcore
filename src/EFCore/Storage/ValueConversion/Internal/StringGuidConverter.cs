@@ -51,5 +51,5 @@ public class StringGuidConverter<TModel, TProvider> : ValueConverter<TModel, TPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static Expression<Func<string, Guid>> ToGuid()
-        => v => new Guid(v);
+        => v => new(v);
 }

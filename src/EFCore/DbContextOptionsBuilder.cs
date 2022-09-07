@@ -466,7 +466,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     {
         Check.NotNull(warningsConfigurationBuilderAction, nameof(warningsConfigurationBuilderAction));
 
-        warningsConfigurationBuilderAction(new WarningsConfigurationBuilder(this));
+        warningsConfigurationBuilderAction(new(this));
 
         return this;
     }

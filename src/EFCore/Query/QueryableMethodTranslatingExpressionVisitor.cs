@@ -37,7 +37,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
         Dependencies = dependencies;
         QueryCompilationContext = queryCompilationContext;
         _subquery = subquery;
-        _entityShaperNullableMarkingExpressionVisitor = new EntityShaperNullableMarkingExpressionVisitor();
+        _entityShaperNullableMarkingExpressionVisitor = new();
     }
 
     /// <summary>

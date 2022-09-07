@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -172,7 +171,7 @@ public sealed partial class SelectExpression
             _tableReferenceExpression = tableReferenceExpression;
             _mappings = mappings;
             _groupByDiscovery = subquery._groupBy.Count > 0;
-            _correlatedTerms = new HashSet<SqlExpression>(ReferenceEqualityComparer.Instance);
+            _correlatedTerms = new(ReferenceEqualityComparer.Instance);
         }
 
         [return: NotNullIfNotNull("sqlExpression")]
@@ -205,21 +204,21 @@ public sealed partial class SelectExpression
 
                 case ColumnExpression columnExpression
                     when _groupByDiscovery
-                        && _subquery.ContainsTableReference(columnExpression):
+                    && _subquery.ContainsTableReference(columnExpression):
                     _correlatedTerms.Add(columnExpression);
                     return columnExpression;
 
                 case SqlExpression sqlExpression
                     when !_groupByDiscovery
-                        && sqlExpression is not SqlConstantExpression or SqlParameterExpression
-                        && _correlatedTerms.Contains(sqlExpression):
+                    && sqlExpression is not SqlConstantExpression or SqlParameterExpression
+                    && _correlatedTerms.Contains(sqlExpression):
                     var outerColumn = _subquery.GenerateOuterColumn(_tableReferenceExpression, sqlExpression);
                     _mappings[sqlExpression] = outerColumn;
                     return outerColumn;
 
                 case ColumnExpression columnExpression
                     when !_groupByDiscovery
-                        && _subquery.ContainsTableReference(columnExpression):
+                    && _subquery.ContainsTableReference(columnExpression):
                     var outerColumn1 = _subquery.GenerateOuterColumn(_tableReferenceExpression, columnExpression);
                     _mappings[columnExpression] = outerColumn1;
                     return outerColumn1;
@@ -277,8 +276,8 @@ public sealed partial class SelectExpression
 
         public Dictionary<string, HashSet<string>?> FindColumns(SelectExpression selectExpression)
         {
-            _columnReferenced = new Dictionary<string, HashSet<string>?>();
-            _columnsUsedInJoinCondition = new Dictionary<string, HashSet<string>?>();
+            _columnReferenced = new();
+            _columnsUsedInJoinCondition = new();
 
             foreach (var table in selectExpression.Tables)
             {
@@ -312,7 +311,7 @@ public sealed partial class SelectExpression
                     var tableAlias = columnExpression.TableAlias;
                     if (_columnReferenced!.ContainsKey(tableAlias))
                     {
-                        _columnReferenced[tableAlias] ??= new HashSet<string>();
+                        _columnReferenced[tableAlias] ??= new();
 
                         _columnReferenced[tableAlias]!.Add(columnExpression.Name);
                     }
@@ -469,7 +468,9 @@ public sealed partial class SelectExpression
     private sealed class TpcTablesExpression : TableExpressionBase
     {
         public TpcTablesExpression(
-            string? alias, IEntityType entityType, IReadOnlyList<SelectExpression> subSelectExpressions)
+            string? alias,
+            IEntityType entityType,
+            IReadOnlyList<SelectExpression> subSelectExpressions)
             : base(alias)
         {
             EntityType = entityType;
@@ -501,17 +502,19 @@ public sealed partial class SelectExpression
         public TpcTablesExpression Prune(IReadOnlyList<string> discriminatorValues)
         {
             var subSelectExpressions = discriminatorValues.Count == 0
-                ? new List<SelectExpression> { SelectExpressions[0] }
-                : SelectExpressions.Where(se =>
-                    discriminatorValues.Contains((string)((SqlConstantExpression)se.Projection[^1].Expression).Value!)).ToList();
+                ? new() { SelectExpressions[0] }
+                : SelectExpressions.Where(
+                    se =>
+                        discriminatorValues.Contains((string)((SqlConstantExpression)se.Projection[^1].Expression).Value!)).ToList();
 
             Check.DebugAssert(subSelectExpressions.Count > 0, "TPC must have at least 1 table selected.");
 
-            return new TpcTablesExpression(Alias, EntityType, subSelectExpressions, GetAnnotations());
+            return new(Alias, EntityType, subSelectExpressions, GetAnnotations());
         }
 
         // This is implementation detail hence visitors are not supposed to see inside unless they really need to.
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+            => this;
 
         protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
             => new TpcTablesExpression(Alias, EntityType, SelectExpressions, annotations);
@@ -523,6 +526,7 @@ public sealed partial class SelectExpression
             {
                 expressionPrinter.VisitCollection(SelectExpressions, e => e.AppendLine().AppendLine("UNION ALL"));
             }
+
             expressionPrinter.AppendLine()
                 .AppendLine(") AS " + Alias);
             PrintAnnotations(expressionPrinter);
@@ -547,7 +551,8 @@ public sealed partial class SelectExpression
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), EntityType);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), EntityType);
     }
 
     private sealed class ConcreteColumnExpression : ColumnExpression
@@ -927,7 +932,8 @@ public sealed partial class SelectExpression
                 var limit = (SqlExpression?)Visit(selectExpression.Limit);
 
                 var newSelectExpression = new SelectExpression(
-                    selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, selectExpression.GetAnnotations())
+                    selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings,
+                    selectExpression.GetAnnotations())
                 {
                     Predicate = predicate,
                     Having = havingExpression,
@@ -987,7 +993,8 @@ public sealed partial class SelectExpression
         private readonly Dictionary<string, TableReferenceExpression> _newTableReferences;
 
         public ColumnExpressionReplacingExpressionVisitor(
-                SelectExpression oldSelectExpression, IEnumerable<TableReferenceExpression> newTableReferences)
+            SelectExpression oldSelectExpression,
+            IEnumerable<TableReferenceExpression> newTableReferences)
         {
             _oldSelectExpression = oldSelectExpression;
             _newTableReferences = newTableReferences.ToDictionary(e => e.Alias);
@@ -1100,8 +1107,10 @@ public sealed partial class SelectExpression
                         foreach (var projection in result.Projection)
                         {
                             generatedSelectExpression._projection.Add(
-                                new ProjectionExpression(new ConcreteColumnExpression(projection, tableReferenceExpression), projection.Alias));
+                                new(
+                                    new ConcreteColumnExpression(projection, tableReferenceExpression), projection.Alias));
                         }
+
                         generatedSelectExpression._mutable = false;
                         result = generatedSelectExpression;
                     }
@@ -1120,10 +1129,11 @@ public sealed partial class SelectExpression
                         // Identity select shouldn't require base visit.
                         return result;
                     }
-                    else
+
                     {
                         result.Alias = tpcTablesExpression.Alias;
-                        var tableIndex = selectExpression._tables.FindIndex(teb => ReferenceEquals(UnwrapJoinExpression(teb), tpcTablesExpression));
+                        var tableIndex =
+                            selectExpression._tables.FindIndex(teb => ReferenceEquals(UnwrapJoinExpression(teb), tpcTablesExpression));
                         var table = selectExpression._tables[tableIndex];
                         selectExpression._tables[tableIndex] = (TableExpressionBase)ReplacingExpressionVisitor.Replace(
                             tpcTablesExpression, result, table);

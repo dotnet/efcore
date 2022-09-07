@@ -99,7 +99,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
             if (!containers.TryGetValue(container, out var mappedTypes))
             {
-                mappedTypes = new List<IEntityType>();
+                mappedTypes = new();
                 containers[container] = mappedTypes;
             }
 
@@ -121,7 +121,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 throughput ??= entityType.GetThroughput();
             }
 
-            yield return new ContainerProperties(
+            yield return new(
                 containerName,
                 partitionKey!,
                 analyticalTtl,

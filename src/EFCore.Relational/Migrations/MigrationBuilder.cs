@@ -114,7 +114,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<AddColumnOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -210,7 +210,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<AddForeignKeyOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -265,7 +265,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<AddPrimaryKeyOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -320,7 +320,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<AddUniqueConstraintOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -484,7 +484,7 @@ public class MigrationBuilder
 
         Operations.Add(operation);
 
-        return new AlterOperationBuilder<AlterColumnOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -503,7 +503,7 @@ public class MigrationBuilder
         var operation = new AlterDatabaseOperation { Collation = collation, OldDatabase = { Collation = oldCollation } };
         Operations.Add(operation);
 
-        return new AlterOperationBuilder<AlterDatabaseOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -555,7 +555,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new AlterOperationBuilder<AlterSequenceOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -586,7 +586,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new AlterOperationBuilder<AlterTableOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -667,7 +667,7 @@ public class MigrationBuilder
 
         Operations.Add(operation);
 
-        return new OperationBuilder<CreateIndexOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -686,7 +686,7 @@ public class MigrationBuilder
         var operation = new EnsureSchemaOperation { Name = name };
         Operations.Add(operation);
 
-        return new OperationBuilder<EnsureSchemaOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -752,7 +752,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<CreateSequenceOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -808,7 +808,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<AddCheckConstraintOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -891,7 +891,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropColumnOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -920,7 +920,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropForeignKeyOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -948,7 +948,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropIndexOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -977,7 +977,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropPrimaryKeyOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -996,7 +996,7 @@ public class MigrationBuilder
         var operation = new DropSchemaOperation { Name = name };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropSchemaOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1017,7 +1017,7 @@ public class MigrationBuilder
         var operation = new DropSequenceOperation { Schema = schema, Name = name };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropSequenceOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1045,7 +1045,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropCheckConstraintOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1066,7 +1066,7 @@ public class MigrationBuilder
         var operation = new DropTableOperation { Schema = schema, Name = name };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropTableOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1095,7 +1095,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<DropUniqueConstraintOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1128,7 +1128,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<RenameColumnOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1161,7 +1161,7 @@ public class MigrationBuilder
 
         Operations.Add(operation);
 
-        return new OperationBuilder<RenameIndexOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1192,7 +1192,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<RenameSequenceOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1223,7 +1223,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<RenameTableOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1251,7 +1251,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<RestartSequenceOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1274,7 +1274,7 @@ public class MigrationBuilder
         var operation = new SqlOperation { Sql = sql, SuppressTransaction = suppressTransaction };
         Operations.Add(operation);
 
-        return new OperationBuilder<SqlOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1474,7 +1474,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<InsertDataOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -1695,7 +1695,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<DeleteDataOperation>(operation);
+        return new(operation);
     }
 
     /// <summary>
@@ -2038,7 +2038,7 @@ public class MigrationBuilder
         };
         Operations.Add(operation);
 
-        return new OperationBuilder<UpdateDataOperation>(operation);
+        return new(operation);
     }
 
     private static object?[,] ToMultidimensionalArray(object?[] values, bool firstDimension = false)

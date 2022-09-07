@@ -281,7 +281,7 @@ public static class RelationalDatabaseFacadeExtensions
             return rawSqlCommand
                 .RelationalCommand
                 .ExecuteNonQuery(
-                    new RelationalCommandParameterObject(
+                    new(
                         facadeDependencies.RelationalConnection,
                         rawSqlCommand.ParameterValues,
                         null,
@@ -342,8 +342,9 @@ public static class RelationalDatabaseFacadeExtensions
         var facadeDependencies = GetFacadeDependencies(databaseFacade);
 
         return facadeDependencies.QueryProvider
-            .CreateQuery<TResult>(new SqlQueryRootExpression(
-                facadeDependencies.QueryProvider, typeof(TResult), sql, Expression.Constant(parameters)));
+            .CreateQuery<TResult>(
+                new SqlQueryRootExpression(
+                    facadeDependencies.QueryProvider, typeof(TResult), sql, Expression.Constant(parameters)));
     }
 
     /// <summary>
@@ -386,8 +387,9 @@ public static class RelationalDatabaseFacadeExtensions
         var facadeDependencies = GetFacadeDependencies(databaseFacade);
 
         return facadeDependencies.QueryProvider
-            .CreateQuery<TResult>(new SqlQueryRootExpression(
-                facadeDependencies.QueryProvider, typeof(TResult), sql.Format, Expression.Constant(sql.GetArguments())));
+            .CreateQuery<TResult>(
+                new SqlQueryRootExpression(
+                    facadeDependencies.QueryProvider, typeof(TResult), sql.Format, Expression.Constant(sql.GetArguments())));
     }
 
     /// <summary>
@@ -602,7 +604,7 @@ public static class RelationalDatabaseFacadeExtensions
             return await rawSqlCommand
                 .RelationalCommand
                 .ExecuteNonQueryAsync(
-                    new RelationalCommandParameterObject(
+                    new(
                         facadeDependencies.RelationalConnection,
                         rawSqlCommand.ParameterValues,
                         null,

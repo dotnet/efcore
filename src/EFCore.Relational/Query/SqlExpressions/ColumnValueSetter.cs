@@ -44,9 +44,9 @@ public class ColumnValueSetter
 
     private bool Equals(ColumnValueSetter columnValueSetter)
         => Column == columnValueSetter.Column
-        && Value == columnValueSetter.Value;
+            && Value == columnValueSetter.Value;
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCode.Combine(Column, Value);
+    public override int GetHashCode()
+        => HashCode.Combine(Column, Value);
 }
-

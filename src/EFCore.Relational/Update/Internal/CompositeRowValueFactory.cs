@@ -71,6 +71,7 @@ public abstract class CompositeRowValueFactory
             {
                 return false;
             }
+
             key[index++] = value;
         }
 
@@ -83,7 +84,10 @@ public abstract class CompositeRowValueFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateDependentKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out object?[]? key)
+    public virtual bool TryCreateDependentKeyValue(
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues,
+        [NotNullWhen(true)] out object?[]? key)
     {
         key = new object[Columns.Count];
         var index = 0;
@@ -124,6 +128,7 @@ public abstract class CompositeRowValueFactory
                 {
                     return false;
                 }
+
                 key[index++] = value;
             }
             else

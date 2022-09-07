@@ -20,7 +20,8 @@ public class OwnedNavigationViewBuilder : IInfrastructure<OwnedNavigationBuilder
     [EntityFrameworkInternal]
     public OwnedNavigationViewBuilder(in StoreObjectIdentifier storeObject, OwnedNavigationBuilder ownedNavigationBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.View,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.View,
             "StoreObjectType should be View, not " + storeObject.StoreObjectType);
 
         StoreObject = storeObject;
@@ -30,13 +31,15 @@ public class OwnedNavigationViewBuilder : IInfrastructure<OwnedNavigationBuilder
     /// <summary>
     ///     The specified view name.
     /// </summary>
-    public virtual string Name => StoreObject.Name;
+    public virtual string Name
+        => StoreObject.Name;
 
     /// <summary>
     ///     The specified view schema.
     /// </summary>
-    public virtual string? Schema => StoreObject.Schema;
-    
+    public virtual string? Schema
+        => StoreObject.Schema;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -67,7 +70,8 @@ public class OwnedNavigationViewBuilder : IInfrastructure<OwnedNavigationBuilder
     public virtual ViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
         => new(StoreObject, OwnedNavigationBuilder.Property<TProperty>(propertyName));
 
-    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+        => OwnedNavigationBuilder;
 
     #region Hidden System.Object members
 

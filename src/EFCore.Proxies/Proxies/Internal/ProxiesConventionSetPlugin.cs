@@ -60,10 +60,11 @@ public class ProxiesConventionSetPlugin : IConventionSetPlugin
             new ProxyChangeTrackingConvention(extension),
             typeof(DbSetFindingConvention));
 
-        conventionSet.Add(new ProxyBindingRewriter(
-            extension,
-            LazyLoaderParameterBindingFactoryDependencies,
-            ConventionSetBuilderDependencies));
+        conventionSet.Add(
+            new ProxyBindingRewriter(
+                extension,
+                LazyLoaderParameterBindingFactoryDependencies,
+                ConventionSetBuilderDependencies));
 
         return conventionSet;
     }

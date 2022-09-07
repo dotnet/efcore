@@ -1008,7 +1008,7 @@ public class RelationalCommandDiagnosticsLogger
             }
         }
 
-        return new ValueTask<DbDataReader>(methodResult);
+        return new(methodResult);
     }
 
     /// <summary>
@@ -1072,7 +1072,7 @@ public class RelationalCommandDiagnosticsLogger
             }
         }
 
-        return new ValueTask<object?>(methodResult);
+        return new(methodResult);
     }
 
     /// <summary>
@@ -1136,7 +1136,7 @@ public class RelationalCommandDiagnosticsLogger
             }
         }
 
-        return new ValueTask<int>(methodResult);
+        return new(methodResult);
     }
 
     private CommandExecutedEventData BroadcastCommandExecuted(
@@ -1622,8 +1622,7 @@ public class RelationalCommandDiagnosticsLogger
 
         return default;
     }
-    
-    
+
     private static string CreateDataReaderClosingString(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string>)definition;

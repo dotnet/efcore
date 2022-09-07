@@ -10,7 +10,7 @@ internal class CommandArgument
 {
     public CommandArgument()
     {
-        Values = new List<string>();
+        Values = new();
     }
 
     public string? Name { get; set; }
