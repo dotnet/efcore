@@ -407,7 +407,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                         .HasResultColumn("RowVersion"))
                 .UpdateUsingStoredProcedure(
                     s => s.HasAnnotation("foo", "bar2")
-                        .HasParameter(
+                        .HasOriginalValueParameter(
                             b => b.Id, p =>
                             {
                                 var parameterBuilder = p.HasName("UpdateId");
@@ -420,9 +420,8 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                         .HasParameter("RowVersion", p => p.IsOutput()))
                 .DeleteUsingStoredProcedure(
                     s => s.HasAnnotation("foo", "bar3")
-                        .HasParameter(b => b.Id, p => p.HasName("DeleteId"))
+                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId"))
                         .HasRowsAffectedResultColumn()
-                        .HasParameter("RowVersion")
                         .HasOriginalValueParameter("RowVersion"));
 
             modelBuilder.Entity<SpecialBookLabel>()
@@ -479,8 +478,8 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             var deleteSproc = bookLabel.GetDeleteStoredProcedure()!;
             Assert.Equal("BookLabel_Delete", deleteSproc.Name);
             Assert.Equal("mySchema", deleteSproc.Schema);
-            Assert.Equal(new[] { "Id", "RowVersion", "RowVersion" }, deleteSproc.Parameters.Select(p => p.PropertyName));
-            Assert.Equal(new[] { "DeleteId", "RowVersion", "RowVersion_Original" }, deleteSproc.Parameters.Select(p => p.Name));
+            Assert.Equal(new[] { "Id", "RowVersion" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "DeleteId", "RowVersion_Original" }, deleteSproc.Parameters.Select(p => p.Name));
             Assert.Equal(new[] { "RowsAffected" }, deleteSproc.ResultColumns.Select(p => p.Name));
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookLabel, deleteSproc.EntityType);
@@ -715,13 +714,15 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                     lb.Property(l => l.Id).ValueGeneratedOnUpdate();
 
                     lb.InsertUsingStoredProcedure(
-                            s => s.HasAnnotation("foo", "bar1")
+                            s => s
+                                .HasAnnotation("foo", "bar1")
                                 .HasParameter(b => b.Id)
                                 .HasParameter(b => b.BookId, p => p.HasName("InsertId")))
                         .UpdateUsingStoredProcedure(
-                            s => s.HasAnnotation("foo", "bar2")
-                                .HasParameter(b => b.Id)
-                                .HasParameter(b => b.BookId, p =>
+                            s => s
+                                .HasAnnotation("foo", "bar2")
+                                .HasOriginalValueParameter(b => b.Id)
+                                .HasOriginalValueParameter(b => b.BookId, p =>
                                 {
                                     var parameterBuilder = p.HasName("UpdateId");
                                     var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
@@ -734,7 +735,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                                         Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
                                     }))
                         .DeleteUsingStoredProcedure(
-                            s => s.HasAnnotation("foo", "bar3").HasParameter(b => b.BookId, p => p.HasName("DeleteId")));
+                            s => s
+                                .HasAnnotation("foo", "bar3")
+                                .HasOriginalValueParameter(b => b.BookId, p => p.HasName("DeleteId")));
                 });
             modelBuilder.Entity<Book>()
                 .OwnsOne(b => b.AlternateLabel);

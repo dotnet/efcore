@@ -979,6 +979,9 @@
   <data name="StoredProcedureConcurrencyTokenNotMapped" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.</value>
   </data>
+  <data name="StoredProcedureCurrentValueParameterOnDelete" xml:space="preserve">
+    <value>Current value parameter '{parameter}' is not allowed on delete stored procedure '{sproc}'. Use HasOriginalValueParameter() instead.</value>
+  </data>
   <data name="StoredProcedureDeleteNonKeyProperty" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.</value>
   </data>
@@ -1006,11 +1009,20 @@
   <data name="StoredProcedureGeneratedPropertiesNotMapped" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.</value>
   </data>
+  <data name="StoredProcedureInputParameterForInsertNonSaveProperty" xml:space="preserve">
+    <value>Input parameter '{parameter}' of insert stored procedure '{sproc}' is mapped to property '{property}' of entity type '{entityType}', but that property is configured with BeforeSaveBehavior '{behavior}', and so cannot be saved on insert.</value>
+  </data>
+  <data name="StoredProcedureInputParameterForUpdateNonSaveProperty" xml:space="preserve">
+    <value>Input parameter '{parameter}' of update stored procedure '{sproc}' is mapped to property '{property}' of entity type '{entityType}', but that property is configured with AfterSaveBehavior '{behavior}', and so cannot be saved on update. You may need to use HasOriginalValueParameter() instead of HasParameter().</value>
+  </data>
   <data name="StoredProcedureKeyless" xml:space="preserve">
     <value>The keyless entity type '{entityType}' was configured to use '{sproc}'. An entity type requires a primary key to be able to be mapped to a stored procedure.</value>
   </data>
   <data name="StoredProcedureNoName" xml:space="preserve">
     <value>The entity type '{entityType}' was configured to use '{sproc}', but the store name was not specified. Configure the stored procedure name explicitly.</value>
+  </data>
+  <data name="StoredProcedureOriginalValueParameterOnInsert" xml:space="preserve">
+    <value>Original value parameter '{parameter}' is not allowed on insert stored procedure '{sproc}'. Use HasParameter() instead.</value>
   </data>
   <data name="StoredProcedureOutputParameterConflict" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value output parameter. A store-generated property can only be mapped to one output parameter.</value>
@@ -1047,6 +1059,9 @@
   </data>
   <data name="StoredProcedureRowsAffectedNotPopulated" xml:space="preserve">
     <value>Stored procedure '{sproc}' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedForInsert" xml:space="preserve">
+    <value>A rows affected parameter, result column or return value cannot be configured on stored procedure '{sproc}' because it is used for insertion. Rows affected values are only allowed on stored procedures performing updating or deletion.</value>
   </data>
   <data name="StoredProcedureRowsAffectedReturnConflictingParameter" xml:space="preserve">
     <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.</value>

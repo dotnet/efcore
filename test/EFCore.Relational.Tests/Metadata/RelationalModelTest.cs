@@ -1190,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 billingAddressUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
             Assert.Equal(
-                new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId" },
+                new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId_Original" },
                 billingAddressUpdateSproc.Parameters.Select(m => m.Name));
 
             Assert.Empty(billingAddressUpdateSproc.ResultColumns.Select(m => m.Name));
@@ -1207,7 +1207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 billingAddressDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
             Assert.Equal(
-                new[] { "OrderDetailsOrderId" },
+                new[] { "OrderDetailsOrderId_Original" },
                 billingAddressDeleteSproc.Parameters.Select(m => m.Name));
 
             Assert.Empty(billingAddressDeleteSproc.ResultColumns.Select(m => m.Name));
@@ -1327,7 +1327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     baseUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
 
                 Assert.Equal(
-                    new[] { "UpdateId", "SpecialtyAk" },
+                    new[] { "UpdateId", "SpecialtyAk_Original" },
                     baseUpdateSproc.Parameters.Select(m => m.Name));
 
                 Assert.Empty(baseUpdateSproc.ResultColumns.Select(m => m.Name));
@@ -1935,7 +1935,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             .HasParameter((Customer c) => c.SomeShort)
                                             .HasParameter((AbstractCustomer c) => c.AbstractString))
                                     .UpdateUsingStoredProcedure(
-                                        s => s.HasParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                        s => s
+                                            .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
                                             .HasParameter((SpecialCustomer c) => c.Specialty)
                                             .HasParameter((SpecialCustomer c) => c.RelatedCustomerSpecialty)
                                             .HasParameter("AnotherRelatedCustomerId")
@@ -1944,7 +1945,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             .HasParameter((Customer c) => c.SomeShort)
                                             .HasParameter((AbstractCustomer c) => c.AbstractString))
                                     .DeleteUsingStoredProcedure(
-                                        s => s.HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                        s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
                             }
                             else
                             {
@@ -1954,10 +1955,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             .HasParameter(b => b.Id, p => p.IsOutput().HasName("InsertId"))
                                             .HasParameter("SpecialtyAk"))
                                     .UpdateUsingStoredProcedure(
-                                        s => s.HasParameter(b => b.Id, p => p.HasName("UpdateId"))
-                                            .HasParameter("SpecialtyAk"))
+                                        s => s
+                                            .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                            .HasOriginalValueParameter("SpecialtyAk"))
                                     .DeleteUsingStoredProcedure(
-                                        s => s.HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                        s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
                             }
                         }
                     }
@@ -2003,12 +2005,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                         .HasParameter(c => c.SomeShort))
                                 .UpdateUsingStoredProcedure(
                                     s => s
-                                        .HasParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
                                         .HasParameter(c => c.EnumValue)
                                         .HasParameter(c => c.Name)
                                         .HasParameter(c => c.SomeShort))
                                 .DeleteUsingStoredProcedure(
-                                    s => s.HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                    s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
 
                             if (mapping == Mapping.TPC)
                             {
@@ -2061,7 +2063,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                         .HasParameter(c => c.SomeShort)
                                         .HasParameter(c => c.AbstractString))
                                 .UpdateUsingStoredProcedure(
-                                    s => s.HasParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                    s => s
+                                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
                                         .HasParameter(c => c.Specialty)
                                         .HasParameter(c => c.RelatedCustomerSpecialty)
                                         .HasParameter("AnotherRelatedCustomerId")
@@ -2070,7 +2073,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                         .HasParameter(c => c.SomeShort)
                                         .HasParameter(c => c.AbstractString))
                                 .DeleteUsingStoredProcedure(
-                                    s => s.HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                    s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
                         }
                         else if (mapping == Mapping.TPT)
                         {
@@ -2083,13 +2086,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                         .HasParameter("AnotherRelatedCustomerId")
                                         .HasParameter(c => c.AbstractString))
                                 .UpdateUsingStoredProcedure(
-                                    s => s.HasParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                    s => s
+                                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
                                         .HasParameter(c => c.Specialty)
                                         .HasParameter(c => c.RelatedCustomerSpecialty)
                                         .HasParameter("AnotherRelatedCustomerId")
                                         .HasParameter(c => c.AbstractString))
                                 .DeleteUsingStoredProcedure(
-                                    s => s.HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                    s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
                         }
                     }
 
@@ -2134,15 +2138,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             cb.OwnsOne(
                                 c => c.Details, cdb => cdb
                                     .InsertUsingStoredProcedure("CustomerDetailsInsert", s => s
-                                            .HasParameter("SpecialCustomerId")
-                                            .HasParameter(b => b.BirthDay)
-                                            .HasParameter(b => b.Address))
+                                        .HasParameter("SpecialCustomerId")
+                                        .HasParameter(b => b.BirthDay)
+                                        .HasParameter(b => b.Address))
                                     .UpdateUsingStoredProcedure("CustomerDetailsUpdate", s => s
-                                            .HasParameter("SpecialCustomerId")
-                                            .HasParameter(b => b.BirthDay)
-                                            .HasParameter(b => b.Address))
+                                        .HasOriginalValueParameter("SpecialCustomerId")
+                                        .HasParameter(b => b.BirthDay)
+                                        .HasParameter(b => b.Address))
                                     .DeleteUsingStoredProcedure("CustomerDetailsDelete", s => s
-                                        .HasParameter("SpecialCustomerId")));
+                                        .HasOriginalValueParameter("SpecialCustomerId")));
                         }
                     }
                 });
@@ -2179,7 +2183,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             .HasParameter(c => c.SomeShort)
                                             .HasParameter(c => c.AbstractString))
                                     .UpdateUsingStoredProcedure(
-                                        s => s.HasParameter(b => b.Id, p => p.HasName("UpdateId"))
+                                        s => s
+                                            .HasOriginalValueParameter(b => b.Id, p => p.HasName("UpdateId"))
                                             .HasParameter(c => c.Specialty)
                                             .HasParameter(c => c.RelatedCustomerSpecialty)
                                             .HasParameter("AnotherRelatedCustomerId")
@@ -2188,14 +2193,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             .HasParameter(c => c.SomeShort)
                                             .HasParameter(c => c.AbstractString))
                                     .DeleteUsingStoredProcedure(
-                                        s => s.HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+                                        s => s.HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId")));
                             }
                             else if (mapping == Mapping.TPT)
                             {
                                 cb
                                     .InsertUsingStoredProcedure(s => s.HasParameter(b => b.Id))
-                                    .UpdateUsingStoredProcedure(s => s.HasParameter(b => b.Id))
-                                    .DeleteUsingStoredProcedure(s => s.HasParameter(b => b.Id));
+                                    .UpdateUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id))
+                                    .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id));
                             }
                         }
                     }
@@ -2226,12 +2231,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             .HasParameter(b => b.Address))
                                     .UpdateUsingStoredProcedure(
                                         "CustomerDetailsUpdate", s => s
-                                            .HasParameter("ExtraSpecialCustomerId")
+                                            .HasOriginalValueParameter("ExtraSpecialCustomerId")
                                             .HasParameter(b => b.BirthDay)
                                             .HasParameter(b => b.Address))
                                     .DeleteUsingStoredProcedure(
                                         "CustomerDetailsDelete", s => s
-                                            .HasParameter("ExtraSpecialCustomerId")));
+                                            .HasOriginalValueParameter("ExtraSpecialCustomerId")));
                         }
                     }
                 });
@@ -2260,10 +2265,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                     .HasParameter(c => c.OrderDate))
                             .UpdateUsingStoredProcedure(
                                 s => s
-                                    .HasParameter(c => c.Id)
+                                    .HasOriginalValueParameter(c => c.Id)
                                     .HasParameter(c => c.CustomerId)
                                     .HasParameter(c => c.OrderDate))
-                            .DeleteUsingStoredProcedure(s => s.HasParameter(b => b.Id));
+                            .DeleteUsingStoredProcedure(s => s.HasOriginalValueParameter(b => b.Id));
                     }
 
                     ob.OwnsOne(
@@ -2289,12 +2294,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             .HasParameter(c => c.OrderDate))
                                     .UpdateUsingStoredProcedure(
                                         "OrderDetails_Update", s => s
-                                            .HasParameter(c => c.OrderId)
+                                            .HasOriginalValueParameter(c => c.OrderId)
                                             .HasParameter(c => c.Active)
                                             .HasParameter(c => c.OrderDate))
                                     .DeleteUsingStoredProcedure(
                                         "OrderDetails_Delete", s => s
-                                            .HasParameter(b => b.OrderId));
+                                            .HasOriginalValueParameter(b => b.OrderId));
 
                                 odb.OwnsOne(
                                     od => od.BillingAddress, bab => bab
@@ -2307,10 +2312,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                             "BillingAddress_Update", s => s
                                                 .HasParameter(c => c.City)
                                                 .HasParameter(c => c.Street)
-                                                .HasParameter("OrderDetailsOrderId"))
+                                                .HasOriginalValueParameter("OrderDetailsOrderId"))
                                         .DeleteUsingStoredProcedure(
                                             "BillingAddress_Delete", s => s
-                                                .HasParameter("OrderDetailsOrderId")));
+                                                .HasOriginalValueParameter("OrderDetailsOrderId")));
 
                                 odb.OwnsOne(
                                     od => od.ShippingAddress, sab => sab
@@ -2321,12 +2326,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                                 .HasParameter(c => c.Street))
                                         .UpdateUsingStoredProcedure(
                                             "ShippingAddress_Update", s => s
-                                                .HasParameter("OrderDetailsOrderId")
+                                                .HasOriginalValueParameter("OrderDetailsOrderId")
                                                 .HasParameter(c => c.City)
                                                 .HasParameter(c => c.Street))
                                         .DeleteUsingStoredProcedure(
                                             "ShippingAddress_Delete", s => s
-                                                .HasParameter("OrderDetailsOrderId")));
+                                                .HasOriginalValueParameter("OrderDetailsOrderId")));
                             }
                             else
                             {

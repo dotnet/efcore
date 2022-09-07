@@ -436,12 +436,69 @@ public class RelationalModelValidator : ModelValidator
                             RelationalStrings.StoredProcedureParameterNotFound(
                                 parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
                     }
+
+                    if (storeObjectIdentifier.StoreObjectType == StoreObjectType.InsertStoredProcedure)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureOriginalValueParameterOnInsert(
+                                parameter.Name, storeObjectIdentifier.DisplayName()));
+                    }
                 }
-                else if (!properties.TryGetAndRemove(parameter.PropertyName, out property))
+                else
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.StoredProcedureParameterNotFound(
-                            parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                    if (!properties.TryGetAndRemove(parameter.PropertyName, out property))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureParameterNotFound(
+                                parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                    }
+
+                    if (storeObjectIdentifier.StoreObjectType == StoreObjectType.DeleteStoredProcedure)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureCurrentValueParameterOnDelete(
+                                parameter.Name, storeObjectIdentifier.DisplayName()));
+                    }
+
+                    if (parameter.Direction.HasFlag(ParameterDirection.Input))
+                    {
+                        switch (storeObjectIdentifier.StoreObjectType)
+                        {
+                            case StoreObjectType.InsertStoredProcedure:
+                                if (property.GetBeforeSaveBehavior() != PropertySaveBehavior.Save)
+                                {
+                                    throw new InvalidOperationException(
+                                        RelationalStrings.StoredProcedureInputParameterForInsertNonSaveProperty(
+                                            parameter.Name,
+                                            storeObjectIdentifier.DisplayName(),
+                                            parameter.PropertyName,
+                                            entityType.DisplayName(),
+                                            property.GetBeforeSaveBehavior()));
+                                }
+                                break;
+
+                            case StoreObjectType.UpdateStoredProcedure:
+                                if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
+                                {
+                                    throw new InvalidOperationException(
+                                        RelationalStrings.StoredProcedureInputParameterForUpdateNonSaveProperty(
+                                            parameter.Name,
+                                            storeObjectIdentifier.DisplayName(),
+                                            parameter.PropertyName,
+                                            entityType.DisplayName(),
+                                            property.GetAfterSaveBehavior()));
+                                }
+
+                                break;
+
+                            case StoreObjectType.DeleteStoredProcedure:
+                                break;
+
+                            default:
+                                Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
+                                break;
+                        }
+                    }
                 }
             }
 
@@ -578,8 +635,14 @@ public class RelationalModelValidator : ModelValidator
             || sproc.FindRowsAffectedParameter() != null
             || sproc.FindRowsAffectedResultColumn() != null)
         {
-            if (originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken) is { } missedConcurrencyToken
-                && storeObjectIdentifier.StoreObjectType != StoreObjectType.InsertStoredProcedure)
+            if (storeObjectIdentifier.StoreObjectType == StoreObjectType.InsertStoredProcedure)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureRowsAffectedForInsert(
+                        storeObjectIdentifier.DisplayName()));
+            }
+
+            if (originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken) is { } missedConcurrencyToken)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(

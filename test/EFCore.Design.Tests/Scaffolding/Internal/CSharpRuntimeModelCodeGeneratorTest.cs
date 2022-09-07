@@ -2627,7 +2627,7 @@ namespace TestNamespace
                 true);
 
             var id0 = deleteSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", false);
+                ""Id_Original"", ParameterDirection.Input, false, ""Id"", true);
             runtimeEntityType.AddAnnotation(""Relational:DeleteStoredProcedure"", deleteSproc);
 
             var updateSproc = new RuntimeStoredProcedure(
@@ -2641,7 +2641,7 @@ namespace TestNamespace
             var principalDerivedId0 = updateSproc.AddParameter(
                 ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
             var id1 = updateSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", false);
+                ""Id_Original"", ParameterDirection.Input, false, ""Id"", true);
             runtimeEntityType.AddAnnotation(""Relational:UpdateStoredProcedure"", updateSproc);
 
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
@@ -2710,7 +2710,7 @@ namespace TestNamespace
                 false);
 
             var id = deleteSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", false);
+                ""Id_Original"", ParameterDirection.Input, false, ""Id"", true);
             runtimeEntityType.AddAnnotation(""Relational:DeleteStoredProcedure"", deleteSproc);
 
             var updateSproc = new RuntimeStoredProcedure(
@@ -2724,7 +2724,7 @@ namespace TestNamespace
             var principalDerivedId0 = updateSproc.AddParameter(
                 ""PrincipalDerivedId"", ParameterDirection.Input, false, ""PrincipalDerivedId"", false);
             var id0 = updateSproc.AddParameter(
-                ""Id"", ParameterDirection.Input, false, ""Id"", false);
+                ""Id_Original"", ParameterDirection.Input, false, ""Id"", true);
             runtimeEntityType.AddAnnotation(""Relational:UpdateStoredProcedure"", updateSproc);
 
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
@@ -2824,17 +2824,17 @@ namespace TestNamespace
                     Assert.False(updateSproc.IsRowsAffectedReturned);
                     Assert.Empty(updateSproc.GetAnnotations());
                     Assert.Same(principalBase, updateSproc.EntityType);
-                    Assert.Equal("Id", updateSproc.Parameters.Last().Name);
+                    Assert.Equal("Id_Original", updateSproc.Parameters.Last().Name);
                     Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.UpdateStoredProcedure).Value));
 
                     var deleteSproc = principalBase.GetDeleteStoredProcedure()!;
                     Assert.Equal("PrincipalBase_Delete", deleteSproc.Name);
                     Assert.Equal("TPC", deleteSproc.Schema);
-                    Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.Name));
+                    Assert.Equal(new[] { "Id_Original" }, deleteSproc.Parameters.Select(p => p.Name));
                     Assert.Empty(deleteSproc.ResultColumns);
                     Assert.True(deleteSproc.IsRowsAffectedReturned);
                     Assert.Same(principalBase, deleteSproc.EntityType);
-                    Assert.Equal("Id", deleteSproc.Parameters.Last().Name);
+                    Assert.Equal("Id_Original", deleteSproc.Parameters.Last().Name);
                     Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.DeleteStoredProcedure).Value));
 
                     Assert.Equal("PrincipalBase", principalBase.GetDiscriminatorValue());
@@ -2880,7 +2880,7 @@ namespace TestNamespace
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.Empty(updateSproc.GetAnnotations());
                     Assert.Same(principalDerived, updateSproc.EntityType);
-                    Assert.Equal("Id", updateSproc.Parameters.Last().Name);
+                    Assert.Equal("Id_Original", updateSproc.Parameters.Last().Name);
                     Assert.Null(
                         id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.UpdateStoredProcedure).Value));
 
@@ -2890,7 +2890,7 @@ namespace TestNamespace
                     Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(deleteSproc.ResultColumns);
                     Assert.Same(principalDerived, deleteSproc.EntityType);
-                    Assert.Equal("Id", deleteSproc.Parameters.Last().Name);
+                    Assert.Equal("Id_Original", deleteSproc.Parameters.Last().Name);
                     Assert.Null(
                         id.FindOverrides(StoreObjectIdentifier.Create(principalDerived, StoreObjectType.DeleteStoredProcedure).Value));
 
@@ -2972,10 +2972,10 @@ namespace TestNamespace
                         eb.UpdateUsingStoredProcedure(s => s
                             .HasParameter("PrincipalBaseId")
                             .HasParameter("PrincipalDerivedId")
-                            .HasParameter(p => p.Id));
+                            .HasOriginalValueParameter(p => p.Id));
                         eb.DeleteUsingStoredProcedure(s => s
                             .HasRowsAffectedReturnValue()
-                            .HasParameter(p => p.Id));
+                            .HasOriginalValueParameter(p => p.Id));
 
                         eb.HasIndex(new[] { "PrincipalBaseId" }, "PrincipalIndex")
                             .IsUnique()
@@ -3006,9 +3006,9 @@ namespace TestNamespace
                         eb.UpdateUsingStoredProcedure("Derived_Update", "Derived", s => s
                             .HasParameter("PrincipalBaseId")
                             .HasParameter("PrincipalDerivedId")
-                            .HasParameter(p => p.Id));
+                            .HasOriginalValueParameter(p => p.Id));
                         eb.DeleteUsingStoredProcedure("Derived_Delete", s => s
-                            .HasParameter(p => p.Id));
+                            .HasOriginalValueParameter(p => p.Id));
                     });
 
                 modelBuilder.Entity<DependentBase<byte?>>(

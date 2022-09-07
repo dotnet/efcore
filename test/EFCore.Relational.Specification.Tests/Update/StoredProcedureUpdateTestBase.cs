@@ -134,7 +134,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
         await using var context = CreateContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo", AdditionalProperty = 8 };
-        context.WithTwoOutputParameters.Add(entity);
+        context.WithTwoInputParameters.Add(entity);
         await context.SaveChangesAsync();
 
         entity.Name = "Updated";
@@ -145,7 +145,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            var actual = await context.WithTwoOutputParameters.SingleAsync(w => w.Id == entity.Id);
+            var actual = await context.WithTwoInputParameters.SingleAsync(w => w.Id == entity.Id);
 
             Assert.Equal("Updated", actual.Name);
             Assert.Equal(8, actual.AdditionalProperty);
@@ -393,17 +393,17 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Store_generated_concurrency_token_as_inout_parameter(bool async)
+    public virtual async Task Store_generated_concurrency_token_as_in_out_parameter(bool async)
     {
         await using var context1 = CreateContext();
 
         var entity1 = new Entity { Name = "Initial" };
-        context1.WithStoreGeneratedConcurrencyTokenAsInoutParameter.Add(entity1);
+        context1.WithStoreGeneratedConcurrencyTokenAsInOutParameter.Add(entity1);
         await context1.SaveChangesAsync();
 
         await using (var context2 = CreateContext())
         {
-            var entity2 = await context2.WithStoreGeneratedConcurrencyTokenAsInoutParameter.SingleAsync(w => w.Name == "Initial");
+            var entity2 = await context2.WithStoreGeneratedConcurrencyTokenAsInOutParameter.SingleAsync(w => w.Name == "Initial");
             entity2.Name = "Preempted";
             await SaveChanges(context2, async);
         }
@@ -505,27 +505,39 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Input_output_parameter_on_non_concurrency_token(bool async)
+    public virtual async Task Input_or_output_parameter_with_input(bool async)
     {
         await using var context = CreateContext();
 
-        var entity = new Entity { Name = "Initial", };
-        context.WithInputOutputParameterOnNonConcurrencyToken.Add(entity);
-        await context.SaveChangesAsync();
-
-        entity.Name = "Updated";
-
-        ClearLog();
-
+        var entity = new Entity { Name = "Initial" };
+        context.WithInputOrOutputParameter.Add(entity);
         await SaveChanges(context, async);
 
-        // TODO: This (and below) should be UpdatedWithSuffix. Reference issue tracking this.
-        Assert.Equal("Updated", entity.Name);
+        Assert.Equal("Initial", entity.Name);
 
         using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal(
-                "Updated", (await context.WithInputOutputParameterOnNonConcurrencyToken.SingleAsync(w => w.Id == entity.Id)).Name);
+            Assert.Same(
+                entity, await context.WithInputOrOutputParameter.SingleAsync(w => w.Id == entity.Id && w.Name == "Initial"));
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Input_or_output_parameter_with_output(bool async)
+    {
+        await using var context = CreateContext();
+
+        var entity = new Entity();
+        context.WithInputOrOutputParameter.Add(entity);
+        await SaveChanges(context, async);
+
+        Assert.Equal("Some default value", entity.Name);
+
+        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Same(
+                entity, await context.WithInputOrOutputParameter.SingleAsync(w => w.Id == entity.Id && w.Name == "Some default value"));
         }
     }
 
