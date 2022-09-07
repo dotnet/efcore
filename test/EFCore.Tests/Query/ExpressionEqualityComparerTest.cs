@@ -94,6 +94,22 @@ public class ExpressionEqualityComparerTest
         Assert.True(expressionComparer.Equals(e2, e3));
     }
 
+    [ConditionalFact]
+    public void Array_constant_expressions_are_compared_correctly()
+    {
+        var expressionComparer = ExpressionEqualityComparer.Instance;
+
+        var e1 = Expression.Constant(new[] { 1, 2, 3 });
+        var e2 = Expression.Constant(new[] { 1, 2, 3 });
+        var e3 = Expression.Constant(new[] { 1, 2, 4 });
+
+        Assert.True(expressionComparer.Equals(e1, e2));
+        Assert.False(expressionComparer.Equals(e1, e3));
+
+        Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e2));
+        Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));
+    }
+
     private class Node
     {
         [UsedImplicitly]
