@@ -368,18 +368,23 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var navigationExpression = Visit(includeExpression.NavigationExpression);
 
             shaperExpressions.Add(
-                Expression.Call(
-                    includeMethod.MakeGenericMethod(includingClrType, relatedEntityClrType),
-                    entityEntryVariable,
-                    instanceVariable,
-                    concreteEntityTypeVariable,
-                    navigationExpression,
-                    Expression.Constant(navigation),
-                    Expression.Constant(inverseNavigation, typeof(INavigation)),
-                    Expression.Constant(fixup),
-                    Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
+                Expression.IfThen(
+                    Expression.Call(
+                        Expression.Constant(navigation.DeclaringEntityType, typeof(IReadOnlyEntityType)),
+                        IsAssignableFromMethodInfo,
+                        Expression.Convert(concreteEntityTypeVariable, typeof(IReadOnlyEntityType))),
+                    Expression.Call(
+                        includeMethod.MakeGenericMethod(includingClrType, relatedEntityClrType),
+                        entityEntryVariable,
+                        instanceVariable,
+                        concreteEntityTypeVariable,
+                        navigationExpression,
+                        Expression.Constant(navigation),
+                        Expression.Constant(inverseNavigation, typeof(INavigation)),
+                        Expression.Constant(fixup),
+                        Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    Expression.Constant(includeExpression.SetLoaded)));
+                        Expression.Constant(includeExpression.SetLoaded))));
 #pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
@@ -561,6 +566,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo PopulateCollectionMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(PopulateCollection));
+
+        private static readonly MethodInfo IsAssignableFromMethodInfo
+            = typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.IsAssignableFrom), new[] { typeof(IReadOnlyEntityType) })!;
 
         private static TCollection PopulateCollection<TEntity, TCollection>(
             IClrCollectionAccessor accessor,
