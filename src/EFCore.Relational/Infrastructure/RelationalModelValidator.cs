@@ -359,9 +359,9 @@ public class RelationalModelValidator : ModelValidator
         var storeGeneratedProperties = storeObjectIdentifier.StoreObjectType switch
         {
             StoreObjectType.InsertStoredProcedure
-                => properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnAdd) != 0).ToDictionary(p => p.Key, p => p.Value),
+                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnAdd)).ToDictionary(p => p.Key, p => p.Value),
             StoreObjectType.UpdateStoredProcedure
-                => properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnUpdate) != 0).ToDictionary(p => p.Key, p => p.Value),
+                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnUpdate)).ToDictionary(p => p.Key, p => p.Value),
             _ => new Dictionary<string, IProperty>()
         };
 
@@ -574,18 +574,27 @@ public class RelationalModelValidator : ModelValidator
             }
         }
 
-        var missedConcurrencyToken = originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken);
-        if (missedConcurrencyToken != null
-            && storeObjectIdentifier.StoreObjectType != StoreObjectType.InsertStoredProcedure
-            && (sproc.IsRowsAffectedReturned
-                || sproc.FindRowsAffectedParameter() != null
-                || sproc.FindRowsAffectedResultColumn() != null))
+        if (sproc.IsRowsAffectedReturned
+            || sproc.FindRowsAffectedParameter() != null
+            || sproc.FindRowsAffectedResultColumn() != null)
         {
-            throw new InvalidOperationException(
-                RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(
-                    entityType.DisplayName(),
-                    storeObjectIdentifier.DisplayName(),
-                    missedConcurrencyToken.Name));
+            if (originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken) is { } missedConcurrencyToken
+                && storeObjectIdentifier.StoreObjectType != StoreObjectType.InsertStoredProcedure)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(
+                        entityType.DisplayName(),
+                        storeObjectIdentifier.DisplayName(),
+                        missedConcurrencyToken.Name));
+            }
+
+            if (sproc.ResultColumns.Any(c => c != sproc.FindRowsAffectedResultColumn()))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureRowsAffectedWithResultColumns(
+                        entityType.DisplayName(),
+                        storeObjectIdentifier.DisplayName()));
+            }
         }
     }
 

@@ -39,14 +39,19 @@ public enum ResultSetMapping
     LastInResultSet = 5,
 
     /// <summary>
+    ///     The command maps to a result set which contains only a single rows affected value.
+    /// </summary>
+    ResultSetWithRowsAffectedOnly = 9,
+
+    /// <summary>
     ///     When rows with database-generated values are returned in non-deterministic ordering, it is necessary to project out a synthetic
     ///     position value, in order to look up the correct <see cref="ModificationCommand" /> and propagate the values. When this bit is
     ///     enabled, the current result row contains such a position value.
     /// </summary>
-    IsPositionalResultMappingEnabled = 9,
+    IsPositionalResultMappingEnabled = 17,
 
     /// <summary>
     ///     The command has output parameters.
     /// </summary>
-    HasOutputParameters = 16
+    HasOutputParameters = 32
 }

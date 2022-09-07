@@ -179,6 +179,32 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async)
+    {
+        await using var context1 = CreateContext();
+
+        var entity1 = new EntityWithAdditionalProperty { Name = "Initial" };
+        context1.WithOutputParameterAndRowsAffectedResultColumn.Add(entity1);
+        await context1.SaveChangesAsync();
+
+        await using (var context2 = CreateContext())
+        {
+            var entity2 = await context2.WithOutputParameterAndRowsAffectedResultColumn.SingleAsync(w => w.Name == "Initial");
+            context2.WithOutputParameterAndRowsAffectedResultColumn.Remove(entity2);
+            await context2.SaveChangesAsync();
+        }
+
+        ClearLog();
+
+        entity1.Name = "Updated";
+
+        var exception = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await SaveChanges(context1, async));
+        var entry = exception.Entries.Single();
+        Assert.Same(entity1, entry.Entity);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete(bool async)
     {
         await using var context = CreateContext();
@@ -500,36 +526,6 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
         {
             Assert.Equal(
                 "Updated", (await context.WithInputOutputParameterOnNonConcurrencyToken.SingleAsync(w => w.Id == entity.Id)).Name);
-        }
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Update_with_output_parameter_and_result_column_and_return_value(bool async)
-    {
-        await using var context = CreateContext();
-
-        var entity1 = new EntityWithTwoAdditionalProperties { Name = "Foo" };
-        context.WithOutputParameterAndResultColumnAndResultValue.Add(entity1);
-        await SaveChanges(context, async);
-
-        // Clear and attach a new instance to make sure we properly receive and populate the computed properties when updating below
-        context.ChangeTracker.Clear();
-
-        var entity2 = new EntityWithTwoAdditionalProperties { Id = entity1.Id };
-        context.WithOutputParameterAndResultColumnAndResultValue.Attach(entity2);
-        entity2.Name = "Updated";
-
-        ClearLog();
-
-        await SaveChanges(context, async);
-
-        Assert.Equal(8, entity2.AdditionalProperty1);
-        Assert.Equal(9, entity2.AdditionalProperty2);
-
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
-        {
-            Assert.Equal("Updated", context.WithOutputParameterAndResultColumnAndResultValue.Single(b => b.Id == entity1.Id).Name);
         }
     }
 

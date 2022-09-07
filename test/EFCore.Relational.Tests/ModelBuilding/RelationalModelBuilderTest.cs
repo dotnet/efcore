@@ -404,8 +404,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                                 var nonGenericBuilder = (IInfrastructure<StoredProcedureResultColumnBuilder>)resultColumnBuilder;
                                 Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
                             })
-                        .HasResultColumn("RowVersion")
-                        .HasRowsAffectedReturnValue())
+                        .HasResultColumn("RowVersion"))
                 .UpdateUsingStoredProcedure(
                     s => s.HasAnnotation("foo", "bar2")
                         .HasParameter(
@@ -447,7 +446,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(insertSproc.FindParameter("Id"));
             Assert.Null(insertSproc.FindResultColumn("Discriminator"));
             Assert.False(insertSproc.FindResultColumn("Id")!.ForRowsAffected);
-            Assert.True(insertSproc.IsRowsAffectedReturned);
             Assert.Equal("bar1", insertSproc["foo"]);
             Assert.Same(bookLabel, insertSproc.EntityType);
 
@@ -459,7 +457,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Empty(updateSproc.ResultColumns);
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookLabel, updateSproc.EntityType);
-            Assert.False(updateSproc.IsRowsAffectedReturned);
 
             var rowsAffectedParameter = updateSproc.Parameters[2];
             Assert.Null(rowsAffectedParameter.ForOriginalValue);
@@ -487,7 +484,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal(new[] { "RowsAffected" }, deleteSproc.ResultColumns.Select(p => p.Name));
             Assert.Equal("bar3", deleteSproc["foo"]);
             Assert.Same(bookLabel, deleteSproc.EntityType);
-            Assert.False(deleteSproc.IsRowsAffectedReturned);
 
             var rowsAffectedResultColumn = deleteSproc.ResultColumns[0];
             Assert.True(rowsAffectedResultColumn.ForRowsAffected);

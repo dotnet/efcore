@@ -1676,6 +1676,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sproc);
 
         /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}' which returns both result columns and a rows affected value. If the stored procedure returns result columns, a rows affected value isn't needed and can be safely removed.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedWithResultColumns(object? entityType, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedWithResultColumns", nameof(entityType), nameof(sproc)),
+                entityType, sproc);
+
+        /// <summary>
         ///     Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.
         /// </summary>
         public static string StoredProcedureTableSharing(object? entityType1, object? entityType2, object? sproc)

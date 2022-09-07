@@ -178,23 +178,6 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                         .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
             });
 
-        modelBuilder.SharedTypeEntity<EntityWithTwoAdditionalProperties>(
-            nameof(StoredProcedureUpdateContext.WithOutputParameterAndResultColumnAndResultValue),
-            b =>
-            {
-                b.Property(w => w.AdditionalProperty1).HasComputedColumnSql("8");
-                b.Property(w => w.AdditionalProperty2).HasComputedColumnSql("9");
-
-                b.UpdateUsingStoredProcedure(
-                    nameof(StoredProcedureUpdateContext.WithOutputParameterAndResultColumnAndResultValue) + "_Update",
-                    spb => spb
-                        .HasParameter(w => w.Id)
-                        .HasParameter(w => w.Name)
-                        .HasParameter(w => w.AdditionalProperty1, pb => pb.IsOutput())
-                        .HasResultColumn(w => w.AdditionalProperty2)
-                        .HasRowsAffectedReturnValue());
-            });
-
         modelBuilder.Entity<TphChild1>();
 
         modelBuilder.Entity<TphChild2>(
@@ -281,7 +264,6 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
         context.WithResultColumn.RemoveRange(context.WithResultColumn);
         context.WithTwoResultColumns.RemoveRange(context.WithTwoResultColumns);
         context.WithOutputParameterAndResultColumn.RemoveRange(context.WithOutputParameterAndResultColumn);
-        context.WithOutputParameterAndResultColumnAndResultValue.RemoveRange(context.WithOutputParameterAndResultColumnAndResultValue);
         context.WithTwoOutputParameters.RemoveRange(context.WithTwoOutputParameters);
         context.WithRowsAffectedParameter.RemoveRange(context.WithRowsAffectedParameter);
         context.WithRowsAffectedResultColumn.RemoveRange(context.WithRowsAffectedResultColumn);

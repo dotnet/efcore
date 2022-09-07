@@ -132,11 +132,15 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
 
         requiresTransaction = false;
 
+        var anyReadOperations = readOperations.Count > 0;
+
         AppendUpdateCommand(
             commandStringBuilder, name, schema, writeOperations, readOperations, conditionOperations,
-            appendReturningOneClause: readOperations.Count == 0);
+            appendReturningOneClause: !anyReadOperations);
 
-        return ResultSetMapping.LastInResultSet;
+        return anyReadOperations
+            ? ResultSetMapping.LastInResultSet
+            : ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;
     }
 
     /// <inheritdoc />
@@ -177,7 +181,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         AppendDeleteCommand(
             commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations, appendReturningOneClause: true);
 
-        return ResultSetMapping.LastInResultSet;
+        return ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;
     }
 
     /// <summary>
@@ -357,9 +361,23 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         Check.DebugAssert(command.StoreStoredProcedure is not null, "command.StoredProcedure is not null");
 
         var storedProcedure = command.StoreStoredProcedure;
-        var resultSetMapping = storedProcedure.ResultColumns.Any()
-            ? ResultSetMapping.LastInResultSet
-            : ResultSetMapping.NoResults;
+
+        var resultSetMapping = ResultSetMapping.NoResults;
+
+        foreach (var resultColumn in storedProcedure.ResultColumns)
+        {
+            resultSetMapping = ResultSetMapping.LastInResultSet;
+
+            if (resultColumn == command.RowsAffectedColumn)
+            {
+                resultSetMapping |= ResultSetMapping.ResultSetWithRowsAffectedOnly;
+            }
+            else
+            {
+                resultSetMapping = ResultSetMapping.LastInResultSet;
+                break;
+            }
+        }
 
         Check.DebugAssert(storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
             "Stored procedure call with neither parameters nor result columns");
