@@ -25,6 +25,45 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
         new object[] { false }
     };
 
+    [ConditionalTheory] // Issue #25905
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_delete_and_add_for_same_key(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var rodney1 = new Rodney { Id = "SnotAndMarmite", Concurrency = new DateTime(1973, 9, 3) };
+                if (async)
+                {
+                    await context.AddAsync(rodney1);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(rodney1);
+                    context.SaveChanges();
+                }
+
+                context.Remove(rodney1);
+
+                var rodney2 = new Rodney { Id = "SnotAndMarmite", Concurrency = new DateTime(1973, 9, 4) };
+                if (async)
+                {
+                    await context.AddAsync(rodney2);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(rodney2);
+                    context.SaveChanges();
+                }
+
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(rodney2).State);
+                Assert.Equal(EntityState.Detached, context.Entry(rodney1).State);
+
+            });
+
     [ConditionalFact]
     public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
