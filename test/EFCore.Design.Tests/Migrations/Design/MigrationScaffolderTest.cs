@@ -48,6 +48,17 @@ public class MigrationsScaffolderTest
         Assert.Contains(expectedValue,migrationFile.MigrationFile);
     }
 
+    [Theory]
+    [InlineData("feat:init", "feat_init")]
+    public void Save_normalizes_migration_dir(string actualValue, string expectedValue)
+    {
+        using var projectDir = new TempDirectory();
+        var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+        var migration = scaffolder.ScaffoldMigration(actualValue, "WebApplication1");
+        var migrationFile = scaffolder.Save(projectDir, migration, outputDir: "Migrations");
+        Assert.Contains(expectedValue,migrationFile.MigrationFile);
+    }
+
     [ConditionalFact]
     public void ScaffoldMigration_can_override_namespace()
     {
