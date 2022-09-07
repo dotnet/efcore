@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Migrations;
@@ -33,17 +34,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private IReadOnlyList<MigrationOperation> _operations = null!;
     private int _variableCounter;
 
+    private readonly ICommandBatchPreparer _commandBatchPreparer;
+
     /// <summary>
     ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator" /> instance.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    /// <param name="migrationsAnnotations">Provider-specific Migrations annotations to use.</param>
+    /// <param name="commandBatchPreparer">The command batch preparer.</param>
     public SqlServerMigrationsSqlGenerator(
         MigrationsSqlGeneratorDependencies dependencies,
-        IRelationalAnnotationProvider migrationsAnnotations)
+        ICommandBatchPreparer commandBatchPreparer)
         : base(dependencies)
-    {
-    }
+        => _commandBatchPreparer = commandBatchPreparer;
 
     /// <summary>
     ///     Generates commands from a list of operations.
@@ -1445,10 +1447,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         GenerateIdentityInsert(builder, operation, on: true, model);
 
         var sqlBuilder = new StringBuilder();
-        ((ISqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator).AppendBulkInsertOperation(
-            sqlBuilder,
-            GenerateModificationCommands(operation, model).ToList(),
-            0);
+
+        var modificationCommands = GenerateModificationCommands(operation, model).ToList();
+        var updateSqlGenerator = (ISqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator;
+
+        foreach (var batch in _commandBatchPreparer.CreateCommandBatches(modificationCommands, moreCommandSets: true))
+        {
+            updateSqlGenerator.AppendBulkInsertOperation(sqlBuilder, batch.ModificationCommands, commandPosition: 0);
+        }
 
         if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
         {

@@ -829,6 +829,10 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
 
             modelBuilder.Entity<Fink>().HasData(
                 new { Id = 1, BartonId = 1 });
+
+            modelBuilder.Entity<Balloon>();
+            modelBuilder.Entity<HydrogenBalloon>().OwnsOne(e => e.Gas);
+            modelBuilder.Entity<HeliumBalloon>().OwnsOne(e => e.Gas);
         }
     }
 }

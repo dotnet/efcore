@@ -15,6 +15,43 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         fixture.ListLoggerFactory.Clear();
     }
 
+    [ConditionalTheory] // Issue #26257
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Can_query_owner_with_different_owned_types_having_same_property_name_in_hierarchy(bool async)
+    {
+        using (var context = CreateContext())
+        {
+            context.Add(new HeliumBalloon
+            {
+                Id = Guid.NewGuid().ToString(),
+                Gas = new Helium(),
+            });
+
+            context.Add(new HydrogenBalloon
+            {
+                Id = Guid.NewGuid().ToString(),
+                Gas = new Hydrogen()
+            });
+
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+        }
+
+        using (var context = CreateContext())
+        {
+            var balloons = async
+                ? await context.Set<Balloon>().ToListAsync()
+                : context.Set<Balloon>().ToList();
+
+            Assert.NotEmpty(balloons);
+            var heliumBalloons = balloons.OfType<HeliumBalloon>().ToList();
+            var hydrogenBalloons = balloons.OfType<HydrogenBalloon>().ToList();
+            Assert.Equal(heliumBalloons.Count, hydrogenBalloons.Count);
+
+            Assert.All(heliumBalloons, b => Assert.IsType<Helium>(b.Gas));
+            Assert.All(hydrogenBalloons, b => Assert.IsType<Hydrogen>(b.Gas));
+        }
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Query_with_owned_entity_equality_operator(bool async)
@@ -1465,6 +1502,10 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
             modelBuilder.Entity<Fink>().HasData(
                 new { Id = 1, BartonId = 1 });
+
+            modelBuilder.Entity<Balloon>();
+            modelBuilder.Entity<HydrogenBalloon>().OwnsOne(e => e.Gas);
+            modelBuilder.Entity<HeliumBalloon>().OwnsOne(e => e.Gas);
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -1938,5 +1979,30 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         public int Value { get; set; }
         public string Property { get; set; }
+    }
+
+    protected abstract class Balloon
+    {
+        public string Id { get; set; }
+    }
+
+    protected class Helium
+    {
+        public int X { get; set; }
+    }
+
+    protected class Hydrogen
+    {
+        public int Y { get; set; }
+    }
+
+    protected class HeliumBalloon : Balloon
+    {
+        public Helium Gas { get; set; }
+    }
+
+    protected class HydrogenBalloon : Balloon
+    {
+        public Hydrogen Gas { get; set; }
     }
 }

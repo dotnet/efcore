@@ -1686,6 +1686,10 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
             modelBuilder.Entity<Fink>()
                 .ToTable(tb => tb.IsTemporal())
                 .HasData(new { Id = 1, BartonId = 1 });
+
+            modelBuilder.Entity<Balloon>();
+            modelBuilder.Entity<HydrogenBalloon>().OwnsOne(e => e.Gas);
+            modelBuilder.Entity<HeliumBalloon>().OwnsOne(e => e.Gas);
         }
 
         protected override void Seed(PoolableDbContext context)

@@ -2190,17 +2190,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             yield break;
         }
 
-        var commands = identityMaps.Values.SelectMany(m => m.Rows).Where(r =>
-        {
-            return r.EntityState switch
-            {
-                EntityState.Added => true,
-                EntityState.Modified => true,
-                EntityState.Unchanged => false,
-                EntityState.Deleted => diffContext.FindDrop(r.Table!) == null,
-                _ => throw new InvalidOperationException($"Unexpected entity state: {r.EntityState}")
-            };
-        });
+        var commands = identityMaps.Values
+            .SelectMany(m => m.Rows)
+            .Where(
+                r => r.EntityState is EntityState.Added or EntityState.Modified
+                    || (r.EntityState is EntityState.Deleted && diffContext.FindDrop(r.Table!) == null));
 
         var commandSets = new CommandBatchPreparer(CommandBatchPreparerDependencies)
             .TopologicalSort(commands);

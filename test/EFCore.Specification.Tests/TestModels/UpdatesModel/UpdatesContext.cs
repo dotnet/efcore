@@ -14,6 +14,7 @@ public class UpdatesContext : PoolableDbContext
     public DbSet<ProductViewTable> ProductView { get; set; } = null!;
     public DbSet<ProductTableWithView> ProductTable { get; set; } = null!;
     public DbSet<ProductTableView> ProductTableView { get; set; } = null!;
+    public DbSet<Rodney> Trotters { get; set; } = null!;
 
     public UpdatesContext(DbContextOptions options)
         : base(options)
