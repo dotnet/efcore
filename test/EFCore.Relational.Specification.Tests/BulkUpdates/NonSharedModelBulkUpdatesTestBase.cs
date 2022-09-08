@@ -7,6 +7,87 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
 {
     protected override string StoreName => "NonSharedModelBulkUpdatesTests";
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_aggregate_root_when_eager_loaded_owned_collection(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
+        await AssertDelete(async, contextFactory.CreateContext,
+            context => context.Set<Owner>(), rowsAffectedCount: 0);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_aggregate_root_when_table_sharing_with_owned(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>();
+        await AssertDelete(async, contextFactory.CreateContext,
+            context => context.Set<Owner>(), rowsAffectedCount: 0);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_aggregate_root_when_table_sharing_with_non_owned_throws(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<Owner>().HasOne<OtherReference>().WithOne().HasForeignKey<OtherReference>(e => e.Id);
+                mb.Entity<OtherReference>().ToTable(nameof(Owner));
+            });
+
+
+        await AssertTranslationFailedWithDetails(
+            () => AssertDelete(async, contextFactory.CreateContext,
+            context => context.Set<Owner>(), rowsAffectedCount: 0),
+            RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)));
+    }
+
+    protected class Context28671 : DbContext
+    {
+        public Context28671(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Owner>(
+                b =>
+                {
+                    b.OwnsOne(e => e.OwnedReference);
+                    b.OwnsMany(e => e.OwnedCollections);
+                });
+        }
+    }
+
+    public class Owner
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+
+        public OwnedReference OwnedReference { get; set; }
+        public List<OwnedCollection> OwnedCollections { get; set; }
+    }
+
+    public class OwnedReference
+    {
+        public int Number { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class OwnedCollection
+    {
+        public string Value { get; set; }
+    }
+
+    public class OtherReference
+    {
+        public int Id { get; set; }
+        public int Number { get; set; }
+        public string Title { get; set; }
+    }
+
 #nullable enable
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -130,6 +211,12 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                 });
         }
     }
+
+    protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)
+        => Assert.Contains(
+            RelationalStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
+            (await Assert.ThrowsAsync<InvalidOperationException>(query))
+            .Message);
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
