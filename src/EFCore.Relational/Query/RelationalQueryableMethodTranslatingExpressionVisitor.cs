@@ -1015,6 +1015,11 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <returns>The non query after translation.</returns>
     protected virtual NonQueryExpression? TranslateExecuteDelete(ShapedQueryExpression source)
     {
+        if (source.ShaperExpression is IncludeExpression includeExpression)
+        {
+            source = source.UpdateShaperExpression(PruneOwnedIncludes(includeExpression));
+        }
+
         if (source.ShaperExpression is not EntityShaperExpression entityShaperExpression)
         {
             AddTranslationErrorDetails(RelationalStrings.ExecuteDeleteOnNonEntityType);
@@ -1050,9 +1055,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (IsValidSelectExpressionForExecuteDelete(selectExpression, entityShaperExpression, out var tableExpression))
         {
-            if ((mappingStrategy == null && tableExpression.Table.EntityTypeMappings.Count() != 1)
-                || (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy
-                    && tableExpression.Table.EntityTypeMappings.Any(e => e.EntityType.GetRootType() != entityType.GetRootType())))
+            if (AreOtherNonOwnedEntityTypesInTheTable(entityType.GetRootType(), tableExpression.Table))
             {
                 AddTranslationErrorDetails(
                     RelationalStrings.ExecuteDeleteOnTableSplitting(tableExpression.Table.SchemaQualifiedName));
@@ -1064,6 +1067,24 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             selectExpression.ApplyProjection();
 
             return new NonQueryExpression(new DeleteExpression(tableExpression, selectExpression));
+
+            static bool AreOtherNonOwnedEntityTypesInTheTable(IEntityType rootType, ITableBase table)
+            {
+                foreach (var entityTypeMapping in table.EntityTypeMappings)
+                {
+                    var entityType = entityTypeMapping.EntityType;
+                    if ((entityTypeMapping.IsSharedTablePrincipal == true
+                        && entityType != rootType)
+                        || (entityTypeMapping.IsSharedTablePrincipal == false
+                            && entityType.GetRootType() != rootType
+                            && !entityType.IsOwned()))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         // We need to convert to PK predicate
@@ -1095,6 +1116,20 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             Expression.Quote(Expression.Lambda(predicateBody, entityParameter)));
 
         return TranslateExecuteDelete((ShapedQueryExpression)Visit(newSource));
+
+        static Expression PruneOwnedIncludes(IncludeExpression includeExpression)
+        {
+            if (includeExpression.Navigation is ISkipNavigation
+                || includeExpression.Navigation is not INavigation navigation
+                || !navigation.ForeignKey.IsOwnership)
+            {
+                return includeExpression;
+            }
+
+            return includeExpression.EntityExpression is IncludeExpression innerIncludeExpression
+                ? PruneOwnedIncludes(innerIncludeExpression)
+                : includeExpression.EntityExpression;
+        }
     }
 
     /// <summary>
