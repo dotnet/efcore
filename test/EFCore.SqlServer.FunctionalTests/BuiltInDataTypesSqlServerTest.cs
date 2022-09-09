@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -1654,7 +1655,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Equal(
             new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
         Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 321), entity.DateTimeAsDatetime23);
-        Assert.Equal(TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
+        Assert.Equal(TimeSpan.Parse("12:34:56.789", CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
         Assert.Equal(101m, entity.DecimalAsDecimal3);
         Assert.Equal(102m, entity.DecimalAsDec3);
         Assert.Equal(103m, entity.DecimalAsNumeric3);
@@ -1673,7 +1674,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             DecimalAsDecimal3 = 101m,
             DecimalAsDec3 = 102m,
             DecimalAsNumeric3 = 103m,
-            TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", System.Globalization.CultureInfo.InvariantCulture)
+            TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture)
         };
 
     [ConditionalFact]
@@ -1721,7 +1722,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Equal(101m, entity.DecimalAsDecimal3);
         Assert.Equal(102m, entity.DecimalAsDec3);
         Assert.Equal(103m, entity.DecimalAsNumeric3);
-        Assert.Equal(TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
+        Assert.Equal(TimeSpan.Parse("12:34:56.789", CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
     }
 
     private static MappedScaledSeparatelyDataTypes CreateMappedScaledSeparatelyDataTypes(int id)
@@ -1737,7 +1738,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             DecimalAsDecimal3 = 101m,
             DecimalAsDec3 = 102m,
             DecimalAsNumeric3 = 103m,
-            TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture)
+            TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.789", CultureInfo.InvariantCulture)
         };
 
     [ConditionalFact]
@@ -2615,7 +2616,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         Assert.Equal(101m, entity.DecimalAsDecimal3);
         Assert.Equal(102m, entity.DecimalAsDec3);
         Assert.Equal(103m, entity.DecimalAsNumeric3);
-        Assert.Equal(TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
+        Assert.Equal(TimeSpan.Parse("12:34:56.789", CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
     }
 
     private static MappedScaledDataTypesWithIdentity CreateMappedScaledDataTypesWithIdentity(int id)
@@ -2631,7 +2632,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             DecimalAsDecimal3 = 101m,
             DecimalAsDec3 = 102m,
             DecimalAsNumeric3 = 103m,
-            TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", System.Globalization.CultureInfo.InvariantCulture)
+            TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture)
         };
 
     [ConditionalFact]

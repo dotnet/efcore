@@ -11,7 +11,9 @@ public class TestOperationReporter : IOperationReporter
     private readonly List<(LogLevel, string)> _messages = new();
 
     public TestOperationReporter(ITestOutputHelper output = null)
-        => _output = output;
+    {
+        _output = output;
+    }
 
     public IReadOnlyList<(LogLevel Level, string Message)> Messages
         => _messages;

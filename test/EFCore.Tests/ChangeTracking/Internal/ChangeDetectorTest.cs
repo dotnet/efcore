@@ -2129,8 +2129,9 @@ public class ChangeDetectorTest
     private class TestRelationshipListener : NavigationFixer
     {
         public TestRelationshipListener(IEntityGraphAttacher attacher)
-            : base(attacher, new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
+            : base(
+                attacher, new EntityMaterializerSource(
+                    new EntityMaterializerSourceDependencies(Enumerable.Empty<ISingletonInterceptor>())))
         {
         }
 

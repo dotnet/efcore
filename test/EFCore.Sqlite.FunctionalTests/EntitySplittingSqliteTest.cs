@@ -12,9 +12,7 @@ public class EntitySplittingSqliteTest : EntitySplittingTestBase
 
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-    }
+        => base.OnModelCreating(modelBuilder);
 }

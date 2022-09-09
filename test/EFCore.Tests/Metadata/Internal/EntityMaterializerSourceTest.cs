@@ -45,8 +45,9 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -83,8 +84,9 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -125,8 +127,9 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -160,8 +163,9 @@ public class EntityMaterializerSourceTest
 
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -198,8 +202,9 @@ public class EntityMaterializerSourceTest
         var entityType = CreateEntityType();
         entityType.Model.FinalizeModel();
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -232,8 +237,9 @@ public class EntityMaterializerSourceTest
 
         var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntityWithFields));
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntityWithFields)factory(
@@ -261,8 +267,9 @@ public class EntityMaterializerSourceTest
 
         var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntity));
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var entity = (SomeEntity)factory(
             new MaterializationContext(
@@ -294,8 +301,9 @@ public class EntityMaterializerSourceTest
 
         var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntity));
 
-        var factory = GetMaterializer(new EntityMaterializerSource(
-            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+        var factory = GetMaterializer(
+            new EntityMaterializerSource(
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(

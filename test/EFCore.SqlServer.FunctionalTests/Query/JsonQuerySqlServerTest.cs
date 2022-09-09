@@ -104,7 +104,6 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE CAST(LEN(CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max))) AS int) > 2");
     }
 
-
     public override async Task Basic_json_projection_enum_inside_json_entity(bool async)
     {
         await base.Basic_json_projection_enum_inside_json_entity(async);
@@ -424,7 +423,6 @@ OUTER APPLY (
 ORDER BY [j].[Id]");
     }
 
-
     public override async Task Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(bool async)
     {
         await base.Project_json_entity_FirstOrDefault_subquery_deduplication_and_outer_reference(async);
@@ -454,7 +452,6 @@ OUTER APPLY (
 ) AS [t]
 ORDER BY [j].[Id]");
     }
-
 
     public override async Task Json_entity_with_inheritance_basic_projection(bool async)
     {

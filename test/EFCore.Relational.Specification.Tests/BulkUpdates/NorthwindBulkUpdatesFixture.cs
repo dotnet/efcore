@@ -3,10 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public abstract class NorthwindBulkUpdatesFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>, IBulkUpdatesFixtureBase
+public abstract class NorthwindBulkUpdatesFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>,
+    IBulkUpdatesFixtureBase
     where TModelCustomizer : IModelCustomizer, new()
 {
-    protected override string StoreName => "BulkUpdatesNorthwind";
+    protected override string StoreName
+        => "BulkUpdatesNorthwind";
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

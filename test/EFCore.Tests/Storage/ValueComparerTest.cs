@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class ValueComparerTest
@@ -30,7 +28,7 @@ public class ValueComparerTest
             CoreStrings.ComparerPropertyMismatch("double", nameof(Foo), nameof(Foo.Bar), "int"),
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
-    
+
     private class InvalidDbContext : DbContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

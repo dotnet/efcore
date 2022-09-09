@@ -3,14 +3,13 @@
 
 using System.Text.Json.Serialization;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
-{
-    public class JsonOwnedCustomNameBranch
-    {
-        [JsonPropertyName("CustomDate")]
-        public DateTime Date { get; set; }
+namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-        [JsonPropertyName("CustomFraction")]
-        public double Fraction { get; set; }
-    }
+public class JsonOwnedCustomNameBranch
+{
+    [JsonPropertyName("CustomDate")]
+    public DateTime Date { get; set; }
+
+    [JsonPropertyName("CustomFraction")]
+    public double Fraction { get; set; }
 }

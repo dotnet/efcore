@@ -318,8 +318,8 @@ WHERE [Id] = @p3;");
     public override async Task Modify_Modify_with_different_entity_types_and_no_generated_values(bool async)
     {
         await base.Modify_Modify_with_different_entity_types_and_no_generated_values(async);
-AssertSql(
-    @"@p2='1'
+        AssertSql(
+            @"@p2='1'
 @p0='1000'
 @p1='1000'
 @p5='2'

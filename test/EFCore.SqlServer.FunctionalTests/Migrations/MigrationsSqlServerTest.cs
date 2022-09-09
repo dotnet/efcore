@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -173,11 +173,12 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
     {
         await Test(
             _ => { },
-            builder => builder.UseIdentityColumns().Entity("People", b =>
-            {
-                b.ToTable(tb => tb.IsMemoryOptimized());
-                b.Property<int>("Id");
-            }),
+            builder => builder.UseIdentityColumns().Entity(
+                "People", b =>
+                {
+                    b.ToTable(tb => tb.IsMemoryOptimized());
+                    b.Property<int>("Id");
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -234,11 +235,12 @@ EXEC(N'
     {
         await Test(
             _ => { },
-            builder => builder.UseIdentityColumns().Entity("People", b =>
-            {
-                b.ToTable("Customers", tb => tb.IsMemoryOptimized().IsTemporal());
-                b.Property<int>("Id");
-            }),
+            builder => builder.UseIdentityColumns().Entity(
+                "People", b =>
+                {
+                    b.ToTable("Customers", tb => tb.IsMemoryOptimized().IsTemporal());
+                    b.Property<int>("Id");
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -282,8 +284,8 @@ IF SERVERPROPERTY('IsXTPSupported') = 1
 EXEC(N'
     ALTER DATABASE CURRENT
     SET MEMORY_OPTIMIZED_ELEVATE_TO_SNAPSHOT ON;')",
-                //
-                @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+            //
+            @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customers] (
     [Id] int NOT NULL IDENTITY,
     [PeriodEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
@@ -529,7 +531,7 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
             builder => { },
             builder => builder.Entity("People").Property<TimeSpan>("Age").HasPrecision(precision)
                 .HasDefaultValue(
-                    TimeSpan.Parse("12:34:56", System.Globalization.CultureInfo.InvariantCulture).Add(TimeSpan.FromTicks(ticksToAdd))),
+                    TimeSpan.Parse("12:34:56", CultureInfo.InvariantCulture).Add(TimeSpan.FromTicks(ticksToAdd))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -803,7 +805,8 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             },
             model =>
             {
-                Assert.Collection(model.Tables,
+                Assert.Collection(
+                    model.Tables,
                     t =>
                     {
                         Assert.Equal("Animal", t.Name);
@@ -3502,12 +3505,14 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
                     e.Property<decimal>("Discount");
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             builder => builder.Entity(
                 "Customer", e =>
@@ -3654,7 +3659,6 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                                 ttb.HasPeriodEnd("End");
                             }));
                 }),
-
             builder => { },
             builder => builder.Entity(
                 "Customer", e =>
@@ -3715,7 +3719,6 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                                 ttb.HasPeriodEnd("End");
                             }));
                 }),
-
             builder => { },
             builder => builder.Entity(
                 "Customer", e =>
@@ -5043,7 +5046,6 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
     public virtual async Task Convert_temporal_table_using_custom_default_schema_to_normal_table()
     {
         await Test(
-
             builder => builder.HasDefaultSchema("myDefaultSchema"),
             builder => builder.Entity(
                 "Customer", e =>
@@ -5103,7 +5105,6 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
     public virtual async Task Convert_temporal_table_using_custom_default_schema_and_explicit_history_schema_to_normal_table()
     {
         await Test(
-
             builder => builder.HasDefaultSchema("myDefaultSchema"),
             builder => builder.Entity(
                 "Customer", e =>
@@ -5650,12 +5651,14 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
                     e.Property<string>("Name");
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             builder => { },
             builder => builder.Entity("Customer").Property<DateTime>("End").HasComment("My comment").ValueGeneratedOnAddOrUpdate(),
@@ -5697,12 +5700,14 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             builder => builder.Entity(
                 "Customer", e =>
@@ -5752,11 +5757,11 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
                     e.ToTable(
                         tb => tb.IsTemporal(
-                            ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            })
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("SystemTimeStart");
+                                    ttb.HasPeriodEnd("SystemTimeEnd");
+                                })
                             .HasComment("Table comment"));
                 }),
             model =>
@@ -6460,12 +6465,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             builder => builder.Entity(
                 "Customer", e =>
@@ -6545,14 +6552,15 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
-
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -6563,12 +6571,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable("ModifiedCustomers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "ModifiedCustomers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             model =>
             {
@@ -6636,14 +6646,15 @@ EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABL
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
-
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -6654,12 +6665,14 @@ EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABL
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("ModifiedHistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("ModifiedHistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             model =>
             {
@@ -6720,12 +6733,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             builder => builder.Entity(
                 "Customer", e =>
@@ -6797,12 +6812,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
 
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             builder => builder.Entity(
                 "Customer", e =>
@@ -6883,14 +6900,15 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
                     e.Property<string>("Name");
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
-
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -6899,12 +6917,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     e.Property<DateTime>("End").HasComment("My comment").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
                     e.Property<string>("Name");
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             model =>
             {
@@ -6947,14 +6967,15 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                     e.HasKey("Id");
                     e.Property<string>("Name");
                     e.Property<DateTime>("DateOfBirth");
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
-
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -6963,12 +6984,14 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                     e.Property<DateTime>("End").HasComment("My comment").ValueGeneratedOnAddOrUpdate();
                     e.HasKey("Id");
                     e.Property<string>("Name");
-                    e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
-                        ttb.HasPeriodEnd("End");
-                    }));
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
+                                ttb.HasPeriodEnd("End");
+                            }));
                 }),
             model =>
             {
@@ -7034,47 +7057,55 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             builder => { },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
-                    });
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
 
-                    e.OwnsOne("Owned", "OwnedRequiredReference", o =>
-                    {
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.OwnsOne(
+                            "Owned", "OwnedRequiredReference", o =>
+                            {
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
 
-                    e.Navigation("OwnedRequiredReference").IsRequired();
-                });
+                        e.Navigation("OwnedRequiredReference").IsRequired();
+                    });
             },
             model =>
             {
@@ -7125,39 +7156,46 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             builder => { },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.OwnsOne("Owned", "json_reference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "json_reference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.OwnsOne(
+                            "Owned", "json_reference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "json_reference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
 
-                    e.OwnsMany("Owned2", "json_collection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
+                        e.OwnsMany(
+                            "Owned2", "json_collection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
                     });
-                });
             },
             model =>
             {
@@ -7197,56 +7235,65 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
     public virtual async Task Add_json_columns_to_existing_table()
     {
         await Test(
-            builder => builder.Entity("Entity", e =>
-            {
-                e.Property<int>("Id").ValueGeneratedOnAdd();
-                e.HasKey("Id");
-                e.Property<string>("Name");
-            }),
-            builder =>
-            {
-                builder.Entity("Entity", e =>
+            builder => builder.Entity(
+                "Entity", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
                     e.HasKey("Id");
                     e.Property<string>("Name");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                }),
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.OwnsOne("Owned", "OwnedRequiredReference", o =>
-                    {
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
 
-                    e.Navigation("OwnedRequiredReference").IsRequired();
+                        e.OwnsOne(
+                            "Owned", "OwnedRequiredReference", o =>
+                            {
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
+                        e.Navigation("OwnedRequiredReference").IsRequired();
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
                     });
-                });
             },
             model =>
             {
@@ -7281,10 +7328,10 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
         AssertSql(
             @"ALTER TABLE [Entity] ADD [OwnedCollection] nvarchar(max) NULL;",
-                //
-                @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;",
-                //
-                @"ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT N'';");
+            //
+            @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;",
+            //
+            @"ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT N'';");
     }
 
     [ConditionalFact]
@@ -7293,46 +7340,54 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
+                    });
+            },
+            builder => builder.Entity(
+                "Entity", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
                     e.HasKey("Id");
                     e.Property<string>("Name");
-                    e.OwnsOne("Owned", "OwnedReference", o =>
-                    {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
-
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
-                    });
-                });
-            },
-            builder => builder.Entity("Entity", e =>
-            {
-                e.Property<int>("Id").ValueGeneratedOnAdd();
-                e.HasKey("Id");
-                e.Property<string>("Name");
-            }),
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -7355,8 +7410,8 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedCollection');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Entity] DROP COLUMN [OwnedCollection];",
-                //
-                @"DECLARE @var1 sysname;
+            //
+            @"DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
@@ -7371,77 +7426,91 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];");
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson("json_reference");
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson("json_collection");
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson("json_reference");
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson("json_collection");
+                            });
                     });
-                });
             },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson("new_json_reference");
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson("new_json_collection");
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson("new_json_reference");
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson("new_json_collection");
+                            });
                     });
-                });
             },
             model =>
             {
@@ -7469,8 +7538,8 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];");
 
         AssertSql(
             @"EXEC sp_rename N'[Entity].[json_reference]', N'new_json_reference', N'COLUMN';",
-                //
-                @"EXEC sp_rename N'[Entity].[json_collection]', N'new_json_collection', N'COLUMN';");
+            //
+            @"EXEC sp_rename N'[Entity].[json_collection]', N'new_json_collection', N'COLUMN';");
     }
 
     [ConditionalFact]
@@ -7479,79 +7548,93 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];");
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("Entities");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.ToTable("Entities");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
                     });
-                });
             },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("NewEntities");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.ToTable("NewEntities");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
                     });
-                });
             },
             model =>
             {
@@ -7579,10 +7662,10 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];");
 
         AssertSql(
             @"ALTER TABLE [Entities] DROP CONSTRAINT [PK_Entities];",
-                //
-                @"EXEC sp_rename N'[Entities]', N'NewEntities';",
-                //
-                @"ALTER TABLE [NewEntities] ADD CONSTRAINT [PK_NewEntities] PRIMARY KEY ([Id]);");
+            //
+            @"EXEC sp_rename N'[Entities]', N'NewEntities';",
+            //
+            @"ALTER TABLE [NewEntities] ADD CONSTRAINT [PK_NewEntities] PRIMARY KEY ([Id]);");
     }
 
     [ConditionalFact]
@@ -7591,75 +7674,89 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];");
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                            });
                     });
-                });
             },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
                     });
-                });
             },
             model =>
             {
@@ -7687,30 +7784,30 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];");
 
         AssertSql(
             @"DROP TABLE [Entity_NestedCollection];",
-                //
-                @"DROP TABLE [Entity_OwnedCollection_NestedCollection2];",
-                //
-                @"DROP TABLE [Entity_OwnedCollection];",
-                //
-                @"DECLARE @var0 sysname;
+            //
+            @"DROP TABLE [Entity_OwnedCollection_NestedCollection2];",
+            //
+            @"DROP TABLE [Entity_OwnedCollection];",
+            //
+            @"DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference_Date');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference_Date];",
-                //
-                @"DECLARE @var1 sysname;
+            //
+            @"DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference_NestedReference_Number');
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference_NestedReference_Number];",
-                //
-                @"ALTER TABLE [Entity] ADD [OwnedCollection] nvarchar(max) NULL;",
-                //
-                @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;");
+            //
+            @"ALTER TABLE [Entity] ADD [OwnedCollection] nvarchar(max) NULL;",
+            //
+            @"ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;");
     }
 
     [ConditionalFact]
@@ -7719,75 +7816,89 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference_NestedReference_Number];",
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                        o.ToJson();
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson();
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                                o.ToJson();
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson();
+                            });
                     });
-                });
             },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
 
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
-                    {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                            });
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                            });
                     });
-                });
             },
             model =>
             {
@@ -7802,28 +7913,28 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedCollection');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Entity] DROP COLUMN [OwnedCollection];",
-                //
-                @"DECLARE @var1 sysname;
+            //
+            @"DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
 INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference');
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference];",
-                //
-                @"ALTER TABLE [Entity] ADD [OwnedReference_Date] datetime2 NULL;",
-                //
-                @"ALTER TABLE [Entity] ADD [OwnedReference_NestedReference_Number] int NULL;",
-                //
-                @"CREATE TABLE [Entity_NestedCollection] (
+            //
+            @"ALTER TABLE [Entity] ADD [OwnedReference_Date] datetime2 NULL;",
+            //
+            @"ALTER TABLE [Entity] ADD [OwnedReference_NestedReference_Number] int NULL;",
+            //
+            @"CREATE TABLE [Entity_NestedCollection] (
     [OwnedEntityId] int NOT NULL,
     [Id] int NOT NULL IDENTITY,
     [Number2] int NOT NULL,
     CONSTRAINT [PK_Entity_NestedCollection] PRIMARY KEY ([OwnedEntityId], [Id]),
     CONSTRAINT [FK_Entity_NestedCollection_Entity_OwnedEntityId] FOREIGN KEY ([OwnedEntityId]) REFERENCES [Entity] ([Id]) ON DELETE CASCADE
 );",
-                //
-                @"CREATE TABLE [Entity_OwnedCollection] (
+            //
+            @"CREATE TABLE [Entity_OwnedCollection] (
     [EntityId] int NOT NULL,
     [Id] int NOT NULL IDENTITY,
     [NestedReference2_Number3] int NULL,
@@ -7831,8 +7942,8 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];",
     CONSTRAINT [PK_Entity_OwnedCollection] PRIMARY KEY ([EntityId], [Id]),
     CONSTRAINT [FK_Entity_OwnedCollection_Entity_EntityId] FOREIGN KEY ([EntityId]) REFERENCES [Entity] ([Id]) ON DELETE CASCADE
 );",
-                //
-                @"CREATE TABLE [Entity_OwnedCollection_NestedCollection2] (
+            //
+            @"CREATE TABLE [Entity_OwnedCollection_NestedCollection2] (
     [Owned2EntityId] int NOT NULL,
     [Owned2Id] int NOT NULL,
     [Id] int NOT NULL IDENTITY,
@@ -7848,34 +7959,39 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];",
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                });
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                    });
             },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.ToJson("Name");
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.ToJson("Name");
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                            });
                     });
-                });
             },
             model =>
             {
@@ -7895,36 +8011,41 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];",
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                });
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                    });
             },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-
-                    e.OwnsOne("Owned", "OwnedReference", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.ToJson("Name");
-                        o.OwnsOne("Nested", "NestedReference", n =>
-                        {
-                            n.Property<int>("Number");
-                        });
-                        o.OwnsMany("Nested2", "NestedCollection", n =>
-                        {
-                            n.Property<int>("Number2");
-                        });
-                        o.Property<DateTime>("Date");
-                    });
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
 
-                    e.Navigation("OwnedReference").IsRequired();
-                });
+                        e.OwnsOne(
+                            "Owned", "OwnedReference", o =>
+                            {
+                                o.ToJson("Name");
+                                o.OwnsOne(
+                                    "Nested", "NestedReference", n =>
+                                    {
+                                        n.Property<int>("Number");
+                                    });
+                                o.OwnsMany(
+                                    "Nested2", "NestedCollection", n =>
+                                    {
+                                        n.Property<int>("Number2");
+                                    });
+                                o.Property<DateTime>("Date");
+                            });
+
+                        e.Navigation("OwnedReference").IsRequired();
+                    });
             },
             model =>
             {
@@ -7953,34 +8074,39 @@ ALTER TABLE [Entity] ADD DEFAULT N'' FOR [Name];");
         await Test(
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                });
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                    });
             },
             builder =>
             {
-                builder.Entity("Entity", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-
-                    e.OwnsMany("Owned2", "OwnedCollection", o =>
+                builder.Entity(
+                    "Entity", e =>
                     {
-                        o.OwnsOne("Nested3", "NestedReference2", n =>
-                        {
-                            n.Property<int>("Number3");
-                        });
-                        o.OwnsMany("Nested4", "NestedCollection2", n =>
-                        {
-                            n.Property<int>("Number4");
-                        });
-                        o.Property<DateTime>("Date2");
-                        o.ToJson("Name");
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+
+                        e.OwnsMany(
+                            "Owned2", "OwnedCollection", o =>
+                            {
+                                o.OwnsOne(
+                                    "Nested3", "NestedReference2", n =>
+                                    {
+                                        n.Property<int>("Number3");
+                                    });
+                                o.OwnsMany(
+                                    "Nested4", "NestedCollection2", n =>
+                                    {
+                                        n.Property<int>("Number4");
+                                    });
+                                o.Property<DateTime>("Date2");
+                                o.ToJson("Name");
+                            });
                     });
-                });
             },
             model =>
             {

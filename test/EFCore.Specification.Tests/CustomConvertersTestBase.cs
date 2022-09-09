@@ -817,9 +817,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             => "CustomConverters";
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            configurationBuilder.DefaultTypeMapping<HoldingEnum>().HasConversion<string>();
-        }
+            => configurationBuilder.DefaultTypeMapping<HoldingEnum>().HasConversion<string>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

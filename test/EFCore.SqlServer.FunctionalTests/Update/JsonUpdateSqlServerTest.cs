@@ -24,8 +24,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -42,8 +42,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedCollectionLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -60,8 +60,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesInheritance] SET [CollectionOnDerived] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], JSON_QUERY([j].[CollectionOnBase],'$'), JSON_QUERY([j].[ReferenceOnBase],'$'), JSON_QUERY([j].[CollectionOnDerived],'$'), JSON_QUERY([j].[ReferenceOnDerived],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], JSON_QUERY([j].[CollectionOnBase],'$'), JSON_QUERY([j].[ReferenceOnBase],'$'), JSON_QUERY([j].[CollectionOnDerived],'$'), JSON_QUERY([j].[ReferenceOnDerived],'$')
 FROM [JsonEntitiesInheritance] AS [j]
 WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'");
     }
@@ -79,8 +79,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -98,8 +98,8 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
 VALUES (@p0, @p1, @p2, @p3);",
-                //
-                @"SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -116,8 +116,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch[0].OwnedReferenceLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -134,8 +134,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -151,8 +151,8 @@ SET NOCOUNT ON;
 DELETE FROM [JsonEntitiesBasic]
 OUTPUT 1
 WHERE [Id] = @p0;",
-                //
-                @"SELECT COUNT(*)
+            //
+            @"SELECT COUNT(*)
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -169,8 +169,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -187,8 +187,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -205,8 +205,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.OwnedReferenceLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -223,8 +223,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -241,8 +241,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch[0].Date', JSON_VALUE(@p0, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -259,8 +259,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].Name', JSON_VALUE(@p0, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -277,8 +277,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Name', JSON_VALUE(@p0, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -296,8 +296,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch', JSON_QUERY(@p0)), [OwnedReferenceRoot] = @p1
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -314,8 +314,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -332,8 +332,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch[0].OwnedCollectionLeaf', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -350,8 +350,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -368,8 +368,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch[1]', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -387,8 +387,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].OwnedCollectionBranch[1].Enum', JSON_VALUE(@p0, '$[0]')), [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch.Enum', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -406,8 +406,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Number', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.Number', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -425,8 +425,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestBoolean', CAST(JSON_VALUE(@p0, '$[0]') AS bit)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestBoolean', CAST(JSON_VALUE(@p1, '$[0]') AS bit))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -444,8 +444,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByte', CAST(JSON_VALUE(@p0, '$[0]') AS tinyint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByte', CAST(JSON_VALUE(@p1, '$[0]') AS tinyint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -462,8 +462,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', CAST(JSON_VALUE(@p0, '$[0]') AS nvarchar(1)))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -481,8 +481,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTime', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTime', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -500,8 +500,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeOffset', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeOffset', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -519,8 +519,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDecimal', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(18,3))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDecimal', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(18,3)))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -538,8 +538,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDouble', CAST(JSON_VALUE(@p0, '$[0]') AS float)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDouble', CAST(JSON_VALUE(@p1, '$[0]') AS float))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -557,8 +557,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestGuid', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestGuid', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -576,8 +576,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt16', CAST(JSON_VALUE(@p0, '$[0]') AS smallint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt16', CAST(JSON_VALUE(@p1, '$[0]') AS smallint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -595,8 +595,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt32', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt32', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -614,8 +614,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt64', CAST(JSON_VALUE(@p0, '$[0]') AS bigint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt64', CAST(JSON_VALUE(@p1, '$[0]') AS bigint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -633,8 +633,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSignedByte', CAST(JSON_VALUE(@p0, '$[0]') AS smallint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSignedByte', CAST(JSON_VALUE(@p1, '$[0]') AS smallint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -652,8 +652,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSingle', CAST(JSON_VALUE(@p0, '$[0]') AS real)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSingle', CAST(JSON_VALUE(@p1, '$[0]') AS real))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -671,8 +671,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeSpan', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeSpan', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -690,8 +690,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt16', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt16', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -709,8 +709,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt32', CAST(JSON_VALUE(@p0, '$[0]') AS bigint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt32', CAST(JSON_VALUE(@p1, '$[0]') AS bigint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -728,8 +728,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt64', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(20,0))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt64', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(20,0)))
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -747,8 +747,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0]', JSON_QUERY(@p0)), [Reference] = @p1
 OUTPUT 1
 WHERE [Id] = @p2;",
-                //
-                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
 FROM [JsonEntitiesAllTypes] AS [j]");
     }
 
@@ -765,8 +765,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -783,8 +783,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -801,12 +801,13 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-                //
-                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+            //
+            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
-    protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
+    protected override void ClearLog()
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

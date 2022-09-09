@@ -784,8 +784,8 @@ WHERE ([t].[Rank] & COALESCE((
         FROM [Officers] AS [o0]
     ) AS [t0]
     ORDER BY [t0].[Nickname], [t0].[SquadId]), 0)",
-                //
-                @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+            //
+            @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
     FROM [Gears] AS [g]
@@ -855,8 +855,8 @@ WHERE ([t].[Rank] & (
         FROM [Officers] AS [o0]
     ) AS [t0]
     ORDER BY [t0].[Nickname], [t0].[SquadId]) IS NULL",
-                //
-                @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+            //
+            @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
     FROM [Gears] AS [g]
@@ -8936,8 +8936,8 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 WHERE ([t].[Rank] & @__rank_0) = @__rank_0",
-                //
-                @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+            //
+            @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
     FROM [Gears] AS [g]
@@ -8945,8 +8945,8 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [t]",
-                //
-                @"@__rank_0='2' (Nullable = true)
+            //
+            @"@__rank_0='2' (Nullable = true)
 
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
@@ -8957,8 +8957,8 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 WHERE ([t].[Rank] | @__rank_0) <> @__rank_0",
-                //
-                @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+            //
+            @"SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
     FROM [Gears] AS [g]
@@ -9016,8 +9016,8 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 WHERE ([t].[Rank] & @__ranks_0) <> 0",
-                //
-                @"@__ranks_0='134'
+            //
+            @"@__ranks_0='134'
 
 SELECT CASE
     WHEN ([t].[Rank] | @__ranks_0) = @__ranks_0 THEN CAST(1 AS bit)
@@ -9030,8 +9030,8 @@ FROM (
     SELECT [o].[Rank]
     FROM [Officers] AS [o]
 ) AS [t]",
-                //
-                @"@__ranks_0='134'
+            //
+            @"@__ranks_0='134'
 
 SELECT CASE
     WHEN ([t].[Rank] | ([t].[Rank] | (@__ranks_0 | ([t].[Rank] | @__ranks_0)))) = @__ranks_0 THEN CAST(1 AS bit)

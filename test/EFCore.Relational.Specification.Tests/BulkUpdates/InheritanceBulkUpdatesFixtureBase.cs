@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtureBase, IBulkUpdatesFixtureBase
 {
-    protected override string StoreName => "InheritanceBulkUpdatesTest";
+    protected override string StoreName
+        => "InheritanceBulkUpdatesTest";
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));

@@ -2074,12 +2074,13 @@ WHERE 0 = 1");
 
         var query = ctx.Set<OrderDetail>()
             .GroupBy(od => od.ProductID)
-            .Select(g => new
-            {
-                ProductID = g.Key,
-                SampleStandardDeviation = EF.Functions.StandardDeviationSample(g.Select(od => od.UnitPrice)),
-                PopulationStandardDeviation = EF.Functions.StandardDeviationPopulation(g.Select(od => od.UnitPrice))
-            });
+            .Select(
+                g => new
+                {
+                    ProductID = g.Key,
+                    SampleStandardDeviation = EF.Functions.StandardDeviationSample(g.Select(od => od.UnitPrice)),
+                    PopulationStandardDeviation = EF.Functions.StandardDeviationPopulation(g.Select(od => od.UnitPrice))
+                });
 
         var results = async
             ? await query.ToListAsync()

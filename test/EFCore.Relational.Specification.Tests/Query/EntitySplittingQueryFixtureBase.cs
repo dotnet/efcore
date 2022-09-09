@@ -7,17 +7,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class EntitySplittingQueryFixtureBase : SharedStoreFixtureBase<EntitySplittingContext>, IQueryFixtureBase
 {
-    protected EntitySplittingQueryFixtureBase()
-    {
-    }
-
     protected override string StoreName
         => "EntitySplittingQueryTest";
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
-       => (TestSqlLoggerFactory)ListLoggerFactory;
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    public Func<DbContext> GetContextCreator() => () => CreateContext();
+    public Func<DbContext> GetContextCreator()
+        => () => CreateContext();
 
     public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
@@ -48,19 +45,22 @@ public abstract class EntitySplittingQueryFixtureBase : SharedStoreFixtureBase<E
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.Entity<SplitEntityOne>(b =>
-        {
-            b.ToTable("SplitEntityOneMain", tb =>
+        modelBuilder.Entity<SplitEntityOne>(
+            b =>
             {
-                tb.Property(e => e.SharedValue);
-            });
+                b.ToTable(
+                    "SplitEntityOneMain", tb =>
+                    {
+                        tb.Property(e => e.SharedValue);
+                    });
 
-            b.SplitToTable("SplitEntityOneOther", tb =>
-            {
-                tb.Property(e => e.SharedValue).HasColumnName("OtherSharedValue");
-                tb.Property(e => e.SplitValue);
+                b.SplitToTable(
+                    "SplitEntityOneOther", tb =>
+                    {
+                        tb.Property(e => e.SharedValue).HasColumnName("OtherSharedValue");
+                        tb.Property(e => e.SplitValue);
+                    });
             });
-        });
 
         base.OnModelCreating(modelBuilder, context);
     }

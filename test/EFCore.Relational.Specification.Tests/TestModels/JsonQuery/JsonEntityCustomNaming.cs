@@ -3,18 +3,17 @@
 
 using System.Text.Json.Serialization;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
+namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+
+public class JsonEntityCustomNaming
 {
-    public class JsonEntityCustomNaming
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string Title { get; set; }
+    public string Title { get; set; }
 
-        [JsonPropertyName("CustomOwnedReferenceRoot")]
-        public JsonOwnedCustomNameRoot OwnedReferenceRoot { get; set; }
+    [JsonPropertyName("CustomOwnedReferenceRoot")]
+    public JsonOwnedCustomNameRoot OwnedReferenceRoot { get; set; }
 
-        [JsonPropertyName("CustomOwnedCollectionRoot")]
-        public List<JsonOwnedCustomNameRoot> OwnedCollectionRoot { get; set; }
-    }
+    [JsonPropertyName("CustomOwnedCollectionRoot")]
+    public List<JsonOwnedCustomNameRoot> OwnedCollectionRoot { get; set; }
 }

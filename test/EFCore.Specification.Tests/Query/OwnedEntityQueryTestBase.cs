@@ -229,8 +229,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         var query = context.Warehouses.Select(
             x => new WarehouseModel
             {
-                WarehouseCode = x.WarehouseCode,
-                DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+                WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
             }).AsNoTracking();
 
         var result = async

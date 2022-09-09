@@ -7723,7 +7723,9 @@ LIMIT 1");
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async))).Message);
+                () => base
+                    .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                        async))).Message);
 
         AssertSql();
     }

@@ -351,8 +351,7 @@ public partial class TestDbContext : DbContext
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace",
-                ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
@@ -1146,15 +1145,20 @@ public partial class TestDbContext : DbContext
                     .IncrementsBy(2)
                     .HasMin(2)
                     .HasMax(100)
-                    .IsCyclic(true),
+                    .IsCyclic(),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(
-                    @".HasSequence<int>(""EvenNumbers"", ""dbo"")" + _nl +
-                    "            .StartsAt(2L)" + _nl +
-                    "            .IncrementsBy(2)" + _nl +
-                    "            .HasMin(2L)" + _nl +
-                    "            .HasMax(100L)" + _nl +
-                    "            .IsCyclic();",
+                    @".HasSequence<int>(""EvenNumbers"", ""dbo"")"
+                    + _nl
+                    + "            .StartsAt(2L)"
+                    + _nl
+                    + "            .IncrementsBy(2)"
+                    + _nl
+                    + "            .HasMin(2L)"
+                    + _nl
+                    + "            .HasMax(100L)"
+                    + _nl
+                    + "            .IsCyclic();",
                     code.ContextFile.Code),
                 model =>
                 {
@@ -1240,7 +1244,8 @@ public partial class TestDbContext : DbContext
                     var entityType = model.FindEntityType("TestNamespace.Employee")!;
                     var triggers = entityType.GetDeclaredTriggers();
 
-                    Assert.Collection(triggers,
+                    Assert.Collection(
+                        triggers,
                         t => Assert.Equal("Trigger1", t.GetDatabaseName()),
                         t => Assert.Equal("Trigger2", t.GetDatabaseName()));
                 });
@@ -1299,7 +1304,6 @@ public partial class TestDbContext : DbContext
 }
 ",
                         code.ContextFile);
-
                 },
                 model =>
                 {

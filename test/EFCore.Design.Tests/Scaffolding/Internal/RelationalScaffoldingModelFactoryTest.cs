@@ -155,9 +155,7 @@ public class RelationalScaffoldingModelFactoryTest
         var database = new DatabaseModel { DatabaseName = expectedValue };
         var model = _factory.Create(database, options);
         Assert.Equal(expectedValue, model.GetDatabaseName());
-
     }
-
 
     [ConditionalFact]
     public void Loads_column_types()
@@ -1439,7 +1437,12 @@ public class RelationalScaffoldingModelFactoryTest
             {
                 Table = Table,
                 Name = "IX_unspecified",
-                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] }
+                Columns =
+                {
+                    table.Columns[0],
+                    table.Columns[1],
+                    table.Columns[2]
+                }
             });
 
         table.Indexes.Add(
@@ -1447,8 +1450,18 @@ public class RelationalScaffoldingModelFactoryTest
             {
                 Table = Table,
                 Name = "IX_all_ascending",
-                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] },
-                IsDescending = { false, false, false }
+                Columns =
+                {
+                    table.Columns[0],
+                    table.Columns[1],
+                    table.Columns[2]
+                },
+                IsDescending =
+                {
+                    false,
+                    false,
+                    false
+                }
             });
 
         table.Indexes.Add(
@@ -1456,8 +1469,18 @@ public class RelationalScaffoldingModelFactoryTest
             {
                 Table = Table,
                 Name = "IX_all_descending",
-                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] },
-                IsDescending = { true, true, true }
+                Columns =
+                {
+                    table.Columns[0],
+                    table.Columns[1],
+                    table.Columns[2]
+                },
+                IsDescending =
+                {
+                    true,
+                    true,
+                    true
+                }
             });
 
         table.Indexes.Add(
@@ -1465,8 +1488,18 @@ public class RelationalScaffoldingModelFactoryTest
             {
                 Table = Table,
                 Name = "IX_mixed",
-                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] },
-                IsDescending = { false, true, false }
+                Columns =
+                {
+                    table.Columns[0],
+                    table.Columns[1],
+                    table.Columns[2]
+                },
+                IsDescending =
+                {
+                    false,
+                    true,
+                    false
+                }
             });
 
         var model = _factory.Create(

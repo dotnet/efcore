@@ -16,7 +16,8 @@ public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnn
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
+    protected override TestHelpers TestHelpers
+        => SqliteTestHelpers.Instance;
 
     public override IModel Non_public_annotations_are_enabled()
     {

@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
@@ -46,8 +45,8 @@ WHERE ""o"".""OrderID"" < 10300");
 
 DELETE FROM ""Order Details"" AS ""o""
 WHERE ""o"".""Quantity"" = @__quantity_0",
-                //
-                @"DELETE FROM ""Order Details"" AS ""o""
+            //
+            @"DELETE FROM ""Order Details"" AS ""o""
 WHERE 0");
     }
 
@@ -560,18 +559,18 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
 UPDATE ""Customers"" AS ""c""
 SET ""ContactName"" = 'Updated'
 WHERE ""c"".""CustomerID"" = @__customer_0",
-                //
-                @"@__customer_0='ALFKI' (Size = 5)
+            //
+            @"@__customer_0='ALFKI' (Size = 5)
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = @__customer_0",
-                //
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+            //
+            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE 0",
-                //
-                @"UPDATE ""Customers"" AS ""c""
+            //
+            @"UPDATE ""Customers"" AS ""c""
 SET ""ContactName"" = 'Updated'
 WHERE 0");
     }
@@ -1110,12 +1109,14 @@ WHERE ""c"".""CustomerID"" LIKE 'F%'");
     public override async Task Update_with_cross_join_cross_apply_set_constant(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_cross_join_cross_apply_set_constant(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_cross_join_cross_apply_set_constant(async)))
+            .Message);
 
     public override async Task Update_with_cross_join_outer_apply_set_constant(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_cross_join_outer_apply_set_constant(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Update_with_cross_join_outer_apply_set_constant(async)))
+            .Message);
 
     public override async Task Update_FromSql_set_constant(bool async)
     {

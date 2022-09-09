@@ -4,24 +4,24 @@
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.TestModel.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json.Linq;
 using static Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest;
 using static Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest;
+using IdentityUser = Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity.IdentityUser;
 using Index = Microsoft.EntityFrameworkCore.Scaffolding.Internal.Index;
 
 public class GlobalNamespaceContext : ContextBase
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         [ConditionalFact]
         public void Self_referential_property()
             => Test(
-                new TestModel.Internal.SelfReferentialDbContext(),
+                new SelfReferentialDbContext(),
                 new CompiledModelCodeGenerationOptions(),
                 assertModel: model =>
                 {
@@ -54,7 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     Assert.Same(model, model.FindRuntimeAnnotationValue("ReadOnlyModel"));
                 }
             );
-
 
         [ConditionalFact]
         public void Empty_model()
@@ -1735,11 +1734,8 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => model.GetCollation()).Message);
-                    Assert.Equal(new[]
-                        {
-                            RelationalAnnotationNames.MaxIdentifierLength,
-                            SqlServerAnnotationNames.ValueGenerationStrategy
-                        },
+                    Assert.Equal(
+                        new[] { RelationalAnnotationNames.MaxIdentifierLength, SqlServerAnnotationNames.ValueGenerationStrategy },
                         model.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.GetValueGenerationStrategy());
                     Assert.Equal(
@@ -1772,11 +1768,8 @@ namespace TestNamespace
                         Assert.Throws<InvalidOperationException>(() => principalBase.GetSeedData()).Message);
 
                     var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id));
-                    Assert.Equal(new[]
-                        {
-                            RelationalAnnotationNames.RelationalOverrides,
-                            SqlServerAnnotationNames.ValueGenerationStrategy
-                        },
+                    Assert.Equal(
+                        new[] { RelationalAnnotationNames.RelationalOverrides, SqlServerAnnotationNames.ValueGenerationStrategy },
                         principalId.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(typeof(long?), principalId.ClrType);
                     Assert.Equal(typeof(long?), principalId.PropertyInfo.PropertyType);
@@ -1839,10 +1832,8 @@ namespace TestNamespace
                     Assert.Equal("AK_PrincipalBase_Id", principalAlternateKey.GetName());
 
                     var principalKey = principalBase.GetKeys().Last();
-                    Assert.Equal(new[]
-                        {
-                            RelationalAnnotationNames.Name
-                        },
+                    Assert.Equal(
+                        new[] { RelationalAnnotationNames.Name },
                         principalKey.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(new[] { principalId, principalAlternateId }, principalKey.Properties);
                     Assert.True(principalKey.IsPrimaryKey());
@@ -1855,10 +1846,8 @@ namespace TestNamespace
                     Assert.Equal(new[] { principalAlternateKey, principalKey }, principalId.GetContainingKeys());
 
                     var referenceOwnedNavigation = principalBase.GetNavigations().Single();
-                    Assert.Equal(new[]
-                        {
-                            CoreAnnotationNames.EagerLoaded
-                        },
+                    Assert.Equal(
+                        new[] { CoreAnnotationNames.EagerLoaded },
                         referenceOwnedNavigation.GetAnnotations().Select(a => a.Name));
                     Assert.Equal(nameof(PrincipalBase.Owned), referenceOwnedNavigation.Name);
                     Assert.False(referenceOwnedNavigation.IsCollection);
@@ -2231,12 +2220,19 @@ namespace TestNamespace
                                     .IsSparse()
                                     .UseCollation("Latin1_General_CI_AI");
 
-                                ob.ToTable("PrincipalBase", "mySchema",
+                                ob.ToTable(
+                                    "PrincipalBase", "mySchema",
                                     t => t.Property("PrincipalBaseId").UseIdentityColumn(2, 3));
 
                                 ob.SplitToTable("Details", s => s.Property(e => e.Details));
 
-                                ob.HasData(new { Number = 10, PrincipalBaseId = 1L, PrincipalBaseAlternateId = new Guid() });
+                                ob.HasData(
+                                    new
+                                    {
+                                        Number = 10,
+                                        PrincipalBaseId = 1L,
+                                        PrincipalBaseAlternateId = new Guid()
+                                    });
                             });
 
                         eb.Navigation(e => e.Owned).IsRequired().HasField("_ownedField")
@@ -2964,18 +2960,21 @@ namespace TestNamespace
                         eb.ToTable("PrincipalBase");
                         eb.ToView("PrincipalBaseView", tb => tb.Property(e => e.Id).HasAnnotation("foo", "bar2"));
 
-                        eb.InsertUsingStoredProcedure(s => s
-                            .HasParameter("PrincipalBaseId")
-                            .HasParameter("PrincipalDerivedId")
-                            .HasParameter(p => p.Id, pb => pb.HasName("BaseId").IsOutput().HasAnnotation("foo", "bar"))
-                            .HasAnnotation("foo", "bar1"));
-                        eb.UpdateUsingStoredProcedure(s => s
-                            .HasParameter("PrincipalBaseId")
-                            .HasParameter("PrincipalDerivedId")
-                            .HasOriginalValueParameter(p => p.Id));
-                        eb.DeleteUsingStoredProcedure(s => s
-                            .HasRowsAffectedReturnValue()
-                            .HasOriginalValueParameter(p => p.Id));
+                        eb.InsertUsingStoredProcedure(
+                            s => s
+                                .HasParameter("PrincipalBaseId")
+                                .HasParameter("PrincipalDerivedId")
+                                .HasParameter(p => p.Id, pb => pb.HasName("BaseId").IsOutput().HasAnnotation("foo", "bar"))
+                                .HasAnnotation("foo", "bar1"));
+                        eb.UpdateUsingStoredProcedure(
+                            s => s
+                                .HasParameter("PrincipalBaseId")
+                                .HasParameter("PrincipalDerivedId")
+                                .HasOriginalValueParameter(p => p.Id));
+                        eb.DeleteUsingStoredProcedure(
+                            s => s
+                                .HasRowsAffectedReturnValue()
+                                .HasOriginalValueParameter(p => p.Id));
 
                         eb.HasIndex(new[] { "PrincipalBaseId" }, "PrincipalIndex")
                             .IsUnique()
@@ -2999,16 +2998,19 @@ namespace TestNamespace
                         eb.ToTable("PrincipalDerived");
                         eb.ToView("PrincipalDerivedView");
 
-                        eb.InsertUsingStoredProcedure("Derived_Insert", s => s
-                            .HasParameter("PrincipalBaseId")
-                            .HasParameter("PrincipalDerivedId")
-                            .HasResultColumn(p => p.Id, pb => pb.HasName("DerivedId").HasAnnotation("foo", "bar3")));
-                        eb.UpdateUsingStoredProcedure("Derived_Update", "Derived", s => s
-                            .HasParameter("PrincipalBaseId")
-                            .HasParameter("PrincipalDerivedId")
-                            .HasOriginalValueParameter(p => p.Id));
-                        eb.DeleteUsingStoredProcedure("Derived_Delete", s => s
-                            .HasOriginalValueParameter(p => p.Id));
+                        eb.InsertUsingStoredProcedure(
+                            "Derived_Insert", s => s
+                                .HasParameter("PrincipalBaseId")
+                                .HasParameter("PrincipalDerivedId")
+                                .HasResultColumn(p => p.Id, pb => pb.HasName("DerivedId").HasAnnotation("foo", "bar3")));
+                        eb.UpdateUsingStoredProcedure(
+                            "Derived_Update", "Derived", s => s
+                                .HasParameter("PrincipalBaseId")
+                                .HasParameter("PrincipalDerivedId")
+                                .HasOriginalValueParameter(p => p.Id));
+                        eb.DeleteUsingStoredProcedure(
+                            "Derived_Delete", s => s
+                                .HasOriginalValueParameter(p => p.Id));
                     });
 
                 modelBuilder.Entity<DependentBase<byte?>>(
@@ -3056,7 +3058,7 @@ namespace TestNamespace
                 Id = id;
             }
 
-            private new TKey Id { get; init; }
+            private new TKey Id { get; }
 
             public PrincipalDerived<DependentBase<TKey>> Principal { get; set; }
         }
@@ -4283,10 +4285,10 @@ namespace TestNamespace
 
                         eb.ToTable(
                             tb =>
-                                {
-                                    tb.HasTrigger("Trigger1");
-                                    tb.HasTrigger("Trigger2");
-                                });
+                            {
+                                tb.HasTrigger("Trigger1");
+                                tb.HasTrigger("Trigger2");
+                            });
                     });
             }
         }
@@ -4909,7 +4911,6 @@ namespace TestNamespace
     {
     }
 
-
     public class SelfReferentialEntity
     {
         public long Id { get; set; }
@@ -4947,7 +4948,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.TestModel.Internal
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Scaffolding.Internal.SelfReferentialEntity>(
+            modelBuilder.Entity<SelfReferentialEntity>(
                 eb =>
                 {
                     eb.Property(e => e.Collection).HasConversion(typeof(SelfReferentialPropertyValueConverter));
@@ -4955,14 +4956,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.TestModel.Internal
         }
     }
 
-    public class SelfReferentialPropertyValueConverter : ValueConverter<Scaffolding.Internal.SelfReferentialProperty, string>
+    public class SelfReferentialPropertyValueConverter : ValueConverter<SelfReferentialProperty, string>
     {
         public SelfReferentialPropertyValueConverter()
-          : this(null)
-        { }
+            : this(null)
+        {
+        }
 
         public SelfReferentialPropertyValueConverter(ConverterMappingHints hints)
-           : base(v => null, v => null, hints)
-        { }
+            : base(v => null, v => null, hints)
+        {
+        }
     }
 }

@@ -846,25 +846,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public class FindViaContextFinder : TestFinder
-            {
-                public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
-                    => (TEntity)context.Find(typeof(TEntity), keyValues);
+        {
+            public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+                => (TEntity)context.Find(typeof(TEntity), keyValues);
 
-                public override async ValueTask<TEntity> FindAsync<TEntity>(
-                    CancellationType cancellationType,
-                    DbContext context,
-                    object[] keyValues,
-                    CancellationToken cancellationToken = default)
-                    => cancellationType switch
-                    {
-                        CancellationType.Right => (TEntity)await context.FindAsync(
-                            typeof(TEntity), keyValues, cancellationToken: cancellationToken),
-                        CancellationType.Wrong => (TEntity)await context.FindAsync(
-                            typeof(TEntity), keyValues?.Concat(new object[] { cancellationToken }).ToArray()),
-                        CancellationType.None => (TEntity)await context.FindAsync(typeof(TEntity), keyValues),
-                        _ => throw new ArgumentOutOfRangeException(nameof(cancellationType), cancellationType, null)
-                    };
-            }
+            public override async ValueTask<TEntity> FindAsync<TEntity>(
+                CancellationType cancellationType,
+                DbContext context,
+                object[] keyValues,
+                CancellationToken cancellationToken = default)
+                => cancellationType switch
+                {
+                    CancellationType.Right => (TEntity)await context.FindAsync(
+                        typeof(TEntity), keyValues, cancellationToken: cancellationToken),
+                    CancellationType.Wrong => (TEntity)await context.FindAsync(
+                        typeof(TEntity), keyValues?.Concat(new object[] { cancellationToken }).ToArray()),
+                    CancellationType.None => (TEntity)await context.FindAsync(typeof(TEntity), keyValues),
+                    _ => throw new ArgumentOutOfRangeException(nameof(cancellationType), cancellationType, null)
+                };
+        }
 
         public class FindViaNonGenericContextFinder : TestFinder
         {
@@ -884,7 +884,6 @@ namespace Microsoft.EntityFrameworkCore
                     CancellationType.None => context.FindAsync<TEntity>(keyValues),
                     _ => throw new ArgumentOutOfRangeException(nameof(cancellationType), cancellationType, null)
                 };
-
         }
     }
 }

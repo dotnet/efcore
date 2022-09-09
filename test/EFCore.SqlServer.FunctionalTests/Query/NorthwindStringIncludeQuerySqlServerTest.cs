@@ -1979,5 +1979,4 @@ END, [c].[CustomerID]");
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
 }

@@ -1579,12 +1579,13 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Required_navigation_on_owned_type_with_query_filter_on_owner_doesnt_issue_a_warning()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Blog>(e =>
-        {
-            e.Ignore(i => i.PicturePosts);
-            e.HasQueryFilter(b => b.IsDeleted == false);
-            e.OwnsMany(i => i.BlogOwnedEntities);
-        });
+        modelBuilder.Entity<Blog>(
+            e =>
+            {
+                e.Ignore(i => i.PicturePosts);
+                e.HasQueryFilter(b => b.IsDeleted == false);
+                e.OwnsMany(i => i.BlogOwnedEntities);
+            });
 
         var message = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(
             CreateValidationLogger()).GenerateMessage(nameof(Blog), nameof(BlogOwnedEntity));

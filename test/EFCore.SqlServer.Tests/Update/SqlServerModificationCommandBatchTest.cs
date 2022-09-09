@@ -51,6 +51,7 @@ public class SqlServerModificationCommandBatchTest
         {
             command.AddColumnModification(CreateModificationParameters("col" + i));
         }
+
         Assert.True(batch.TryAddCommand(command));
 
         var secondCommand = CreateModificationCommand("T2", null, false);

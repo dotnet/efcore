@@ -2,12 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TemporalComplexNavigationsCollectionsSharedTypeQuerySqlServerTest : ComplexNavigationsCollectionsSharedTypeQueryRelationalTestBase<
-    TemporalComplexNavigationsSharedTypeQuerySqlServerFixture>
+public class TemporalComplexNavigationsCollectionsSharedTypeQuerySqlServerTest :
+    ComplexNavigationsCollectionsSharedTypeQueryRelationalTestBase<
+        TemporalComplexNavigationsSharedTypeQuerySqlServerFixture>
 {
     public TemporalComplexNavigationsCollectionsSharedTypeQuerySqlServerTest(
         TemporalComplexNavigationsSharedTypeQuerySqlServerFixture fixture,
@@ -21,12 +21,12 @@ public class TemporalComplexNavigationsCollectionsSharedTypeQuerySqlServerTest :
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         var temporalEntityTypes = new List<Type>
-            {
-                typeof(Level1),
-                typeof(Level2),
-                typeof(Level3),
-                typeof(Level4),
-            };
+        {
+            typeof(Level1),
+            typeof(Level2),
+            typeof(Level3),
+            typeof(Level4),
+        };
 
         var rewriter = new TemporalPointInTimeQueryRewriter(Fixture.ChangesDate, temporalEntityTypes);
 
@@ -550,8 +550,8 @@ ORDER BY [l].[Id], [t3].[Id], [t3].[c], [t3].[Id0], [t3].[Id00]");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]",
-                //
-                @"@__p_0='True'
+            //
+            @"@__p_0='True'
 
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[PeriodEnd], [l].[PeriodStart], [t0].[Id], [t0].[OneToOne_Required_PK_Date], [t0].[Level1_Optional_Id], [t0].[Level1_Required_Id], [t0].[Level2_Name], [t0].[OneToMany_Optional_Inverse2Id], [t0].[OneToMany_Required_Inverse2Id], [t0].[OneToOne_Optional_PK_Inverse2Id], [t0].[PeriodEnd], [t0].[PeriodStart]
 FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
@@ -599,26 +599,19 @@ ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[c]");
 
     // TODO: remove later!!!!!
     public override Task Filtered_include_is_considered_loaded(bool async)
-    {
-        return base.Filtered_include_is_considered_loaded(async);
-    }
+        => base.Filtered_include_is_considered_loaded(async);
 
     public override Task Filtered_include_calling_methods_directly_on_parameter_throws(bool async)
-    {
-        return base.Filtered_include_calling_methods_directly_on_parameter_throws(async);
-    }
+        => base.Filtered_include_calling_methods_directly_on_parameter_throws(async);
 
     public override Task Filtered_include_different_filter_set_on_same_navigation_twice(bool async)
-    {
-        return base.Filtered_include_different_filter_set_on_same_navigation_twice(async);
-    }
+        => base.Filtered_include_different_filter_set_on_same_navigation_twice(async);
 
     public override Task Filtered_include_different_filter_set_on_same_navigation_twice_multi_level(bool async)
-    {
-        return base.Filtered_include_different_filter_set_on_same_navigation_twice_multi_level(async);
-    }
+        => base.Filtered_include_different_filter_set_on_same_navigation_twice_multi_level(async);
 
-    public override async Task Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only(bool async)
+    public override async Task
+        Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only(bool async)
     {
         await base.Filtered_include_multiple_multi_level_includes_with_first_level_using_filter_include_on_one_of_the_chains_only(async);
 
@@ -798,7 +791,8 @@ LEFT JOIN (
 ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[c]");
     }
 
-    public override async Task Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_FirstOrDefault_on_top_level(bool async)
+    public override async Task Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_FirstOrDefault_on_top_level(
+        bool async)
     {
         await base.Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_FirstOrDefault_on_top_level(async);
 
@@ -827,7 +821,8 @@ OUTER APPLY (
 ORDER BY [t].[Id], [t1].[Id]");
     }
 
-    public override async Task Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_unordered_Take_on_top_level(bool async)
+    public override async Task Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_unordered_Take_on_top_level(
+        bool async)
     {
         await base.Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_unordered_Take_on_top_level(async);
 
@@ -2027,7 +2022,8 @@ END = [t2].[OneToMany_Optional_Inverse4Id]
 ORDER BY [l].[Id], [t].[Id], [t0].[Id], [t1].[Id]");
     }
 
-    public override async Task Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times(bool async)
+    public override async Task
+        Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times(bool async)
     {
         await base.Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times(async);
 
@@ -3010,10 +3006,12 @@ OUTER APPLY (
 ORDER BY [t].[Id], [t0].[c], [t0].[Id1]");
     }
 
-    public override async Task SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(bool async)
+    public override async Task SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(
+        bool async)
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () =>
+                base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async));
 
         Assert.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("X").Substring(0, 30), exception.Message);
         Assert.True(exception.InnerException is InvalidCastException);

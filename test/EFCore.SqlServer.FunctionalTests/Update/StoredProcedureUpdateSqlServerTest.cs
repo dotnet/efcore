@@ -442,7 +442,7 @@ DELETE FROM [TptChild];
 DELETE FROM [TptParent];
 DBCC CHECKIDENT ('[TptParent]', RESEED, 0);";
 
-        class StoredProcedureTestStoryFactory : SqlServerTestStoreFactory
+        private class StoredProcedureTestStoryFactory : SqlServerTestStoreFactory
         {
             public static new StoredProcedureTestStoryFactory Instance { get; } = new();
 

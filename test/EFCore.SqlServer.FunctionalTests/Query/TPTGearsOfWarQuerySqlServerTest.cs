@@ -9299,10 +9299,12 @@ ORDER BY [g].[Nickname], [g].[SquadId], [t].[IsAutomatic]");
     }
 
     public override async Task
-        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+            bool async)
     {
         await base
-            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async);
+            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                async);
 
         AssertSql(
             @"SELECT [g].[Nickname], [g].[SquadId], [t0].[Key], [t0].[Count]

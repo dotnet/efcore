@@ -1664,21 +1664,15 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != null) AN
 
     [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result(bool async)
-    {
-        return base.List_from_result_of_single_result(async);
-    }
+        => base.List_from_result_of_single_result(async);
 
     [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result_2(bool async)
-    {
-        return base.List_from_result_of_single_result_2(async);
-    }
+        => base.List_from_result_of_single_result_2(async);
 
     [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
     public override Task List_from_result_of_single_result_3(bool async)
-    {
-        return base.List_from_result_of_single_result_3(async);
-    }
+        => base.List_from_result_of_single_result_3(async);
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

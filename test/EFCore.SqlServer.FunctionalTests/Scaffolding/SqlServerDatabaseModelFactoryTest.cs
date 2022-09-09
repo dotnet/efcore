@@ -885,7 +885,8 @@ DROP TABLE PrincipalTable;");
     [ConditionalFact]
     public void Triggers()
         => Test(
-            new[] {
+            new[]
+            {
                 @"
 CREATE TABLE SomeTable (
     Id int IDENTITY PRIMARY KEY,
@@ -906,7 +907,8 @@ CREATE TRIGGER Trigger2
     AFTER INSERT AS
 BEGIN
     UPDATE SomeTable SET Baz=Foo WHERE Id IN (SELECT INSERTED.Id FROM INSERTED);
-END;" },
+END;"
+            },
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
             dbModel =>
@@ -914,10 +916,10 @@ END;" },
                 var table = dbModel.Tables.Single();
                 var triggers = table.Triggers;
 
-                Assert.Collection(triggers.OrderBy(t => t.Name),
+                Assert.Collection(
+                    triggers.OrderBy(t => t.Name),
                     t => Assert.Equal("Trigger1", t.Name),
                     t => Assert.Equal("Trigger2", t.Name));
-
             },
             "DROP TABLE SomeTable;");
 
@@ -2387,8 +2389,7 @@ DROP TABLE OtherPrincipalTable;");
 
     [ConditionalFact]
     public void No_warning_missing_view_definition()
-    {
-        Test(
+        => Test(
             @"CREATE TABLE TestViewDefinition (
 Id int PRIMARY KEY,
 );",
@@ -2397,16 +2398,17 @@ Id int PRIMARY KEY,
             dbModel =>
             {
                 var message = Fixture.OperationReporter.Messages
-                    .SingleOrDefault(m => m.Message == SqlServerResources.LogMissingViewDefinitionRights(new TestLogger<SqlServerLoggingDefinitions>())
-                        .GenerateMessage()).Message;
+                    .SingleOrDefault(
+                        m => m.Message
+                            == SqlServerResources.LogMissingViewDefinitionRights(new TestLogger<SqlServerLoggingDefinitions>())
+                                .GenerateMessage()).Message;
 
                 Assert.Null(message);
             },
             @"
 DROP TABLE TestViewDefinition;");
-    }
 
-        #endregion
+    #endregion
 
     private void Test(
         string? createSql,

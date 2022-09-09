@@ -1,12 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class StateManagerTest
@@ -46,13 +45,25 @@ public class StateManagerTest
     [InlineData(true)]
     public void Identity_conflict_can_be_resolved(bool copy)
     {
-        using var context = new IdentityConflictContext(copy
-            ? new UpdatingIdentityResolutionInterceptor()
-            : new IgnoringIdentityResolutionInterceptor());
+        using var context = new IdentityConflictContext(
+            copy
+                ? new UpdatingIdentityResolutionInterceptor()
+                : new IgnoringIdentityResolutionInterceptor());
 
-        var entity = new SingleKey { Id = 77, AlternateId = 66, Value = "Existing" };
+        var entity = new SingleKey
+        {
+            Id = 77,
+            AlternateId = 66,
+            Value = "Existing"
+        };
         context.Attach(entity);
-        context.Attach(new SingleKey { Id = 77, AlternateId = 66, Value = "New" });
+        context.Attach(
+            new SingleKey
+            {
+                Id = 77,
+                AlternateId = 66,
+                Value = "New"
+            });
 
         Assert.Single(context.ChangeTracker.Entries());
         Assert.Equal(copy ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
@@ -117,9 +128,7 @@ public class StateManagerTest
     private class NaiveCopyingIdentityResolutionInterceptor : IIdentityResolutionInterceptor
     {
         public void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity)
-        {
-            existingEntry.CurrentValues.SetValues(newEntity);
-        }
+            => existingEntry.CurrentValues.SetValues(newEntity);
     }
 
     [ConditionalFact]
@@ -167,9 +176,10 @@ public class StateManagerTest
     [InlineData(true)]
     public void Identity_conflict_can_be_resolved_for_owned(bool copy)
     {
-        using var context = new IdentityConflictContext(copy
-            ? new UpdatingIdentityResolutionInterceptor()
-            : new IgnoringIdentityResolutionInterceptor());
+        using var context = new IdentityConflictContext(
+            copy
+                ? new UpdatingIdentityResolutionInterceptor()
+                : new IgnoringIdentityResolutionInterceptor());
 
         var owned = new SingleKeyOwned { Value = "Existing" };
         context.Attach(
@@ -227,9 +237,10 @@ public class StateManagerTest
     [InlineData(true)]
     public void Identity_conflict_can_be_resolved_for_composite_primary_key(bool copy)
     {
-        using var context = new IdentityConflictContext(copy
-            ? new UpdatingIdentityResolutionInterceptor()
-            : new IgnoringIdentityResolutionInterceptor());
+        using var context = new IdentityConflictContext(
+            copy
+                ? new UpdatingIdentityResolutionInterceptor()
+                : new IgnoringIdentityResolutionInterceptor());
 
         var entity = new CompositeKey
         {

@@ -12,7 +12,8 @@ public abstract class TPTInheritanceBulkUpdatesTestBase<TFixture> : InheritanceB
     }
 
     // Keyless entities are mapped as TPH only
-    public override Task Delete_where_keyless_entity_mapped_to_sql_query(bool async) => Task.CompletedTask;
+    public override Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
+        => Task.CompletedTask;
 
     public override Task Delete_where_hierarchy(bool async)
         => AssertTranslationFailed(
@@ -36,18 +37,15 @@ public abstract class TPTInheritanceBulkUpdatesTestBase<TFixture> : InheritanceB
 
     [ConditionalTheory(Skip = "FK constraint issue")]
     public override Task Delete_where_using_hierarchy(bool async)
-    {
-        return base.Delete_where_using_hierarchy(async);
-    }
+        => base.Delete_where_using_hierarchy(async);
 
     [ConditionalTheory(Skip = "FK constraint issue")]
     public override Task Delete_where_using_hierarchy_derived(bool async)
-    {
-        return base.Delete_where_using_hierarchy_derived(async);
-    }
+        => base.Delete_where_using_hierarchy_derived(async);
 
     // Keyless entities are mapped as TPH only
-    public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async) => Task.CompletedTask;
+    public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
+        => Task.CompletedTask;
 
     public override Task Update_where_hierarchy(bool async)
         => AssertTranslationFailed(

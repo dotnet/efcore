@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class EntitySplittingTestBase : NonSharedModelTestBase
@@ -111,8 +112,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<MeterReading>(
+        => modelBuilder.Entity<MeterReading>(
             ob =>
             {
                 ob.ToTable("MeterReadings");
@@ -123,7 +123,6 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
                         t.Property(o => o.CurrentRead);
                     });
             });
-    }
 
     protected async Task InitializeAsync(
         Action<ModelBuilder> onModelCreating,

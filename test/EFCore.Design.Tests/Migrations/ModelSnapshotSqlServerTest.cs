@@ -745,47 +745,55 @@ public class ModelSnapshotSqlServerTest
                         b.Ignore(e => e.OrderInfo);
 
                         b.Property<int>("Shadow").HasColumnName("Shadow");
-                        b.ToTable("Order", tb =>
-                        {
-                            tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
-                            tb.Property("Shadow");
-                        });
-                        b.SplitToTable("SplitOrder", sb =>
-                        {
-                            sb.Property("Shadow");
-                            sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
-                            sb.HasAnnotation("foo", "bar");
-                        });
-
-                        b.OwnsOne(p => p.OrderBillingDetails, od =>
-                        {
-                            od.OwnsOne(c => c.StreetAddress);
-
-                            od.Property<int>("BillingShadow");
-                            od.ToTable("SplitOrder", tb =>
+                        b.ToTable(
+                            "Order", tb =>
                             {
-                                tb.Property("BillingShadow").HasColumnName("Shadow");
+                                tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
+                                tb.Property("Shadow");
                             });
-                            od.SplitToTable("BillingDetails", sb =>
+                        b.SplitToTable(
+                            "SplitOrder", sb =>
                             {
-                                sb.Property("BillingShadow").HasColumnName("Shadow");
+                                sb.Property("Shadow");
+                                sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
+                                sb.HasAnnotation("foo", "bar");
                             });
-                        });
 
-                        b.OwnsOne(p => p.OrderShippingDetails, od =>
-                        {
-                            od.OwnsOne(c => c.StreetAddress).ToTable("ShippingDetails");
+                        b.OwnsOne(
+                            p => p.OrderBillingDetails, od =>
+                            {
+                                od.OwnsOne(c => c.StreetAddress);
 
-                            od.Property<int>("ShippingShadow");
-                            od.ToTable("Order", tb =>
-                            {
-                                tb.Property("ShippingShadow").HasColumnName("Shadow");
+                                od.Property<int>("BillingShadow");
+                                od.ToTable(
+                                    "SplitOrder", tb =>
+                                    {
+                                        tb.Property("BillingShadow").HasColumnName("Shadow");
+                                    });
+                                od.SplitToTable(
+                                    "BillingDetails", sb =>
+                                    {
+                                        sb.Property("BillingShadow").HasColumnName("Shadow");
+                                    });
                             });
-                            od.SplitToTable("ShippingDetails", sb =>
+
+                        b.OwnsOne(
+                            p => p.OrderShippingDetails, od =>
                             {
-                                sb.Property("ShippingShadow");
+                                od.OwnsOne(c => c.StreetAddress).ToTable("ShippingDetails");
+
+                                od.Property<int>("ShippingShadow");
+                                od.ToTable(
+                                    "Order", tb =>
+                                    {
+                                        tb.Property("ShippingShadow").HasColumnName("Shadow");
+                                    });
+                                od.SplitToTable(
+                                    "ShippingDetails", sb =>
+                                    {
+                                        sb.Property("ShippingShadow");
+                                    });
                             });
-                        });
                     });
             },
             AddBoilerPlate(
@@ -981,12 +989,14 @@ public class ModelSnapshotSqlServerTest
                 Assert.Equal(4, relationalModel.Tables.Count());
 
                 var orderTable = relationalModel.FindTable(orderEntityType.GetTableName()!, orderEntityType.GetSchema());
-                Assert.Equal(new []{ orderEntityType, shippingEntityType },
+                Assert.Equal(
+                    new[] { orderEntityType, shippingEntityType },
                     orderTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
 
                 var fragment = orderEntityType.GetMappingFragments().Single();
                 var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema);
-                Assert.Equal(new[] { billingEntityType, orderEntityType },
+                Assert.Equal(
+                    new[] { billingEntityType, orderEntityType },
                     splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
                 Assert.Equal("bar", fragment["foo"]);
 
@@ -997,12 +1007,14 @@ public class ModelSnapshotSqlServerTest
 
                 var billingFragment = billingEntityType.GetMappingFragments().Single();
                 var billingTable = relationalModel.FindTable(billingFragment.StoreObject.Name, billingFragment.StoreObject.Schema);
-                Assert.Equal(new[] { billingEntityType },
+                Assert.Equal(
+                    new[] { billingEntityType },
                     billingTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
 
                 var shippingFragment = shippingEntityType.GetMappingFragments().Single();
                 var shippingTable = relationalModel.FindTable(shippingFragment.StoreObject.Name, shippingFragment.StoreObject.Schema);
-                Assert.Equal(new[] { shippingEntityType },
+                Assert.Equal(
+                    new[] { shippingEntityType },
                     shippingTable.FindColumn("ShippingShadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
 
                 Assert.Equal(new[] { "Id", "Shadow" }, orderTable.Columns.Select(c => c.Name));
@@ -1020,28 +1032,32 @@ public class ModelSnapshotSqlServerTest
                     b =>
                     {
                         b.Property<int>("Shadow");
-                        b.ToView("EntityWithOneProperty", tb =>
-                        {
-                            tb.Property("Shadow");
-                        });
-                        b.SplitToView("SplitView", sb =>
-                        {
-                            sb.Property("Shadow");
-                        });
+                        b.ToView(
+                            "EntityWithOneProperty", tb =>
+                            {
+                                tb.Property("Shadow");
+                            });
+                        b.SplitToView(
+                            "SplitView", sb =>
+                            {
+                                sb.Property("Shadow");
+                            });
 
                         b.OwnsOne(
                             eo => eo.EntityWithTwoProperties, eb =>
                             {
                                 eb.Ignore(e => e.EntityWithStringKey);
 
-                                eb.ToView("EntityWithOneProperty", tb =>
-                                {
-                                    tb.Property(e => e.AlternateId).HasColumnName("SomeId");
-                                });
-                                eb.SplitToView("SplitView", sb =>
-                                {
-                                    sb.Property(e => e.AlternateId).HasColumnName("SomeOtherId");
-                                });
+                                eb.ToView(
+                                    "EntityWithOneProperty", tb =>
+                                    {
+                                        tb.Property(e => e.AlternateId).HasColumnName("SomeId");
+                                    });
+                                eb.SplitToView(
+                                    "SplitView", sb =>
+                                    {
+                                        sb.Property(e => e.AlternateId).HasColumnName("SomeOtherId");
+                                    });
                             });
                     });
             },
@@ -1284,7 +1300,8 @@ public class ModelSnapshotSqlServerTest
             modelBuilder => modelBuilder
                 .HasDefaultSchema("dbo")
                 .Entity("Entity").Property<int>("Id").UseHiLo(schema: "dbo"),
-            AddBoilerPlate(@"
+            AddBoilerPlate(
+                @"
             modelBuilder
                 .HasDefaultSchema(""dbo"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
@@ -1319,7 +1336,8 @@ public class ModelSnapshotSqlServerTest
         => Test(
             builder =>
             {
-                builder.Entity<EntityWithTwoProperties>().ToTable(tb =>
+                builder.Entity<EntityWithTwoProperties>().ToTable(
+                    tb =>
                         tb.HasCheckConstraint("AlternateId", "AlternateId > Id")
                             .HasName("CK_Customer_AlternateId")
                             .HasAnnotation("foo", "bar"));
@@ -1450,12 +1468,13 @@ public class ModelSnapshotSqlServerTest
             builder =>
             {
                 builder.Entity<EntityWithOneProperty>()
-                    .ToTable(tb =>
-                    {
-                        tb.HasTrigger("SomeTrigger1");
-                        tb.HasTrigger("SomeTrigger2");
-                        tb.ExcludeFromMigrations();
-                    });
+                    .ToTable(
+                        tb =>
+                        {
+                            tb.HasTrigger("SomeTrigger1");
+                            tb.HasTrigger("SomeTrigger2");
+                            tb.ExcludeFromMigrations();
+                        });
                 builder.Ignore<EntityWithTwoProperties>();
             },
             AddBoilerPlate(
@@ -3532,7 +3551,8 @@ namespace RootNamespace
                 modelBuilder.Entity<TestOwner>()
                     .OwnsMany(
                         o => o.OwnedEntities,
-                        ownee => ownee.ToTable(tb => tb.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)")));
+                        ownee => ownee.ToTable(
+                            tb => tb.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)")));
             },
             @"// <auto-generated />
 using Microsoft.EntityFrameworkCore;
@@ -3621,17 +3641,19 @@ namespace RootNamespace
                     {
                         b.HasKey(x => x.Id).HasName("PK_Custom");
 
-                        b.OwnsOne(x => x.EntityWithTwoProperties, bb =>
+                        b.OwnsOne(
+                            x => x.EntityWithTwoProperties, bb =>
                             {
                                 bb.ToJson();
                                 bb.Ignore(x => x.Id);
                                 bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
                                 bb.WithOwner(e => e.EntityWithOneProperty);
-                                bb.OwnsOne(x => x.EntityWithStringKey, bbb =>
-                                {
-                                    bbb.Ignore(x => x.Id);
-                                    bbb.OwnsMany(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
-                                });
+                                bb.OwnsOne(
+                                    x => x.EntityWithStringKey, bbb =>
+                                    {
+                                        bbb.Ignore(x => x.Id);
+                                        bbb.OwnsMany(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
+                                    });
                             });
                     });
             },
@@ -5121,14 +5143,44 @@ namespace RootNamespace
                 builder.Entity<EntityWithThreeProperties>(
                     e =>
                     {
-                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_unspecified");
-                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_empty")
+                        e.HasIndex(
+                            t => new
+                            {
+                                t.X,
+                                t.Y,
+                                t.Z
+                            }, "IX_unspecified");
+                        e.HasIndex(
+                                t => new
+                                {
+                                    t.X,
+                                    t.Y,
+                                    t.Z
+                                }, "IX_empty")
                             .IsDescending();
-                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_all_ascending")
+                        e.HasIndex(
+                                t => new
+                                {
+                                    t.X,
+                                    t.Y,
+                                    t.Z
+                                }, "IX_all_ascending")
                             .IsDescending(false, false, false);
-                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_all_descending")
+                        e.HasIndex(
+                                t => new
+                                {
+                                    t.X,
+                                    t.Y,
+                                    t.Z
+                                }, "IX_all_descending")
                             .IsDescending(true, true, true);
-                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_mixed")
+                        e.HasIndex(
+                                t => new
+                                {
+                                    t.X,
+                                    t.Y,
+                                    t.Z
+                                }, "IX_mixed")
                             .IsDescending(false, true, false);
                     });
             },

@@ -1561,7 +1561,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Order>()
                 .GroupBy(o => o.Customer.CustomerID.Substring(0, 1))
-                .Select(g => new { Key = g.Key, Count = g.Count() }),
+                .Select(g => new { g.Key, Count = g.Count() }),
             elementSorter: e => (e.Key, e.Count),
             elementAsserter: (e, a) =>
             {
@@ -1852,19 +1852,17 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Join_GroupBy_Aggregate_distinct_single_join(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss =>
                 from c in ss.Set<Customer>()
                 join a in ss.Set<Order>().GroupBy(o => new { o.CustomerID, o.OrderDate.Value.Year })
                         .Where(g => g.Count() > 5)
-                        .Select(g => new { CustomerID = g.Key.CustomerID, LastOrderID = g.Max(o => o.OrderID) })
+                        .Select(g => new { g.Key.CustomerID, LastOrderID = g.Max(o => o.OrderID) })
                         .Distinct()
                     on c.CustomerID equals a.CustomerID
                 select new { c, a.LastOrderID },
             entryCount: 31);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2666,7 +2664,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Order>()
                 .GroupBy(o => o.Customer.CustomerID.Substring(0, 1))
-                .Select(g => new { Key = g.Key, Count = g.Skip(1).Take(2) }),
+                .Select(g => new { g.Key, Count = g.Skip(1).Take(2) }),
             elementSorter: e => (e.Key, e.Count),
             elementAsserter: (e, a) =>
             {

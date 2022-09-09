@@ -18,7 +18,9 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
 
     protected ConfigurationDbContextFixtureBase Fixture { get; }
 
-    [ConditionalFact(Skip = "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
+    [ConditionalFact(
+        Skip =
+            "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
     public async Task Can_call_ResourceStore_FindApiScopesByNameAsync()
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -70,7 +72,9 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact(Skip = "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
+    [ConditionalFact(
+        Skip =
+            "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
     public async Task Can_call_ClientStore_FindClientByIdAsync()
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -99,7 +103,9 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
             }
         );
 
-    [ConditionalFact(Skip = "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
+    [ConditionalFact(
+        Skip =
+            "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
     public async Task Can_call_ResourceStore_FindIdentityResourcesByScopeNameAsync()
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -115,7 +121,9 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
             }
         );
 
-    [ConditionalFact(Skip = "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
+    [ConditionalFact(
+        Skip =
+            "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
     public async Task Can_call_ResourceStore_FindApiResourcesByScopeNameAsync()
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -130,7 +138,9 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
             }
         );
 
-    [ConditionalFact(Skip = "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
+    [ConditionalFact(
+        Skip =
+            "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
     public async Task Can_call_ResourceStore_GetAllResourcesAsync()
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -209,7 +219,9 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact(Skip = "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
+    [ConditionalFact(
+        Skip =
+            "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
     public async Task Can_call_ResourceStore_FindApiResourcesByNameAsync()
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>

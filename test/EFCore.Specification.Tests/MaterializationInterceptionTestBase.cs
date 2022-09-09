@@ -3,8 +3,6 @@
 
 #nullable enable
 
-using ISingletonInterceptor = Microsoft.EntityFrameworkCore.Diagnostics.ISingletonInterceptor;
-
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class MaterializationInterceptionTestBase : SingletonInterceptorsTestBase
@@ -344,7 +342,8 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
         }
 
         public InterceptionResult<object> CreatingInstance(
-            MaterializationInterceptionData materializationData, InterceptionResult<object> result)
+            MaterializationInterceptionData materializationData,
+            InterceptionResult<object> result)
         {
             _validate(materializationData, null, nameof(CreatingInstance));
 
@@ -352,7 +351,8 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
         }
 
         public object CreatedInstance(
-            MaterializationInterceptionData materializationData, object entity)
+            MaterializationInterceptionData materializationData,
+            object entity)
         {
             _validate(materializationData, entity, nameof(CreatedInstance));
 
@@ -360,7 +360,9 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
         }
 
         public InterceptionResult InitializingInstance(
-            MaterializationInterceptionData materializationData, object entity, InterceptionResult result)
+            MaterializationInterceptionData materializationData,
+            object entity,
+            InterceptionResult result)
         {
             _validate(materializationData, entity, nameof(InitializingInstance));
 
@@ -368,7 +370,8 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
         }
 
         public object InitializedInstance(
-            MaterializationInterceptionData materializationData, object entity)
+            MaterializationInterceptionData materializationData,
+            object entity)
         {
             _validate(materializationData, entity, nameof(InitializedInstance));
 
@@ -386,25 +389,30 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
         }
 
         public InterceptionResult<object> CreatingInstance(
-            MaterializationInterceptionData materializationData, InterceptionResult<object> result)
+            MaterializationInterceptionData materializationData,
+            InterceptionResult<object> result)
             => result;
 
         public object CreatedInstance(
-            MaterializationInterceptionData materializationData, object entity)
+            MaterializationInterceptionData materializationData,
+            object entity)
         {
             ((Book)entity).CreatedBy += _id;
             return entity;
         }
 
         public InterceptionResult InitializingInstance(
-            MaterializationInterceptionData materializationData, object entity, InterceptionResult result)
+            MaterializationInterceptionData materializationData,
+            object entity,
+            InterceptionResult result)
         {
             ((Book)entity).InitializingBy += _id;
             return result;
         }
 
         public object InitializedInstance(
-            MaterializationInterceptionData materializationData, object entity)
+            MaterializationInterceptionData materializationData,
+            object entity)
         {
             ((Book)entity).InitializedBy += _id;
             return entity;

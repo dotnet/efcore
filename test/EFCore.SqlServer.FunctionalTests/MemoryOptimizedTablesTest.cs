@@ -5,6 +5,7 @@
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]

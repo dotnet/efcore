@@ -1440,8 +1440,8 @@ ORDER BY [l].[Id], [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id2]");
         AssertSql(
             @"SELECT COUNT(*)
 FROM [Level1] AS [l]",
-                //
-                @"@__p_0='True'
+            //
+            @"@__p_0='True'
 
 SELECT [l].[Id], [l].[Date], [l].[Name], [t0].[Id], [t0].[OneToOne_Required_PK_Date], [t0].[Level1_Optional_Id], [t0].[Level1_Required_Id], [t0].[Level2_Name], [t0].[OneToMany_Optional_Inverse2Id], [t0].[OneToMany_Required_Inverse2Id], [t0].[OneToOne_Optional_PK_Inverse2Id]
 FROM [Level1] AS [l]

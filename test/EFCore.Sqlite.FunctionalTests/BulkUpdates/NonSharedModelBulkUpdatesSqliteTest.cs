@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesTestBase
 {
-    protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqliteTestStoreFactory.Instance;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

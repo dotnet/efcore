@@ -106,7 +106,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected static void AssertNormalOutcome(DbContext context,TestQueryExpressionInterceptor interceptor)
+    protected static void AssertNormalOutcome(DbContext context, TestQueryExpressionInterceptor interceptor)
     {
         Assert.Same(context, interceptor.Context);
         Assert.True(interceptor.QueryCompilationStartingCalled);

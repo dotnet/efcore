@@ -451,8 +451,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         var entity1 = new EntityWithAdditionalProperty
         {
-            Name = "Initial",
-            AdditionalProperty = 8 // The concurrency token
+            Name = "Initial", AdditionalProperty = 8 // The concurrency token
         };
 
         context1.WithUserManagedConcurrencyToken.Add(entity1);
@@ -481,10 +480,7 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
     {
         await using var context = CreateContext();
 
-        var entity = new Entity
-        {
-            Name = "Initial",
-        };
+        var entity = new Entity { Name = "Initial" };
 
         context.WithOriginalAndCurrentValueOnNonConcurrencyToken.Add(entity);
         await context.SaveChangesAsync();

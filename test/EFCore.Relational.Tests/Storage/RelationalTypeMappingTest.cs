@@ -31,15 +31,15 @@ public abstract class RelationalTypeMappingTest
 
     public static ValueConverter CreateConverter(Type modelType)
         => (ValueConverter)Activator.CreateInstance(
-                typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
 
     public static ValueConverter CreateConverter(Type modelType, Type providerType)
         => (ValueConverter)Activator.CreateInstance(
-                typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
 
     public static ValueComparer CreateComparer(Type type)
         => (ValueComparer)Activator.CreateInstance(
-                typeof(FakeValueComparer<>).MakeGenericType(type));
+            typeof(FakeValueComparer<>).MakeGenericType(type));
 
     [ConditionalTheory]
     [InlineData(typeof(BoolTypeMapping), typeof(bool))]

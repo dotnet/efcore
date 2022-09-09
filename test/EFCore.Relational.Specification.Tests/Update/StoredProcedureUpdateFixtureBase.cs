@@ -142,20 +142,20 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
             });
 
         modelBuilder.SharedTypeEntity<EntityWithAdditionalProperty>(
-                nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken),
-                b =>
-                {
-                    b.Property(e => e.AdditionalProperty).IsConcurrencyToken();
+            nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken),
+            b =>
+            {
+                b.Property(e => e.AdditionalProperty).IsConcurrencyToken();
 
-                    b.UpdateUsingStoredProcedure(
-                        nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken) + "_Update",
-                        spb => spb
-                            .HasOriginalValueParameter(w => w.Id)
-                            .HasOriginalValueParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenOriginal"))
-                            .HasParameter(w => w.Name)
-                            .HasParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenCurrent"))
-                            .HasRowsAffectedParameter());
-                });
+                b.UpdateUsingStoredProcedure(
+                    nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasOriginalValueParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenOriginal"))
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenCurrent"))
+                        .HasRowsAffectedParameter());
+            });
 
         modelBuilder.SharedTypeEntity<Entity>(nameof(StoredProcedureUpdateContext.WithOriginalAndCurrentValueOnNonConcurrencyToken))
             .UpdateUsingStoredProcedure(

@@ -243,7 +243,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             ? await query.ToListAsync()
             : query.ToList();
 
-        Assert.Collection(result,
+        Assert.Collection(
+            result,
             t =>
             {
                 Assert.Equal("Buyer1", t.Buyer);
@@ -270,15 +271,14 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         public DbSet<RotRutCase> RotRutCases { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<RotRutCase>(b =>
-            {
-                b.ToTable("RotRutCases");
+            => modelBuilder.Entity<RotRutCase>(
+                b =>
+                {
+                    b.ToTable("RotRutCases");
 
-                b.OwnsOne(e => e.Rot);
-                b.OwnsOne(e => e.Rut);
-            });
-        }
+                    b.OwnsOne(e => e.Rot);
+                    b.OwnsOne(e => e.Rut);
+                });
 
         public void Seed()
         {
@@ -322,10 +322,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
     }
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-    {
-        return base.AddOptions(builder).ConfigureWarnings(
+        => base.AddOptions(builder).ConfigureWarnings(
             c => c
                 .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
                 .Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning));
-    }
 }
