@@ -83,7 +83,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
 
         if (copyFrom._replacedServices != null)
         {
-            _replacedServices = new(copyFrom._replacedServices);
+            _replacedServices = new Dictionary<(Type, Type?), Type>(copyFrom._replacedServices);
         }
     }
 
@@ -265,7 +265,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     {
         var clone = Clone();
 
-        clone._replacedServices ??= new();
+        clone._replacedServices ??= new Dictionary<(Type, Type?), Type>();
 
         clone._replacedServices[(serviceType, currentImplementationType)] = newImplementationType;
 

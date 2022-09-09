@@ -73,7 +73,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasParameter(propertyName, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyName)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyName)));
         return this;
     }
 
@@ -99,7 +99,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasOriginalValueParameter(propertyName, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyName)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyName)));
         return this;
     }
 
@@ -122,7 +122,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasRowsAffectedParameter(ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, null));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, null));
         return this;
     }
 
@@ -181,7 +181,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         var resultColumnBuilder = Builder.HasResultColumn(propertyName, ConfigurationSource.Explicit)!;
-        buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyName)));
+        buildAction(new StoredProcedureResultColumnBuilder(resultColumnBuilder, CreatePropertyBuilder(propertyName)));
         return this;
     }
 
@@ -206,7 +206,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         var resultColumnBuilder = Builder.HasRowsAffectedResultColumn(ConfigurationSource.Explicit)!;
-        buildAction(new(resultColumnBuilder, null));
+        buildAction(new StoredProcedureResultColumnBuilder(resultColumnBuilder, null));
         return this;
     }
 

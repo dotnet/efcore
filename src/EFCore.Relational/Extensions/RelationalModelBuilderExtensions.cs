@@ -97,7 +97,7 @@ public static class RelationalModelBuilderExtensions
         var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
         sequence.Type = type;
 
-        return new(sequence);
+        return new SequenceBuilder(sequence);
     }
 
     /// <summary>
@@ -163,7 +163,7 @@ public static class RelationalModelBuilderExtensions
         var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
         sequence.Type = typeof(T);
 
-        return new(sequence);
+        return new SequenceBuilder(sequence);
     }
 
     /// <summary>
@@ -274,7 +274,7 @@ public static class RelationalModelBuilderExtensions
             ((DbFunction)dbFunction).UpdateConfigurationSource(ConfigurationSource.Explicit);
         }
 
-        return new(dbFunction);
+        return new DbFunctionBuilder(dbFunction);
     }
 
     /// <summary>

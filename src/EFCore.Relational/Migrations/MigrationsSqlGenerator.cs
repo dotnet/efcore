@@ -891,7 +891,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         for (var i = 0; i < operation.Values.GetLength(0); i++)
         {
             var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
-                new(
+                new NonTrackedModificationCommandParameters(
                     operation.Table, operation.Schema ?? model?.GetDefaultSchema(), SensitiveLoggingEnabled));
             modificationCommand.EntityState = EntityState.Added;
 
@@ -908,7 +908,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                         : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
                 modificationCommand.AddColumnModification(
-                    new(
+                    new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
                         read: false, write: true, key: true, condition: false,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
@@ -983,7 +983,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
         {
             var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
-                new(operation.Table, operation.Schema, SensitiveLoggingEnabled));
+                new NonTrackedModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
             modificationCommand.EntityState = EntityState.Deleted;
 
             for (var j = 0; j < operation.KeyColumns.Length; j++)
@@ -999,7 +999,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                         : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
                 modificationCommand.AddColumnModification(
-                    new(
+                    new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
                         read: false, write: true, key: true, condition: true,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
@@ -1099,7 +1099,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
         {
             var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
-                new(operation.Table, operation.Schema, SensitiveLoggingEnabled));
+                new NonTrackedModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
             modificationCommand.EntityState = EntityState.Modified;
 
             for (var j = 0; j < operation.KeyColumns.Length; j++)
@@ -1115,7 +1115,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                         : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
                 modificationCommand.AddColumnModification(
-                    new(
+                    new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
                         read: false, write: false, key: true, condition: true,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
@@ -1134,7 +1134,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                         : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
                 modificationCommand.AddColumnModification(
-                    new(
+                    new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
                         read: false, write: true, key: false, condition: false,
                         SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));

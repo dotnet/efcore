@@ -26,7 +26,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         : base(dependencies)
     {
         _clrTypeMappings
-            = new() { { typeof(JObject), new CosmosTypeMapping(typeof(JObject)) } };
+            = new Dictionary<Type, CosmosTypeMapping> { { typeof(JObject), new CosmosTypeMapping(typeof(JObject)) } };
     }
 
     /// <summary>

@@ -692,7 +692,7 @@ public class InversePropertyAttributeConvention :
         List<(MemberInfo, IConventionEntityType)> referencingNavigationsWithAttribute;
         if (!inverseNavigations.TryGetValue(inverseNavigation.Name, out var inverseTuple))
         {
-            referencingNavigationsWithAttribute = new();
+            referencingNavigationsWithAttribute = new List<(MemberInfo, IConventionEntityType)>();
             inverseNavigations[inverseNavigation.Name] = (inverseNavigation, referencingNavigationsWithAttribute);
         }
         else

@@ -98,7 +98,7 @@ public sealed partial class InternalEntityEntry
             var snapshot = (HashSet<object>?)_values[index];
             if (snapshot == null)
             {
-                snapshot = new(LegacyReferenceEqualityComparer.Instance);
+                snapshot = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                 _values[index] = snapshot;
             }
 

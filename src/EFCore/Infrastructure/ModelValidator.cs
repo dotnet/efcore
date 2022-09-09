@@ -1079,7 +1079,7 @@ public class ModelValidator : IModelValidator
                             entityType.DisplayName(), key.Properties.Format()));
                 }
 
-                entry = new(null!, entityType, seedDatum);
+                entry = new InternalEntityEntry(null!, entityType, seedDatum);
                 identityMap.Add(keyValues, entry);
             }
         }

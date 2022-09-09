@@ -287,7 +287,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string ownedTypeName,
         string navigationName)
         => OwnsOneBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -318,7 +318,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Type ownedType,
         string navigationName)
         => OwnsOneBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -347,7 +347,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Type ownedType,
         string navigationName)
         => OwnsOneBuilder(
-            new(Check.NotNull(ownedType, nameof(ownedType)), (Model)Metadata.Model),
+            new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), (Model)Metadata.Model),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -382,7 +382,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(navigationName, nameof(navigationName));
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(OwnsOneBuilder(new(ownedTypeName), navigationName));
+        buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
         return this;
     }
 
@@ -421,7 +421,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(navigationName, nameof(navigationName));
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(OwnsOneBuilder(new(ownedTypeName, ownedType), navigationName));
+        buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
         return this;
     }
 
@@ -457,7 +457,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(navigationName, nameof(navigationName));
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(OwnsOneBuilder(new(ownedType, (Model)Metadata.Model), navigationName));
+        buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
         return this;
     }
 
@@ -472,7 +472,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
             foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata)!;
         }
 
-        return new(foreignKey);
+        return new OwnedNavigationBuilder(foreignKey);
     }
 
     /// <summary>
@@ -501,7 +501,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string ownedTypeName,
         string navigationName)
         => OwnsManyBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -532,7 +532,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Type ownedType,
         string navigationName)
         => OwnsManyBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -561,7 +561,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Type ownedType,
         string navigationName)
         => OwnsManyBuilder(
-            new(Check.NotNull(ownedType, nameof(ownedType)), (Model)Metadata.Model),
+            new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), (Model)Metadata.Model),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -596,7 +596,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(navigationName, nameof(navigationName));
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(OwnsManyBuilder(new(ownedTypeName), navigationName));
+        buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
         return this;
     }
 
@@ -635,7 +635,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(navigationName, nameof(navigationName));
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(OwnsManyBuilder(new(ownedTypeName, ownedType), navigationName));
+        buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
         return this;
     }
 
@@ -671,7 +671,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(navigationName, nameof(navigationName));
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(OwnsManyBuilder(new(ownedType, (Model)Metadata.Model), navigationName));
+        buildAction(OwnsManyBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
         return this;
     }
 
@@ -686,7 +686,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
             foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata)!;
         }
 
-        return new(foreignKey);
+        return new OwnedNavigationBuilder(foreignKey);
     }
 
     /// <summary>
@@ -725,7 +725,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         var foreignKey = HasOneBuilder(
             MemberIdentity.Create(navigationName), relatedEntityType);
 
-        return new(
+        return new ReferenceNavigationBuilder(
             Builder.Metadata,
             relatedEntityType,
             navigationName,
@@ -768,7 +768,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         var foreignKey = HasOneBuilder(
             MemberIdentity.Create(navigationName), relatedEntityType);
 
-        return new(
+        return new ReferenceNavigationBuilder(
             Builder.Metadata,
             relatedEntityType,
             navigationName,
@@ -946,10 +946,10 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
                 .IsUnique(false, ConfigurationSource.Explicit);
         }
 
-        return new(
+        return new CollectionNavigationBuilder(
             Builder.Metadata,
             relatedEntityType,
-            new(navigationName!),
+            new MemberIdentity(navigationName!),
             relationship?.Metadata,
             skipNavigation);
     }
@@ -1040,7 +1040,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
 
         Builder.HasData(data, ConfigurationSource.Explicit);
 
-        return new();
+        return new DataBuilder();
     }
 
     /// <summary>
@@ -1076,7 +1076,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     {
         Check.NotEmpty(name, nameof(name));
 
-        return new(
+        return new DiscriminatorBuilder<TDiscriminator>(
             Builder.HasDiscriminator(name, typeof(TDiscriminator), ConfigurationSource.Explicit)!);
     }
 

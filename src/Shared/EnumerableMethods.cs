@@ -544,13 +544,13 @@ internal static class EnumerableMethods
         };
 
         // AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        AverageWithSelectorMethods = new();
-        MaxWithoutSelectorMethods = new();
-        MaxWithSelectorMethods = new();
-        MinWithoutSelectorMethods = new();
-        MinWithSelectorMethods = new();
+        AverageWithSelectorMethods = new Dictionary<Type, MethodInfo>();
+        MaxWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
+        MaxWithSelectorMethods = new Dictionary<Type, MethodInfo>();
+        MinWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
+        MinWithSelectorMethods = new Dictionary<Type, MethodInfo>();
         // SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
-        SumWithSelectorMethods = new();
+        SumWithSelectorMethods = new Dictionary<Type, MethodInfo>();
 
         foreach (var type in numericTypes)
         {

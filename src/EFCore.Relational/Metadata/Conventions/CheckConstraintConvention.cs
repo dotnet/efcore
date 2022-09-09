@@ -60,7 +60,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
                 continue;
             }
 
-            constraintsToReattach ??= new();
+            constraintsToReattach ??= new List<IConventionCheckConstraint>();
 
             constraintsToReattach.Add(checkConstraint);
         }
@@ -117,7 +117,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
                                 baseCheckConstraint.EntityType.DisplayName()));
                     }
 
-                    checkConstraintsToBeRemoved ??= new();
+                    checkConstraintsToBeRemoved ??= new List<IConventionCheckConstraint>();
 
                     checkConstraintsToBeRemoved.Add(checkConstraint);
                     continue;
@@ -125,7 +125,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
 
                 if (baseCheckConstraint != null)
                 {
-                    checkConstraintsToBeDetached ??= new();
+                    checkConstraintsToBeDetached ??= new List<IConventionCheckConstraint>();
 
                     checkConstraintsToBeDetached.Add(checkConstraint);
                 }

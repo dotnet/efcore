@@ -37,7 +37,7 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
         var constraints = GetConstraintsDictionary(EntityType);
         if (constraints == null)
         {
-            constraints = new(StringComparer.Ordinal);
+            constraints = new SortedDictionary<string, ICheckConstraint>(StringComparer.Ordinal);
             ((IMutableEntityType)EntityType).SetOrRemoveAnnotation(RelationalAnnotationNames.CheckConstraints, constraints);
         }
 
@@ -71,7 +71,7 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
 
         constraints.Add(name, this);
 
-        _builder = new(this, ((IConventionModel)entityType.Model).Builder);
+        _builder = new InternalCheckConstraintBuilder(this, ((IConventionModel)entityType.Model).Builder);
     }
 
     /// <summary>

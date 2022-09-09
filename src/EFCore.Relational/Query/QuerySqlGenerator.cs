@@ -621,7 +621,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
         string GetUniqueParameterName(string currentName)
         {
-            _repeatedParameterCounts ??= new();
+            _repeatedParameterCounts ??= new Dictionary<string, int>();
 
             if (!_repeatedParameterCounts.TryGetValue(currentName, out var currentCount))
             {

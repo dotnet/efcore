@@ -129,7 +129,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                     {
                         _cancellationToken.ThrowIfCancellationRequested();
 
-                        return new(MoveNextHelper());
+                        return new ValueTask<bool>(MoveNextHelper());
                     }
                     finally
                     {

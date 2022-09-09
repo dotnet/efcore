@@ -47,7 +47,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         ClrType = clrType;
         _typeConfigurationSource = typeConfigurationSource;
 
-        _builder = new(this, declaringEntityType.Model.Builder);
+        _builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
     }
 
     /// <summary>
@@ -834,7 +834,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new();
+            checkedProperties = new HashSet<IProperty>();
         }
         else if (checkedProperties.Contains(this))
         {
@@ -937,7 +937,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new();
+            checkedProperties = new HashSet<IProperty>();
         }
         else if (checkedProperties.Contains(this))
         {

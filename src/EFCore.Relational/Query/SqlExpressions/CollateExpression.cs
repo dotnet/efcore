@@ -48,7 +48,7 @@ public class CollateExpression : SqlExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual CollateExpression Update(SqlExpression operand)
         => operand != Operand
-            ? new(operand, Collation)
+            ? new CollateExpression(operand, Collation)
             : this;
 
     /// <inheritdoc />

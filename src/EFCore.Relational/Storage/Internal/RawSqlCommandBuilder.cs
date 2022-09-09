@@ -93,7 +93,7 @@ public class RawSqlCommandBuilder : IRawSqlCommandBuilder
         // ReSharper disable once CoVariantArrayConversion
         sql = string.Format(sql, substitutions.ToArray());
 
-        return new(
+        return new RawSqlCommand(
             relationalCommandBuilder.Append(sql).Build(),
             parameterValues);
     }

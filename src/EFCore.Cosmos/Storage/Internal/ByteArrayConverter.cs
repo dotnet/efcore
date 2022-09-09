@@ -56,7 +56,7 @@ public class ByteArrayConverter : JsonConverter
     {
         if (reader.TokenType != JsonToken.StartArray)
         {
-            throw new(reader.TokenType.ToString());
+            throw new Exception(reader.TokenType.ToString());
         }
 
         var byteList = new List<byte>();
@@ -73,11 +73,11 @@ public class ByteArrayConverter : JsonConverter
                 case JsonToken.Comment:
                     break;
                 default:
-                    throw new(reader.TokenType.ToString());
+                    throw new Exception(reader.TokenType.ToString());
             }
         }
 
-        throw new();
+        throw new Exception();
     }
 
     /// <summary>

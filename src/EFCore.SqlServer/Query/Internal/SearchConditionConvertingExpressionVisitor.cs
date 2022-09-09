@@ -124,7 +124,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             var test = (SqlExpression)Visit(whenClause.Test);
             _isSearchCondition = false;
             var result = (SqlExpression)Visit(whenClause.Result);
-            whenClauses.Add(new(test, result));
+            whenClauses.Add(new CaseWhenClause(test, result));
         }
 
         _isSearchCondition = false;
@@ -739,17 +739,17 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             var newValue = (SqlExpression)Visit(columnValueSetter.Value);
             if (columnValueSetters != null)
             {
-                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                columnValueSetters = new();
+                columnValueSetters = new List<ColumnValueSetter>();
                 for (var j = 0; j < i; j++)
                 {
                     columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
                 }
 
-                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
         }
 
@@ -763,5 +763,6 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression) => jsonScalarExpression;
+    protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
+        => jsonScalarExpression;
 }

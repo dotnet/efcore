@@ -103,7 +103,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         var parameterBuilder = Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -185,7 +185,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         var parameterBuilder = Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -283,7 +283,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         var resultColumnBuilder = Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureResultColumnBuilder(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 

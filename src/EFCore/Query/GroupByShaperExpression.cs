@@ -67,7 +67,7 @@ public class GroupByShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual GroupByShaperExpression Update(Expression keySelector, ShapedQueryExpression groupingEnumerable)
         => keySelector != KeySelector || groupingEnumerable != GroupingEnumerable
-            ? new(keySelector, groupingEnumerable)
+            ? new GroupByShaperExpression(keySelector, groupingEnumerable)
             : this;
 
     /// <inheritdoc />

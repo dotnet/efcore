@@ -80,7 +80,7 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -133,7 +133,7 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -201,7 +201,7 @@ public class OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntit
         Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         var resultColumnBuilder = Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureResultColumnBuilder(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 

@@ -74,7 +74,7 @@ public class OrderingExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual OrderingExpression Update(SqlExpression expression)
         => expression != Expression
-            ? new(expression, IsAscending)
+            ? new OrderingExpression(expression, IsAscending)
             : this;
 
     /// <summary>

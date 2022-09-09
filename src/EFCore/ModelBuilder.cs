@@ -174,7 +174,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         Check.NotEmpty(name, nameof(name));
 
-        return new(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
+        return new EntityTypeBuilder<TEntity>(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         Check.NotNull(type, nameof(type));
 
-        return new(Builder.Entity(type, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
+        return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         Check.NotEmpty(name, nameof(name));
 
-        return new(Builder.Entity(name, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
+        return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
     }
 
     /// <summary>
@@ -235,7 +235,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
         Check.NotEmpty(name, nameof(name));
         Check.NotNull(type, nameof(type));
 
-        return new(
+        return new EntityTypeBuilder(
             Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
     }
 
@@ -546,7 +546,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         Builder.Owned(typeof(T), ConfigurationSource.Explicit);
 
-        return new();
+        return new OwnedEntityTypeBuilder<T>();
     }
 
     /// <summary>
@@ -563,7 +563,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
 
         Builder.Owned(type, ConfigurationSource.Explicit);
 
-        return new();
+        return new OwnedEntityTypeBuilder();
     }
 
     /// <summary>

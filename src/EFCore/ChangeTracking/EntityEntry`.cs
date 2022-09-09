@@ -56,7 +56,7 @@ public class EntityEntry<TEntity> : EntityEntry
     {
         Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-        return new(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
+        return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public class EntityEntry<TEntity> : EntityEntry
     {
         Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-        return new(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
+        return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
     }
 
     /// <summary>
@@ -104,7 +104,7 @@ public class EntityEntry<TEntity> : EntityEntry
     {
         Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-        return new(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
+        return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ public class EntityEntry<TEntity> : EntityEntry
 
         ValidateType<TProperty>(property);
 
-        return new(InternalEntry, property);
+        return new PropertyEntry<TEntity, TProperty>(InternalEntry, property);
     }
 
     /// <summary>
@@ -144,7 +144,7 @@ public class EntityEntry<TEntity> : EntityEntry
     {
         Check.NotNull(navigation, nameof(navigation));
 
-        return new(InternalEntry, (INavigation)navigation);
+        return new ReferenceEntry<TEntity, TProperty>(InternalEntry, (INavigation)navigation);
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ public class EntityEntry<TEntity> : EntityEntry
     {
         Check.NotNull(navigation, nameof(navigation));
 
-        return new(InternalEntry, navigation);
+        return new CollectionEntry<TEntity, TProperty>(InternalEntry, navigation);
     }
 
     /// <summary>
@@ -186,7 +186,7 @@ public class EntityEntry<TEntity> : EntityEntry
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new(InternalEntry, propertyName);
+        return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyName);
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public class EntityEntry<TEntity> : EntityEntry
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new(InternalEntry, propertyName);
+        return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyName);
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ public class EntityEntry<TEntity> : EntityEntry
 
         ValidateType<TProperty>(InternalEntry.EntityType.FindProperty(propertyName));
 
-        return new(InternalEntry, propertyName);
+        return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyName);
     }
 
     private static void ValidateType<TProperty>(IProperty? property)

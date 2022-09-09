@@ -314,7 +314,7 @@ public class ChangeTracker : IResettableService
             rootEntry.StateManager.BeginAttachGraph();
 
             GraphIterator.TraverseGraph(
-                new(rootEntry, state, null, null),
+                new EntityEntryGraphNode<TState>(rootEntry, state, null, null),
                 callback);
 
             rootEntry.StateManager.CompleteAttachGraph();

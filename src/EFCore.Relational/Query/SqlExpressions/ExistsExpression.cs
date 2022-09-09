@@ -58,7 +58,7 @@ public class ExistsExpression : SqlExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual ExistsExpression Update(SelectExpression subquery)
         => subquery != Subquery
-            ? new(subquery, IsNegated, TypeMapping)
+            ? new ExistsExpression(subquery, IsNegated, TypeMapping)
             : this;
 
     /// <inheritdoc />

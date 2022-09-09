@@ -109,11 +109,11 @@ public static class ScaffoldingModelExtensions
         var primaryKey = entityType.FindPrimaryKey();
         if (primaryKey == null)
         {
-            yield return new(typeof(KeylessAttribute));
+            yield return new AttributeCodeFragment(typeof(KeylessAttribute));
         }
         else if (primaryKey.Properties.Count > 1)
         {
-            yield return new(
+            yield return new AttributeCodeFragment(
                 typeof(PrimaryKeyAttribute),
                 primaryKey.Properties.Select(p => p.Name).Cast<object?>().ToArray());
         }
@@ -132,7 +132,7 @@ public static class ScaffoldingModelExtensions
                 tableNamedArgs.Add(nameof(TableAttribute.Schema), schema);
             }
 
-            yield return new(typeof(TableAttribute), new object?[] { tableName }, tableNamedArgs);
+            yield return new AttributeCodeFragment(typeof(TableAttribute), new object?[] { tableName }, tableNamedArgs);
         }
 
         foreach (var index in entityType.GetIndexes()
@@ -167,7 +167,7 @@ public static class ScaffoldingModelExtensions
                 }
             }
 
-            yield return new(typeof(IndexAttribute), indexArgs, indexNamedArgs);
+            yield return new AttributeCodeFragment(typeof(IndexAttribute), indexArgs, indexNamedArgs);
         }
 
         var annotations = annotationCodeGenerator.FilterIgnoredAnnotations(entityType.GetAnnotations())
@@ -191,14 +191,14 @@ public static class ScaffoldingModelExtensions
     {
         if (property.FindContainingPrimaryKey() != null)
         {
-            yield return new(typeof(KeyAttribute));
+            yield return new AttributeCodeFragment(typeof(KeyAttribute));
         }
 
         if (!property.IsNullable
             && property.ClrType.IsNullableType()
             && !property.IsPrimaryKey())
         {
-            yield return new(typeof(RequiredAttribute));
+            yield return new AttributeCodeFragment(typeof(RequiredAttribute));
         }
 
         var columnName = property.GetColumnName();
@@ -225,13 +225,13 @@ public static class ScaffoldingModelExtensions
                 columnNamedArgs.Add(nameof(ColumnAttribute.TypeName), columnType);
             }
 
-            yield return new(typeof(ColumnAttribute), columnArgs, columnNamedArgs);
+            yield return new AttributeCodeFragment(typeof(ColumnAttribute), columnArgs, columnNamedArgs);
         }
 
         var maxLength = property.GetMaxLength();
         if (maxLength.HasValue)
         {
-            yield return new(
+            yield return new AttributeCodeFragment(
                 property.ClrType == typeof(string)
                     ? typeof(StringLengthAttribute)
                     : typeof(MaxLengthAttribute),
@@ -250,7 +250,7 @@ public static class ScaffoldingModelExtensions
                     unicodeArgs.Add(false);
                 }
 
-                yield return new(typeof(UnicodeAttribute), unicodeArgs.ToArray());
+                yield return new AttributeCodeFragment(typeof(UnicodeAttribute), unicodeArgs.ToArray());
             }
         }
 
@@ -265,7 +265,7 @@ public static class ScaffoldingModelExtensions
                 precisionArgs.Add(scale.Value);
             }
 
-            yield return new(typeof(PrecisionAttribute), precisionArgs.ToArray());
+            yield return new AttributeCodeFragment(typeof(PrecisionAttribute), precisionArgs.ToArray());
         }
 
         var annotations = annotationCodeGenerator.FilterIgnoredAnnotations(property.GetAnnotations())
@@ -290,7 +290,7 @@ public static class ScaffoldingModelExtensions
         if (navigation.IsOnDependent
             && navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
         {
-            yield return new(
+            yield return new AttributeCodeFragment(
                 typeof(ForeignKeyAttribute),
                 string.Join(", ", navigation.ForeignKey.Properties.Select(p => p.Name)));
         }
@@ -298,7 +298,7 @@ public static class ScaffoldingModelExtensions
         if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey()
             && navigation.Inverse != null)
         {
-            yield return new(typeof(InversePropertyAttribute), navigation.Inverse.Name);
+            yield return new AttributeCodeFragment(typeof(InversePropertyAttribute), navigation.Inverse.Name);
         }
     }
 
@@ -314,11 +314,11 @@ public static class ScaffoldingModelExtensions
     {
         if (skipNavigation.ForeignKey!.PrincipalKey.IsPrimaryKey())
         {
-            yield return new(
+            yield return new AttributeCodeFragment(
                 typeof(ForeignKeyAttribute),
                 string.Join(", ", skipNavigation.ForeignKey.Properties.Select(p => p.Name)));
 
-            yield return new(typeof(InversePropertyAttribute), skipNavigation.Inverse.Name);
+            yield return new AttributeCodeFragment(typeof(InversePropertyAttribute), skipNavigation.Inverse.Name);
         }
     }
 
@@ -421,7 +421,7 @@ public static class ScaffoldingModelExtensions
             toTableHandledByConventions = false;
             toTableHandledByDataAnnotations = false;
 
-            toTableNestedCalls.Add(new(nameof(TableBuilder.HasComment), comment));
+            toTableNestedCalls.Add(new MethodCallCodeFragment(nameof(TableBuilder.HasComment), comment));
         }
 
         if (entityType.GetDeclaredTriggers().Any())
@@ -431,7 +431,7 @@ public static class ScaffoldingModelExtensions
 
             foreach (var trigger in entityType.GetDeclaredTriggers())
             {
-                toTableNestedCalls.Add(new(nameof(TableBuilder.HasTrigger), trigger.ModelName));
+                toTableNestedCalls.Add(new MethodCallCodeFragment(nameof(TableBuilder.HasTrigger), trigger.ModelName));
             }
         }
 

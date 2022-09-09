@@ -33,8 +33,8 @@ public class SelectExpression : Expression
     public SelectExpression(IEntityType entityType)
     {
         Container = entityType.GetContainer();
-        FromExpression = new(entityType, RootAlias);
-        _projectionMapping[new()] = new EntityProjectionExpression(entityType, FromExpression);
+        FromExpression = new RootReferenceExpression(entityType, RootAlias);
+        _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class SelectExpression : Expression
     {
         Container = entityType.GetContainer();
         FromExpression = new FromSqlExpression(entityType, RootAlias, sql, argument);
-        _projectionMapping[new()] = new EntityProjectionExpression(
+        _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(
             entityType, new RootReferenceExpression(entityType, RootAlias));
     }
 
@@ -273,7 +273,7 @@ public class SelectExpression : Expression
             currentAlias = $"{baseAlias}{counter++}";
         }
 
-        _projection.Add(new(expression, currentAlias));
+        _projection.Add(new ProjectionExpression(expression, currentAlias));
 
         return _projection.Count - 1;
     }
@@ -408,7 +408,7 @@ public class SelectExpression : Expression
         foreach (var existingOrdering in existingOrderings)
         {
             _orderings.Add(
-                new(
+                new OrderingExpression(
                     existingOrdering.Expression,
                     !existingOrdering.IsAscending));
         }
@@ -524,7 +524,7 @@ public class SelectExpression : Expression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new(projections, fromExpression, orderings, Container)
+        return new SelectExpression(projections, fromExpression, orderings, Container)
         {
             _projectionMapping = projectionMapping,
             Predicate = predicate,

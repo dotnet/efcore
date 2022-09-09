@@ -77,7 +77,7 @@ public class CosmosModelValidator : ModelValidator
 
             if (!containers.TryGetValue(container, out var mappedTypes))
             {
-                mappedTypes = new();
+                mappedTypes = new List<IEntityType>();
                 containers[container] = mappedTypes;
             }
 

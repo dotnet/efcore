@@ -53,7 +53,7 @@ public class SqlServerSequenceHiLoValueGenerator<TValue> : HiLoValueGenerator<TV
             _rawSqlCommandBuilder
                 .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
                 .ExecuteScalar(
-                    new(
+                    new RelationalCommandParameterObject(
                         _connection,
                         parameterValues: null,
                         readerColumns: null,
@@ -73,7 +73,7 @@ public class SqlServerSequenceHiLoValueGenerator<TValue> : HiLoValueGenerator<TV
             await _rawSqlCommandBuilder
                 .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
                 .ExecuteScalarAsync(
-                    new(
+                    new RelationalCommandParameterObject(
                         _connection,
                         parameterValues: null,
                         readerColumns: null,

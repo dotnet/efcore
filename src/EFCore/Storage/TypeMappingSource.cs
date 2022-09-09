@@ -150,7 +150,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     public override CoreTypeMapping? FindMapping(IProperty property)
     {
         var principals = property.GetPrincipals();
-        return FindMappingWithConversion(new(principals), principals);
+        return FindMappingWithConversion(new TypeMappingInfo(principals), principals);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// <param name="type">The CLR type.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public override CoreTypeMapping? FindMapping(Type type)
-        => FindMappingWithConversion(new(type), null);
+        => FindMappingWithConversion(new TypeMappingInfo(type), null);
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
@@ -190,13 +190,13 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         ValueConverter? customConverter = null;
         if (typeConfiguration == null)
         {
-            mappingInfo = new(type);
+            mappingInfo = new TypeMappingInfo(type);
         }
         else
         {
             providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
             customConverter = typeConfiguration.GetValueConverter();
-            mappingInfo = new(
+            mappingInfo = new TypeMappingInfo(
                 customConverter?.ProviderClrType ?? type,
                 unicode: typeConfiguration.IsUnicode(),
                 size: typeConfiguration.GetMaxLength(),
@@ -223,5 +223,5 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// <param name="member">The field or property.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public override CoreTypeMapping? FindMapping(MemberInfo member)
-        => FindMappingWithConversion(new(member), null);
+        => FindMappingWithConversion(new TypeMappingInfo(member), null);
 }

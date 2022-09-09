@@ -24,7 +24,7 @@ public class GeometryValueConverter<TGeometry> : ValueConverter<TGeometry, SqlBy
     /// </summary>
     public GeometryValueConverter(SqlServerBytesReader reader, SqlServerBytesWriter writer)
         : base(
-            g => new(writer.Write(g)),
+            g => new SqlBytes(writer.Write(g)),
             b => (TGeometry)reader.Read(b.Value))
     {
     }

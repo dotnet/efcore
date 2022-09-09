@@ -29,9 +29,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext, subquery: false)
     {
-        _expressionTranslator = new(queryCompilationContext, this);
-        _weakEntityExpandingExpressionVisitor = new(_expressionTranslator);
-        _projectionBindingExpressionVisitor = new(this, _expressionTranslator);
+        _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(queryCompilationContext, this);
+        _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
+        _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
         _model = queryCompilationContext.Model;
     }
 
@@ -45,9 +45,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         InMemoryQueryableMethodTranslatingExpressionVisitor parentVisitor)
         : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
     {
-        _expressionTranslator = new(QueryCompilationContext, parentVisitor);
-        _weakEntityExpandingExpressionVisitor = new(_expressionTranslator);
-        _projectionBindingExpressionVisitor = new(this, _expressionTranslator);
+        _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(QueryCompilationContext, parentVisitor);
+        _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
+        _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
         _model = parentVisitor._model;
     }
 
@@ -118,7 +118,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     {
         var queryExpression = new InMemoryQueryExpression(entityType);
 
-        return new(
+        return new ShapedQueryExpression(
             queryExpression,
             new EntityShaperExpression(
                 entityType,
@@ -253,7 +253,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                     inMemoryQueryExpression.ServerQueryExpression,
                     Expression.Lambda(
                         inMemoryQueryExpression.GetProjection(
-                            new(inMemoryQueryExpression, new ProjectionMember(), item.Type)),
+                            new ProjectionBindingExpression(inMemoryQueryExpression, new ProjectionMember(), item.Type)),
                         inMemoryQueryExpression.CurrentParameter)),
                 item));
 
@@ -1361,7 +1361,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
             || selector.Body == selector.Parameters[0]
                 ? Expression.Lambda(
                     inMemoryQueryExpression.GetProjection(
-                        new(
+                        new ProjectionBindingExpression(
                             inMemoryQueryExpression, new ProjectionMember(), returnType)),
                     inMemoryQueryExpression.CurrentParameter)
                 : TranslateLambdaExpression(source, selector, preserveType: true);

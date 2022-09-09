@@ -61,7 +61,7 @@ public class RelationalCommandCache : IPrintableExpression
         // herd), have only one actually process and block the others.
         // Note that the following synchronization isn't perfect - some race conditions may cause concurrent
         // processing. This is benign (and rare).
-        var compilationLock = Locks.GetOrAdd(cacheKey, _ => new());
+        var compilationLock = Locks.GetOrAdd(cacheKey, _ => new object());
         try
         {
             lock (compilationLock)

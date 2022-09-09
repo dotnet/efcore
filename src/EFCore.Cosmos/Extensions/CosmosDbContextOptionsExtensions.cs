@@ -79,7 +79,7 @@ public static class CosmosDbContextOptionsExtensions
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        cosmosOptionsAction?.Invoke(new(optionsBuilder));
+        cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
     }
@@ -147,7 +147,7 @@ public static class CosmosDbContextOptionsExtensions
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        cosmosOptionsAction?.Invoke(new(optionsBuilder));
+        cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
     }
@@ -208,7 +208,7 @@ public static class CosmosDbContextOptionsExtensions
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        cosmosOptionsAction?.Invoke(new(optionsBuilder));
+        cosmosOptionsAction?.Invoke(new CosmosDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
     }

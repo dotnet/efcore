@@ -35,7 +35,7 @@ public class RelationalPropertyOverrides :
         Property = property;
         StoreObject = storeObject;
         _configurationSource = configurationSource;
-        _builder = new(
+        _builder = new InternalRelationalPropertyOverridesBuilder(
             this, ((IConventionModel)property.DeclaringEntityType.Model).Builder);
     }
 
@@ -264,14 +264,14 @@ public class RelationalPropertyOverrides :
             property[RelationalAnnotationNames.RelationalOverrides];
         if (tableOverrides == null)
         {
-            tableOverrides = new();
+            tableOverrides = new StoreObjectDictionary<RelationalPropertyOverrides>();
             property[RelationalAnnotationNames.RelationalOverrides] = tableOverrides;
         }
 
         var overrides = tableOverrides.Find(storeObject);
         if (overrides == null)
         {
-            overrides = new(property, storeObject, configurationSource);
+            overrides = new RelationalPropertyOverrides(property, storeObject, configurationSource);
             tableOverrides.Add(storeObject, overrides);
         }
         else

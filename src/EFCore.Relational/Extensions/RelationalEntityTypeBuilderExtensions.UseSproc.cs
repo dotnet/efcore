@@ -912,7 +912,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             entityTypeBuilder.Metadata, sprocType, name, schema);
-        buildAction(new(sprocBuilder.Metadata, entityTypeBuilder));
+        buildAction(new StoredProcedureBuilder(sprocBuilder.Metadata, entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -937,7 +937,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             entityType, sprocType, name, schema);
-        buildAction(new(sprocBuilder.Metadata, entityTypeBuilder));
+        buildAction(new StoredProcedureBuilder<TEntity>(sprocBuilder.Metadata, entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -953,7 +953,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             ownedNavigationBuilder.OwnedEntityType, sprocType, name, schema);
-        buildAction(new(sprocBuilder.Metadata, ownedNavigationBuilder));
+        buildAction(new OwnedNavigationStoredProcedureBuilder(sprocBuilder.Metadata, ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }
@@ -972,7 +972,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         var sprocBuilder = InternalStoredProcedureBuilder.HasStoredProcedure(
             ownedNavigationBuilder.OwnedEntityType, sprocType, name, schema);
         buildAction(
-            new(sprocBuilder.Metadata, ownedNavigationBuilder));
+            new OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(sprocBuilder.Metadata, ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
     }

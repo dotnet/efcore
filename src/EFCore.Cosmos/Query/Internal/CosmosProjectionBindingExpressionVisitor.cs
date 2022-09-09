@@ -57,7 +57,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = selectExpression;
         _clientEval = false;
 
-        _projectionMembers.Push(new());
+        _projectionMembers.Push(new ProjectionMember());
 
         var result = Visit(expression);
         if (result == null)

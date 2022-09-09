@@ -94,7 +94,7 @@ public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplat
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual CompilerErrorCollection Errors
-        => _errors ??= new();
+        => _errors ??= new CompilerErrorCollection();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

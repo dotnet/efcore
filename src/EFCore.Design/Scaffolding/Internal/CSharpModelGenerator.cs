@@ -79,7 +79,7 @@ public class CSharpModelGenerator : ModelCodeGenerator
         var dbContextFileName = options.ContextName + host.Extension;
         var resultingFiles = new ScaffoldedModel
         {
-            ContextFile = new()
+            ContextFile = new ScaffoldedFile
             {
                 Path = options.ContextDir != null
                     ? Path.Combine(options.ContextDir, dbContextFileName)
@@ -107,7 +107,7 @@ public class CSharpModelGenerator : ModelCodeGenerator
             // output EntityType poco .cs file
             var entityTypeFileName = entityType.Name + host.Extension;
             resultingFiles.AdditionalFiles.Add(
-                new() { Path = entityTypeFileName, Code = generatedCode });
+                new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
         }
 
         return resultingFiles;

@@ -88,7 +88,7 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
         trigger.SetTableName(Name);
         trigger.SetTableSchema(Schema);
 
-        return new(trigger);
+        return new TableTriggerBuilder(trigger);
     }
 
     /// <summary>

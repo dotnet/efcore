@@ -36,7 +36,7 @@ public class TableNameFromDbSetConvention :
             }
             else
             {
-                ambiguousTypes ??= new();
+                ambiguousTypes ??= new List<Type>();
 
                 ambiguousTypes.Add(set.Type);
             }

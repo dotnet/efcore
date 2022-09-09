@@ -43,7 +43,7 @@ public class SortableBindingList<T> : BindingList<T>
             _sortDirection = direction;
             _sortProperty = prop;
             _isSorted = true;
-            OnListChanged(new(ListChangedType.Reset, -1));
+            OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
     }
 

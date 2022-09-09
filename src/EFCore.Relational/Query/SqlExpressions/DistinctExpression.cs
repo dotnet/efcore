@@ -50,7 +50,7 @@ public class DistinctExpression : SqlExpression
         Check.NotNull(operand, nameof(operand));
 
         return operand != Operand
-            ? new(operand)
+            ? new DistinctExpression(operand)
             : this;
     }
 

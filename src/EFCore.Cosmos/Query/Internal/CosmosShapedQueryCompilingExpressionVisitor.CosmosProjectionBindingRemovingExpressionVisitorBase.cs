@@ -330,7 +330,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             shaperExpressions.RemoveAt(shaperExpressions.Count - 1);
 
             var includesToProcess = _pendingIncludes;
-            _pendingIncludes = new();
+            _pendingIncludes = new List<IncludeExpression>();
 
             foreach (var include in includesToProcess)
             {

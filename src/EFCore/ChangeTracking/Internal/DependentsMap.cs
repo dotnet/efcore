@@ -33,7 +33,7 @@ public class DependentsMap<TKey> : IDependentsMap
         _foreignKey = foreignKey;
         _principalKeyValueFactory = principalKeyValueFactory;
         _dependentKeyValueFactory = dependentKeyValueFactory;
-        _map = new(principalKeyValueFactory.EqualityComparer);
+        _map = new Dictionary<TKey, HashSet<IUpdateEntry>>(principalKeyValueFactory.EqualityComparer);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class DependentsMap<TKey> : IDependentsMap
         {
             if (!_map.TryGetValue(key, out var dependents))
             {
-                dependents = new();
+                dependents = new HashSet<IUpdateEntry>();
                 _map[key] = dependents;
             }
 
@@ -95,7 +95,7 @@ public class DependentsMap<TKey> : IDependentsMap
             {
                 if (!_map.TryGetValue(key, out dependents))
                 {
-                    dependents = new();
+                    dependents = new HashSet<IUpdateEntry>();
                     _map[key] = dependents;
                 }
 

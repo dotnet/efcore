@@ -254,7 +254,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _expressions.Add(result);
                 result = Expression.Block(_variables, _expressions);
 
-                relationalCommandCache = new(
+                relationalCommandCache = new RelationalCommandCache(
                     _parentVisitor.Dependencies.MemoryCache,
                     _parentVisitor.RelationalDependencies.QuerySqlGeneratorFactory,
                     _parentVisitor.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
@@ -299,8 +299,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             else
             {
                 _valuesArrayExpression = Expression.MakeMemberAccess(_resultContextParameter, ResultContextValuesMemberInfo);
-                _collectionPopulatingExpressions = new();
-                _valuesArrayInitializers = new();
+                _collectionPopulatingExpressions = new List<Expression>();
+                _valuesArrayInitializers = new List<Expression>();
 
                 var result = Visit(shaperExpression);
 
@@ -1911,7 +1911,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                     return relationalCommand.ExecuteReader(
-                        new(
+                        new RelationalCommandParameterObject(
                             queryContext.Connection,
                             queryContext.ParameterValues,
                             readerColumns,
@@ -2000,7 +2000,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                     return await relationalCommand.ExecuteReaderAsync(
-                            new(
+                            new RelationalCommandParameterObject(
                                 queryContext.Connection,
                                 queryContext.ParameterValues,
                                 readerColumns,
@@ -2241,7 +2241,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                     return relationalCommand.ExecuteReader(
-                        new(
+                        new RelationalCommandParameterObject(
                             queryContext.Connection,
                             queryContext.ParameterValues,
                             readerColumns,
@@ -2325,7 +2325,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                     return await relationalCommand.ExecuteReaderAsync(
-                            new(
+                            new RelationalCommandParameterObject(
                                 queryContext.Connection,
                                 queryContext.ParameterValues,
                                 readerColumns,

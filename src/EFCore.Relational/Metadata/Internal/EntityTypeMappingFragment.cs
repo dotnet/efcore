@@ -35,7 +35,7 @@ public class EntityTypeMappingFragment :
         EntityType = entityType;
         StoreObject = storeObject;
         _configurationSource = configurationSource;
-        _builder = new(this, ((IConventionModel)entityType.Model).Builder);
+        _builder = new InternalEntityTypeMappingFragmentBuilder(this, ((IConventionModel)entityType.Model).Builder);
     }
 
     /// <summary>
@@ -224,14 +224,14 @@ public class EntityTypeMappingFragment :
             entityType[RelationalAnnotationNames.MappingFragments];
         if (fragments == null)
         {
-            fragments = new();
+            fragments = new StoreObjectDictionary<EntityTypeMappingFragment>();
             entityType[RelationalAnnotationNames.MappingFragments] = fragments;
         }
 
         var fragment = fragments.Find(storeObject);
         if (fragment == null)
         {
-            fragment = new(entityType, storeObject, configurationSource);
+            fragment = new EntityTypeMappingFragment(entityType, storeObject, configurationSource);
             fragments.Add(storeObject, fragment);
         }
         else

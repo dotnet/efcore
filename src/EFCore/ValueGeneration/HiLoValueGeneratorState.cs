@@ -32,7 +32,7 @@ public class HiLoValueGeneratorState : IDisposable
         }
 
         _blockSize = blockSize;
-        _currentValue = new(-1, 0);
+        _currentValue = new HiLoValue(-1, 0);
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ public class HiLoValueGeneratorState : IDisposable
                 if (newValue.High == _currentValue.High)
                 {
                     var newCurrent = getNewLowValue();
-                    newValue = new(newCurrent, newCurrent + _blockSize);
+                    newValue = new HiLoValue(newCurrent, newCurrent + _blockSize);
                     _currentValue = newValue;
                 }
                 else
@@ -106,7 +106,7 @@ public class HiLoValueGeneratorState : IDisposable
                 if (newValue.High == _currentValue.High)
                 {
                     var newCurrent = await getNewLowValue(cancellationToken).ConfigureAwait(false);
-                    newValue = new(newCurrent, newCurrent + _blockSize);
+                    newValue = new HiLoValue(newCurrent, newCurrent + _blockSize);
                     _currentValue = newValue;
                 }
                 else

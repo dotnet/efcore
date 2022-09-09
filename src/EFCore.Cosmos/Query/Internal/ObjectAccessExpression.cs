@@ -94,7 +94,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     /// </summary>
     public virtual ObjectAccessExpression Update(Expression outerExpression)
         => outerExpression != AccessExpression
-            ? new(Navigation, outerExpression)
+            ? new ObjectAccessExpression(Navigation, outerExpression)
             : this;
 
     /// <summary>

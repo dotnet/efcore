@@ -120,7 +120,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                         var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 
                         return relationalCommand.ExecuteNonQuery(
-                            new(
+                            new RelationalCommandParameterObject(
                                 state.relationalQueryContext.Connection,
                                 state.relationalQueryContext.ParameterValues,
                                 null,
@@ -191,7 +191,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                         var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 
                         return relationalCommand.ExecuteNonQueryAsync(
-                            new(
+                            new RelationalCommandParameterObject(
                                 state.relationalQueryContext.Connection,
                                 state.relationalQueryContext.ParameterValues,
                                 null,

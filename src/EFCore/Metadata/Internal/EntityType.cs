@@ -83,8 +83,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     public EntityType(string name, Model model, bool owned, ConfigurationSource configurationSource)
         : base(name, Model.DefaultPropertyBagType, model, configurationSource)
     {
-        _properties = new(new PropertyNameComparer(this));
-        _builder = new(this, model.Builder);
+        _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+        _builder = new InternalEntityTypeBuilder(this, model.Builder);
         _isOwned = owned;
     }
 
@@ -109,8 +109,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                 CoreStrings.AddingProxyTypeAsEntityType(type.FullName));
         }
 
-        _properties = new(new PropertyNameComparer(this));
-        _builder = new(this, model.Builder);
+        _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+        _builder = new InternalEntityTypeBuilder(this, model.Builder);
         _isOwned = owned;
     }
 
@@ -135,8 +135,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                 CoreStrings.AddingProxyTypeAsEntityType(type.FullName));
         }
 
-        _properties = new(new PropertyNameComparer(this));
-        _builder = new(this, model.Builder);
+        _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+        _builder = new InternalEntityTypeBuilder(this, model.Builder);
         _isOwned = owned;
     }
 
@@ -786,14 +786,14 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                     properties.Format(), DisplayName(), key.DeclaringEntityType.DisplayName()));
         }
 
-        key = new(properties, configurationSource);
+        key = new Key(properties, configurationSource);
         _keys.Add(properties, key);
 
         foreach (var property in properties)
         {
             if (property.Keys == null)
             {
-                property.Keys = new() { key };
+                property.Keys = new List<Key> { key };
             }
             else
             {
@@ -1037,7 +1037,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             if (property.ForeignKeys == null)
             {
-                property.ForeignKeys = new() { foreignKey };
+                property.ForeignKeys = new List<ForeignKey> { foreignKey };
             }
             else
             {
@@ -1059,7 +1059,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         var principalEntityType = foreignKey.PrincipalEntityType;
         if (principalEntityType.DeclaredReferencingForeignKeys == null)
         {
-            principalEntityType.DeclaredReferencingForeignKeys = new(ForeignKeyComparer.Instance) { foreignKey };
+            principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
         }
         else
         {
@@ -1703,7 +1703,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         if (targetEntityType.DeclaredReferencingSkipNavigations == null)
         {
             targetEntityType.DeclaredReferencingSkipNavigations =
-                new(SkipNavigationComparer.Instance) { skipNavigation };
+                new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
         }
         else
         {
@@ -2066,7 +2066,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             if (property.Indexes == null)
             {
-                property.Indexes = new() { index };
+                property.Indexes = new List<Index> { index };
             }
             else
             {
@@ -3208,7 +3208,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     {
         EnsureMutable();
 
-        _data ??= new();
+        _data ??= new List<object>();
 
         foreach (var entity in data)
         {

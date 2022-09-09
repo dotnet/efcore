@@ -77,9 +77,9 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
             LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
             "LeftNavigation.JoinEntityType != RightNavigation.JoinEntityType");
 
-        configureJoinEntityType(new(LeftNavigation.JoinEntityType));
+        configureJoinEntityType(new EntityTypeBuilder(LeftNavigation.JoinEntityType));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -96,7 +96,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
 
         configureJoinEntityType(UsingEntity(joinEntityType));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
 
         configureJoinEntityType(UsingEntity(joinEntityName));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -132,7 +132,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
 
         configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
         var entityTypeBuilder = UsingEntity<TJoinEntity>();
         configureJoinEntityType(entityTypeBuilder);
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
         var entityTypeBuilder = UsingEntity<TJoinEntity>(joinEntityName);
         configureJoinEntityType(entityTypeBuilder);
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
 
         configureJoinEntityType(UsingEntity(configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -249,7 +249,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
 
         configureJoinEntityType(UsingEntity(joinEntityType, configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
 
         configureJoinEntityType(UsingEntity(joinEntityName, configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -293,7 +293,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
 
         configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType, configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -315,7 +315,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
         var entityTypeBuilder = UsingEntity(configureRight, configureLeft);
         configureJoinEntityType(entityTypeBuilder);
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     /// <summary>
@@ -339,7 +339,7 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
         var entityTypeBuilder = UsingEntity(joinEntityName, configureRight, configureLeft);
         configureJoinEntityType(entityTypeBuilder);
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder<TRightEntity>(RightEntityType);
     }
 
     private EntityTypeBuilder<TJoinEntity> Using<TJoinEntity>(
@@ -352,9 +352,9 @@ public class CollectionCollectionBuilder<TLeftEntity, TRightEntity> : Collection
                 joinEntityName,
                 typeof(TJoinEntity),
                 configureRight != null
-                    ? e => configureRight(new(e)).Metadata
+                    ? e => configureRight(new EntityTypeBuilder<TJoinEntity>(e)).Metadata
                     : null,
                 configureLeft != null
-                    ? e => configureLeft(new(e)).Metadata
+                    ? e => configureLeft(new EntityTypeBuilder<TJoinEntity>(e)).Metadata
                     : null));
 }

@@ -33,13 +33,13 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         Type type,
         bool collection)
         : this(
-              entityType,
-              jsonColumn,
-              keyPropertyMap,
-              path: new List<PathSegment> { new("$") },
-              type,
-              collection,
-              jsonColumn.IsNullable)
+            entityType,
+            jsonColumn,
+            keyPropertyMap,
+            path: new List<PathSegment> { new("$") },
+            type,
+            collection,
+            jsonColumn.IsNullable)
     {
     }
 
@@ -89,7 +89,8 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     public virtual bool IsNullable { get; }
 
     /// <inheritdoc />
-    public override ExpressionType NodeType => ExpressionType.Extension;
+    public override ExpressionType NodeType
+        => ExpressionType.Extension;
 
     /// <inheritdoc />
     public override Type Type { get; }
@@ -210,10 +211,10 @@ public class JsonQueryExpression : Expression, IPrintableExpression
         ColumnExpression jsonColumn,
         IReadOnlyDictionary<IProperty, ColumnExpression> keyPropertyMap)
         => jsonColumn != JsonColumn
-        || keyPropertyMap.Count != _keyPropertyMap.Count
-        || keyPropertyMap.Zip(_keyPropertyMap, (n, o) => n.Value != o.Value).Any(x => x)
-            ? new JsonQueryExpression(EntityType, jsonColumn, keyPropertyMap, Path, Type, IsCollection,  IsNullable)
-            : this;
+            || keyPropertyMap.Count != _keyPropertyMap.Count
+            || keyPropertyMap.Zip(_keyPropertyMap, (n, o) => n.Value != o.Value).Any(x => x)
+                ? new JsonQueryExpression(EntityType, jsonColumn, keyPropertyMap, Path, Type, IsCollection, IsNullable)
+                : this;
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

@@ -131,7 +131,7 @@ public class RelationalCollectionShaperExpression : Expression, IPrintableExpres
             || outerIdentifier != OuterIdentifier
             || selfIdentifier != SelfIdentifier
             || innerShaper != InnerShaper
-                ? new(
+                ? new RelationalCollectionShaperExpression(
                     parentIdentifier, outerIdentifier, selfIdentifier,
                     ParentIdentifierValueComparers, OuterIdentifierValueComparers, SelfIdentifierValueComparers,
                     innerShaper, Navigation, ElementType)

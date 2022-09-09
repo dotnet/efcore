@@ -36,8 +36,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         _queryCompilationContext = queryCompilationContext;
         _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(queryCompilationContext, this);
         _sharedTypeEntityExpandingExpressionVisitor =
-            new(_sqlTranslator, sqlExpressionFactory);
-        _projectionBindingExpressionVisitor = new(this, _sqlTranslator);
+            new SharedTypeEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
+        _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
         _sqlExpressionFactory = sqlExpressionFactory;
         _subquery = false;
     }
@@ -60,8 +60,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         _sqlTranslator = RelationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(
             parentVisitor._queryCompilationContext, parentVisitor);
         _sharedTypeEntityExpandingExpressionVisitor =
-            new(_sqlTranslator, parentVisitor._sqlExpressionFactory);
-        _projectionBindingExpressionVisitor = new(this, _sqlTranslator);
+            new SharedTypeEntityExpandingExpressionVisitor(_sqlTranslator, parentVisitor._sqlExpressionFactory);
+        _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
         _subquery = true;
     }
@@ -161,7 +161,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                 var selectExpression = new SelectExpression(
                     sqlQueryRootExpression.Type, typeMapping,
-                    new("t", sqlQueryRootExpression.Sql, sqlQueryRootExpression.Argument));
+                    new FromSqlExpression("t", sqlQueryRootExpression.Sql, sqlQueryRootExpression.Argument));
 
                 Expression shaperExpression = new ProjectionBindingExpression(
                     selectExpression, new ProjectionMember(), sqlQueryRootExpression.ElementType.MakeNullable());
@@ -751,7 +751,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             return null;
         }
 
-        ((SelectExpression)source.QueryExpression).ApplyOrdering(new(translation, ascending));
+        ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
 
         return source;
     }
@@ -979,7 +979,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             return null;
         }
 
-        ((SelectExpression)source.QueryExpression).AppendOrdering(new(translation, ascending));
+        ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
 
         return source;
     }
@@ -1063,7 +1063,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             selectExpression.ReplaceProjection(new List<Expression>());
             selectExpression.ApplyProjection();
 
-            return new(new DeleteExpression(tableExpression, selectExpression));
+            return new NonQueryExpression(new DeleteExpression(tableExpression, selectExpression));
         }
 
         // We need to convert to PK predicate
@@ -1284,7 +1284,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         OperatorType: ExpressionType.Equal, Left: ColumnExpression column
                     } sqlBinaryExpression)
                 {
-                    columnValueSetters.Add(new(column, sqlBinaryExpression.Right));
+                    columnValueSetters.Add(new ColumnValueSetter(column, sqlBinaryExpression.Right));
                 }
                 else
                 {
@@ -1299,7 +1299,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             selectExpression.ReplaceProjection(new List<Expression>());
             selectExpression.ApplyProjection();
 
-            return new(new UpdateExpression(tableExpression, selectExpression, columnValueSetters));
+            return new NonQueryExpression(new UpdateExpression(tableExpression, selectExpression, columnValueSetters));
         }
 
         void PopulateSetPropertyCalls(
@@ -1554,7 +1554,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         public Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
         {
             _selectExpression = selectExpression;
-            _deferredOwnedExpansionRemover = new(_selectExpression);
+            _deferredOwnedExpansionRemover = new DeferredOwnedExpansionRemovingVisitor(_selectExpression);
 
             return _deferredOwnedExpansionRemover.Visit(Visit(lambdaBody));
         }
@@ -1811,7 +1811,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             return doee is not null
                 ? doee.AddNavigation(targetEntityType, navigation)
-                : new(
+                : new DeferredOwnedExpansionExpression(
                     targetEntityType,
                     (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression,
                     navigation);
@@ -1903,7 +1903,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             {
                 _entityType = entityType;
                 ProjectionBindingExpression = projectionBindingExpression;
-                NavigationChain = new() { navigation };
+                NavigationChain = new List<INavigation> { navigation };
             }
 
             private DeferredOwnedExpansionExpression(
@@ -1925,7 +1925,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 navigationChain.AddRange(NavigationChain);
                 navigationChain.Add(navigation);
 
-                return new(
+                return new DeferredOwnedExpansionExpression(
                     entityType,
                     ProjectionBindingExpression,
                     navigationChain);

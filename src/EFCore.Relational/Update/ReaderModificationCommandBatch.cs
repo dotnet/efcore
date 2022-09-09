@@ -256,7 +256,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
         RelationalCommandBuilder.Append(SqlBuilder.ToString());
 
-        StoreCommand = new(RelationalCommandBuilder.Build(), ParameterValues);
+        StoreCommand = new RawSqlCommand(RelationalCommandBuilder.Build(), ParameterValues);
     }
 
     /// <summary>
@@ -344,7 +344,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         try
         {
             using var dataReader = StoreCommand.RelationalCommand.ExecuteReader(
-                new(
+                new RelationalCommandParameterObject(
                     connection,
                     StoreCommand.ParameterValues,
                     null,
@@ -381,7 +381,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         try
         {
             var dataReader = await StoreCommand.RelationalCommand.ExecuteReaderAsync(
-                new(
+                new RelationalCommandParameterObject(
                     connection,
                     StoreCommand.ParameterValues,
                     null,

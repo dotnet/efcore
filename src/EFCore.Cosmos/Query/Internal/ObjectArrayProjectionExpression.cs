@@ -118,7 +118,7 @@ public class ObjectArrayProjectionExpression : Expression, IPrintableExpression,
         Expression accessExpression,
         EntityProjectionExpression innerProjection)
         => accessExpression != AccessExpression || innerProjection != InnerProjection
-            ? new(Navigation, accessExpression, innerProjection)
+            ? new ObjectArrayProjectionExpression(Navigation, accessExpression, innerProjection)
             : this;
 
     /// <summary>

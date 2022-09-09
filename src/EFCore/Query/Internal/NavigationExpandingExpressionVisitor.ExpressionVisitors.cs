@@ -476,7 +476,7 @@ public partial class NavigationExpandingExpressionVisitor
 
             entityReference.ForeignKeyExpansionMap[(foreignKey, onDependent)] = innerSource.PendingSelector;
 
-            _source.UpdateCurrentTree(new(_source.CurrentTree, innerSource.CurrentTree));
+            _source.UpdateCurrentTree(new NavigationTreeNode(_source.CurrentTree, innerSource.CurrentTree));
 
             return innerSource.PendingSelector;
         }
@@ -1107,7 +1107,7 @@ public partial class NavigationExpandingExpressionVisitor
                 case NavigationTreeNode navigationTreeNode:
                     if (!_clonedMap.TryGetValue(navigationTreeNode, out var clonedNavigationTreeNode))
                     {
-                        clonedNavigationTreeNode = new(
+                        clonedNavigationTreeNode = new NavigationTreeNode(
                             (NavigationTreeNode)Visit(navigationTreeNode.Left!),
                             (NavigationTreeNode)Visit(navigationTreeNode.Right!));
                         _clonedMap[navigationTreeNode] = clonedNavigationTreeNode;
@@ -1140,7 +1140,7 @@ public partial class NavigationExpandingExpressionVisitor
                 groupByNavigationExpansionExpression.CurrentParameter.Type.GetTypeInfo().GetDeclaredProperty(
                     nameof(IGrouping<int, int>.Key))!);
             _keyMemberInfo = parameterExpression.Type.GetTypeInfo().GetDeclaredProperty(nameof(IGrouping<int, int>.Key))!;
-            _cloningExpressionVisitor = new();
+            _cloningExpressionVisitor = new CloningExpressionVisitor();
         }
 
         public GroupingElementReplacingExpressionVisitor(
@@ -1149,7 +1149,7 @@ public partial class NavigationExpandingExpressionVisitor
         {
             _parameterExpression = parameterExpression;
             _navigationExpansionExpression = navigationExpansionExpression;
-            _cloningExpressionVisitor = new();
+            _cloningExpressionVisitor = new CloningExpressionVisitor();
         }
 
         public bool ContainsGrouping { get; private set; }

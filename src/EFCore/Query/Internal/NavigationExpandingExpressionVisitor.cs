@@ -73,14 +73,14 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         _queryTranslationPreprocessor = queryTranslationPreprocessor;
         _queryCompilationContext = queryCompilationContext;
         _extensibilityHelper = extensibilityHelper;
-        _pendingSelectorExpandingExpressionVisitor = new(this, extensibilityHelper);
-        _subqueryMemberPushdownExpressionVisitor = new(queryCompilationContext.Model);
-        _nullCheckRemovingExpressionVisitor = new();
-        _reducingExpressionVisitor = new();
-        _entityReferenceOptionalMarkingExpressionVisitor = new();
-        _removeRedundantNavigationComparisonExpressionVisitor = new(
+        _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this, extensibilityHelper);
+        _subqueryMemberPushdownExpressionVisitor = new SubqueryMemberPushdownExpressionVisitor(queryCompilationContext.Model);
+        _nullCheckRemovingExpressionVisitor = new NullCheckRemovingExpressionVisitor();
+        _reducingExpressionVisitor = new ReducingExpressionVisitor();
+        _entityReferenceOptionalMarkingExpressionVisitor = new EntityReferenceOptionalMarkingExpressionVisitor();
+        _removeRedundantNavigationComparisonExpressionVisitor = new RemoveRedundantNavigationComparisonExpressionVisitor(
             queryCompilationContext.Logger);
-        _parameterExtractingExpressionVisitor = new(
+        _parameterExtractingExpressionVisitor = new ParameterExtractingExpressionVisitor(
             evaluatableExpressionFilter,
             _parameters,
             _queryCompilationContext.ContextType,
@@ -850,7 +850,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var navigationTree = new NavigationTreeExpression(newStructure);
         var parameterName = GetParameterName("e");
 
-        return new(result, navigationTree, navigationTree, parameterName);
+        return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
     }
 
     private Expression ProcessContains(NavigationExpansionExpression source, Expression item)
@@ -893,7 +893,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var navigationTree = new NavigationTreeExpression(newStructure);
         var parameterName = GetParameterName("e");
 
-        return new(result, navigationTree, navigationTree, parameterName);
+        return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
     }
 
     private static NavigationExpansionExpression ProcessSkipTake(
@@ -1177,7 +1177,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             .Visit(resultSelector.Body);
         var parameterName = GetParameterName("ti");
 
-        return new(source, currentTree, pendingSelector, parameterName);
+        return new NavigationExpansionExpression(source, currentTree, pendingSelector, parameterName);
     }
 
     private NavigationExpansionExpression ProcessLeftJoin(
@@ -1229,7 +1229,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             .Visit(resultSelector.Body);
         var parameterName = GetParameterName("ti");
 
-        return new(source, currentTree, pendingSelector, parameterName);
+        return new NavigationExpansionExpression(source, currentTree, pendingSelector, parameterName);
     }
 
     private NavigationExpansionExpression ProcessOrderByThenBy(
@@ -1336,7 +1336,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     .Visit(resultSelector.Body);
             var parameterName = GetParameterName("ti");
 
-            return new(newSource, currentTree, pendingSelector, parameterName);
+            return new NavigationExpansionExpression(newSource, currentTree, pendingSelector, parameterName);
         }
 
         // TODO: Improve this exception message
@@ -1375,7 +1375,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             outerType.IsAssignableFrom(innerType) ? outerTreeStructure : innerTreeStructure);
         var parameterName = GetParameterName("e");
 
-        return new(result, navigationTree, navigationTree, parameterName);
+        return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
     }
 
     private Expression ProcessUnknownMethod(MethodCallExpression methodCallExpression)
@@ -1481,7 +1481,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var navigationTree = new NavigationTreeExpression(Expression.Default(selector.ReturnType));
         var parameterName = GetParameterName("e");
 
-        return new(newSource, navigationTree, navigationTree, parameterName);
+        return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, parameterName);
     }
 
     private static GroupByNavigationExpansionExpression ProcessSkipTake(
@@ -1869,7 +1869,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var currentTree = new NavigationTreeExpression(entityReference);
         var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLowerInvariant());
 
-        return new(sourceExpression, currentTree, currentTree, parameterName);
+        return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
     }
 
     private NavigationExpansionExpression CreateNavigationExpansionExpression(
@@ -1880,7 +1880,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var entityReference = ownedNavigationReference.EntityReference;
         var currentTree = new NavigationTreeExpression(entityReference);
 
-        return new(sourceExpression, currentTree, currentTree, parameterName);
+        return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
     }
 
     private Expression ExpandNavigationsForSource(NavigationExpansionExpression source, Expression expression)
@@ -1996,7 +1996,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         if (!_queryCompilationContext.IgnoreAutoIncludes
             && !_nonCyclicAutoIncludeEntityTypes.Contains(entityType))
         {
-            VerifyNoAutoIncludeCycles(entityType, new(), new());
+            VerifyNoAutoIncludeCycles(entityType, new HashSet<IEntityType>(), new List<INavigationBase>());
         }
 
         var outboundNavigations = GetOutgoingEagerLoadedNavigations(entityType);

@@ -204,7 +204,7 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if entity type not changed, or an expression with updated entity type.</returns>
     public virtual EntityShaperExpression WithEntityType(IEntityType entityType)
         => entityType != EntityType
-            ? new(entityType, ValueBufferExpression, IsNullable)
+            ? new EntityShaperExpression(entityType, ValueBufferExpression, IsNullable)
             : this;
 
     /// <summary>
@@ -215,7 +215,7 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     public virtual EntityShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
             // Marking nullable requires re-computation of materialization condition
-            ? new(EntityType, ValueBufferExpression, nullable)
+            ? new EntityShaperExpression(EntityType, ValueBufferExpression, nullable)
             : this;
 
     /// <summary>
@@ -226,7 +226,7 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual EntityShaperExpression Update(Expression valueBufferExpression)
         => valueBufferExpression != ValueBufferExpression
-            ? new(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
+            ? new EntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
             : this;
 
     /// <inheritdoc />

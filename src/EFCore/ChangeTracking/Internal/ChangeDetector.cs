@@ -152,7 +152,7 @@ public class ChangeDetector : IChangeDetector
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void DetectChanges(InternalEntityEntry entry)
-        => DetectChanges(entry, new() { entry });
+        => DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
 
     private bool DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
     {
@@ -466,7 +466,7 @@ public class ChangeDetector : IChangeDetector
             try
             {
                 changeTracker.AutoDetectChangesEnabled = false;
-                @event(changeTracker, new(internalEntityEntry));
+                @event(changeTracker, new DetectEntityChangesEventArgs(internalEntityEntry));
             }
             finally
             {
@@ -500,7 +500,7 @@ public class ChangeDetector : IChangeDetector
             try
             {
                 changeTracker.AutoDetectChangesEnabled = false;
-                @event(changeTracker, new());
+                @event(changeTracker, new DetectChangesEventArgs());
             }
             finally
             {
@@ -534,7 +534,7 @@ public class ChangeDetector : IChangeDetector
             try
             {
                 changeTracker.AutoDetectChangesEnabled = false;
-                @event(changeTracker, new(internalEntityEntry, changesFound));
+                @event(changeTracker, new DetectedEntityChangesEventArgs(internalEntityEntry, changesFound));
             }
             finally
             {
@@ -568,7 +568,7 @@ public class ChangeDetector : IChangeDetector
             try
             {
                 changeTracker.AutoDetectChangesEnabled = false;
-                @event(changeTracker, new(changesFound));
+                @event(changeTracker, new DetectedChangesEventArgs(changesFound));
             }
             finally
             {

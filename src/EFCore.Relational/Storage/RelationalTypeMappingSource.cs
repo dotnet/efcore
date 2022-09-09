@@ -218,7 +218,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         var storeTypeNameBase = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
 
         return FindMappingWithConversion(
-            new(principals, storeTypeName, storeTypeNameBase, unicode, isFixedLength, size, precision, scale),
+            new RelationalTypeMappingInfo(principals, storeTypeName, storeTypeNameBase, unicode, isFixedLength, size, precision, scale),
             principals);
     }
 
@@ -238,7 +238,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// <param name="type">The CLR type.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public override RelationalTypeMapping? FindMapping(Type type)
-        => FindMappingWithConversion(new(type), null);
+        => FindMappingWithConversion(new RelationalTypeMappingInfo(type), null);
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
@@ -259,7 +259,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         ValueConverter? customConverter = null;
         if (typeConfiguration == null)
         {
-            mappingInfo = new(type);
+            mappingInfo = new RelationalTypeMappingInfo(type);
         }
         else
         {
@@ -285,7 +285,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             }
 
             var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
-            mappingInfo = new(
+            mappingInfo = new RelationalTypeMappingInfo(
                 customConverter?.ProviderClrType ?? type,
                 storeTypeName,
                 storeTypeBaseName,
@@ -326,10 +326,10 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 attribute.TypeName, out var unicode, out var size, out var precision, out var scale);
 
             return FindMappingWithConversion(
-                new(member, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
+                new RelationalTypeMappingInfo(member, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
         }
 
-        return FindMappingWithConversion(new(member), null);
+        return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null);
     }
 
     /// <summary>
@@ -351,7 +351,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         var storeTypeBaseName = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
 
         return FindMappingWithConversion(
-            new(storeTypeName, storeTypeBaseName, unicode, size, precision, scale), null);
+            new RelationalTypeMappingInfo(storeTypeName, storeTypeBaseName, unicode, size, precision, scale), null);
     }
 
     /// <summary>
@@ -401,7 +401,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         }
 
         return FindMappingWithConversion(
-            new(
+            new RelationalTypeMappingInfo(
                 type, storeTypeName, storeTypeBaseName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
     }
 

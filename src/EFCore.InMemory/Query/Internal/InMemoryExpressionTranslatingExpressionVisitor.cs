@@ -95,7 +95,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     {
         _queryCompilationContext = queryCompilationContext;
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
-        _entityReferenceFindingExpressionVisitor = new();
+        _entityReferenceFindingExpressionVisitor = new EntityReferenceFindingExpressionVisitor();
         _model = queryCompilationContext.Model;
     }
 

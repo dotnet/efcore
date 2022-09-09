@@ -580,7 +580,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             needsExec = historyTableSchema == null;
             var subBuilder = needsExec
-                ? new(Dependencies)
+                ? new MigrationCommandListBuilder(Dependencies)
                 : builder;
 
             subBuilder
@@ -831,7 +831,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 && (operation.Filter != null
                     || needsLegacyFilter);
             var subBuilder = needsExec
-                ? new(Dependencies)
+                ? new MigrationCommandListBuilder(Dependencies)
                 : builder;
 
             base.Generate(operation, model, subBuilder, terminate: false);

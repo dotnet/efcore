@@ -77,7 +77,7 @@ public class ReadItemExpression : Expression
     {
         Container = entityType.GetContainer();
 
-        ProjectionExpression = new(
+        ProjectionExpression = new ProjectionExpression(
             new EntityProjectionExpression(
                 entityType,
                 new RootReferenceExpression(entityType, RootAlias)),

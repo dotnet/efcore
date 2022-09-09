@@ -281,7 +281,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     {
         Check.NullButNotEmpty(ownerReference, nameof(ownerReference));
 
-        return new(
+        return new OwnershipBuilder(
             PrincipalEntityType,
             DependentEntityType,
             Builder.HasNavigation(
@@ -317,7 +317,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         string ownedTypeName,
         string navigationName)
         => OwnsOneBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -349,7 +349,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Type ownedType,
         string navigationName)
         => OwnsOneBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -379,7 +379,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Type ownedType,
         string navigationName)
         => OwnsOneBuilder(
-            new(Check.NotNull(ownedType, nameof(ownedType)), DependentEntityType.Model),
+            new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), DependentEntityType.Model),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -417,7 +417,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         using (DependentEntityType.Model.DelayConventions())
         {
-            buildAction(OwnsOneBuilder(new(ownedTypeName), navigationName));
+            buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
             return this;
         }
     }
@@ -460,7 +460,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         using (DependentEntityType.Model.DelayConventions())
         {
-            buildAction(OwnsOneBuilder(new(ownedTypeName, ownedType), navigationName));
+            buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
             return this;
         }
     }
@@ -500,7 +500,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         using (DependentEntityType.Model.DelayConventions())
         {
-            buildAction(OwnsOneBuilder(new(ownedType, DependentEntityType.Model), navigationName));
+            buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, DependentEntityType.Model), navigationName));
             return this;
         }
     }
@@ -516,7 +516,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
             foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata)!;
         }
 
-        return new(foreignKey);
+        return new OwnedNavigationBuilder(foreignKey);
     }
 
     /// <summary>
@@ -545,7 +545,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         string ownedTypeName,
         string navigationName)
         => OwnsManyBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -576,7 +576,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Type ownedType,
         string navigationName)
         => OwnsManyBuilder(
-            new(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -605,7 +605,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Type ownedType,
         string navigationName)
         => OwnsManyBuilder(
-            new(Check.NotNull(ownedType, nameof(ownedType)), DependentEntityType.Model),
+            new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), DependentEntityType.Model),
             Check.NotEmpty(navigationName, nameof(navigationName)));
 
     /// <summary>
@@ -642,7 +642,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         using (DependentEntityType.Model.DelayConventions())
         {
-            buildAction(OwnsManyBuilder(new(ownedTypeName), navigationName));
+            buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
             return this;
         }
     }
@@ -684,7 +684,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         using (DependentEntityType.Model.DelayConventions())
         {
-            buildAction(OwnsManyBuilder(new(ownedTypeName, ownedType), navigationName));
+            buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
             return this;
         }
     }
@@ -723,7 +723,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         using (DependentEntityType.Model.DelayConventions())
         {
-            buildAction(OwnsManyBuilder(new(ownedType, DependentEntityType.Model), navigationName));
+            buildAction(OwnsManyBuilder(new TypeIdentity(ownedType, DependentEntityType.Model), navigationName));
             return this;
         }
     }
@@ -739,7 +739,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
             foreignKey = (IMutableForeignKey)batch.Run(relationship.Metadata)!;
         }
 
-        return new(foreignKey);
+        return new OwnedNavigationBuilder(foreignKey);
     }
 
     /// <summary>
@@ -776,7 +776,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
 
-        return new(
+        return new ReferenceNavigationBuilder(
             DependentEntityType,
             relatedEntityType,
             navigationName,
@@ -850,7 +850,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
 
-        return new(
+        return new ReferenceNavigationBuilder(
             DependentEntityType,
             relatedEntityType,
             navigationName,
@@ -977,7 +977,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 
-        return new();
+        return new DataBuilder();
     }
 
     /// <summary>
@@ -993,6 +993,6 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
 
         DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 
-        return new();
+        return new DataBuilder();
     }
 }

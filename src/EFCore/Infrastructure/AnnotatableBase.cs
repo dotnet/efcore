@@ -148,7 +148,7 @@ public class AnnotatableBase : IAnnotatable
     {
         EnsureMutable();
 
-        _annotations ??= new(StringComparer.Ordinal);
+        _annotations ??= new SortedDictionary<string, Annotation>(StringComparer.Ordinal);
         _annotations[name] = annotation;
 
         return OnAnnotationSet(name, annotation, oldAnnotation);
@@ -432,7 +432,7 @@ public class AnnotatableBase : IAnnotatable
         EnsureReadOnly();
 
         return NonCapturingLazyInitializer.EnsureInitialized(
-            ref _runtimeAnnotations, (object?)null, static _ => new());
+            ref _runtimeAnnotations, (object?)null, static _ => new ConcurrentDictionary<string, Annotation>());
     }
 
     /// <inheritdoc />

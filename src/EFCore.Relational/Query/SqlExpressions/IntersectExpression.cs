@@ -58,7 +58,7 @@ public class IntersectExpression : SetOperationBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual IntersectExpression Update(SelectExpression source1, SelectExpression source2)
         => source1 != Source1 || source2 != Source2
-            ? new(Alias, source1, source2, IsDistinct, GetAnnotations())
+            ? new IntersectExpression(Alias, source1, source2, IsDistinct, GetAnnotations())
             : this;
 
     /// <inheritdoc />

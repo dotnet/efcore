@@ -30,7 +30,7 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
         ModelName = modelName;
         _configurationSource = configurationSource;
 
-        _builder = new(this, ((IConventionModel)entityType.Model).Builder);
+        _builder = new InternalTriggerBuilder(this, ((IConventionModel)entityType.Model).Builder);
     }
 
     /// <summary>

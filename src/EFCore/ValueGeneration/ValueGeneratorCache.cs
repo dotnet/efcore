@@ -80,5 +80,5 @@ public class ValueGeneratorCache : IValueGeneratorCache
         IProperty property,
         IEntityType entityType,
         Func<IProperty, IEntityType, ValueGenerator> factory)
-        => _cache.GetOrAdd(new(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
+        => _cache.GetOrAdd(new CacheKey(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
 }

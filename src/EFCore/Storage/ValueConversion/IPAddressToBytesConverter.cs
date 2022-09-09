@@ -40,7 +40,7 @@ public class IPAddressToBytesConverter : ValueConverter<IPAddress?, byte[]?>
     public IPAddressToBytesConverter(ConverterMappingHints? mappingHints)
         : base(
             v => v!.GetAddressBytes(),
-            v => new(v!),
+            v => new IPAddress(v!),
             DefaultHints.With(mappingHints))
     {
     }

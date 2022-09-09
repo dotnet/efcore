@@ -29,11 +29,11 @@ internal class CommandLineApplication
     public CommandLineApplication(bool throwOnUnexpectedArg = true)
     {
         _throwOnUnexpectedArg = throwOnUnexpectedArg;
-        Options = new();
-        Arguments = new();
-        Commands = new();
-        RemainingArguments = new();
-        ApplicationArguments = new();
+        Options = new List<CommandOption>();
+        Arguments = new List<CommandArgument>();
+        Commands = new List<CommandLineApplication>();
+        RemainingArguments = new List<string>();
+        ApplicationArguments = new List<string>();
         Invoke = _ => 0;
     }
 

@@ -1043,7 +1043,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                 IGrouping<(string Name, string? TypeDesc), DbDataRecord> primaryKeyGroup,
                 [NotNullWhen(true)] out DatabasePrimaryKey? primaryKey)
             {
-                primaryKey = new() { Table = table, Name = primaryKeyGroup.Key.Name };
+                primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
 
                 if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
                 {
@@ -1072,7 +1072,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                 IGrouping<(string? Name, string? TypeDesc), DbDataRecord> uniqueConstraintGroup,
                 [NotNullWhen(true)] out DatabaseUniqueConstraint? uniqueConstraint)
             {
-                uniqueConstraint = new() { Table = table, Name = uniqueConstraintGroup.Key.Name };
+                uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
 
                 if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
                 {
@@ -1102,7 +1102,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     DbDataRecord> indexGroup,
                 [NotNullWhen(true)] out DatabaseIndex? index)
             {
-                index = new()
+                index = new DatabaseIndex
                 {
                     Table = table,
                     Name = indexGroup.Key.Name,
@@ -1330,7 +1330,7 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
 
                 // We don't actually scaffold anything beyond the fact that there's a trigger with a given name.
                 // This is to modify the SaveChanges logic to not use OUTPUT without INTO, which is incompatible with triggers.
-                table.Triggers.Add(new() { Name = triggerName });
+                table.Triggers.Add(new DatabaseTrigger { Name = triggerName });
             }
         }
     }

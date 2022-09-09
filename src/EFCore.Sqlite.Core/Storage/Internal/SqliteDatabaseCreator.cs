@@ -47,7 +47,7 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
 
         _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';")
             .ExecuteNonQuery(
-                new(
+                new RelationalCommandParameterObject(
                     Dependencies.Connection,
                     null,
                     null,
@@ -96,7 +96,7 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
         var count = (long)_rawSqlCommandBuilder
             .Build("SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;")
             .ExecuteScalar(
-                new(
+                new RelationalCommandParameterObject(
                     Dependencies.Connection,
                     null,
                     null,
@@ -132,7 +132,7 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
 
         if (!string.IsNullOrEmpty(path))
         {
-            SqliteConnection.ClearPool(new(Dependencies.Connection.ConnectionString));
+            SqliteConnection.ClearPool(new SqliteConnection(Dependencies.Connection.ConnectionString));
             // See issues #25797 and #26016
             // SqliteConnection.ClearAllPools();
             File.Delete(path);

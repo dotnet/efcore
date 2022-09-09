@@ -43,7 +43,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
         _sqlTranslator = sqlTranslatingExpressionVisitor;
-        _includeFindingExpressionVisitor = new();
+        _includeFindingExpressionVisitor = new IncludeFindingExpressionVisitor();
         _selectExpression = null!;
     }
 
@@ -58,17 +58,17 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = selectExpression;
         _indexBasedBinding = false;
 
-        _projectionMembers.Push(new());
+        _projectionMembers.Push(new ProjectionMember());
 
         var result = Visit(expression);
 
         if (result == QueryCompilationContext.NotTranslatedExpression)
         {
             _indexBasedBinding = true;
-            _entityProjectionCache = new();
-            _jsonQueryCache = new();
+            _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
+            _jsonQueryCache = new Dictionary<JsonQueryExpression, ProjectionBindingExpression>();
             _projectionMapping.Clear();
-            _clientProjections = new();
+            _clientProjections = new List<Expression>();
 
             result = Visit(expression);
 
@@ -168,7 +168,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 _clientProjections!.Add(jsonQueryExpression);
 
                                 return new CollectionResultExpression(
-                                    new(
+                                    new ProjectionBindingExpression(
                                         _selectExpression, _clientProjections!.Count - 1, jsonQueryExpression.Type),
                                     materializeCollectionNavigationExpression.Navigation,
                                     materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
@@ -181,7 +181,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                         return new CollectionResultExpression(
                             // expression.Type will be CLR type of the navigation here so that is fine.
-                            new(_selectExpression, _clientProjections.Count - 1, expression.Type),
+                            new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
                             materializeCollectionNavigationExpression.Navigation,
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
@@ -207,7 +207,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             _clientProjections!.Add(subquery);
                             // expression.Type here will be List<T>
                             return new CollectionResultExpression(
-                                new(_selectExpression, _clientProjections.Count - 1, expression.Type),
+                                new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
                                 navigation: null,
                                 methodCallExpression.Method.GetGenericArguments()[0]);
                         }
@@ -403,7 +403,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     _clientProjections!.Add(mappedProjection);
 
                     return collectionResultExpression.Update(
-                        new(
+                        new ProjectionBindingExpression(
                             _selectExpression, _clientProjections.Count - 1, collectionResultExpression.Type));
                 }
 
@@ -657,7 +657,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             existingIndex = _clientProjections.Count - 1;
         }
 
-        return new(_selectExpression, existingIndex, type);
+        return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
 
 #pragma warning disable IDE0052 // Remove unread private members

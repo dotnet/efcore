@@ -143,7 +143,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         entityTypeBuilder.Metadata.SetViewName(name);
         entityTypeBuilder.Metadata.SetViewSchema(schema);
         entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
-        buildAction(new(StoreObjectIdentifier.View(name, entityTypeBuilder.Metadata.GetViewSchema()), entityTypeBuilder));
+        buildAction(new ViewBuilder(StoreObjectIdentifier.View(name, entityTypeBuilder.Metadata.GetViewSchema()), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -174,7 +174,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         entityTypeBuilder.Metadata.SetViewSchema(schema);
         entityTypeBuilder.Metadata.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
         buildAction(
-            new(StoreObjectIdentifier.View(name, entityTypeBuilder.Metadata.GetViewSchema()), entityTypeBuilder));
+            new ViewBuilder<TEntity>(StoreObjectIdentifier.View(name, entityTypeBuilder.Metadata.GetViewSchema()), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -317,7 +317,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         ownedNavigationBuilder.OwnedEntityType.SetViewSchema(schema);
         ownedNavigationBuilder.OwnedEntityType.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
         buildAction(
-            new(
+            new OwnedNavigationViewBuilder(
                 StoreObjectIdentifier.View(name, ownedNavigationBuilder.OwnedEntityType.GetViewSchema()), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
@@ -351,7 +351,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         ownedNavigationBuilder.OwnedEntityType.SetViewSchema(schema);
         ownedNavigationBuilder.OwnedEntityType.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
         buildAction(
-            new(
+            new OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(
                 StoreObjectIdentifier.View(name, ownedNavigationBuilder.OwnedEntityType.GetViewSchema()), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
@@ -416,7 +416,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(buildAction, nameof(buildAction));
 
         buildAction(
-            new(
+            new SplitViewBuilder(
                 StoreObjectIdentifier.View(name, schema ?? entityTypeBuilder.Metadata.GetDefaultViewSchema()), entityTypeBuilder));
 
         return entityTypeBuilder;
@@ -447,7 +447,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(buildAction, nameof(buildAction));
 
         buildAction(
-            new(
+            new SplitViewBuilder<TEntity>(
                 StoreObjectIdentifier.View(name, schema ?? entityTypeBuilder.Metadata.GetDefaultViewSchema()), entityTypeBuilder));
 
         return entityTypeBuilder;
@@ -514,7 +514,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(buildAction, nameof(buildAction));
 
         buildAction(
-            new(
+            new OwnedNavigationSplitViewBuilder(
                 StoreObjectIdentifier.View(name, schema ?? ownedNavigationBuilder.OwnedEntityType.GetDefaultViewSchema()),
                 ownedNavigationBuilder));
 
@@ -548,7 +548,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(buildAction, nameof(buildAction));
 
         buildAction(
-            new(
+            new OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(
                 StoreObjectIdentifier.View(name, schema ?? ownedNavigationBuilder.OwnedEntityType.GetDefaultViewSchema()),
                 ownedNavigationBuilder));
 

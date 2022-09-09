@@ -82,7 +82,7 @@ public class NonQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual NonQueryExpression Update(Expression expression)
         => expression != Expression
-            ? new(expression, CommandSource)
+            ? new NonQueryExpression(expression, CommandSource)
             : this;
 
     /// <inheritdoc />

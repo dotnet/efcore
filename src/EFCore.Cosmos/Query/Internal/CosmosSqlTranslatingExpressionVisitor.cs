@@ -59,7 +59,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         _sqlExpressionFactory = sqlExpressionFactory;
         _memberTranslatorProvider = memberTranslatorProvider;
         _methodCallTranslatorProvider = methodCallTranslatorProvider;
-        _sqlVerifyingExpressionVisitor = new();
+        _sqlVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
     }
 
     /// <summary>
@@ -1064,7 +1064,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
             => type == typeof(object) // Ignore object conversion
                 || type.IsAssignableFrom(Type) // Ignore conversion to base/interface
                     ? this
-                    : new(ParameterEntity, type);
+                    : new EntityReferenceExpression(ParameterEntity, type);
     }
 
     private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor

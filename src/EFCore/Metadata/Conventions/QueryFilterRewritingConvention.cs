@@ -22,7 +22,7 @@ public class QueryFilterRewritingConvention : IModelFinalizingConvention
     public QueryFilterRewritingConvention(ProviderConventionSetBuilderDependencies dependencies)
     {
         Dependencies = dependencies;
-        DbSetAccessRewriter = new(dependencies.ContextType);
+        DbSetAccessRewriter = new DbSetAccessRewritingExpressionVisitor(dependencies.ContextType);
     }
 
     /// <summary>

@@ -39,7 +39,7 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
     {
         var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
 
-        return new(
+        return new RelationalCompiledQueryCacheKey(
             base.GenerateCacheKeyCore(query, async),
             relationalOptions.UseRelationalNulls,
             relationalOptions.QuerySplittingBehavior,

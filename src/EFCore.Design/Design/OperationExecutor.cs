@@ -51,7 +51,7 @@ public class OperationExecutor : MarshalByRefObject
         Check.NotNull(reportHandler, nameof(reportHandler));
         Check.NotNull(args, nameof(args));
 
-        _reporter = new(reportHandler);
+        _reporter = new OperationReporter(reportHandler);
         _targetName = (string)args["targetName"]!;
         _startupTargetName = (string)args["startupTargetName"]!;
         _projectDir = (string)args["projectDir"]!;
@@ -97,7 +97,7 @@ public class OperationExecutor : MarshalByRefObject
 
     private MigrationsOperations MigrationsOperations
         => _migrationsOperations
-            ??= new(
+            ??= new MigrationsOperations(
                 _reporter,
                 Assembly,
                 StartupAssembly,
@@ -109,7 +109,7 @@ public class OperationExecutor : MarshalByRefObject
 
     private DbContextOperations ContextOperations
         => _contextOperations
-            ??= new(
+            ??= new DbContextOperations(
                 _reporter,
                 Assembly,
                 StartupAssembly,
@@ -121,7 +121,7 @@ public class OperationExecutor : MarshalByRefObject
 
     private DatabaseOperations DatabaseOperations
         => _databaseOperations
-            ??= new(
+            ??= new DatabaseOperations(
                 _reporter,
                 Assembly,
                 StartupAssembly,

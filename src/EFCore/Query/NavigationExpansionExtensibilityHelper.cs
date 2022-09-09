@@ -23,7 +23,7 @@ public class NavigationExpansionExtensibilityHelper : INavigationExpansionExtens
     /// <inheritdoc />
     public virtual EntityQueryRootExpression CreateQueryRoot(IEntityType entityType, EntityQueryRootExpression? source)
         => source?.QueryProvider != null
-            ? new(source.QueryProvider, entityType)
+            ? new EntityQueryRootExpression(source.QueryProvider, entityType)
             : new EntityQueryRootExpression(entityType);
 
     /// <inheritdoc />

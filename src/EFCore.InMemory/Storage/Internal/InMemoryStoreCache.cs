@@ -42,7 +42,7 @@ public class InMemoryStoreCache : IInMemoryStoreCache
         }
         else
         {
-            _namedStores = new();
+            _namedStores = new ConcurrentDictionary<string, IInMemoryStore>();
         }
     }
 

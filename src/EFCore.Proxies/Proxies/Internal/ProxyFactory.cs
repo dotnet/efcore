@@ -94,7 +94,7 @@ public class ProxyFactory : IProxyFactory
             GetInterfacesToProxy(entityType),
             GenerationOptions,
             constructorArguments,
-            GetNotifyChangeInterceptors(entityType, new(entityType, loader)));
+            GetNotifyChangeInterceptors(entityType, new LazyLoadingInterceptor(entityType, loader)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

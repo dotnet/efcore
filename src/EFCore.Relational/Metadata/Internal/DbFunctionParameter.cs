@@ -40,7 +40,7 @@ public class DbFunctionParameter :
         Name = name;
         Function = function;
         ClrType = clrType;
-        _builder = new(this, function.Builder.ModelBuilder);
+        _builder = new InternalDbFunctionParameterBuilder(this, function.Builder.ModelBuilder);
     }
 
     /// <summary>

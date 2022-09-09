@@ -156,9 +156,9 @@ public class CollectionCollectionBuilder
             LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
             "LeftNavigation.JoinEntityType != RightNavigation.JoinEntityType");
 
-        configureJoinEntityType(new(LeftNavigation.JoinEntityType));
+        configureJoinEntityType(new EntityTypeBuilder(LeftNavigation.JoinEntityType));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ public class CollectionCollectionBuilder
 
         configureJoinEntityType(UsingEntity(joinEntityType));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ public class CollectionCollectionBuilder
 
         configureJoinEntityType(UsingEntity(joinEntityName));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ public class CollectionCollectionBuilder
 
         configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     /// <summary>
@@ -306,7 +306,7 @@ public class CollectionCollectionBuilder
 
         configureJoinEntityType(UsingEntity(configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     /// <summary>
@@ -327,7 +327,7 @@ public class CollectionCollectionBuilder
 
         configureJoinEntityType(UsingEntity(joinEntityType, configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     /// <summary>
@@ -348,7 +348,7 @@ public class CollectionCollectionBuilder
 
         configureJoinEntityType(UsingEntity(joinEntityName, configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     /// <summary>
@@ -371,7 +371,7 @@ public class CollectionCollectionBuilder
 
         configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType, configureRight, configureLeft));
 
-        return new(RightEntityType);
+        return new EntityTypeBuilder(RightEntityType);
     }
 
     private EntityTypeBuilder Using(
@@ -384,10 +384,10 @@ public class CollectionCollectionBuilder
                 joinEntityName,
                 joinEntityType,
                 configureRight != null
-                    ? e => configureRight(new(e)).Metadata
+                    ? e => configureRight(new EntityTypeBuilder(e)).Metadata
                     : null,
                 configureLeft != null
-                    ? e => configureLeft(new(e)).Metadata
+                    ? e => configureLeft(new EntityTypeBuilder(e)).Metadata
                     : null));
 
     /// <summary>

@@ -93,8 +93,8 @@ public class RelationshipDiscoveryConvention :
             {
                 // Current entity type was removed while the target entity type was being added
                 relationshipCandidates[candidateTargetEntityType] =
-                    new(
-                        candidateTargetEntityTypeBuilder, new(), new(), false);
+                    new RelationshipCandidate(
+                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
                 break;
             }
 
@@ -104,8 +104,8 @@ public class RelationshipDiscoveryConvention :
                         || entityType.IsKeyless)))
             {
                 relationshipCandidates[candidateTargetEntityType] =
-                    new(
-                        candidateTargetEntityTypeBuilder, new(), new(), false);
+                    new RelationshipCandidate(
+                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
                 continue;
             }
 
@@ -139,8 +139,8 @@ public class RelationshipDiscoveryConvention :
                 // Only the owner or nested ownees can have navigations to an owned type
                 // Also skip non-ownership navigations from the owner
                 relationshipCandidates[candidateTargetEntityType] =
-                    new(
-                        candidateTargetEntityTypeBuilder, new(), new(), false);
+                    new RelationshipCandidate(
+                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
                 continue;
             }
 
@@ -150,8 +150,8 @@ public class RelationshipDiscoveryConvention :
             {
                 // Don't try to configure a collection on an owned type unless it represents a sub-ownership
                 relationshipCandidates[candidateTargetEntityType] =
-                    new(
-                        candidateTargetEntityTypeBuilder, new(), new(), false);
+                    new RelationshipCandidate(
+                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
                 continue;
             }
 
@@ -247,7 +247,7 @@ public class RelationshipDiscoveryConvention :
             }
 
             relationshipCandidates[candidateTargetEntityType] =
-                new(
+                new RelationshipCandidate(
                     candidateTargetEntityTypeBuilder, navigations, inverseNavigationCandidates, shouldBeOwnership);
 
             Continue: ;
@@ -306,7 +306,7 @@ public class RelationshipDiscoveryConvention :
             }
 
             candidates.Add(
-                new(
+                new RelationshipCandidate(
                     actualTargetEntityTypeBuilder,
                     relationshipCandidate.NavigationProperties,
                     relationshipCandidate.InverseProperties,
@@ -419,10 +419,10 @@ public class RelationshipDiscoveryConvention :
                     relationshipCandidate.NavigationProperties.Remove(navigationProperty);
 
                     filteredRelationshipCandidates.Add(
-                        new(
+                        new RelationshipCandidate(
                             targetEntityTypeBuilder,
-                            new() { navigationProperty },
-                            new(),
+                            new List<PropertyInfo> { navigationProperty },
+                            new List<PropertyInfo>(),
                             relationshipCandidate.IsOwnership));
 
                     if (relationshipCandidate.TargetTypeBuilder.Metadata == entityTypeBuilder.Metadata
@@ -469,10 +469,10 @@ public class RelationshipDiscoveryConvention :
                     relationshipCandidate.InverseProperties.Remove(compatibleInverse);
 
                     filteredRelationshipCandidates.Add(
-                        new(
+                        new RelationshipCandidate(
                             targetEntityTypeBuilder,
-                            new() { navigationProperty },
-                            new() { compatibleInverse },
+                            new List<PropertyInfo> { navigationProperty },
+                            new List<PropertyInfo> { compatibleInverse },
                             relationshipCandidate.IsOwnership)
                     );
 

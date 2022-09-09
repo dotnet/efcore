@@ -78,7 +78,7 @@ public class CaseExpression : SqlExpression
                 || result != whenClause.Result)
             {
                 changed = true;
-                whenClauses.Add(new(test, result));
+                whenClauses.Add(new CaseWhenClause(test, result));
             }
             else
             {
@@ -91,7 +91,7 @@ public class CaseExpression : SqlExpression
 
         return changed
             ? operand == null
-                ? new(whenClauses, elseResult)
+                ? new CaseExpression(whenClauses, elseResult)
                 : new CaseExpression(operand, whenClauses, elseResult)
             : this;
     }
@@ -110,7 +110,7 @@ public class CaseExpression : SqlExpression
         SqlExpression? elseResult)
         => operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
             ? (operand == null
-                ? new(whenClauses, elseResult)
+                ? new CaseExpression(whenClauses, elseResult)
                 : new CaseExpression(operand, whenClauses, elseResult))
             : this;
 

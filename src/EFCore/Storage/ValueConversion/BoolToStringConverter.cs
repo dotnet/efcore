@@ -44,7 +44,7 @@ public class BoolToStringConverter : BoolToTwoValuesConverter<string>
             typeof(bool),
             typeof(string),
             i => new BoolToStringConverter("0", "1", i.MappingHints),
-            new(size: 1));
+            new ConverterMappingHints(size: 1));
 
     private static Expression<Func<string, bool>> FromProvider(string trueValue)
     {

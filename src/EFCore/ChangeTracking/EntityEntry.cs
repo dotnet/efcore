@@ -287,7 +287,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotNull(property, nameof(property));
 
-        return new(InternalEntry, property);
+        return new PropertyEntry(InternalEntry, property);
     }
 
     /// <summary>
@@ -303,7 +303,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new(InternalEntry, propertyName);
+        return new PropertyEntry(InternalEntry, propertyName);
     }
 
     /// <summary>
@@ -334,7 +334,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotNull(navigation, nameof(navigation));
 
-        return new(InternalEntry, (INavigation)navigation);
+        return new ReferenceEntry(InternalEntry, (INavigation)navigation);
     }
 
     /// <summary>
@@ -354,7 +354,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new(InternalEntry, propertyName);
+        return new ReferenceEntry(InternalEntry, propertyName);
     }
 
     /// <summary>
@@ -387,7 +387,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotNull(navigation, nameof(navigation));
 
-        return new(InternalEntry, navigation);
+        return new CollectionEntry(InternalEntry, navigation);
     }
 
     /// <summary>
@@ -408,7 +408,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 
-        return new(InternalEntry, propertyName);
+        return new CollectionEntry(InternalEntry, propertyName);
     }
 
     /// <summary>

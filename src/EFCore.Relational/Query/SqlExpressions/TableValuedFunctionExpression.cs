@@ -77,7 +77,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
         }
 
         return changed
-            ? new(Alias, StoreFunction, arguments, GetAnnotations())
+            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
             : this;
     }
 
@@ -89,7 +89,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
         => !arguments.SequenceEqual(Arguments)
-            ? new(Alias, StoreFunction, arguments, GetAnnotations())
+            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
             : this;
 
     /// <inheritdoc />

@@ -41,7 +41,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
         DeclaringEntityType = declaringEntityType;
         _configurationSource = configurationSource;
 
-        _builder = new(this, declaringEntityType.Model.Builder);
+        _builder = new InternalIndexBuilder(this, declaringEntityType.Model.Builder);
     }
 
     /// <summary>

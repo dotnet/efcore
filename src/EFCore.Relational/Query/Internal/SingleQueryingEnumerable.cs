@@ -92,7 +92,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         => _relationalCommandCache
             .GetRelationalCommandTemplate(_relationalQueryContext.ParameterValues)
             .CreateDbCommand(
-                new(
+                new RelationalCommandParameterObject(
                     _relationalQueryContext.Connection,
                     _relationalQueryContext.ParameterValues,
                     null,
@@ -232,7 +232,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
-                new(
+                new RelationalCommandParameterObject(
                     enumerator._relationalQueryContext.Connection,
                     enumerator._relationalQueryContext.ParameterValues,
                     enumerator._readerColumns,
@@ -242,7 +242,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                     CommandSource.LinqQuery));
             enumerator._dbDataReader = dataReader.DbDataReader;
 
-            enumerator._resultCoordinator = new();
+            enumerator._resultCoordinator = new SingleQueryResultCoordinator();
 
             enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 
@@ -387,7 +387,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
-                    new(
+                    new RelationalCommandParameterObject(
                         enumerator._relationalQueryContext.Connection,
                         enumerator._relationalQueryContext.ParameterValues,
                         enumerator._readerColumns,
@@ -398,7 +398,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                 .ConfigureAwait(false);
             enumerator._dbDataReader = dataReader.DbDataReader;
 
-            enumerator._resultCoordinator = new();
+            enumerator._resultCoordinator = new SingleQueryResultCoordinator();
 
             enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 

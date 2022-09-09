@@ -37,8 +37,8 @@ public class SqlNullabilityProcessor
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         UseRelationalNulls = useRelationalNulls;
-        _nonNullableColumns = new();
-        _nullValueColumns = new();
+        _nonNullableColumns = new List<ColumnExpression>();
+        _nullValueColumns = new List<ColumnExpression>();
         ParameterValues = null!;
     }
 
@@ -97,17 +97,17 @@ public class SqlNullabilityProcessor
             var newValue = Visit(columnValueSetter.Value, out _);
             if (columnValueSetters != null)
             {
-                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                columnValueSetters = new(n);
+                columnValueSetters = new List<ColumnValueSetter>(n);
                 for (var j = 0; j < i; j++)
                 {
                     columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
                 }
 
-                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
         }
 
@@ -233,7 +233,7 @@ public class SqlNullabilityProcessor
             if (projection != item
                 && projections == selectExpression.Projection)
             {
-                projections = new();
+                projections = new List<ProjectionExpression>();
                 for (var j = 0; j < i; j++)
                 {
                     projections.Add(selectExpression.Projection[j]);
@@ -256,7 +256,7 @@ public class SqlNullabilityProcessor
             if (table != item
                 && tables == selectExpression.Tables)
             {
-                tables = new();
+                tables = new List<TableExpressionBase>();
                 for (var j = 0; j < i; j++)
                 {
                     tables.Add(selectExpression.Tables[j]);
@@ -288,7 +288,7 @@ public class SqlNullabilityProcessor
             if (groupingKey != item
                 && groupBy == selectExpression.GroupBy)
             {
-                groupBy = new();
+                groupBy = new List<SqlExpression>();
                 for (var j = 0; j < i; j++)
                 {
                     groupBy.Add(selectExpression.GroupBy[j]);
@@ -320,7 +320,7 @@ public class SqlNullabilityProcessor
             if (ordering != item
                 && orderings == selectExpression.Orderings)
             {
-                orderings = new();
+                orderings = new List<OrderingExpression>();
                 for (var j = 0; j < i; j++)
                 {
                     orderings.Add(selectExpression.Orderings[j]);
@@ -509,7 +509,7 @@ public class SqlNullabilityProcessor
             var newResult = Visit(whenClause.Result, out var resultNullable);
 
             nullable |= resultNullable;
-            whenClauses.Add(new(test, newResult));
+            whenClauses.Add(new CaseWhenClause(test, newResult));
             RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
             RestoreNullValueColumnsList(currentNonNullableColumnsCount);
 

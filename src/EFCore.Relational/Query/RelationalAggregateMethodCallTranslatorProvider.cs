@@ -27,7 +27,6 @@ public class RelationalAggregateMethodCallTranslatorProvider : IAggregateMethodC
 
         _translators.AddRange(
             new IAggregateMethodCallTranslator[] { new QueryableAggregateMethodTranslator(_sqlExpressionFactory) });
-        ;
     }
 
     /// <summary>

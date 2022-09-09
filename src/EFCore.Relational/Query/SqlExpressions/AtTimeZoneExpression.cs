@@ -60,7 +60,7 @@ public class AtTimeZoneExpression : SqlExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual AtTimeZoneExpression Update(SqlExpression operand, SqlExpression timeZone)
         => operand != Operand || timeZone != TimeZone
-            ? new(operand, timeZone, Type, TypeMapping)
+            ? new AtTimeZoneExpression(operand, timeZone, Type, TypeMapping)
             : this;
 
     /// <inheritdoc />

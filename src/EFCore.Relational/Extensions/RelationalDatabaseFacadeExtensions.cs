@@ -281,7 +281,7 @@ public static class RelationalDatabaseFacadeExtensions
             return rawSqlCommand
                 .RelationalCommand
                 .ExecuteNonQuery(
-                    new(
+                    new RelationalCommandParameterObject(
                         facadeDependencies.RelationalConnection,
                         rawSqlCommand.ParameterValues,
                         null,
@@ -604,7 +604,7 @@ public static class RelationalDatabaseFacadeExtensions
             return await rawSqlCommand
                 .RelationalCommand
                 .ExecuteNonQueryAsync(
-                    new(
+                    new RelationalCommandParameterObject(
                         facadeDependencies.RelationalConnection,
                         rawSqlCommand.ParameterValues,
                         null,

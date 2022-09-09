@@ -55,7 +55,7 @@ public class OrderingExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual OrderingExpression Update(SqlExpression expression)
         => expression != Expression
-            ? new(expression, IsAscending)
+            ? new OrderingExpression(expression, IsAscending)
             : this;
 
     /// <inheritdoc />

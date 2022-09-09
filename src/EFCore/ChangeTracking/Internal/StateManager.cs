@@ -215,7 +215,7 @@ public class StateManager : IStateManager
                 throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
             }
 
-            entry = new(this, entityType, entity);
+            entry = new InternalEntityEntry(this, entityType, entity);
 
             UpdateReferenceMaps(entry, EntityState.Detached, null);
         }
@@ -257,7 +257,7 @@ public class StateManager : IStateManager
                 throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
             }
 
-            entry = new(this, entityType, entity);
+            entry = new InternalEntityEntry(this, entityType, entity);
 
             UpdateReferenceMaps(entry, EntityState.Detached, null);
         }
@@ -291,7 +291,7 @@ public class StateManager : IStateManager
         }
 
         var valueBuffer = new ValueBuffer(valuesArray);
-        var entity = EntityMaterializerSource.GetMaterializer(entityType)(new(valueBuffer, Context));
+        var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
 
         var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
         var entry = new InternalEntityEntry(this, entityType, entity, shadowPropertyValueBuffer);
@@ -344,7 +344,7 @@ public class StateManager : IStateManager
                 : _model.FindRuntimeEntityType(clrType)!;
 
         var newEntry = valueBuffer.IsEmpty
-            ? new(this, entityType, entity)
+            ? new InternalEntityEntry(this, entityType, entity)
             : new InternalEntityEntry(this, entityType, entity, valueBuffer);
 
         foreach (var key in baseEntityType.GetKeys())
@@ -433,7 +433,7 @@ public class StateManager : IStateManager
             return _identityMap1;
         }
 
-        _identityMaps ??= new();
+        _identityMaps ??= new Dictionary<IKey, IIdentityMap>();
 
         if (!_identityMaps.TryGetValue(key, out var identityMap))
         {
@@ -794,7 +794,7 @@ public class StateManager : IStateManager
                 {
                     _resolutionInterceptor.UpdateTrackedInstance(
                         interceptionData,
-                        new(existingEntry),
+                        new EntityEntry(existingEntry),
                         newEntry.Entity);
 
                     if (navigation != null)
@@ -1414,7 +1414,7 @@ public class StateManager : IStateManager
     {
         var @event = Tracking;
 
-        @event?.Invoke(Context.ChangeTracker, new(internalEntityEntry, state, fromQuery));
+        @event?.Invoke(Context.ChangeTracker, new EntityTrackingEventArgs(internalEntityEntry, state, fromQuery));
     }
 
     /// <summary>
@@ -1444,7 +1444,7 @@ public class StateManager : IStateManager
             _changeTrackingLogger.StartedTracking(internalEntityEntry);
         }
 
-        @event?.Invoke(Context.ChangeTracker, new(internalEntityEntry, fromQuery));
+        @event?.Invoke(Context.ChangeTracker, new EntityTrackedEventArgs(internalEntityEntry, fromQuery));
     }
 
     /// <summary>
@@ -1466,7 +1466,7 @@ public class StateManager : IStateManager
         var @event = StateChanging;
         var oldState = internalEntityEntry.EntityState;
 
-        @event?.Invoke(Context.ChangeTracker, new(internalEntityEntry, oldState, newState));
+        @event?.Invoke(Context.ChangeTracker, new EntityStateChangingEventArgs(internalEntityEntry, oldState, newState));
     }
 
     /// <summary>
@@ -1497,6 +1497,6 @@ public class StateManager : IStateManager
             _changeTrackingLogger.StateChanged(internalEntityEntry, oldState, newState);
         }
 
-        @event?.Invoke(Context.ChangeTracker, new(internalEntityEntry, oldState, newState));
+        @event?.Invoke(Context.ChangeTracker, new EntityStateChangedEventArgs(internalEntityEntry, oldState, newState));
     }
 }

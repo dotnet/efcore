@@ -187,7 +187,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             modelSnapshotName,
             Dependencies.Model);
 
-        return new(
+        return new ScaffoldedMigration(
             codeGenerator.FileExtension,
             key,
             migrationCode,
@@ -394,7 +394,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         Directory.CreateDirectory(modelSnapshotDirectory);
         File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
 
-        return new()
+        return new MigrationFiles
         {
             MigrationFile = migrationFile,
             MetadataFile = migrationMetadataFile,

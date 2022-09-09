@@ -52,7 +52,7 @@ public readonly struct MemberIdentity : IEquatable<MemberIdentity>
     /// <returns>The newly created identity, or <see cref="None" /> if the given name is <see langword="null" />.</returns>
     [DebuggerStepThrough]
     public static MemberIdentity Create(string? name)
-        => name == null ? None : new(name);
+        => name == null ? None : new MemberIdentity(name);
 
     /// <summary>
     ///     Creates a new <see cref="MemberIdentity" /> from the given <see cref="MemberInfo" />.
@@ -61,7 +61,7 @@ public readonly struct MemberIdentity : IEquatable<MemberIdentity>
     /// <returns>The newly created identity, or <see cref="None" /> if the given name is <see langword="null" />.</returns>
     [DebuggerStepThrough]
     public static MemberIdentity Create(MemberInfo? memberInfo)
-        => memberInfo == null ? None : new(memberInfo);
+        => memberInfo == null ? None : new MemberIdentity(memberInfo);
 
     /// <summary>
     ///     The name of the member.

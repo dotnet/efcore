@@ -76,7 +76,7 @@ public sealed class DeleteExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public DeleteExpression Update(SelectExpression selectExpression)
         => selectExpression != SelectExpression
-            ? new(Table, selectExpression, Tags)
+            ? new DeleteExpression(Table, selectExpression, Tags)
             : this;
 
     /// <inheritdoc />

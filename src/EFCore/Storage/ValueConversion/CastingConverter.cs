@@ -24,13 +24,13 @@ public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvi
             if (underlyingModelType == typeof(long)
                 || underlyingModelType == typeof(ulong))
             {
-                return new(precision: 20, scale: 0);
+                return new ConverterMappingHints(precision: 20, scale: 0);
             }
 
             if (underlyingModelType == typeof(float)
                 || underlyingModelType == typeof(double))
             {
-                return new(precision: 38, scale: 17);
+                return new ConverterMappingHints(precision: 38, scale: 17);
             }
         }
 

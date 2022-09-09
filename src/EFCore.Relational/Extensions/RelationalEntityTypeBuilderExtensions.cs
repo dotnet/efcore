@@ -332,7 +332,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(name, nameof(name));
         Check.NotNull(configureFunction, nameof(configureFunction));
 
-        configureFunction(new(ToFunction(name, entityTypeBuilder.Metadata), entityTypeBuilder));
+        configureFunction(new TableValuedFunctionBuilder(ToFunction(name, entityTypeBuilder.Metadata), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -355,7 +355,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(function, nameof(function));
         Check.NotNull(configureFunction, nameof(configureFunction));
 
-        configureFunction(new(ToFunction(function, entityTypeBuilder.Metadata), entityTypeBuilder));
+        configureFunction(new TableValuedFunctionBuilder(ToFunction(function, entityTypeBuilder.Metadata), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -412,7 +412,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(name, nameof(name));
         Check.NotNull(configureFunction, nameof(configureFunction));
 
-        configureFunction(new(ToFunction(name, entityTypeBuilder.Metadata), entityTypeBuilder));
+        configureFunction(new TableValuedFunctionBuilder<TEntity>(ToFunction(name, entityTypeBuilder.Metadata), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -437,7 +437,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(function, nameof(function));
         Check.NotNull(configureFunction, nameof(configureFunction));
 
-        configureFunction(new(ToFunction(function, entityTypeBuilder.Metadata), entityTypeBuilder));
+        configureFunction(new TableValuedFunctionBuilder<TEntity>(ToFunction(function, entityTypeBuilder.Metadata), entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -499,7 +499,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(configureFunction, nameof(configureFunction));
 
         configureFunction(
-            new(
+            new OwnedNavigationTableValuedFunctionBuilder(
                 ToFunction(name, ownedNavigationBuilder.OwnedEntityType), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
@@ -524,7 +524,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(configureFunction, nameof(configureFunction));
 
         configureFunction(
-            new(
+            new OwnedNavigationTableValuedFunctionBuilder(
                 ToFunction(function, ownedNavigationBuilder.OwnedEntityType), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
@@ -591,7 +591,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(configureFunction, nameof(configureFunction));
 
         configureFunction(
-            new(
+            new OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>(
                 ToFunction(name, ownedNavigationBuilder.OwnedEntityType), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
@@ -620,7 +620,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Check.NotNull(configureFunction, nameof(configureFunction));
 
         configureFunction(
-            new(
+            new OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>(
                 ToFunction(function, ownedNavigationBuilder.OwnedEntityType), ownedNavigationBuilder));
 
         return ownedNavigationBuilder;
@@ -830,7 +830,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.HasCheckConstraint(name, sql);
 
-        buildAction(new(entityTypeBuilder.Metadata.FindCheckConstraint(name)!));
+        buildAction(new CheckConstraintBuilder(entityTypeBuilder.Metadata.FindCheckConstraint(name)!));
 
         return entityTypeBuilder;
     }
@@ -945,7 +945,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
 
         ownedNavigationBuilder.HasCheckConstraint(name, sql);
 
-        buildAction(new(ownedNavigationBuilder.OwnedEntityType.FindCheckConstraint(name)!));
+        buildAction(new CheckConstraintBuilder(ownedNavigationBuilder.OwnedEntityType.FindCheckConstraint(name)!));
 
         return ownedNavigationBuilder;
     }

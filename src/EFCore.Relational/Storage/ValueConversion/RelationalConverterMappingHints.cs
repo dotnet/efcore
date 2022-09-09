@@ -42,7 +42,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
     public override ConverterMappingHints With(ConverterMappingHints? hints)
         => hints == null
             ? this
-            : new(
+            : new RelationalConverterMappingHints(
                 hints.Size ?? Size,
                 hints.Precision ?? Precision,
                 hints.Scale ?? Scale,

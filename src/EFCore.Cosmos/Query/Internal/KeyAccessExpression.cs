@@ -70,7 +70,7 @@ public class KeyAccessExpression : SqlExpression, IAccessExpression
     /// </summary>
     public virtual KeyAccessExpression Update(Expression outerExpression)
         => outerExpression != AccessExpression
-            ? new(Property, outerExpression)
+            ? new KeyAccessExpression(Property, outerExpression)
             : this;
 
     /// <summary>

@@ -354,7 +354,7 @@ if ((StartupAssemblyValueAcquired == false))
             {
                 get
                 {
-                    return this.formatProviderField ;
+                    return this.formatProviderField;
                 }
                 set
                 {

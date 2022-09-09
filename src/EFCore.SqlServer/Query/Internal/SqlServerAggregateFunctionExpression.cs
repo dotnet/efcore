@@ -125,7 +125,7 @@ public class SqlServerAggregateFunctionExpression : SqlExpression
         }
 
         return arguments is not null || orderings is not null
-            ? new(
+            ? new SqlServerAggregateFunctionExpression(
                 Name,
                 arguments ?? Arguments,
                 orderings ?? Orderings,
@@ -164,7 +164,7 @@ public class SqlServerAggregateFunctionExpression : SqlExpression
         => (ReferenceEquals(arguments, Arguments) || arguments.SequenceEqual(Arguments))
             && (ReferenceEquals(orderings, Orderings) || orderings.SequenceEqual(Orderings))
                 ? this
-                : new(
+                : new SqlServerAggregateFunctionExpression(
                     Name,
                     arguments,
                     orderings,

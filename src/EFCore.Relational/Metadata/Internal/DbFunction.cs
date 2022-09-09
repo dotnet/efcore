@@ -99,9 +99,9 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         ReturnType = returnType;
         Model = model;
         _configurationSource = configurationSource;
-        _builder = new(this, ((IConventionModel)model).Builder);
+        _builder = new InternalDbFunctionBuilder(this, ((IConventionModel)model).Builder);
         _parameters = parameters == null
-            ? new()
+            ? new List<DbFunctionParameter>()
             : parameters
                 .Select(p => new DbFunctionParameter(this, p.Name, p.Type))
                 .ToList();

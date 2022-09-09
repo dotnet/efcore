@@ -58,7 +58,7 @@ public class ScalarSubqueryExpression : SqlExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual ScalarSubqueryExpression Update(SelectExpression subquery)
         => subquery != Subquery
-            ? new(subquery)
+            ? new ScalarSubqueryExpression(subquery)
             : this;
 
     /// <inheritdoc />

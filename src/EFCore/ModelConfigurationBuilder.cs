@@ -39,7 +39,7 @@ public class ModelConfigurationBuilder
         Check.NotNull(conventions, nameof(conventions));
 
         _conventions = conventions;
-        _conventionSetBuilder = new(conventions, serviceProvider);
+        _conventionSetBuilder = new ConventionSetBuilder(conventions, serviceProvider);
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public class ModelConfigurationBuilder
     {
         var property = _modelConfiguration.GetOrAddProperty(typeof(TProperty));
 
-        return new(property);
+        return new PropertiesConfigurationBuilder<TProperty>(property);
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ public class ModelConfigurationBuilder
 
         var property = _modelConfiguration.GetOrAddProperty(propertyType);
 
-        return new(property);
+        return new PropertiesConfigurationBuilder(property);
     }
 
     /// <summary>
@@ -220,7 +220,7 @@ public class ModelConfigurationBuilder
     {
         var scalar = _modelConfiguration.GetOrAddTypeMapping(typeof(TScalar));
 
-        return new(scalar);
+        return new TypeMappingConfigurationBuilder<TScalar>(scalar);
     }
 
     /// <summary>
@@ -283,7 +283,7 @@ public class ModelConfigurationBuilder
 
         var scalar = _modelConfiguration.GetOrAddTypeMapping(scalarType);
 
-        return new(scalar);
+        return new TypeMappingConfigurationBuilder(scalar);
     }
 
     /// <summary>

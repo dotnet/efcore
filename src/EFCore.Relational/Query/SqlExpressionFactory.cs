@@ -97,7 +97,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         foreach (var caseWhenClause in caseExpression.WhenClauses)
         {
             whenClauses.Add(
-                new(
+                new CaseWhenClause(
                     caseWhenClause.Test,
                     ApplyTypeMapping(caseWhenClause.Result, typeMapping)));
         }
@@ -242,12 +242,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             var values = ApplyTypeMapping(inExpression.Values, itemTypeMapping);
 
             return item != inExpression.Item || values != inExpression.Values || inExpression.TypeMapping != _boolTypeMapping
-                ? new(item, values, inExpression.IsNegated, _boolTypeMapping)
+                ? new InExpression(item, values, inExpression.IsNegated, _boolTypeMapping)
                 : inExpression;
         }
 
         return item != inExpression.Item || inExpression.TypeMapping != _boolTypeMapping
-            ? new(item, inExpression.Subquery!, inExpression.IsNegated, _boolTypeMapping)
+            ? new InExpression(item, inExpression.Subquery!, inExpression.IsNegated, _boolTypeMapping)
             : inExpression;
     }
 
@@ -355,7 +355,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ApplyTypeMapping(left, inferredTypeMapping), ApplyTypeMapping(right, inferredTypeMapping)
         };
 
-        return new(
+        return new SqlFunctionExpression(
             "COALESCE",
             typeMappedArguments,
             nullable: true,
@@ -416,12 +416,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         foreach (var caseWhenClause in whenClauses)
         {
             typeMappedWhenClauses.Add(
-                new(
+                new CaseWhenClause(
                     ApplyTypeMapping(caseWhenClause.Test, operandTypeMapping),
                     ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
         }
 
-        return new(operand, typeMappedWhenClauses, elseResult);
+        return new CaseExpression(operand, typeMappedWhenClauses, elseResult);
     }
 
     /// <inheritdoc />
@@ -434,14 +434,14 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         foreach (var caseWhenClause in whenClauses)
         {
             typeMappedWhenClauses.Add(
-                new(
+                new CaseWhenClause(
                     ApplyTypeMapping(caseWhenClause.Test, _boolTypeMapping),
                     ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
         }
 
         elseResult = ApplyTypeMapping(elseResult, resultTypeMapping);
 
-        return new(typeMappedWhenClauses, elseResult);
+        return new CaseExpression(typeMappedWhenClauses, elseResult);
     }
 
     /// <inheritdoc />
@@ -460,7 +460,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
         }
 
-        return new(name, typeMappedArguments, nullable, argumentsPropagateNullability, returnType, typeMapping);
+        return new SqlFunctionExpression(name, typeMappedArguments, nullable, argumentsPropagateNullability, returnType, typeMapping);
     }
 
     /// <inheritdoc />
@@ -479,7 +479,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
         }
 
-        return new(
+        return new SqlFunctionExpression(
             schema, name, typeMappedArguments, nullable, argumentsPropagateNullability, returnType, typeMapping);
     }
 
@@ -501,7 +501,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
         }
 
-        return new(
+        return new SqlFunctionExpression(
             instance, name, typeMappedArguments, nullable, instancePropagatesNullability, argumentsPropagateNullability, returnType,
             typeMapping);
     }
@@ -546,7 +546,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         item = ApplyTypeMapping(item, typeMapping);
         values = ApplyTypeMapping(values, typeMapping);
 
-        return new(item, values, negated, _boolTypeMapping);
+        return new InExpression(item, values, negated, _boolTypeMapping);
     }
 
     /// <inheritdoc />
@@ -556,7 +556,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         var typeMapping = sqlExpression.TypeMapping;
 
         item = ApplyTypeMapping(item, typeMapping);
-        return new(item, subquery, negated, _boolTypeMapping);
+        return new InExpression(item, subquery, negated, _boolTypeMapping);
     }
 
     /// <inheritdoc />
@@ -659,7 +659,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
     private static EntityProjectionExpression GetMappedEntityProjectionExpression(SelectExpression selectExpression)
         => (EntityProjectionExpression)selectExpression.GetProjection(
-            new(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
+            new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
 
     private SqlExpression IsNotNull(IProperty property, EntityProjectionExpression entityProjection)
         => IsNotNull(entityProjection.BindProperty(property));

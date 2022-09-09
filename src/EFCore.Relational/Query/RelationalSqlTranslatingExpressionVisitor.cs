@@ -83,7 +83,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         _queryCompilationContext = queryCompilationContext;
         _model = queryCompilationContext.Model;
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
-        _sqlTypeMappingVerifyingExpressionVisitor = new();
+        _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
     }
 
     /// <summary>
@@ -764,7 +764,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && right is SqlExpression rightSql)
             {
                 sqlObject = leftSql;
-                scalarArguments = new() { rightSql };
+                scalarArguments = new List<SqlExpression> { rightSql };
             }
             else
             {
@@ -799,7 +799,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (left is SqlExpression leftSql
                 && right is SqlExpression rightSql)
             {
-                scalarArguments = new() { leftSql, rightSql };
+                scalarArguments = new List<SqlExpression> { leftSql, rightSql };
             }
             else
             {
@@ -822,7 +822,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (enumerable is SqlExpression sqlEnumerable
                 && item is SqlExpression sqlItem)
             {
-                scalarArguments = new() { sqlEnumerable, sqlItem };
+                scalarArguments = new List<SqlExpression> { sqlEnumerable, sqlItem };
             }
             else
             {
@@ -846,7 +846,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && item is SqlExpression sqlItem)
             {
                 sqlObject = sqlEnumerable;
-                scalarArguments = new() { sqlItem };
+                scalarArguments = new List<SqlExpression> { sqlItem };
             }
             else
             {
@@ -869,7 +869,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 abortTranslation = true;
             }
 
-            scalarArguments = new();
+            scalarArguments = new List<SqlExpression>();
             if (!abortTranslation)
             {
                 if (!TryTranslateAsEnumerableExpression(methodCallExpression.Object, out enumerableExpression)
@@ -1288,7 +1288,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 if (!abortTranslation)
                 {
                     translation = TranslateAggregateMethod(
-                        enumerableExpression, methodCallExpression.Method, new());
+                        enumerableExpression, methodCallExpression.Method, new List<SqlExpression>());
 
                     return translation != null;
                 }
@@ -1305,7 +1305,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         if (expression is RelationalGroupByShaperExpression relationalGroupByShaperExpression)
         {
-            enumerableExpression = new(relationalGroupByShaperExpression.ElementSelector);
+            enumerableExpression = new EnumerableExpression(relationalGroupByShaperExpression.ElementSelector);
             return true;
         }
 

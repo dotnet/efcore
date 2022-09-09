@@ -58,8 +58,8 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     {
         var comparer = new GeometryValueComparer<TGeometry>();
 
-        return new(
-            new(
+        return new RelationalTypeMappingParameters(
+            new CoreTypeMappingParameters(
                 typeof(TGeometry),
                 null,
                 comparer,

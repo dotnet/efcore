@@ -271,7 +271,7 @@ public class SqlFunctionExpression : SqlExpression
         }
 
         return changed
-            ? new(
+            ? new SqlFunctionExpression(
                 instance,
                 Schema,
                 Name,
@@ -314,7 +314,7 @@ public class SqlFunctionExpression : SqlExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual SqlFunctionExpression Update(SqlExpression? instance, IReadOnlyList<SqlExpression>? arguments)
         => instance != Instance || (arguments != null && Arguments != null && !arguments.SequenceEqual(Arguments))
-            ? new(
+            ? new SqlFunctionExpression(
                 instance,
                 Schema,
                 Name,

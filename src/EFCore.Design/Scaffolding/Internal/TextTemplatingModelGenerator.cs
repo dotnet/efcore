@@ -48,7 +48,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual TemplatingEngine Engine
-        => _engine ??= new();
+        => _engine ??= new TemplatingEngine();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,7 +137,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         var dbContextFileName = options.ContextName + host.Extension;
         var resultingFiles = new ScaffoldedModel
         {
-            ContextFile = new()
+            ContextFile = new ScaffoldedFile
             {
                 Path = options.ContextDir != null
                     ? Path.Combine(options.ContextDir, dbContextFileName)
@@ -180,7 +180,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
                     var entityTypeFileName = entityType.Name + entityTypeExtension;
                     resultingFiles.AdditionalFiles.Add(
-                        new() { Path = entityTypeFileName, Code = generatedCode });
+                        new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
                 }
             }
             finally
@@ -223,7 +223,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
                     var configurationFileName = entityType.Name + "Configuration" + configurationExtension;
                     resultingFiles.AdditionalFiles.Add(
-                        new()
+                        new ScaffoldedFile
                         {
                             Path = options.ContextDir != null
                                 ? Path.Combine(options.ContextDir, configurationFileName)

@@ -17,7 +17,7 @@ internal static class DictionaryExtensions
     {
         if (!source.TryGetValue(key, out var value))
         {
-            value = new();
+            value = new TValue();
             source.Add(key, value);
         }
 
@@ -63,7 +63,7 @@ internal static class DictionaryExtensions
         {
             if (found)
             {
-                pairsRemainder ??= new();
+                pairsRemainder ??= new List<KeyValuePair<TKey, TValue>>();
 
                 pairsRemainder.Add(pair);
                 continue;

@@ -43,8 +43,8 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
         DbType? dbType = System.Data.DbType.DateTime2,
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
-            new(
-                new(typeof(DateTime)),
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(typeof(DateTime)),
                 storeType,
                 storeTypePostfix,
                 dbType))

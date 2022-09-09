@@ -47,7 +47,7 @@ public class UpdateAdapterFactory : IUpdateAdapterFactory
         var stateManager = _currentContext.Context.GetDependencies().StateManager;
 
         return model == null
-            ? new(new StateManager(stateManager.Dependencies))
+            ? new UpdateAdapter(new StateManager(stateManager.Dependencies))
             : new UpdateAdapter(new StateManager(stateManager.Dependencies with { Model = model }));
     }
 }

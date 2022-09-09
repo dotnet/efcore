@@ -70,7 +70,7 @@ public class TemporalTableBuilder
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new(new(property));
+        return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
@@ -89,7 +89,7 @@ public class TemporalTableBuilder
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new(new(property));
+        return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 

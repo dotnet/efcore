@@ -43,7 +43,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         _keyValueFactory = entityType.FindPrimaryKey()!.GetPrincipalKeyValueFactory<TKey>();
         _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         _nullabilityCheckEnabled = nullabilityCheckEnabled;
-        _rows = new(_keyValueFactory.EqualityComparer);
+        _rows = new Dictionary<TKey, object?[]>(_keyValueFactory.EqualityComparer);
 
         foreach (var property in entityType.GetProperties())
         {
@@ -91,7 +91,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         IProperty property,
         IReadOnlyList<IInMemoryTable> tables)
     {
-        _integerGenerators ??= new();
+        _integerGenerators ??= new Dictionary<int, IInMemoryIntegerValueGenerator>();
 
         var propertyIndex = property.GetIndex();
         if (!_integerGenerators.TryGetValue(propertyIndex, out var generator))
@@ -418,7 +418,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
         var exception =
             _sensitiveLoggingEnabled
-                ? new(
+                ? new DbUpdateConcurrencyException(
                     InMemoryStrings.UpdateConcurrencyTokenExceptionSensitive(
                         entry.EntityType.DisplayName(),
                         entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),

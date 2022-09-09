@@ -82,7 +82,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             options.NoPluralize
                 ? null
                 : _pluralizer.Pluralize);
-        _columnNamers = new();
+        _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();
         _options = options;
 
         VisitDatabaseModel(modelBuilder, databaseModel);
@@ -129,7 +129,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             {
                 _columnNamers.Add(
                     table,
-                    new(
+                    new CSharpUniqueNamer<DatabaseColumn>(
                         c => c.Name,
                         usedNames,
                         _cSharpUtilities,
@@ -139,7 +139,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             {
                 _columnNamers.Add(
                     table,
-                    new(
+                    new CSharpUniqueNamer<DatabaseColumn>(
                         c => _candidateNamingService.GenerateCandidateIdentifier(c),
                         usedNames,
                         _cSharpUtilities,
@@ -939,7 +939,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     {
         if (!_entityTypeAndPropertyIdentifiers.TryGetValue(entityType, out var existingIdentifiers))
         {
-            existingIdentifiers = new() { entityType.Name };
+            existingIdentifiers = new List<string> { entityType.Name };
             existingIdentifiers.AddRange(entityType.GetProperties().Select(p => p.Name));
             _entityTypeAndPropertyIdentifiers[entityType] = existingIdentifiers;
         }

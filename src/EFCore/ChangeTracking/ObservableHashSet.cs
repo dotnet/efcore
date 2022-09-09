@@ -41,7 +41,7 @@ public class ObservableHashSet<T>
     /// </param>
     public ObservableHashSet(IEqualityComparer<T> comparer)
     {
-        _set = new(comparer);
+        _set = new HashSet<T>(comparer);
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class ObservableHashSet<T>
     /// </param>
     public ObservableHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
     {
-        _set = new(collection, comparer);
+        _set = new HashSet<T>(collection, comparer);
     }
 
     /// <summary>
@@ -469,10 +469,10 @@ public class ObservableHashSet<T>
         => OnPropertyChanging(ObservableHashSetSingletons.CountPropertyChanging);
 
     private void OnCollectionChanged(NotifyCollectionChangedAction action, object? item)
-        => OnCollectionChanged(new(action, item));
+        => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
 
     private void OnCollectionChanged(IList newItems, IList oldItems)
-        => OnCollectionChanged(new(NotifyCollectionChangedAction.Replace, newItems, oldItems));
+        => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, oldItems));
 
     /// <summary>
     ///     Raises the <see cref="CollectionChanged" /> event.

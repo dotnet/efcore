@@ -86,7 +86,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
             trigger.SetTableSchema(Schema);
         }
 
-        return new(trigger);
+        return new TableTriggerBuilder(trigger);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
             sql,
             ConfigurationSource.Explicit)!;
 
-        return new((IMutableCheckConstraint)checkConstraint);
+        return new CheckConstraintBuilder((IMutableCheckConstraint)checkConstraint);
     }
 
     /// <summary>

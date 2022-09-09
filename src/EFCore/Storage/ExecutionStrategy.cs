@@ -204,7 +204,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
         // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
         return ExecuteImplementation(
-            (context, state) => new(true, operation(context, state)),
+            (context, state) => new ExecutionResult<TResult>(true, operation(context, state)),
             verifySucceeded,
             state).Result;
     }
@@ -308,7 +308,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
         // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
         var result = await ExecuteImplementationAsync(
-            async (context, state, cancellationToken) => new(
+            async (context, state, cancellationToken) => new ExecutionResult<TResult>(
                 true, await operation(context, state, cancellationToken).ConfigureAwait(false)),
             verifySucceeded,
             state,

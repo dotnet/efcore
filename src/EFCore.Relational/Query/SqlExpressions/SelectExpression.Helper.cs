@@ -171,7 +171,7 @@ public sealed partial class SelectExpression
             _tableReferenceExpression = tableReferenceExpression;
             _mappings = mappings;
             _groupByDiscovery = subquery._groupBy.Count > 0;
-            _correlatedTerms = new(ReferenceEqualityComparer.Instance);
+            _correlatedTerms = new HashSet<SqlExpression>(ReferenceEqualityComparer.Instance);
         }
 
         [return: NotNullIfNotNull("sqlExpression")]
@@ -276,8 +276,8 @@ public sealed partial class SelectExpression
 
         public Dictionary<string, HashSet<string>?> FindColumns(SelectExpression selectExpression)
         {
-            _columnReferenced = new();
-            _columnsUsedInJoinCondition = new();
+            _columnReferenced = new Dictionary<string, HashSet<string>?>();
+            _columnsUsedInJoinCondition = new Dictionary<string, HashSet<string>?>();
 
             foreach (var table in selectExpression.Tables)
             {
@@ -311,7 +311,7 @@ public sealed partial class SelectExpression
                     var tableAlias = columnExpression.TableAlias;
                     if (_columnReferenced!.ContainsKey(tableAlias))
                     {
-                        _columnReferenced[tableAlias] ??= new();
+                        _columnReferenced[tableAlias] ??= new HashSet<string>();
 
                         _columnReferenced[tableAlias]!.Add(columnExpression.Name);
                     }
@@ -502,14 +502,14 @@ public sealed partial class SelectExpression
         public TpcTablesExpression Prune(IReadOnlyList<string> discriminatorValues)
         {
             var subSelectExpressions = discriminatorValues.Count == 0
-                ? new() { SelectExpressions[0] }
+                ? new List<SelectExpression> { SelectExpressions[0] }
                 : SelectExpressions.Where(
                     se =>
                         discriminatorValues.Contains((string)((SqlConstantExpression)se.Projection[^1].Expression).Value!)).ToList();
 
             Check.DebugAssert(subSelectExpressions.Count > 0, "TPC must have at least 1 table selected.");
 
-            return new(Alias, EntityType, subSelectExpressions, GetAnnotations());
+            return new TpcTablesExpression(Alias, EntityType, subSelectExpressions, GetAnnotations());
         }
 
         // This is implementation detail hence visitors are not supposed to see inside unless they really need to.
@@ -613,7 +613,7 @@ public sealed partial class SelectExpression
             => this;
 
         public override ConcreteColumnExpression MakeNullable()
-            => IsNullable ? this : new(Name, _table, Type, TypeMapping!, true);
+            => IsNullable ? this : new ConcreteColumnExpression(Name, _table, Type, TypeMapping!, true);
 
         public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
             => _table.UpdateTableReference(oldSelect, newSelect);
@@ -1107,7 +1107,7 @@ public sealed partial class SelectExpression
                         foreach (var projection in result.Projection)
                         {
                             generatedSelectExpression._projection.Add(
-                                new(
+                                new ProjectionExpression(
                                     new ConcreteColumnExpression(projection, tableReferenceExpression), projection.Alias));
                         }
 

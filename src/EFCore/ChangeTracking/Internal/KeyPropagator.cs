@@ -53,7 +53,7 @@ public class KeyPropagator : IKeyPropagator
 
             if (valueGenerator != null)
             {
-                var value = valueGenerator.Next(new(entry));
+                var value = valueGenerator.Next(new EntityEntry(entry));
 
                 if (valueGenerator.GeneratesTemporaryValues)
                 {
@@ -101,7 +101,7 @@ public class KeyPropagator : IKeyPropagator
 
             if (valueGenerator != null)
             {
-                var value = await valueGenerator.NextAsync(new(entry), cancellationToken)
+                var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken)
                     .ConfigureAwait(false);
 
                 if (valueGenerator.GeneratesTemporaryValues)

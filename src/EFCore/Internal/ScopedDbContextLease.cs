@@ -22,7 +22,7 @@ public sealed class ScopedDbContextLease<TContext> : IScopedDbContextLease<TCont
     /// </summary>
     public ScopedDbContextLease(IDbContextPool<TContext> contextPool)
     {
-        _lease = new(contextPool, standalone: false);
+        _lease = new DbContextLease(contextPool, standalone: false);
         _lease.Context.SetLease(_lease);
     }
 

@@ -117,7 +117,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
             || childIdentifier != ChildIdentifier
             || selectExpression != SelectExpression
             || innerShaper != InnerShaper
-                ? new(
+                ? new RelationalSplitCollectionShaperExpression(
                     parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper, Navigation, ElementType)
                 : this;
 

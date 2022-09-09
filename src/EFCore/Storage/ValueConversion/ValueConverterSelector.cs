@@ -117,12 +117,12 @@ public class ValueConverterSelector : IValueConverterSelector
             {
                 yield return _converters.GetOrAdd(
                     (modelClrType, typeof(byte[])),
-                    static k => new(
+                    static k => new ValueConverterInfo(
                         k.ModelClrType,
                         typeof(byte[]),
                         _ => new BoolToZeroOneConverter<byte>().ComposeWith(
                             NumberToBytesConverter<byte>.DefaultInfo.Create()),
-                        new(size: 1)));
+                        new ConverterMappingHints(size: 1)));
             }
         }
         else if (modelClrType == typeof(char))
@@ -276,7 +276,7 @@ public class ValueConverterSelector : IValueConverterSelector
                         _ => DateTimeOffsetToBytesConverter.DefaultInfo)
                     : _converters.GetOrAdd(
                         (modelClrType, typeof(byte[])),
-                        static k => new(
+                        static k => new ValueConverterInfo(
                             k.ModelClrType,
                             typeof(byte[]),
                             i => (i.ModelClrType == typeof(DateTime)
@@ -399,7 +399,7 @@ public class ValueConverterSelector : IValueConverterSelector
                     var toBytes = GetDefaultValueConverterInfo(
                         typeof(NumberToBytesConverter<>).MakeGenericType(modelClrType.GetEnumUnderlyingType()));
 
-                    return new(
+                    return new ValueConverterInfo(
                         modelClrType,
                         typeof(byte[]),
                         _ => toNumber.Create().ComposeWith(toBytes.Create()),

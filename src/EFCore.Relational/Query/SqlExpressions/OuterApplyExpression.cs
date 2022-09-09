@@ -40,7 +40,7 @@ public class OuterApplyExpression : JoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual OuterApplyExpression Update(TableExpressionBase table)
         => table != Table
-            ? new(table, GetAnnotations())
+            ? new OuterApplyExpression(table, GetAnnotations())
             : this;
 
     /// <inheritdoc />

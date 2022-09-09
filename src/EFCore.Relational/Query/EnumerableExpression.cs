@@ -97,7 +97,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
                 typeof(bool),
                 sqlExpression.TypeMapping);
 
-        return new(Selector, IsDistinct, predicate, Orderings);
+        return new EnumerableExpression(Selector, IsDistinct, predicate, Orderings);
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
         var orderings = new List<OrderingExpression>();
         AppendOrdering(orderings, orderingExpression);
 
-        return new(Selector, IsDistinct, Predicate, orderings);
+        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings);
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
         var orderings = Orderings.ToList();
         AppendOrdering(orderings, orderingExpression);
 
-        return new(Selector, IsDistinct, Predicate, orderings);
+        return new EnumerableExpression(Selector, IsDistinct, Predicate, orderings);
     }
 
     private static void AppendOrdering(List<OrderingExpression> orderings, OrderingExpression orderingExpression)

@@ -35,7 +35,7 @@ public class DateTimeToTicksConverter : ValueConverter<DateTime, long>
     public DateTimeToTicksConverter(ConverterMappingHints? mappingHints)
         : base(
             v => v.Ticks,
-            v => new(v),
+            v => new DateTime(v),
             mappingHints)
     {
     }

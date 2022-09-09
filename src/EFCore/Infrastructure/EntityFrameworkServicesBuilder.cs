@@ -148,7 +148,7 @@ public class EntityFrameworkServicesBuilder
     /// <param name="serviceCollection">The collection to which services will be registered.</param>
     public EntityFrameworkServicesBuilder(IServiceCollection serviceCollection)
     {
-        ServiceCollectionMap = new(serviceCollection);
+        ServiceCollectionMap = new ServiceCollectionMap(serviceCollection);
     }
 
     /// <summary>

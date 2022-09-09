@@ -1028,7 +1028,7 @@ public static class EntityFrameworkServiceCollectionExtensions
                 optionsLifetime));
 
         serviceCollection.Add(
-            new(
+            new ServiceDescriptor(
                 typeof(DbContextOptions),
                 p => p.GetRequiredService<DbContextOptions<TContextImplementation>>(),
                 optionsLifetime));
@@ -1040,7 +1040,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         where TContext : DbContext
     {
         var builder = new DbContextOptionsBuilder<TContext>(
-            new(new Dictionary<Type, IDbContextOptionsExtension>()));
+            new DbContextOptions<TContext>(new Dictionary<Type, IDbContextOptionsExtension>()));
 
         builder.UseApplicationServiceProvider(applicationServiceProvider);
 

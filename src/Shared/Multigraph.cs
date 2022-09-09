@@ -64,7 +64,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
         if (!_successorMap.TryGetValue(from, out var successorEdges))
         {
-            successorEdges = new();
+            successorEdges = new Dictionary<TVertex, object?>();
             _successorMap.Add(from, successorEdges);
         }
 
@@ -72,7 +72,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (edges is not List<Edge> edgeList)
             {
-                edgeList = new() { (Edge)edges! };
+                edgeList = new List<Edge> { (Edge)edges! };
                 successorEdges[to] = edgeList;
             }
 
@@ -85,7 +85,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
         if (!_predecessorMap.TryGetValue(to, out var predecessorEdges))
         {
-            predecessorEdges = new();
+            predecessorEdges = new Dictionary<TVertex, object?>();
             _predecessorMap.Add(to, predecessorEdges);
         }
 
@@ -93,7 +93,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         {
             if (edges is not List<Edge> edgeList)
             {
-                edgeList = new() { (Edge)edges! };
+                edgeList = new List<Edge> { (Edge)edges! };
                 predecessorEdges[from] = edgeList;
             }
 
@@ -197,7 +197,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                 // If we detected in the last roots pass that a batch boundary is required, close the current batch and start a new one.
                 if (batchBoundaryRequired)
                 {
-                    currentBatch = new();
+                    currentBatch = new List<TVertex>();
                     result.Add(currentBatch);
                     currentBatchSet.Clear();
 

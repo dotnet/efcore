@@ -229,7 +229,7 @@ public static class RelationalPropertyExtensions
                 break;
             }
 
-            builder ??= new();
+            builder ??= new StringBuilder();
 
             builder.Insert(0, "_");
             builder.Insert(0, ownership.PrincipalToDependent!.Name);

@@ -64,7 +64,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
                     principalEntityType.DisplayName()));
         }
 
-        _builder = new(this, dependentEntityType.Model.Builder);
+        _builder = new InternalForeignKeyBuilder(this, dependentEntityType.Model.Builder);
     }
 
     /// <summary>

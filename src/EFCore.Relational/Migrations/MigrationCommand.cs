@@ -59,7 +59,7 @@ public class MigrationCommand
         IRelationalConnection connection,
         IReadOnlyDictionary<string, object?>? parameterValues = null)
         => _relationalCommand.ExecuteNonQuery(
-            new(
+            new RelationalCommandParameterObject(
                 connection,
                 parameterValues,
                 null,
@@ -79,7 +79,7 @@ public class MigrationCommand
         IReadOnlyDictionary<string, object?>? parameterValues = null,
         CancellationToken cancellationToken = default)
         => _relationalCommand.ExecuteNonQueryAsync(
-            new(
+            new RelationalCommandParameterObject(
                 connection,
                 parameterValues,
                 null,

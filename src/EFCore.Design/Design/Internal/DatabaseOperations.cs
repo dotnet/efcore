@@ -40,7 +40,7 @@ public class DatabaseOperations
         _nullable = nullable;
         _args = args ?? Array.Empty<string>();
 
-        _servicesBuilder = new(assembly, startupAssembly, reporter, _args);
+        _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
     }
 
     /// <summary>
@@ -84,9 +84,9 @@ public class DatabaseOperations
 
         var scaffoldedModel = scaffolder.ScaffoldModel(
             connectionString,
-            new(tables, schemas),
-            new() { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize },
-            new()
+            new DatabaseModelFactoryOptions(tables, schemas),
+            new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize },
+            new ModelCodeGenerationOptions
             {
                 UseDataAnnotations = useDataAnnotations,
                 RootNamespace = _rootNamespace,
@@ -138,7 +138,7 @@ public class DatabaseOperations
 
     private static string MakeDirRelative(string root, string path)
     {
-        var relativeUri = new Uri(NormalizeDir(root)).MakeRelativeUri(new(NormalizeDir(path)));
+        var relativeUri = new Uri(NormalizeDir(root)).MakeRelativeUri(new Uri(NormalizeDir(path)));
 
         return Uri.UnescapeDataString(relativeUri.ToString()).Replace('/', Path.DirectorySeparatorChar);
     }

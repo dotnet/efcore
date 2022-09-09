@@ -56,7 +56,7 @@ public class EntitySplittingConvention : IModelFinalizingConvention, IEntityType
                 continue;
             }
 
-            fragmentsToReattach ??= new();
+            fragmentsToReattach ??= new List<IConventionEntityTypeMappingFragment>();
 
             fragmentsToReattach.Add(fragment);
         }

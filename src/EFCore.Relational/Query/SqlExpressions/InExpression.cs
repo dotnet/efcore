@@ -125,7 +125,7 @@ public class InExpression : SqlExpression
         }
 
         return item != Item || subquery != Subquery || values != Values
-            ? new(item, values, subquery, IsNegated, TypeMapping)
+            ? new InExpression(item, values, subquery, IsNegated, TypeMapping)
             : this;
     }
 

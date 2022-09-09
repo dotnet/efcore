@@ -59,7 +59,7 @@ public class MaterializeCollectionNavigationExpression : Expression, IPrintableE
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual MaterializeCollectionNavigationExpression Update(Expression subquery)
         => subquery != Subquery
-            ? new(subquery, Navigation)
+            ? new MaterializeCollectionNavigationExpression(subquery, Navigation)
             : this;
 
     /// <inheritdoc />

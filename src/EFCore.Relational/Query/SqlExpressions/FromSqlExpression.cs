@@ -94,7 +94,7 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual FromSqlExpression Update(Expression arguments)
         => arguments != Arguments
-            ? new(Alias, Table, Sql, arguments, GetAnnotations())
+            ? new FromSqlExpression(Alias, Table, Sql, arguments, GetAnnotations())
             : this;
 
     /// <inheritdoc />

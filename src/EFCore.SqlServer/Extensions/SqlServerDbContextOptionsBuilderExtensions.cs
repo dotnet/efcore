@@ -43,7 +43,7 @@ public static class SqlServerDbContextOptionsExtensions
 
         ConfigureWarnings(optionsBuilder);
 
-        sqlServerOptionsAction?.Invoke(new(optionsBuilder));
+        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
     }
@@ -70,7 +70,7 @@ public static class SqlServerDbContextOptionsExtensions
 
         ConfigureWarnings(optionsBuilder);
 
-        sqlServerOptionsAction?.Invoke(new(optionsBuilder));
+        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
     }
@@ -104,7 +104,7 @@ public static class SqlServerDbContextOptionsExtensions
 
         ConfigureWarnings(optionsBuilder);
 
-        sqlServerOptionsAction?.Invoke(new(optionsBuilder));
+        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
     }

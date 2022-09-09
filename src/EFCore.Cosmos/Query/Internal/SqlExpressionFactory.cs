@@ -444,7 +444,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
         }
 
-        return new(
+        return new SqlFunctionExpression(
             functionName,
             typeMappedArguments,
             returnType,
@@ -461,7 +461,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     {
         var typeMapping = ExpressionExtensions.InferTypeMapping(ifTrue, ifFalse);
 
-        return new(
+        return new SqlConditionalExpression(
             ApplyTypeMapping(test, _boolTypeMapping),
             ApplyTypeMapping(ifTrue, typeMapping),
             ApplyTypeMapping(ifFalse, typeMapping));
@@ -480,7 +480,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         item = ApplyTypeMapping(item, typeMapping);
         values = ApplyTypeMapping(values, typeMapping);
 
-        return new(item, negated, values, _boolTypeMapping);
+        return new InExpression(item, negated, values, _boolTypeMapping);
     }
 
     /// <summary>
@@ -525,7 +525,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             var discriminatorProperty = concreteEntityType.FindDiscriminatorProperty();
             if (discriminatorProperty != null)
             {
-                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new()))
+                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                     .BindProperty(discriminatorProperty, clientEval: false);
 
                 selectExpression.ApplyPredicate(
@@ -534,7 +534,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
         else
         {
-            var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new()))
+            var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                 .BindProperty(concreteEntityTypes[0].FindDiscriminatorProperty(), clientEval: false);
 
             selectExpression.ApplyPredicate(

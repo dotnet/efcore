@@ -326,8 +326,8 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         int? precision = null,
         int? scale = null)
         : this(
-            new(
-                new(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision,
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision,
                 scale))
     {
     }

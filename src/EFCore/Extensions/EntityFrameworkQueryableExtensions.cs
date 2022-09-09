@@ -393,7 +393,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the first
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the first
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -539,7 +539,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the last
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the last
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">

@@ -19,7 +19,7 @@ public sealed class SplitQueryResultCoordinator
     /// </summary>
     public SplitQueryResultCoordinator()
     {
-        ResultContext = new();
+        ResultContext = new ResultContext();
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public sealed class SplitQueryResultCoordinator
             DataReaders.Add(null);
         }
 
-        DataReaders[collectionId] = new(relationalDataReader);
+        DataReaders[collectionId] = new SplitQueryDataReaderContext(relationalDataReader);
     }
 
     /// <summary>

@@ -99,7 +99,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
         _discriminatorValue = discriminatorValue;
 
-        _properties = new(new PropertyNameComparer(this));
+        _properties = new SortedDictionary<string, RuntimeProperty>(new PropertyNameComparer(this));
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         {
             if (property.Keys == null)
             {
-                property.Keys = new() { key };
+                property.Keys = new List<RuntimeKey> { key };
             }
             else
             {
@@ -237,7 +237,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         {
             if (property.ForeignKeys == null)
             {
-                property.ForeignKeys = new() { foreignKey };
+                property.ForeignKeys = new List<RuntimeForeignKey> { foreignKey };
             }
             else
             {
@@ -257,7 +257,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         if (principalEntityType.DeclaredReferencingForeignKeys == null)
         {
             principalEntityType.DeclaredReferencingForeignKeys =
-                new(ForeignKeyComparer.Instance) { foreignKey };
+                new SortedSet<RuntimeForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
         }
         else
         {
@@ -506,7 +506,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         {
             if (property.Indexes == null)
             {
-                property.Indexes = new() { index };
+                property.Indexes = new List<RuntimeIndex> { index };
             }
             else
             {

@@ -342,7 +342,7 @@ public class CosmosDatabaseWrapper : Database
         if (!_documentCollections.TryGetValue(entityType, out var documentSource))
         {
             _documentCollections.Add(
-                entityType, documentSource = new(entityType, this));
+                entityType, documentSource = new DocumentSource(entityType, this));
         }
 
         return documentSource;
@@ -387,7 +387,7 @@ public class CosmosDatabaseWrapper : Database
             CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
                 => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
             CosmosException { StatusCode: HttpStatusCode.Conflict }
-                => new(CosmosStrings.UpdateConflict(id), exception, entries),
+                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
             _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
         };
     }

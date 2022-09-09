@@ -101,7 +101,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool HasDifferences(IRelationalModel? source, IRelationalModel? target)
-        => Diff(source, target, new()).Any();
+        => Diff(source, target, new DiffContext()).Any();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -756,7 +756,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 }
 
                 groups.Add(
-                    clrProperty, new() { property });
+                    clrProperty, new List<IProperty> { property });
             }
 
             var clrType = clrProperty.DeclaringType!;
@@ -1711,7 +1711,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_targetIdentityMaps == null)
         {
-            _targetIdentityMaps = new(TableBaseIdentityComparer.Instance);
+            _targetIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
         }
         else
         {
@@ -1731,7 +1731,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_sourceIdentityMaps == null)
         {
-            _sourceIdentityMaps = new(TableBaseIdentityComparer.Instance);
+            _sourceIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
         }
         else
         {
@@ -1830,7 +1830,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 else
                 {
                     command = CommandBatchPreparerDependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
-                        new(table, sensitiveLoggingEnabled));
+                        new NonTrackedModificationCommandParameters(table, sensitiveLoggingEnabled));
                     command.EntityState = initialState;
 
                     identityMap.Add(key, command);
@@ -1918,7 +1918,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         && property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
 
                     command.AddColumnModification(
-                        new(
+                        new ColumnModificationParameters(
                             column, originalValue: value, value, property, columnMapping.TypeMapping,
                             read: false, write: writeValue,
                             key: property.IsPrimaryKey(), condition: false,
@@ -2235,7 +2235,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             break;
                         }
 
-                        batchInsertOperation = new()
+                        batchInsertOperation = new InsertDataOperation
                         {
                             Schema = command.Schema,
                             Table = command.TableName,

@@ -93,7 +93,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         };
         Operation.ForeignKeys.Add(operation);
 
-        return new(operation);
+        return new OperationBuilder<AddForeignKeyOperation>(operation);
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         // TODO: Throw if already set?
         Operation.PrimaryKey = operation;
 
-        return new(operation);
+        return new OperationBuilder<AddPrimaryKeyOperation>(operation);
     }
 
     /// <summary>
@@ -144,7 +144,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         };
         Operation.UniqueConstraints.Add(operation);
 
-        return new(operation);
+        return new OperationBuilder<AddUniqueConstraintOperation>(operation);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperatio
         };
         Operation.CheckConstraints.Add(operation);
 
-        return new(operation);
+        return new OperationBuilder<AddCheckConstraintOperation>(operation);
     }
 
     /// <summary>

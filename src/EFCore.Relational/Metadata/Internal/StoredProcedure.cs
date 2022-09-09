@@ -44,7 +44,7 @@ public class StoredProcedure :
     {
         EntityType = entityType;
         _configurationSource = configurationSource;
-        _builder = new(this, ((IConventionEntityType)entityType).Model.Builder);
+        _builder = new InternalStoredProcedureBuilder(this, ((IConventionEntityType)entityType).Model.Builder);
     }
 
     /// <inheritdoc />

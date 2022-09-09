@@ -70,7 +70,7 @@ public class CollectionResultExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual CollectionResultExpression Update(ProjectionBindingExpression projectionBindingExpression)
         => projectionBindingExpression != ProjectionBindingExpression
-            ? new(projectionBindingExpression, Navigation, ElementType)
+            ? new CollectionResultExpression(projectionBindingExpression, Navigation, ElementType)
             : this;
 
     /// <inheritdoc />

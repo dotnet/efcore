@@ -40,7 +40,7 @@ public class CrossJoinExpression : JoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual CrossJoinExpression Update(TableExpressionBase table)
         => table != Table
-            ? new(table, GetAnnotations())
+            ? new CrossJoinExpression(table, GetAnnotations())
             : this;
 
     /// <inheritdoc />

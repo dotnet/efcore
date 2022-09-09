@@ -34,7 +34,7 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
         Properties = properties;
         _configurationSource = configurationSource;
 
-        _builder = new(this, DeclaringEntityType.Model.Builder);
+        _builder = new InternalKeyBuilder(this, DeclaringEntityType.Model.Builder);
     }
 
     /// <summary>

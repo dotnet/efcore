@@ -145,19 +145,19 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
     /// <inheritdoc />
     public override EntityShaperExpression WithEntityType(IEntityType entityType)
         => entityType != EntityType
-            ? new(entityType, ValueBufferExpression, IsNullable)
+            ? new RelationalEntityShaperExpression(entityType, ValueBufferExpression, IsNullable)
             : this;
 
     /// <inheritdoc />
     public override EntityShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
             // Marking nullable requires re-computation of Discriminator condition
-            ? new(EntityType, ValueBufferExpression, true)
+            ? new RelationalEntityShaperExpression(EntityType, ValueBufferExpression, true)
             : this;
 
     /// <inheritdoc />
     public override EntityShaperExpression Update(Expression valueBufferExpression)
         => valueBufferExpression != ValueBufferExpression
-            ? new(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
+            ? new RelationalEntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
             : this;
 }

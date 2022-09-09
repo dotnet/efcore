@@ -263,7 +263,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
 
         var specialBits = BitConverter.ToUInt32(gotBytes, 0);
 
-        return new(
+        return new decimal(
             BitConverter.ToInt32(gotBytes, 12),
             BitConverter.ToInt32(gotBytes, 8),
             BitConverter.ToInt32(gotBytes, 4),

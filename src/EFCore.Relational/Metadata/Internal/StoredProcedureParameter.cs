@@ -46,7 +46,7 @@ public class StoredProcedureParameter :
             _directionConfigurationSource = ConfigurationSource.Explicit;
         }
 
-        _builder = new(this, storedProcedure.Builder.ModelBuilder);
+        _builder = new InternalStoredProcedureParameterBuilder(this, storedProcedure.Builder.ModelBuilder);
     }
 
     /// <summary>

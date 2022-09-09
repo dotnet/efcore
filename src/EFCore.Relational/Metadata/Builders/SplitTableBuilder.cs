@@ -88,7 +88,7 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
         trigger.SetTableName(Name);
         trigger.SetTableSchema(Schema);
 
-        return new(trigger);
+        return new TableTriggerBuilder(trigger);
     }
 
     /// <summary>

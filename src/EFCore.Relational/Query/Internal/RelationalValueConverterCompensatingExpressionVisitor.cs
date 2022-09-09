@@ -62,7 +62,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
             }
 
             var result = (SqlExpression)Visit(whenClause.Result);
-            whenClauses.Add(new(test, result));
+            whenClauses.Add(new CaseWhenClause(test, result));
         }
 
         var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult);

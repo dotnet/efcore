@@ -146,7 +146,7 @@ public class InternalDbSet<TEntity> :
                 _context.ChangeTracker.DetectChanges();
             }
 
-            return _localView ??= new(this);
+            return _localView ??= new LocalView<TEntity>(this);
         }
     }
 

@@ -10,7 +10,7 @@ public partial class NavigationExpandingExpressionVisitor
         public EntityReference(IEntityType entityType, EntityQueryRootExpression? entityQueryRootExpression)
         {
             EntityType = entityType;
-            IncludePaths = new(entityType, this, setLoaded: true);
+            IncludePaths = new IncludeTreeNode(entityType, this, setLoaded: true);
             EntityQueryRootExpression = entityQueryRootExpression;
         }
 
@@ -139,7 +139,7 @@ public partial class NavigationExpandingExpressionVisitor
                 }
             }
 
-            nodeToAdd ??= new(navigation.TargetEntityType, null, setLoaded);
+            nodeToAdd ??= new IncludeTreeNode(navigation.TargetEntityType, null, setLoaded);
 
             this[navigation] = nodeToAdd;
 

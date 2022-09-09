@@ -44,7 +44,7 @@ public sealed class ProjectionMember
         var existingChain = _memberChain.ToList();
         existingChain.Add(member);
 
-        return new(existingChain);
+        return new ProjectionMember(existingChain);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public sealed class ProjectionMember
         var existingChain = _memberChain.ToList();
         existingChain.Insert(0, member);
 
-        return new(existingChain);
+        return new ProjectionMember(existingChain);
     }
 
     /// <summary>

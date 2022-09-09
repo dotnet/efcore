@@ -56,7 +56,7 @@ public class BaseTypeDiscoveryConvention :
         var derivedTypesMap = (Dictionary<Type, List<IConventionEntityType>>?)model[CoreAnnotationNames.DerivedTypes];
         if (derivedTypesMap == null)
         {
-            derivedTypesMap = new();
+            derivedTypesMap = new Dictionary<Type, List<IConventionEntityType>>();
             model.SetAnnotation(CoreAnnotationNames.DerivedTypes, derivedTypesMap);
         }
 

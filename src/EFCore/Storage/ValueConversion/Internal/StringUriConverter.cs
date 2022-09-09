@@ -44,5 +44,5 @@ public class StringUriConverter<TModel, TProvider> : ValueConverter<TModel, TPro
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static Expression<Func<string?, Uri?>> ToUri()
-        => v => new(v!, UriKind.RelativeOrAbsolute);
+        => v => new Uri(v!, UriKind.RelativeOrAbsolute);
 }

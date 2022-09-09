@@ -125,7 +125,7 @@ public abstract class HistoryRepository : IHistoryRepository
         => Dependencies.DatabaseCreator.Exists()
             && InterpretExistsResult(
                 Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
-                    new(
+                    new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,
                         null,
@@ -145,7 +145,7 @@ public abstract class HistoryRepository : IHistoryRepository
         => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
             && InterpretExistsResult(
                 await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                    new(
+                    new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,
                         null,
@@ -208,7 +208,7 @@ public abstract class HistoryRepository : IHistoryRepository
             var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
             using var reader = command.ExecuteReader(
-                new(
+                new RelationalCommandParameterObject(
                     Dependencies.Connection,
                     null,
                     null,
@@ -216,7 +216,7 @@ public abstract class HistoryRepository : IHistoryRepository
                     Dependencies.CommandLogger, CommandSource.Migrations));
             while (reader.Read())
             {
-                rows.Add(new(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
+                rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
             }
         }
 
@@ -242,7 +242,7 @@ public abstract class HistoryRepository : IHistoryRepository
             var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
             var reader = await command.ExecuteReaderAsync(
-                new(
+                new RelationalCommandParameterObject(
                     Dependencies.Connection,
                     null,
                     null,
@@ -254,7 +254,7 @@ public abstract class HistoryRepository : IHistoryRepository
 
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
-                rows.Add(new(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
+                rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
             }
         }
 

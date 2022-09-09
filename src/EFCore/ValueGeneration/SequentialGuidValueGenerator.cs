@@ -50,7 +50,7 @@ public class SequentialGuidValueGenerator : ValueGenerator<Guid>
         guidBytes[14] = counterBytes[3];
         guidBytes[15] = counterBytes[2];
 
-        return new(guidBytes);
+        return new Guid(guidBytes);
     }
 
     /// <summary>

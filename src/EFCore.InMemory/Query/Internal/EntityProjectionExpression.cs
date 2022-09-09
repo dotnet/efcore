@@ -81,7 +81,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
             }
         }
 
-        return new(derivedType, readExpressionMap);
+        return new EntityProjectionExpression(derivedType, readExpressionMap);
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         var entityProjectionExpression = new EntityProjectionExpression(EntityType, readExpressionMap);
         foreach (var (navigation, entityShaperExpression) in _navigationExpressionsCache)
         {
-            entityProjectionExpression._navigationExpressionsCache[navigation] = new(
+            entityProjectionExpression._navigationExpressionsCache[navigation] = new EntityShaperExpression(
                 entityShaperExpression.EntityType,
                 ((EntityProjectionExpression)entityShaperExpression.ValueBufferExpression).Clone(),
                 entityShaperExpression.IsNullable);

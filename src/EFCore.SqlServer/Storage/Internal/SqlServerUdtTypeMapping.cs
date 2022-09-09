@@ -37,8 +37,8 @@ public class SqlServerUdtTypeMapping : RelationalTypeMapping
         int? precision = null,
         int? scale = null)
         : base(
-            new(
-                new(
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(
                     clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength,
                 precision, scale))
 

@@ -50,7 +50,7 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual InnerJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new(table, joinPredicate, GetAnnotations())
+            ? new InnerJoinExpression(table, joinPredicate, GetAnnotations())
             : this;
 
     /// <inheritdoc />

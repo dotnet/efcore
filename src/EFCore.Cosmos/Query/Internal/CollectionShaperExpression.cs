@@ -112,7 +112,7 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
         Check.NotNull(innerShaper, nameof(innerShaper));
 
         return projection != Projection || innerShaper != InnerShaper
-            ? new(projection, innerShaper, Navigation, ElementType)
+            ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
             : this;
     }
 

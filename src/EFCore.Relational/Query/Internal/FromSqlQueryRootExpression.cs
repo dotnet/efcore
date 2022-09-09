@@ -92,7 +92,7 @@ public sealed class FromSqlQueryRootExpression : EntityQueryRootExpression
         var argument = visitor.Visit(Argument);
 
         return argument != Argument
-            ? new(EntityType, Sql, argument)
+            ? new FromSqlQueryRootExpression(EntityType, Sql, argument)
             : this;
     }
 

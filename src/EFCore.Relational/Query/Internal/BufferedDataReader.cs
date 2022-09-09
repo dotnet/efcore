@@ -895,9 +895,9 @@ public class BufferedDataReader : DbDataReader
                 ReadRow();
             }
 
-            _bools = new(_tempBools);
+            _bools = new BitArray(_tempBools);
             _tempBools = null!;
-            _nulls = new(_tempNulls);
+            _nulls = new BitArray(_tempNulls);
             _tempNulls = null!;
             _rowCount = _currentRowNumber + 1;
             _currentRowNumber = -1;
@@ -923,9 +923,9 @@ public class BufferedDataReader : DbDataReader
                 ReadRow();
             }
 
-            _bools = new(_tempBools);
+            _bools = new BitArray(_tempBools);
             _tempBools = null!;
-            _nulls = new(_tempNulls);
+            _nulls = new BitArray(_tempNulls);
             _tempNulls = null!;
             _rowCount = _currentRowNumber + 1;
             _currentRowNumber = -1;
@@ -1215,7 +1215,7 @@ public class BufferedDataReader : DbDataReader
             _dataTypeNames = dataTypeNames;
             _fieldTypes = columnTypes;
             _columnNames = columnNames;
-            _fieldNameLookup = new(CreateNameLookup, isThreadSafe: false);
+            _fieldNameLookup = new Lazy<Dictionary<string, int>>(CreateNameLookup, isThreadSafe: false);
 
             Dictionary<string, int> CreateNameLookup()
             {

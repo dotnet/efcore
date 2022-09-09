@@ -57,7 +57,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
             var table = (tableName, entityType.GetSchema());
             if (!tableToEntityTypes.TryGetValue(table, out var mappedTypes))
             {
-                mappedTypes = new();
+                mappedTypes = new List<IConventionEntityType>();
                 tableToEntityTypes[table] = mappedTypes;
             }
 
@@ -83,7 +83,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
                     if (!foundMappedProperty)
                     {
-                        entityTypesMissingConcurrencyColumn ??= new();
+                        entityTypesMissingConcurrencyColumn ??= new Dictionary<IConventionEntityType, IReadOnlyProperty>();
 
                         // store the entity type which is missing the
                         // concurrency token property, mapped to an example
@@ -159,11 +159,11 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                     continue;
                 }
 
-                concurrencyColumns ??= new();
+                concurrencyColumns ??= new Dictionary<string, List<IReadOnlyProperty>>();
 
                 if (!concurrencyColumns.TryGetValue(columnName, out var properties))
                 {
-                    properties = new();
+                    properties = new List<IReadOnlyProperty>();
                     concurrencyColumns[columnName] = properties;
                 }
 

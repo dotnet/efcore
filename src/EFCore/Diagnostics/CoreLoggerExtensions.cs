@@ -2100,7 +2100,7 @@ public static class CoreLoggerExtensions
             var eventData = new PropertyChangedEventData(
                 definition,
                 PropertyChangeDetected,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 property,
                 oldValue,
                 newValue);
@@ -2151,7 +2151,7 @@ public static class CoreLoggerExtensions
             var eventData = new PropertyChangedEventData(
                 definition,
                 PropertyChangeDetectedSensitive,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 property,
                 oldValue,
                 newValue);
@@ -2202,7 +2202,7 @@ public static class CoreLoggerExtensions
             var eventData = new PropertyChangedEventData(
                 definition,
                 ForeignKeyChangeDetected,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 property,
                 oldValue,
                 newValue);
@@ -2253,7 +2253,7 @@ public static class CoreLoggerExtensions
             var eventData = new PropertyChangedEventData(
                 definition,
                 ForeignKeyChangeDetectedSensitive,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 property,
                 oldValue,
                 newValue);
@@ -2306,7 +2306,7 @@ public static class CoreLoggerExtensions
             var eventData = new CollectionChangedEventData(
                 definition,
                 CollectionChangeDetected,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 navigation,
                 added,
                 removed);
@@ -2359,7 +2359,7 @@ public static class CoreLoggerExtensions
             var eventData = new CollectionChangedEventData(
                 definition,
                 CollectionChangeDetectedSensitive,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 navigation,
                 added,
                 removed);
@@ -2412,7 +2412,7 @@ public static class CoreLoggerExtensions
             var eventData = new SkipCollectionChangedEventData(
                 definition,
                 SkipCollectionChangeDetected,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 navigation,
                 added,
                 removed);
@@ -2465,7 +2465,7 @@ public static class CoreLoggerExtensions
             var eventData = new SkipCollectionChangedEventData(
                 definition,
                 SkipCollectionChangeDetectedSensitive,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 navigation,
                 added,
                 removed);
@@ -2513,7 +2513,7 @@ public static class CoreLoggerExtensions
             var eventData = new ReferenceChangedEventData(
                 definition,
                 ReferenceChangeDetected,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 navigation,
                 oldValue,
                 newValue);
@@ -2562,7 +2562,7 @@ public static class CoreLoggerExtensions
             var eventData = new ReferenceChangedEventData(
                 definition,
                 ReferenceChangeDetectedSensitive,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 navigation,
                 oldValue,
                 newValue);
@@ -2605,7 +2605,7 @@ public static class CoreLoggerExtensions
             var eventData = new EntityEntryEventData(
                 definition,
                 StartedTracking,
-                new(internalEntityEntry));
+                new EntityEntry(internalEntityEntry));
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -2645,7 +2645,7 @@ public static class CoreLoggerExtensions
             var eventData = new EntityEntryEventData(
                 definition,
                 StartedTrackingSensitive,
-                new(internalEntityEntry));
+                new EntityEntry(internalEntityEntry));
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -2691,7 +2691,7 @@ public static class CoreLoggerExtensions
             var eventData = new StateChangedEventData(
                 definition,
                 StateChanged,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 oldState,
                 newState);
 
@@ -2741,7 +2741,7 @@ public static class CoreLoggerExtensions
             var eventData = new StateChangedEventData(
                 definition,
                 StateChangedSensitive,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 oldState,
                 newState);
 
@@ -2794,7 +2794,7 @@ public static class CoreLoggerExtensions
             var eventData = new PropertyValueEventData(
                 definition,
                 ValueGenerated,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 property,
                 value);
 
@@ -2846,7 +2846,7 @@ public static class CoreLoggerExtensions
             var eventData = new PropertyValueEventData(
                 definition,
                 ValueGeneratedSensitive,
-                new(internalEntityEntry),
+                new EntityEntry(internalEntityEntry),
                 property,
                 value);
 
@@ -2894,8 +2894,8 @@ public static class CoreLoggerExtensions
             var eventData = new CascadeDeleteEventData(
                 definition,
                 CascadeDelete,
-                new(internalChildEntry),
-                new(internalParentEntry),
+                new EntityEntry(internalChildEntry),
+                new EntityEntry(internalParentEntry),
                 state);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -2943,8 +2943,8 @@ public static class CoreLoggerExtensions
             var eventData = new CascadeDeleteEventData(
                 definition,
                 CascadeDeleteSensitive,
-                new(internalChildEntry),
-                new(internalParentEntry),
+                new EntityEntry(internalChildEntry),
+                new EntityEntry(internalParentEntry),
                 state);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -2993,7 +2993,7 @@ public static class CoreLoggerExtensions
             var eventData = new CascadeDeleteOrphanEventData(
                 definition,
                 CascadeDeleteOrphan,
-                new(internalChildEntry),
+                new EntityEntry(internalChildEntry),
                 parentEntityType,
                 state);
 
@@ -3041,7 +3041,7 @@ public static class CoreLoggerExtensions
             var eventData = new CascadeDeleteOrphanEventData(
                 definition,
                 CascadeDeleteOrphanSensitive,
-                new(internalChildEntry),
+                new EntityEntry(internalChildEntry),
                 parentEntityType,
                 state);
 
@@ -3216,7 +3216,7 @@ public static class CoreLoggerExtensions
             }
         }
 
-        return new(entitiesSavedCount);
+        return new ValueTask<int>(entitiesSavedCount);
     }
 
     private static SaveChangesCompletedEventData CreateSaveChangesCompletedEventData(

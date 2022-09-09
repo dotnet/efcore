@@ -40,8 +40,8 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
         DbType? dbType = System.Data.DbType.Time,
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
-            new(
-                new(typeof(TimeSpan)),
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(typeof(TimeSpan)),
                 storeType,
                 storeTypePostfix,
                 dbType))

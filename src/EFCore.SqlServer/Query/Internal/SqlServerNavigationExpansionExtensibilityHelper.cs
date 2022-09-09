@@ -36,7 +36,7 @@ public class SqlServerNavigationExpansionExtensibilityHelper : NavigationExpansi
         {
             // AsOf is the only temporal operation that can pass the validation
             return source.QueryProvider != null
-                ? new(source.QueryProvider, entityType, asOf.PointInTime)
+                ? new TemporalAsOfQueryRootExpression(source.QueryProvider, entityType, asOf.PointInTime)
                 : new TemporalAsOfQueryRootExpression(entityType, asOf.PointInTime);
         }
 

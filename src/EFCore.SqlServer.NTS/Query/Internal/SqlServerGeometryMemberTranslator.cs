@@ -134,7 +134,7 @@ public class SqlServerGeometryMemberTranslator : IMemberTranslator
                 if (isGeography)
                 {
                     whenClauses.Add(
-                        new(
+                        new CaseWhenClause(
                             _sqlExpressionFactory.Constant("FullGlobe"), _sqlExpressionFactory.Constant((OgcGeometryType)126)));
                 }
 

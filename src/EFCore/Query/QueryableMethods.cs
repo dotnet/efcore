@@ -792,10 +792,10 @@ public static class QueryableMethods
             typeof(decimal?)
         };
 
-        AverageWithoutSelectorMethods = new();
-        AverageWithSelectorMethods = new();
-        SumWithoutSelectorMethods = new();
-        SumWithSelectorMethods = new();
+        AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
+        AverageWithSelectorMethods = new Dictionary<Type, MethodInfo>();
+        SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
+        SumWithSelectorMethods = new Dictionary<Type, MethodInfo>();
 
         foreach (var type in numericTypes)
         {

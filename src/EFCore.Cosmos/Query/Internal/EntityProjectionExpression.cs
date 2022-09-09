@@ -90,7 +90,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     /// </summary>
     public virtual Expression Update(Expression accessExpression)
         => accessExpression != AccessExpression
-            ? new(EntityType, accessExpression)
+            ? new EntityProjectionExpression(EntityType, accessExpression)
             : this;
 
     /// <summary>
@@ -236,7 +236,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
                     derivedType.DisplayName(), EntityType.DisplayName()));
         }
 
-        return new(derivedType, AccessExpression);
+        return new EntityProjectionExpression(derivedType, AccessExpression);
     }
 
     /// <summary>

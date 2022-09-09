@@ -51,15 +51,15 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
         _queryExpression = queryExpression;
         _indexBasedBinding = false;
 
-        _projectionMembers.Push(new());
+        _projectionMembers.Push(new ProjectionMember());
         var result = Visit(expression);
 
         if (result == QueryCompilationContext.NotTranslatedExpression)
         {
             _indexBasedBinding = true;
             _projectionMapping.Clear();
-            _entityProjectionCache = new();
-            _clientProjections = new();
+            _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
+            _clientProjections = new List<Expression>();
 
             result = Visit(expression);
 
@@ -532,6 +532,6 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
             existingIndex = _clientProjections.Count - 1;
         }
 
-        return new(_queryExpression, existingIndex, type);
+        return new ProjectionBindingExpression(_queryExpression, existingIndex, type);
     }
 }

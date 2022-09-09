@@ -177,6 +177,6 @@ public class SqliteGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMappin
                 throw new ArgumentException(SqliteNTSStrings.InvalidGeometryType(storeType), nameof(storeType));
         }
 
-        return new() { HandleOrdinates = handleOrdinates };
+        return new GaiaGeoWriter { HandleOrdinates = handleOrdinates };
     }
 }

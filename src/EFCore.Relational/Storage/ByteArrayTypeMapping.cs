@@ -33,8 +33,8 @@ public class ByteArrayTypeMapping : RelationalTypeMapping
         DbType? dbType = System.Data.DbType.Binary,
         int? size = null)
         : base(
-            new(
-                new(
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(
                     typeof(byte[])), storeType, StoreTypePostfix.None, dbType, unicode: false, size))
     {
     }

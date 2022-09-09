@@ -145,9 +145,9 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
 
         return queryRoot
             .AsTracking()
-            .Where(BuildWhereLambda(loadProperties, new(keyValues)))
+            .Where(BuildWhereLambda(loadProperties, new ValueBuffer(keyValues)))
             .SelectMany(BuildSelectManyLambda(_skipNavigation))
-            .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new(keyValues)))
+            .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
             .AsQueryable();
     }
 

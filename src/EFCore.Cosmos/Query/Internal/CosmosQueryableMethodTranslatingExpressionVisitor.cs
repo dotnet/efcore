@@ -40,13 +40,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         _sqlExpressionFactory = sqlExpressionFactory;
         _memberTranslatorProvider = memberTranslatorProvider;
         _methodCallTranslatorProvider = methodCallTranslatorProvider;
-        _sqlTranslator = new(
+        _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
             queryCompilationContext,
             _sqlExpressionFactory,
             _memberTranslatorProvider,
             _methodCallTranslatorProvider);
         _projectionBindingExpressionVisitor =
-            new(_queryCompilationContext.Model, _sqlTranslator);
+            new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
     }
 
     /// <summary>
@@ -61,13 +61,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         _queryCompilationContext = parentVisitor._queryCompilationContext;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
-        _sqlTranslator = new(
+        _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
             QueryCompilationContext,
             _sqlExpressionFactory,
             _memberTranslatorProvider,
             _methodCallTranslatorProvider);
         _projectionBindingExpressionVisitor =
-            new(_queryCompilationContext.Model, _sqlTranslator);
+            new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
     }
 
     /// <summary>
@@ -271,7 +271,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = TranslateSelect(source, selector);
         }
 
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new());
+        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
         projection = _sqlExpressionFactory.Function(
             "AVG", new[] { projection }, projection.Type, projection.TypeMapping);
 
@@ -575,7 +575,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = TranslateSelect(source, selector);
         }
 
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new());
+        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
         projection = _sqlExpressionFactory.Function("MAX", new[] { projection }, resultType, projection.TypeMapping);
 
@@ -603,7 +603,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = TranslateSelect(source, selector);
         }
 
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new());
+        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
         projection = _sqlExpressionFactory.Function("MIN", new[] { projection }, resultType, projection.TypeMapping);
 
@@ -682,7 +682,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var translation = TranslateLambdaExpression(source, keySelector);
         if (translation != null)
         {
-            ((SelectExpression)source.QueryExpression).ApplyOrdering(new(translation, ascending));
+            ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
 
             return source;
         }
@@ -841,7 +841,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var serverOutputType = resultType.UnwrapNullableType();
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new());
+        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
         projection = _sqlExpressionFactory.Function(
             "SUM", new[] { projection }, serverOutputType, projection.TypeMapping);
@@ -895,7 +895,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var translation = TranslateLambdaExpression(source, keySelector);
         if (translation != null)
         {
-            ((SelectExpression)source.QueryExpression).AppendOrdering(new(translation, ascending));
+            ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
 
             return source;
         }

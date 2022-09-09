@@ -91,7 +91,7 @@ public class LocalView<TEntity> :
     {
         if (_observable == null)
         {
-            _observable = new(this);
+            _observable = new ObservableCollection<TEntity>(this);
             _observable.CollectionChanged += ObservableCollectionChanged;
             CollectionChanged += LocalViewCollectionChanged;
         }
@@ -462,7 +462,7 @@ public class LocalView<TEntity> :
         => OnPropertyChanging(ObservableHashSetSingletons.CountPropertyChanging);
 
     private void OnCollectionChanged(NotifyCollectionChangedAction action, object item)
-        => OnCollectionChanged(new(action, item));
+        => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
 
     /// <summary>
     ///     Returns a <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
@@ -474,7 +474,7 @@ public class LocalView<TEntity> :
     /// </remarks>
     /// <returns>The binding list.</returns>
     public virtual BindingList<TEntity> ToBindingList()
-        => _bindingList ??= new(ToObservableCollection());
+        => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
 
     /// <summary>
     ///     This method is called by data binding frameworks when attempting to data bind

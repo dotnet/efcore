@@ -86,7 +86,7 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
             trigger.SetTableSchema(Schema);
         }
 
-        return new(trigger);
+        return new TableTriggerBuilder(trigger);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
             sql,
             ConfigurationSource.Explicit)!;
 
-        return new((IMutableCheckConstraint)checkConstraint);
+        return new CheckConstraintBuilder((IMutableCheckConstraint)checkConstraint);
     }
 
     /// <summary>

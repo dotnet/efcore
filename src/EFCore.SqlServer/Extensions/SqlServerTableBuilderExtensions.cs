@@ -26,7 +26,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(temporal);
 
-        return new(tableBuilder.GetInfrastructure());
+        return new TemporalTableBuilder(tableBuilder.GetInfrastructure());
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(true);
 
-        buildAction(new(tableBuilder.GetInfrastructure()));
+        buildAction(new TemporalTableBuilder(tableBuilder.GetInfrastructure()));
 
         return tableBuilder;
     }
@@ -68,7 +68,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(temporal);
 
-        return new(tableBuilder.GetInfrastructure<EntityTypeBuilder<TEntity>>());
+        return new TemporalTableBuilder<TEntity>(tableBuilder.GetInfrastructure<EntityTypeBuilder<TEntity>>());
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public static class SqlServerTableBuilderExtensions
         where TEntity : class
     {
         tableBuilder.Metadata.SetIsTemporal(true);
-        buildAction(new(tableBuilder.GetInfrastructure<EntityTypeBuilder<TEntity>>()));
+        buildAction(new TemporalTableBuilder<TEntity>(tableBuilder.GetInfrastructure<EntityTypeBuilder<TEntity>>()));
 
         return tableBuilder;
     }
@@ -109,7 +109,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(temporal);
 
-        return new(tableBuilder.GetInfrastructure());
+        return new OwnedNavigationTemporalTableBuilder(tableBuilder.GetInfrastructure());
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(true);
 
-        buildAction(new(tableBuilder.GetInfrastructure()));
+        buildAction(new OwnedNavigationTemporalTableBuilder(tableBuilder.GetInfrastructure()));
 
         return tableBuilder;
     }
@@ -153,7 +153,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(temporal);
 
-        return new(
+        return new OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
             tableBuilder.GetInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>());
     }
 
@@ -177,7 +177,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(true);
         buildAction(
-            new(
+            new OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
                 tableBuilder.GetInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>()));
 
         return tableBuilder;

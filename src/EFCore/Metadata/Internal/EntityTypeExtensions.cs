@@ -310,7 +310,7 @@ public static class EntityTypeExtensions
             ((IRuntimePropertyBase)serviceProperty).PropertyIndexes = indexes;
         }
 
-        return new(
+        return new PropertyCounts(
             index,
             navigationIndex,
             originalValueIndex,

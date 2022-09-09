@@ -49,7 +49,7 @@ public class ConverterMappingHints
     public virtual ConverterMappingHints With(ConverterMappingHints? hints)
         => hints == null
             ? this
-            : new(
+            : new ConverterMappingHints(
                 hints.Size ?? Size,
                 hints.Precision ?? Precision,
                 hints.Scale ?? Scale,

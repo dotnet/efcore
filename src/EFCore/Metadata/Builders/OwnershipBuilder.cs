@@ -90,7 +90,7 @@ public class OwnershipBuilder : RelationshipBuilderBase
             Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
             (EntityType)DependentEntityType,
             ConfigurationSource.Explicit)!;
-        return new(
+        return new OwnershipBuilder(
             Builder,
             this,
             foreignKeySet: foreignKeyPropertyNames.Length > 0);
@@ -110,7 +110,7 @@ public class OwnershipBuilder : RelationshipBuilderBase
         Builder = Builder.HasPrincipalKey(
             Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
             ConfigurationSource.Explicit)!;
-        return new(
+        return new OwnershipBuilder(
             Builder,
             this,
             principalKeySet: keyPropertyNames.Length > 0);

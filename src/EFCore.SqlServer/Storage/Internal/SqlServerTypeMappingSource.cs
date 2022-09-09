@@ -151,7 +151,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         : base(dependencies, relationalDependencies)
     {
         _clrTypeMappings
-            = new()
+            = new Dictionary<Type, RelationalTypeMapping>
             {
                 { typeof(int), _int },
                 { typeof(long), _long },
@@ -169,7 +169,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             };
 
         _clrNoFacetTypeMappings
-            = new()
+            = new Dictionary<Type, RelationalTypeMapping>
             {
                 { typeof(DateTime), _datetime2Alias },
                 { typeof(double), _doubleAlias },
@@ -179,7 +179,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             };
 
         _storeTypeMappings
-            = new(StringComparer.OrdinalIgnoreCase)
+            = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
             {
                 { "bigint", _long },
                 { "binary varying", _variableLengthBinary },
@@ -334,7 +334,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
                 return size == null
                     ? _variableLengthMaxBinary
-                    : new(
+                    : new SqlServerByteArrayTypeMapping(
                         size: size,
                         fixedLength: isFixedLength,
                         storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);

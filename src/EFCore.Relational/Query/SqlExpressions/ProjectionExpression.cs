@@ -50,7 +50,7 @@ public sealed class ProjectionExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public ProjectionExpression Update(SqlExpression expression)
         => expression != Expression
-            ? new(expression, Alias)
+            ? new ProjectionExpression(expression, Alias)
             : this;
 
     /// <inheritdoc />

@@ -86,23 +86,23 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
             var newValue = (SqlExpression)visitor.Visit(columnValueSetter.Value);
             if (columnValueSetters != null)
             {
-                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                columnValueSetters = new(n);
+                columnValueSetters = new List<ColumnValueSetter>(n);
                 for (var j = 0; j < i; j++)
                 {
                     columnValueSetters.Add(ColumnValueSetters[j]);
                 }
 
-                columnValueSetters.Add(new(columnValueSetter.Column, newValue));
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
         }
 
         return selectExpression != SelectExpression
             || columnValueSetters != null
-                ? new(Table, selectExpression, columnValueSetters ?? ColumnValueSetters)
+                ? new UpdateExpression(Table, selectExpression, columnValueSetters ?? ColumnValueSetters)
                 : this;
     }
 
@@ -115,7 +115,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public UpdateExpression Update(SelectExpression selectExpression, IReadOnlyList<ColumnValueSetter> columnValueSetters)
         => selectExpression != SelectExpression || !ColumnValueSetters.SequenceEqual(columnValueSetters)
-            ? new(Table, selectExpression, columnValueSetters, Tags)
+            ? new UpdateExpression(Table, selectExpression, columnValueSetters, Tags)
             : this;
 
     /// <inheritdoc />

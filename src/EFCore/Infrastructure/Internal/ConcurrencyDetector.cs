@@ -36,7 +36,7 @@ public class ConcurrencyDetector : IConcurrencyDetector
         }
 
         _refCount++;
-        return new(this);
+        return new ConcurrencyDetectorCriticalSectionDisposer(this);
     }
 
     /// <summary>

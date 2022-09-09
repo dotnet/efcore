@@ -80,7 +80,7 @@ public sealed class SqlQueryRootExpression : QueryRootExpression
         var argument = visitor.Visit(Argument);
 
         return argument != Argument
-            ? new(ElementType, Sql, argument)
+            ? new SqlQueryRootExpression(ElementType, Sql, argument)
             : this;
     }
 

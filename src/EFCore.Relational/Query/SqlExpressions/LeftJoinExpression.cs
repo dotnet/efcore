@@ -50,7 +50,7 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new(table, joinPredicate, GetAnnotations())
+            ? new LeftJoinExpression(table, joinPredicate, GetAnnotations())
             : this;
 
     /// <inheritdoc />

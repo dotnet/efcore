@@ -77,7 +77,7 @@ public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
     {
         using var serviceScope = CreateServiceScope();
         using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
-        return new(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
+        return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
     }
 
     private static IServiceScope CreateServiceScope()

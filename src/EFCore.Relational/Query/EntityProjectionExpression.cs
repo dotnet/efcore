@@ -32,7 +32,7 @@ public class EntityProjectionExpression : Expression
         : this(
             entityType,
             propertyExpressionMap,
-            new(),
+            new Dictionary<INavigation, EntityShaperExpression>(),
             discriminatorExpression)
     {
     }
@@ -92,7 +92,7 @@ public class EntityProjectionExpression : Expression
         }
 
         return changed
-            ? new(EntityType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression)
+            ? new EntityProjectionExpression(EntityType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression)
             : this;
     }
 
@@ -129,7 +129,7 @@ public class EntityProjectionExpression : Expression
             }
         }
 
-        return new(
+        return new EntityProjectionExpression(
             EntityType,
             propertyExpressionMap,
             ownedNavigationMap,
@@ -182,7 +182,7 @@ public class EntityProjectionExpression : Expression
             discriminatorExpression = caseExpression.Update(operand: null, whenClauses, elseResult: null);
         }
 
-        return new(derivedType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression);
+        return new EntityProjectionExpression(derivedType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression);
     }
 
     /// <summary>

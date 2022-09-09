@@ -407,7 +407,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         }
         else
         {
-            result = new();
+            result = new List<object>();
             foreach (var collectionElement in collection)
             {
                 result.Add(collectionElement);

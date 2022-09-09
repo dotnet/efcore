@@ -34,7 +34,7 @@ public class StoredProcedureResultColumn :
         StoredProcedure = storedProcedure;
         ForRowsAffected = forRowsAffected;
         PropertyName = propertyName;
-        _builder = new(this, storedProcedure.Builder.ModelBuilder);
+        _builder = new InternalStoredProcedureResultColumnBuilder(this, storedProcedure.Builder.ModelBuilder);
     }
 
     /// <summary>
