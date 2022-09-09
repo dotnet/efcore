@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public abstract class TPCInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesFixtureBase
 {
-    protected override string StoreName => "TPCInheritanceBulkUpdatesTest";
+    protected override string StoreName
+        => "TPCInheritanceBulkUpdatesTest";
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

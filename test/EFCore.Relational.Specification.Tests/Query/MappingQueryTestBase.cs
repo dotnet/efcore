@@ -89,6 +89,7 @@ public abstract class MappingQueryTestBase<TFixture> : IClassFixture<TFixture>
     public abstract class MappingQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
         protected abstract string DatabaseSchema { get; }
+
         protected override string StoreName
             => "Northwind";
 

@@ -114,12 +114,14 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQu
     }
 
     public override async Task Projecting_correlated_collection_followed_by_Distinct(bool async)
-        => Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported,
+        => Assert.Equal(
+            RelationalStrings.DistinctOnCollectionNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Projecting_correlated_collection_followed_by_Distinct(async))).Message);
 
     public override async Task Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(bool async)
-        => Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported,
+        => Assert.Equal(
+            RelationalStrings.DistinctOnCollectionNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(async))).Message);
 
@@ -136,12 +138,10 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQu
                 () => base.Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(async))).Message);
 
     public override async Task Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(bool async)
-    {
-        Assert.Equal(
+        => Assert.Equal(
             RelationalStrings.DistinctOnCollectionNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(async))).Message);
-    }
 
     public override async Task Correlated_collection_with_distinct_3_levels(bool async)
         => Assert.Equal(

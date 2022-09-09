@@ -499,7 +499,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
     [InlineData(EntityState.Modified, false, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Deleted, true, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Deleted, false, CascadeTiming.OnSaveChanges)]
-    public virtual async Task Load_collection_already_loaded_untyped_unidirectional(EntityState state, bool async, CascadeTiming deleteOrphansTiming)
+    public virtual async Task Load_collection_already_loaded_untyped_unidirectional(
+        EntityState state,
+        bool async,
+        CascadeTiming deleteOrphansTiming)
     {
         using var context = Fixture.CreateContext();
 
@@ -543,8 +546,9 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         Assert.Equal(4, navigationEntry.CurrentValue!.Count());
         foreach (var right in navigationEntry.CurrentValue!)
         {
-            Assert.Contains(left, context.Entry((object)right).Collection("UnidirectionalEntityOne")
-                .CurrentValue!.Cast<UnidirectionalEntityOne>());
+            Assert.Contains(
+                left, context.Entry((object)right).Collection("UnidirectionalEntityOne")
+                    .CurrentValue!.Cast<UnidirectionalEntityOne>());
         }
 
         Assert.Equal(1 + 4 + 4, context.ChangeTracker.Entries().Count());
@@ -860,11 +864,13 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         var children = async
             ? await collectionEntry.Query()
-                .Include(e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree")
-                    .Where(e => e.Id == 13 || e.Id == 11)).ToListAsync()
+                .Include(
+                    e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree")
+                        .Where(e => e.Id == 13 || e.Id == 11)).ToListAsync()
             : collectionEntry.Query()
-                .Include(e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree")
-                .Where(e => e.Id == 13 || e.Id == 11)).ToList();
+                .Include(
+                    e => EF.Property<ICollection<UnidirectionalEntityThree>>(e, "UnidirectionalEntityThree")
+                        .Where(e => e.Id == 13 || e.Id == 11)).ToList();
 
         Assert.False(collectionEntry.IsLoaded);
         foreach (var entityTwo in left.TwoSkipShared)

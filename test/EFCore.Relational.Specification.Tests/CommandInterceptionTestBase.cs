@@ -1781,7 +1781,11 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             => throw new NotImplementedException();
     }
 
-    protected static void AssertNormalOutcome(DbContext context, CommandInterceptorBase interceptor, bool async, CommandSource commandSource)
+    protected static void AssertNormalOutcome(
+        DbContext context,
+        CommandInterceptorBase interceptor,
+        bool async,
+        CommandSource commandSource)
     {
         Assert.Equal(async, interceptor.AsyncCalled);
         Assert.NotEqual(async, interceptor.SyncCalled);
@@ -2096,7 +2100,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
 
-            return new(result);
+            return new ValueTask<InterceptionResult>(result);
         }
 
         public virtual InterceptionResult DataReaderDisposing(

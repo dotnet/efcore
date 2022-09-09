@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class TPTFiltersInheritanceBulkUpdatesSqlServerTest : TPTFiltersInheritanceBulkUpdatesTestBase<TPTFiltersInheritanceBulkUpdatesSqlServerFixture>
+public class TPTFiltersInheritanceBulkUpdatesSqlServerTest : TPTFiltersInheritanceBulkUpdatesTestBase<
+    TPTFiltersInheritanceBulkUpdatesSqlServerFixture>
 {
     public TPTFiltersInheritanceBulkUpdatesSqlServerTest(TPTFiltersInheritanceBulkUpdatesSqlServerFixture fixture)
         : base(fixture)
@@ -158,7 +159,8 @@ WHERE (
         AssertExecuteUpdateSql();
     }
 
-    protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
+    protected override void ClearLog()
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -1066,7 +1066,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss =>
                 from c in ss.Set<Customer>()
                 from e in ss.Set<Employee>()
-                    // ReSharper disable ArrangeRedundantParentheses
+                // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                 where (c.City == "London" && c.Country == "UK")
                     && (e.City == "London" && e.Country == "UK")

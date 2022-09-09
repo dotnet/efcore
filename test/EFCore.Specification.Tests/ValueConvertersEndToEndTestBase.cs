@@ -1,11 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.Json;
-
-#nullable enable
 
 // ReSharper disable StaticMemberInGenericType
 namespace Microsoft.EntityFrameworkCore;

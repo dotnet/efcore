@@ -691,9 +691,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public virtual DbSet<OrderItem26472> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<OrderItem26472>().Property(x => x.Type).HasConversion<string>();
-        }
+            => modelBuilder.Entity<OrderItem26472>().Property(x => x.Type).HasConversion<string>();
     }
 
     protected class Order26472
@@ -1108,11 +1106,11 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
                 {
                     Children = new List<Child26744>
                     {
-                        new Child26744 { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }
+                        new() { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }
                     }
                 });
 
-            Add(new Parent26744 { Children = new List<Child26744> { new Child26744 { SomeInteger = 1, } } });
+            Add(new Parent26744 { Children = new List<Child26744> { new() { SomeInteger = 1, } } });
 
             SaveChanges();
         }
@@ -1165,10 +1163,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public DbSet<Parent27343> Parents { get; set; }
 
         public void Seed()
-        {
-
-            SaveChanges();
-        }
+            => SaveChanges();
     }
 
     protected interface IDocumentType27343
@@ -1194,9 +1189,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
-    {
-        return Hierarchy_query_with_abstract_type_sibling_helper(async, null);
-    }
+        => Hierarchy_query_with_abstract_type_sibling_helper(async, null);
 
     public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder> onModelCreating)
     {
@@ -1270,7 +1263,6 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<Context28039>();
         using var db = contextFactory.CreateContext();
 
-
         var queryResults = (from i in db.IndexData.Where(a => a.Parcel == "some condition")
                                 .Select(a => new SearchResult { ParcelNumber = a.Parcel, RowId = a.RowId })
                             group i by new { i.ParcelNumber, i.RowId }
@@ -1283,7 +1275,6 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
                               on dcv.ParcelNumber equals wos
                           orderby dcv.ParcelNumber
                           select dcv.JSON).Take(123456);
-
 
         var result = async
             ? await jsonLookup.ToListAsync()
@@ -1307,7 +1298,6 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public string ParcelNumber { get; set; }
         public short RowId { get; set; }
         public string JSON { get; set; }
-
     }
 
     public abstract class EntityBase
@@ -1328,7 +1318,6 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int RowId { get; set; }
         public string DistinctValue { get; set; }
     }
-
 
     protected abstract class Animal
     {

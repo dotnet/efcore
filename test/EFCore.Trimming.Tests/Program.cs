@@ -27,10 +27,7 @@ public class BlogContext : DbContext
 
     static BlogContext()
     {
-        var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
-        {
-            InitialCatalog = "TrimmingTests"
-        };
+        var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection) { InitialCatalog = "TrimmingTests" };
 
         ConnectionString = builder.ToString();
     }
@@ -41,4 +38,3 @@ public class Blog
     public int Id { get; set; }
     public string Name { get; set; }
 }
-

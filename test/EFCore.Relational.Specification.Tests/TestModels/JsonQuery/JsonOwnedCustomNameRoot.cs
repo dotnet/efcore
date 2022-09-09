@@ -3,23 +3,22 @@
 
 using System.Text.Json.Serialization;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
+namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+
+public class JsonOwnedCustomNameRoot
 {
-    public class JsonOwnedCustomNameRoot
-    {
-        [JsonPropertyName("CustomName")]
-        public string Name { get; set; }
+    [JsonPropertyName("CustomName")]
+    public string Name { get; set; }
 
-        [JsonPropertyName("CustomNumber")]
-        public int Number { get; set; }
+    [JsonPropertyName("CustomNumber")]
+    public int Number { get; set; }
 
-        [JsonPropertyName("CustomEnum")]
-        public JsonEnum Enum { get; set; }
+    [JsonPropertyName("CustomEnum")]
+    public JsonEnum Enum { get; set; }
 
-        [JsonPropertyName("CustomOwnedReferenceBranch")]
-        public JsonOwnedCustomNameBranch OwnedReferenceBranch { get; set; }
+    [JsonPropertyName("CustomOwnedReferenceBranch")]
+    public JsonOwnedCustomNameBranch OwnedReferenceBranch { get; set; }
 
-        [JsonPropertyName("CustomOwnedCollectionBranch")]
-        public List<JsonOwnedCustomNameBranch> OwnedCollectionBranch { get; set; }
-    }
+    [JsonPropertyName("CustomOwnedCollectionBranch")]
+    public List<JsonOwnedCustomNameBranch> OwnedCollectionBranch { get; set; }
 }

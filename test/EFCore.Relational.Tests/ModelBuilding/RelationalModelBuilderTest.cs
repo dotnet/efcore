@@ -1,14 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
-
 #nullable enable
+
+using System.Data;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-public partial class RelationalModelBuilderTest : ModelBuilderTest
+public class RelationalModelBuilderTest : ModelBuilderTest
 {
     public abstract class RelationalNonRelationshipTestBase : NonRelationshipTestBase
     {
@@ -46,7 +46,8 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.False(entity.IsTableExcludedFromMigrations());
             Assert.False(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order", "dbo")));
             Assert.True(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
-            Assert.Same(entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
+            Assert.Same(
+                entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
 
             var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
             Assert.Equal("CustomerId", customerId.GetColumnName());
@@ -452,7 +453,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Equal("Update", updateSproc.Name);
             Assert.Equal("dbo", updateSproc.Schema);
             Assert.Equal(new[] { "Id", "BookId", null, "RowVersion", "RowVersion" }, updateSproc.Parameters.Select(p => p.PropertyName));
-            Assert.Equal(new[] { "UpdateId", "BookId", "RowsAffected", "OriginalRowVersion", "RowVersion" }, updateSproc.Parameters.Select(p => p.Name));
+            Assert.Equal(
+                new[] { "UpdateId", "BookId", "RowsAffected", "OriginalRowVersion", "RowVersion" },
+                updateSproc.Parameters.Select(p => p.Name));
             Assert.Empty(updateSproc.ResultColumns);
             Assert.Equal("bar2", updateSproc["foo"]);
             Assert.Same(bookLabel, updateSproc.EntityType);
@@ -722,12 +725,13 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
                             s => s
                                 .HasAnnotation("foo", "bar2")
                                 .HasOriginalValueParameter(b => b.Id)
-                                .HasOriginalValueParameter(b => b.BookId, p =>
-                                {
-                                    var parameterBuilder = p.HasName("UpdateId");
-                                    var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
-                                    Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
-                                })
+                                .HasOriginalValueParameter(
+                                    b => b.BookId, p =>
+                                    {
+                                        var parameterBuilder = p.HasName("UpdateId");
+                                        var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
+                                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                                    })
                                 .HasResultColumn(
                                     b => b.Id, p =>
                                     {
@@ -788,13 +792,16 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Empty(bookId.GetOverrides());
             Assert.Equal(
                 "BookId",
-                bookId.GetColumnName(StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.InsertStoredProcedure)!.Value));
+                bookId.GetColumnName(
+                    StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.InsertStoredProcedure)!.Value));
             Assert.Equal(
                 "BookId",
-                bookId.GetColumnName(StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.UpdateStoredProcedure)!.Value));
+                bookId.GetColumnName(
+                    StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.UpdateStoredProcedure)!.Value));
             Assert.Equal(
                 "BookId",
-                bookId.GetColumnName(StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.DeleteStoredProcedure)!.Value));
+                bookId.GetColumnName(
+                    StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.DeleteStoredProcedure)!.Value));
 
             Assert.Null(bookOwnership2.DeclaringEntityType.GetInsertStoredProcedure());
             Assert.Null(bookOwnership2.DeclaringEntityType.GetUpdateStoredProcedure());
@@ -1804,7 +1811,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -1813,7 +1820,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasParameter<TProperty>(propertyExpression, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasParameter<TProperty>(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
@@ -1822,7 +1831,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
             string propertyName)
@@ -1831,7 +1840,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -1840,7 +1851,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter<TProperty>(propertyExpression, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter<TProperty>(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
@@ -1849,14 +1862,16 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyExpression, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter(
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
             string propertyName)
@@ -1865,7 +1880,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
             string propertyName,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -1874,7 +1889,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasResultColumn<TProperty>(propertyExpression, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn<TProperty>(
+                    propertyExpression, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
@@ -1883,14 +1900,16 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn(
+                    propertyExpression, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn(
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
@@ -1923,7 +1942,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -1934,7 +1953,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasParameter(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
@@ -1945,7 +1964,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasParameter(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
             string propertyName)
@@ -1954,7 +1973,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -1965,7 +1986,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasOriginalValueParameter(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
@@ -1976,14 +1997,14 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasOriginalValueParameter(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter(
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
             string propertyName)
@@ -1992,7 +2013,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
             string propertyName,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -2003,7 +2024,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasResultColumn(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
             Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
@@ -2014,14 +2035,14 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasResultColumn(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn(
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
@@ -2089,7 +2110,6 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
             HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
 
-
         public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
             string annotation,
             object? value);
@@ -2124,16 +2144,16 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-            => Wrap(StoredProcedureBuilder.HasParameter<TProperty>(propertyExpression));
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasParameter<TProperty>(propertyExpression, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
             string propertyName)
@@ -2142,23 +2162,27 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter<TProperty>(propertyExpression));
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyExpression));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter<TProperty>(propertyExpression, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
             string propertyName)
@@ -2167,7 +2191,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
             string propertyName,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
@@ -2176,16 +2200,19 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn(
+                    propertyExpression, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn(
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
-        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(
+            bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
@@ -2221,7 +2248,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
@@ -2232,7 +2259,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasParameter(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
             string propertyName)
@@ -2241,7 +2268,9 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
             string propertyName,
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName, s => buildAction(new(s))));
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
@@ -2252,14 +2281,14 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureParameterBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasOriginalValueParameter(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
             Action<TestStoredProcedureParameterBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
             string propertyName)
@@ -2268,7 +2297,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
             string propertyName,
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
@@ -2279,16 +2308,17 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
             => Wrap(
                 StoredProcedureBuilder.HasResultColumn(
-                    propertyExpression.GetMemberAccess().Name, s => buildAction(new(s))));
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn()
             => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn(
             Action<TestStoredProcedureResultColumnBuilder> buildAction)
-            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new(s))));
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
 
-        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(
+            bool rowsAffectedReturned)
             => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
 
         public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
@@ -2340,7 +2370,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             => StoredProcedureResultColumnBuilder;
 
         protected virtual TestStoredProcedureResultColumnBuilder Wrap(StoredProcedureResultColumnBuilder storedProcedureResultColumnBuilder)
-            => new TestStoredProcedureResultColumnBuilder(storedProcedureResultColumnBuilder);
+            => new(storedProcedureResultColumnBuilder);
 
         public virtual TestStoredProcedureResultColumnBuilder HasName(string name)
             => Wrap(StoredProcedureResultColumnBuilder.HasName(name));
@@ -2354,7 +2384,8 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
     public abstract class TestTableValuedFunctionBuilder<TEntity> : DbFunctionBuilderBase
         where TEntity : class
     {
-        protected TestTableValuedFunctionBuilder(IMutableDbFunction function) : base(function)
+        protected TestTableValuedFunctionBuilder(IMutableDbFunction function)
+            : base(function)
         {
         }
 
@@ -2411,7 +2442,7 @@ public partial class RelationalModelBuilderTest : ModelBuilderTest
             => CheckConstraintBuilder;
 
         protected virtual TestCheckConstraintBuilder Wrap(CheckConstraintBuilder checkConstraintBuilder)
-            => new TestCheckConstraintBuilder(checkConstraintBuilder);
+            => new(checkConstraintBuilder);
 
         public virtual TestCheckConstraintBuilder HasName(string name)
             => Wrap(CheckConstraintBuilder.HasName(name));

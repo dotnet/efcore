@@ -118,7 +118,7 @@ public abstract class MigrationsModelDifferTestBase
         => TestHelpers.CreateConventionBuilder(configureConventions: skipConventions ? c => c.RemoveAllConventions() : null);
 
     protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
-        => new MigrationsModelDiffer(
+        => new(
             new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),

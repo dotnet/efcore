@@ -46,8 +46,8 @@ WHERE [o].[OrderID] < 10300");
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 WHERE [o].[Quantity] = @__quantity_0",
-                //
-                @"DELETE FROM [o]
+            //
+            @"DELETE FROM [o]
 FROM [Order Details] AS [o]
 WHERE 0 = 1");
     }
@@ -579,18 +579,18 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__customer_0",
-                //
-                @"@__customer_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+            //
+            @"@__customer_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__customer_0",
-                //
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            //
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 0 = 1",
-                //
-                @"UPDATE [c]
+            //
+            @"UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 WHERE 0 = 1");

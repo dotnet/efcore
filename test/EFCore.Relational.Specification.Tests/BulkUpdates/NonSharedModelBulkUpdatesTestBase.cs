@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
 {
-    protected override string StoreName => "NonSharedModelBulkUpdatesTests";
+    protected override string StoreName
+        => "NonSharedModelBulkUpdatesTests";
 
 #nullable enable
     [ConditionalTheory]
@@ -13,7 +14,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     public virtual async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         var contextFactory = await InitializeAsync<Context28745>();
-        await AssertDelete(async, contextFactory.CreateContext,
+        await AssertDelete(
+            async, contextFactory.CreateContext,
             context => context.Posts.Where(p => p.Blog!.Title!.StartsWith("Arthur")), rowsAffectedCount: 1);
     }
 
@@ -24,8 +26,11 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         {
         }
 
-        public DbSet<Blog> Blogs => Set<Blog>();
-        public DbSet<Post> Posts => Set<Post>();
+        public DbSet<Blog> Blogs
+            => Set<Blog>();
+
+        public DbSet<Post> Posts
+            => Set<Post>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,7 +60,6 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     }
 
 #nullable disable
-
 
     #region HelperMethods
 
@@ -135,7 +139,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         => facade.UseTransaction(transaction.GetDbTransaction());
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
-            => (TestSqlLoggerFactory)ListLoggerFactory;
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     protected void ClearLog()
         => TestSqlLoggerFactory.Clear();

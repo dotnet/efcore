@@ -84,14 +84,16 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             var customerIndex = model.FindEntityType(typeof(Customer))!.GetIndexes().Single();
             Assert.Equal("Ix_Id", customerIndex.Name);
             Assert.Equal("Ix_Id", customerIndex.GetDatabaseName());
-            Assert.Equal("Ix_Id", customerIndex.GetDatabaseName(
-                StoreObjectIdentifier.Table("Customer")));
+            Assert.Equal(
+                "Ix_Id", customerIndex.GetDatabaseName(
+                    StoreObjectIdentifier.Table("Customer")));
 
             var detailsIndex = model.FindEntityType(typeof(CustomerDetails))!.GetIndexes().Single();
             Assert.Equal("Ix_Id", detailsIndex.Name);
             Assert.Equal("Ix_Id", detailsIndex.GetDatabaseName());
-            Assert.Equal("Ix_Id", detailsIndex.GetDatabaseName(
-                StoreObjectIdentifier.Table("CustomerDetails")));
+            Assert.Equal(
+                "Ix_Id", detailsIndex.GetDatabaseName(
+                    StoreObjectIdentifier.Table("CustomerDetails")));
         }
 
         [ConditionalFact]
@@ -413,9 +415,11 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             var ingredientType = model.FindEntityType(typeof(Ingredient))!;
             var ingredientIndex = ingredientType.GetDeclaredIndexes().Single();
             Assert.Equal("IX_Ingredients_BurgerId", ingredientIndex.GetDatabaseName());
-            Assert.Equal("IX_SesameBuns_BurgerId",
+            Assert.Equal(
+                "IX_SesameBuns_BurgerId",
                 ingredientIndex.GetDatabaseName(StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table)!.Value));
-            Assert.Equal("IX_Buns_BurgerId",
+            Assert.Equal(
+                "IX_Buns_BurgerId",
                 ingredientIndex.GetDatabaseName(StoreObjectIdentifier.Create(bunType, StoreObjectType.Table)!.Value));
         }
 
@@ -456,11 +460,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 .HasBaseType(null)
                 .ToTable(tb => tb.HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000").HasName("CK_LargeId"));
             modelBuilder.Entity<ChildBase>()
-                .ToTable(tb =>
-                {
-                    tb.HasCheckConstraint("PositiveId", "Id > 0");
-                    tb.HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000");
-                });
+                .ToTable(
+                    tb =>
+                    {
+                        tb.HasCheckConstraint("PositiveId", "Id > 0");
+                        tb.HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000");
+                    });
             modelBuilder.Entity<Child>()
                 .HasBaseType<ChildBase>();
             modelBuilder.Entity<DisjointChildSubclass1>();
@@ -586,7 +591,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         protected class Activity<T>
         {
             public string? Id { get; set; }
-            public virtual List<ActivityEvent<T>> Events { get; private set; } = null!;
+            public virtual List<ActivityEvent<T>> Events { get; } = null!;
         }
 
         protected class ActivityEvent<TTarget> : EventBase
@@ -811,13 +816,14 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Entity<Book>(
                 bb =>
                 {
-                    bb.ToTable("BT", "BS", t =>
-                    {
-                        t.ExcludeFromMigrations();
+                    bb.ToTable(
+                        "BT", "BS", t =>
+                        {
+                            t.ExcludeFromMigrations();
 
-                        Assert.Equal("BT", t.Name);
-                        Assert.Equal("BS", t.Schema);
-                    });
+                            Assert.Equal("BT", t.Name);
+                            Assert.Equal("BS", t.Schema);
+                        });
                     bb.OwnsOne(
                         b => b.AlternateLabel, tb =>
                         {
@@ -829,13 +835,14 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                                 l => l.AnotherBookLabel, ab =>
                                 {
                                     ab.Ignore(l => l.Book);
-                                    ab.ToTable("AT1", "AS1", t =>
-                                    {
-                                        t.ExcludeFromMigrations(false);
+                                    ab.ToTable(
+                                        "AT1", "AS1", t =>
+                                        {
+                                            t.ExcludeFromMigrations(false);
 
-                                        Assert.Equal("AT1", t.Name);
-                                        Assert.Equal("AS1", t.Schema);
-                                    });
+                                            Assert.Equal("AT1", t.Name);
+                                            Assert.Equal("AS1", t.Schema);
+                                        });
                                     ab.OwnsOne(s => s.SpecialBookLabel)
                                         .ToTable("ST11", "SS11")
                                         .Ignore(l => l.Book)
@@ -1074,13 +1081,13 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<Customer>().OwnsMany(
-                c => c.Orders,
-                r =>
-                {
-                    r.HasKey(o => o.OrderId);
-                    r.Ignore(o => o.OrderCombination);
-                    r.Ignore(o => o.Details);
-                })
+                    c => c.Orders,
+                    r =>
+                    {
+                        r.HasKey(o => o.OrderId);
+                        r.Ignore(o => o.OrderCombination);
+                        r.Ignore(o => o.Details);
+                    })
                 .ToView("bar", "foo");
 
             var model = modelBuilder.FinalizeModel();
@@ -1115,8 +1122,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Ignore<Product>();
 
             var ownedBuilder = modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details)
-                .ToTable("OtherCustomerDetails", tb =>
-                    tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
+                .ToTable(
+                    "OtherCustomerDetails", tb =>
+                        tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
             ownedBuilder.Property(d => d.CustomerId);
             ownedBuilder.HasIndex(d => d.CustomerId);
             ownedBuilder.WithOwner(d => (OtherCustomer?)d.Customer)
@@ -1125,8 +1133,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             modelBuilder.Entity<SpecialCustomer>().OwnsOne(
                 c => c.Details, b =>
                 {
-                    b.ToTable("SpecialCustomerDetails", tb =>
-                        tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
+                    b.ToTable(
+                        "SpecialCustomerDetails", tb =>
+                            tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
                     b.Property(d => d.CustomerId);
                     b.HasIndex(d => d.CustomerId);
                     b.WithOwner(d => (SpecialCustomer?)d.Customer)
@@ -1195,12 +1204,13 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
 
-            modelBuilder.Entity<Customer>().ToTable(tb =>
-            {
-                tb.IsTemporal();
-                Assert.Null(tb.Name);
-                Assert.Null(tb.Schema);
-            });
+            modelBuilder.Entity<Customer>().ToTable(
+                tb =>
+                {
+                    tb.IsTemporal();
+                    Assert.Null(tb.Name);
+                    Assert.Null(tb.Schema);
+                });
             modelBuilder.FinalizeModel();
 
             var entity = model.FindEntityType(typeof(Customer))!;
@@ -1508,13 +1518,14 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<JsonEntity>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1);
-                b.OwnsOne(x => x.OwnedReference2, bb => bb.ToJson("reference"));
-                b.OwnsMany(x => x.OwnedCollection1);
-                b.OwnsMany(x => x.OwnedCollection2, bb => bb.ToJson("collection"));
-            });
+            modelBuilder.Entity<JsonEntity>(
+                b =>
+                {
+                    b.OwnsOne(x => x.OwnedReference1);
+                    b.OwnsOne(x => x.OwnedReference2, bb => bb.ToJson("reference"));
+                    b.OwnsMany(x => x.OwnedCollection1);
+                    b.OwnsMany(x => x.OwnedCollection2, bb => bb.ToJson("collection"));
+                });
 
             var model = modelBuilder.FinalizeModel();
             var owner = model.FindEntityType(typeof(JsonEntity))!;
@@ -1546,18 +1557,20 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReferenceOnBase, bb => bb.ToJson("reference_on_base"));
-                b.OwnsMany(x => x.OwnedCollectionOnBase, bb => bb.ToJson("collection_on_base"));
-            });
+            modelBuilder.Entity<JsonEntityInheritanceBase>(
+                b =>
+                {
+                    b.OwnsOne(x => x.OwnedReferenceOnBase, bb => bb.ToJson("reference_on_base"));
+                    b.OwnsMany(x => x.OwnedCollectionOnBase, bb => bb.ToJson("collection_on_base"));
+                });
 
-            modelBuilder.Entity<JsonEntityInheritanceDerived>(b =>
-            {
-                b.HasBaseType<JsonEntityInheritanceBase>();
-                b.OwnsOne(x => x.OwnedReferenceOnDerived, bb => bb.ToJson("reference_on_derived"));
-                b.OwnsMany(x => x.OwnedCollectionOnDerived, bb => bb.ToJson("collection_on_derived"));
-            });
+            modelBuilder.Entity<JsonEntityInheritanceDerived>(
+                b =>
+                {
+                    b.HasBaseType<JsonEntityInheritanceBase>();
+                    b.OwnsOne(x => x.OwnedReferenceOnDerived, bb => bb.ToJson("reference_on_derived"));
+                    b.OwnsMany(x => x.OwnedCollectionOnDerived, bb => bb.ToJson("collection_on_derived"));
+                });
 
             var model = modelBuilder.FinalizeModel();
             var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity)).ToList();
@@ -1581,44 +1594,49 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public virtual void Json_entity_with_nested_structure_same_property_names()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1, bb =>
+            modelBuilder.Entity<JsonEntityWithNesting>(
+                b =>
                 {
-                    bb.ToJson("ref1");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference1, bb =>
+                        {
+                            bb.ToJson("ref1");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.OwnsOne(x => x.OwnedReference2, bb =>
-                {
-                    bb.ToJson("ref2");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference2, bb =>
+                        {
+                            bb.ToJson("ref2");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.OwnsMany(x => x.OwnedCollection1, bb =>
-                {
-                    bb.ToJson("col1");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.OwnsMany(
+                        x => x.OwnedCollection1, bb =>
+                        {
+                            bb.ToJson("col1");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.OwnsMany(x => x.OwnedCollection2, bb =>
-                {
-                    bb.ToJson("col2");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
+                    b.OwnsMany(
+                        x => x.OwnedCollection2, bb =>
+                        {
+                            bb.ToJson("col2");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
                 });
-            });
 
             var model = modelBuilder.FinalizeModel();
             var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
@@ -1629,10 +1647,18 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("Date", outerOwnedEntity.GetProperty("Date").GetJsonPropertyName());
                 Assert.Equal("Fraction", outerOwnedEntity.GetProperty("Fraction").GetJsonPropertyName());
                 Assert.Equal("Enum", outerOwnedEntity.GetProperty("Enum").GetJsonPropertyName());
-                Assert.Equal("Reference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal("Reference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal("Collection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal("Collection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "Reference1",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "Reference2",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "Collection1",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "Collection2",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").TargetEntityType.GetJsonPropertyName());
             }
 
             var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
@@ -1650,29 +1676,32 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public virtual void Json_entity_nested_enums_have_conversions_to_string_by_default_ToJson_first()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1, bb =>
+            modelBuilder.Entity<JsonEntityWithNesting>(
+                b =>
                 {
-                    bb.ToJson();
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference1, bb =>
+                        {
+                            bb.ToJson();
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.Ignore(x => x.OwnedReference2);
-                b.OwnsMany(x => x.OwnedCollection1, bb =>
-                {
-                    bb.ToJson();
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.Ignore(x => x.OwnedReference2);
+                    b.OwnsMany(
+                        x => x.OwnedCollection1, bb =>
+                        {
+                            bb.ToJson();
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.Ignore(x => x.OwnedCollection2);
-            });
+                    b.Ignore(x => x.OwnedCollection2);
+                });
 
             var model = modelBuilder.FinalizeModel();
             var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
@@ -1702,29 +1731,32 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public virtual void Json_entity_nested_enums_have_conversions_to_string_by_default_ToJson_last()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1, bb =>
+            modelBuilder.Entity<JsonEntityWithNesting>(
+                b =>
                 {
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                    bb.ToJson();
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference1, bb =>
+                        {
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                            bb.ToJson();
+                        });
 
-                b.Ignore(x => x.OwnedReference2);
-                b.OwnsMany(x => x.OwnedCollection1, bb =>
-                {
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                    bb.ToJson();
-                });
+                    b.Ignore(x => x.OwnedReference2);
+                    b.OwnsMany(
+                        x => x.OwnedCollection1, bb =>
+                        {
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                            bb.ToJson();
+                        });
 
-                b.Ignore(x => x.OwnedCollection2);
-            });
+                    b.Ignore(x => x.OwnedCollection2);
+                });
 
             var model = modelBuilder.FinalizeModel();
             var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
@@ -1754,31 +1786,34 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public virtual void Entity_mapped_to_json_and_unwound_afterwards_properly_cleans_up_its_state()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1, bb =>
+            modelBuilder.Entity<JsonEntityWithNesting>(
+                b =>
                 {
-                    bb.ToJson();
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                    bb.ToJson(null);
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference1, bb =>
+                        {
+                            bb.ToJson();
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                            bb.ToJson(null);
+                        });
 
-                b.Ignore(x => x.OwnedReference2);
-                b.OwnsMany(x => x.OwnedCollection1, bb =>
-                {
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                    bb.ToJson();
-                    bb.ToJson(null);
-                });
+                    b.Ignore(x => x.OwnedReference2);
+                    b.OwnsMany(
+                        x => x.OwnedCollection1, bb =>
+                        {
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                            bb.ToJson();
+                            bb.ToJson(null);
+                        });
 
-                b.Ignore(x => x.OwnedCollection2);
-            });
+                    b.Ignore(x => x.OwnedCollection2);
+                });
 
             var model = modelBuilder.FinalizeModel();
             var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
@@ -1811,14 +1846,15 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public virtual void Json_entity_mapped_to_view()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntity>(b =>
-            {
-                b.ToView("MyView");
-                b.OwnsOne(x => x.OwnedReference1, bb => bb.ToJson());
-                b.Ignore(x => x.OwnedReference2);
-                b.OwnsMany(x => x.OwnedCollection1, bb => bb.ToJson());
-                b.Ignore(x => x.OwnedCollection2);
-            });
+            modelBuilder.Entity<JsonEntity>(
+                b =>
+                {
+                    b.ToView("MyView");
+                    b.OwnsOne(x => x.OwnedReference1, bb => bb.ToJson());
+                    b.Ignore(x => x.OwnedReference2);
+                    b.OwnsMany(x => x.OwnedCollection1, bb => bb.ToJson());
+                    b.Ignore(x => x.OwnedCollection2);
+                });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1835,83 +1871,94 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public virtual void Json_entity_with_custom_property_names()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1, bb =>
+            modelBuilder.Entity<JsonEntityWithNesting>(
+                b =>
                 {
-                    bb.ToJson();
-                    bb.Property(x => x.Date).HasJsonPropertyName("OuterDate");
-                    bb.Property(x => x.Fraction).HasJsonPropertyName("OuterFraction");
-                    bb.Property(x => x.Enum).HasJsonPropertyName("OuterEnum");
-                    bb.OwnsOne(x => x.Reference1, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedReference1");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                    bb.OwnsOne(x => x.Reference2, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedReference2");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                    bb.OwnsMany(x => x.Collection1, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedCollection1");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                    bb.OwnsMany(x => x.Collection2, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedCollection2");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference1, bb =>
+                        {
+                            bb.ToJson();
+                            bb.Property(x => x.Date).HasJsonPropertyName("OuterDate");
+                            bb.Property(x => x.Fraction).HasJsonPropertyName("OuterFraction");
+                            bb.Property(x => x.Enum).HasJsonPropertyName("OuterEnum");
+                            bb.OwnsOne(
+                                x => x.Reference1, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedReference1");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                            bb.OwnsOne(
+                                x => x.Reference2, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedReference2");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                            bb.OwnsMany(
+                                x => x.Collection1, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedCollection1");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                            bb.OwnsMany(
+                                x => x.Collection2, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedCollection2");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                        });
 
-                b.OwnsMany(x => x.OwnedCollection1, bb =>
-                {
-                    bb.Property(x => x.Date).HasJsonPropertyName("OuterDate");
-                    bb.Property(x => x.Fraction).HasJsonPropertyName("OuterFraction");
-                    bb.Property(x => x.Enum).HasJsonPropertyName("OuterEnum");
-                    bb.OwnsOne(x => x.Reference1, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedReference1");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                    bb.OwnsOne(x => x.Reference2, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedReference2");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                    bb.OwnsMany(x => x.Collection1, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedCollection1");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                    bb.OwnsMany(x => x.Collection2, bbb =>
-                    {
-                        bbb.HasJsonPropertyName("RenamedCollection2");
-                        bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
-                        bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
-                        bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
-                    });
-                    bb.ToJson();
-                });
+                    b.OwnsMany(
+                        x => x.OwnedCollection1, bb =>
+                        {
+                            bb.Property(x => x.Date).HasJsonPropertyName("OuterDate");
+                            bb.Property(x => x.Fraction).HasJsonPropertyName("OuterFraction");
+                            bb.Property(x => x.Enum).HasJsonPropertyName("OuterEnum");
+                            bb.OwnsOne(
+                                x => x.Reference1, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedReference1");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                            bb.OwnsOne(
+                                x => x.Reference2, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedReference2");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                            bb.OwnsMany(
+                                x => x.Collection1, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedCollection1");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                            bb.OwnsMany(
+                                x => x.Collection2, bbb =>
+                                {
+                                    bbb.HasJsonPropertyName("RenamedCollection2");
+                                    bbb.Property(x => x.Date).HasJsonPropertyName("InnerDate");
+                                    bbb.Property(x => x.Fraction).HasJsonPropertyName("InnerFraction");
+                                    bbb.Property(x => x.Enum).HasJsonPropertyName("InnerEnum");
+                                });
+                            bb.ToJson();
+                        });
 
-                b.Ignore(x => x.OwnedReference2);
-                b.Ignore(x => x.OwnedCollection2);
-            });
+                    b.Ignore(x => x.OwnedReference2);
+                    b.Ignore(x => x.OwnedCollection2);
+                });
 
             var model = modelBuilder.FinalizeModel();
             var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
@@ -1922,10 +1969,18 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("OuterDate", outerOwnedEntity.GetProperty("Date").GetJsonPropertyName());
                 Assert.Equal("OuterFraction", outerOwnedEntity.GetProperty("Fraction").GetJsonPropertyName());
                 Assert.Equal("OuterEnum", outerOwnedEntity.GetProperty("Enum").GetJsonPropertyName());
-                Assert.Equal("RenamedReference1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal("RenamedReference2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal("RenamedCollection1", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").TargetEntityType.GetJsonPropertyName());
-                Assert.Equal("RenamedCollection2", outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "RenamedReference1",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "RenamedReference2",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Reference2").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "RenamedCollection1",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection1").TargetEntityType.GetJsonPropertyName());
+                Assert.Equal(
+                    "RenamedCollection2",
+                    outerOwnedEntity.GetNavigations().Single(n => n.Name == "Collection2").TargetEntityType.GetJsonPropertyName());
             }
 
             var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
@@ -1944,13 +1999,14 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<JsonEntity>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1);
-                b.OwnsOne(x => x.OwnedReference2, bb => bb.ToJson("reference"));
-                b.OwnsMany(x => x.OwnedCollection1);
-                b.OwnsMany(x => x.OwnedCollection2, bb => bb.ToJson("collection"));
-            });
+            modelBuilder.Entity<JsonEntity>(
+                b =>
+                {
+                    b.OwnsOne(x => x.OwnedReference1);
+                    b.OwnsOne(x => x.OwnedReference2, bb => bb.ToJson("reference"));
+                    b.OwnsMany(x => x.OwnedCollection1);
+                    b.OwnsMany(x => x.OwnedCollection2, bb => bb.ToJson("collection"));
+                });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1964,44 +2020,49 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public virtual void Json_entity_with_nested_structure_same_property_names_()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<JsonEntityWithNesting>(b =>
-            {
-                b.OwnsOne(x => x.OwnedReference1, bb =>
+            modelBuilder.Entity<JsonEntityWithNesting>(
+                b =>
                 {
-                    bb.ToJson("ref1");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference1, bb =>
+                        {
+                            bb.ToJson("ref1");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.OwnsOne(x => x.OwnedReference2, bb =>
-                {
-                    bb.ToJson("ref2");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.OwnsOne(
+                        x => x.OwnedReference2, bb =>
+                        {
+                            bb.ToJson("ref2");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.OwnsMany(x => x.OwnedCollection1, bb =>
-                {
-                    bb.ToJson("col1");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                    b.OwnsMany(
+                        x => x.OwnedCollection1, bb =>
+                        {
+                            bb.ToJson("col1");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
 
-                b.OwnsMany(x => x.OwnedCollection2, bb =>
-                {
-                    bb.ToJson("col2");
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
+                    b.OwnsMany(
+                        x => x.OwnedCollection2, bb =>
+                        {
+                            bb.ToJson("col2");
+                            bb.OwnsOne(x => x.Reference1);
+                            bb.OwnsOne(x => x.Reference2);
+                            bb.OwnsMany(x => x.Collection1);
+                            bb.OwnsMany(x => x.Collection2);
+                        });
                 });
-            });
 
             var model = modelBuilder.FinalizeModel();
             var outerOwnedEntities = model.FindEntityTypes(typeof(OwnedEntityExtraLevel));
@@ -2080,7 +2141,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public abstract TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema);
+        public abstract TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
+            UseHistoryTable(string name, string? schema);
+
         public abstract TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);
         public abstract TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
     }
@@ -2091,17 +2154,20 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationTemporalTableBuilder(OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> temporalTableBuilder)
+        public GenericTestOwnedNavigationTemporalTableBuilder(
+            OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> temporalTableBuilder)
         {
             TemporalTableBuilder = temporalTableBuilder;
         }
 
         private OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> TemporalTableBuilder { get; }
 
-        OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
+        OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
+            IInfrastructure<OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
             => TemporalTableBuilder;
 
-        protected virtual TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder)
+        protected virtual TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> Wrap(
+            OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder)
             => new GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(tableBuilder);
 
         public override TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema)
@@ -2130,7 +2196,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         OwnedNavigationTemporalTableBuilder IInfrastructure<OwnedNavigationTemporalTableBuilder>.Instance
             => TemporalTableBuilder;
 
-        protected virtual TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationTemporalTableBuilder temporalTableBuilder)
+        protected virtual TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> Wrap(
+            OwnedNavigationTemporalTableBuilder temporalTableBuilder)
             => new NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(temporalTableBuilder);
 
         public override TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> UseHistoryTable(string name, string? schema)

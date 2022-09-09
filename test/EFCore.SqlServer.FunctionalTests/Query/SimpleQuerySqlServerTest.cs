@@ -406,8 +406,8 @@ WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
 SELECT [m].[Id], [m].[SomeDate]
 FROM [MyEntities] AS [m]
 WHERE [m].[SomeDate] = @__date_0",
-                //
-                @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+            //
+            @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [m].[Id], [m].[SomeDate]
 FROM [MyEntities] AS [m]
@@ -474,7 +474,7 @@ FROM (
     FROM [Dogs] AS [d]
 ) AS [t]
 WHERE [t].[Species] IS NOT NULL AND ([t].[Species] LIKE N'F%')");
-        }
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -483,13 +483,13 @@ WHERE [t].[Species] IS NOT NULL AND ([t].[Species] LIKE N'F%')");
         var contextFactory = await InitializeAsync<Context27427>();
         using var context = contextFactory.CreateContext();
         var query = context.DemoEntities
-                 .FromSqlRaw("SELECT * FROM DemoEntities WHERE Id = {0}", new SqlParameter { Value = 1 })
-                 .Select(e => e.Id);
+            .FromSqlRaw("SELECT * FROM DemoEntities WHERE Id = {0}", new SqlParameter { Value = 1 })
+            .Select(e => e.Id);
 
         var query2 = context.DemoEntities
-                 .Where(e => query.Contains(e.Id))
-                 .GroupBy(e => e.Id)
-                 .Select(g => new { g.Key, Aggregate = g.Count() });
+            .Where(e => query.Contains(e.Id))
+            .GroupBy(e => e.Id)
+            .Select(g => new { g.Key, Aggregate = g.Count() });
 
         if (async)
         {
@@ -517,7 +517,7 @@ GROUP BY [d].[Id]");
     protected class Context27427 : DbContext
     {
         public Context27427(DbContextOptions options)
-               : base(options)
+            : base(options)
         {
         }
 

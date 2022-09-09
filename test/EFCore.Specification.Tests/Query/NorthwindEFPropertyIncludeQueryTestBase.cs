@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
@@ -101,7 +99,8 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture> : Northw
 
         var orders
             = async
-                ? await context.Set<Order>().Include(o => EF.Property<Order>(o, "Customer")).Where(o => o.CustomerID == "ALFKI").ToListAsync()
+                ? await context.Set<Order>().Include(o => EF.Property<Order>(o, "Customer")).Where(o => o.CustomerID == "ALFKI")
+                    .ToListAsync()
                 : context.Set<Order>().Include(o => EF.Property<Order>(o, "Customer")).Where(o => o.CustomerID == "ALFKI").ToList();
 
         Assert.Equal(6, orders.Count);

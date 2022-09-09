@@ -14,27 +14,24 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))] // Issue #27629
     public virtual async Task Entity_type_with_navigation_mapped_to_SqlQuery(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27629>(seed: c =>
-        {
-            var author = new Author { Name = "Toast", Posts = { new() { Title = "Sausages of the world!"} } };
-            c.Add(author);
-            c.SaveChanges();
+        var contextFactory = await InitializeAsync<Context27629>(
+            seed: c =>
+            {
+                var author = new Author { Name = "Toast", Posts = { new Post { Title = "Sausages of the world!" } } };
+                c.Add(author);
+                c.SaveChanges();
 
-            var postStat = new PostStat { Count = 10, Author = author };
-            author.PostStat = postStat;
-            c.Add(postStat);
-            c.SaveChanges();
-        });
+                var postStat = new PostStat { Count = 10, Author = author };
+                author.PostStat = postStat;
+                c.Add(postStat);
+                c.SaveChanges();
+            });
 
         using var context = contextFactory.CreateContext();
 
         var authors = await
             (from o in context.Authors
-             select new
-             {
-                 Author = o,
-                 PostCount = o.PostStat!.Count
-             }).ToListAsync();
+             select new { Author = o, PostCount = o.PostStat!.Count }).ToListAsync();
 
         Assert.Single(authors);
         Assert.Equal("Toast", authors[0].Author.Name);

@@ -49,64 +49,55 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             => new()
             {
                 {
-                    typeof(IReadOnlyDbFunction),
-                    (typeof(IMutableDbFunction),
+                    typeof(IReadOnlyDbFunction), (typeof(IMutableDbFunction),
                         typeof(IConventionDbFunction),
                         typeof(IConventionDbFunctionBuilder),
                         typeof(IDbFunction))
                 },
                 {
-                    typeof(IReadOnlyDbFunctionParameter),
-                    (typeof(IMutableDbFunctionParameter),
+                    typeof(IReadOnlyDbFunctionParameter), (typeof(IMutableDbFunctionParameter),
                         typeof(IConventionDbFunctionParameter),
                         typeof(IConventionDbFunctionParameterBuilder),
                         typeof(IDbFunctionParameter))
                 },
                 {
-                    typeof(IReadOnlyStoredProcedure),
-                    (typeof(IMutableStoredProcedure),
+                    typeof(IReadOnlyStoredProcedure), (typeof(IMutableStoredProcedure),
                         typeof(IConventionStoredProcedure),
                         typeof(IConventionStoredProcedureBuilder),
                         typeof(IStoredProcedure))
                 },
                 {
-                    typeof(IReadOnlyStoredProcedureParameter),
-                    (typeof(IMutableStoredProcedureParameter),
+                    typeof(IReadOnlyStoredProcedureParameter), (typeof(IMutableStoredProcedureParameter),
                         typeof(IConventionStoredProcedureParameter),
                         typeof(IConventionStoredProcedureParameterBuilder),
                         typeof(IStoredProcedureParameter))
                 },
                 {
-                    typeof(IReadOnlyStoredProcedureResultColumn),
-                    (typeof(IMutableStoredProcedureResultColumn),
+                    typeof(IReadOnlyStoredProcedureResultColumn), (typeof(IMutableStoredProcedureResultColumn),
                         typeof(IConventionStoredProcedureResultColumn),
                         typeof(IConventionStoredProcedureResultColumnBuilder),
                         typeof(IStoredProcedureResultColumn))
                 },
                 {
-                    typeof(IReadOnlySequence),
-                    (typeof(IMutableSequence),
+                    typeof(IReadOnlySequence), (typeof(IMutableSequence),
                         typeof(IConventionSequence),
                         typeof(IConventionSequenceBuilder),
                         typeof(ISequence))
                 },
                 {
-                    typeof(IReadOnlyCheckConstraint),
-                    (typeof(IMutableCheckConstraint),
+                    typeof(IReadOnlyCheckConstraint), (typeof(IMutableCheckConstraint),
                         typeof(IConventionCheckConstraint),
                         typeof(IConventionCheckConstraintBuilder),
                         typeof(ICheckConstraint))
                 },
                 {
-                    typeof(IReadOnlyEntityTypeMappingFragment),
-                    (typeof(IMutableEntityTypeMappingFragment),
+                    typeof(IReadOnlyEntityTypeMappingFragment), (typeof(IMutableEntityTypeMappingFragment),
                         typeof(IConventionEntityTypeMappingFragment),
                         null,
                         typeof(IEntityTypeMappingFragment))
                 },
                 {
-                    typeof(IReadOnlyRelationalPropertyOverrides),
-                    (typeof(IMutableRelationalPropertyOverrides),
+                    typeof(IReadOnlyRelationalPropertyOverrides), (typeof(IMutableRelationalPropertyOverrides),
                         typeof(IConventionRelationalPropertyOverrides),
                         null,
                         typeof(IRelationalPropertyOverrides))
@@ -277,12 +268,12 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 new[] { typeof(IReadOnlyProperty) }),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
-                    nameof(StoredProcedureBuilder<object>.HasParameter),
+                nameof(StoredProcedureBuilder<object>.HasParameter),
                 genericParameterCount: 2,
-                    (typeTypes, methodTypes) => new[]
-                    {
-                        typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
-                    }),
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
+                }),
             GetMethod(
                 typeof(StoredProcedureBuilder<>),
                 nameof(StoredProcedureBuilder<object>.HasParameter),
@@ -356,7 +347,7 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
-                    nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync))
         };
@@ -393,7 +384,8 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             GenericFluentApiTypes.Add(typeof(SplitViewBuilder), typeof(SplitViewBuilder<>));
             GenericFluentApiTypes.Add(typeof(OwnedNavigationSplitViewBuilder), typeof(OwnedNavigationSplitViewBuilder<,>));
             GenericFluentApiTypes.Add(typeof(TableValuedFunctionBuilder), typeof(TableValuedFunctionBuilder<>));
-            GenericFluentApiTypes.Add(typeof(OwnedNavigationTableValuedFunctionBuilder), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));
+            GenericFluentApiTypes.Add(
+                typeof(OwnedNavigationTableValuedFunctionBuilder), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));
             GenericFluentApiTypes.Add(typeof(StoredProcedureBuilder), typeof(StoredProcedureBuilder<>));
             GenericFluentApiTypes.Add(typeof(OwnedNavigationStoredProcedureBuilder), typeof(OwnedNavigationStoredProcedureBuilder<,>));
             GenericFluentApiTypes.Add(typeof(ColumnBuilder), typeof(ColumnBuilder<>));

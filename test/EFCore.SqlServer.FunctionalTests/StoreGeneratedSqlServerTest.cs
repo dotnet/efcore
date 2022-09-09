@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -37,7 +36,7 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
                 v => v != null ? v.Value : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedIntHiLoClass { Value = v.Value })
         {
         }
     }
@@ -120,7 +119,7 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
                 v => v != null ? v.Value : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedIntHiLoKeyClass { Value = v.Value })
         {
         }
     }
@@ -171,8 +170,12 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
     {
         public WrappedIntHiLoKeyClass Id { get; set; } = null!;
         public ICollection<WrappedIntHiLoClassDependentShadow> Dependents { get; } = new List<WrappedIntHiLoClassDependentShadow>();
-        public ICollection<WrappedIntHiLoClassDependentRequired> RequiredDependents { get; } = new List<WrappedIntHiLoClassDependentRequired>();
-        public ICollection<WrappedIntHiLoClassDependentOptional> OptionalDependents { get; } = new List<WrappedIntHiLoClassDependentOptional>();
+
+        public ICollection<WrappedIntHiLoClassDependentRequired> RequiredDependents { get; } =
+            new List<WrappedIntHiLoClassDependentRequired>();
+
+        public ICollection<WrappedIntHiLoClassDependentOptional> OptionalDependents { get; } =
+            new List<WrappedIntHiLoClassDependentOptional>();
     }
 
     protected class WrappedIntHiLoClassDependentShadow
@@ -199,8 +202,12 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
     {
         public WrappedIntHiLoKeyStruct Id { get; set; }
         public ICollection<WrappedIntHiLoStructDependentShadow> Dependents { get; } = new List<WrappedIntHiLoStructDependentShadow>();
-        public ICollection<WrappedIntHiLoStructDependentOptional> OptionalDependents { get; } = new List<WrappedIntHiLoStructDependentOptional>();
-        public ICollection<WrappedIntHiLoStructDependentRequired> RequiredDependents { get; } = new List<WrappedIntHiLoStructDependentRequired>();
+
+        public ICollection<WrappedIntHiLoStructDependentOptional> OptionalDependents { get; } =
+            new List<WrappedIntHiLoStructDependentOptional>();
+
+        public ICollection<WrappedIntHiLoStructDependentRequired> RequiredDependents { get; } =
+            new List<WrappedIntHiLoStructDependentRequired>();
     }
 
     protected class WrappedIntHiLoStructDependentShadow
@@ -227,8 +234,12 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
     {
         public WrappedIntHiLoKeyRecord Id { get; set; } = null!;
         public ICollection<WrappedIntHiLoRecordDependentShadow> Dependents { get; } = new List<WrappedIntHiLoRecordDependentShadow>();
-        public ICollection<WrappedIntHiLoRecordDependentOptional> OptionalDependents { get; } = new List<WrappedIntHiLoRecordDependentOptional>();
-        public ICollection<WrappedIntHiLoRecordDependentRequired> RequiredDependents { get; } = new List<WrappedIntHiLoRecordDependentRequired>();
+
+        public ICollection<WrappedIntHiLoRecordDependentOptional> OptionalDependents { get; } =
+            new List<WrappedIntHiLoRecordDependentOptional>();
+
+        public ICollection<WrappedIntHiLoRecordDependentRequired> RequiredDependents { get; } =
+            new List<WrappedIntHiLoRecordDependentRequired>();
     }
 
     protected class WrappedIntHiLoRecordDependentShadow
@@ -263,25 +274,37 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                 var principal1 = context.Add(
                     new WrappedIntHiLoClassPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedIntHiLoClassDependentShadow(), new WrappedIntHiLoClassDependentShadow() },
+                        OptionalDependents = { new WrappedIntHiLoClassDependentOptional(), new WrappedIntHiLoClassDependentOptional() },
+                        RequiredDependents = { new WrappedIntHiLoClassDependentRequired(), new WrappedIntHiLoClassDependentRequired() }
                     }).Entity;
 
                 var principal2 = context.Add(
                     new WrappedIntHiLoStructPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedIntHiLoStructDependentShadow(), new WrappedIntHiLoStructDependentShadow() },
+                        OptionalDependents =
+                        {
+                            new WrappedIntHiLoStructDependentOptional(), new WrappedIntHiLoStructDependentOptional()
+                        },
+                        RequiredDependents =
+                        {
+                            new WrappedIntHiLoStructDependentRequired(), new WrappedIntHiLoStructDependentRequired()
+                        }
                     }).Entity;
 
                 var principal3 = context.Add(
                     new WrappedIntHiLoRecordPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedIntHiLoRecordDependentShadow(), new WrappedIntHiLoRecordDependentShadow() },
+                        OptionalDependents =
+                        {
+                            new WrappedIntHiLoRecordDependentOptional(), new WrappedIntHiLoRecordDependentOptional()
+                        },
+                        RequiredDependents =
+                        {
+                            new WrappedIntHiLoRecordDependentRequired(), new WrappedIntHiLoRecordDependentRequired()
+                        }
                     }).Entity;
 
                 context.SaveChanges();
@@ -294,12 +317,14 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedIntHiLoKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
@@ -315,12 +340,14 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedIntHiLoKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
@@ -336,12 +363,14 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedIntHiLoKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
@@ -363,11 +392,13 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedIntHiLoKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
@@ -386,11 +417,13 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedIntHiLoKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
@@ -409,11 +442,13 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedIntHiLoKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
@@ -739,8 +774,10 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
         {
             base.ConfigureConventions(configurationBuilder);
 
-            configurationBuilder.Properties<WrappedIntHiLoClass>().HaveConversion<WrappedIntHiLoClassConverter, WrappedIntHiLoClassComparer>();
-            configurationBuilder.Properties<WrappedIntHiLoKeyClass>().HaveConversion<WrappedIntHiLoKeyClassConverter, WrappedIntHiLoKeyClassComparer>();
+            configurationBuilder.Properties<WrappedIntHiLoClass>()
+                .HaveConversion<WrappedIntHiLoClassConverter, WrappedIntHiLoClassComparer>();
+            configurationBuilder.Properties<WrappedIntHiLoKeyClass>()
+                .HaveConversion<WrappedIntHiLoKeyClassConverter, WrappedIntHiLoKeyClassComparer>();
             configurationBuilder.Properties<WrappedIntHiLoStruct>().HaveConversion<WrappedIntHiLoStructConverter>();
             configurationBuilder.Properties<WrappedIntHiLoKeyStruct>().HaveConversion<WrappedIntHiLoKeyStructConverter>();
             configurationBuilder.Properties<WrappedIntHiLoRecord>().HaveConversion<WrappedIntHiLoRecordConverter>();

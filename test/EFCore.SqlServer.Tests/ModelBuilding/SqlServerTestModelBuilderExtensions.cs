@@ -102,8 +102,8 @@ public static class SqlServerTestModelBuilderExtensions
 
     public static RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsTemporal
         <TOwnerEntity, TDependentEntity>(
-        this RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> builder,
-        bool temporal = true)
+            this RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> builder,
+            bool temporal = true)
         where TOwnerEntity : class
         where TDependentEntity : class
     {
@@ -131,11 +131,15 @@ public static class SqlServerTestModelBuilderExtensions
         {
             case IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.IsTemporal(
-                    b => buildAction(new SqlServerModelBuilderTestBase.GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                    b => buildAction(
+                        new SqlServerModelBuilderTestBase.GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+                            b)));
                 break;
             case IInfrastructure<OwnedNavigationTableBuilder> nongenericBuilder:
                 nongenericBuilder.Instance.IsTemporal(
-                    b => buildAction(new SqlServerModelBuilderTestBase.NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(b)));
+                    b => buildAction(
+                        new SqlServerModelBuilderTestBase.NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+                            b)));
                 break;
         }
 

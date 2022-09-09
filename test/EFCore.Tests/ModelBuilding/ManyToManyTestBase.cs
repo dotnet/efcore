@@ -1,10 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -480,11 +480,7 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[]
-                {
-                    "ProductsId",
-                    "UniCategoryId"
-                },
+                new[] { "ProductsId", "UniCategoryId" },
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
@@ -525,11 +521,7 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[]
-                {
-                    "NoCategoryId",
-                    "NoProductId"
-                },
+                new[] { "NoCategoryId", "NoProductId" },
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
@@ -576,11 +568,7 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[]
-                {
-                    "DependentsId",
-                    "ShadowId"
-                },
+                new[] { "DependentsId", "ShadowId" },
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
@@ -621,11 +609,7 @@ public abstract partial class ModelBuilderTest
 
             var key = joinEntityType.FindPrimaryKey()!;
             Assert.Equal(
-                new[]
-                {
-                    "ProductsId",
-                    "UniCategoryId"
-                },
+                new[] { "ProductsId", "UniCategoryId" },
                 key.Properties.Select(p => p.Name));
 
             Assert.DoesNotContain(joinEntityType.GetProperties(), p => !p.IsIndexerProperty());
@@ -710,7 +694,8 @@ public abstract partial class ModelBuilderTest
 
             var joinEntityType = categoryFk.DeclaringEntityType;
             Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
-            Assert.Equal(new[] {"CategoryWithAttributeId", "ProductWithAttributeId"},
+            Assert.Equal(
+                new[] { "CategoryWithAttributeId", "ProductWithAttributeId" },
                 joinEntityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 

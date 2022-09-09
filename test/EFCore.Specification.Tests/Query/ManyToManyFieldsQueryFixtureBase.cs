@@ -33,10 +33,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
         { typeof(EntityOne), e => ((EntityOne)e)?.Id },
         { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
         { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-        {
-            typeof(EntityCompositeKey),
-            e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3)
-        },
+        { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3) },
         { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
         { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
         { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },

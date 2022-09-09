@@ -65,14 +65,14 @@ public abstract class InterceptionTestBase
 
     public UniverseContext CreateContext(IInterceptor appInterceptor, params IInterceptor[] injectedInterceptors)
         => Seed(
-            new(
+            new UniverseContext(
                 Fixture.CreateOptions(
                     new[] { appInterceptor }, injectedInterceptors)));
 
     public UniverseContext CreateContext(
         IEnumerable<IInterceptor> appInterceptors,
         IEnumerable<IInterceptor> injectedInterceptors = null)
-        => Seed(new(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>())));
+        => Seed(new UniverseContext(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>())));
 
     public virtual UniverseContext Seed(UniverseContext context)
         => context;

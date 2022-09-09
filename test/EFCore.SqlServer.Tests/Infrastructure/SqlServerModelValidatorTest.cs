@@ -824,8 +824,10 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Temporal_all_properties_mapped_to_period_column_must_have_value_generated_OnAddOrUpdate()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb =>
-            ttb.HasPeriodStart("Start").HasColumnName("StartColumn").GetInfrastructure().ValueGeneratedNever()));
+        modelBuilder.Entity<Dog>().ToTable(
+            tb => tb.IsTemporal(
+                ttb =>
+                    ttb.HasPeriodStart("Start").HasColumnName("StartColumn").GetInfrastructure().ValueGeneratedNever()));
 
         VerifyError(
             SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
@@ -861,7 +863,9 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
         modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);
 
-        VerifyError(SqlServerStrings.TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping("start", "Splitting2", "PeriodStart", "Splitting2_PeriodStart", "PeriodStart"), modelBuilder);
+        VerifyError(
+            SqlServerStrings.TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
+                "start", "Splitting2", "PeriodStart", "Splitting2_PeriodStart", "PeriodStart"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -879,11 +883,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Temporal_table_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Human>().ToTable(tb => tb.IsTemporal(ttb =>
-        {
-            ttb.HasPeriodStart("Start").HasPrecision(2);
-            ttb.HasPeriodEnd("End").HasPrecision(2);
-        }));
+        modelBuilder.Entity<Human>().ToTable(
+            tb => tb.IsTemporal(
+                ttb =>
+                {
+                    ttb.HasPeriodStart("Start").HasPrecision(2);
+                    ttb.HasPeriodEnd("End").HasPrecision(2);
+                }));
 
         Validate(modelBuilder);
 
@@ -897,20 +903,25 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Temporal_table_with_owned_with_explicit_precision_on_period_columns_passes_validation()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Owner>(b =>
-        {
-            b.ToTable(tb => tb.IsTemporal(ttb =>
+        modelBuilder.Entity<Owner>(
+            b =>
             {
-                ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
-                ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
-            }));
-            b.OwnsOne(x => x.Owned).ToTable(tb =>
-                tb.IsTemporal(ttb =>
-                {
-                    ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
-                    ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
-                }));
-        });
+                b.ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
+                            ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
+                        }));
+                b.OwnsOne(x => x.Owned).ToTable(
+                    tb =>
+                        tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.HasPeriodStart("Start").HasColumnName("Start").HasPrecision(2);
+                                ttb.HasPeriodEnd("End").HasColumnName("End").HasPrecision(2);
+                            }));
+            });
 
         Validate(modelBuilder);
 

@@ -1000,26 +1000,26 @@ LEFT JOIN [Orders] AS [o1] ON [t].[CustomerID] = [o1].[CustomerID]
 ORDER BY [t].[CustomerID], [t].[OrderDate]");
     }
 
-        public override async Task Except_non_entity(bool async)
-        {
-            await base.Except_non_entity(async);
+    public override async Task Except_non_entity(bool async)
+    {
+        await base.Except_non_entity(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID]
+        AssertSql(
+            @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[ContactTitle] = N'Owner'
 EXCEPT
 SELECT [c0].[CustomerID]
 FROM [Customers] AS [c0]
 WHERE [c0].[City] = N'México D.F.'");
-        }
+    }
 
-        public override async Task Except_simple_followed_by_projecting_constant(bool async)
-        {
-            await base.Except_simple_followed_by_projecting_constant(async);
+    public override async Task Except_simple_followed_by_projecting_constant(bool async)
+    {
+        await base.Except_simple_followed_by_projecting_constant(async);
 
-            AssertSql(
-@"SELECT 1
+        AssertSql(
+            @"SELECT 1
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
@@ -1027,14 +1027,14 @@ FROM (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
 ) AS [t]");
-        }
+    }
 
-        public override async Task Except_nested(bool async)
-        {
-            await base.Except_nested(async);
+    public override async Task Except_nested(bool async)
+    {
+        await base.Except_nested(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactTitle] = N'Owner'
 EXCEPT
@@ -1045,28 +1045,28 @@ EXCEPT
 SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
 WHERE [c1].[City] = N'Seattle'");
-        }
+    }
 
-        public override async Task Intersect_non_entity(bool async)
-        {
-            await base.Intersect_non_entity(async);
+    public override async Task Intersect_non_entity(bool async)
+    {
+        await base.Intersect_non_entity(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID]
+        AssertSql(
+            @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.'
 INTERSECT
 SELECT [c0].[CustomerID]
 FROM [Customers] AS [c0]
 WHERE [c0].[ContactTitle] = N'Owner'");
-        }
+    }
 
-        public override async Task Intersect_nested(bool async)
-        {
-            await base.Intersect_nested(async);
+    public override async Task Intersect_nested(bool async)
+    {
+        await base.Intersect_nested(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.'
 INTERSECT
@@ -1077,14 +1077,14 @@ INTERSECT
 SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
 WHERE [c1].[Fax] IS NOT NULL");
-        }
+    }
 
-        public override async Task Concat_nested(bool async)
-        {
-            await base.Concat_nested(async);
+    public override async Task Concat_nested(bool async)
+    {
+        await base.Concat_nested(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.'
 UNION ALL
@@ -1095,14 +1095,14 @@ UNION ALL
 SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
 WHERE [c1].[City] = N'London'");
-        }
+    }
 
-        public override async Task Union_nested(bool async)
-        {
-            await base.Union_nested(async);
+    public override async Task Union_nested(bool async)
+    {
+        await base.Union_nested(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[ContactTitle] = N'Owner'
 UNION
@@ -1113,35 +1113,35 @@ UNION
 SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
 FROM [Customers] AS [c1]
 WHERE [c1].[City] = N'London'");
-        }
+    }
 
-        public override async Task Union_non_entity(bool async)
-        {
-            await base.Union_non_entity(async);
+    public override async Task Union_non_entity(bool async)
+    {
+        await base.Union_non_entity(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID]
+        AssertSql(
+            @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[ContactTitle] = N'Owner'
 UNION
 SELECT [c0].[CustomerID]
 FROM [Customers] AS [c0]
 WHERE [c0].[City] = N'México D.F.'");
-        }
+    }
 
-        public override async Task Concat_non_entity(bool async)
-        {
-            await base.Concat_non_entity(async);
+    public override async Task Concat_non_entity(bool async)
+    {
+        await base.Concat_non_entity(async);
 
-            AssertSql(
-@"SELECT [c].[CustomerID]
+        AssertSql(
+            @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.'
 UNION ALL
 SELECT [c0].[CustomerID]
 FROM [Customers] AS [c0]
 WHERE [c0].[ContactTitle] = N'Owner'");
-        }
+    }
 
     public override async Task Collection_projection_after_set_operation_fails_if_distinct(bool async)
     {

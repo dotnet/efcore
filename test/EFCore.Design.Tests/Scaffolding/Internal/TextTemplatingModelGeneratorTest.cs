@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
@@ -82,7 +81,7 @@ public class TextTemplatingModelGeneratorTest
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -119,7 +118,7 @@ public class TextTemplatingModelGeneratorTest
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -150,7 +149,7 @@ public class TextTemplatingModelGeneratorTest
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -181,7 +180,7 @@ public class TextTemplatingModelGeneratorTest
         var ex = Assert.Throws<OperationException>(
             () => generator.GenerateModel(
                 model,
-                new()
+                new ModelCodeGenerationOptions
                 {
                     ContextName = "Context",
                     ConnectionString = @"Name=DefaultConnection",
@@ -227,7 +226,7 @@ ProjectDefaultNamespace: <#= Session[""ProjectDefaultNamespace""] #>");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -285,7 +284,7 @@ ProjectDefaultNamespace: RootNamespace",
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -332,7 +331,7 @@ My entity type configuration template");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -366,7 +365,7 @@ My entity type configuration template");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -401,7 +400,7 @@ My entity type configuration template");
         var ex = Assert.Throws<OperationException>(
             () => generator.GenerateModel(
                 model,
-                new()
+                new ModelCodeGenerationOptions
                 {
                     ContextName = "Context",
                     ConnectionString = @"Name=DefaultConnection",
@@ -445,7 +444,7 @@ My entity type configuration template");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -482,7 +481,6 @@ My entity type configuration template");
             contextTemplate,
             "<# #error This is a compiler error #>");
 
-
         var reporter = new TestOperationReporter();
         var generator = CreateGenerator(reporter);
         var model = new ModelBuilder()
@@ -491,7 +489,7 @@ My entity type configuration template");
         var ex = Assert.Throws<OperationException>(
             () => generator.GenerateModel(
                 model,
-                new()
+                new ModelCodeGenerationOptions
                 {
                     ContextName = "Context",
                     ConnectionString = @"Name=DefaultConnection",

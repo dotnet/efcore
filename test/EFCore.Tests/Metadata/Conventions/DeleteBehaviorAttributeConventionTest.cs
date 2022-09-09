@@ -6,10 +6,11 @@
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class DeleteBehaviorAttributeConventionTest
 {
@@ -92,7 +93,7 @@ public class DeleteBehaviorAttributeConventionTest
             Assert.Throws<InvalidOperationException>(
                 () => modelBuilder.Entity<Post_On_FK_Property>()
                     .Property(e => e.Blog_On_FK_PropertyId)).Message
-            );
+        );
     }
 
     [ConditionalFact]
@@ -140,6 +141,7 @@ public class DeleteBehaviorAttributeConventionTest
         => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
     #region DeleteBehaviorAttribute not set
+
     private class Blog
     {
         public int Id { get; set; }
@@ -155,8 +157,11 @@ public class DeleteBehaviorAttributeConventionTest
 
         public int? BlogId { get; set; }
     }
+
     #endregion
+
     #region DeleteBehaviourAttribute set to Restrict
+
     private class Blog_Restrict
     {
         public int Id { get; set; }
@@ -173,15 +178,19 @@ public class DeleteBehaviorAttributeConventionTest
 
         public int? BlogId { get; set; }
     }
+
     #endregion
+
     #region DeleteBehaviourAttribute set on compound key
+
     private class Blog_Compound
     {
         [Key]
-        [Column(Order=0)]
+        [Column(Order = 0)]
         public int Id { get; set; }
+
         [Key]
-        [Column(Order=1)]
+        [Column(Order = 1)]
         public int Id2 { get; set; }
 
         public ICollection<Post_Compound> Posts { get; set; }
@@ -201,14 +210,18 @@ public class DeleteBehaviorAttributeConventionTest
         [Column(Order = 1)]
         public int? BlogId2 { get; set; }
     }
+
     #endregion
+
     #region DeleteBehaviourAttribute set on two different foreign keys
+
     private class Blog_One
     {
         public int Id { get; set; }
 
         public ICollection<Post_Both> Posts { get; set; }
     }
+
     private class Blog_Two
     {
         public int Id { get; set; }
@@ -230,8 +243,11 @@ public class DeleteBehaviorAttributeConventionTest
 
         public int? Blog_TwoId { get; set; }
     }
+
     #endregion
+
     #region DeleteBehaviourAttribute set on one of foreign key's properties
+
     private class Blog_On_FK_Property
     {
         public int Id { get; set; }
@@ -248,8 +264,11 @@ public class DeleteBehaviorAttributeConventionTest
         [DeleteBehavior(DeleteBehavior.Restrict)]
         public int? Blog_On_FK_PropertyId { get; set; }
     }
+
     #endregion
+
     #region DeleteBehaviourAttribute set on random property
+
     private class Blog_On_Property
     {
         public int Id { get; set; }
@@ -266,8 +285,11 @@ public class DeleteBehaviorAttributeConventionTest
 
         public int? Blog_On_PropertyId { get; set; }
     }
+
     #endregion
+
     #region DeleteBehaviourAttribute set on principal navigation property
+
     private class Blog_On_Principal
     {
         public int Id { get; set; }
@@ -284,9 +306,11 @@ public class DeleteBehaviorAttributeConventionTest
 
         public int? Blog_On_PrincipalId { get; set; }
     }
+
     #endregion
 
     #region DeleteBehaviourAttribute set on principal 1:1 relationship
+
     private class Blog_On_Principal_OneToOne
     {
         public int Id { get; set; }
@@ -303,5 +327,6 @@ public class DeleteBehaviorAttributeConventionTest
 
         public int? Blog_On_PrincipalId { get; set; }
     }
+
     #endregion
 }

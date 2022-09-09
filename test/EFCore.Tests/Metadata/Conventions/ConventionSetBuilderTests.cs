@@ -39,19 +39,19 @@ public class ConventionSetBuilderTests
         var conventionSet = GetConventionSet();
 
         Assert.DoesNotContain(conventionSet.ModelFinalizingConventions, c => c is TestConvention);
-        
+
         conventionSet.Add(new TestConvention());
 
         Assert.Contains(conventionSet.ModelFinalizingConventions, c => c is TestConvention);
         Assert.DoesNotContain(conventionSet.ModelInitializedConventions, c => c is DerivedTestConvention);
 
         conventionSet.Replace<TestConvention>(new DerivedTestConvention());
-        
+
         Assert.Contains(conventionSet.ModelFinalizingConventions, c => c is DerivedTestConvention);
         Assert.Contains(conventionSet.ModelInitializedConventions, c => c is DerivedTestConvention);
 
         conventionSet.Remove(typeof(TestConvention));
-        
+
         Assert.DoesNotContain(conventionSet.ModelFinalizingConventions, c => c is TestConvention);
     }
 
@@ -63,7 +63,7 @@ public class ConventionSetBuilderTests
         {
         }
     }
-    
+
     protected class DerivedTestConvention : TestConvention, IModelInitializedConvention
     {
         public void ProcessModelInitialized(

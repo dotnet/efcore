@@ -1227,6 +1227,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Null(mapping.Scale);
         Assert.Equal(typeName, mapping.StoreType, true);
     }
+
     private class VarTimeEntity
     {
         public int Id { get; set; }
@@ -1234,7 +1235,6 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         public DateTimeOffset DateTimeOffsetWithPrecision { get; set; }
         public TimeSpan TimeSpanWithPrecision { get; set; }
     }
-
 
     [ConditionalTheory]
     [InlineData("binary varying")]

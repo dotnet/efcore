@@ -84,28 +84,29 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<MyEntity> MyEntities { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder
+                => modelBuilder
                     .HasDbFunction(typeof(MyEntity).GetMethod(nameof(MyEntity.Modify)))
                     .HasName("ModifyDate")
                     .HasStoreType("datetime")
                     .HasSchema("dbo");
-            }
         }
 
         protected class MyEntity
         {
             public int Id { get; set; }
+
             [Column(TypeName = "datetime")]
             public DateTime SomeDate { get; set; }
-            public static DateTime Modify(DateTime date) => throw new NotSupportedException();
+
+            public static DateTime Modify(DateTime date)
+                => throw new NotSupportedException();
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Hierarchy_query_with_abstract_type_sibling_TPC(bool async)
-        {
-            return Hierarchy_query_with_abstract_type_sibling_helper(async,
+            => Hierarchy_query_with_abstract_type_sibling_helper(
+                async,
                 mb =>
                 {
                     mb.Entity<Animal>().UseTpcMappingStrategy();
@@ -114,13 +115,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     mb.Entity<Dog>().ToTable("Dogs");
                     mb.Entity<FarmAnimal>().ToTable("FarmAnimals");
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Hierarchy_query_with_abstract_type_sibling_TPT(bool async)
-        {
-            return Hierarchy_query_with_abstract_type_sibling_helper(async,
+            => Hierarchy_query_with_abstract_type_sibling_helper(
+                async,
                 mb =>
                 {
                     mb.Entity<Animal>().UseTptMappingStrategy();
@@ -129,7 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     mb.Entity<Dog>().ToTable("Dogs");
                     mb.Entity<FarmAnimal>().ToTable("FarmAnimals");
                 });
-        }
     }
 }
 

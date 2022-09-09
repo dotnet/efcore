@@ -3,9 +3,9 @@
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
-using NetTopologySuite.Geometries;
 
 public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
 {

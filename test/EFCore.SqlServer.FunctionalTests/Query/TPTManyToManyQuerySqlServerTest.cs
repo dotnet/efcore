@@ -2388,8 +2388,8 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]");
     public override async Task Select_many_over_skip_navigation_where_non_equality_unidirectional(bool async)
     {
         await base.Select_many_over_skip_navigation_where_non_equality_unidirectional(async);
-AssertSql(
-    @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
+        AssertSql(
+            @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
 FROM [UnidirectionalEntityOnes] AS [u]
 LEFT JOIN (
     SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[OneId]

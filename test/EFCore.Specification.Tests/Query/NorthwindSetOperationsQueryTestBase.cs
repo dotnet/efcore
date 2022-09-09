@@ -414,10 +414,11 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Include(c => c.Orders)
-                    .Union(ss.Set<Customer>()
-                        .Where(c => c.City == "London")
-                        .Include(c => c.Orders)
-                        .ThenInclude(o => o.OrderDetails))))).Message;
+                    .Union(
+                        ss.Set<Customer>()
+                            .Where(c => c.City == "London")
+                            .Include(c => c.Orders)
+                            .ThenInclude(o => o.OrderDetails))))).Message;
 
         Assert.Equal(CoreStrings.SetOperationWithDifferentIncludesInOperands, message);
     }

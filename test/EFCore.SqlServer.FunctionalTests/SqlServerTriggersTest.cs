@@ -3,6 +3,7 @@
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
@@ -107,12 +108,13 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
             modelBuilder.Entity<Product>(
                 eb =>
                 {
-                    eb.ToTable(tb =>
-                    {
-                        tb.HasTrigger("TRG_InsertProduct");
-                        tb.HasTrigger("TRG_UpdateProduct");
-                        tb.HasTrigger("TRG_DeleteProduct");
-                    });
+                    eb.ToTable(
+                        tb =>
+                        {
+                            tb.HasTrigger("TRG_InsertProduct");
+                            tb.HasTrigger("TRG_UpdateProduct");
+                            tb.HasTrigger("TRG_DeleteProduct");
+                        });
                     eb.Property(e => e.Version)
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken();

@@ -162,7 +162,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
             }
         },
         {
-            typeof( JsonOwnedCustomNameRoot), (e, a) =>
+            typeof(JsonOwnedCustomNameRoot), (e, a) =>
             {
                 if (a != null)
                 {
@@ -307,9 +307,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
     }
 
     private static void AssertOwnedLeaf(JsonOwnedLeaf expected, JsonOwnedLeaf actual)
-    {
-        Assert.Equal(expected.SomethingSomething, actual.SomethingSomething);
-    }
+        => Assert.Equal(expected.SomethingSomething, actual.SomethingSomething);
 
     public static void AssertCustomNameRoot(JsonOwnedCustomNameRoot expected, JsonOwnedCustomNameRoot actual)
     {
@@ -372,121 +370,138 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityBasicForReference>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityBasicForCollection>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityBasic>().OwnsOne(x => x.OwnedReferenceRoot, b =>
-        {
-            b.ToJson();
-            b.WithOwner(x => x.Owner);
-
-            b.OwnsOne(x => x.OwnedReferenceBranch, bb =>
+        modelBuilder.Entity<JsonEntityBasic>().OwnsOne(
+            x => x.OwnedReferenceRoot, b =>
             {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf).WithOwner(x => x.Parent);
-                bb.Navigation(x => x.OwnedReferenceLeaf).IsRequired();
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-            });
+                b.ToJson();
+                b.WithOwner(x => x.Owner);
 
-            b.OwnsMany(x => x.OwnedCollectionBranch, bb =>
-            {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf).WithOwner(x => x.Parent);
+                b.OwnsOne(
+                    x => x.OwnedReferenceBranch, bb =>
+                    {
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf).WithOwner(x => x.Parent);
+                        bb.Navigation(x => x.OwnedReferenceLeaf).IsRequired();
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                    });
+
+                b.OwnsMany(
+                    x => x.OwnedCollectionBranch, bb =>
+                    {
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf).WithOwner(x => x.Parent);
+                    });
             });
-        });
 
         modelBuilder.Entity<JsonEntityBasic>().Navigation(x => x.OwnedReferenceRoot).IsRequired();
 
-        modelBuilder.Entity<JsonEntityBasic>().OwnsMany(x => x.OwnedCollectionRoot, b =>
-        {
-            b.OwnsOne(x => x.OwnedReferenceBranch, bb =>
+        modelBuilder.Entity<JsonEntityBasic>().OwnsMany(
+            x => x.OwnedCollectionRoot, b =>
             {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf).WithOwner(x => x.Parent);
-            });
+                b.OwnsOne(
+                    x => x.OwnedReferenceBranch, bb =>
+                    {
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf).WithOwner(x => x.Parent);
+                    });
 
-            b.OwnsMany(x => x.OwnedCollectionBranch, bb =>
-            {
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-                bb.OwnsOne(x => x.OwnedReferenceLeaf).WithOwner(x => x.Parent);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                b.OwnsMany(
+                    x => x.OwnedCollectionBranch, bb =>
+                    {
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf).WithOwner(x => x.Parent);
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                    });
+                b.ToJson();
             });
-            b.ToJson();
-        });
 
         modelBuilder.Entity<JsonEntityCustomNaming>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityCustomNaming>().OwnsOne(x => x.OwnedReferenceRoot, b =>
-        {
-            b.Property(x => x.Enum).HasConversion<int>();
-            b.OwnsOne(x => x.OwnedReferenceBranch);
-            b.OwnsMany(x => x.OwnedCollectionBranch);
-            b.ToJson("json_reference_custom_naming");
-        });
+        modelBuilder.Entity<JsonEntityCustomNaming>().OwnsOne(
+            x => x.OwnedReferenceRoot, b =>
+            {
+                b.Property(x => x.Enum).HasConversion<int>();
+                b.OwnsOne(x => x.OwnedReferenceBranch);
+                b.OwnsMany(x => x.OwnedCollectionBranch);
+                b.ToJson("json_reference_custom_naming");
+            });
 
-        modelBuilder.Entity<JsonEntityCustomNaming>().OwnsMany(x => x.OwnedCollectionRoot, b =>
-        {
-            b.ToJson("json_collection_custom_naming");
-            b.Property(x => x.Enum).HasConversion<int>();
-            b.OwnsOne(x => x.OwnedReferenceBranch);
-            b.OwnsMany(x => x.OwnedCollectionBranch);
-        });
+        modelBuilder.Entity<JsonEntityCustomNaming>().OwnsMany(
+            x => x.OwnedCollectionRoot, b =>
+            {
+                b.ToJson("json_collection_custom_naming");
+                b.Property(x => x.Enum).HasConversion<int>();
+                b.OwnsOne(x => x.OwnedReferenceBranch);
+                b.OwnsMany(x => x.OwnedCollectionBranch);
+            });
 
         modelBuilder.Entity<JsonEntitySingleOwned>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntitySingleOwned>().OwnsMany(x => x.OwnedCollection, b =>
+        modelBuilder.Entity<JsonEntitySingleOwned>().OwnsMany(
+            x => x.OwnedCollection, b =>
             {
                 b.ToJson();
                 b.Ignore(x => x.Parent);
             });
 
         modelBuilder.Entity<JsonEntityInheritanceBase>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
-        {
-            b.OwnsOne(x => x.ReferenceOnBase, bb =>
+        modelBuilder.Entity<JsonEntityInheritanceBase>(
+            b =>
             {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                b.OwnsOne(
+                    x => x.ReferenceOnBase, bb =>
+                    {
+                        bb.ToJson();
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                    });
+
+                b.OwnsMany(
+                    x => x.CollectionOnBase, bb =>
+                    {
+                        bb.ToJson();
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                    });
             });
 
-            b.OwnsMany(x => x.CollectionOnBase, bb =>
+        modelBuilder.Entity<JsonEntityInheritanceDerived>(
+            b =>
             {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-            });
-        });
+                b.HasBaseType<JsonEntityInheritanceBase>();
+                b.OwnsOne(
+                    x => x.ReferenceOnDerived, bb =>
+                    {
+                        bb.ToJson();
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                    });
 
-        modelBuilder.Entity<JsonEntityInheritanceDerived>(b =>
-        {
-            b.HasBaseType<JsonEntityInheritanceBase>();
-            b.OwnsOne(x => x.ReferenceOnDerived, bb =>
-            {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                b.OwnsMany(
+                    x => x.CollectionOnDerived, bb =>
+                    {
+                        bb.ToJson();
+                        bb.OwnsOne(x => x.OwnedReferenceLeaf);
+                        bb.OwnsMany(x => x.OwnedCollectionLeaf);
+                        bb.Property(x => x.Fraction).HasPrecision(18, 2);
+                    });
             });
-
-            b.OwnsMany(x => x.CollectionOnDerived, bb =>
-            {
-                bb.ToJson();
-                bb.OwnsOne(x => x.OwnedReferenceLeaf);
-                bb.OwnsMany(x => x.OwnedCollectionLeaf);
-                bb.Property(x => x.Fraction).HasPrecision(18, 2);
-            });
-        });
 
         modelBuilder.Entity<JsonEntityAllTypes>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(x => x.Reference, b =>
-        {
-            b.ToJson();
-            b.Property(x => x.TestDecimal).HasPrecision(18, 3);
-        });
-        modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(x => x.Collection, b =>
-        {
-            b.ToJson();
-            b.Property(x => x.TestDecimal).HasPrecision(18, 3);
-        });
+        modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(
+            x => x.Reference, b =>
+            {
+                b.ToJson();
+                b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+            });
+        modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(
+            x => x.Collection, b =>
+            {
+                b.ToJson();
+                b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+            });
     }
 }

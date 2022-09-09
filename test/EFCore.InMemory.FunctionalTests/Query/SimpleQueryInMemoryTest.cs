@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class SimpleQueryInMemoryTest : SimpleQueryTestBase
 {
-    public async override Task Multiple_nested_reference_navigations(bool async)
+    public override async Task Multiple_nested_reference_navigations(bool async)
     {
         var contextFactory = await InitializeAsync<Context24368>();
         using var context = contextFactory.CreateContext();
@@ -30,7 +30,7 @@ public class SimpleQueryInMemoryTest : SimpleQueryTestBase
         Assert.NotNull(appraisal.Staff.SecondaryManager);
         Assert.Equal(2, appraisal.Staff.SecondaryManagerId);
     }
-    
+
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 }

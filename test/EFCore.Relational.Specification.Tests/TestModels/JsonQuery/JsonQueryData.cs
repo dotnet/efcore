@@ -100,7 +100,6 @@ public class JsonQueryData : ISetSource
         //-------------------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------------------
 
-
         var e1_r = new JsonOwnedRoot
         {
             Name = "e1_r",
@@ -112,7 +111,6 @@ public class JsonQueryData : ISetSource
         //-------------------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------------------
-
 
         var e1_c1_r_r = new JsonOwnedLeaf { SomethingSomething = "e1_c1_r_r" };
         var e1_c1_r_c1 = new JsonOwnedLeaf { SomethingSomething = "e1_c1_r_c1" };
@@ -180,7 +178,6 @@ public class JsonQueryData : ISetSource
         //-------------------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------------------
 
-
         var e1_c1 = new JsonOwnedRoot
         {
             Name = "e1_c1",
@@ -192,7 +189,6 @@ public class JsonQueryData : ISetSource
         //-------------------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------------------
         //-------------------------------------------------------------------------------------------
-
 
         var e1_c2_r_r = new JsonOwnedLeaf { SomethingSomething = "e1_c2_r_r" };
         var e1_c2_r_c1 = new JsonOwnedLeaf { SomethingSomething = "e1_c2_r_c1" };
@@ -287,7 +283,6 @@ public class JsonQueryData : ISetSource
         return new List<JsonEntityBasic> { entity1 };
     }
 
-
     public static IReadOnlyList<JsonEntityBasicForReference> CreateJsonEntitiesBasicForReference()
     {
         var entity1 = new JsonEntityBasicForReference { Id = 1, Name = "EntityReference1" };
@@ -301,7 +296,12 @@ public class JsonQueryData : ISetSource
         var entity2 = new JsonEntityBasicForCollection { Id = 2, Name = "EntityCollection2" };
         var entity3 = new JsonEntityBasicForCollection { Id = 3, Name = "EntityCollection3" };
 
-        return new List<JsonEntityBasicForCollection> { entity1, entity2, entity3 };
+        return new List<JsonEntityBasicForCollection>
+        {
+            entity1,
+            entity2,
+            entity3
+        };
     }
 
     public static void WireUp(
@@ -313,7 +313,8 @@ public class JsonQueryData : ISetSource
         entitiesBasicForReference[0].Parent = entitiesBasic[0];
         entitiesBasicForReference[0].ParentId = entitiesBasic[0].Id;
 
-        entitiesBasic[0].EntityCollection = new List<JsonEntityBasicForCollection> {
+        entitiesBasic[0].EntityCollection = new List<JsonEntityBasicForCollection>
+        {
             entitiesBasicForCollection[0],
             entitiesBasicForCollection[1],
             entitiesBasicForCollection[2]
@@ -331,20 +332,17 @@ public class JsonQueryData : ISetSource
     {
         var e1_r_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2100, 1, 1),
-            Fraction = 10.0,
+            Date = new DateTime(2100, 1, 1), Fraction = 10.0,
         };
 
         var e1_r_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2101, 1, 1),
-            Fraction = 10.1,
+            Date = new DateTime(2101, 1, 1), Fraction = 10.1,
         };
 
         var e1_r_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2102, 1, 1),
-            Fraction = 10.2,
+            Date = new DateTime(2102, 1, 1), Fraction = 10.2,
         };
 
         var e1_r = new JsonOwnedCustomNameRoot
@@ -358,20 +356,17 @@ public class JsonQueryData : ISetSource
 
         var e1_c1_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2110, 1, 1),
-            Fraction = 11.0,
+            Date = new DateTime(2110, 1, 1), Fraction = 11.0,
         };
 
         var e1_c1_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2111, 1, 1),
-            Fraction = 11.1,
+            Date = new DateTime(2111, 1, 1), Fraction = 11.1,
         };
 
         var e1_c1_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2112, 1, 1),
-            Fraction = 11.2,
+            Date = new DateTime(2112, 1, 1), Fraction = 11.2,
         };
 
         var e1_c1 = new JsonOwnedCustomNameRoot
@@ -385,20 +380,17 @@ public class JsonQueryData : ISetSource
 
         var e1_c2_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2120, 1, 1),
-            Fraction = 12.0,
+            Date = new DateTime(2120, 1, 1), Fraction = 12.0,
         };
 
         var e1_c2_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2121, 1, 1),
-            Fraction = 12.1,
+            Date = new DateTime(2121, 1, 1), Fraction = 12.1,
         };
 
         var e1_c2_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2122, 1, 1),
-            Fraction = 12.2,
+            Date = new DateTime(2122, 1, 1), Fraction = 12.2,
         };
 
         var e1_c2 = new JsonOwnedCustomNameRoot
@@ -429,9 +421,9 @@ public class JsonQueryData : ISetSource
             Name = "JsonEntitySingleOwned1",
             OwnedCollection = new List<JsonOwnedLeaf>
             {
-                new JsonOwnedLeaf { SomethingSomething = "owned_1_1" },
-                new JsonOwnedLeaf { SomethingSomething = "owned_1_2" },
-                new JsonOwnedLeaf { SomethingSomething = "owned_1_3" },
+                new() { SomethingSomething = "owned_1_1" },
+                new() { SomethingSomething = "owned_1_2" },
+                new() { SomethingSomething = "owned_1_3" },
             }
         };
 
@@ -439,9 +431,7 @@ public class JsonQueryData : ISetSource
         {
             Id = 2,
             Name = "JsonEntitySingleOwned2",
-            OwnedCollection = new List<JsonOwnedLeaf>
-            {
-            }
+            OwnedCollection = new List<JsonOwnedLeaf>()
         };
 
         var e3 = new JsonEntitySingleOwned
@@ -450,238 +440,151 @@ public class JsonQueryData : ISetSource
             Name = "JsonEntitySingleOwned3",
             OwnedCollection = new List<JsonOwnedLeaf>
             {
-                new JsonOwnedLeaf { SomethingSomething = "owned_3_1" },
-                new JsonOwnedLeaf { SomethingSomething = "owned_3_2" },
+                new() { SomethingSomething = "owned_3_1" }, new() { SomethingSomething = "owned_3_2" },
             }
         };
 
-        return new List<JsonEntitySingleOwned> { e1, e2, e3 };
+        return new List<JsonEntitySingleOwned>
+        {
+            e1,
+            e2,
+            e3
+        };
     }
 
     public static IReadOnlyList<JsonEntityInheritanceBase> CreateJsonEntitiesInheritance()
     {
-        var b1_r_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_r",
-        };
+        var b1_r_r = new JsonOwnedLeaf { SomethingSomething = "b1_r_r", };
 
-        var b1_r_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_c1",
-        };
+        var b1_r_c1 = new JsonOwnedLeaf { SomethingSomething = "b1_r_c1", };
 
-        var b1_r_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_c2",
-        };
-
+        var b1_r_c2 = new JsonOwnedLeaf { SomethingSomething = "b1_r_c2", };
 
         var b1_r = new JsonOwnedBranch
         {
             Date = new DateTime(2010, 1, 1),
             Fraction = 1.0M,
             Enum = JsonEnum.One,
-
             OwnedReferenceLeaf = b1_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b1_r_c1, b1_r_c2 }
         };
 
-        var b1_c1_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_r",
-        };
+        var b1_c1_r = new JsonOwnedLeaf { SomethingSomething = "b1_r_r", };
 
-        var b1_c1_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_c1",
-        };
+        var b1_c1_c1 = new JsonOwnedLeaf { SomethingSomething = "b1_r_c1", };
 
-        var b1_c1_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_c2",
-        };
+        var b1_c1_c2 = new JsonOwnedLeaf { SomethingSomething = "b1_r_c2", };
 
         var b1_c1 = new JsonOwnedBranch
         {
             Date = new DateTime(2011, 1, 1),
             Fraction = 11.1M,
             Enum = JsonEnum.Three,
-
             OwnedReferenceLeaf = b1_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b1_c1_c1, b1_c1_c2 }
         };
 
-        var b1_c2_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_r",
-        };
+        var b1_c2_r = new JsonOwnedLeaf { SomethingSomething = "b1_r_r", };
 
-        var b1_c2_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_c1",
-        };
+        var b1_c2_c1 = new JsonOwnedLeaf { SomethingSomething = "b1_r_c1", };
 
-        var b1_c2_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b1_r_c2",
-        };
+        var b1_c2_c2 = new JsonOwnedLeaf { SomethingSomething = "b1_r_c2", };
 
         var b1_c2 = new JsonOwnedBranch
         {
             Date = new DateTime(2012, 1, 1),
             Fraction = 12.1M,
             Enum = JsonEnum.Two,
-
             OwnedReferenceLeaf = b1_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b1_c2_c1, b1_c2_c2 }
         };
 
-        var b2_r_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_r",
-        };
+        var b2_r_r = new JsonOwnedLeaf { SomethingSomething = "b2_r_r", };
 
-        var b2_r_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_c1",
-        };
+        var b2_r_c1 = new JsonOwnedLeaf { SomethingSomething = "b2_r_c1", };
 
-        var b2_r_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_c2",
-        };
+        var b2_r_c2 = new JsonOwnedLeaf { SomethingSomething = "b2_r_c2", };
 
         var b2_r = new JsonOwnedBranch
         {
             Date = new DateTime(2020, 1, 1),
             Fraction = 2.0M,
             Enum = JsonEnum.Two,
-
             OwnedReferenceLeaf = b2_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b2_r_c1, b2_r_c2 }
         };
 
-        var b2_c1_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_r",
-        };
+        var b2_c1_r = new JsonOwnedLeaf { SomethingSomething = "b2_r_r", };
 
-        var b2_c1_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_c1",
-        };
+        var b2_c1_c1 = new JsonOwnedLeaf { SomethingSomething = "b2_r_c1", };
 
-        var b2_c1_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_c2",
-        };
+        var b2_c1_c2 = new JsonOwnedLeaf { SomethingSomething = "b2_r_c2", };
 
         var b2_c1 = new JsonOwnedBranch
         {
             Date = new DateTime(2021, 1, 1),
             Fraction = 21.1M,
             Enum = JsonEnum.Three,
-
             OwnedReferenceLeaf = b2_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b2_c1_c1, b2_c1_c2 }
         };
 
-        var b2_c2_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_r",
-        };
+        var b2_c2_r = new JsonOwnedLeaf { SomethingSomething = "b2_r_r", };
 
-        var b2_c2_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_c1",
-        };
+        var b2_c2_c1 = new JsonOwnedLeaf { SomethingSomething = "b2_r_c1", };
 
-        var b2_c2_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "b2_r_c2",
-        };
+        var b2_c2_c2 = new JsonOwnedLeaf { SomethingSomething = "b2_r_c2", };
 
         var b2_c2 = new JsonOwnedBranch
         {
             Date = new DateTime(2022, 1, 1),
             Fraction = 22.1M,
             Enum = JsonEnum.One,
-
             OwnedReferenceLeaf = b2_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b2_c2_c1, b2_c2_c2 }
         };
 
-        var d2_r_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_r",
-        };
+        var d2_r_r = new JsonOwnedLeaf { SomethingSomething = "d2_r_r", };
 
-        var d2_r_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_c1",
-        };
+        var d2_r_c1 = new JsonOwnedLeaf { SomethingSomething = "d2_r_c1", };
 
-        var d2_r_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_c2",
-        };
+        var d2_r_c2 = new JsonOwnedLeaf { SomethingSomething = "d2_r_c2", };
 
         var d2_r = new JsonOwnedBranch
         {
             Date = new DateTime(2220, 1, 1),
             Fraction = 22.0M,
             Enum = JsonEnum.One,
-
             OwnedReferenceLeaf = d2_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { d2_r_c1, d2_r_c2 }
         };
 
-        var d2_c1_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_r",
-        };
+        var d2_c1_r = new JsonOwnedLeaf { SomethingSomething = "d2_r_r", };
 
-        var d2_c1_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_c1",
-        };
+        var d2_c1_c1 = new JsonOwnedLeaf { SomethingSomething = "d2_r_c1", };
 
-        var d2_c1_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_c2",
-        };
+        var d2_c1_c2 = new JsonOwnedLeaf { SomethingSomething = "d2_r_c2", };
 
         var d2_c1 = new JsonOwnedBranch
         {
             Date = new DateTime(2221, 1, 1),
             Fraction = 221.1M,
             Enum = JsonEnum.Two,
-
             OwnedReferenceLeaf = d2_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { d2_c1_c1, d2_c1_c2 }
         };
 
-        var d2_c2_r = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_r",
-        };
+        var d2_c2_r = new JsonOwnedLeaf { SomethingSomething = "d2_r_r", };
 
-        var d2_c2_c1 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_c1",
-        };
+        var d2_c2_c1 = new JsonOwnedLeaf { SomethingSomething = "d2_r_c1", };
 
-        var d2_c2_c2 = new JsonOwnedLeaf
-        {
-            SomethingSomething = "d2_r_c2",
-        };
+        var d2_c2_c2 = new JsonOwnedLeaf { SomethingSomething = "d2_r_c2", };
 
         var d2_c2 = new JsonOwnedBranch
         {
             Date = new DateTime(2222, 1, 1),
             Fraction = 222.1M,
             Enum = JsonEnum.Three,
-
             OwnedReferenceLeaf = d2_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { d2_c2_c1, d2_c2_c2 }
         };
@@ -700,7 +603,6 @@ public class JsonQueryData : ISetSource
             Name = "JsonEntityInheritanceDerived2",
             ReferenceOnBase = b2_r,
             CollectionOnBase = new List<JsonOwnedBranch> { b2_c1, b2_c2 },
-
             ReferenceOnDerived = d2_r,
             CollectionOnDerived = new List<JsonOwnedBranch> { d2_c1, d2_c2 },
         };
@@ -754,7 +656,12 @@ public class JsonQueryData : ISetSource
 
         return new List<JsonEntityAllTypes>
         {
-            new JsonEntityAllTypes { Id = 1, Reference = r, Collection = new List<JsonOwnedAllTypes> { c } }
+            new()
+            {
+                Id = 1,
+                Reference = r,
+                Collection = new List<JsonOwnedAllTypes> { c }
+            }
         };
     }
 

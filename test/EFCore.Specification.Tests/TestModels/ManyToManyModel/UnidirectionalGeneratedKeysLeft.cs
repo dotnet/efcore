@@ -10,5 +10,6 @@ public class UnidirectionalGeneratedKeysLeft
     public virtual int Id { get; set; }
     public virtual string Name { get; set; }
 
-    public virtual ICollection<UnidirectionalGeneratedKeysRight> Rights { get; } = new ObservableCollection<UnidirectionalGeneratedKeysRight>();
+    public virtual ICollection<UnidirectionalGeneratedKeysRight> Rights { get; } =
+        new ObservableCollection<UnidirectionalGeneratedKeysRight>();
 }

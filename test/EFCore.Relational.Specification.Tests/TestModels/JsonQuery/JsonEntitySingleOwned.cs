@@ -1,13 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery
-{
-    public class JsonEntitySingleOwned
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
+namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-        public List<JsonOwnedLeaf> OwnedCollection { get; set; }
-    }
+public class JsonEntitySingleOwned
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+
+    public List<JsonOwnedLeaf> OwnedCollection { get; set; }
 }

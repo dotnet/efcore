@@ -12,7 +12,8 @@ public abstract class TPTFiltersInheritanceBulkUpdatesTestBase<TFixture> : Filte
     }
 
     // Keyless entities are mapped as TPH only
-    public override Task Delete_where_keyless_entity_mapped_to_sql_query(bool async) => Task.CompletedTask;
+    public override Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
+        => Task.CompletedTask;
 
     public override Task Delete_where_hierarchy(bool async)
         => AssertTranslationFailed(
@@ -35,7 +36,8 @@ public abstract class TPTFiltersInheritanceBulkUpdatesTestBase<TFixture> : Filte
             () => base.Delete_GroupBy_Where_Select_First_3(async));
 
     // Keyless entities are mapped as TPH only
-    public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async) => Task.CompletedTask;
+    public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
+        => Task.CompletedTask;
 
     public override Task Update_where_hierarchy(bool async)
         => AssertTranslationFailed(

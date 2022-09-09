@@ -7,19 +7,16 @@ public class DbContextActivatorTest
 {
     [ConditionalFact]
     public void CreateInstance_works()
-    {
-        Assert.IsType<TestContext>(DbContextActivator.CreateInstance(typeof(TestContext)));
-    }
+        => Assert.IsType<TestContext>(DbContextActivator.CreateInstance(typeof(TestContext)));
 
     [ConditionalFact]
     public void CreateInstance_with_arguments_works()
-    {
-        Assert.IsType<TestContext>(DbContextActivator.CreateInstance(
-            typeof(TestContext),
-            null,
-            null,
-            new[] { "A", "B" }));
-    }
+        => Assert.IsType<TestContext>(
+            DbContextActivator.CreateInstance(
+                typeof(TestContext),
+                null,
+                null,
+                new[] { "A", "B" }));
 
     private class TestContext : DbContext
     {

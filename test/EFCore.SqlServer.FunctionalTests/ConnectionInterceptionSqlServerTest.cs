@@ -84,7 +84,8 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
     }
 
     public class ConnectionInterceptionWithConnectionStringSqlServerTest
-        : ConnectionInterceptionSqlServerTestBase, IClassFixture<ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture>
+        : ConnectionInterceptionSqlServerTestBase,
+            IClassFixture<ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture>
     {
         public ConnectionInterceptionWithConnectionStringSqlServerTest(InterceptionSqlServerFixture fixture)
             : base(fixture)
