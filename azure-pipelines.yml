@@ -51,6 +51,7 @@ stages:
         enablePublishBuildArtifacts: true
         enablePublishBuildAssets: true
         enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
+        publishAssetsImmediately: true
         enableTelemetry: true
         helixRepo: dotnet/efcore
         jobs:
@@ -245,3 +246,4 @@ stages:
       enableSigningValidation: false
       enableNugetValidation: false
       enableSourceLinkValidation: false
+      publishAssetsImmediately: true
