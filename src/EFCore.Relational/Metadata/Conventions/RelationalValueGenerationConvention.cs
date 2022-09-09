@@ -186,9 +186,9 @@ public class RelationalValueGenerationConvention :
             : table.Name != null
                 ? GetValueGenerated(property, table)
                 : property.DeclaringEntityType.IsMappedToJson()
-                && !property.DeclaringEntityType.FindOwnership()!.IsUnique
-                && property.IsOrdinalKeyProperty()
-                    ? ValueGenerated.OnAdd
+                    && !property.DeclaringEntityType.FindOwnership()!.IsUnique
+                    && property.IsOrdinalKeyProperty()
+                    ? ValueGenerated.OnAddOrUpdate
                     : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
                         ? GetValueGenerated((IReadOnlyProperty)property)
                         : null;
