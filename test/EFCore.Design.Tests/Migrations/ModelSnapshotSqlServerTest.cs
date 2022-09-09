@@ -3712,6 +3712,7 @@ namespace RootNamespace
                                                 .HasColumnType(""int"");
 
                                             b3.Property<int>(""Id"")
+                                                .ValueGeneratedOnAdd()
                                                 .HasColumnType(""int"");
 
                                             b3.Property<string>(""Name"")

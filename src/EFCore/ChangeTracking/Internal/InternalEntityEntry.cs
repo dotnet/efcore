@@ -963,13 +963,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
 
         var collection = GetOrCreateShadowCollection(navigationBase);
-        if (!collectionAccessor.ContainsStandalone(collection, value))
-        {
-            collectionAccessor.AddStandalone(collection, value);
-            return true;
-        }
-
-        return false;
+        return collectionAccessor.AddStandalone(collection, value);
     }
 
     /// <summary>

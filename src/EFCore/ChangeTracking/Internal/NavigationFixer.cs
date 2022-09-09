@@ -525,8 +525,11 @@ public class NavigationFixer : INavigationFixer
                     foreach (InternalEntityEntry dependentEntry in stateManager
                                  .GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                     {
+                        if (dependentEntry.EntityState == EntityState.Deleted)
+                        {
+                            continue;
+                        }
                         SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true, fromQuery: false);
-                        UndeleteDependent(dependentEntry, entry);
                     }
 
                     if (foreignKey.IsOwnership)

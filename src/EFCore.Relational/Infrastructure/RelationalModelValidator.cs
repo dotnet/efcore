@@ -720,6 +720,29 @@ public class RelationalModelValidator : ModelValidator
             }
         }
     }
+    
+    /// <summary>
+    ///     Validates the mapping/configuration of mutable in the model.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidateNoMutableKeys(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var key in entityType.GetDeclaredKeys())
+            {
+                var mutableProperty = key.Properties.FirstOrDefault(p => p.ValueGenerated.HasFlag(ValueGenerated.OnUpdate));
+                if (mutableProperty != null
+                    && !mutableProperty.IsOrdinalKeyProperty())
+                {
+                    throw new InvalidOperationException(CoreStrings.MutableKeyProperty(mutableProperty.Name));
+                }
+            }
+        }
+    }
 
     /// <summary>
     ///     Validates the mapping/configuration of shared tables in the model.
