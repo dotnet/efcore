@@ -198,9 +198,9 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                         .HasParameter(w => w.Id, pb => pb.IsOutput())
                         .HasParameter("Discriminator")
                         .HasParameter(w => w.Name)
-                        .HasParameter(nameof(TphChild1.Child1Property))
                         .HasParameter(nameof(TphChild2.Child2InputProperty))
                         .HasParameter(nameof(TphChild2.Child2OutputParameterProperty), o => o.IsOutput())
+                        .HasParameter(nameof(TphChild1.Child1Property))
                         .HasResultColumn(nameof(TphChild2.Child2ResultColumnProperty)));
             });
 

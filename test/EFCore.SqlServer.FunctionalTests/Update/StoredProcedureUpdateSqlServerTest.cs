@@ -306,12 +306,12 @@ EXEC [WithOriginalAndCurrentValueOnNonConcurrencyToken_Update] @p0, @p1, @p2;");
             @"@p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
 @p1='TphChild1' (Nullable = false) (Size = 4000)
 @p2='Child' (Size = 4000)
-@p3='8' (Nullable = true)
-@p4=NULL (DbType = Int32)
-@p5=NULL (Direction = Output) (DbType = Int32)
+@p3=NULL (DbType = Int32)
+@p4=NULL (Direction = Output) (DbType = Int32)
+@p5='8' (Nullable = true)
 
 SET NOCOUNT ON;
-EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3, @p4, @p5 OUTPUT;");
+EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3, @p4 OUTPUT, @p5;");
     }
 
     public override async Task Tpt(bool async)
@@ -576,7 +576,7 @@ END;
 
 GO
 
-CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child1Property int, @Child2InputProperty int, @Child2OutputParameterProperty int OUT)
+CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child2InputProperty int, @Child2OutputParameterProperty int OUT, @Child1Property int)
 AS BEGIN
     DECLARE @Table table ([Child2OutputParameterProperty] int);
     INSERT INTO [Tph] ([Discriminator], [Name], [Child1Property], [Child2InputProperty]) OUTPUT [Inserted].[Child2OutputParameterProperty] INTO @Table VALUES (@Discriminator, @Name, @Child1Property, @Child2InputProperty);
