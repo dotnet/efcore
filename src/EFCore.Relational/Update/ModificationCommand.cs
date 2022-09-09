@@ -523,9 +523,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     && (isKey
                         || storedProcedureParameter is { ForOriginalValue: true }
                         || (property.IsConcurrencyToken && storedProcedureParameter is null));
+
+                // Store-generated properties generally need to be read back (unless we're deleting).
+                // One exception is if the property is mapped to a non-output parameter.
                 var readValue = state != EntityState.Deleted
                     && entry.IsStoreGenerated(property)
-                    && storedProcedureParameter is null or { ForOriginalValue: false };
+                    && (storedProcedureParameter is null || storedProcedureParameter.Direction.HasFlag(ParameterDirection.Output));
 
                 ColumnValuePropagator? columnPropagator = null;
                 sharedTableColumnMap?.TryGetValue(column.Name, out columnPropagator);

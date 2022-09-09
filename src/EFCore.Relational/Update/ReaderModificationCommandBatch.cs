@@ -269,7 +269,13 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         Check.DebugAssert(!modificationCommand.ColumnModifications.Any(m => m.Column is IStoreStoredProcedureReturnValue)
             || modificationCommand.ColumnModifications[0].Column is IStoreStoredProcedureReturnValue,
             "ResultValue column modification in non-first position");
-        foreach (var columnModification in modificationCommand.ColumnModifications)
+
+        var modifications = modificationCommand.StoreStoredProcedure is null
+            ? modificationCommand.ColumnModifications
+            : modificationCommand.ColumnModifications.Where(
+                c => c.Column is IStoreStoredProcedureParameter or IStoreStoredProcedureReturnValue);
+
+        foreach (var columnModification in modifications)
         {
             AddParameter(columnModification);
         }
@@ -288,13 +294,17 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             _ => ParameterDirection.Input
         };
 
-        // For in/out parameters, both UseCurrentValueParameter and UseOriginalValueParameter are true, but we only want to add a single
-        // parameter. This will happen below.
-        if (columnModification.UseCurrentValueParameter && direction != ParameterDirection.InputOutput)
+        // For the case where the same modification has both current and original value parameters, and corresponds to an in/out parameter,
+        // we only want to add a single parameter. This will happen below.
+        if (columnModification.UseCurrentValueParameter
+            && !(columnModification.UseOriginalValueParameter && direction == ParameterDirection.InputOutput))
         {
-            AddParameterCore(columnModification.ParameterName, direction == ParameterDirection.Output
-                ? null
-                : columnModification.Value);
+            AddParameterCore(
+                columnModification.ParameterName, columnModification.UseCurrentValue
+                    ? columnModification.Value
+                    : direction == ParameterDirection.InputOutput
+                        ? DBNull.Value
+                        : null);
         }
 
         if (columnModification.UseOriginalValueParameter)
@@ -313,8 +323,6 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
                 columnModification.IsNullable,
                 direction);
 
-            // TODO: As an alternative, don't add output-only parameters to ParameterValues at all.
-            // But that means we can't check values exist for input parameters in RelationalParameterBase.AddDbParameter
             ParameterValues.Add(name, value);
 
             _pendingParameters++;

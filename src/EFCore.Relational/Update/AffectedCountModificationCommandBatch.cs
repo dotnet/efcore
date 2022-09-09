@@ -44,7 +44,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             bool? onResultSet = null;
             var hasOutputParameters = false;
 
-            for (; commandIndex < ResultSetMappings.Count; commandIndex++)
+            while (commandIndex < ResultSetMappings.Count)
             {
                 var resultSetMapping = ResultSetMappings[commandIndex];
 
@@ -63,9 +63,13 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                         ? lastHandledCommandIndex == commandIndex
                         : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
 
-                    commandIndex = lastHandledCommandIndex;
+                    commandIndex = lastHandledCommandIndex + 1;
 
                     onResultSet = reader.DbDataReader.NextResult();
+                }
+                else
+                {
+                    commandIndex++;
                 }
 
                 if (resultSetMapping.HasFlag(ResultSetMapping.HasOutputParameters))
@@ -158,7 +162,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             bool? onResultSet = null;
             var hasOutputParameters = false;
 
-            for (; commandIndex < ResultSetMappings.Count; commandIndex++)
+            while (commandIndex < ResultSetMappings.Count)
             {
                 var resultSetMapping = ResultSetMappings[commandIndex];
 
@@ -177,9 +181,13 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                         ? lastHandledCommandIndex == commandIndex
                         : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
 
-                    commandIndex = lastHandledCommandIndex;
+                    commandIndex = lastHandledCommandIndex + 1;
 
                     onResultSet = await reader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    commandIndex++;
                 }
 
                 if (resultSetMapping.HasFlag(ResultSetMapping.HasOutputParameters))

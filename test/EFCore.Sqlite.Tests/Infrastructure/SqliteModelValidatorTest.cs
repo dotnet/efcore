@@ -68,7 +68,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
             .UpdateUsingStoredProcedure(
                 "Person_Update",
                 spb => spb
-                    .HasParameter(w => w.Id)
+                    .HasOriginalValueParameter(w => w.Id)
                     .HasParameter(w => w.Name)
                     .HasParameter(w => w.FavoriteBreed));
 
@@ -80,9 +80,27 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Person>()
-            .DeleteUsingStoredProcedure("Person_Delete", spb => spb.HasParameter(w => w.Id));
+            .DeleteUsingStoredProcedure("Person_Delete", spb => spb.HasOriginalValueParameter(w => w.Id));
 
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
+    }
+
+    public override void Passes_for_stored_procedure_without_parameter_for_insert_non_save_property()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(
+                () => base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Passes_for_stored_procedure_without_parameter_for_update_non_save_property()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(
+                () => base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
 
     public override void Passes_on_valid_UsingDeleteStoredProcedure_in_TPT()
