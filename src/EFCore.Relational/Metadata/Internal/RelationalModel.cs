@@ -1133,21 +1133,18 @@ public class RelationalModel : Annotatable, IRelationalModel
                     entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy,
                     "Expected TPH for " + entityType.DisplayName());
 
-                if (entityType.BaseType == null)
+                foreach (var derivedProperty in entityType.GetRootType().GetDerivedProperties())
                 {
-                    foreach (var derivedProperty in entityType.GetDerivedProperties())
+                    if (derivedProperty.Name == parameter.PropertyName)
                     {
-                        if (derivedProperty.Name == parameter.PropertyName)
-                        {
-                            GetOrCreateStoreStoredProcedureParameter(
-                                parameter,
-                                derivedProperty,
-                                position,
-                                storeStoredProcedure,
-                                identifier,
-                                relationalTypeMappingSource);
-                            break;
-                        }
+                        GetOrCreateStoreStoredProcedureParameter(
+                            parameter,
+                            derivedProperty,
+                            position,
+                            storeStoredProcedure,
+                            identifier,
+                            relationalTypeMappingSource);
+                        break;
                     }
                 }
 
@@ -1201,21 +1198,18 @@ public class RelationalModel : Annotatable, IRelationalModel
                     entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy,
                     "Expected TPH for " + entityType.DisplayName());
 
-                if (entityType.BaseType == null)
+                foreach (var derivedProperty in entityType.GetRootType().GetDerivedProperties())
                 {
-                    foreach (var derivedProperty in entityType.GetDerivedProperties())
+                    if (derivedProperty.Name == resultColumn.PropertyName)
                     {
-                        if (derivedProperty.Name == resultColumn.PropertyName)
-                        {
-                            GetOrCreateStoreStoredProcedureResultColumn(
-                                resultColumn,
-                                derivedProperty,
-                                position,
-                                storeStoredProcedure,
-                                identifier,
-                                relationalTypeMappingSource);
-                            break;
-                        }
+                        GetOrCreateStoreStoredProcedureResultColumn(
+                            resultColumn,
+                            derivedProperty,
+                            position,
+                            storeStoredProcedure,
+                            identifier,
+                            relationalTypeMappingSource);
+                        break;
                     }
                 }
 
