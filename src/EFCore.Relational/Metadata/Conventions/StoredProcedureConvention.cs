@@ -58,14 +58,14 @@ public class StoredProcedureConvention : IEntityTypeAddedConvention
         {
             sproc.EntityType = (IMutableEntityType)entityType;
         }
-        
+
         sproc = (StoredProcedure?)entityType.GetInsertStoredProcedure();
         if (sproc != null
             && sproc.EntityType != entityType)
         {
             sproc.EntityType = (IMutableEntityType)entityType;
         }
-        
+
         sproc = (StoredProcedure?)entityType.GetUpdateStoredProcedure();
         if (sproc != null
             && sproc.EntityType != entityType)

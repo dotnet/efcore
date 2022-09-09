@@ -39,13 +39,12 @@ public class SimpleNullableRowForeignKeyValueFactory<TKey> : RowForeignKeyValueF
 
     /// <inheritdoc />
     public override bool TryCreateDependentKeyValue(object?[] keyValues, [NotNullWhen(true)] out TKey key)
-    {
-        return HandleNullableValue((TKey?)keyValues[0], out key);
-    }
+        => HandleNullableValue((TKey?)keyValues[0], out key);
 
     /// <inheritdoc />
     public override bool TryCreateDependentKeyValue(
-        IDictionary<string, object?> keyPropertyValues, [NotNullWhen(true)] out TKey key)
+        IDictionary<string, object?> keyPropertyValues,
+        [NotNullWhen(true)] out TKey key)
     {
         if (keyPropertyValues.TryGetValue(_column.Name, out var value))
         {
@@ -57,7 +56,10 @@ public class SimpleNullableRowForeignKeyValueFactory<TKey> : RowForeignKeyValueF
     }
 
     /// <inheritdoc />
-    public override bool TryCreateDependentKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out TKey key)
+    public override bool TryCreateDependentKeyValue(
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues,
+        [NotNullWhen(true)] out TKey key)
     {
         var (keyValue, present) = fromOriginalValues
             ? ((Func<IReadOnlyModificationCommand, (TKey?, bool)>)_columnAccessors.OriginalValueGetter)(command)

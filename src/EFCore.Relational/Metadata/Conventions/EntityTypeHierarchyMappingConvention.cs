@@ -64,7 +64,7 @@ public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
                     continue;
                 }
             }
-            
+
             if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy)
             {
                 nonTphRoots.Add(root);
@@ -89,13 +89,14 @@ public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
                     var pk = entityType.FindPrimaryKey();
                     if (pk != null
                         && !entityType.FindDeclaredForeignKeys(pk.Properties)
-                            .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                            && fk.PrincipalEntityType.IsAssignableFrom(entityType)
-                            && fk.PrincipalEntityType != entityType))
+                            .Any(
+                                fk => fk.PrincipalKey.IsPrimaryKey()
+                                    && fk.PrincipalEntityType.IsAssignableFrom(entityType)
+                                    && fk.PrincipalEntityType != entityType))
                     {
                         var closestMappedType = entityType.BaseType;
                         while (closestMappedType != null
-                            && closestMappedType.GetTableName() == null)
+                               && closestMappedType.GetTableName() == null)
                         {
                             closestMappedType = closestMappedType.BaseType;
                         }
@@ -118,7 +119,6 @@ public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
                     || entityType.GetViewSchema() != entityType.BaseType.GetViewSchema()))
             {
                 nonTphRoots.Add(root);
-                continue;
             }
         }
 
@@ -127,7 +127,7 @@ public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
             allRoots.Remove(root);
             root.Builder.HasNoDiscriminator();
         }
-        
+
         foreach (var root in allRoots)
         {
             root.Builder.UseMappingStrategy(RelationalAnnotationNames.TphMappingStrategy);

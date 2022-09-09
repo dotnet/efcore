@@ -10,7 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class StoredProcedure :
-    ConventionAnnotatable, IRuntimeStoredProcedure, IMutableStoredProcedure, IConventionStoredProcedure
+    ConventionAnnotatable,
+    IRuntimeStoredProcedure,
+    IMutableStoredProcedure,
+    IConventionStoredProcedure
 {
     private readonly List<StoredProcedureParameter> _parameters = new();
     private readonly Dictionary<string, StoredProcedureParameter> _currentValueParameters = new();
@@ -41,7 +44,7 @@ public class StoredProcedure :
     {
         EntityType = entityType;
         _configurationSource = configurationSource;
-        _builder = new(this, ((IConventionEntityType)entityType).Model.Builder);
+        _builder = new InternalStoredProcedureBuilder(this, ((IConventionEntityType)entityType).Model.Builder);
     }
 
     /// <inheritdoc />
@@ -100,7 +103,7 @@ public class StoredProcedure :
         }
 
         if ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
-                == RelationalAnnotationNames.TphMappingStrategy
+            == RelationalAnnotationNames.TphMappingStrategy
             && entityType.BaseType != null)
         {
             return FindStoredProcedure(entityType.GetRootType(), sprocType);
@@ -108,7 +111,7 @@ public class StoredProcedure :
 
         return null;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -223,7 +226,7 @@ public class StoredProcedure :
         {
             UpdateOverrides(oldId.Value, null, (IConventionEntityType)entityType);
         }
-        
+
         return sproc;
     }
 
@@ -254,7 +257,8 @@ public class StoredProcedure :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static ConfigurationSource? GetStoredProcedureConfigurationSource(
-        IConventionEntityType entityType, StoreObjectType sprocType)
+        IConventionEntityType entityType,
+        StoreObjectType sprocType)
         => entityType.FindAnnotation(GetAnnotationName(sprocType))
             ?.GetConfigurationSource();
 
@@ -300,7 +304,7 @@ public class StoredProcedure :
         EnsureMutable();
 
         var oldId = ((IReadOnlyStoredProcedure)this).GetStoreIdentifier();
-        
+
         _schema = schema;
 
         _schemaConfigurationSource = configurationSource.Max(_schemaConfigurationSource);
@@ -341,7 +345,7 @@ public class StoredProcedure :
 
             tableName = Uniquifier.Truncate(EntityType.ShortName(), EntityType.Model.GetMaxIdentifierLength());
         }
-        
+
         string? suffix;
         if (EntityType.GetInsertStoredProcedure() == this)
         {
@@ -406,7 +410,7 @@ public class StoredProcedure :
         _nameConfigurationSource = name == null
             ? null
             : configurationSource.Max(_nameConfigurationSource);
-        
+
         _schema = schema;
 
         _schemaConfigurationSource = configurationSource.Max(_schemaConfigurationSource);
@@ -446,12 +450,13 @@ public class StoredProcedure :
 
         if (_rowsAffectedParameter != null || _rowsAffectedResultColumn != null)
         {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter(
-                ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter(
+                    ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
         _isRowsAffectedReturned = rowsAffectedReturned;
-        
+
         return rowsAffectedReturned;
     }
 
@@ -464,11 +469,11 @@ public class StoredProcedure :
         {
             return;
         }
-        
+
         var properties = (entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
             == RelationalAnnotationNames.TphMappingStrategy
-            ? entityType.GetProperties().Concat(entityType.GetDerivedProperties())
-            : entityType.GetProperties();
+                ? entityType.GetProperties().Concat(entityType.GetDerivedProperties())
+                : entityType.GetProperties();
 
         foreach (var property in properties)
         {
@@ -480,7 +485,7 @@ public class StoredProcedure :
             }
         }
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -492,7 +497,7 @@ public class StoredProcedure :
         [DebuggerStepThrough]
         get => _parameters;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -514,8 +519,9 @@ public class StoredProcedure :
     {
         if (_currentValueParameters.ContainsKey(propertyName))
         {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateParameter(
-                propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureDuplicateParameter(
+                    propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
         var parameter = new StoredProcedureParameter(this, rowsAffected: false, propertyName, originalValue: false);
@@ -546,17 +552,18 @@ public class StoredProcedure :
     {
         if (_originalValueParameters.ContainsKey(propertyName))
         {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateOriginalValueParameter(
-                propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureDuplicateOriginalValueParameter(
+                    propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
-        
+
         var parameter = new StoredProcedureParameter(this, rowsAffected: false, propertyName, originalValue: true);
         _parameters.Add(parameter);
         _originalValueParameters.Add(propertyName, parameter);
 
         return parameter;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -578,10 +585,11 @@ public class StoredProcedure :
             || _rowsAffectedResultColumn != null
             || _isRowsAffectedReturned)
         {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter(
-                ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter(
+                    ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
-        
+
         var parameter = new StoredProcedureParameter(this, rowsAffected: true, propertyName: null, originalValue: null);
         _parameters.Add(parameter);
         _rowsAffectedParameter = parameter;
@@ -600,7 +608,7 @@ public class StoredProcedure :
         [DebuggerStepThrough]
         get => _resultColumns;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -622,8 +630,9 @@ public class StoredProcedure :
     {
         if (_propertyResultColumns.ContainsKey(propertyName))
         {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateResultColumn(
-                propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureDuplicateResultColumn(
+                    propertyName, ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
         var resultColumn = new StoredProcedureResultColumn(this, forRowsAffected: false, propertyName);
@@ -632,7 +641,7 @@ public class StoredProcedure :
 
         return resultColumn;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -654,8 +663,9 @@ public class StoredProcedure :
             || _rowsAffectedParameter != null
             || _isRowsAffectedReturned)
         {
-            throw new InvalidOperationException(RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn(
-                ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn(
+                    ((IReadOnlyStoredProcedure)this).GetStoreIdentifier()?.DisplayName()));
         }
 
         var resultColumn = new StoredProcedureResultColumn(this, forRowsAffected: true, propertyName: null);
@@ -724,42 +734,42 @@ public class StoredProcedure :
     /// <inheritdoc />
     IStoreStoredProcedure IStoredProcedure.StoreStoredProcedure
         => _storeStoredProcedure!; // Relational model creation ensures StoreStoredProcedure is populated
-    
+
     /// <inheritdoc />
     IStoreStoredProcedure IRuntimeStoredProcedure.StoreStoredProcedure
     {
         get => _storeStoredProcedure!;
         set => _storeStoredProcedure = value;
     }
-    
+
     /// <inheritdoc />
     IReadOnlyList<IReadOnlyStoredProcedureParameter> IReadOnlyStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;
     }
-    
+
     /// <inheritdoc />
     IReadOnlyList<IMutableStoredProcedureParameter> IMutableStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;
     }
-    
+
     /// <inheritdoc />
     IReadOnlyList<IConventionStoredProcedureParameter> IConventionStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;
     }
-    
+
     /// <inheritdoc />
     IReadOnlyList<IStoredProcedureParameter> IStoredProcedure.Parameters
     {
         [DebuggerStepThrough]
         get => Parameters;
     }
-    
+
     /// <inheritdoc />
     IReadOnlyList<IReadOnlyStoredProcedureResultColumn> IReadOnlyStoredProcedure.ResultColumns
     {
@@ -773,14 +783,14 @@ public class StoredProcedure :
         [DebuggerStepThrough]
         get => ResultColumns;
     }
-    
+
     /// <inheritdoc />
     IReadOnlyList<IConventionStoredProcedureResultColumn> IConventionStoredProcedure.ResultColumns
     {
         [DebuggerStepThrough]
         get => ResultColumns;
     }
-    
+
     /// <inheritdoc />
     IReadOnlyList<IStoredProcedureResultColumn> IStoredProcedure.ResultColumns
     {
@@ -807,37 +817,37 @@ public class StoredProcedure :
     [DebuggerStepThrough]
     IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindParameter(string propertyName)
         => FindParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureParameter? IMutableStoredProcedure.FindParameter(string propertyName)
         => FindParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameter? IConventionStoredProcedure.FindParameter(string propertyName)
         => FindParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IStoredProcedureParameter? IStoredProcedure.FindParameter(string propertyName)
         => FindParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameter? IConventionStoredProcedure.AddParameter(string propertyName, bool fromDataAnnotation)
         => AddParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureParameter IMutableStoredProcedure.AddParameter(string propertyName)
         => AddParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindOriginalValueParameter(string propertyName)
         => FindOriginalValueParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureParameter? IMutableStoredProcedure.FindOriginalValueParameter(string propertyName)
@@ -847,109 +857,111 @@ public class StoredProcedure :
     [DebuggerStepThrough]
     IConventionStoredProcedureParameter? IConventionStoredProcedure.FindOriginalValueParameter(string propertyName)
         => FindOriginalValueParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IStoredProcedureParameter? IStoredProcedure.FindOriginalValueParameter(string propertyName)
         => FindOriginalValueParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureParameter IMutableStoredProcedure.AddOriginalValueParameter(string propertyName)
         => AddOriginalValueParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameter? IConventionStoredProcedure.AddOriginalValueParameter(
-        string propertyName, bool fromDataAnnotation)
+        string propertyName,
+        bool fromDataAnnotation)
         => AddOriginalValueParameter(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IReadOnlyStoredProcedureParameter? IReadOnlyStoredProcedure.FindRowsAffectedParameter()
         => FindRowsAffectedParameter();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureParameter? IMutableStoredProcedure.FindRowsAffectedParameter()
         => FindRowsAffectedParameter();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameter? IConventionStoredProcedure.FindRowsAffectedParameter()
         => FindRowsAffectedParameter();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IStoredProcedureParameter? IStoredProcedure.FindRowsAffectedParameter()
         => FindRowsAffectedParameter();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureParameter IMutableStoredProcedure.AddRowsAffectedParameter()
         => AddRowsAffectedParameter();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameter? IConventionStoredProcedure.AddRowsAffectedParameter(bool fromDataAnnotation)
         => AddRowsAffectedParameter();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IReadOnlyStoredProcedureResultColumn? IReadOnlyStoredProcedure.FindResultColumn(string propertyName)
         => FindResultColumn(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureResultColumn? IMutableStoredProcedure.FindResultColumn(string propertyName)
         => FindResultColumn(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureResultColumn? IConventionStoredProcedure.FindResultColumn(string propertyName)
         => FindResultColumn(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IStoredProcedureResultColumn? IStoredProcedure.FindResultColumn(string propertyName)
         => FindResultColumn(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureResultColumn IMutableStoredProcedure.AddResultColumn(string propertyName)
         => AddResultColumn(propertyName);
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureResultColumn? IConventionStoredProcedure.AddResultColumn(
-        string propertyName, bool fromDataAnnotation)
+        string propertyName,
+        bool fromDataAnnotation)
         => AddResultColumn(propertyName);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IReadOnlyStoredProcedureResultColumn? IReadOnlyStoredProcedure.FindRowsAffectedResultColumn()
         => FindRowsAffectedResultColumn();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureResultColumn? IMutableStoredProcedure.FindRowsAffectedResultColumn()
         => FindRowsAffectedResultColumn();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureResultColumn? IConventionStoredProcedure.FindRowsAffectedResultColumn()
         => FindRowsAffectedResultColumn();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IStoredProcedureResultColumn? IStoredProcedure.FindRowsAffectedResultColumn()
         => FindRowsAffectedResultColumn();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IMutableStoredProcedureResultColumn IMutableStoredProcedure.AddRowsAffectedResultColumn()
         => AddRowsAffectedResultColumn();
-    
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureResultColumn? IConventionStoredProcedure.AddRowsAffectedResultColumn(bool fromDataAnnotation)

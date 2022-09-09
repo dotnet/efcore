@@ -29,7 +29,8 @@ public class SqlServerSharedTableConvention : SharedTableConvention
     }
 
     /// <inheritdoc />
-    protected override bool IndexesUniqueAcrossTables => false;
+    protected override bool IndexesUniqueAcrossTables
+        => false;
 
     /// <inheritdoc />
     protected override bool AreCompatible(IReadOnlyKey key, IReadOnlyKey duplicateKey, in StoreObjectIdentifier storeObject)

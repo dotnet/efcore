@@ -1281,5 +1281,6 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     bool IConventionPropertyBuilder.CanSetProviderValueComparer(Type? comparerType, bool fromDataAnnotation)
-        => CanSetProviderValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => CanSetProviderValueComparer(
+            comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

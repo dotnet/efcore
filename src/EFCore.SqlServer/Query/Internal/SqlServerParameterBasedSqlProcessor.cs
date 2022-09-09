@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -49,11 +47,14 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
 
     /// <inheritdoc />
     protected override Expression ProcessSqlNullability(
-        Expression selectExpression, IReadOnlyDictionary<string, object?> parametersValues, out bool canCache)
+        Expression selectExpression,
+        IReadOnlyDictionary<string, object?> parametersValues,
+        out bool canCache)
     {
         Check.NotNull(selectExpression, nameof(selectExpression));
         Check.NotNull(parametersValues, nameof(parametersValues));
 
-        return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
+        return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(
+            selectExpression, parametersValues, out canCache);
     }
 }

@@ -22,7 +22,7 @@ public class ColumnBuilder<TProperty> : ColumnBuilder, IInfrastructure<PropertyB
     }
 
     private PropertyBuilder<TProperty> PropertyBuilder
-        => (PropertyBuilder<TProperty>) ((IInfrastructure<PropertyBuilder>)this).Instance;
+        => (PropertyBuilder<TProperty>)((IInfrastructure<PropertyBuilder>)this).Instance;
 
     /// <summary>
     ///     Configures the column that the property maps to when targeting a relational database.
@@ -34,7 +34,7 @@ public class ColumnBuilder<TProperty> : ColumnBuilder, IInfrastructure<PropertyB
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public new virtual ColumnBuilder<TProperty> HasColumnName(string? name)
         => (ColumnBuilder<TProperty>)base.HasColumnName(name);
-    
+
     /// <summary>
     ///     Adds or updates an annotation on the property for a specific table.
     ///     If an annotation with the key specified in <paramref name="annotation" />
@@ -46,5 +46,6 @@ public class ColumnBuilder<TProperty> : ColumnBuilder, IInfrastructure<PropertyB
     public new virtual ColumnBuilder<TProperty> HasAnnotation(string annotation, object? value)
         => (ColumnBuilder<TProperty>)base.HasAnnotation(annotation, value);
 
-    PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance => PropertyBuilder;
+    PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance
+        => PropertyBuilder;
 }

@@ -58,7 +58,8 @@ public sealed class TableExpression : TableExpressionBase, IClonableTableExpress
         => new TableExpression(Table, annotations) { Alias = Alias };
 
     /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => Table;
+    ITableBase ITableBasedExpression.Table
+        => Table;
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
@@ -75,7 +76,8 @@ public sealed class TableExpression : TableExpressionBase, IClonableTableExpress
     }
 
     /// <inheritdoc />
-    public TableExpressionBase Clone() => CreateWithAnnotations(GetAnnotations());
+    public TableExpressionBase Clone()
+        => CreateWithAnnotations(GetAnnotations());
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

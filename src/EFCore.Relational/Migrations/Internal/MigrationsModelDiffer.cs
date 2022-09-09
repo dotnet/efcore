@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -1711,7 +1711,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_targetIdentityMaps == null)
         {
-            _targetIdentityMaps = new(TableBaseIdentityComparer.Instance);
+            _targetIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
         }
         else
         {
@@ -1731,7 +1731,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_sourceIdentityMaps == null)
         {
-            _sourceIdentityMaps = new(TableBaseIdentityComparer.Instance);
+            _sourceIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
         }
         else
         {
@@ -1766,7 +1766,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     .ToDictionary(p => p.GetSimpleMemberName());
 
                 getValue = (property, seed) =>
-                    anonymousProperties.TryGetValue(property.Name, out var propertyInfo) ? (propertyInfo.GetValue(seed), true) : (null, false);
+                    anonymousProperties.TryGetValue(property.Name, out var propertyInfo)
+                        ? (propertyInfo.GetValue(seed), true)
+                        : (null, false);
             }
 
             foreach (var mapping in entityType.GetTableMappings())
@@ -1878,7 +1880,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             value = column.DefaultValue;
                         }
                         else if (value == null
-                            && !column.IsNullable)
+                                 && !column.IsNullable)
                         {
                             value = column.ProviderClrType.GetDefaultValue();
                         }
@@ -2100,6 +2102,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             anyColumnsModified = true;
                         }
+
                         continue;
                     }
 
@@ -2136,6 +2139,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             unchangedColumn.IsWrite = false;
                         }
+
                         foreach (var overridenColumn in overridenColumns)
                         {
                             overridenColumn.IsWrite = true;
@@ -2216,7 +2220,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             {
                                 batchInsertOperation.Values =
                                     AddToMultidimensionalArray(
-                                        command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.Value).ToList(),
+                                        command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.Value)
+                                            .ToList(),
                                         batchInsertOperation.Values);
                                 continue;
                             }

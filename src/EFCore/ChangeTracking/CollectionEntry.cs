@@ -59,7 +59,7 @@ public class CollectionEntry : NavigationEntry
         {
             EnsureInitialized();
         }
-        
+
         var collection = CurrentValue;
         if (collection != null)
         {

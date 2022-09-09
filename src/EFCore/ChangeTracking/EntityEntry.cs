@@ -188,7 +188,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
 
     /// <summary>
     ///     Provides access to change tracking information and operations for all properties and navigations of this entity.
-    /// </summary>-
+    /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
     ///     examples.

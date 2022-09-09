@@ -62,7 +62,8 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     public virtual IReadOnlyList<SqlExpression> Arguments { get; }
 
     /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => StoreFunction;
+    ITableBase ITableBasedExpression.Table
+        => StoreFunction;
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
-///     A <see cref="DiagnosticSource" /> event payload used when a <see cref="DbUpdateConcurrencyException"/> is being thrown.
+///     A <see cref="DiagnosticSource" /> event payload used when a <see cref="DbUpdateConcurrencyException" /> is being thrown.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.

@@ -715,7 +715,8 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(hasPrincipalKey) ?? hasPrincipalKey;
         }
 
-        var hasForeignKey = new FluentApiCodeFragment(nameof(ReferenceReferenceBuilder.HasForeignKey)) { IsHandledByDataAnnotations = true };
+        var hasForeignKey =
+            new FluentApiCodeFragment(nameof(ReferenceReferenceBuilder.HasForeignKey)) { IsHandledByDataAnnotations = true };
 
         if (foreignKey.IsUnique)
         {

@@ -101,19 +101,20 @@ public class SqlNullabilityProcessor
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                columnValueSetters = new(n);
+                columnValueSetters = new List<ColumnValueSetter>(n);
                 for (var j = 0; j < i; j++)
                 {
                     columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
                 }
+
                 columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
             }
         }
 
         return selectExpression != updateExpression.SelectExpression
             || columnValueSetters != null
-            ? updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters)
-            : updateExpression;
+                ? updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters)
+                : updateExpression;
     }
 
     /// <summary>
@@ -1631,7 +1632,7 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-            break;
+                break;
         }
 
         return sqlUnaryExpression;
@@ -1841,7 +1842,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-            break;
+                break;
         }
 
         return sqlUnaryExpression;

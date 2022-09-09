@@ -54,7 +54,8 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The default name of the table to which the entity type would be mapped.</returns>
     public static string? GetDefaultTableName(this IReadOnlyEntityType entityType, bool truncate = true)
     {
-        if ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy) == RelationalAnnotationNames.TphMappingStrategy
+        if ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+            == RelationalAnnotationNames.TphMappingStrategy
             && entityType.BaseType != null)
         {
             return entityType.GetRootType().GetTableName();
@@ -1111,7 +1112,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(this IMutableEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IMutableEntityTypeMappingFragment>()
-         ?? Enumerable.Empty<IMutableEntityTypeMappingFragment>();
+            ?? Enumerable.Empty<IMutableEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1126,7 +1127,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(this IConventionEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IConventionEntityTypeMappingFragment>()
-         ?? Enumerable.Empty<IConventionEntityTypeMappingFragment>();
+            ?? Enumerable.Empty<IConventionEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1141,7 +1142,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(this IEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IEntityTypeMappingFragment>()
-         ?? Enumerable.Empty<IEntityTypeMappingFragment>();
+            ?? Enumerable.Empty<IEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1156,7 +1157,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IReadOnlyEntityTypeMappingFragment> GetMappingFragments(
-        this IReadOnlyEntityType entityType, StoreObjectType storeObjectType)
+        this IReadOnlyEntityType entityType,
+        StoreObjectType storeObjectType)
     {
         var fragments = EntityTypeMappingFragment.Get(entityType);
         return fragments == null
@@ -1177,7 +1179,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(
-        this IMutableEntityType entityType, StoreObjectType storeObjectType)
+        this IMutableEntityType entityType,
+        StoreObjectType storeObjectType)
         => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IMutableEntityTypeMappingFragment>();
 
     /// <summary>
@@ -1193,7 +1196,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(
-        this IConventionEntityType entityType, StoreObjectType storeObjectType)
+        this IConventionEntityType entityType,
+        StoreObjectType storeObjectType)
         => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IConventionEntityTypeMappingFragment>();
 
     /// <summary>
@@ -1209,7 +1213,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(
-        this IEntityType entityType, StoreObjectType storeObjectType)
+        this IEntityType entityType,
+        StoreObjectType storeObjectType)
         => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IEntityTypeMappingFragment>();
 
     /// <summary>
@@ -1225,7 +1230,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IReadOnlyEntityTypeMappingFragment? FindMappingFragment(
-        this IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IReadOnlyEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1241,7 +1247,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IMutableEntityTypeMappingFragment? FindMappingFragment(
-        this IMutableEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IMutableEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => (IMutableEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1257,7 +1264,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IConventionEntityTypeMappingFragment? FindMappingFragment(
-        this IConventionEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => (IConventionEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1273,7 +1281,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IEntityTypeMappingFragment? FindMappingFragment(
-        this IEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => (IEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1310,7 +1319,8 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
-        => EntityTypeMappingFragment.GetOrCreate((IMutableEntityType)entityType, storeObject,
+        => EntityTypeMappingFragment.GetOrCreate(
+            (IMutableEntityType)entityType, storeObject,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1536,7 +1546,7 @@ public static class RelationalEntityTypeExtensions
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
         => entityType.GetOrCreateMappingFragment(storeObject, fromDataAnnotation).SetIsTableExcludedFromMigrations(
-                excluded, fromDataAnnotation);
+            excluded, fromDataAnnotation);
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType)" />.
@@ -1551,7 +1561,8 @@ public static class RelationalEntityTypeExtensions
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType, in StoreObjectIdentifier)" />.
+    ///     Gets the <see cref="ConfigurationSource" /> for
+    ///     <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType, in StoreObjectIdentifier)" />.
     /// </summary>
     /// <param name="entityType">The entity type to find configuration source for.</param>
     /// <param name="storeObject">The identifier of the table-like store object.</param>
@@ -1686,7 +1697,8 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         RelationalTypeMapping? typeMapping,
         bool fromDataAnnotation = false)
-        => (RelationalTypeMapping?)entityType.SetAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping, fromDataAnnotation)?.Value;
+        => (RelationalTypeMapping?)entityType.SetAnnotation(
+            RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping, fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the container column type mapping.

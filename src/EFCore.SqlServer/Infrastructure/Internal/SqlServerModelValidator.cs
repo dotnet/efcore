@@ -60,7 +60,8 @@ public class SqlServerModelValidator : RelationalModelValidator
     {
         foreach (IConventionProperty property in model.GetEntityTypes()
                      .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                     .Where(
+                         p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                              && !p.IsForeignKey()))
         {
             var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -365,7 +366,7 @@ public class SqlServerModelValidator : RelationalModelValidator
 
                 var periodStartProperty = mappedType.GetProperty(periodStartPropertyName!);
                 var periodEndProperty = mappedType.GetProperty(periodEndPropertyName!);
-                
+
                 var periodStartColumnName = periodStartProperty.GetColumnName(storeObject);
                 var periodEndColumnName = periodEndProperty.GetColumnName(storeObject);
 
@@ -426,7 +427,7 @@ public class SqlServerModelValidator : RelationalModelValidator
             {
                 continue;
             }
-            
+
             if (property.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 identityColumns[columnName] = property;

@@ -91,7 +91,8 @@ public class ShapedQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if shaper expression did not change, or an expression with the updated shaper expression.</returns>
     public virtual ShapedQueryExpression UpdateQueryExpression(Expression queryExpression)
         => !ReferenceEquals(queryExpression, QueryExpression)
-            ? new ShapedQueryExpression(queryExpression,
+            ? new ShapedQueryExpression(
+                queryExpression,
                 ReplacingExpressionVisitor.Replace(QueryExpression, queryExpression, ShaperExpression), ResultCardinality)
             : this;
 

@@ -16,6 +16,7 @@ public class SqlServerMultiLineStringMemberTranslator : IMemberTranslator
 {
     private static readonly MemberInfo IsClosed
         = typeof(MultiLineString).GetTypeInfo().GetRuntimeProperty(nameof(MultiLineString.IsClosed))!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>

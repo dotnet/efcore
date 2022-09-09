@@ -144,8 +144,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly Dictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings = new();
         private readonly Dictionary<ParameterExpression, object> _entityTypeIdentifyingExpressionInfo = new();
         private readonly Dictionary<ProjectionBindingExpression, string> _singleEntityTypeDiscriminatorValues = new();
-        private readonly Dictionary<ParameterExpression, (ParameterExpression, ParameterExpression)> _jsonValueBufferParameterMapping = new();
-        private readonly Dictionary<ParameterExpression, (ParameterExpression, ParameterExpression)> _jsonMaterializationContextParameterMapping = new();
+
+        private readonly Dictionary<ParameterExpression, (ParameterExpression, ParameterExpression)> _jsonValueBufferParameterMapping =
+            new();
+
+        private readonly Dictionary<ParameterExpression, (ParameterExpression, ParameterExpression)>
+            _jsonMaterializationContextParameterMapping = new();
+
         private readonly Dictionary<(int, string[]), ParameterExpression> _existingJsonElementMap
             = new(new ExisitingJsonElementMapKeyComparer());
 
@@ -398,18 +403,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         // If single entity type is being selected in hierarchy then we use the value directly else we store the offset to
                         // read discriminator value.
                         _singleEntityTypeDiscriminatorValues.TryGetValue(projectionBindingExpression, out var value)
-                        ? value
-                        : propertyMap.Values.Max() + 1;
+                            ? value
+                            : propertyMap.Values.Max() + 1;
 
                     var updatedExpression = newExpression.Update(
                         new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
 
                     return Expression.Assign(binaryExpression.Left, updatedExpression);
                 }
-                else if (newExpression.Arguments[0] is ParameterExpression valueBufferParameter
+
+                if (newExpression.Arguments[0] is ParameterExpression valueBufferParameter
                     && _jsonValueBufferParameterMapping.ContainsKey(valueBufferParameter))
                 {
-                    _jsonMaterializationContextParameterMapping[parameterExpression] = _jsonValueBufferParameterMapping[valueBufferParameter];
+                    _jsonMaterializationContextParameterMapping[parameterExpression] =
+                        _jsonValueBufferParameterMapping[valueBufferParameter];
 
                     var updatedExpression = newExpression.Update(
                         new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
@@ -438,7 +445,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     if (!_variableShaperMapping.TryGetValue(entityShaperExpression.ValueBufferExpression, out var accessor))
                     {
-                        if (GetProjectionIndex(projectionBindingExpression) is ValueTuple<int, List<(IProperty, int)>, string[]> jsonProjectionIndex)
+                        if (GetProjectionIndex(projectionBindingExpression) is ValueTuple<int, List<(IProperty, int)>, string[]>
+                            jsonProjectionIndex)
                         {
                             // json entity at the root
                             var (jsonElementParameter, keyValuesParameter) = JsonShapingPreProcess(
@@ -467,12 +475,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             _variables.Add(entityParameter);
                             if (entityShaperExpression.EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                             {
-                                var concreteTypes = entityShaperExpression.EntityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract()).ToArray();
+                                var concreteTypes = entityShaperExpression.EntityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract())
+                                    .ToArray();
                                 // Single concrete TPC entity type won't have discriminator column.
                                 // We store the value here and inject it directly rather than reading from server.
                                 if (concreteTypes.Length == 1)
-                                    _singleEntityTypeDiscriminatorValues[(ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression]
+                                {
+                                    _singleEntityTypeDiscriminatorValues[
+                                            (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression]
                                         = concreteTypes[0].ShortName();
+                                }
                             }
 
                             var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(entityShaperExpression);
@@ -504,7 +516,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 case CollectionResultExpression collectionResultExpression
                     when collectionResultExpression.Navigation is INavigation navigation
                     && GetProjectionIndex(collectionResultExpression.ProjectionBindingExpression)
-                    is ValueTuple<int, List<(IProperty, int)>, string[]> jsonProjectionIndex:
+                        is ValueTuple<int, List<(IProperty, int)>, string[]> jsonProjectionIndex:
                 {
                     // json entity collection at the root
                     var (jsonElementParameter, keyValuesParameter) = JsonShapingPreProcess(
@@ -642,9 +654,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Expression.Constant(parentIdentifierLambda.Compile()),
                                 Expression.Constant(outerIdentifierLambda.Compile()),
                                 Expression.Constant(navigation),
-                                Expression.Constant(navigation.IsShadowProperty() 
-                                    ? null 
-                                    : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
+                                Expression.Constant(
+                                    navigation.IsShadowProperty()
+                                        ? null
+                                        : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
                                 Expression.Constant(_isTracking),
 #pragma warning disable EF1001 // Internal EF Core API usage.
                                 Expression.Constant(includeExpression.SetLoaded)));
@@ -768,12 +781,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     }
                     else
                     {
-                        var projectionBindingExpression = (includeExpression.NavigationExpression as CollectionResultExpression)?.ProjectionBindingExpression
-                            ?? (includeExpression.NavigationExpression as RelationalEntityShaperExpression)?.ValueBufferExpression as ProjectionBindingExpression;
+                        var projectionBindingExpression = (includeExpression.NavigationExpression as CollectionResultExpression)
+                            ?.ProjectionBindingExpression
+                            ?? (includeExpression.NavigationExpression as RelationalEntityShaperExpression)?.ValueBufferExpression as
+                            ProjectionBindingExpression;
 
                         // json include case
                         if (projectionBindingExpression != null
-                            && GetProjectionIndex(projectionBindingExpression) is ValueTuple<int, List<(IProperty, int)>, string[]> jsonProjectionIndex)
+                            && GetProjectionIndex(projectionBindingExpression) is ValueTuple<int, List<(IProperty, int)>, string[]>
+                                jsonProjectionIndex)
                         {
                             var (jsonElementParameter, keyValuesParameter) = JsonShapingPreProcess(
                                 jsonProjectionIndex,
@@ -1027,42 +1043,40 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             new[] { Expression.Constant(index) })
                         : CreateExtractJsonPropertyExpression(jsonElementParameter, property);
                 }
+
+                int projectionIndex;
+                if (property == null)
+                {
+                    // This is trying to read the computed discriminator value
+                    var storedInfo = _entityTypeIdentifyingExpressionInfo[mappingParameter];
+                    if (storedInfo is string s)
+                    {
+                        // If the value is fixed then there is single entity type and discriminator is not present in query
+                        // We just return the value as-is.
+                        return Expression.Constant(s);
+                    }
+
+                    projectionIndex = (int)_entityTypeIdentifyingExpressionInfo[mappingParameter] + index;
+                }
                 else
                 {
-                    int projectionIndex;
-                    if (property == null)
-                    {
-                        // This is trying to read the computed discriminator value
-                        var storedInfo = _entityTypeIdentifyingExpressionInfo[mappingParameter];
-                        if (storedInfo is string s)
-                        {
-                            // If the value is fixed then there is single entity type and discriminator is not present in query
-                            // We just return the value as-is.
-                            return Expression.Constant(s);
-                        }
-
-                        projectionIndex = (int)_entityTypeIdentifyingExpressionInfo[mappingParameter] + index;
-                    }
-                    else
-                    {
-                        projectionIndex = _materializationContextBindings[mappingParameter][property];
-                    }
-
-                    var projection = _selectExpression.Projection[projectionIndex];
-                    var nullable = IsNullableProjection(projection);
-
-                    Check.DebugAssert(
-                        !nullable || property != null || methodCallExpression.Type.IsNullableType(),
-                        "For nullable reads the return type must be null unless property is specified.");
-
-                    return CreateGetValueExpression(
-                        _dataReaderParameter,
-                        projectionIndex,
-                        nullable,
-                        projection.Expression.TypeMapping!,
-                        methodCallExpression.Type,
-                        property);
+                    projectionIndex = _materializationContextBindings[mappingParameter][property];
                 }
+
+                var projection = _selectExpression.Projection[projectionIndex];
+                var nullable = IsNullableProjection(projection);
+
+                Check.DebugAssert(
+                    !nullable || property != null || methodCallExpression.Type.IsNullableType(),
+                    "For nullable reads the return type must be null unless property is specified.");
+
+                return CreateGetValueExpression(
+                    _dataReaderParameter,
+                    projectionIndex,
+                    nullable,
+                    projection.Expression.TypeMapping!,
+                    methodCallExpression.Type,
+                    property);
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -1097,7 +1111,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             shaperBlockExpressions.Add(Expression.Assign(entityShaperMaterializerVariable, entityShaperMaterializer));
 
             foreach (var ownedNavigation in entityType.GetNavigations().Where(
-                n => n.TargetEntityType.IsMappedToJson() && n.ForeignKey.IsOwnership && n == n.ForeignKey.PrincipalToDependent))
+                         n => n.TargetEntityType.IsMappedToJson() && n.ForeignKey.IsOwnership && n == n.ForeignKey.PrincipalToDependent))
             {
                 // TODO: use caching like we do in pre-process, there's chance we already have this json element
                 var innerJsonElementParameter = Expression.Variable(
@@ -1229,7 +1243,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         }
 
         private (ParameterExpression, ParameterExpression) JsonShapingPreProcess(
-            ValueTuple<int, List<(IProperty, int)>, string[]>  projectionIndex,
+            ValueTuple<int, List<(IProperty, int)>, string[]> projectionIndex,
             IEntityType entityType,
             bool isCollection)
         {
@@ -1275,7 +1289,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // try to find JsonElement variable for this json column and path if we encountered (and cached it) before
                 // otherwise either create new JsonElement from the data reader if we are at root level
                 // or build on top of previous variable withing the navigation chain (e.g. when we encountered the root before, but not this entire path)
-                if (!_existingJsonElementMap.TryGetValue((jsonColumnProjectionIndex, additionalPath[..index]), out var exisitingJsonElementVariable2))
+                if (!_existingJsonElementMap.TryGetValue(
+                        (jsonColumnProjectionIndex, additionalPath[..index]), out var exisitingJsonElementVariable2))
                 {
                     var jsonElementVariable = Expression.Variable(
                         typeof(JsonElement?));
@@ -1300,7 +1315,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     JsonElementGetPropertyMethod,
                                     Expression.Constant(additionalPath[index - 1])),
                                 currentJsonElementVariable!.Type),
-                                Expression.Default(currentJsonElementVariable!.Type));
+                            Expression.Default(currentJsonElementVariable!.Type));
 
                     var jsonElementAssignment = Expression.Assign(
                         jsonElementVariable,
@@ -1967,7 +1982,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // Execute and fetch data reader
                 var dataReader = await executionStrategy.ExecuteAsync(
                         (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
-                        ((RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup, CancellationToken cancellationToken)
+                        (
+                                (RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup,
+                                CancellationToken cancellationToken)
                             => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, tup.Item4, cancellationToken),
                         verifySucceeded: null,
                         queryContext.CancellationToken)
@@ -2290,7 +2307,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // Execute and fetch data reader
                 var dataReader = await executionStrategy.ExecuteAsync(
                         (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
-                        ((RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup, CancellationToken cancellationToken)
+                        (
+                                (RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup,
+                                CancellationToken cancellationToken)
                             => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, tup.Item4, cancellationToken),
                         verifySucceeded: null,
                         queryContext.CancellationToken)
@@ -2419,7 +2438,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (nullable)
             {
-                return default(TEntity);
+                return default;
             }
 
             throw new InvalidOperationException(
@@ -2456,7 +2475,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return result;
             }
 
-            return default(TResult);
+            return default;
         }
 
         private static async Task TaskAwaiter(Func<Task>[] taskFactories)

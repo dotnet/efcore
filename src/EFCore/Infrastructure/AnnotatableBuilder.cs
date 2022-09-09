@@ -182,7 +182,8 @@ public abstract class AnnotatableBuilder<TMetadata, TModelBuilder> : IConvention
     /// <param name="annotatable">The object to copy annotations from.</param>
     /// <param name="minimalConfigurationSource">The minimum configuration source for an annotation to be copied.</param>
     public virtual AnnotatableBuilder<TMetadata, TModelBuilder> MergeAnnotationsFrom(
-        TMetadata annotatable, ConfigurationSource minimalConfigurationSource)
+        TMetadata annotatable,
+        ConfigurationSource minimalConfigurationSource)
     {
         var builder = this;
         foreach (var annotation in annotatable.GetAnnotations())
@@ -191,10 +192,11 @@ public abstract class AnnotatableBuilder<TMetadata, TModelBuilder> : IConvention
             if (configurationSource.Overrides(minimalConfigurationSource))
             {
                 builder = builder.HasAnnotation(
-                    annotation.Name,
-                    annotation.Value,
-                    configurationSource,
-                    canOverrideSameSource: false) ?? builder;
+                        annotation.Name,
+                        annotation.Value,
+                        configurationSource,
+                        canOverrideSameSource: false)
+                    ?? builder;
             }
         }
 

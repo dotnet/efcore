@@ -113,9 +113,9 @@ public static class ColumnAccessorsFactory
 
             var modification = c.ColumnModifications.FirstOrDefault(m => m.ColumnName == column.Name);
             return modification == null
-                ? (default(TColumn)!, false)
+                ? (default!, false)
                 : modification.OriginalValue == null
-                    ? (default(TColumn)!, false)
+                    ? (default!, false)
                     : ((TColumn)modification.OriginalValue!, true);
         };
 }

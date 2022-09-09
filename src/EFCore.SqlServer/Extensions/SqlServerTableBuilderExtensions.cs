@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -25,7 +26,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(temporal);
 
-        return new TemporalTableBuilder(tableBuilder.GetInfrastructure<EntityTypeBuilder>());
+        return new TemporalTableBuilder(tableBuilder.GetInfrastructure());
     }
 
     /// <summary>
@@ -44,7 +45,7 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(true);
 
-        buildAction(new TemporalTableBuilder(tableBuilder.GetInfrastructure<EntityTypeBuilder>()));
+        buildAction(new TemporalTableBuilder(tableBuilder.GetInfrastructure()));
 
         return tableBuilder;
     }
@@ -152,7 +153,8 @@ public static class SqlServerTableBuilderExtensions
     {
         tableBuilder.Metadata.SetIsTemporal(temporal);
 
-        return new (tableBuilder.GetInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>());
+        return new OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+            tableBuilder.GetInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>());
     }
 
     /// <summary>
@@ -174,11 +176,13 @@ public static class SqlServerTableBuilderExtensions
         where TDependentEntity : class
     {
         tableBuilder.Metadata.SetIsTemporal(true);
-        buildAction(new (tableBuilder.GetInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>()));
+        buildAction(
+            new OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+                tableBuilder.GetInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>()));
 
         return tableBuilder;
     }
-    
+
     /// <summary>
     ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
     /// </summary>
@@ -197,7 +201,7 @@ public static class SqlServerTableBuilderExtensions
 
         return tableBuilder;
     }
-    
+
     /// <summary>
     ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
     /// </summary>
@@ -218,7 +222,7 @@ public static class SqlServerTableBuilderExtensions
 
         return tableBuilder;
     }
-    
+
     /// <summary>
     ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
     /// </summary>
@@ -237,7 +241,7 @@ public static class SqlServerTableBuilderExtensions
 
         return tableBuilder;
     }
-    
+
     /// <summary>
     ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
     /// </summary>

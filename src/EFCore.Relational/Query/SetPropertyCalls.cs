@@ -32,13 +32,14 @@ public sealed class SetPropertyCalls<TSource>
     /// <typeparam name="TProperty">The type of property.</typeparam>
     /// <param name="propertyExpression">A property access expression.</param>
     /// <param name="valueExpression">A value expression.</param>
-    /// <returns>The same instance so that multiple calls to <see cref="SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})"/> can be chained.</returns>
+    /// <returns>
+    ///     The same instance so that multiple calls to
+    ///     <see cref="SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})" /> can be chained.
+    /// </returns>
     public SetPropertyCalls<TSource> SetProperty<TProperty>(
-            Expression<Func<TSource, TProperty>> propertyExpression,
-            Expression<Func<TSource, TProperty>> valueExpression)
-    {
-        throw new InvalidOperationException(RelationalStrings.SetPropertyMethodInvoked);
-    }
+        Expression<Func<TSource, TProperty>> propertyExpression,
+        Expression<Func<TSource, TProperty>> valueExpression)
+        => throw new InvalidOperationException(RelationalStrings.SetPropertyMethodInvoked);
 
     #region Hidden System.Object members
 

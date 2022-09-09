@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -86,7 +83,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
         foreach (var entityType in nonOwnedTypes.Where(
                      e => e.GetDeclaredForeignKeys().Any()
-                             || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership)))
+                         || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership)))
         {
             stringBuilder.AppendLine();
 
@@ -896,7 +893,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 annotations.Remove(isExcludedAnnotation.Name);
             }
 
-
             if (schema != null
                 || (schemaAnnotation != null && tableName != null))
             {
@@ -997,7 +993,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
     }
 
-    private void GenerateViewMapping(string entityTypeBuilderName, IEntityType entityType, IndentedStringBuilder stringBuilder, Dictionary<string, IAnnotation> annotations)
+    private void GenerateViewMapping(
+        string entityTypeBuilderName,
+        IEntityType entityType,
+        IndentedStringBuilder stringBuilder,
+        Dictionary<string, IAnnotation> annotations)
     {
         annotations.TryGetAndRemove(RelationalAnnotationNames.ViewName, out IAnnotation viewNameAnnotation);
         annotations.TryGetAndRemove(RelationalAnnotationNames.ViewSchema, out IAnnotation viewSchemaAnnotation);
@@ -1006,8 +1006,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var view = StoreObjectIdentifier.Create(entityType, StoreObjectType.View);
         var viewName = (string?)viewNameAnnotation?.Value ?? view?.Name;
         if (viewNameAnnotation == null
-            && (viewName == null ||
-                entityType.BaseType?.GetViewName() == viewName))
+            && (viewName == null || entityType.BaseType?.GetViewName() == viewName))
         {
             return;
         }
@@ -1167,7 +1166,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IndentedStringBuilder stringBuilder)
     {
         var hasNonDefaultName = checkConstraint.Name != null
-                && checkConstraint.Name != (checkConstraint.GetDefaultName() ?? checkConstraint.ModelName);
+            && checkConstraint.Name != (checkConstraint.GetDefaultName() ?? checkConstraint.ModelName);
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(checkConstraint.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
@@ -1849,13 +1848,17 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
 
         if (entityType.HasSharedClrType
-            && entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(
+            && entityTypeName
+            == ownership!.PrincipalEntityType.GetOwnedName(
                 entityType.ClrType.ShortDisplayName(), ownership.PrincipalToDependent!.Name))
         {
             entityTypeName = entityType.ClrType.DisplayName();
         }
 
-        return GetFullName(ownership.PrincipalEntityType) + "."
-                + ownership.PrincipalToDependent!.Name + "#" + entityTypeName;
+        return GetFullName(ownership.PrincipalEntityType)
+            + "."
+            + ownership.PrincipalToDependent!.Name
+            + "#"
+            + entityTypeName;
     }
 }

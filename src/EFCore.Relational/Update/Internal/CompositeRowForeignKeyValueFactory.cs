@@ -26,7 +26,8 @@ public class CompositeRowForeignKeyValueFactory : CompositeRowValueFactory, IRow
         : base(foreignKey.Columns)
     {
         _foreignKey = foreignKey;
-        _principalKeyValueFactory = (IRowKeyValueFactory<object?[]>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
+        _principalKeyValueFactory =
+            (IRowKeyValueFactory<object?[]>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
     }
 
     /// <summary>

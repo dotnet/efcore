@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public interface IDbConnectionInterceptor : IInterceptor
 {
     /// <summary>
-    ///     Called just before EF creates a <see cref="DbConnection"/>. This event is not triggered if the application provides the
+    ///     Called just before EF creates a <see cref="DbConnection" />. This event is not triggered if the application provides the
     ///     connection to use.
     /// </summary>
     /// <param name="eventData">Contextual information about the connection.</param>
@@ -53,7 +53,7 @@ public interface IDbConnectionInterceptor : IInterceptor
         => result;
 
     /// <summary>
-    ///     Called just after EF creates a <see cref="DbConnection"/>. This event is not triggered if the application provides the
+    ///     Called just after EF creates a <see cref="DbConnection" />. This event is not triggered if the application provides the
     ///     connection to use.
     /// </summary>
     /// <param name="eventData">Contextual information about the connection.</param>
@@ -198,7 +198,7 @@ public interface IDbConnectionInterceptor : IInterceptor
         => Task.CompletedTask;
 
     /// <summary>
-    ///     Called just before EF intends to call <see cref="Component.Dispose()" /> for the <see cref="DbConnection"/>.
+    ///     Called just before EF intends to call <see cref="Component.Dispose()" /> for the <see cref="DbConnection" />.
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="eventData">Contextual information about the connection.</param>
@@ -236,7 +236,10 @@ public interface IDbConnectionInterceptor : IInterceptor
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     the operation is to return the <paramref name="result" /> value passed in.
     /// </returns>
-    ValueTask<InterceptionResult> ConnectionDisposingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+    ValueTask<InterceptionResult> ConnectionDisposingAsync(
+        DbConnection connection,
+        ConnectionEventData eventData,
+        InterceptionResult result)
         => new(result);
 
     /// <summary>

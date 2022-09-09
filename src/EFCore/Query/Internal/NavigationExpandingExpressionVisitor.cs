@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -1081,7 +1082,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 {
                     return (currentExpression, default);
                 }
-                
+
                 if (!methodCallExpression.Method.IsGenericMethod
                     || !SupportedFilteredIncludeOperations.Contains(methodCallExpression.Method.GetGenericMethodDefinition()))
                 {
@@ -1605,7 +1606,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var innerKeyLambda = RemapLambdaExpression(innerSource, innerKeySelector);
 
         var keyComparison = _removeRedundantNavigationComparisonExpressionVisitor
-            .Visit(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKeyLambda, innerKeyLambda));
+            .Visit(ExpressionExtensions.CreateEqualsExpression(outerKeyLambda, innerKeyLambda));
 
         Expression left;
         Expression right;
@@ -2083,9 +2084,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
 
         throw new InvalidOperationException(CoreStrings.InvalidIncludeExpression(expression));
-        
+
         bool TryExtractIncludeTreeNode(
-            Expression innerExpression, 
+            Expression innerExpression,
             string propertyName,
             [NotNullWhen(true)] out IncludeTreeNode? addedNode)
         {
@@ -2106,7 +2107,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             var navigation = (INavigationBase?)entityType.FindNavigation(propertyName)
                 ?? entityType.FindSkipNavigation(propertyName);
-                
+
             if (navigation != null)
             {
                 addedNode = innerIncludeTreeNode.AddNavigation(navigation, setLoaded);

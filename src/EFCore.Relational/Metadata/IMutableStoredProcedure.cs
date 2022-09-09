@@ -40,7 +40,7 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     ///     Returns the parameter corresponding to the given property.
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
-    /// <returns>The parameter corresponding to the given property if found; <see langword="null"/> otherwise.</returns>
+    /// <returns>The parameter corresponding to the given property if found; <see langword="null" /> otherwise.</returns>
     new IMutableStoredProcedureParameter? FindParameter(string propertyName);
 
     /// <summary>
@@ -55,7 +55,7 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
     /// <returns>
-    ///     The original value parameter corresponding to the given property if found; <see langword="null"/> otherwise.
+    ///     The original value parameter corresponding to the given property if found; <see langword="null" /> otherwise.
     /// </returns>
     new IMutableStoredProcedureParameter? FindOriginalValueParameter(string propertyName);
 
@@ -70,7 +70,7 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     ///     Returns the rows affected parameter.
     /// </summary>
     /// <returns>
-    ///     The rows affected parameter if found; <see langword="null"/> otherwise.
+    ///     The rows affected parameter if found; <see langword="null" /> otherwise.
     /// </returns>
     new IMutableStoredProcedureParameter? FindRowsAffectedParameter();
 
@@ -86,10 +86,10 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     new IReadOnlyList<IMutableStoredProcedureResultColumn> ResultColumns { get; }
 
     /// <summary>
-    ///    Returns the result column corresponding to the given property.
+    ///     Returns the result column corresponding to the given property.
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
-    /// <returns>The result column corresponding to the given property if found; <see langword="null"/> otherwise.</returns>
+    /// <returns>The result column corresponding to the given property if found; <see langword="null" /> otherwise.</returns>
     new IMutableStoredProcedureResultColumn? FindResultColumn(string propertyName);
 
     /// <summary>
@@ -100,9 +100,9 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     IMutableStoredProcedureResultColumn AddResultColumn(string propertyName);
 
     /// <summary>
-    ///    Returns the rows affected result column.
+    ///     Returns the rows affected result column.
     /// </summary>
-    /// <returns>The rows affected result column if found; <see langword="null"/> otherwise.</returns>
+    /// <returns>The rows affected result column if found; <see langword="null" /> otherwise.</returns>
     new IMutableStoredProcedureResultColumn? FindRowsAffectedResultColumn();
 
     /// <summary>

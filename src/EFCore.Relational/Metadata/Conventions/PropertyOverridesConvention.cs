@@ -56,7 +56,7 @@ public class PropertyOverridesConvention : IPropertyAddedConvention
                 continue;
             }
 
-            overridesToReattach ??= new();
+            overridesToReattach ??= new List<IConventionRelationalPropertyOverrides>();
 
             overridesToReattach.Add(overrides);
         }

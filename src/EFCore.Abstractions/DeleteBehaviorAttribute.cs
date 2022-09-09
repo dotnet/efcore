@@ -20,7 +20,7 @@ public sealed class DeleteBehaviorAttribute : Attribute
     /// <param name="behavior">The <see cref="DeleteBehavior" /> to be configured.</param>
     public DeleteBehaviorAttribute(DeleteBehavior behavior)
     {
-        this.Behavior = behavior;
+        Behavior = behavior;
     }
 
     /// <summary>

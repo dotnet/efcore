@@ -47,5 +47,6 @@ public class SplitViewBuilder<TEntity> : SplitViewBuilder, IInfrastructure<Entit
     public new virtual SplitViewBuilder<TEntity> HasAnnotation(string annotation, object? value)
         => (SplitViewBuilder<TEntity>)base.HasAnnotation(annotation, value);
 
-    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance
+        => EntityTypeBuilder;
 }

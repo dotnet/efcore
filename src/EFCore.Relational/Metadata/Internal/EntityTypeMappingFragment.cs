@@ -134,19 +134,20 @@ public class EntityTypeMappingFragment :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static EntityTypeMappingFragment MergeInto(
-        IConventionEntityTypeMappingFragment detachedFragment, IConventionEntityTypeMappingFragment existingFragment)
+        IConventionEntityTypeMappingFragment detachedFragment,
+        IConventionEntityTypeMappingFragment existingFragment)
     {
         var isTableExcludedFromMigrationsConfigurationSource = detachedFragment.GetIsTableExcludedFromMigrationsConfigurationSource();
         if (isTableExcludedFromMigrationsConfigurationSource != null)
         {
             existingFragment = ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder).ExcludeTableFromMigrations(
-                detachedFragment.IsTableExcludedFromMigrations, isTableExcludedFromMigrationsConfigurationSource.Value)
+                    detachedFragment.IsTableExcludedFromMigrations, isTableExcludedFromMigrationsConfigurationSource.Value)
                 !.Metadata;
         }
 
         return ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder)
             .MergeAnnotationsFrom((EntityTypeMappingFragment)detachedFragment)
-                .Metadata;
+            .Metadata;
     }
 
     /// <inheritdoc />
@@ -172,8 +173,8 @@ public class EntityTypeMappingFragment :
         _isTableExcludedFromMigrations = excluded;
         _isTableExcludedFromMigrationsConfigurationSource =
             excluded == null
-            ? null
-            : configurationSource.Max(_isTableExcludedFromMigrationsConfigurationSource);
+                ? null
+                : configurationSource.Max(_isTableExcludedFromMigrationsConfigurationSource);
         return excluded;
     }
 
@@ -223,14 +224,14 @@ public class EntityTypeMappingFragment :
             entityType[RelationalAnnotationNames.MappingFragments];
         if (fragments == null)
         {
-            fragments = new();
+            fragments = new StoreObjectDictionary<EntityTypeMappingFragment>();
             entityType[RelationalAnnotationNames.MappingFragments] = fragments;
         }
 
         var fragment = fragments.Find(storeObject);
         if (fragment == null)
         {
-            fragment = new(entityType, storeObject, configurationSource);
+            fragment = new EntityTypeMappingFragment(entityType, storeObject, configurationSource);
             fragments.Add(storeObject, fragment);
         }
         else
@@ -313,7 +314,8 @@ public class EntityTypeMappingFragment :
     }
 
     bool? IConventionEntityTypeMappingFragment.SetIsTableExcludedFromMigrations(bool? excluded, bool fromDataAnnotation)
-        => SetIsTableExcludedFromMigrations(excluded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => SetIsTableExcludedFromMigrations(
+            excluded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     bool? IReadOnlyEntityTypeMappingFragment.IsTableExcludedFromMigrations
     {

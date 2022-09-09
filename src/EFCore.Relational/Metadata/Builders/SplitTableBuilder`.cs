@@ -22,6 +22,7 @@ public class SplitTableBuilder<TEntity> : SplitTableBuilder, IInfrastructure<Ent
         : base(storeObject, entityTypeBuilder)
     {
     }
+
     private EntityTypeBuilder<TEntity> EntityTypeBuilder
         => (EntityTypeBuilder<TEntity>)((IInfrastructure<EntityTypeBuilder>)this).GetInfrastructure();
 
@@ -35,7 +36,7 @@ public class SplitTableBuilder<TEntity> : SplitTableBuilder, IInfrastructure<Ent
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public new virtual SplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
         => (SplitTableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
-    
+
     /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used
     ///     to provide table-specific configuration if the property is mapped to more than one table.
@@ -57,5 +58,6 @@ public class SplitTableBuilder<TEntity> : SplitTableBuilder, IInfrastructure<Ent
     public new virtual SplitTableBuilder<TEntity> HasAnnotation(string annotation, object? value)
         => (SplitTableBuilder<TEntity>)base.HasAnnotation(annotation, value);
 
-    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance
+        => EntityTypeBuilder;
 }

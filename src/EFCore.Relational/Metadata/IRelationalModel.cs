@@ -108,7 +108,7 @@ public interface IRelationalModel : IAnnotatable
     /// <param name="schema">The schema of the stored procedure.</param>
     /// <returns>The <see cref="IStoreStoredProcedure" /> or <see langword="null" /> if no stored procedure with the given name was found.</returns>
     IStoreStoredProcedure? FindStoredProcedure(string name, string? schema);
-    
+
     /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.

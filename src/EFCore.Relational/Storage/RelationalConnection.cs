@@ -160,8 +160,8 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                 _connection = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : CreateDbConnection();
-            
-                _connection = logger.ConnectionCreated(this, startTime, _stopwatch.Elapsed);            
+
+                _connection = logger.ConnectionCreated(this, startTime, _stopwatch.Elapsed);
             }
             else
             {
@@ -1036,7 +1036,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         _openedCount = 0;
         _openedInternally = false;
 
-        if (_connectionOwned 
+        if (_connectionOwned
             && _connection is not null)
         {
             CloseDbConnection();

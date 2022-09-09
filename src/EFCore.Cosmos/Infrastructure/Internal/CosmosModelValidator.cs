@@ -63,14 +63,16 @@ public class CosmosModelValidator : ModelValidator
             var ownership = entityType.FindOwnership();
             if (ownership != null)
             {
-                throw new InvalidOperationException(CosmosStrings.OwnedTypeDifferentContainer(
-                    entityType.DisplayName(), ownership.PrincipalEntityType.DisplayName(), container));
+                throw new InvalidOperationException(
+                    CosmosStrings.OwnedTypeDifferentContainer(
+                        entityType.DisplayName(), ownership.PrincipalEntityType.DisplayName(), container));
             }
 
             if (entityType.GetContainingPropertyName() != null)
             {
-                throw new InvalidOperationException(CosmosStrings.ContainerContainingPropertyConflict(
-                    entityType.DisplayName(), container, entityType.GetContainingPropertyName()));
+                throw new InvalidOperationException(
+                    CosmosStrings.ContainerContainingPropertyConflict(
+                        entityType.DisplayName(), container, entityType.GetContainingPropertyName()));
             }
 
             if (!containers.TryGetValue(container, out var mappedTypes))

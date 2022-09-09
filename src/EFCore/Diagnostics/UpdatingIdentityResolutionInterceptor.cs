@@ -39,7 +39,10 @@ public class UpdatingIdentityResolutionInterceptor : IIdentityResolutionIntercep
     /// <param name="interceptionData">Contextual information about the identity resolution.</param>
     /// <param name="existingEntry">The entry for the existing tracked entity instance.</param>
     /// <param name="newEntity">The new entity instance, which will be discarded after this call.</param>
-    public virtual void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity)
+    public virtual void UpdateTrackedInstance(
+        IdentityResolutionInterceptionData interceptionData,
+        EntityEntry existingEntry,
+        object newEntity)
     {
         var tempEntry = interceptionData.Context.Entry(newEntity);
 
@@ -62,7 +65,7 @@ public class UpdatingIdentityResolutionInterceptor : IIdentityResolutionIntercep
                 {
                     existingPropertyEntry.CurrentValue = propertyEntry.CurrentValue;
                 }
-                
+
                 if (_updateOriginalValues)
                 {
                     existingPropertyEntry.OriginalValue = propertyEntry.CurrentValue;

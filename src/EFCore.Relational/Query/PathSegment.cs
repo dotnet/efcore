@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     <para>
-///         A class representing a component of JSON path used in <see cref="JsonQueryExpression"/> or <see cref="JsonScalarExpression"/>.
+///         A class representing a component of JSON path used in <see cref="JsonQueryExpression" /> or <see cref="JsonScalarExpression" />.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -31,7 +31,8 @@ public class PathSegment
     public virtual string Key { get; }
 
     /// <inheritdoc />
-    public override string ToString() => (Key == "$" ? "" : ".") + Key;
+    public override string ToString()
+        => (Key == "$" ? "" : ".") + Key;
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

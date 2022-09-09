@@ -4,7 +4,6 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
-using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -32,7 +31,8 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
     ///     The minimum number of insertions which are executed using MERGE ... OUTPUT INTO. Below this threshold, multiple batched INSERT
     ///     statements are more efficient.
     /// </summary>
-    protected virtual int MergeIntoMinimumThreshold => 4;
+    protected virtual int MergeIntoMinimumThreshold
+        => 4;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,17 +102,15 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override ResultSetMapping AppendUpdateOperation(
-        StringBuilder commandStringBuilder,
-        IReadOnlyModificationCommand command,
-        int commandPosition,
-        out bool requiresTransaction)
-    {
+            StringBuilder commandStringBuilder,
+            IReadOnlyModificationCommand command,
+            int commandPosition,
+            out bool requiresTransaction)
         // We normally do a simple UPDATE with an OUTPUT clause (either for the generated columns, or for "1" for concurrency checking).
         // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do UPDATE+SELECT.
-        return HasAnyTriggers(command)
+        => HasAnyTriggers(command)
             ? AppendUpdateAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
             : AppendUpdateReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -198,17 +196,15 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override ResultSetMapping AppendDeleteOperation(
-        StringBuilder commandStringBuilder,
-        IReadOnlyModificationCommand command,
-        int commandPosition,
-        out bool requiresTransaction)
-    {
+            StringBuilder commandStringBuilder,
+            IReadOnlyModificationCommand command,
+            int commandPosition,
+            out bool requiresTransaction)
         // We normally do a simple DELETE, with an OUTPUT clause emitting "1" for concurrency checking.
         // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do UPDATE+SELECT.
-        return HasAnyTriggers(command)
+        => HasAnyTriggers(command)
             ? AppendDeleteAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
             : AppendDeleteReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -257,10 +253,11 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         var keyOperations = firstCommand.ColumnModifications.Where(o => o.IsKey).ToList();
 
         var writableOperations = modificationCommands[0].ColumnModifications
-            .Where(o =>
-                o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
-                && o.Property?.GetComputedColumnSql() is null
-                && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
+            .Where(
+                o =>
+                    o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
+                    && o.Property?.GetComputedColumnSql() is null
+                    && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
             .ToList();
 
         if (writeOperations.Count == 0)
@@ -632,7 +629,8 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
             }
         }
 
-        Check.DebugAssert(storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
+        Check.DebugAssert(
+            storedProcedure.Parameters.Any() || storedProcedure.ResultColumns.Any(),
             "Stored procedure call with neither parameters nor result columns");
 
         commandStringBuilder.Append("EXEC ");
@@ -968,11 +966,9 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void PrependEnsureAutocommit(StringBuilder commandStringBuilder)
-    {
         // SQL Server allows turning off autocommit via the IMPLICIT_TRANSACTIONS setting (see
         // https://docs.microsoft.com/sql/t-sql/statements/set-implicit-transactions-transact-sql).
-        commandStringBuilder.Insert(0, $"SET IMPLICIT_TRANSACTIONS OFF{SqlGenerationHelper.StatementTerminator}{Environment.NewLine}");
-    }
+        => commandStringBuilder.Insert(0, $"SET IMPLICIT_TRANSACTIONS OFF{SqlGenerationHelper.StatementTerminator}{Environment.NewLine}");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

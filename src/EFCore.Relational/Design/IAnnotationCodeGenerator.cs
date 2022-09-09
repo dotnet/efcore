@@ -169,7 +169,8 @@ public interface IAnnotationCodeGenerator
 
     // Issue #28537.
     internal sealed void RemoveAnnotationsHandledByConventionsInternal(
-        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
     {
         switch (annotatable)
         {
@@ -384,7 +385,8 @@ public interface IAnnotationCodeGenerator
 
     // Issue #28537.
     internal sealed IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCallsInternal(
-        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
         => annotatable switch
         {
             IModel model => GenerateFluentApiCalls(model, annotations),
@@ -439,7 +441,8 @@ public interface IAnnotationCodeGenerator
 
     // Issue #28537.
     internal sealed IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributesInternal(
-        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
         => annotatable switch
         {
             IEntityType entityType => GenerateDataAnnotationAttributes(entityType, annotations),

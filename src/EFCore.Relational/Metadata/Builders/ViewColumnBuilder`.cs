@@ -46,5 +46,6 @@ public class ViewColumnBuilder<TProperty> : ViewColumnBuilder, IInfrastructure<P
     public new virtual ViewColumnBuilder<TProperty> HasAnnotation(string annotation, object? value)
         => (ViewColumnBuilder<TProperty>)base.HasAnnotation(annotation, value);
 
-    PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance => PropertyBuilder;
+    PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance
+        => PropertyBuilder;
 }

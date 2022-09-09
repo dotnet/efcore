@@ -213,7 +213,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                         _ => _sqlExpressionFactory.LessThan(testLeft, testRight)
                     });
         }
-   }
+    }
 
     private Expression SimplifySqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {

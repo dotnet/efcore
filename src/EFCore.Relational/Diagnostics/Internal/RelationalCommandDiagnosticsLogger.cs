@@ -1622,8 +1622,7 @@ public class RelationalCommandDiagnosticsLogger
 
         return default;
     }
-    
-    
+
     private static string CreateDataReaderClosingString(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string>)definition;

@@ -80,7 +80,9 @@ public class SimpleRowIndexValueFactory<TKey> : IRowIndexValueFactory<TKey>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool TryCreateIndexValue(
-        IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out TKey? key)
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues,
+        [NotNullWhen(true)] out TKey? key)
     {
         (key, var present) = fromOriginalValues
             ? ((Func<IReadOnlyModificationCommand, (TKey, bool)>)_columnAccessors.OriginalValueGetter)(command)

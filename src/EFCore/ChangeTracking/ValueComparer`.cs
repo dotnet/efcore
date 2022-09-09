@@ -3,6 +3,7 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -159,7 +160,7 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
 
         return Expression.Lambda<Func<T?, T?, bool>>(
             typedEquals == null
-                ? Infrastructure.ExpressionExtensions.CreateEqualsExpression(param1, param2)
+                ? ExpressionExtensions.CreateEqualsExpression(param1, param2)
                 : Expression.Call(typedEquals, param1, param2),
             param1, param2);
     }

@@ -72,7 +72,7 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
 
         ColumnMappings.Add(columnMapping);
         ColumnMappings.Sort(ColumnMappingBaseComparer.Instance);
-        
+
         return true;
     }
 

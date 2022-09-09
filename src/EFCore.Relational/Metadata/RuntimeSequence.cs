@@ -34,7 +34,7 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     /// <param name="cyclic">Whether the sequence is cyclic.</param>
     /// <param name="minValue">The minimum value.</param>
     /// <param name="maxValue">The maximum value.</param>
-    /// <param name="modelSchemaIsNull">A value indicating whether <see cref="ModelSchema"/> is null.</param>
+    /// <param name="modelSchemaIsNull">A value indicating whether <see cref="ModelSchema" /> is null.</param>
     public RuntimeSequence(
         string name,
         RuntimeModel model,

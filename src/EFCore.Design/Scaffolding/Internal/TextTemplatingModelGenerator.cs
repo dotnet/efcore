@@ -118,11 +118,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
                 throw new OperationException(DesignStrings.NoContextTemplate);
             }
 
-            var defaultContextTemplate = new CSharpDbContextGenerator
-            {
-                Host = host,
-                Session = host.Session
-            };
+            var defaultContextTemplate = new CSharpDbContextGenerator { Host = host, Session = host.Session };
             defaultContextTemplate.Initialize();
 
             generatedCode = defaultContextTemplate.TransformText();

@@ -22,11 +22,11 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     public StoreStoredProcedure(IRuntimeStoredProcedure sproc, RelationalModel model)
         : base(sproc.Name, sproc.Schema, model)
     {
-        StoredProcedures = new(StoredProcedureComparer.Instance) { { sproc } };
+        StoredProcedures = new SortedSet<IStoredProcedure>(StoredProcedureComparer.Instance) { sproc };
 
         sproc.StoreStoredProcedure = this;
 
-        _parametersSet = new(StringComparer.Ordinal);
+        _parametersSet = new SortedDictionary<string, IStoreStoredProcedureParameter>(StringComparer.Ordinal);
     }
 
     /// <summary>

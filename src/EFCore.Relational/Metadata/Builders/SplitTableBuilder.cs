@@ -21,7 +21,8 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     [EntityFrameworkInternal]
     public SplitTableBuilder(in StoreObjectIdentifier storeObject, EntityTypeBuilder entityTypeBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.Table,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.Table,
             "StoreObjectType should be Table, not " + storeObject.StoreObjectType);
 
         InternalMappingFragment = EntityTypeMappingFragment.GetOrCreate(
@@ -32,12 +33,14 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <summary>
     ///     The specified table name.
     /// </summary>
-    public virtual string Name => MappingFragment.StoreObject.Name;
+    public virtual string Name
+        => MappingFragment.StoreObject.Name;
 
     /// <summary>
     ///     The specified table schema.
     /// </summary>
-    public virtual string? Schema => MappingFragment.StoreObject.Schema;
+    public virtual string? Schema
+        => MappingFragment.StoreObject.Schema;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +54,8 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <summary>
     ///     The mapping fragment being configured.
     /// </summary>
-    public virtual IMutableEntityTypeMappingFragment MappingFragment => InternalMappingFragment;
+    public virtual IMutableEntityTypeMappingFragment MappingFragment
+        => InternalMappingFragment;
 
     private EntityTypeBuilder EntityTypeBuilder { get; }
 
@@ -84,7 +88,7 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
         trigger.SetTableName(Name);
         trigger.SetTableSchema(Schema);
 
-        return new(trigger);
+        return new TableTriggerBuilder(trigger);
     }
 
     /// <summary>
@@ -122,7 +126,8 @@ public class SplitTableBuilder : IInfrastructure<EntityTypeBuilder>
         return this;
     }
 
-    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance
+        => EntityTypeBuilder;
 
     #region Hidden System.Object members
 

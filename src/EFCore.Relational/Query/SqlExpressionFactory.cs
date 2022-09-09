@@ -113,9 +113,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => collateExpression.Update(ApplyTypeMapping(collateExpression.Operand, typeMapping));
 
     private SqlExpression ApplyTypeMappingOnDistinct(
-       DistinctExpression distinctExpression,
-       RelationalTypeMapping? typeMapping)
-       => distinctExpression.Update(ApplyTypeMapping(distinctExpression.Operand, typeMapping));
+        DistinctExpression distinctExpression,
+        RelationalTypeMapping? typeMapping)
+        => distinctExpression.Update(ApplyTypeMapping(distinctExpression.Operand, typeMapping));
 
     private SqlExpression ApplyTypeMappingOnSqlUnary(
         SqlUnaryExpression sqlUnaryExpression,

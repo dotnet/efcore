@@ -74,9 +74,10 @@ public class InternalStoredProcedureBuilder :
         }
         else
         {
-            sproc.UpdateConfigurationSource(fromDataAnnotation
-                ? ConfigurationSource.DataAnnotation
-                : ConfigurationSource.Convention);
+            sproc.UpdateConfigurationSource(
+                fromDataAnnotation
+                    ? ConfigurationSource.DataAnnotation
+                    : ConfigurationSource.Convention);
         }
 
         return sproc?.Builder;
@@ -162,7 +163,8 @@ public class InternalStoredProcedureBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalStoredProcedureParameterBuilder? HasParameter(
-        string propertyName, ConfigurationSource configurationSource)
+        string propertyName,
+        ConfigurationSource configurationSource)
     {
         var parameter = Metadata.FindParameter(propertyName);
         if (parameter == null)
@@ -208,7 +210,8 @@ public class InternalStoredProcedureBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalStoredProcedureParameterBuilder? HasOriginalValueParameter(
-        string propertyName, ConfigurationSource configurationSource)
+        string propertyName,
+        ConfigurationSource configurationSource)
     {
         var parameter = Metadata.FindOriginalValueParameter(propertyName);
         if (parameter == null)
@@ -299,7 +302,8 @@ public class InternalStoredProcedureBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalStoredProcedureResultColumnBuilder? HasResultColumn(
-        string propertyName, ConfigurationSource configurationSource)
+        string propertyName,
+        ConfigurationSource configurationSource)
     {
         var resultColumn = Metadata.FindResultColumn(propertyName);
         if (resultColumn == null)
@@ -309,7 +313,7 @@ public class InternalStoredProcedureBuilder :
                 return null;
             }
 
-           resultColumn = Metadata.AddResultColumn(propertyName);
+            resultColumn = Metadata.AddResultColumn(propertyName);
         }
 
         Metadata.UpdateConfigurationSource(configurationSource);
@@ -355,7 +359,7 @@ public class InternalStoredProcedureBuilder :
                 return null;
             }
 
-           resultColumn = Metadata.AddRowsAffectedResultColumn();
+            resultColumn = Metadata.AddRowsAffectedResultColumn();
         }
 
         Metadata.UpdateConfigurationSource(configurationSource);
@@ -424,7 +428,6 @@ public class InternalStoredProcedureBuilder :
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.HasName(string? name, string? schema, bool fromDataAnnotation)
-
         => HasName(name, schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
@@ -450,20 +453,24 @@ public class InternalStoredProcedureBuilder :
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveParameter(string propertyName, bool fromDataAnnotation)
-        => CanHaveParameter(propertyName,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => CanHaveParameter(
+            propertyName,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureBuilder.HasOriginalValueParameter(
-        string propertyName, bool fromDataAnnotation)
-        => HasOriginalValueParameter(propertyName,
+        string propertyName,
+        bool fromDataAnnotation)
+        => HasOriginalValueParameter(
+            propertyName,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveOriginalValueParameter(string propertyName, bool fromDataAnnotation)
-        => CanHaveOriginalValueParameter(propertyName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => CanHaveOriginalValueParameter(
+            propertyName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -478,13 +485,16 @@ public class InternalStoredProcedureBuilder :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureBuilder.HasResultColumn(string propertyName, bool fromDataAnnotation)
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureBuilder.HasResultColumn(
+        string propertyName,
+        bool fromDataAnnotation)
         => HasResultColumn(propertyName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveResultColumn(string propertyName, bool fromDataAnnotation)
-        => CanHaveResultColumn(propertyName,
+        => CanHaveResultColumn(
+            propertyName,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />

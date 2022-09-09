@@ -60,5 +60,5 @@ public interface IConventionStoredProcedureParameterBuilder : IConventionAnnotat
     /// <param name="direction">The direction.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given direction can be configured.</returns>
-    bool CanSetDirection(ParameterDirection direction, bool fromDataAnnotation = false);    
+    bool CanSetDirection(ParameterDirection direction, bool fromDataAnnotation = false);
 }

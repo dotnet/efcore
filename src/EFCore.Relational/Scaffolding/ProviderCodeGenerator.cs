@@ -87,7 +87,7 @@ public abstract class ProviderCodeGenerator : IProviderConfigurationCodeGenerato
 
         return contextOptions;
     }
-    
+
     /// <inheritdoc />
     public virtual MethodCallCodeFragment GenerateUseProvider(string connectionString)
         => ((IProviderConfigurationCodeGenerator)this).GenerateUseProviderInternal(connectionString);

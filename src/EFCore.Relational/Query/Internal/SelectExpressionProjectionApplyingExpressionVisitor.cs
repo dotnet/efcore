@@ -36,7 +36,7 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
         => extensionExpression switch
         {
             ShapedQueryExpression shapedQueryExpression
-            when shapedQueryExpression.QueryExpression is SelectExpression selectExpression
+                when shapedQueryExpression.QueryExpression is SelectExpression selectExpression
                 => shapedQueryExpression.UpdateShaperExpression(
                     selectExpression.ApplyProjection(
                         shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality, _querySplittingBehavior)),

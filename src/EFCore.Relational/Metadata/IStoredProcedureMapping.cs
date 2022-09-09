@@ -68,7 +68,7 @@ public interface IStoredProcedureMapping : ITableMappingBase
         builder.Append(EntityType.DisplayName()).Append(" - ");
 
         builder.Append(StoreStoredProcedure.Name);
-        
+
         builder.Append(" Type:").Append(StoredProcedureIdentifier.StoreObjectType);
 
         if (IncludesDerivedTypes)

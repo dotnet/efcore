@@ -888,11 +888,12 @@ public class ModelValidator : IModelValidator
 
                 if (providerComparer.Type.UnwrapNullableType() != actualProviderClrType)
                 {
-                    throw new InvalidOperationException(CoreStrings.ComparerPropertyMismatch(
-                        providerComparer.Type.ShortDisplayName(),
-                        property.DeclaringEntityType.DisplayName(),
-                        property.Name,
-                        actualProviderClrType.ShortDisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.ComparerPropertyMismatch(
+                            providerComparer.Type.ShortDisplayName(),
+                            property.DeclaringEntityType.DisplayName(),
+                            property.Name,
+                            actualProviderClrType.ShortDisplayName()));
                 }
             }
         }

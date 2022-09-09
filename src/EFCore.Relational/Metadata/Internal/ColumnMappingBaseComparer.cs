@@ -75,8 +75,10 @@ public sealed class ColumnMappingBaseComparer : IEqualityComparer<IColumnMapping
     /// </summary>
     public bool Equals(IColumnMappingBase? x, IColumnMappingBase? y)
         => ReferenceEquals(x, y)
-            || (x is not null && y is not null
-                && x.Property == y.Property && x.Column == y.Column
+            || (x is not null
+                && y is not null
+                && x.Property == y.Property
+                && x.Column == y.Column
                 && TableMappingBaseComparer.Instance.Equals(x.TableMapping, y.TableMapping));
 
     /// <summary>

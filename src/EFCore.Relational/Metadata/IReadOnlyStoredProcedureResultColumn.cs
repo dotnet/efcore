@@ -14,7 +14,7 @@ public interface IReadOnlyStoredProcedureResultColumn : IReadOnlyAnnotatable
     ///     Gets the stored procedure to which this result column belongs.
     /// </summary>
     IReadOnlyStoredProcedure StoredProcedure { get; }
-    
+
     /// <summary>
     ///     Gets the result column name.
     /// </summary>

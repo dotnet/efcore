@@ -3,8 +3,6 @@
 
 // ReSharper disable once CheckNamespace
 
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>

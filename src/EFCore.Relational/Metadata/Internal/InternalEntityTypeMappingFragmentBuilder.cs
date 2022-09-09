@@ -20,7 +20,8 @@ public class InternalEntityTypeMappingFragmentBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public InternalEntityTypeMappingFragmentBuilder(
-        EntityTypeMappingFragment fragment, IConventionModelBuilder modelBuilder)
+        EntityTypeMappingFragment fragment,
+        IConventionModelBuilder modelBuilder)
         : base(fragment, modelBuilder)
     {
     }

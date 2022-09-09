@@ -26,7 +26,7 @@ public class RawSqlCommandBuilder : IRawSqlCommandBuilder
         IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
         ISqlGenerationHelper sqlGenerationHelper,
         IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            IRelationalTypeMappingSource typeMappingSource)
+        IRelationalTypeMappingSource typeMappingSource)
     {
         _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
         _sqlGenerationHelper = sqlGenerationHelper;
@@ -81,8 +81,8 @@ public class RawSqlCommandBuilder : IRawSqlCommandBuilder
 
                 substitutions.Add(substitutedName);
                 var typeMapping = parameter == null
-                        ? _typeMappingSource.GetMappingForValue(null)
-                        : _typeMappingSource.GetMapping(parameter.GetType());
+                    ? _typeMappingSource.GetMappingForValue(null)
+                    : _typeMappingSource.GetMapping(parameter.GetType());
                 var nullable = parameter == null || parameter.GetType().IsNullableType();
 
                 relationalCommandBuilder.AddParameter(parameterName, substitutedName, typeMapping, nullable);

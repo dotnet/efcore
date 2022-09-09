@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -483,10 +482,10 @@ public static class SqlServerPropertyBuilderExtensions
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
         => propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
-            .CanSetAnnotation(
-                SqlServerAnnotationNames.IdentitySeed,
-                seed,
-                fromDataAnnotation)
+                .CanSetAnnotation(
+                    SqlServerAnnotationNames.IdentitySeed,
+                    seed,
+                    fromDataAnnotation)
             ?? true;
 
     /// <summary>
@@ -527,7 +526,7 @@ public static class SqlServerPropertyBuilderExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param> 
+    /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
     /// <param name="storeObject">The table identifier.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
@@ -587,10 +586,10 @@ public static class SqlServerPropertyBuilderExtensions
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
         => propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
-            .CanSetAnnotation(
-                SqlServerAnnotationNames.IdentityIncrement,
-                increment,
-                fromDataAnnotation)
+                .CanSetAnnotation(
+                    SqlServerAnnotationNames.IdentityIncrement,
+                    increment,
+                    fromDataAnnotation)
             ?? true;
 
     /// <summary>
@@ -722,10 +721,10 @@ public static class SqlServerPropertyBuilderExtensions
         => (valueGenerationStrategy == null
                 || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
             && (propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
-                .CanSetAnnotation(
-                    SqlServerAnnotationNames.ValueGenerationStrategy,
-                    valueGenerationStrategy,
-                    fromDataAnnotation)
+                    .CanSetAnnotation(
+                        SqlServerAnnotationNames.ValueGenerationStrategy,
+                        valueGenerationStrategy,
+                        fromDataAnnotation)
                 ?? true);
 
     /// <summary>

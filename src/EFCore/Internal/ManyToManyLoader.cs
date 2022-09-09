@@ -91,13 +91,14 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
 
         return Query(context, keyValues);
     }
-    
+
     private object[]? PrepareForLoad(InternalEntityEntry entry)
     {
         if (entry.EntityState == EntityState.Detached)
         {
             throw new InvalidOperationException(CoreStrings.CannotLoadDetached(_skipNavigation.Name, entry.EntityType.DisplayName()));
         }
+
         var properties = _skipNavigation.ForeignKey.PrincipalKey.Properties;
         var values = new object[properties.Count];
         for (var i = 0; i < values.Length; i++)
@@ -107,10 +108,13 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             {
                 return null;
             }
+
             values[i] = value;
         }
+
         return values;
     }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

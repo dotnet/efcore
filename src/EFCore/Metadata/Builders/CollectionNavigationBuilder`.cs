@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -80,7 +78,7 @@ public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNa
     ///     Configures this as a many-to-many relationship.
     /// </summary>
     /// <param name="navigationName">
-    ///     The name of the collection navigation property on the other end of this relationship. Can be <see langword="null"/> to
+    ///     The name of the collection navigation property on the other end of this relationship. Can be <see langword="null" /> to
     ///     create a unidirectional relationship.
     /// </param>
     /// <returns>An object to further configure the relationship.</returns>

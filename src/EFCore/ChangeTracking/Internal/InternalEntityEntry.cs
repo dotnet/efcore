@@ -1264,7 +1264,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             currentValueType = CurrentValueType.Normal;
         }
 
-
         if (!valuesEqual
             || (propertyIndex != -1
                 && (_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown)
@@ -1278,7 +1277,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 && (!asProperty.ClrType.IsNullableType()
                     || asProperty.GetContainingForeignKeys().Any(
                         fk => fk.IsRequired
-                                && (fk.DeleteBehavior == DeleteBehavior.Cascade
+                            && (fk.DeleteBehavior == DeleteBehavior.Cascade
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
             {

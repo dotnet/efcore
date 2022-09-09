@@ -194,7 +194,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         {
             base.Execute(connection);
         }
-        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 } )
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 })
         {
             // SQL Server error: The target table '%.*ls' of the DML statement cannot have any enabled triggers if the statement contains an
             // OUTPUT clause without INTO clause.
@@ -205,7 +205,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
                 e.InnerException,
                 e.Entries);
         }
-        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 } )
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 })
         {
             // SQL Server error: Column '%ls.%.*ls' cannot be referenced in the OUTPUT clause because the column definition contains a
             // subquery or references a function that performs user or system data access [...]
@@ -231,7 +231,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         {
             await base.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
         }
-        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 } )
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 })
         {
             // SQL Server error: The target table '%.*ls' of the DML statement cannot have any enabled triggers if the statement contains an
             // OUTPUT clause without INTO clause.
@@ -242,7 +242,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
                 e.InnerException,
                 e.Entries);
         }
-        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 } )
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 })
         {
             // SQL Server error: Column '%ls.%.*ls' cannot be referenced in the OUTPUT clause because the column definition contains a
             // subquery or references a function that performs user or system data access [...]

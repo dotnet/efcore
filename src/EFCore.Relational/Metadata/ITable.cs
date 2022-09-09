@@ -110,7 +110,7 @@ public interface ITable : ITableBase
             }
 
             builder.Append(Name);
-        
+
             if (EntityTypeMappings.Any()
                 && EntityTypeMappings.First().EntityType is not RuntimeEntityType
                 && IsExcludedFromMigrations)

@@ -31,7 +31,7 @@ public class OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> :
 
     private OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnedNavigationBuilder
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((IInfrastructure<OwnedNavigationBuilder>)this)
-        .GetInfrastructure();
+            .GetInfrastructure();
 
     /// <summary>
     ///     Maps the property to a column on the current view and returns an object that can be used
@@ -52,7 +52,8 @@ public class OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> :
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
-        string annotation, object? value)
+        string annotation,
+        object? value)
         => (OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
     OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>.Instance

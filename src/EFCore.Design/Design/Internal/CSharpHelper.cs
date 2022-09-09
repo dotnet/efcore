@@ -758,7 +758,8 @@ public class CSharpHelper : ICSharpHelper
             .Append(Reference(type))
             .Append(">");
 
-        return HandleEnumerable(builder, vertical, values, value =>
+        return HandleEnumerable(
+            builder, vertical, values, value =>
             {
                 builder.Append(UnknownLiteral(value));
             });
@@ -784,7 +785,8 @@ public class CSharpHelper : ICSharpHelper
             .Append(Reference(valueType))
             .Append(">");
 
-        return HandleEnumerable(builder, vertical, dict.Keys, key =>
+        return HandleEnumerable(
+            builder, vertical, dict.Keys, key =>
             {
                 builder.Append("[")
                     .Append(UnknownLiteral(key))
@@ -808,6 +810,7 @@ public class CSharpHelper : ICSharpHelper
                 {
                     builder.Append(" ");
                 }
+
                 builder.Append("{");
                 if (vertical)
                 {
@@ -818,6 +821,7 @@ public class CSharpHelper : ICSharpHelper
                 {
                     builder.Append(" ");
                 }
+
                 first = false;
             }
             else
@@ -1267,7 +1271,6 @@ public class CSharpHelper : ICSharpHelper
             }
 
             builder.Append(')');
-
         }
     }
 
@@ -1435,8 +1438,9 @@ public class CSharpHelper : ICSharpHelper
     {
         if (ch < 'a')
         {
-            return ch >= 'A' && (ch <= 'Z'
-                || ch == '_');
+            return ch >= 'A'
+                && (ch <= 'Z'
+                    || ch == '_');
         }
 
         if (ch <= 'z')

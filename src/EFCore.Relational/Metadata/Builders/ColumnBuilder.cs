@@ -21,7 +21,8 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
     [EntityFrameworkInternal]
     public ColumnBuilder(in StoreObjectIdentifier storeObject, PropertyBuilder propertyBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.Table,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.Table,
             "StoreObjectType should be Table, not " + storeObject.StoreObjectType);
 
         InternalOverrides = RelationalPropertyOverrides.GetOrCreate(
@@ -32,7 +33,8 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
     /// <summary>
     ///     The table-specific overrides being configured.
     /// </summary>
-    public virtual IMutableRelationalPropertyOverrides Overrides => InternalOverrides;
+    public virtual IMutableRelationalPropertyOverrides Overrides
+        => InternalOverrides;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,7 +81,8 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
         return this;
     }
 
-    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
+    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance
+        => PropertyBuilder;
 
     #region Hidden System.Object members
 

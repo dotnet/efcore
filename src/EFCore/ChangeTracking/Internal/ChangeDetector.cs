@@ -116,7 +116,7 @@ public class ChangeDetector : IChangeDetector
         var changesFound = false;
 
         _logger.DetectChangesStarting(stateManager.Context);
-        
+
         foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
         {
             switch (entry.EntityState)
@@ -128,18 +128,20 @@ public class ChangeDetector : IChangeDetector
                     {
                         continue;
                     }
+
                     goto default;
                 default:
                     if (LocalDetectChanges(entry))
                     {
                         changesFound = true;
                     }
+
                     break;
             }
         }
 
         _logger.DetectChangesCompleted(stateManager.Context);
-        
+
         OnDetectedAllChanges(stateManager, changesFound);
     }
 
@@ -179,7 +181,7 @@ public class ChangeDetector : IChangeDetector
                 changesFound = true;
             }
         }
-        
+
         return changesFound;
     }
 
@@ -471,7 +473,6 @@ public class ChangeDetector : IChangeDetector
                 changeTracker.AutoDetectChangesEnabled = detectChangesEnabled;
             }
         }
-
     }
 
     /// <summary>
@@ -575,7 +576,7 @@ public class ChangeDetector : IChangeDetector
             }
         }
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

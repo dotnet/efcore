@@ -169,8 +169,7 @@ public class SharedTableConvention : IModelFinalizingConvention
                 }
 
                 clashingTables ??=
-                    new Dictionary<(string Name, string? Schema),
-                        Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
+                    new Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
 
                 if (!clashingTables.TryGetValue(table, out var clashingSubTables))
                 {

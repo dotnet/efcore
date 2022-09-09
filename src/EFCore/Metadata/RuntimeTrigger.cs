@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public class RuntimeTrigger : AnnotatableBase, ITrigger
 {
     /// <summary>
-    ///    Initializes a new instance of the <see cref="RuntimeTrigger" /> class.
+    ///     Initializes a new instance of the <see cref="RuntimeTrigger" /> class.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="modelName">The name in the model.</param>

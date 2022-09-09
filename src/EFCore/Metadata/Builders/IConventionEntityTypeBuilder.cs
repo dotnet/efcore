@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -1072,7 +1070,7 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     bool CanRemoveDiscriminator(bool fromDataAnnotation = false);
 
     /// <summary>
-    ///    Gets or creates a builder for the target of a potential navigation.
+    ///     Gets or creates a builder for the target of a potential navigation.
     /// </summary>
     /// <param name="targetClrType">The CLR type of the target.</param>
     /// <param name="navigationInfo">The navigation property.</param>

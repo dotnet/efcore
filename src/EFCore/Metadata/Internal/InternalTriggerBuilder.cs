@@ -40,7 +40,6 @@ public class InternalTriggerBuilder : AnnotatableBuilder<Trigger, IConventionMod
         return newTriggerBuilder;
     }
 
-
     IConventionTrigger IConventionTriggerBuilder.Metadata
     {
         [DebuggerStepThrough]

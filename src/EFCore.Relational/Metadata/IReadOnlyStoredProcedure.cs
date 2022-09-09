@@ -69,7 +69,7 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     ///     Returns the parameter corresponding to the given property.
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
-    /// <returns>The parameter corresponding to the given property if found; <see langword="true"/> otherwise.</returns>
+    /// <returns>The parameter corresponding to the given property if found; <see langword="true" /> otherwise.</returns>
     IReadOnlyStoredProcedureParameter? FindParameter(string propertyName);
 
     /// <summary>
@@ -77,7 +77,7 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
     /// <returns>
-    ///     The original value parameter corresponding to the given property if found; <see langword="true"/> otherwise.
+    ///     The original value parameter corresponding to the given property if found; <see langword="true" /> otherwise.
     /// </returns>
     IReadOnlyStoredProcedureParameter? FindOriginalValueParameter(string propertyName);
 
@@ -85,7 +85,7 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     ///     Returns the rows affected parameter.
     /// </summary>
     /// <returns>
-    ///     The rows affected parameter if found; <see langword="true"/> otherwise.
+    ///     The rows affected parameter if found; <see langword="true" /> otherwise.
     /// </returns>
     IReadOnlyStoredProcedureParameter? FindRowsAffectedParameter();
 
@@ -95,16 +95,16 @@ public interface IReadOnlyStoredProcedure : IReadOnlyAnnotatable
     IReadOnlyList<IReadOnlyStoredProcedureResultColumn> ResultColumns { get; }
 
     /// <summary>
-    ///    Returns the result column corresponding to the given property.
+    ///     Returns the result column corresponding to the given property.
     /// </summary>
     /// <param name="propertyName">The name of a property.</param>
-    /// <returns>The result column corresponding to the given property if found; <see langword="true"/> otherwise.</returns>
+    /// <returns>The result column corresponding to the given property if found; <see langword="true" /> otherwise.</returns>
     IReadOnlyStoredProcedureResultColumn? FindResultColumn(string propertyName);
 
     /// <summary>
-    ///    Returns the rows affected result column.
+    ///     Returns the rows affected result column.
     /// </summary>
-    /// <returns>The rows affected result column if found; <see langword="true"/> otherwise.</returns>
+    /// <returns>The rows affected result column if found; <see langword="true" /> otherwise.</returns>
     IReadOnlyStoredProcedureResultColumn? FindRowsAffectedResultColumn();
 
     /// <summary>

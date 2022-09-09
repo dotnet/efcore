@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class ColumnMappingBase : Annotatable, IColumnMappingBase
 {
     private RelationalTypeMapping? _typeMapping;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -38,9 +38,9 @@ public class ColumnMappingBase : Annotatable, IColumnMappingBase
     public virtual IColumnBase Column { get; }
 
     /// <inheritdoc />
-    public virtual RelationalTypeMapping TypeMapping =>
-        NonCapturingLazyInitializer.EnsureInitialized(
-                ref _typeMapping, this, static mapping => mapping.GetTypeMapping());
+    public virtual RelationalTypeMapping TypeMapping
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _typeMapping, this, static mapping => mapping.GetTypeMapping());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

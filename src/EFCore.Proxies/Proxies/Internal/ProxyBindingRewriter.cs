@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 
@@ -61,7 +60,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
             modelBuilder.HasAnnotation(ProxyAnnotationNames.LazyLoading, _options.UseLazyLoadingProxies);
             modelBuilder.HasAnnotation(ProxyAnnotationNames.ChangeTracking, _options.UseChangeTrackingProxies);
             modelBuilder.HasAnnotation(ProxyAnnotationNames.CheckEquality, _options.CheckEquality);
-            
+
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var clrType = entityType.ClrType;
@@ -116,8 +115,9 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                     {
                         if (!ConfigurationSource.Convention.Overrides(conflictingProperty.GetConfigurationSource()))
                         {
-                                break;
+                            break;
                         }
+
                         conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
                     }
 
@@ -135,7 +135,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                     nameof(IProxyLazyLoader.LazyLoader)));
                     }
                 }
-                
+
                 if (_options.UseChangeTrackingProxies)
                 {
                     var indexerChecked = false;
