@@ -54,6 +54,8 @@ stages:
         publishAssetsImmediately: true
         enableTelemetry: true
         helixRepo: dotnet/efcore
+        variables:
+        - skipComponentGovernanceDetection: ${{ ne(variables['System.TeamProject'], 'internal') }}
         jobs:
           - job: Windows
             timeoutInMinutes: 90
