@@ -5,7 +5,7 @@
 
 using System.Transactions;
 
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Update;
 
 public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture>
 {
@@ -27,10 +27,10 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
 
-        principalEmpty.OptionalSingle = new();
-        principalEmpty.RequiredSingle = new();
-        principalEmpty.OptionalMany.Add(new());
-        principalEmpty.RequiredMany.Add(new());
+        principalEmpty.OptionalSingle = new OptionalSingleIntLong();
+        principalEmpty.RequiredSingle = new RequiredSingleIntLong();
+        principalEmpty.OptionalMany.Add(new OptionalManyIntLong());
+        principalEmpty.RequiredMany.Add(new RequiredManyIntLong());
 
         principalPopulated.OptionalSingle = null;
         principalPopulated.RequiredSingle = null;
@@ -100,10 +100,10 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
 
-        principalEmpty.OptionalSingle = new();
-        principalEmpty.RequiredSingle = new();
-        principalEmpty.OptionalMany.Add(new());
-        principalEmpty.RequiredMany.Add(new());
+        principalEmpty.OptionalSingle = new OptionalSingleShortByte();
+        principalEmpty.RequiredSingle = new RequiredSingleShortByte();
+        principalEmpty.OptionalMany.Add(new OptionalManyShortByte());
+        principalEmpty.RequiredMany.Add(new RequiredManyShortByte());
 
         principalPopulated.OptionalSingle = null;
         principalPopulated.RequiredSingle = null;
@@ -173,10 +173,10 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
 
-        principalEmpty.OptionalSingle = new();
-        principalEmpty.RequiredSingle = new();
-        principalEmpty.OptionalMany.Add(new());
-        principalEmpty.RequiredMany.Add(new());
+        principalEmpty.OptionalSingle = new OptionalSingleStringGuid();
+        principalEmpty.RequiredSingle = new RequiredSingleStringGuid();
+        principalEmpty.OptionalMany.Add(new OptionalManyStringGuid());
+        principalEmpty.RequiredMany.Add(new RequiredManyStringGuid());
 
         principalPopulated.OptionalSingle = null;
         principalPopulated.RequiredSingle = null;
@@ -246,10 +246,10 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
 
         Assert.Equal(8, context.ChangeTracker.Entries().Count());
 
-        principalEmpty.OptionalSingle = new();
-        principalEmpty.RequiredSingle = new();
-        principalEmpty.OptionalMany.Add(new());
-        principalEmpty.RequiredMany.Add(new());
+        principalEmpty.OptionalSingle = new OptionalSingleComposite();
+        principalEmpty.RequiredSingle = new RequiredSingleComposite();
+        principalEmpty.OptionalMany.Add(new OptionalManyComposite());
+        principalEmpty.RequiredMany.Add(new RequiredManyComposite());
 
         principalPopulated.OptionalSingle = null;
         principalPopulated.RequiredSingle = null;
@@ -361,7 +361,7 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
         Assert.Equal(
             RelationalStrings.StoredKeyTypesNotConvertable(
                 nameof(OptionalSingleBad.PrincipalId), "uniqueidentifier", "bigint", nameof(PrincipalBad.Id)),
-            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            Assert.Throws<TargetInvocationException>(() => context.SaveChanges()).InnerException!.Message);
     }
 
     protected class MismatchedKeyTypesContextNoFks : MismatchedKeyTypesContext
@@ -481,13 +481,24 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
                 .HasValueGenerator<TemporaryByteValueGenerator>();
 
             modelBuilder.Entity<PrincipalComposite>()
-                .HasKey(e => new { e.Id1, e.Id2, e.Id3 });
+                .HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2,
+                        e.Id3
+                    });
 
             modelBuilder.Entity<PrincipalBadComposite>()
-                .HasKey(e => new { e.Id1, e.Id2, e.Id3 });
+                .HasKey(
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2,
+                        e.Id3
+                    });
 
-            modelBuilder.Entity<PrincipalBad>().
-                Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<PrincipalBad>().Property(e => e.Id).ValueGeneratedNever();
 
             modelBuilder.Entity<OptionalSingleIntLong>().Property(e => e.PrincipalId).HasColumnType("bigint");
             modelBuilder.Entity<RequiredSingleIntLong>().Property(e => e.PrincipalId).HasColumnType("bigint");
@@ -518,11 +529,11 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
                 });
 
             modelBuilder.Entity<OptionalSingleBadComposite>(
-                    b =>
-                    {
-                        b.Property(e => e.Id).ValueGeneratedNever();
-                        b.Property(e => e.PrincipalId3).HasConversion(v => new Guid(), v => 1);
-                    });
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.PrincipalId3).HasConversion(v => new Guid(), v => 1);
+                });
         }
     }
 

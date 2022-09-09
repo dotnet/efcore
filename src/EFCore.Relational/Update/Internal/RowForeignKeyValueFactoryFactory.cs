@@ -35,20 +35,13 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
     /// </summary>
     public virtual IRowForeignKeyValueFactory Create(IForeignKeyConstraint foreignKey)
     {
-        try
-        {
-            return foreignKey.Columns.Count == 1
-                ? (IRowForeignKeyValueFactory)CreateMethod
-                    .MakeGenericMethod(
-                        foreignKey.PrincipalColumns.First().ProviderClrType,
-                        foreignKey.Columns.First().ProviderClrType)
-                    .Invoke(null, new object[] { foreignKey, _valueConverterSelector })!
-                : new CompositeRowForeignKeyValueFactory(foreignKey, _valueConverterSelector);
-        }
-        catch (TargetInvocationException exception)
-        {
-            throw exception.InnerException ?? exception;
-        }
+        return foreignKey.Columns.Count == 1
+            ? (IRowForeignKeyValueFactory)CreateMethod
+                .MakeGenericMethod(
+                    foreignKey.PrincipalColumns.First().ProviderClrType,
+                    foreignKey.Columns.First().ProviderClrType)
+                .Invoke(null, new object[] { foreignKey, _valueConverterSelector })!
+            : new CompositeRowForeignKeyValueFactory(foreignKey, _valueConverterSelector);
     }
 
     private static readonly MethodInfo CreateMethod = typeof(RowForeignKeyValueFactoryFactory).GetTypeInfo()

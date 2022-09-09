@@ -29,10 +29,11 @@ public class CompositeRowForeignKeyValueFactory : CompositeRowValueFactory, IRow
         : base(foreignKey.Columns)
     {
         _foreignKey = foreignKey;
-        _principalKeyValueFactory = (IRowKeyValueFactory<object?[]>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
+        _principalKeyValueFactory =
+            (IRowKeyValueFactory<object?[]>)((UniqueConstraint)foreignKey.PrincipalUniqueConstraint).GetRowKeyValueFactory();
 
         var columns = foreignKey.Columns;
-        _valueConverters = new(columns.Count);
+        _valueConverters = new List<ValueConverter?>(columns.Count);
 
         for (var i = 0; i < columns.Count; i++)
         {

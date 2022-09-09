@@ -48,8 +48,9 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
                     RelationalStrings.StoredKeyTypesNotConvertable(
                         column.Name, column.StoreType, pkColumn.StoreType, pkColumn.Name));
             }
+
             _valueConverter = converterInfos.First().Create();
-            
+
             ColumnAccessors = new ColumnAccessors(
                 ConvertAccessor((Func<IReadOnlyModificationCommand, (TForeignKey, bool)>)columnAccessors.CurrentValueGetter),
                 ConvertAccessor((Func<IReadOnlyModificationCommand, (TForeignKey, bool)>)columnAccessors.OriginalValueGetter));
@@ -64,8 +65,8 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
         => command =>
         {
             var tuple = columnAccessor(command);
-            return (tuple.Item1 == null 
-                ? (default, tuple.Item2) 
+            return (tuple.Item1 == null
+                ? (default, tuple.Item2)
                 : ((TKey)_valueConverter!.ConvertFromProvider(tuple.Item1)!, tuple.Item2))!;
         };
 

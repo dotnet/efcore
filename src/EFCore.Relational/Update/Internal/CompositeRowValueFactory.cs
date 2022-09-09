@@ -23,7 +23,7 @@ public abstract class CompositeRowValueFactory
     {
         Columns = columns;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -38,7 +38,7 @@ public abstract class CompositeRowValueFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEqualityComparer<object?[]> EqualityComparer { get; set; } = null!;
+    public virtual IEqualityComparer<object?[]> EqualityComparer { get; protected set; } = null!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -92,8 +92,8 @@ public abstract class CompositeRowValueFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool TryCreateDependentKeyValue(
-        IReadOnlyModificationCommand command, 
-        bool fromOriginalValues, 
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues,
         [NotNullWhen(true)] out object?[]? key)
     {
         var converters = ValueConverters;
@@ -124,7 +124,7 @@ public abstract class CompositeRowValueFactory
                     {
                         value = converter.ConvertFromProvider(value);
                     }
-                    
+
                     if (!fromOriginalValues
                         && (entry.EntityState == EntityState.Added
                             || entry.EntityState == EntityState.Modified && entry.IsModified(property)))
