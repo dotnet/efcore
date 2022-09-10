@@ -752,6 +752,11 @@ public class ForeignKeyPropertyDiscoveryConvention :
         IConventionKey key,
         IConventionContext<IConventionKey> context)
     {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
         var foreignKeys = key.DeclaringEntityType.GetDerivedTypesInclusive()
             .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
         foreach (var foreignKey in foreignKeys)
@@ -785,6 +790,8 @@ public class ForeignKeyPropertyDiscoveryConvention :
             return;
         }
 
+        var initialPrimaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
+
         var foreignKeys = entityTypeBuilder.Metadata.GetDerivedTypesInclusive()
             .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
         foreach (var foreignKey in foreignKeys)
@@ -809,6 +816,11 @@ public class ForeignKeyPropertyDiscoveryConvention :
             }
 
             DiscoverProperties(referencingForeignKey.Builder, context);
+        }
+
+        if (entityTypeBuilder.Metadata.FindPrimaryKey() != initialPrimaryKey)
+        {
+            context.StopProcessing();
         }
     }
 

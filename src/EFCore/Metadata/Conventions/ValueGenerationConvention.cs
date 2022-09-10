@@ -61,7 +61,12 @@ public class ValueGenerationConvention :
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
-        => OnForeignKeyRemoved(foreignKey.Properties);
+    {
+        if (entityTypeBuilder.Metadata.IsInModel)
+        {
+            OnForeignKeyRemoved(foreignKey.Properties);
+        }
+    }
 
     /// <summary>
     ///     Called after the foreign key properties or principal key are changed.
