@@ -122,7 +122,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2);
 
     private readonly DecimalTypeMapping _money
-        = new SqlServerDecimalTypeMapping("money", storeTypePostfix: StoreTypePostfix.None);
+        = new SqlServerDecimalTypeMapping("money", DbType.Currency, storeTypePostfix: StoreTypePostfix.None);
 
     private readonly TimeSpanTypeMapping _time
         = new SqlServerTimeSpanTypeMapping("time");
