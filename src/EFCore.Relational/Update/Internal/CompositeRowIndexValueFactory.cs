@@ -25,6 +25,8 @@ public class CompositeRowIndexValueFactory : CompositeRowValueFactory, IRowIndex
         : base(index.Columns)
     {
         _index = index;
+
+        EqualityComparer = CreateEqualityComparer(index.Columns, null);
     }
 
     /// <summary>

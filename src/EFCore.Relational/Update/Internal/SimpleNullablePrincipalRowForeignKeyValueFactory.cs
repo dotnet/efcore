@@ -11,12 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TNonNullableKey> : RowForeignKeyValueFactory<TKey>
+public class SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TNonNullableKey, TForeignKey>
+    : RowForeignKeyValueFactory<TKey, TForeignKey>
     where TNonNullableKey : struct
 {
-    private readonly IColumn _column;
-    private readonly ColumnAccessors _columnAccessors;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -26,11 +24,10 @@ public class SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TNonNullable
     public SimpleNullablePrincipalRowForeignKeyValueFactory(
         IForeignKeyConstraint foreignKey,
         IColumn column,
-        ColumnAccessors columnAccessors)
-        : base(foreignKey)
+        ColumnAccessors columnAccessors,
+        IValueConverterSelector valueConverterSelector)
+        : base(foreignKey, column, columnAccessors, valueConverterSelector)
     {
-        _column = column;
-        _columnAccessors = columnAccessors;
         EqualityComparer = CreateKeyEqualityComparer(column);
     }
 
@@ -49,7 +46,7 @@ public class SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TNonNullable
         IDictionary<string, object?> keyPropertyValues,
         [NotNullWhen(true)] out TKey? key)
     {
-        if (keyPropertyValues.TryGetValue(_column.Name, out var value))
+        if (keyPropertyValues.TryGetValue(Column.Name, out var value))
         {
             key = (TKey?)value!;
             return true;
@@ -66,8 +63,8 @@ public class SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TNonNullable
         [NotNullWhen(true)] out TKey? key)
     {
         (key, var present) = fromOriginalValues
-            ? ((Func<IReadOnlyModificationCommand, (TKey, bool)>)_columnAccessors.OriginalValueGetter)(command)
-            : ((Func<IReadOnlyModificationCommand, (TKey, bool)>)_columnAccessors.CurrentValueGetter)(command);
+            ? ((Func<IReadOnlyModificationCommand, (TKey, bool)>)ColumnAccessors.OriginalValueGetter)(command)
+            : ((Func<IReadOnlyModificationCommand, (TKey, bool)>)ColumnAccessors.CurrentValueGetter)(command);
         return present;
     }
 }
