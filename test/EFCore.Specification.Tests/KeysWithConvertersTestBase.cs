@@ -5588,9 +5588,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
 
         public static ValueComparer<BareIntClassKey> Comparer
             = new(
-                (l, r) => l.Id == r.Id,
-                v => v.Id.GetHashCode(),
-                v => new BareIntClassKey(v.Id));
+                (l, r) => (l == null && r == null) || (l != null && r != null && l.Id == r.Id),
+                v => v == null ? 0 : v.Id.GetHashCode(),
+                v => v == null ? null : new BareIntClassKey(v.Id));
 
         public BareIntClassKey(int id)
         {
@@ -7077,8 +7077,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                             p => p.Value,
                             p => new Key(p),
                             new ValueComparer<Key>(
-                                (l, r) => l.Value == r.Value,
-                                v => v.Value.GetHashCode()));
+                                (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
+                                v => v == null ? 0 : v.Value.GetHashCode()));
 
                     entity.OwnsOne(p => p.Text);
                     entity.Navigation(p => p.Text).IsRequired();

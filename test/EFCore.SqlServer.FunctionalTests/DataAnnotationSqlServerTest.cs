@@ -40,6 +40,22 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
+    [ConditionalFact]
+    public virtual void Default_for_key_which_is_also_an_fk_column_does_not_throw()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<PrincipalA>();
+        modelBuilder.Entity<DependantA>(
+            b =>
+            {
+                b.HasKey(e => new { e.Id, e.PrincipalId });
+                b.Property(e => e.PrincipalId).HasDefaultValue(77);
+            });
+
+        Validate(modelBuilder);
+    }
+
     public override IModel Non_public_annotations_are_enabled()
     {
         var model = base.Non_public_annotations_are_enabled();

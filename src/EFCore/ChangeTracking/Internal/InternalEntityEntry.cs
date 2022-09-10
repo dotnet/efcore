@@ -186,7 +186,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         var oldState = _stateData.EntityState;
         bool adding;
-        Setup();
+        await SetupAsync().ConfigureAwait(false);
 
         if ((adding || oldState is EntityState.Detached)
             && await StateManager.ValueGenerationManager
@@ -194,15 +194,16 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             && fallbackState.HasValue)
         {
             entityState = fallbackState.Value;
-            Setup();
+            await SetupAsync().ConfigureAwait(false);
         }
 
         SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
 
-        void Setup()
+        async Task SetupAsync()
         {
             adding = PrepareForAdd(entityState);
-            entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
+            entityState = await PropagateToUnknownKeyAsync(
+                oldState, entityState, adding, forceStateWhenUnknownKey, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -214,26 +215,49 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         var keyUnknown = IsKeyUnknown;
 
-        if (adding
-            || (oldState == EntityState.Detached
-                && keyUnknown))
+        if (adding || (oldState == EntityState.Detached && keyUnknown))
         {
             var principalEntry = StateManager.ValueGenerationManager.Propagate(this);
 
-            if (forceStateWhenUnknownKey.HasValue
-                && keyUnknown
-                && principalEntry != null
-                && principalEntry.EntityState != EntityState.Detached
-                && principalEntry.EntityState != EntityState.Deleted)
-            {
-                entityState = principalEntry.EntityState == EntityState.Added
-                    ? EntityState.Added
-                    : forceStateWhenUnknownKey.Value;
-            }
+            entityState = ForceState(entityState, forceStateWhenUnknownKey, keyUnknown, principalEntry);
         }
 
         return entityState;
     }
+
+    private async Task<EntityState> PropagateToUnknownKeyAsync(
+        EntityState oldState,
+        EntityState entityState,
+        bool adding,
+        EntityState? forceStateWhenUnknownKey,
+        CancellationToken cancellationToken)
+    {
+        var keyUnknown = IsKeyUnknown;
+
+        if (adding || (oldState == EntityState.Detached && keyUnknown))
+        {
+            var principalEntry = await StateManager.ValueGenerationManager.PropagateAsync(this, cancellationToken).ConfigureAwait(false);
+
+            entityState = ForceState(entityState, forceStateWhenUnknownKey, keyUnknown, principalEntry);
+        }
+
+        return entityState;
+    }
+
+    private static EntityState ForceState(
+        EntityState entityState,
+        EntityState? forceStateWhenUnknownKey,
+        bool keyUnknown,
+        InternalEntityEntry? principalEntry)
+        => forceStateWhenUnknownKey.HasValue
+            && keyUnknown
+            && principalEntry != null
+            && principalEntry.EntityState != EntityState.Detached
+            && principalEntry.EntityState != EntityState.Deleted
+                ? principalEntry.EntityState == EntityState.Added
+                    ? EntityState.Added
+                    : forceStateWhenUnknownKey.Value
+                : entityState;
 
     private bool PrepareForAdd(EntityState newState)
     {

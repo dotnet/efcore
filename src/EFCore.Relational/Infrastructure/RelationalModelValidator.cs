@@ -708,7 +708,7 @@ public class RelationalModelValidator : ModelValidator
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
-                foreach (var property in key.Properties)
+                foreach (var property in key.Properties.Where(p => !p.IsForeignKey()))
                 {
                     var defaultValue = (IConventionAnnotation?)property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
                     if (defaultValue?.Value != null
@@ -720,7 +720,7 @@ public class RelationalModelValidator : ModelValidator
             }
         }
     }
-    
+
     /// <summary>
     ///     Validates the mapping/configuration of mutable in the model.
     /// </summary>
