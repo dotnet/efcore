@@ -237,7 +237,7 @@ public static class RelationalForeignKeyExtensions
 
         // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
         // Using a hashset is detrimental to the perf when there are no cycles
-        for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
+        for (var i = 0; i < RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
         {
             IReadOnlyForeignKey? linkedForeignKey = null;
             foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
@@ -333,7 +333,8 @@ public static class RelationalForeignKeyExtensions
         static bool ShareAnyFragments(IReadOnlyEntityType entityType1, IReadOnlyEntityType entityType2)
             => new[] { StoreObjectIdentifier.Create(entityType1, StoreObjectType.Table)!.Value }
                 .Concat(entityType1.GetMappingFragments(StoreObjectType.Table).Select(f => f.StoreObject))
-                .Intersect(new[] { StoreObjectIdentifier.Create(entityType2, StoreObjectType.Table)!.Value }
-                    .Concat(entityType2.GetMappingFragments(StoreObjectType.Table).Select(f => f.StoreObject))).Any();
+                .Intersect(
+                    new[] { StoreObjectIdentifier.Create(entityType2, StoreObjectType.Table)!.Value }
+                        .Concat(entityType2.GetMappingFragments(StoreObjectType.Table).Select(f => f.StoreObject))).Any();
     }
 }

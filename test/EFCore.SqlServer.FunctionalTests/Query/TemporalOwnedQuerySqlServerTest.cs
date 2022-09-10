@@ -1,12 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit.Abstractions;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
-public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<TemporalOwnedQuerySqlServerTest.TemporalOwnedQuerySqlServerFixture>
+public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
+    TemporalOwnedQuerySqlServerTest.TemporalOwnedQuerySqlServerFixture>
 {
     public TemporalOwnedQuerySqlServerTest(TemporalOwnedQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -20,16 +19,16 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<Temp
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         var temporalEntityTypes = new List<Type>
-            {
-                typeof(OwnedPerson),
-                typeof(Branch),
-                typeof(LeafA),
-                typeof(LeafB),
-                typeof(Barton),
-                typeof(Star),
-                typeof(Planet),
-                typeof(Moon),
-            };
+        {
+            typeof(OwnedPerson),
+            typeof(Branch),
+            typeof(LeafA),
+            typeof(LeafB),
+            typeof(Barton),
+            typeof(Star),
+            typeof(Planet),
+            typeof(Moon),
+        };
 
         var rewriter = new TemporalPointInTimeQueryRewriter(Fixture.ChangesDate, temporalEntityTypes);
 
@@ -1158,7 +1157,8 @@ LEFT JOIN (
 ORDER BY [m].[Id], [t].[Id], [t0].[Id], [t1].[Id], [t2].[Id], [t3].[ClientId], [t3].[Id], [t3].[OrderClientId], [t3].[OrderId]");
     }
 
-    public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool async)
+    public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(
+        bool async)
     {
         await base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async);
 
@@ -1285,11 +1285,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
             modelBuilder.Entity<OwnedPerson>(
                 eb =>
                 {
-                    eb.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                    }));
+                    eb.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                            }));
                     eb.IndexerProperty<string>("Name");
                     var ownedPerson = new OwnedPerson { Id = 1 };
                     ownedPerson["Name"] = "Mona Cy";
@@ -1298,11 +1300,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                     eb.OwnsOne(
                         p => p.PersonAddress, ab =>
                         {
-                            ab.ToTable(tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
+                            ab.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                    }));
                             ab.IndexerProperty<string>("AddressLine");
                             ab.IndexerProperty(typeof(int), "ZipCode");
                             ab.HasData(
@@ -1338,11 +1342,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                             ab.OwnsOne(
                                 a => a.Country, cb =>
                                 {
-                                    cb.ToTable(tb => tb.IsTemporal(ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
+                                    cb.ToTable(
+                                        tb => tb.IsTemporal(
+                                            ttb =>
+                                            {
+                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                            }));
                                     cb.HasData(
                                         new
                                         {
@@ -1377,11 +1383,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                     eb.OwnsMany(
                         p => p.Orders, ob =>
                         {
-                            ob.ToTable(tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
+                            ob.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                    }));
                             ob.IndexerProperty<DateTime>("OrderDate");
                             ob.HasData(
                                 new
@@ -1416,43 +1424,46 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                                 }
                             );
 
-                            ob.OwnsMany(e => e.Details, odb =>
-                            {
-                                odb.ToTable(tb => tb.IsTemporal(ttb =>
+                            ob.OwnsMany(
+                                e => e.Details, odb =>
                                 {
-                                    ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                    ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                }));
-                                odb.HasData(
-                                    new
-                                    {
-                                        Id = -100,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Discounted Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -101,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Full Price Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -200,
-                                        OrderId = -20,
-                                        OrderClientId = 2,
-                                        Detail = "Internal Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -300,
-                                        OrderId = -30,
-                                        OrderClientId = 3,
-                                        Detail = "Bulk Order"
-                                    });
-                            });
+                                    odb.ToTable(
+                                        tb => tb.IsTemporal(
+                                            ttb =>
+                                            {
+                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                            }));
+                                    odb.HasData(
+                                        new
+                                        {
+                                            Id = -100,
+                                            OrderId = -10,
+                                            OrderClientId = 1,
+                                            Detail = "Discounted Order"
+                                        },
+                                        new
+                                        {
+                                            Id = -101,
+                                            OrderId = -10,
+                                            OrderClientId = 1,
+                                            Detail = "Full Price Order"
+                                        },
+                                        new
+                                        {
+                                            Id = -200,
+                                            OrderId = -20,
+                                            OrderClientId = 2,
+                                            Detail = "Internal Order"
+                                        },
+                                        new
+                                        {
+                                            Id = -300,
+                                            OrderId = -30,
+                                            OrderClientId = 3,
+                                            Detail = "Bulk Order"
+                                        });
+                                });
                         });
                 });
 
@@ -1464,11 +1475,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                     eb.OwnsOne(
                         p => p.BranchAddress, ab =>
                         {
-                            ab.ToTable(tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
+                            ab.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                    }));
                             ab.IndexerProperty<string>("BranchName").IsRequired();
                             ab.HasData(
                                 new
@@ -1487,11 +1500,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                             ab.OwnsOne(
                                 a => a.Country, cb =>
                                 {
-                                    cb.ToTable(tb => tb.IsTemporal(ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
+                                    cb.ToTable(
+                                        tb => tb.IsTemporal(
+                                            ttb =>
+                                            {
+                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                            }));
                                     cb.HasData(
                                         new
                                         {
@@ -1519,11 +1534,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                     eb.OwnsOne(
                         p => p.LeafAAddress, ab =>
                         {
-                            ab.ToTable(tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
+                            ab.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                    }));
                             ab.IndexerProperty<int>("LeafType");
 
                             ab.HasData(
@@ -1537,11 +1554,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                             ab.OwnsOne(
                                 a => a.Country, cb =>
                                 {
-                                    cb.ToTable(tb => tb.IsTemporal(ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
+                                    cb.ToTable(
+                                        tb => tb.IsTemporal(
+                                            ttb =>
+                                            {
+                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                            }));
                                     cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
                                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -1566,11 +1585,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                     eb.OwnsOne(
                         p => p.LeafBAddress, ab =>
                         {
-                            ab.ToTable(tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                            }));
+                            ab.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                    }));
                             ab.IndexerProperty<string>("LeafBType").IsRequired();
                             ab.HasData(
                                 new
@@ -1583,11 +1604,13 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                             ab.OwnsOne(
                                 a => a.Country, cb =>
                                 {
-                                    cb.ToTable(tb => tb.IsTemporal(ttb =>
-                                    {
-                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                                    }));
+                                    cb.ToTable(
+                                        tb => tb.IsTemporal(
+                                            ttb =>
+                                            {
+                                                ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                                ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                            }));
                                     cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
                                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -1602,41 +1625,53 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                         });
                 });
 
-            modelBuilder.Entity<Planet>(pb =>
-            {
-                pb.ToTable(tb => tb.IsTemporal());
-                pb.HasData(new Planet { Id = 1, StarId = 1, Name = "Earth" });
-            });
+            modelBuilder.Entity<Planet>(
+                pb =>
+                {
+                    pb.ToTable(tb => tb.IsTemporal());
+                    pb.HasData(
+                        new Planet
+                        {
+                            Id = 1,
+                            StarId = 1,
+                            Name = "Earth"
+                        });
+                });
 
-            modelBuilder.Entity<Moon>(mb =>
-            {
-                mb.ToTable(tb => tb.IsTemporal());
-                mb.HasData(
-                    new Moon
-                    {
-                        Id = 1,
-                        PlanetId = 1,
-                        Diameter = 3474
-                    });
-            });
+            modelBuilder.Entity<Moon>(
+                mb =>
+                {
+                    mb.ToTable(tb => tb.IsTemporal());
+                    mb.HasData(
+                        new Moon
+                        {
+                            Id = 1,
+                            PlanetId = 1,
+                            Diameter = 3474
+                        });
+                });
 
             modelBuilder.Entity<Star>(
                 sb =>
                 {
-                    sb.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                    }));
-                    sb.HasData(new Star { Id = 1, Name = "Sol" });
-                    sb.OwnsMany(
-                        s => s.Composition, ob =>
-                        {
-                            ob.ToTable(tb => tb.IsTemporal(ttb =>
+                    sb.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
                             {
                                 ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
                                 ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
                             }));
+                    sb.HasData(new Star { Id = 1, Name = "Sol" });
+                    sb.OwnsMany(
+                        s => s.Composition, ob =>
+                        {
+                            ob.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                    }));
                             ob.HasKey(e => e.Id);
                             ob.HasData(
                                 new
@@ -1657,19 +1692,23 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
             modelBuilder.Entity<Barton>(
                 b =>
                 {
-                    b.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
-                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
-                    }));
-                    b.OwnsOne(
-                        e => e.Throned, b =>
-                        {
-                            b.ToTable(tb => tb.IsTemporal(ttb =>
+                    b.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
                             {
                                 ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
                                 ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
                             }));
+                    b.OwnsOne(
+                        e => e.Throned, b =>
+                        {
+                            b.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("PeriodStart").HasColumnName("PeriodStart");
+                                        ttb.HasPeriodEnd("PeriodEnd").HasColumnName("PeriodEnd");
+                                    }));
                             b.HasData(
                                 new
                                 {
@@ -1755,17 +1794,17 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
             context.SaveChanges();
 
             var tableNames = new List<string>
-                {
-                    nameof(Barton),
-                    nameof(Element),
-                    nameof(Fink),
-                    nameof(Moon),
-                    nameof(Order),
-                    nameof(OrderDetail),
-                    nameof(OwnedPerson),
-                    nameof(Planet),
-                    nameof(Star),
-                };
+            {
+                nameof(Barton),
+                nameof(Element),
+                nameof(Fink),
+                nameof(Moon),
+                nameof(Order),
+                nameof(OrderDetail),
+                nameof(OwnedPerson),
+                nameof(Planet),
+                nameof(Star),
+            };
 
             foreach (var tableName in tableNames)
             {
@@ -1776,7 +1815,8 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
                 context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
                 context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
+                context.Database.ExecuteSqlRaw(
+                    $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
             }
         }
     }

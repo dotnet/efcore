@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -29,12 +28,14 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <summary>
     ///     The specified table name.
     /// </summary>
-    public virtual string? Name => StoreObject?.Name;
+    public virtual string? Name
+        => StoreObject?.Name;
 
     /// <summary>
     ///     The specified table schema.
     /// </summary>
-    public virtual string? Schema => StoreObject?.Schema;
+    public virtual string? Schema
+        => StoreObject?.Schema;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,7 +49,8 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     /// <summary>
     ///     The entity type being configured.
     /// </summary>
-    public virtual IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
+    public virtual IMutableEntityType Metadata
+        => EntityTypeBuilder.Metadata;
 
     private EntityTypeBuilder EntityTypeBuilder { get; }
 
@@ -84,7 +86,7 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
             trigger.SetTableSchema(Schema);
         }
 
-        return new(trigger);
+        return new TableTriggerBuilder(trigger);
     }
 
     /// <summary>
@@ -109,7 +111,7 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
             sql,
             ConfigurationSource.Explicit)!;
 
-        return new((IMutableCheckConstraint)checkConstraint);
+        return new CheckConstraintBuilder((IMutableCheckConstraint)checkConstraint);
     }
 
     /// <summary>
@@ -155,7 +157,8 @@ public class TableBuilder : IInfrastructure<EntityTypeBuilder>
     protected virtual StoreObjectIdentifier GetStoreObjectIdentifier()
         => StoreObject ?? throw new InvalidOperationException(RelationalStrings.MappingFragmentMissingName);
 
-    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance
+        => EntityTypeBuilder;
 
     #region Hidden System.Object members
 

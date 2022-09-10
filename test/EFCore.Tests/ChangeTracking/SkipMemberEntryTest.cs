@@ -88,7 +88,6 @@ public class SkipMemberEntryTest
         Assert.IsType<CollectionEntry>(entry);
     }
 
-
     [ConditionalFact]
     public void Can_get_skip_collection_entry_by_name_using_Collection()
     {

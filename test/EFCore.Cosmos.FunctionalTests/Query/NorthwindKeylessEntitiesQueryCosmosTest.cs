@@ -66,7 +66,7 @@ WHERE (c[""Discriminator""] = ""ProductView"")");
     {
         Assert.Equal(
             "0",
-            (await Assert.ThrowsAsync <EqualException>(
+            (await Assert.ThrowsAsync<EqualException>(
                 () => base.KeylessEntity_with_nav_defining_query(async))).Actual);
 
         AssertSql(

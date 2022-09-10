@@ -48,7 +48,11 @@ public class SqliteLegacyUpdateSqlGenerator : UpdateAndSelectSqlGenerator
     /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
     /// <param name="commandPosition">The ordinal of the command for which rows affected it being returned.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for this command.</returns>
-    protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string? schema, int commandPosition)
+    protected override ResultSetMapping AppendSelectAffectedCountCommand(
+        StringBuilder commandStringBuilder,
+        string name,
+        string? schema,
+        int commandPosition)
     {
         Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
         Check.NotEmpty(name, nameof(name));
@@ -58,7 +62,7 @@ public class SqliteLegacyUpdateSqlGenerator : UpdateAndSelectSqlGenerator
             .AppendLine(SqlGenerationHelper.StatementTerminator)
             .AppendLine();
 
-        return ResultSetMapping.LastInResultSet;
+        return ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;
     }
 
     /// <summary>

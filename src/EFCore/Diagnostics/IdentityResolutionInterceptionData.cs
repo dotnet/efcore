@@ -14,12 +14,12 @@ public readonly struct IdentityResolutionInterceptionData
     /// <summary>
     ///     Constructs the parameter object.
     /// </summary>
-    /// <param name="context">The <see cref="DbContext"/> in use.</param>
+    /// <param name="context">The <see cref="DbContext" /> in use.</param>
     public IdentityResolutionInterceptionData(DbContext context)
     {
         Context = context;
     }
-    
+
     /// <summary>
     ///     The current <see cref="DbContext" /> instance being used.
     /// </summary>

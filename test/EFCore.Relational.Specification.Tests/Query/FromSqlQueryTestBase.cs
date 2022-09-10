@@ -1645,7 +1645,7 @@ SELECT * FROM [Customers2]"))
         var city = "Seattle";
         var fromSqlQuery = context.Customers.FromSqlRaw(
             NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
-                            CreateDbParameter("city", city));
+            CreateDbParameter("city", city));
 
         var query = fromSqlQuery.Intersect(fromSqlQuery);
 

@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -301,8 +302,9 @@ public partial class NavigationExpandingExpressionVisitor
                         Expression.Call(
                             QueryableMethods.Where.MakeGenericMethod(innerSourceElementType),
                             innerSource,
-                            Expression.Quote(Expression.Lambda(
-                                Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey,innerKey), innerSourceParameter))),
+                            Expression.Quote(
+                                Expression.Lambda(
+                                    ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey), innerSourceParameter))),
                         outerSourceParameter);
 
                     secondaryExpansion = Expression.Call(
@@ -415,7 +417,7 @@ public partial class NavigationExpandingExpressionVisitor
                                 })
                             .Aggregate((l, r) => Expression.AndAlso(l, r))
                         : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
-                    Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
+                    ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
 
                 // Caller should take care of wrapping MaterializeCollectionNavigation
                 return Expression.Call(

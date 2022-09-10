@@ -112,16 +112,17 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqliteQueryableMethodTranslatingExpressionVisitorFactory>()
             .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
             .TryAdd<IQueryTranslationPostprocessorFactory, SqliteQueryTranslationPostprocessorFactory>()
-            .TryAdd<IUpdateSqlGenerator>(sp =>
-            {
-                // Support for the RETURNING clause on INSERT/UPDATE/DELETE was added in Sqlite 3.35.
-                // Detect which version we're using, and fall back to the older INSERT/UPDATE+SELECT behavior on legacy versions.
-                var dependencies = sp.GetRequiredService<UpdateSqlGeneratorDependencies>();
+            .TryAdd<IUpdateSqlGenerator>(
+                sp =>
+                {
+                    // Support for the RETURNING clause on INSERT/UPDATE/DELETE was added in Sqlite 3.35.
+                    // Detect which version we're using, and fall back to the older INSERT/UPDATE+SELECT behavior on legacy versions.
+                    var dependencies = sp.GetRequiredService<UpdateSqlGeneratorDependencies>();
 
-                return new Version(new SqliteConnection().ServerVersion) < new Version(3, 35)
-                    ? new SqliteLegacyUpdateSqlGenerator(dependencies)
-                    : new SqliteUpdateSqlGenerator(dependencies);
-            })
+                    return new Version(new SqliteConnection().ServerVersion) < new Version(3, 35)
+                        ? new SqliteLegacyUpdateSqlGenerator(dependencies)
+                        : new SqliteUpdateSqlGenerator(dependencies);
+                })
             .TryAdd<ISqlExpressionFactory, SqliteSqlExpressionFactory>()
             .TryAddProviderSpecificServices(
                 b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());

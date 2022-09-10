@@ -572,7 +572,6 @@ public class EntityEntryTest
         Assert.Equal("Monkeys", context.Entry(entity).Collection(e => e.Monkeys).Metadata.Name);
     }
 
-
     [ConditionalFact]
     public void Can_get_collection_entry_by_INavigationBase()
     {

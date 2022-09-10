@@ -409,9 +409,7 @@ ORDER BY [k].[Name]");
     }
 
     public override void Setting_foreign_key_to_a_different_type_throws()
-    {
-        base.Setting_foreign_key_to_a_different_type_throws();
-    }
+        => base.Setting_foreign_key_to_a_different_type_throws();
 
     public override async Task Subquery_OfType(bool async)
     {

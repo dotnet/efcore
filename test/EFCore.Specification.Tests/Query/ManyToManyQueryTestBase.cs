@@ -807,7 +807,8 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Skip_navigation_contains_unidirectional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<UnidirectionalEntityOne>().Where(e => e.ThreeSkipPayloadFullShared.Contains(new UnidirectionalEntityThree { Id = 1 })),
+            ss => ss.Set<UnidirectionalEntityOne>()
+                .Where(e => e.ThreeSkipPayloadFullShared.Contains(new UnidirectionalEntityThree { Id = 1 })),
             ss => ss.Set<UnidirectionalEntityOne>().Where(e => e.ThreeSkipPayloadFullShared.Select(i => i.Id).Contains(1)),
             entryCount: 3);
 
@@ -849,7 +850,8 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Skip_navigation_of_type_unidirectional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<UnidirectionalEntityCompositeKey>().OrderBy(e => e.Key1).Select(e => e.RootSkipShared.OfType<UnidirectionalEntityLeaf>()),
+            ss => ss.Set<UnidirectionalEntityCompositeKey>().OrderBy(e => e.Key1)
+                .Select(e => e.RootSkipShared.OfType<UnidirectionalEntityLeaf>()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a),
             entryCount: 3);
@@ -1075,7 +1077,8 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Filtered_include_skip_navigation_where_then_include_skip_navigation_unidirectional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<UnidirectionalEntityLeaf>().Include(e => e.CompositeKeySkipFull.Where(i => i.Key1 < 5)).ThenInclude(e => e.TwoSkipShared),
+            ss => ss.Set<UnidirectionalEntityLeaf>().Include(e => e.CompositeKeySkipFull.Where(i => i.Key1 < 5))
+                .ThenInclude(e => e.TwoSkipShared),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedFilteredInclude<UnidirectionalEntityLeaf, UnidirectionalEntityCompositeKey>(

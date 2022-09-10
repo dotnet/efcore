@@ -1484,6 +1484,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, sproc, token);
 
         /// <summary>
+        ///     Current value parameter '{parameter}' is not allowed on delete stored procedure '{sproc}'. Use HasOriginalValueParameter() instead.
+        /// </summary>
+        public static string StoredProcedureCurrentValueParameterOnDelete(object? parameter, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureCurrentValueParameterOnDelete", nameof(parameter), nameof(sproc)),
+                parameter, sproc);
+
+        /// <summary>
         ///     The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.
         /// </summary>
         public static string StoredProcedureDeleteNonKeyProperty(object? entityType, object? property, object? sproc)
@@ -1556,6 +1564,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, sproc, properties);
 
         /// <summary>
+        ///     Input parameter '{parameter}' of insert stored procedure '{sproc}' is mapped to property '{property}' of entity type '{entityType}', but that property is configured with BeforeSaveBehavior '{behavior}', and so cannot be saved on insert.
+        /// </summary>
+        public static string StoredProcedureInputParameterForInsertNonSaveProperty(object? parameter, object? sproc, object? property, object? entityType, object? behavior)
+            => string.Format(
+                GetString("StoredProcedureInputParameterForInsertNonSaveProperty", nameof(parameter), nameof(sproc), nameof(property), nameof(entityType), nameof(behavior)),
+                parameter, sproc, property, entityType, behavior);
+
+        /// <summary>
+        ///     Input parameter '{parameter}' of update stored procedure '{sproc}' is mapped to property '{property}' of entity type '{entityType}', but that property is configured with AfterSaveBehavior '{behavior}', and so cannot be saved on update. You may need to use HasOriginalValueParameter() instead of HasParameter().
+        /// </summary>
+        public static string StoredProcedureInputParameterForUpdateNonSaveProperty(object? parameter, object? sproc, object? property, object? entityType, object? behavior)
+            => string.Format(
+                GetString("StoredProcedureInputParameterForUpdateNonSaveProperty", nameof(parameter), nameof(sproc), nameof(property), nameof(entityType), nameof(behavior)),
+                parameter, sproc, property, entityType, behavior);
+
+        /// <summary>
         ///     The keyless entity type '{entityType}' was configured to use '{sproc}'. An entity type requires a primary key to be able to be mapped to a stored procedure.
         /// </summary>
         public static string StoredProcedureKeyless(object? entityType, object? sproc)
@@ -1570,6 +1594,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("StoredProcedureNoName", nameof(entityType), nameof(sproc)),
                 entityType, sproc);
+
+        /// <summary>
+        ///     Original value parameter '{parameter}' is not allowed on insert stored procedure '{sproc}'. Use HasParameter() instead.
+        /// </summary>
+        public static string StoredProcedureOriginalValueParameterOnInsert(object? parameter, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureOriginalValueParameterOnInsert", nameof(parameter), nameof(sproc)),
+                parameter, sproc);
 
         /// <summary>
         ///     The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value output parameter. A store-generated property can only be mapped to one output parameter.
@@ -1668,12 +1700,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sproc);
 
         /// <summary>
+        ///     A rows affected parameter, result column or return value cannot be configured on stored procedure '{sproc}' because it is used for insertion. Rows affected values are only allowed on stored procedures performing updating or deletion.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedForInsert(object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedForInsert", nameof(sproc)),
+                sproc);
+
+        /// <summary>
         ///     The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.
         /// </summary>
         public static string StoredProcedureRowsAffectedReturnConflictingParameter(object? sproc)
             => string.Format(
                 GetString("StoredProcedureRowsAffectedReturnConflictingParameter", nameof(sproc)),
                 sproc);
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}' which returns both result columns and a rows affected value. If the stored procedure returns result columns, a rows affected value isn't needed and can be safely removed.
+        /// </summary>
+        public static string StoredProcedureRowsAffectedWithResultColumns(object? entityType, object? sproc)
+            => string.Format(
+                GetString("StoredProcedureRowsAffectedWithResultColumns", nameof(entityType), nameof(sproc)),
+                entityType, sproc);
 
         /// <summary>
         ///     Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.
@@ -1698,6 +1746,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("StoredProcedureUnmapped", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. Foreign key column types must be comparable with principal key column types.
+        /// </summary>
+        public static string StoredKeyTypesNotConvertable(object? fkColumnName, object? fkColumnType, object? pkColumnType, object? pkColumnName)
+            => string.Format(
+                GetString("StoredKeyTypesNotConvertable", nameof(fkColumnName), nameof(fkColumnType), nameof(pkColumnType), nameof(pkColumnName)),
+                fkColumnName, fkColumnType, pkColumnType, pkColumnName);
 
         /// <summary>
         ///     The entity type '{entityType}' is not mapped to the store object '{table}'.

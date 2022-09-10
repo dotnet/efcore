@@ -17,12 +17,13 @@ public class RelationalDataReaderTest
         var fakeConnection = CreateConnection();
         var relationalCommand = CreateRelationalCommand(commandText: "CommandText");
 
-        var reader = relationalCommand.ExecuteReader(new(
-            fakeConnection,
-            new Dictionary<string, object>(),
-            readerColumns: null,
-            context: null,
-            logger: null));
+        var reader = relationalCommand.ExecuteReader(
+            new RelationalCommandParameterObject(
+                fakeConnection,
+                new Dictionary<string, object>(),
+                readerColumns: null,
+                context: null,
+                logger: null));
 
         Assert.NotNull(reader.DbDataReader);
 

@@ -65,8 +65,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         if (result == QueryCompilationContext.NotTranslatedExpression)
         {
             _indexBasedBinding = true;
-            _entityProjectionCache = new();
-            _jsonQueryCache = new();
+            _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
+            _jsonQueryCache = new Dictionary<JsonQueryExpression, ProjectionBindingExpression>();
             _projectionMapping.Clear();
             _clientProjections = new List<Expression>();
 
@@ -168,7 +168,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 _clientProjections!.Add(jsonQueryExpression);
 
                                 return new CollectionResultExpression(
-                                    new ProjectionBindingExpression(_selectExpression, _clientProjections!.Count - 1, jsonQueryExpression.Type),
+                                    new ProjectionBindingExpression(
+                                        _selectExpression, _clientProjections!.Count - 1, jsonQueryExpression.Type),
                                     materializeCollectionNavigationExpression.Navigation,
                                     materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                             }
@@ -194,10 +195,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 if (expression is MethodCallExpression methodCallExpression)
                 {
                     if (methodCallExpression.Method.IsGenericMethod
-                            && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                            && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
-                            && methodCallExpression.Arguments.Count == 1
-                            && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                        && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                        && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
+                        && methodCallExpression.Arguments.Count == 1
+                        && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
                     {
                         var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                             methodCallExpression.Arguments[0]);
@@ -317,13 +318,11 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                         return entityShaperExpression.Update(jsonProjectionBinding);
                     }
-                    else
-                    {
-                        _projectionMapping[_projectionMembers.Peek()] = jsonQueryExpression;
 
-                        return entityShaperExpression.Update(
-                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
-                    }
+                    _projectionMapping[_projectionMembers.Peek()] = jsonQueryExpression;
+
+                    return entityShaperExpression.Update(
+                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                 }
 
                 if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
@@ -336,7 +335,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         return QueryCompilationContext.NotTranslatedExpression;
                     }
 
-                    var projection = ((SelectExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression);
+                    var projection =
+                        ((SelectExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression);
                     if (projection is JsonQueryExpression jsonQuery)
                     {
                         if (_indexBasedBinding)
@@ -345,13 +345,11 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                             return entityShaperExpression.Update(projectionBinding);
                         }
-                        else
-                        {
-                            _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
 
-                            return entityShaperExpression.Update(
-                                new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
-                        }
+                        _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
+
+                        return entityShaperExpression.Update(
+                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
                     }
 
                     entityProjectionExpression = (EntityProjectionExpression)projection;

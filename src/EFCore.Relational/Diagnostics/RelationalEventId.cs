@@ -81,6 +81,7 @@ public static class RelationalEventId
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
         QueryPossibleUnintendedUseOfEqualsWarning,
+
         // ReSharper disable twice InconsistentNaming
         Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning,
         Obsolete_ValueConversionSqlLiteralWarning,
@@ -210,7 +211,7 @@ public static class RelationalEventId
     public static readonly EventId ConnectionError = MakeConnectionId(Id.ConnectionError);
 
     /// <summary>
-    ///     A <see cref="DbConnection"/> is about to be created by EF.
+    ///     A <see cref="DbConnection" /> is about to be created by EF.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -223,7 +224,7 @@ public static class RelationalEventId
     public static readonly EventId ConnectionCreating = MakeConnectionId(Id.ConnectionCreating);
 
     /// <summary>
-    ///     A <see cref="DbConnection"/> has been created by EF.
+    ///     A <see cref="DbConnection" /> has been created by EF.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -234,7 +235,7 @@ public static class RelationalEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ConnectionCreated = MakeConnectionId(Id.ConnectionCreated);
-    
+
     private static readonly string _sqlPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
     private static EventId MakeCommandId(Id id)

@@ -147,8 +147,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal(
                 new List<int>
                 {
-                    1,
-                    2,
+                    1, 2,
                 },
                 context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
         }
@@ -255,7 +254,8 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(false, AutoTransactionBehavior.Never)]
     [InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_enlisted_transaction_after_connection_closed(
-        bool async, AutoTransactionBehavior autoTransactionBehavior)
+        bool async,
+        AutoTransactionBehavior autoTransactionBehavior)
     {
         if (!AmbientTransactionsSupported)
         {
@@ -305,7 +305,8 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(false, AutoTransactionBehavior.Never)]
     [InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_enlisted_transaction_connectionString(
-        bool async, AutoTransactionBehavior autoTransactionBehavior)
+        bool async,
+        AutoTransactionBehavior autoTransactionBehavior)
     {
         if (!AmbientTransactionsSupported)
         {
@@ -415,7 +416,9 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(false, AutoTransactionBehavior.WhenNeeded)]
     [InlineData(false, AutoTransactionBehavior.Never)]
     [InlineData(false, AutoTransactionBehavior.Always)]
-    public virtual async Task SaveChanges_uses_ambient_transaction_with_connectionString(bool async, AutoTransactionBehavior autoTransactionBehavior)
+    public virtual async Task SaveChanges_uses_ambient_transaction_with_connectionString(
+        bool async,
+        AutoTransactionBehavior autoTransactionBehavior)
     {
         if (!AmbientTransactionsSupported)
         {
@@ -662,7 +665,8 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(false, AutoTransactionBehavior.Never)]
     [InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_explicit_transaction_without_committing(
-        bool async, AutoTransactionBehavior autoTransactionBehavior)
+        bool async,
+        AutoTransactionBehavior autoTransactionBehavior)
     {
         using (var context = CreateContext())
         {
@@ -747,7 +751,8 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(false, AutoTransactionBehavior.Never)]
     [InlineData(false, AutoTransactionBehavior.Always)]
     public virtual async Task SaveChanges_uses_explicit_transaction_with_failure_behavior(
-        bool async, AutoTransactionBehavior autoTransactionBehavior)
+        bool async,
+        AutoTransactionBehavior autoTransactionBehavior)
     {
         using (var context = CreateContext())
         {

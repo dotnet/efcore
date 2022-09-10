@@ -4,17 +4,16 @@
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal class ContextCommandBase : ProjectCommandBase
 {
-    internal class ContextCommandBase : ProjectCommandBase
+    protected CommandOption? Context { get; private set; }
+
+    public override void Configure(CommandLineApplication command)
     {
-        protected CommandOption? Context { get; private set; }
+        Context = command.Option("-c|--context <DBCONTEXT>", Resources.ContextDescription);
 
-        public override void Configure(CommandLineApplication command)
-        {
-            Context = command.Option("-c|--context <DBCONTEXT>", Resources.ContextDescription);
-
-            base.Configure(command);
-        }
+        base.Configure(command);
     }
 }

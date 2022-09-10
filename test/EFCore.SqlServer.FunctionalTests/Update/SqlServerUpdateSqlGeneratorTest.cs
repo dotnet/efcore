@@ -196,7 +196,8 @@ WHERE [Id] = @p0;
 ",
             stringBuilder.ToString());
 
-    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(StringBuilder stringBuilder)
+    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(
+        StringBuilder stringBuilder)
         => AssertBaseline(
             @"DELETE FROM [dbo].[Ducks]
 OUTPUT 1

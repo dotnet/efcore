@@ -6,16 +6,18 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Design;
 
 /// <summary>
-/// Represents a fluent API method call.
+///     Represents a fluent API method call.
 /// </summary>
 public class FluentApiCodeFragment : IMethodCallCodeFragment
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="FluentApiCodeFragment"/> class.
+    ///     Initializes a new instance of the <see cref="FluentApiCodeFragment" /> class.
     /// </summary>
     /// <param name="method">The method's name.</param>
     public FluentApiCodeFragment(string method)
-        => Method = method;
+    {
+        Method = method;
+    }
 
     /// <summary>
     ///     Gets the namespace of the method's declaring type.
@@ -36,7 +38,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     public virtual string Method { get; set; }
 
     /// <summary>
-    /// Gets the method call's generic type arguments.
+    ///     Gets the method call's generic type arguments.
     /// </summary>
     /// <value>The type arguments.</value>
     public virtual IList<string> TypeArguments { get; set; } = new List<string>();
@@ -45,7 +47,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
         => TypeArguments;
 
     /// <summary>
-    /// Gets the method call's arguments.
+    ///     Gets the method call's arguments.
     /// </summary>
     /// <value>The method call's arguments.</value>
     public virtual IList<object?> Arguments { get; set; } = new List<object?>();
@@ -54,13 +56,13 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
         => Arguments;
 
     /// <summary>
-    /// Gets or sets a value indicating whether this method call has an equivalent data annotation.
+    ///     Gets or sets a value indicating whether this method call has an equivalent data annotation.
     /// </summary>
     /// <value>A value indicating whether this method call has an equivalent data annotation.</value>
     public virtual bool IsHandledByDataAnnotations { get; set; }
 
     /// <summary>
-    /// Gets the next method call to chain after this.
+    ///     Gets the next method call to chain after this.
     /// </summary>
     /// <value>The next method call.</value>
     public virtual FluentApiCodeFragment? ChainedCall { get; set; }
@@ -69,7 +71,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
         => ChainedCall;
 
     /// <summary>
-    /// Creates a new fluent API method call from an existing method call.
+    ///     Creates a new fluent API method call from an existing method call.
     /// </summary>
     /// <param name="call">The existing method call.</param>
     /// <returns>The new fluent API method call.</returns>
@@ -77,7 +79,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     public static FluentApiCodeFragment? From(MethodCallCodeFragment? call)
         => call is null
             ? null
-            : new(call.Method)
+            : new FluentApiCodeFragment(call.Method)
             {
                 Namespace = call.Namespace,
                 DeclaringType = call.DeclaringType,
@@ -104,7 +106,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     }
 
     /// <summary>
-    /// Gets the using statements required for this method chain.
+    ///     Gets the using statements required for this method chain.
     /// </summary>
     /// <returns>The usings.</returns>
     public virtual IEnumerable<string> GetRequiredUsings()
@@ -118,8 +120,8 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
             }
 
             foreach (var argumentNamespace in current.Arguments
-                .Where(a => a is not null and not NestedClosureCodeFragment and not PropertyAccessorCodeFragment)
-                .SelectMany(a => a!.GetType().GetNamespaces()))
+                         .Where(a => a is not null and not NestedClosureCodeFragment and not PropertyAccessorCodeFragment)
+                         .SelectMany(a => a!.GetType().GetNamespaces()))
             {
                 yield return argumentNamespace;
             }
@@ -130,7 +132,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     }
 
     /// <summary>
-    /// Creates a new method chain with calls filtered based on a predicate.
+    ///     Creates a new method chain with calls filtered based on a predicate.
     /// </summary>
     /// <param name="predicate">A function to test each method call for a condition.</param>
     /// <returns>A new method chain that only contains calls from the original one that satisfy the condition.</returns>

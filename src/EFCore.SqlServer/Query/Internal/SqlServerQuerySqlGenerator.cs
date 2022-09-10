@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -25,7 +24,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies,
+    public SqlServerQuerySqlGenerator(
+        QuerySqlGeneratorDependencies dependencies,
         IRelationalTypeMappingSource typeMappingSource)
         : base(dependencies)
     {
@@ -240,7 +240,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                         break;
 
                     case TemporalOperationType.AsOf:
-                        var pointInTime = (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime)!.Value!;
+                        var pointInTime =
+                            (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime)!.Value!;
 
                         Sql.Append("AS OF ")
                             .Append(_typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(pointInTime));
@@ -309,21 +310,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         Visit(jsonScalarExpression.JsonColumn);
 
-        var jsonPathStrings = new List<string>();
-
-        if (jsonScalarExpression.Path != null)
-        {
-            var currentPath = jsonScalarExpression.Path;
-            while (currentPath is SqlBinaryExpression sqlBinary && sqlBinary.OperatorType == ExpressionType.Add)
-            {
-                currentPath = sqlBinary.Left;
-                jsonPathStrings.Insert(0, (string)((SqlConstantExpression)sqlBinary.Right).Value!);
-            }
-
-            jsonPathStrings.Insert(0, (string)((SqlConstantExpression)currentPath).Value!);
-        }
-
-        Sql.Append($",'{string.Join(".", jsonPathStrings)}')");
+        Sql.Append($",'{string.Join("", jsonScalarExpression.Path.Select(e => e.ToString()))}')");
 
         if (jsonScalarExpression.Type != typeof(JsonElement))
         {

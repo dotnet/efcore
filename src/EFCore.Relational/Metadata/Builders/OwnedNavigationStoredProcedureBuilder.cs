@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Provides a simple API for configuring a <see cref="IMutableStoredProcedure" /> that an entity type is mapped to.
 /// </summary>
 public class OwnedNavigationStoredProcedureBuilder :
-    IInfrastructure<OwnedNavigationBuilder>, IInfrastructure<IConventionStoredProcedureBuilder>
+    IInfrastructure<OwnedNavigationBuilder>,
+    IInfrastructure<IConventionStoredProcedureBuilder>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,10 +69,11 @@ public class OwnedNavigationStoredProcedureBuilder :
     /// <param name="buildAction">An action that performs configuration of the parameter.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual OwnedNavigationStoredProcedureBuilder HasParameter(
-        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasParameter(propertyName, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyName)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyName)));
         return this;
     }
 
@@ -93,10 +95,11 @@ public class OwnedNavigationStoredProcedureBuilder :
     /// <param name="buildAction">An action that performs configuration of the parameter.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual OwnedNavigationStoredProcedureBuilder HasOriginalValueParameter(
-        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasOriginalValueParameter(propertyName, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyName)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyName)));
         return this;
     }
 
@@ -119,10 +122,10 @@ public class OwnedNavigationStoredProcedureBuilder :
         Action<StoredProcedureParameterBuilder> buildAction)
     {
         var parameterBuilder = Builder.HasRowsAffectedParameter(ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, null));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, null));
         return this;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -174,13 +177,14 @@ public class OwnedNavigationStoredProcedureBuilder :
     /// <param name="buildAction">An action that performs configuration of the column.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual OwnedNavigationStoredProcedureBuilder HasResultColumn(
-        string propertyName, Action<StoredProcedureResultColumnBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         var resultColumnBuilder = Builder.HasResultColumn(propertyName, ConfigurationSource.Explicit)!;
-        buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyName)));
+        buildAction(new StoredProcedureResultColumnBuilder(resultColumnBuilder, CreatePropertyBuilder(propertyName)));
         return this;
     }
-    
+
     /// <summary>
     ///     Configures a new column of the result that returns the rows affected for this stored procedure
     ///     if no such column exists.
@@ -191,7 +195,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         Builder.HasRowsAffectedResultColumn(ConfigurationSource.Explicit);
         return this;
     }
-    
+
     /// <summary>
     ///     Configures a new column of the result that returns the rows affected for this stored procedure
     ///     if no such column exists.
@@ -202,7 +206,7 @@ public class OwnedNavigationStoredProcedureBuilder :
         Action<StoredProcedureResultColumnBuilder> buildAction)
     {
         var resultColumnBuilder = Builder.HasRowsAffectedResultColumn(ConfigurationSource.Explicit)!;
-        buildAction(new(resultColumnBuilder, null));
+        buildAction(new StoredProcedureResultColumnBuilder(resultColumnBuilder, null));
         return this;
     }
 
@@ -235,5 +239,6 @@ public class OwnedNavigationStoredProcedureBuilder :
         return this;
     }
 
-    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+        => OwnedNavigationBuilder;
 }

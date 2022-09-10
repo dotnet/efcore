@@ -1859,7 +1859,6 @@ public class OwnedFixupTest
 
         var subDependent2 = new SubChildPN { Name = "2S" };
         dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
-        ;
 
         switch (entityState)
         {
@@ -3433,7 +3432,6 @@ public class OwnedFixupTest
 
         var dependent = new Child { Name = "1" };
         principal1.ChildCollection2 = CreateChildCollection(collectionType, dependent);
-        ;
 
         var subDependent = new SubChild { Name = "1S" };
         dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);

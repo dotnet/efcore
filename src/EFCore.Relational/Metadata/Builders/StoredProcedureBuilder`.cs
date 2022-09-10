@@ -40,7 +40,8 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
     /// <param name="buildAction">An action that performs configuration of the parameter.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual StoredProcedureBuilder<TEntity> HasParameter(
-        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureParameterBuilder> buildAction)
         => (StoredProcedureBuilder<TEntity>)base.HasParameter(propertyName, buildAction);
 
     /// <summary>
@@ -102,7 +103,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         var parameterBuilder = Builder.HasParameter(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -121,7 +122,8 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
     /// <param name="buildAction">An action that performs configuration of the parameter.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual StoredProcedureBuilder<TEntity> HasOriginalValueParameter(
-        string propertyName, Action<StoredProcedureParameterBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureParameterBuilder> buildAction)
         => (StoredProcedureBuilder<TEntity>)base.HasOriginalValueParameter(propertyName, buildAction);
 
     /// <summary>
@@ -183,7 +185,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         var parameterBuilder = Builder.HasOriginalValueParameter(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureParameterBuilder(parameterBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -218,7 +220,8 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
     /// <param name="buildAction">An action that performs configuration of the column.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual StoredProcedureBuilder<TEntity> HasResultColumn(
-        string propertyName, Action<StoredProcedureResultColumnBuilder> buildAction)
+        string propertyName,
+        Action<StoredProcedureResultColumnBuilder> buildAction)
         => (StoredProcedureBuilder<TEntity>)base.HasResultColumn(propertyName, buildAction);
 
     /// <summary>
@@ -280,7 +283,7 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
         where TDerivedEntity : class, TEntity
     {
         var resultColumnBuilder = Builder.HasResultColumn(propertyExpression, ConfigurationSource.Explicit)!;
-        buildAction(new(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
+        buildAction(new StoredProcedureResultColumnBuilder(resultColumnBuilder, CreatePropertyBuilder(propertyExpression)));
         return this;
     }
 
@@ -322,5 +325,6 @@ public class StoredProcedureBuilder<TEntity> : StoredProcedureBuilder, IInfrastr
     public new virtual StoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value)
         => (StoredProcedureBuilder<TEntity>)base.HasAnnotation(annotation, value);
 
-    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance
+        => EntityTypeBuilder;
 }

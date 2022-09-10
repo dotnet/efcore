@@ -90,7 +90,8 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.JsonPropertyName,
-            RelationalAnnotationNames.ContainerColumnName, // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
+            // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
+            RelationalAnnotationNames.ContainerColumnName,
             RelationalAnnotationNames.ContainerColumnTypeMapping,
         };
 
@@ -110,8 +111,7 @@ public class CSharpMigrationsGeneratorTest
                     + @"(""WithAnnotations"", ""MySchema"")")
             },
             {
-                RelationalAnnotationNames.MappingStrategy,
-                (RelationalAnnotationNames.TphMappingStrategy,
+                RelationalAnnotationNames.MappingStrategy, (RelationalAnnotationNames.TphMappingStrategy,
                     _toTable
                     + ";"
                     + _nl
@@ -141,9 +141,12 @@ public class CSharpMigrationsGeneratorTest
             {
                 RelationalAnnotationNames.Comment, ("My Comment",
                     _nl
-                    + @"entityTypeBuilder.ToTable(""WithAnnotations"", t =>" + _nl
-                    + "    {" + _nl
-                    + @"        t.HasComment(""My Comment"");" + _nl
+                    + @"entityTypeBuilder.ToTable(""WithAnnotations"", t =>"
+                    + _nl
+                    + "    {"
+                    + _nl
+                    + @"        t.HasComment(""My Comment"");"
+                    + _nl
                     + "    })")
             },
             {
@@ -153,19 +156,31 @@ public class CSharpMigrationsGeneratorTest
                 (Expression.Lambda(Expression.Constant(null)), _toNullTable)
             },
             {
-                RelationalAnnotationNames.ViewName,
-                ("MyView", _toNullTable + ";" + _nl + _nl
-                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToView) + @"(""MyView"")")
+                RelationalAnnotationNames.ViewName, ("MyView", _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToView)
+                    + @"(""MyView"")")
             },
             {
-                RelationalAnnotationNames.FunctionName,
-                (null, _toNullTable + ";" + _nl + _nl
-                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToFunction) + @"(null)")
+                RelationalAnnotationNames.FunctionName, (null, _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToFunction)
+                    + @"(null)")
             },
             {
-                RelationalAnnotationNames.SqlQuery,
-                (null, _toNullTable + ";" + _nl + _nl
-                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery) + @"(null)")
+                RelationalAnnotationNames.SqlQuery, (null, _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery)
+                    + @"(null)")
             }
         };
 

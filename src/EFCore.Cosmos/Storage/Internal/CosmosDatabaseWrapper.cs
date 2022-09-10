@@ -171,7 +171,7 @@ public class CosmosDatabaseWrapper : Database
 
                 if (exception is not DbUpdateConcurrencyException
                     || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                        entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                            entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
                         .ConfigureAwait(false)).IsSuppressed)
                 {
                     throw exception;

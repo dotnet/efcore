@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -24,18 +23,14 @@ public class NorthwindSplitIncludeNoTrackingQuerySqlServerTest : NorthwindSplitI
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
     public override async Task Include_collection_skip_take_no_order_by(bool async)
-    {
-        Assert.Equal(
+        => Assert.Equal(
             SqlServerStrings.SplitQueryOffsetWithoutOrderBy,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_collection_skip_take_no_order_by(async))).Message);
-    }
 
     public override async Task Include_collection_skip_no_order_by(bool async)
-    {
-        Assert.Equal(
+        => Assert.Equal(
             SqlServerStrings.SplitQueryOffsetWithoutOrderBy,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_collection_skip_no_order_by(async))).Message);
-    }
 
     public override async Task Include_reference_GroupBy_Select(bool async)
     {

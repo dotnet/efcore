@@ -51,7 +51,6 @@ public class ManyToManyTrackingSqliteTest
                 .Entity<UnidirectionalJoinOneToThreePayloadFull>()
                 .Property(e => e.Payload)
                 .HasDefaultValue("Generated");
-
         }
     }
 }

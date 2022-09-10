@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Migrations;
@@ -45,7 +44,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationsSqlGeneratorDependencies dependencies,
         ICommandBatchPreparer commandBatchPreparer)
         : base(dependencies)
-        => _commandBatchPreparer = commandBatchPreparer;
+    {
+        _commandBatchPreparer = commandBatchPreparer;
+    }
 
     /// <summary>
     ///     Generates commands from a list of operations.
@@ -2466,7 +2467,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                     var alterHistoryTableColumn = CopyColumnOperation<AlterColumnOperation>(alterColumnOperation);
                                     alterHistoryTableColumn.Table = historyTableName!;
                                     alterHistoryTableColumn.Schema = historyTableSchema;
-                                    alterHistoryTableColumn.OldColumn = CopyColumnOperation<AddColumnOperation>(alterColumnOperation.OldColumn);
+                                    alterHistoryTableColumn.OldColumn =
+                                        CopyColumnOperation<AddColumnOperation>(alterColumnOperation.OldColumn);
                                     alterHistoryTableColumn.OldColumn.Table = historyTableName!;
                                     alterHistoryTableColumn.OldColumn.Schema = historyTableSchema;
 

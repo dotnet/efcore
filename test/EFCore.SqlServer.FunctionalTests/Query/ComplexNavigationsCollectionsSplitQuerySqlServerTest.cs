@@ -1256,8 +1256,8 @@ OUTER APPLY (
     WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
 ) AS [t]
 ORDER BY [l].[Id], [t].[Id]",
-                //
-                @"SELECT [t0].[Name], [l].[Id], [t].[Id]
+            //
+            @"SELECT [t0].[Name], [l].[Id], [t].[Id]
 FROM [LevelOne] AS [l]
 OUTER APPLY (
     SELECT TOP(1) [l0].[Id]

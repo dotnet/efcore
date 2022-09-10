@@ -889,7 +889,6 @@ public class NavigationAttributeConventionTest
 
         new RequiredNavigationAttributeConvention(dependencies)
             .ProcessNavigationAdded(navigation.Builder, context);
-
     }
 
     private void RunNavigationBackingFieldAttributeConvention(
@@ -969,6 +968,7 @@ public class NavigationAttributeConventionTest
     #endregion
 
     #region DeleteBehaviorAttribute
+
     [ConditionalFact]
     public void DeleteBehaviorAttribute_overrides_configuration_from_convention_source()
     {
@@ -1015,7 +1015,6 @@ public class NavigationAttributeConventionTest
         Assert.Equal(DeleteBehavior.NoAction, foreignKey.DeleteBehavior);
     }
 
-
     private void RunDeleteBehaviorAttributeConvention(
         InternalForeignKeyBuilder relationshipBuilder,
         InternalNavigationBuilder navigationBuilder
@@ -1028,6 +1027,7 @@ public class NavigationAttributeConventionTest
         new DeleteBehaviorAttributeConvention(dependencies)
             .ProcessNavigationAdded(navigationBuilder, context);
     }
+
     #endregion
 
     [ConditionalFact]

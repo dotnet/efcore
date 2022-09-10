@@ -62,7 +62,9 @@ WHERE [m].[ContactName] LIKE N'%z%'";
             @"SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
 
-" + @"        " + @"
+"
+            + @"        "
+            + @"
 
 
     SELECT
@@ -295,6 +297,7 @@ p1='Sales Representative' (Size = 4000)
 
 SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
     }
+
     public override async Task FromSql_queryable_with_parameters_inline_interpolated(bool async)
     {
         await base.FromSql_queryable_with_parameters_inline_interpolated(async);
@@ -843,7 +846,6 @@ FROM (
     {
         var exception =
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.FromSqlRaw_composed_with_common_table_expression(async));
-
 
         Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
     }

@@ -713,12 +713,23 @@ public class SharedTypeDbSetTest
 
     private class EarlyLearningCenter : DbContext
     {
-        public DbSet<Product> Product1s => Set<Product>("Product1");
-        public DbSet<Product> Product2s => Set<Product>("Product2");
-        public DbSet<Category> Category1s => Set<Category>("Category1");
-        public DbSet<Category> Category2s => Set<Category>("Category2");
-        public DbSet<TheGu> Gu1s => Set<TheGu>("TheGu1");
-        public DbSet<TheGu> Gu2s => Set<TheGu>("TheGu2");
+        public DbSet<Product> Product1s
+            => Set<Product>("Product1");
+
+        public DbSet<Product> Product2s
+            => Set<Product>("Product2");
+
+        public DbSet<Category> Category1s
+            => Set<Category>("Category1");
+
+        public DbSet<Category> Category2s
+            => Set<Category>("Category2");
+
+        public DbSet<TheGu> Gu1s
+            => Set<TheGu>("TheGu1");
+
+        public DbSet<TheGu> Gu2s
+            => Set<TheGu>("TheGu2");
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

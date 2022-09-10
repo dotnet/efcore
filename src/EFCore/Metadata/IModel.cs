@@ -74,7 +74,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
             var entityType = FindEntityType(type);
             if (entityType != null)
             {
-                return  entityType;
+                return entityType;
             }
 
             type = type.BaseType;

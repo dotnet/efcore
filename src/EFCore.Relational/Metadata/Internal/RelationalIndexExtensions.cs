@@ -210,7 +210,7 @@ public static class RelationalIndexExtensions
 
                     if (overlappingTables == null)
                     {
-                        overlappingTables = new(tablesMappedToProperty);
+                        overlappingTables = new HashSet<StoreObjectIdentifier>(tablesMappedToProperty);
                     }
                     else
                     {

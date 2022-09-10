@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Data;
 using System.Text;
 
@@ -63,7 +62,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     protected virtual IRelationalCommandBuilder RelationalCommandBuilder { get; }
 
     /// <summary>
-    ///     The maximum number of <see cref="ModificationCommand"/> instances that can be added to a single batch.
+    ///     The maximum number of <see cref="ModificationCommand" /> instances that can be added to a single batch.
     /// </summary>
     protected virtual int MaxBatchSize { get; }
 
@@ -86,7 +85,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <summary>
     ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
     /// </summary>
-    protected virtual IList<ResultSetMapping> CommandResultSet { get; } = new List<ResultSetMapping>();
+    protected virtual IList<ResultSetMapping> ResultSetMappings { get; } = new List<ResultSetMapping>();
 
     /// <summary>
     ///     The store command generated from this batch when <see cref="Complete" /> is called.
@@ -107,7 +106,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         }
 
         _sqlBuilderPosition = SqlBuilder.Length;
-        _commandResultSetCount = CommandResultSet.Count;
+        _commandResultSetCount = ResultSetMappings.Count;
         _pendingParameters = 0;
 
         AddCommand(modificationCommand);
@@ -121,7 +120,8 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             return true;
         }
 
-        Check.DebugAssert(ReferenceEquals(modificationCommand, _modificationCommands[^1]),
+        Check.DebugAssert(
+            ReferenceEquals(modificationCommand, _modificationCommands[^1]),
             "ReferenceEquals(modificationCommand, _modificationCommands[^1])");
 
         RollbackLastCommand(modificationCommand);
@@ -138,9 +138,9 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 
         SqlBuilder.Length = _sqlBuilderPosition;
 
-        while (CommandResultSet.Count > _commandResultSetCount)
+        while (ResultSetMappings.Count > _commandResultSetCount)
         {
-            CommandResultSet.RemoveAt(CommandResultSet.Count - 1);
+            ResultSetMappings.RemoveAt(ResultSetMappings.Count - 1);
         }
 
         for (var i = 0; i < _pendingParameters; i++)
@@ -172,7 +172,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <inheritdoc />
     public override bool AreMoreBatchesExpected
         => _areMoreBatchesExpected;
-    
+
     /// <summary>
     ///     Sets whether the batch requires a transaction in order to execute correctly.
     /// </summary>
@@ -195,11 +195,11 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         bool requiresTransaction;
 
-        var commandPosition = CommandResultSet.Count;
+        var commandPosition = ResultSetMappings.Count;
 
         if (modificationCommand.StoreStoredProcedure is not null)
         {
-            CommandResultSet.Add(
+            ResultSetMappings.Add(
                 UpdateSqlGenerator.AppendStoredProcedureCall(
                     SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
         }
@@ -208,17 +208,17 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             switch (modificationCommand.EntityState)
             {
                 case EntityState.Added:
-                    CommandResultSet.Add(
+                    ResultSetMappings.Add(
                         UpdateSqlGenerator.AppendInsertOperation(
                             SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
                 case EntityState.Modified:
-                    CommandResultSet.Add(
+                    ResultSetMappings.Add(
                         UpdateSqlGenerator.AppendUpdateOperation(
                             SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
                 case EntityState.Deleted:
-                    CommandResultSet.Add(
+                    ResultSetMappings.Add(
                         UpdateSqlGenerator.AppendDeleteOperation(
                             SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
@@ -245,7 +245,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         }
 
         _areMoreBatchesExpected = moreBatchesExpected;
-        
+
         // Some database have a mode where autocommit is off, and so executing a command outside of an explicit transaction implicitly
         // creates a new transaction (which needs to be explicitly committed).
         // The below is a hook for allowing providers to turn autocommit on, in case it's off.
@@ -266,10 +266,17 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <param name="modificationCommand">The modification command for which to add parameters.</param>
     protected virtual void AddParameters(IReadOnlyModificationCommand modificationCommand)
     {
-        Check.DebugAssert(!modificationCommand.ColumnModifications.Any(m => m.Column is IStoreStoredProcedureReturnValue)
+        Check.DebugAssert(
+            !modificationCommand.ColumnModifications.Any(m => m.Column is IStoreStoredProcedureReturnValue)
             || modificationCommand.ColumnModifications[0].Column is IStoreStoredProcedureReturnValue,
             "ResultValue column modification in non-first position");
-        foreach (var columnModification in modificationCommand.ColumnModifications)
+
+        var modifications = modificationCommand.StoreStoredProcedure is null
+            ? modificationCommand.ColumnModifications
+            : modificationCommand.ColumnModifications.Where(
+                c => c.Column is IStoreStoredProcedureParameter or IStoreStoredProcedureReturnValue);
+
+        foreach (var columnModification in modifications)
         {
             AddParameter(columnModification);
         }
@@ -288,13 +295,17 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
             _ => ParameterDirection.Input
         };
 
-        // For in/out parameters, both UseCurrentValueParameter and UseOriginalValueParameter are true, but we only want to add a single
-        // parameter. This will happen below.
-        if (columnModification.UseCurrentValueParameter && direction != ParameterDirection.InputOutput)
+        // For the case where the same modification has both current and original value parameters, and corresponds to an in/out parameter,
+        // we only want to add a single parameter. This will happen below.
+        if (columnModification.UseCurrentValueParameter
+            && !(columnModification.UseOriginalValueParameter && direction == ParameterDirection.InputOutput))
         {
-            AddParameterCore(columnModification.ParameterName, direction == ParameterDirection.Output
-                ? null
-                : columnModification.Value);
+            AddParameterCore(
+                columnModification.ParameterName, columnModification.UseCurrentValue
+                    ? columnModification.Value
+                    : direction == ParameterDirection.InputOutput
+                        ? DBNull.Value
+                        : null);
         }
 
         if (columnModification.UseOriginalValueParameter)
@@ -313,8 +324,6 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
                 columnModification.IsNullable,
                 direction);
 
-            // TODO: As an alternative, don't add output-only parameters to ParameterValues at all.
-            // But that means we can't check values exist for input parameters in RelationalParameterBase.AddDbParameter
             ParameterValues.Add(name, value);
 
             _pendingParameters++;

@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableKey> : DependentKeyValueFactory<TKey>, IDependentKeyValueFactory<TKey>
+public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableKey> : DependentKeyValueFactory<TKey>,
+    IDependentKeyValueFactory<TKey>
     where TKey : notnull
     where TNonNullableKey : struct
 {

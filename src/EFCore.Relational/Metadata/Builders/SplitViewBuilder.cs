@@ -21,7 +21,8 @@ public class SplitViewBuilder : IInfrastructure<EntityTypeBuilder>
     [EntityFrameworkInternal]
     public SplitViewBuilder(in StoreObjectIdentifier storeObject, EntityTypeBuilder entityTypeBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.View,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.View,
             "StoreObjectType should be View, not " + storeObject.StoreObjectType);
 
         MappingFragment = EntityTypeMappingFragment.GetOrCreate(
@@ -32,12 +33,14 @@ public class SplitViewBuilder : IInfrastructure<EntityTypeBuilder>
     /// <summary>
     ///     The specified view name.
     /// </summary>
-    public virtual string Name => MappingFragment.StoreObject.Name;
+    public virtual string Name
+        => MappingFragment.StoreObject.Name;
 
     /// <summary>
     ///     The specified view schema.
     /// </summary>
-    public virtual string? Schema => MappingFragment.StoreObject.Schema;
+    public virtual string? Schema
+        => MappingFragment.StoreObject.Schema;
 
     /// <summary>
     ///     The mapping fragment being configured.
@@ -81,7 +84,8 @@ public class SplitViewBuilder : IInfrastructure<EntityTypeBuilder>
         return this;
     }
 
-    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance
+        => EntityTypeBuilder;
 
     #region Hidden System.Object members
 

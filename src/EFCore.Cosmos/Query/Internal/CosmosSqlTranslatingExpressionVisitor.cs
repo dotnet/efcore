@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
-#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -33,7 +33,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo StringEqualsWithStringComparisonStatic
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
-    private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(object.GetType))!;
+    private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(GetType))!;
 
     private readonly QueryCompilationContext _queryCompilationContext;
     private readonly IModel _model;
@@ -147,7 +147,8 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                     ifFalse));
         }
 
-        if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual
+        if (binaryExpression.NodeType == ExpressionType.Equal
+            || binaryExpression.NodeType == ExpressionType.NotEqual
             && binaryExpression.Left.Type == typeof(Type))
         {
             if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
@@ -247,7 +248,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 // Or add predicate for matching that particular type discriminator value
                 // All hierarchies have discriminator property
                 if (TryBindMember(entityReferenceExpression, MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()))
-                        is SqlExpression discriminatorColumn)
+                    is SqlExpression discriminatorColumn)
                 {
                     return match
                         ? _sqlExpressionFactory.Equal(

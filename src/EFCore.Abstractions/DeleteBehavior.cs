@@ -108,7 +108,8 @@ public enum DeleteBehavior
     ClientCascade,
 
     /// <summary>
-    ///     For entities being tracked by the context, the values of foreign key properties in dependent entities are set to null when the related principal is deleted.
+    ///     For entities being tracked by the context, the values of foreign key properties in dependent entities are set to null when the related
+    ///     principal is deleted.
     ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
     ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
     ///     it is not a nullable type, then an exception will be thrown when
@@ -126,7 +127,8 @@ public enum DeleteBehavior
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         For entities being tracked by the context, the values of foreign key properties in dependent entities are not changed when the related principal entity is deleted.
+    ///         For entities being tracked by the context, the values of foreign key properties in dependent entities are not changed when the
+    ///         related principal entity is deleted.
     ///         This can result in an inconsistent graph of entities where the values of foreign key properties do
     ///         not match the relationships in the graph.
     ///     </para>

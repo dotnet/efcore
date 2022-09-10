@@ -2310,7 +2310,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     {
         foreach (var property in properties)
         {
-            if (property.IsInModel == true && property.IsImplicitlyCreated())
+            if (property.IsInModel && property.IsImplicitlyCreated())
             {
                 RemovePropertyIfUnused((Property)(object)property, ConfigurationSource.Convention);
             }

@@ -128,8 +128,8 @@ public static class RelationalTestModelBuilderExtensions
     }
 
     public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
-    this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
-    string? name)
+        this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+        string? name)
     {
         switch (builder)
         {
@@ -798,9 +798,7 @@ public static class RelationalTestModelBuilderExtensions
         string name,
         Action<RelationalModelBuilderTest.TestTableValuedFunctionBuilder<TEntity>> buildAction)
         where TEntity : class
-    {
-        return builder;
-    }
+        => builder;
 
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
@@ -1295,7 +1293,8 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasJsonPropertyName<TOwnerEntity, TDependentEntity>(
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasJsonPropertyName<TOwnerEntity,
+        TDependentEntity>(
         this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
         string? name)
         where TOwnerEntity : class

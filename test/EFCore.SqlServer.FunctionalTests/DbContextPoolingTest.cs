@@ -474,9 +474,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Equal("Options", context.ConstructorUsed);
     }
+
     private class WithParameterlessConstructorContext : DbContext
     {
-        public string ConstructorUsed { get; set; }
+        public string ConstructorUsed { get; }
 
         public WithParameterlessConstructorContext()
         {
@@ -1582,7 +1583,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     [InlineData(false, true, true)]
     [InlineData(true, true, true)]
     public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection_with_factory(
-        bool async, bool openWithEf, bool withDependencyInjection)
+        bool async,
+        bool openWithEf,
+        bool withDependencyInjection)
     {
         var options = new DbContextOptionsBuilder<PooledContext>()
             .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
@@ -1656,7 +1659,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     [InlineData(false, false, true, true)]
     [InlineData(true, false, true, true)]
     public async Task Handle_open_connection_when_returning_to_pool_for_external_connection_with_factory(
-        bool async, bool startsOpen, bool openWithEf, bool withDependencyInjection)
+        bool async,
+        bool startsOpen,
+        bool openWithEf,
+        bool withDependencyInjection)
     {
         using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 

@@ -882,7 +882,6 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__intPrm_0
 SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (@__intPrm_0 = c[""ReportsTo""]))");
-
     }
 
     public override async Task Where_equals_on_matched_nullable_int_types(bool async)
@@ -901,7 +900,6 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (@__nullableIntPrm_0 = c[""Repo
 SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = @__nullableIntPrm_0))");
-
     }
 
     public override async Task Where_equals_on_null_nullable_int_types(bool async)
@@ -1768,7 +1766,7 @@ WHERE (((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""QUICK"")) 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
                 @"Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"),
-                message);
+            message);
 
         AssertSql();
     }
@@ -2223,8 +2221,8 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
     {
         await base.GetType_on_non_hierarchy1(async);
 
-            AssertSql(
-                @"SELECT c
+        AssertSql(
+            @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
     }
@@ -2233,8 +2231,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
     {
         await base.GetType_on_non_hierarchy2(async);
 
-            AssertSql(
-                @"SELECT c
+        AssertSql(
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
     }
@@ -2243,8 +2241,8 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
     {
         await base.GetType_on_non_hierarchy3(async);
 
-            AssertSql(
-                @"SELECT c
+        AssertSql(
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
     }
@@ -2253,8 +2251,8 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND false)");
     {
         await base.GetType_on_non_hierarchy4(async);
 
-            AssertSql(
-                @"SELECT c
+        AssertSql(
+            @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
     }
@@ -2263,8 +2261,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
     {
         await base.Case_block_simplification_works_correctly(async);
 
-            AssertSql(
-                @"SELECT c
+        AssertSql(
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Region""] = null) ? ""OR"" : c[""Region""]) = ""OR""))");
     }
@@ -2431,7 +2429,6 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] != @__prm1
             @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"", ""ANATR"") OR (c[""CustomerID""] = ""ANTON"")))");
-
     }
 
     public override async Task Multiple_OrElse_on_same_column_with_null_parameter_comparison_converted_to_in(bool async)

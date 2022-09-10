@@ -61,14 +61,14 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
             {
                 return -1;
             }
-            
+
             result = y.IsSharedTablePrincipal.Value.CompareTo(x.IsSharedTablePrincipal.Value);
             if (result != 0)
             {
                 return result;
             }
         }
-        
+
         result = y.IncludesDerivedTypes.CompareTo(x.IncludesDerivedTypes);
         if (result != 0)
         {
@@ -88,7 +88,7 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
             {
                 return -1;
             }
-            
+
             result = y.IsSplitEntityTypePrincipal.Value.CompareTo(x.IsSplitEntityTypePrincipal.Value);
             if (result != 0)
             {

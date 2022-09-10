@@ -23,11 +23,11 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
             .UpdateUsingStoredProcedure(
                 nameof(StoredProcedureUpdateContext.WithOutputParameter) + "_Update",
                 spb => spb
-                    .HasParameter(w => w.Id)
+                    .HasOriginalValueParameter(w => w.Id)
                     .HasParameter(w => w.Name))
             .DeleteUsingStoredProcedure(
                 nameof(StoredProcedureUpdateContext.WithOutputParameter) + "_Delete",
-                spb => spb.HasParameter(w => w.Id));
+                spb => spb.HasOriginalValueParameter(w => w.Id));
 
         modelBuilder.SharedTypeEntity<Entity>(nameof(StoredProcedureUpdateContext.WithResultColumn))
             .InsertUsingStoredProcedure(
@@ -70,16 +70,16 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                 b.UpdateUsingStoredProcedure(
                     nameof(StoredProcedureUpdateContext.WithOutputParameterAndRowsAffectedResultColumn) + "_Update",
                     spb => spb
-                        .HasParameter(w => w.Id)
+                        .HasOriginalValueParameter(w => w.Id)
                         .HasParameter(w => w.Name)
                         .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
                         .HasRowsAffectedResultColumn());
             });
 
-        modelBuilder.SharedTypeEntity<EntityWithAdditionalProperty>(nameof(StoredProcedureUpdateContext.WithTwoOutputParameters))
+        modelBuilder.SharedTypeEntity<EntityWithAdditionalProperty>(nameof(StoredProcedureUpdateContext.WithTwoInputParameters))
             .UpdateUsingStoredProcedure(
-                nameof(StoredProcedureUpdateContext.WithTwoOutputParameters) + "_Update", spb => spb
-                    .HasParameter(w => w.Id)
+                nameof(StoredProcedureUpdateContext.WithTwoInputParameters) + "_Update", spb => spb
+                    .HasOriginalValueParameter(w => w.Id)
                     .HasParameter(w => w.Name)
                     .HasParameter(w => w.AdditionalProperty));
 
@@ -87,7 +87,7 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
             .UpdateUsingStoredProcedure(
                 nameof(StoredProcedureUpdateContext.WithRowsAffectedParameter) + "_Update",
                 spb => spb
-                    .HasParameter(w => w.Id)
+                    .HasOriginalValueParameter(w => w.Id)
                     .HasParameter(w => w.Name)
                     .HasRowsAffectedParameter());
 
@@ -95,7 +95,7 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
             .UpdateUsingStoredProcedure(
                 nameof(StoredProcedureUpdateContext.WithRowsAffectedResultColumn) + "_Update",
                 spb => spb
-                    .HasParameter(w => w.Id)
+                    .HasOriginalValueParameter(w => w.Id)
                     .HasParameter(w => w.Name)
                     .HasRowsAffectedResultColumn());
 
@@ -103,20 +103,20 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
             .UpdateUsingStoredProcedure(
                 nameof(StoredProcedureUpdateContext.WithRowsAffectedReturnValue) + "_Update",
                 spb => spb
-                    .HasParameter(w => w.Id)
+                    .HasOriginalValueParameter(w => w.Id)
                     .HasParameter(w => w.Name)
                     .HasRowsAffectedReturnValue());
 
         modelBuilder.SharedTypeEntity<Entity>(
-            nameof(StoredProcedureUpdateContext.WithStoreGeneratedConcurrencyTokenAsInoutParameter),
+            nameof(StoredProcedureUpdateContext.WithStoreGeneratedConcurrencyTokenAsInOutParameter),
             b =>
             {
                 ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
 
                 b.UpdateUsingStoredProcedure(
-                    nameof(StoredProcedureUpdateContext.WithStoreGeneratedConcurrencyTokenAsInoutParameter) + "_Update",
+                    nameof(StoredProcedureUpdateContext.WithStoreGeneratedConcurrencyTokenAsInOutParameter) + "_Update",
                     spb => spb
-                        .HasParameter(w => w.Id)
+                        .HasOriginalValueParameter(w => w.Id)
                         .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
                         .HasParameter(w => w.Name)
                         .HasRowsAffectedParameter());
@@ -131,7 +131,7 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                 b.UpdateUsingStoredProcedure(
                     nameof(StoredProcedureUpdateContext.WithStoreGeneratedConcurrencyTokenAsTwoParameters) + "_Update",
                     spb => spb
-                        .HasParameter(w => w.Id)
+                        .HasOriginalValueParameter(w => w.Id)
                         .HasOriginalValueParameter("ConcurrencyToken", pb => pb.HasName("ConcurrencyTokenIn"))
                         .HasParameter(w => w.Name)
                         .HasParameter(
@@ -142,57 +142,40 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
             });
 
         modelBuilder.SharedTypeEntity<EntityWithAdditionalProperty>(
-                nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken),
-                b =>
-                {
-                    b.Property(e => e.AdditionalProperty).IsConcurrencyToken();
+            nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken),
+            b =>
+            {
+                b.Property(e => e.AdditionalProperty).IsConcurrencyToken();
 
-                    b.UpdateUsingStoredProcedure(
-                        nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken) + "_Update",
-                        spb => spb
-                            .HasParameter(w => w.Id)
-                            .HasOriginalValueParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenOriginal"))
-                            .HasParameter(w => w.Name)
-                            .HasParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenCurrent"))
-                            .HasRowsAffectedParameter());
-                });
+                b.UpdateUsingStoredProcedure(
+                    nameof(StoredProcedureUpdateContext.WithUserManagedConcurrencyToken) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasOriginalValueParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenOriginal"))
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenCurrent"))
+                        .HasRowsAffectedParameter());
+            });
 
         modelBuilder.SharedTypeEntity<Entity>(nameof(StoredProcedureUpdateContext.WithOriginalAndCurrentValueOnNonConcurrencyToken))
             .UpdateUsingStoredProcedure(
                 nameof(StoredProcedureUpdateContext.WithOriginalAndCurrentValueOnNonConcurrencyToken) + "_Update",
                 spb => spb
-                    .HasParameter(w => w.Id)
+                    .HasOriginalValueParameter(w => w.Id)
                     .HasParameter(w => w.Name, pb => pb.HasName("NameCurrent"))
                     .HasOriginalValueParameter(w => w.Name, pb => pb.HasName("NameOriginal")));
 
         modelBuilder.SharedTypeEntity<Entity>(
-            nameof(StoredProcedureUpdateContext.WithInputOutputParameterOnNonConcurrencyToken),
+            nameof(StoredProcedureUpdateContext.WithInputOrOutputParameter),
             b =>
             {
-                b.Property(w => w.Name).ValueGeneratedOnAddOrUpdate();
+                b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
 
-                b.UpdateUsingStoredProcedure(
-                    nameof(StoredProcedureUpdateContext.WithInputOutputParameterOnNonConcurrencyToken) + "_Update",
+                b.InsertUsingStoredProcedure(
+                    nameof(StoredProcedureUpdateContext.WithInputOrOutputParameter) + "_Insert",
                     spb => spb
-                        .HasParameter(w => w.Id)
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())
                         .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
-            });
-
-        modelBuilder.SharedTypeEntity<EntityWithTwoAdditionalProperties>(
-            nameof(StoredProcedureUpdateContext.WithOutputParameterAndResultColumnAndResultValue),
-            b =>
-            {
-                b.Property(w => w.AdditionalProperty1).HasComputedColumnSql("8");
-                b.Property(w => w.AdditionalProperty2).HasComputedColumnSql("9");
-
-                b.UpdateUsingStoredProcedure(
-                    nameof(StoredProcedureUpdateContext.WithOutputParameterAndResultColumnAndResultValue) + "_Update",
-                    spb => spb
-                        .HasParameter(w => w.Id)
-                        .HasParameter(w => w.Name)
-                        .HasParameter(w => w.AdditionalProperty1, pb => pb.IsOutput())
-                        .HasResultColumn(w => w.AdditionalProperty2)
-                        .HasRowsAffectedReturnValue());
             });
 
         modelBuilder.Entity<TphChild1>();
@@ -215,9 +198,9 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
                         .HasParameter(w => w.Id, pb => pb.IsOutput())
                         .HasParameter("Discriminator")
                         .HasParameter(w => w.Name)
-                        .HasParameter(nameof(TphChild1.Child1Property))
                         .HasParameter(nameof(TphChild2.Child2InputProperty))
                         .HasParameter(nameof(TphChild2.Child2OutputParameterProperty), o => o.IsOutput())
+                        .HasParameter(nameof(TphChild1.Child1Property))
                         .HasResultColumn(nameof(TphChild2.Child2ResultColumnProperty)));
             });
 
@@ -281,16 +264,15 @@ public abstract class StoredProcedureUpdateFixtureBase : SharedStoreFixtureBase<
         context.WithResultColumn.RemoveRange(context.WithResultColumn);
         context.WithTwoResultColumns.RemoveRange(context.WithTwoResultColumns);
         context.WithOutputParameterAndResultColumn.RemoveRange(context.WithOutputParameterAndResultColumn);
-        context.WithOutputParameterAndResultColumnAndResultValue.RemoveRange(context.WithOutputParameterAndResultColumnAndResultValue);
-        context.WithTwoOutputParameters.RemoveRange(context.WithTwoOutputParameters);
+        context.WithTwoInputParameters.RemoveRange(context.WithTwoInputParameters);
         context.WithRowsAffectedParameter.RemoveRange(context.WithRowsAffectedParameter);
         context.WithRowsAffectedResultColumn.RemoveRange(context.WithRowsAffectedResultColumn);
         context.WithRowsAffectedReturnValue.RemoveRange(context.WithRowsAffectedReturnValue);
-        context.WithStoreGeneratedConcurrencyTokenAsInoutParameter.RemoveRange(context.WithStoreGeneratedConcurrencyTokenAsInoutParameter);
+        context.WithStoreGeneratedConcurrencyTokenAsInOutParameter.RemoveRange(context.WithStoreGeneratedConcurrencyTokenAsInOutParameter);
         context.WithStoreGeneratedConcurrencyTokenAsTwoParameters.RemoveRange(context.WithStoreGeneratedConcurrencyTokenAsTwoParameters);
         context.WithUserManagedConcurrencyToken.RemoveRange(context.WithUserManagedConcurrencyToken);
         context.WithOriginalAndCurrentValueOnNonConcurrencyToken.RemoveRange(context.WithOriginalAndCurrentValueOnNonConcurrencyToken);
-        context.WithInputOutputParameterOnNonConcurrencyToken.RemoveRange(context.WithInputOutputParameterOnNonConcurrencyToken);
+        context.WithInputOrOutputParameter.RemoveRange(context.WithInputOrOutputParameter);
         context.TphParent.RemoveRange(context.TphParent);
         context.TphChild.RemoveRange(context.TphChild);
         context.TptParent.RemoveRange(context.TptParent);

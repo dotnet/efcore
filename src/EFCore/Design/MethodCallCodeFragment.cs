@@ -49,7 +49,10 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
     ///     Initializes a new instance of the <see cref="MethodCallCodeFragment" /> class.
     /// </summary>
     /// <param name="method">The method's name.</param>
-    /// <param name="arguments">The method call's arguments. Can be a fragment like <see cref="NestedClosureCodeFragment" /> or <see cref="PropertyAccessorCodeFragment"/>.</param>
+    /// <param name="arguments">
+    ///     The method call's arguments. Can be a fragment like <see cref="NestedClosureCodeFragment" /> or
+    ///     <see cref="PropertyAccessorCodeFragment" />.
+    /// </param>
     public MethodCallCodeFragment(string method, params object?[] arguments)
     {
         Method = method;
@@ -145,6 +148,6 @@ public class MethodCallCodeFragment : IMethodCallCodeFragment
     /// <returns>A new fragment representing the method chain.</returns>
     public virtual MethodCallCodeFragment Chain(MethodCallCodeFragment call)
         => MethodInfo is not null
-            ? new(MethodInfo, _arguments.ToArray(), ChainedCall?.Chain(call) ?? call)
-            : new(Method, _arguments.ToArray(), ChainedCall?.Chain(call) ?? call);
+            ? new MethodCallCodeFragment(MethodInfo, _arguments.ToArray(), ChainedCall?.Chain(call) ?? call)
+            : new MethodCallCodeFragment(Method, _arguments.ToArray(), ChainedCall?.Chain(call) ?? call);
 }

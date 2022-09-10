@@ -63,7 +63,7 @@ public class RelationalPropertyOverrides :
     /// </summary>
     public override bool IsReadOnly
         => ((Annotatable)Property).IsReadOnly;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -129,7 +129,8 @@ public class RelationalPropertyOverrides :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static RelationalPropertyOverrides MergeInto(
-        IConventionRelationalPropertyOverrides detachedOverrides, IConventionRelationalPropertyOverrides existingOverrides)
+        IConventionRelationalPropertyOverrides detachedOverrides,
+        IConventionRelationalPropertyOverrides existingOverrides)
     {
         var columnNameConfigurationSource = detachedOverrides.GetColumnNameConfigurationSource();
         if (columnNameConfigurationSource != null)
@@ -141,7 +142,7 @@ public class RelationalPropertyOverrides :
 
         return ((InternalRelationalPropertyOverridesBuilder)existingOverrides.Builder)
             .MergeAnnotationsFrom((RelationalPropertyOverrides)detachedOverrides)
-                .Metadata;
+            .Metadata;
     }
 
     /// <summary>
@@ -236,7 +237,7 @@ public class RelationalPropertyOverrides :
     /// </summary>
     public static IReadOnlyRelationalPropertyOverrides? Find(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         => ((IReadOnlyStoreObjectDictionary<IReadOnlyRelationalPropertyOverrides>?)property[RelationalAnnotationNames.RelationalOverrides])
-                ?.Find(storeObject);
+            ?.Find(storeObject);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -246,7 +247,7 @@ public class RelationalPropertyOverrides :
     /// </summary>
     public static IEnumerable<IReadOnlyRelationalPropertyOverrides>? Get(IReadOnlyProperty property)
         => ((IReadOnlyStoreObjectDictionary<IReadOnlyRelationalPropertyOverrides>?)property[RelationalAnnotationNames.RelationalOverrides])
-                ?.GetValues();
+            ?.GetValues();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -263,14 +264,14 @@ public class RelationalPropertyOverrides :
             property[RelationalAnnotationNames.RelationalOverrides];
         if (tableOverrides == null)
         {
-            tableOverrides = new ();
+            tableOverrides = new StoreObjectDictionary<RelationalPropertyOverrides>();
             property[RelationalAnnotationNames.RelationalOverrides] = tableOverrides;
         }
 
         var overrides = tableOverrides.Find(storeObject);
         if (overrides == null)
         {
-            overrides = new (property, storeObject, configurationSource);
+            overrides = new RelationalPropertyOverrides(property, storeObject, configurationSource);
             tableOverrides.Add(storeObject, overrides);
         }
         else

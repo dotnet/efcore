@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
-public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder?>
+public class StoredProcedureParameterBuilder : IInfrastructure<PropertyBuilder?>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,7 +24,8 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder?
     /// </summary>
     [EntityFrameworkInternal]
     public StoredProcedureParameterBuilder(
-        InternalStoredProcedureParameterBuilder builder, PropertyBuilder? propertyBuilder)
+        InternalStoredProcedureParameterBuilder builder,
+        PropertyBuilder? propertyBuilder)
     {
         Builder = builder;
         PropertyBuilder = propertyBuilder;
@@ -112,7 +113,8 @@ public class StoredProcedureParameterBuilder :  IInfrastructure<PropertyBuilder?
         return this;
     }
 
-    PropertyBuilder? IInfrastructure<PropertyBuilder?>.Instance => PropertyBuilder;
+    PropertyBuilder? IInfrastructure<PropertyBuilder?>.Instance
+        => PropertyBuilder;
 
     #region Hidden System.Object members
 

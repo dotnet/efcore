@@ -116,7 +116,6 @@ public static class SqlServerModelExtensions
     public static ConfigurationSource? GetHiLoSequenceSchemaConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema)?.GetConfigurationSource();
 
-
     /// <summary>
     ///     Returns the suffix to append to the name of automatically created sequences.
     /// </summary>

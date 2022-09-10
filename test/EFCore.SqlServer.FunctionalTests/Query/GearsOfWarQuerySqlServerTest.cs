@@ -2571,7 +2571,7 @@ WHERE ([m].[Timeline] AT TIME ZONE 'UTC') = '0002-03-01T13:00:00.0000000+00:00'"
         Assert.Equal(2, mission.Id);
 
         AssertSql(
-                @"@__dateTime_1='0002-03-01T13:00:00.0000000+00:00'
+            @"@__dateTime_1='0002-03-01T13:00:00.0000000+00:00'
 @__timeZone_2='UTC' (Size = 8000) (DbType = AnsiString)
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
@@ -2596,7 +2596,7 @@ WHERE [m].[Timeline] = (@__dateTime_1 AT TIME ZONE @__timeZone_2)");
         Assert.Equal(2, mission.Id);
 
         AssertSql(
-                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+            @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE ([m].[Timeline] AT TIME ZONE 'UTC') = '0002-03-01T13:00:00.0000000+00:00'");
     }
@@ -2640,7 +2640,7 @@ WHERE [m].[Timeline] = (CAST('0010-05-03T12:00:00.0000000' AS datetime2) AT TIME
         Assert.Equal(3, mission.Id);
 
         AssertSql(
-                @"@__dateTime_1='0010-05-03T12:00:00.0000000'
+            @"@__dateTime_1='0010-05-03T12:00:00.0000000'
 @__timeZone_2='UTC' (Size = 8000) (DbType = AnsiString)
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
@@ -7860,10 +7860,12 @@ ORDER BY [g].[Nickname], [g].[SquadId], [t].[IsAutomatic]");
     }
 
     public override async Task
-        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+            bool async)
     {
         await base
-            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async);
+            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                async);
 
         AssertSql(
             @"SELECT [g].[Nickname], [g].[SquadId], [t0].[Key], [t0].[Count]

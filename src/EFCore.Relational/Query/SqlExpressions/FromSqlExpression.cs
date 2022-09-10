@@ -82,7 +82,7 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     public virtual Expression Arguments { get; }
 
     /// <summary>
-    ///     The <see cref="ITableBase"/> associated with given table source if any, <see langword="null" /> otherwise.
+    ///     The <see cref="ITableBase" /> associated with given table source if any, <see langword="null" /> otherwise.
     /// </summary>
     public virtual ITableBase? Table { get; }
 

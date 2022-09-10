@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
@@ -21,17 +20,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         using (var context = CreateContext())
         {
-            context.Add(new HeliumBalloon
-            {
-                Id = Guid.NewGuid().ToString(),
-                Gas = new Helium(),
-            });
+            context.Add(
+                new HeliumBalloon
+                {
+                    Id = Guid.NewGuid().ToString(), Gas = new Helium(),
+                });
 
-            context.Add(new HydrogenBalloon
-            {
-                Id = Guid.NewGuid().ToString(),
-                Gas = new Hydrogen()
-            });
+            context.Add(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
 
             _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
         }
@@ -840,7 +835,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => from c1 in ss.Set<Planet>()
                   join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
                   from c2 in grouping.DefaultIfEmpty()
-                  select new { c1, c2.Id, c2, c2.Orders, c2.PersonAddress },
+                  select new
+                  {
+                      c1,
+                      c2.Id,
+                      c2,
+                      c2.Orders,
+                      c2.PersonAddress
+                  },
             elementSorter: e => (e.c1.Id, e.c2.Id),
             elementAsserter: (e, a) =>
             {
@@ -857,14 +859,19 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss =>
-            from o in ss.Set<Planet>()
-            join sub in (
-                from c1 in ss.Set<Planet>()
-                join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
-                from c2 in grouping.DefaultIfEmpty()
-                select new { c1, c2.Id, c2 }).Distinct() on o.Id equals sub.Id into grouping2
-            from sub in grouping2.DefaultIfEmpty()
-            select new { o, sub },
+                from o in ss.Set<Planet>()
+                join sub in (
+                    from c1 in ss.Set<Planet>()
+                    join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
+                    from c2 in grouping.DefaultIfEmpty()
+                    select new
+                    {
+                        c1,
+                        c2.Id,
+                        c2
+                    }).Distinct() on o.Id equals sub.Id into grouping2
+                from sub in grouping2.DefaultIfEmpty()
+                select new { o, sub },
             elementSorter: e => (e.o.Id, e.sub.c1.Id, e.sub.Id),
             elementAsserter: (e, a) =>
             {
@@ -1449,7 +1456,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                         });
                 });
 
-            modelBuilder.Entity<Planet>(pb => pb.HasData(new Planet { Id = 1, StarId = 1, Name = "Earth" }));
+            modelBuilder.Entity<Planet>(
+                pb => pb.HasData(
+                    new Planet
+                    {
+                        Id = 1,
+                        StarId = 1,
+                        Name = "Earth"
+                    }));
 
             modelBuilder.Entity<Moon>(
                 mb => mb.HasData(
@@ -1592,7 +1606,15 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
 
         private static IReadOnlyList<Planet> CreatePlanets()
-            => new List<Planet> { new() { Id = 1, StarId = 1, Name = "Earth" } };
+            => new List<Planet>
+            {
+                new()
+                {
+                    Id = 1,
+                    StarId = 1,
+                    Name = "Earth"
+                }
+            };
 
         private static IReadOnlyList<Star> CreateStars()
             => new List<Star>

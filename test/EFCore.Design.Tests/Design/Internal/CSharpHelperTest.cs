@@ -460,11 +460,11 @@ public class CSharpHelperTest
         var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
             .Chain(
                 new MethodCallCodeFragment(
-                _testFuncMethodInfo,
-                new NestedClosureCodeFragment(
-                    "x",
-                    new MethodCallCodeFragment(_testFuncMethodInfo, "Two")
-                        .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Three")))));
+                    _testFuncMethodInfo,
+                    new NestedClosureCodeFragment(
+                        "x",
+                        new MethodCallCodeFragment(_testFuncMethodInfo, "Two")
+                            .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Three")))));
 
         var result = new CSharpHelper(TypeMappingSource).Fragment(method, indent: 1);
 
@@ -485,11 +485,7 @@ public class CSharpHelperTest
             _testFuncMethodInfo,
             new NestedClosureCodeFragment(
                 "x",
-                new[]
-                {
-                    new MethodCallCodeFragment(_testFuncMethodInfo, "One"),
-                    new MethodCallCodeFragment(_testFuncMethodInfo, "Two")
-                }));
+                new[] { new MethodCallCodeFragment(_testFuncMethodInfo, "One"), new MethodCallCodeFragment(_testFuncMethodInfo, "Two") }));
 
         var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
@@ -508,8 +504,8 @@ public class CSharpHelperTest
     {
         var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
             .Chain(
-                 new MethodCallCodeFragment(
-                     _testFuncMethodInfo,
+                new MethodCallCodeFragment(
+                    _testFuncMethodInfo,
                     new NestedClosureCodeFragment(
                         "x",
                         new[]

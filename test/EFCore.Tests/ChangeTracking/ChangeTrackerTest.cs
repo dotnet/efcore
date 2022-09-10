@@ -1651,7 +1651,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var product = new Product { Category = new Category()};
+        var product = new Product { Category = new Category() };
         context.Attach(product);
         product.CategoryId = 2;
 
@@ -1685,7 +1685,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var product = new Product { Category = new Category()};
+        var product = new Product { Category = new Category() };
         context.Attach(product);
         product.Category = null;
 
@@ -1719,7 +1719,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var product = new Product { Category = new Category()};
+        var product = new Product { Category = new Category() };
         context.Attach(product);
         product.Category.Products.Clear();
 
@@ -1753,7 +1753,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var cat = new Cat(1) { Hats = { new Hat(2) }};
+        var cat = new Cat(1) { Hats = { new Hat(2) } };
         context.Attach(cat);
         cat.Hats.Clear();
 
@@ -1850,7 +1850,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var product = new Product { Category = new Category()};
+        var product = new Product { Category = new Category() };
         context.Attach(product);
         product.CategoryId = 2;
 
@@ -1882,7 +1882,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var product = new Product { Category = new Category()};
+        var product = new Product { Category = new Category() };
         context.Attach(product);
         product.Category = null;
 
@@ -1915,7 +1915,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var product = new Product { Category = new Category()};
+        var product = new Product { Category = new Category() };
         context.Attach(product);
         product.Category.Products.Clear();
 
@@ -1947,7 +1947,7 @@ public class ChangeTrackerTest
         RegisterDetectAllEvents(context, detectingAll, detectedAll);
         RegisterDetectEntityEvents(context, detectingEntity, detectedEntity);
 
-        var cat = new Cat(1) { Hats = { new Hat(2) }};
+        var cat = new Cat(1) { Hats = { new Hat(2) } };
         context.Attach(cat);
         cat.Hats.Clear();
 
@@ -1972,7 +1972,7 @@ public class ChangeTrackerTest
         var context = scope.ServiceProvider.GetRequiredService<LikeAZooContextPooled>();
 
         var hat = new Hat(2) { Color = "Orange" };
-        var cat1 = new Cat(1) { Hats = { hat }};
+        var cat1 = new Cat(1) { Hats = { hat } };
         var cat2 = new Cat(2);
         context.AttachRange(cat1, cat2);
 
@@ -2342,7 +2342,7 @@ public class ChangeTrackerTest
     public void Setting_dependent_to_null_for_client_cascaded_optional_is_not_overwritten_by_DetectChanges()
     {
         using var context = new EarlyLearningCenter();
-        var bobby = context.Add(new Bobby { Buggy = new() }).Entity;
+        var bobby = context.Add(new Bobby { Buggy = new Buggy() }).Entity;
 
         context.SaveChanges();
         context.ChangeTracker.Clear();
@@ -2492,9 +2492,9 @@ public class ChangeTrackerTest
             Id = 1,
             Products =
             {
-                new() { Id = 1 },
-                new() { Id = 2 },
-                new() { Id = 3 }
+                new OptionalProduct { Id = 1 },
+                new OptionalProduct { Id = 2 },
+                new OptionalProduct { Id = 3 }
             }
         };
 
@@ -3541,7 +3541,7 @@ public class ChangeTrackerTest
     {
         using var context = new LikeAZooContext();
 
-        int originalCount = context.Cats.Local.Count;
+        var originalCount = context.Cats.Local.Count;
         context.Cats.Add(new Cat(3));
 
         context.ChangeTracker.Clear();
@@ -3847,14 +3847,15 @@ public class ChangeTrackerTest
 
             modelBuilder.Entity<DependentGN>().Property(e => e.Id).ValueGeneratedNever();
 
-            modelBuilder.Entity<Buggy>(entity =>
-            {
-                entity.Property<int?>("BobbyId");
-                entity.HasOne<Bobby>()
-                    .WithOne(p => p.Buggy)
-                    .HasForeignKey<Buggy>("BobbyId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+            modelBuilder.Entity<Buggy>(
+                entity =>
+                {
+                    entity.Property<int?>("BobbyId");
+                    entity.HasOne<Bobby>()
+                        .WithOne(p => p.Buggy)
+                        .HasForeignKey<Buggy>("BobbyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
         }
 
         private class DummyValueGenerator : ValueGenerator<int>

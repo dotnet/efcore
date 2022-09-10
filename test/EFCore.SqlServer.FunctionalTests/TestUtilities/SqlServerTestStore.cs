@@ -150,8 +150,7 @@ public class SqlServerTestStore : RelationalTestStore
         => context.Database.EnsureClean();
 
     public void ExecuteScript(string script)
-    {
-        Execute(
+        => Execute(
             Connection, command =>
             {
                 foreach (var batch in
@@ -164,7 +163,6 @@ public class SqlServerTestStore : RelationalTestStore
 
                 return 0;
             }, "");
-    }
 
     private static void WaitForExists(SqlConnection connection)
         => new TestSqlServerRetryingExecutionStrategy().Execute(connection, WaitForExistsImplementation);

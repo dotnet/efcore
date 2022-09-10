@@ -1245,7 +1245,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                        // ReSharper disable once ConstantNullCoalescingCondition
                         select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
             var result = query.ToList();
@@ -1259,7 +1259,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                        // ReSharper disable once ConstantNullCoalescingCondition
                         select new
                         {
                             One = eRootJoined,
@@ -1284,7 +1284,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once MergeConditionalExpression
+                        // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                         select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -1442,18 +1442,15 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             Contacts.AddRange(
                 new ServiceOperatorContact6986
                 {
-                    UserName = "service.operator@esoterix.co.uk",
-                    ServiceOperator6986 = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk", ServiceOperator6986 = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact6986
                 {
-                    UserName = "uwe@esoterix.co.uk",
-                    Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk", Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact6986
                 {
-                    UserName = "hp@esoterix.co.uk",
-                    Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk", Employer6986 = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact6986 { UserName = "noroles@esoterix.co.uk" });
             SaveChanges();
@@ -3585,8 +3582,7 @@ FROM [Prices] AS [p]");
             AddRange(
                 new Employee13025
                 {
-                    Name = "Test1",
-                    Devices = new List<EmployeeDevice13025> { new() { DeviceId = 1, Device = "Battery" } }
+                    Name = "Test1", Devices = new List<EmployeeDevice13025> { new() { DeviceId = 1, Device = "Battery" } }
                 });
 
             SaveChanges();
@@ -8492,8 +8488,7 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]");
             Add(
                 new SecondOwner23211
                 {
-                    Dependents = new List<SecondDependent23211> { new(), new() },
-                    Owned = new OwnedType23211 { Value = "A" }
+                    Dependents = new List<SecondDependent23211> { new(), new() }, Owned = new OwnedType23211 { Value = "A" }
                 });
 
             SaveChanges();
@@ -8688,8 +8683,7 @@ WHERE [l].[Name] = N'My Location'");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y,
-                                Right = x.right
+                                Left = y, Right = x.right
                             })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
@@ -8731,8 +8725,7 @@ WHERE [a0].[Id] IS NULL");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y,
-                                Right = x.right
+                                Left = y, Right = x.right
                             })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
@@ -8774,8 +8767,7 @@ WHERE [a0].[Id] IS NULL");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y,
-                                Right = x.right
+                                Left = y, Right = x.right
                             }))
                 .ToList();
 
@@ -8815,8 +8807,7 @@ LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]");
                             l => l.leftg.DefaultIfEmpty(),
                             (x, y) => new MyContext19253.JoinResult19253<MyContext19253.A19253, MyContext19253.B19253>
                             {
-                                Left = y,
-                                Right = x.right
+                                Left = y, Right = x.right
                             }))
                 .ToList();
 
@@ -10152,8 +10143,7 @@ ORDER BY [t].[Id]");
                         .Select(
                             c => new CollectionViewModel25225
                             {
-                                Id = c.Id,
-                                ParentId = c.ParentId,
+                                Id = c.Id, ParentId = c.ParentId,
                             })
                         .ToArray()
                 });

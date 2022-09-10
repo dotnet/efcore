@@ -39,5 +39,5 @@ public interface IConventionStoredProcedureResultColumnBuilder : IConventionAnno
     /// <param name="name">The name of the result column.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given result column name can be set.</returns>
-    bool CanSetName(string? name, bool fromDataAnnotation = false);  
+    bool CanSetName(string? name, bool fromDataAnnotation = false);
 }

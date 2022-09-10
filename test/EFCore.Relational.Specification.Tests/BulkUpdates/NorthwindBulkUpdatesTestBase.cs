@@ -111,10 +111,12 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>()
-                .Where(e => e.OrderID < ss.Set<Order>()
-                                        .GroupBy(o => o.CustomerID)
-                                        .Where(g => g.Count() > 11)
-                                        .Select(g => g.First()).First().OrderID),
+                .Where(
+                    e => e.OrderID
+                        < ss.Set<Order>()
+                            .GroupBy(o => o.CustomerID)
+                            .Where(g => g.Count() > 11)
+                            .Select(g => g.First()).First().OrderID),
             rowsAffectedCount: 284);
 
     [ConditionalTheory]
@@ -123,10 +125,11 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>()
-                .Where(e => ss.Set<Order>()
-                            .GroupBy(o => o.CustomerID)
-                            .Where(g => g.Count() > 9)
-                            .Select(g => g.First()).Contains(e.Order)),
+                .Where(
+                    e => ss.Set<Order>()
+                        .GroupBy(o => o.CustomerID)
+                        .Where(g => g.Count() > 9)
+                        .Select(g => g.First()).Contains(e.Order)),
             rowsAffectedCount: 109);
 
     [ConditionalTheory(Skip = "Issue#28525")]
@@ -135,9 +138,9 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>()
-                    .GroupBy(od => od.OrderID)
-                    .Where(g => g.Count() > 5)
-                    .Select(g => g.First()),
+                .GroupBy(od => od.OrderID)
+                .Where(g => g.Count() > 5)
+                .Select(g => g.First()),
             rowsAffectedCount: 284);
 
     [ConditionalTheory(Skip = "Issue#26753")]
@@ -146,7 +149,10 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>()
-                    .Where(od => od == ss.Set<OrderDetail>().GroupBy(od => od.OrderID).Where(g => g.Count() > 5).Select(g => g.First()).FirstOrDefault()),
+                .Where(
+                    od => od
+                        == ss.Set<OrderDetail>().GroupBy(od => od.OrderID).Where(g => g.Count() > 5).Select(g => g.First())
+                            .FirstOrDefault()),
             rowsAffectedCount: 284);
 
     [ConditionalTheory]
@@ -203,7 +209,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                    .Union(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
+                .Union(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
             rowsAffectedCount: 5);
 
     [ConditionalTheory]
@@ -212,7 +218,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                    .Concat(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
+                .Concat(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
             rowsAffectedCount: 5);
 
     [ConditionalTheory]
@@ -221,7 +227,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                    .Intersect(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
+                .Intersect(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
             rowsAffectedCount: 0);
 
     [ConditionalTheory]
@@ -230,7 +236,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         => AssertDelete(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                    .Except(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
+                .Except(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
             rowsAffectedCount: 5);
 
     [ConditionalTheory]
@@ -251,7 +257,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                .Select(e => new OrderDetail { OrderID = e.OrderID, ProductID = e.ProductID }),
+                    .Select(e => new OrderDetail { OrderID = e.OrderID, ProductID = e.ProductID }),
                 rowsAffectedCount: 0));
 
     [ConditionalTheory]
@@ -262,7 +268,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
             () => AssertDelete(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                .Select(e => new { OrderDetail = e, e.ProductID }),
+                    .Select(e => new { OrderDetail = e, e.ProductID }),
                 rowsAffectedCount: 0));
 
     [ConditionalTheory]
@@ -275,8 +281,8 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
                 () => Fixture.CreateContext(),
                 (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
                 async context => await context.Set<OrderDetail>().FromSqlRaw(
-                    NormalizeDelimitersInRawString(
-                        @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
+                        NormalizeDelimitersInRawString(
+                            @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
 FROM [Order Details]
 WHERE [OrderID] < 10300"))
                     .ExecuteDeleteAsync());
@@ -287,8 +293,8 @@ WHERE [OrderID] < 10300"))
                 () => Fixture.CreateContext(),
                 (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
                 context => context.Set<OrderDetail>().FromSqlRaw(
-                    NormalizeDelimitersInRawString(
-                        @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
+                        NormalizeDelimitersInRawString(
+                            @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
 FROM [Order Details]
 WHERE [OrderID] < 10300"))
                     .ExecuteDelete());
@@ -312,7 +318,7 @@ WHERE [OrderID] < 10300"))
             async,
             ss => from od in ss.Set<OrderDetail>()
                   join o in ss.Set<Order>().Where(o => o.OrderID < 10300).OrderBy(e => e.OrderID).Skip(0).Take(100)
-                    on od.OrderID equals o.OrderID
+                      on od.OrderID equals o.OrderID
                   select od,
             rowsAffectedCount: 140);
 
@@ -323,7 +329,7 @@ WHERE [OrderID] < 10300"))
             async,
             ss => from od in ss.Set<OrderDetail>().Where(e => e.OrderID < 10276)
                   join o in ss.Set<Order>().Where(o => o.OrderID < 10300).OrderBy(e => e.OrderID).Skip(0).Take(100)
-                    on od.OrderID equals o.OrderID into grouping
+                      on od.OrderID equals o.OrderID into grouping
                   from o in grouping.DefaultIfEmpty()
                   select od,
             rowsAffectedCount: 74);
@@ -409,12 +415,12 @@ WHERE [OrderID] < 10300"))
     {
         var value = "Abc";
         return AssertUpdate(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
-                e => e,
-                s => s.SetProperty(c => c.ContactName, c => value),
-                rowsAffectedCount: 8,
-                (b, a) => Assert.All(a, c => Assert.Equal("Abc", c.ContactName)));
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => value),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.Equal("Abc", c.ContactName)));
     }
 
     [ConditionalTheory]
@@ -511,8 +517,10 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>()
-                    .Where(c => c.CustomerID == ss.Set<Order>()
-                        .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.Key).FirstOrDefault()),
+                .Where(
+                    c => c.CustomerID
+                        == ss.Set<Order>()
+                            .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.Key).FirstOrDefault()),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
             rowsAffectedCount: 1,
@@ -524,8 +532,10 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>()
-                    .Where(c => c.CustomerID == ss.Set<Order>()
-                        .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().CustomerID).FirstOrDefault()),
+                .Where(
+                    c => c.CustomerID
+                        == ss.Set<Order>()
+                            .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().CustomerID).FirstOrDefault()),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
             rowsAffectedCount: 1,
@@ -537,8 +547,10 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>()
-                    .Where(c => c == ss.Set<Order>()
-                        .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().Customer).FirstOrDefault()),
+                .Where(
+                    c => c
+                        == ss.Set<Order>()
+                            .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().Customer).FirstOrDefault()),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
             rowsAffectedCount: 1,
@@ -550,7 +562,8 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>()
-                    .Where(c => ss.Set<Order>()
+                .Where(
+                    c => ss.Set<Order>()
                         .GroupBy(e => e.CustomerID).Where(g => g.Count() > 11).Select(e => e.First().Customer).Contains(c)),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
@@ -605,12 +618,12 @@ WHERE [OrderID] < 10300"))
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_set_property_plus_constant(bool async)
         => AssertUpdate(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
-                e => e,
-                s => s.SetProperty(c => c.ContactName, c => c.ContactName + "Abc"),
-                rowsAffectedCount: 8,
-                (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + "Abc", e.Second.ContactName)));
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => c.ContactName + "Abc"),
+            rowsAffectedCount: 8,
+            (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + "Abc", e.Second.ContactName)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -618,24 +631,24 @@ WHERE [OrderID] < 10300"))
     {
         var value = "Abc";
         return AssertUpdate(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
-                e => e,
-                s => s.SetProperty(c => c.ContactName, c => c.ContactName + value),
-                rowsAffectedCount: 8,
-                (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + "Abc", e.Second.ContactName)));
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => c.ContactName + value),
+            rowsAffectedCount: 8,
+            (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + "Abc", e.Second.ContactName)));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_set_property_plus_property(bool async)
         => AssertUpdate(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
-                e => e,
-                s => s.SetProperty(c => c.ContactName, c => c.ContactName + c.CustomerID),
-                rowsAffectedCount: 8,
-                (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + e.First.CustomerID, e.Second.ContactName)));
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => c.ContactName + c.CustomerID),
+            rowsAffectedCount: 8,
+            (b, a) => b.Zip(a).ForEach(e => Assert.Equal(e.First.ContactName + e.First.CustomerID, e.Second.ContactName)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -689,12 +702,13 @@ WHERE [OrderID] < 10300"))
     {
         var value = "Abc";
         return AssertUpdate(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
-                e => e,
-                s => s.SetProperty(c => c.ContactName, c => value).SetProperty(c => c.City, c => "Seattle"),
-                rowsAffectedCount: 8,
-                (b, a) => Assert.All(a, c =>
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.ContactName, c => value).SetProperty(c => c.City, c => "Seattle"),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(
+                a, c =>
                 {
                     Assert.Equal("Abc", c.ContactName);
                     Assert.Equal("Seattle", c.City);
@@ -716,12 +730,12 @@ WHERE [OrderID] < 10300"))
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_multiple_entity_throws(bool async)
-         => AssertTranslationFailed(
+        => AssertTranslationFailed(
             RelationalStrings.MultipleEntityPropertiesInSetProperty("Order", "Customer"),
             () => AssertUpdate(
                 async,
                 ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F"))
-                        .Select(e => new { e, e.Customer }),
+                    .Select(e => new { e, e.Customer }),
                 e => e.Customer,
                 s => s.SetProperty(c => c.Customer.ContactName, c => "Name").SetProperty(c => c.e.OrderDate, e => new DateTime(2020, 1, 1)),
                 rowsAffectedCount: 0));
@@ -730,7 +744,8 @@ WHERE [OrderID] < 10300"))
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_unmapped_property_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.UnableToTranslateSetProperty("c => c.IsLondon", "c => True",
+            RelationalStrings.UnableToTranslateSetProperty(
+                "c => c.IsLondon", "c => True",
                 CoreStrings.QueryUnableToTranslateMember("IsLondon", "Customer")),
             () => AssertUpdate(
                 async,
@@ -745,7 +760,7 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .Union(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
+                .Union(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
             rowsAffectedCount: 12,
@@ -757,7 +772,7 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
             rowsAffectedCount: 12,
@@ -769,7 +784,7 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .Except(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
+                .Except(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
             rowsAffectedCount: 8,
@@ -781,7 +796,7 @@ WHERE [OrderID] < 10300"))
         => AssertUpdate(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                    .Intersect(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
+                .Intersect(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))),
             e => e,
             s => s.SetProperty(c => c.ContactName, c => "Updated"),
             rowsAffectedCount: 0,
@@ -794,7 +809,7 @@ WHERE [OrderID] < 10300"))
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                   join o in ss.Set<Order>().Where(o => o.OrderID < 10300)
-                    on c.CustomerID equals o.CustomerID
+                      on c.CustomerID equals o.CustomerID
                   select new { c, o },
             e => e.c,
             s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
@@ -808,7 +823,7 @@ WHERE [OrderID] < 10300"))
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                   join o in ss.Set<Order>().Where(o => o.OrderID < 10300)
-                    on c.CustomerID equals o.CustomerID into grouping
+                      on c.CustomerID equals o.CustomerID into grouping
                   from o in grouping.DefaultIfEmpty()
                   select new { c, o },
             e => e.c,
@@ -863,9 +878,14 @@ WHERE [OrderID] < 10300"))
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                   from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
                   join o in ss.Set<Order>().Where(o => o.OrderID < 10300)
-                    on c.CustomerID equals o.CustomerID into grouping
+                      on c.CustomerID equals o.CustomerID into grouping
                   from o in grouping.DefaultIfEmpty()
-                  select new { c, c2, o },
+                  select new
+                  {
+                      c,
+                      c2,
+                      o
+                  },
             e => e.c,
             s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
             rowsAffectedCount: 8,
@@ -893,7 +913,12 @@ WHERE [OrderID] < 10300"))
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                   from c2 in ss.Set<Customer>().Where(c => c.City.StartsWith("S"))
                   from o in ss.Set<Order>().Where(o => o.OrderID < 10300 && o.OrderDate.Value.Year < c.ContactName.Length).DefaultIfEmpty()
-                  select new { c, c2, o },
+                  select new
+                  {
+                      c,
+                      c2,
+                      o
+                  },
             e => e.c,
             s => s.SetProperty(c => c.c.ContactName, c => "Updated"),
             rowsAffectedCount: 8,
@@ -909,8 +934,8 @@ WHERE [OrderID] < 10300"))
                 () => Fixture.CreateContext(),
                 (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
                 async context => await context.Set<Customer>().FromSqlRaw(
-                    NormalizeDelimitersInRawString(
-                        @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
+                        NormalizeDelimitersInRawString(
+                            @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
 FROM [Customers]
 WHERE [CustomerID] LIKE 'A%'"))
                     .ExecuteUpdateAsync(s => s.SetProperty(c => c.ContactName, c => "Updated")));
@@ -921,8 +946,8 @@ WHERE [CustomerID] LIKE 'A%'"))
                 () => Fixture.CreateContext(),
                 (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
                 context => context.Set<Customer>().FromSqlRaw(
-                    NormalizeDelimitersInRawString(
-                        @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
+                        NormalizeDelimitersInRawString(
+                            @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
 FROM [Customers]
 WHERE [CustomerID] LIKE 'A%'"))
                     .ExecuteUpdate(s => s.SetProperty(c => c.ContactName, c => "Updated")));
@@ -932,71 +957,73 @@ WHERE [CustomerID] LIKE 'A%'"))
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_SelectMany_subquery_set_null(bool async)
-    => AssertUpdate(
-        async,
-        ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-            .SelectMany(c => c.Orders.Where(o => o.OrderDate.Value.Year == 1997)),
-        e => e,
-        s => s.SetProperty(c => c.OrderDate, c => null),
-        rowsAffectedCount: 35,
-        (b, a) => Assert.All(a, c => Assert.Null(c.OrderDate)));
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                .SelectMany(c => c.Orders.Where(o => o.OrderDate.Value.Year == 1997)),
+            e => e,
+            s => s.SetProperty(c => c.OrderDate, c => null),
+            rowsAffectedCount: 35,
+            (b, a) => Assert.All(a, c => Assert.Null(c.OrderDate)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_Join_set_property_from_joined_single_result_table(bool async)
-    => AssertUpdate(
-        async,
-        ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-              select new { c, LastOrder = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault() },
-        e => e.c,
-        s => s.SetProperty(c => c.c.City, c => c.LastOrder.OrderDate.Value.Year.ToString()),
-        rowsAffectedCount: 8,
-        (b, a) => Assert.All(a, c =>
-        {
-            if (c.CustomerID == "FISSA")
-            {
-                Assert.Null(c.City);
-            }
-            else
-            {
-                Assert.NotNull(c.City);
-            }
-        }));
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  select new { c, LastOrder = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault() },
+            e => e.c,
+            s => s.SetProperty(c => c.c.City, c => c.LastOrder.OrderDate.Value.Year.ToString()),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(
+                a, c =>
+                {
+                    if (c.CustomerID == "FISSA")
+                    {
+                        Assert.Null(c.City);
+                    }
+                    else
+                    {
+                        Assert.NotNull(c.City);
+                    }
+                }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_Join_set_property_from_joined_table(bool async)
-    => AssertUpdate(
-        async,
-        ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-              from c2 in ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-              select new { c, c2 },
-        e => e.c,
-        s => s.SetProperty(c => c.c.City, c => c.c2.City),
-        rowsAffectedCount: 8,
-        (b, a) => Assert.All(a, c => Assert.NotNull(c.City)));
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  from c2 in ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                  select new { c, c2 },
+            e => e.c,
+            s => s.SetProperty(c => c.c.City, c => c.c2.City),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(a, c => Assert.NotNull(c.City)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_Join_set_property_from_joined_single_result_scalar(bool async)
-    => AssertUpdate(
-        async,
-        ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-              select new { c, LastOrderDate = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault().OrderDate.Value.Year },
-        e => e.c,
-        s => s.SetProperty(c => c.c.City, c => c.LastOrderDate.ToString()),
-        rowsAffectedCount: 8,
-        (b, a) => Assert.All(a, c =>
-        {
-            if (c.CustomerID == "FISSA")
-            {
-                Assert.Null(c.City);
-            }
-            else
-            {
-                Assert.NotNull(c.City);
-            }
-        }));
+        => AssertUpdate(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                  select new { c, LastOrderDate = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault().OrderDate.Value.Year },
+            e => e.c,
+            s => s.SetProperty(c => c.c.City, c => c.LastOrderDate.ToString()),
+            rowsAffectedCount: 8,
+            (b, a) => Assert.All(
+                a, c =>
+                {
+                    if (c.CustomerID == "FISSA")
+                    {
+                        Assert.Null(c.City);
+                    }
+                    else
+                    {
+                        Assert.NotNull(c.City);
+                    }
+                }));
 
     protected string NormalizeDelimitersInRawString(string sql)
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);

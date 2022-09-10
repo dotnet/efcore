@@ -34,7 +34,6 @@ public class ModificationCommandComparerTest
         entry1.SetEntityState(EntityState.Added);
         var modificationCommandAdded = modificationCommandSource.CreateModificationCommand(
             new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
-            // new ModificationCommandParameters("A", null, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommandAdded.AddEntry(entry1, true);
 
         var entry2 = stateManager.GetOrCreateEntry(new object());

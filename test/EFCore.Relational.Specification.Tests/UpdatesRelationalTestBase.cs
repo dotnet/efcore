@@ -87,7 +87,7 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             {
                 var product = context.ProductWithBytes.Find(productId)!;
                 var category = new SpecialCategory { PrincipalId = 777 };
-                var productCategory = new ProductCategory() { Category = category };
+                var productCategory = new ProductCategory { Category = category };
                 product.ProductCategories = new List<ProductCategory> { productCategory };
 
                 context.SaveChanges();

@@ -469,5 +469,4 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     [DebuggerStepThrough]
     IReadOnlyList<bool>? IConventionIndex.SetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation)
         => SetIsDescending(descending, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
 }

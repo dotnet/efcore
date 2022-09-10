@@ -20,7 +20,8 @@ public class InternalRelationalPropertyOverridesBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public InternalRelationalPropertyOverridesBuilder(
-        RelationalPropertyOverrides overrides, IConventionModelBuilder modelBuilder)
+        RelationalPropertyOverrides overrides,
+        IConventionModelBuilder modelBuilder)
         : base(overrides, modelBuilder)
     {
     }
@@ -41,7 +42,7 @@ public class InternalRelationalPropertyOverridesBuilder :
         }
 
         Metadata.SetColumnName(name, configurationSource);
-        
+
         return this;
     }
 

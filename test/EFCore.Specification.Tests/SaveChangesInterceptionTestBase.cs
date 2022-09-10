@@ -657,7 +657,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             ConcurrencyExceptionCalled = true;
             AsyncCalled = true;
 
-            return new(result);
+            return new ValueTask<InterceptionResult>(result);
         }
     }
 

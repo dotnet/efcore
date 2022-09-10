@@ -139,9 +139,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object CreatePrincipalEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotImplementedException();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -150,9 +148,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object? CreateDependentEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotImplementedException();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

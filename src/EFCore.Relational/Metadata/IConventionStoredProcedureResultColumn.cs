@@ -18,7 +18,7 @@ public interface IConventionStoredProcedureResultColumn : IReadOnlyStoredProcedu
     /// </summary>
     /// <exception cref="InvalidOperationException">If the stored procedure result column has been removed from the model.</exception>
     new IConventionStoredProcedureResultColumnBuilder Builder { get; }
-    
+
     /// <summary>
     ///     Sets the result column name.
     /// </summary>

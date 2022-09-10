@@ -33,7 +33,9 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlExpression? Translate(
-        MethodInfo method, EnumerableExpression source, IReadOnlyList<SqlExpression> arguments,
+        MethodInfo method,
+        EnumerableExpression source,
+        IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (method.DeclaringType == typeof(Queryable))
@@ -44,8 +46,8 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
             switch (methodInfo.Name)
             {
                 case nameof(Queryable.Average)
-                when (QueryableMethods.IsAverageWithoutSelector(methodInfo)
-                    || QueryableMethods.IsAverageWithSelector(methodInfo))
+                    when (QueryableMethods.IsAverageWithoutSelector(methodInfo)
+                        || QueryableMethods.IsAverageWithSelector(methodInfo))
                     && source.Selector is SqlExpression averageSqlExpression:
                     var averageInputType = averageSqlExpression.Type;
                     if (averageInputType == typeof(int)
@@ -77,7 +79,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                 // Count/LongCount are special since if the argument is a star fragment, it needs to be transformed to any non-null constant
                 // when a predicate is applied.
                 case nameof(Queryable.Count)
-                when methodInfo == QueryableMethods.CountWithoutPredicate
+                    when methodInfo == QueryableMethods.CountWithoutPredicate
                     || methodInfo == QueryableMethods.CountWithPredicate:
                     var countSqlExpression = (source.Selector as SqlExpression) ?? _sqlExpressionFactory.Fragment("*");
                     countSqlExpression = CombineTerms(source, countSqlExpression);
@@ -89,7 +91,7 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         typeof(int));
 
                 case nameof(Queryable.LongCount)
-                when methodInfo == QueryableMethods.LongCountWithoutPredicate
+                    when methodInfo == QueryableMethods.LongCountWithoutPredicate
                     || methodInfo == QueryableMethods.LongCountWithPredicate:
                     var longCountSqlExpression = (source.Selector as SqlExpression) ?? _sqlExpressionFactory.Fragment("*");
                     longCountSqlExpression = CombineTerms(source, longCountSqlExpression);
@@ -101,8 +103,8 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         typeof(long));
 
                 case nameof(Queryable.Max)
-                when (methodInfo == QueryableMethods.MaxWithoutSelector
-                    || methodInfo == QueryableMethods.MaxWithSelector)
+                    when (methodInfo == QueryableMethods.MaxWithoutSelector
+                        || methodInfo == QueryableMethods.MaxWithSelector)
                     && source.Selector is SqlExpression maxSqlExpression:
                     maxSqlExpression = CombineTerms(source, maxSqlExpression);
                     return _sqlExpressionFactory.Function(
@@ -114,8 +116,8 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         maxSqlExpression.TypeMapping);
 
                 case nameof(Queryable.Min)
-                when (methodInfo == QueryableMethods.MinWithoutSelector
-                    || methodInfo == QueryableMethods.MinWithSelector)
+                    when (methodInfo == QueryableMethods.MinWithoutSelector
+                        || methodInfo == QueryableMethods.MinWithSelector)
                     && source.Selector is SqlExpression minSqlExpression:
                     minSqlExpression = CombineTerms(source, minSqlExpression);
                     return _sqlExpressionFactory.Function(
@@ -127,8 +129,8 @@ public class QueryableAggregateMethodTranslator : IAggregateMethodCallTranslator
                         minSqlExpression.TypeMapping);
 
                 case nameof(Queryable.Sum)
-                when (QueryableMethods.IsSumWithoutSelector(methodInfo)
-                    || QueryableMethods.IsSumWithSelector(methodInfo))
+                    when (QueryableMethods.IsSumWithoutSelector(methodInfo)
+                        || QueryableMethods.IsSumWithSelector(methodInfo))
                     && source.Selector is SqlExpression sumSqlExpression:
                     sumSqlExpression = CombineTerms(source, sumSqlExpression);
                     var sumInputType = sumSqlExpression.Type;

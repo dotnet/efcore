@@ -416,7 +416,6 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         RequiredSingleAk2 new2 = null;
         RequiredSingleComposite2 new2c = null;
         RequiredSingleAk1 new1 = null;
-        ;
         Root newRoot;
         RequiredSingleAk1 old1 = null;
         RequiredSingleAk2 old2 = null;

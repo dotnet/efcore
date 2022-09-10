@@ -63,14 +63,16 @@ public class CosmosModelValidator : ModelValidator
             var ownership = entityType.FindOwnership();
             if (ownership != null)
             {
-                throw new InvalidOperationException(CosmosStrings.OwnedTypeDifferentContainer(
-                    entityType.DisplayName(), ownership.PrincipalEntityType.DisplayName(), container));
+                throw new InvalidOperationException(
+                    CosmosStrings.OwnedTypeDifferentContainer(
+                        entityType.DisplayName(), ownership.PrincipalEntityType.DisplayName(), container));
             }
 
             if (entityType.GetContainingPropertyName() != null)
             {
-                throw new InvalidOperationException(CosmosStrings.ContainerContainingPropertyConflict(
-                    entityType.DisplayName(), container, entityType.GetContainingPropertyName()));
+                throw new InvalidOperationException(
+                    CosmosStrings.ContainerContainingPropertyConflict(
+                        entityType.DisplayName(), container, entityType.GetContainingPropertyName()));
             }
 
             if (!containers.TryGetValue(container, out var mappedTypes))
@@ -335,6 +337,29 @@ public class CosmosModelValidator : ModelValidator
                     throw new InvalidOperationException(
                         CosmosStrings.NoPartitionKeyKey(
                             entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the mapping/configuration of mutable in the model.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidateNoMutableKeys(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var key in entityType.GetDeclaredKeys())
+            {
+                var mutableProperty = key.Properties.FirstOrDefault(p => p.ValueGenerated.HasFlag(ValueGenerated.OnUpdate));
+                if (mutableProperty != null
+                    && !mutableProperty.IsOrdinalKeyProperty())
+                {
+                    throw new InvalidOperationException(CoreStrings.MutableKeyProperty(mutableProperty.Name));
                 }
             }
         }

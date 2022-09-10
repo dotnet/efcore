@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using static Microsoft.EntityFrameworkCore.UpdatesSqlServerTPCTest;
 
@@ -9,7 +8,7 @@ using static Microsoft.EntityFrameworkCore.UpdatesSqlServerTPCTest;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class UpdatesSqlServerTPCTest : UpdatesRelationalTestBase<UpdatesSqlServerTPCTest.UpdatesSqlServerTPTFixture>
+public class UpdatesSqlServerTPCTest : UpdatesRelationalTestBase<UpdatesSqlServerTPTFixture>
 {
     // ReSharper disable once UnusedParameter.Local
     public UpdatesSqlServerTPCTest(UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper)
@@ -50,7 +49,7 @@ VALUES (@p0, @p1);");
         base.Can_add_and_remove_self_refs();
 
         AssertContainsSql(
-                @"@p0='1' (Nullable = false) (Size = 4000)
+            @"@p0='1' (Nullable = false) (Size = 4000)
 @p1=NULL (DbType = Int32)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -58,8 +57,8 @@ SET NOCOUNT ON;
 INSERT INTO [Person] ([Name], [ParentId])
 OUTPUT INSERTED.[PersonId]
 VALUES (@p0, @p1);",
-                //
-                @"@p2='2' (Nullable = false) (Size = 4000)
+            //
+            @"@p2='2' (Nullable = false) (Size = 4000)
 @p3='1' (Nullable = true)
 @p4='3' (Nullable = false) (Size = 4000)
 @p5='1' (Nullable = true)
@@ -73,8 +72,8 @@ WHEN NOT MATCHED THEN
 INSERT ([Name], [ParentId])
 VALUES (i.[Name], i.[ParentId])
 OUTPUT INSERTED.[PersonId], i._Position;",
-                //
-                @"@p6='4' (Nullable = false) (Size = 4000)
+            //
+            @"@p6='4' (Nullable = false) (Size = 4000)
 @p7='2' (Nullable = true)
 @p8='5' (Nullable = false) (Size = 4000)
 @p9='2' (Nullable = true)
@@ -206,9 +205,7 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
                 });
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            configurationBuilder.Properties<decimal>().HaveColumnType("decimal(18, 2)");
-        }
+            => configurationBuilder.Properties<decimal>().HaveColumnType("decimal(18, 2)");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

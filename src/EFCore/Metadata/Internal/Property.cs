@@ -915,7 +915,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetProviderValueComparer()
-        => GetProviderValueComparer(null) ?? (GetEffectiveProviderClrType() == ClrType
+        => GetProviderValueComparer(null)
+            ?? (GetEffectiveProviderClrType() == ClrType
                 ? GetKeyValueComparer()
                 : TypeMapping?.ProviderValueComparer);
 

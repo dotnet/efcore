@@ -1351,7 +1351,6 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                     .Include("OneToOne_Optional_FK2"),
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
 
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_required_navigation_with_EF_Property_Include(bool async)

@@ -31,7 +31,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
             ?? 1;
 
-        _modificationCommandGraph = new(dependencies.ModificationCommandComparer);
+        _modificationCommandGraph = new Multigraph<IReadOnlyModificationCommand, IAnnotatable>(dependencies.ModificationCommandComparer);
         Dependencies = dependencies;
 
         if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -236,12 +236,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 {
                     Check.DebugAssert(sprocMapping is null, "Shared table with sproc mapping");
 
-                    sharedTablesCommandsMap ??= new();
+                    sharedTablesCommandsMap ??= new Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>();
 
                     var tableKey = (table.Name, table.Schema);
                     if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
                     {
-                        sharedCommandsMap = new(table, updateAdapter);
+                        sharedCommandsMap = new SharedTableEntryMap<IModificationCommand>(table, updateAdapter);
                         sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
                     }
 
@@ -344,9 +344,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         AddSameTableEdges(_modificationCommandGraph);
 
         return _modificationCommandGraph.BatchingTopologicalSort(
-            static (_, _, edges) => edges.All(e =>
-                e is ITable
-                || (e is ITableIndex index && index.Filter != null)),
+            static (_, _, edges) => edges.All(
+                e =>
+                    e is ITable
+                    || (e is ITableIndex index && index.Filter != null)),
             FormatCycle);
     }
 
@@ -520,7 +521,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
     private void Format(
         IUniqueConstraint constraint,
-        IReadOnlyModificationCommand source, IReadOnlyModificationCommand target,
+        IReadOnlyModificationCommand source,
+        IReadOnlyModificationCommand target,
         StringBuilder builder)
     {
         var reverseDependency = source.EntityState != EntityState.Deleted;
@@ -574,7 +576,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    private void FormatValues(object[] values, IReadOnlyList<IColumn> columns, IReadOnlyModificationCommand dependentCommand, StringBuilder builder)
+    private void FormatValues(
+        object[] values,
+        IReadOnlyList<IColumn> columns,
+        IReadOnlyModificationCommand dependentCommand,
+        StringBuilder builder)
     {
         for (var i = 0; i < columns.Count; i++)
         {
@@ -635,7 +641,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         if (!CanCreateDependency(foreignKey, command, principal: true)
                             || !IsModified(foreignKey.PrincipalKey.Properties, entry)
                             || command.Table != null
-                                && !HasTempKey(entry, foreignKey.PrincipalKey))
+                            && !HasTempKey(entry, foreignKey.PrincipalKey))
                         {
                             continue;
                         }
@@ -672,7 +678,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         {
                             if (!originalPredecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
                             {
-                                predecessorCommands = new();
+                                predecessorCommands = new List<IReadOnlyModificationCommand>();
                                 originalPredecessorsMap.Add(dependentKeyValue, predecessorCommands);
                             }
 
@@ -804,7 +810,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    static bool HasTempKey(IUpdateEntry entry, IKey key)
+    private static bool HasTempKey(IUpdateEntry entry, IKey key)
     {
         var keyProperties = key.Properties;
 
@@ -952,7 +958,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 var property = columnMapping?.Property;
                 if (property != null
                     && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                         || (!property.IsPrimaryKey() && entry.EntityState != EntityState.Modified)))
+                        || (!property.IsPrimaryKey() && entry.EntityState != EntityState.Modified)))
                 {
                     switch (entry.EntityState)
                     {
@@ -1119,10 +1125,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         .CreateEquatableIndexValue(command, fromOriginalValues: true);
                     if (indexValue != null)
                     {
-                        indexPredecessorsMap ??= new();
+                        indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
                         if (!indexPredecessorsMap.TryGetValue(indexValue, out var predecessorCommands))
                         {
-                            predecessorCommands = new();
+                            predecessorCommands = new List<IReadOnlyModificationCommand>();
                             indexPredecessorsMap.Add(indexValue, predecessorCommands);
                         }
 

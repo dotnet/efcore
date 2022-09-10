@@ -600,14 +600,20 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
 
     protected class ConnectionCreationNoDisposeInterceptor : ConnectionCreationInterceptor
     {
-        public override InterceptionResult ConnectionDisposing(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+        public override InterceptionResult ConnectionDisposing(
+            DbConnection connection,
+            ConnectionEventData eventData,
+            InterceptionResult result)
         {
             base.ConnectionDisposing(connection, eventData, result);
 
             return InterceptionResult.Suppress();
         }
 
-        public override async ValueTask<InterceptionResult> ConnectionDisposingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+        public override async ValueTask<InterceptionResult> ConnectionDisposingAsync(
+            DbConnection connection,
+            ConnectionEventData eventData,
+            InterceptionResult result)
         {
             await base.ConnectionDisposingAsync(connection, eventData, result);
 

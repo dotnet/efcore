@@ -1288,8 +1288,9 @@ public partial class Entity
                     "Entity",
                     x =>
                     {
-                        x.ToTable(tb => tb.HasComment(
-                            @"Entity Comment
+                        x.ToTable(
+                            tb => tb.HasComment(
+                                @"Entity Comment
 On multiple lines
 With XML content <br/>"));
                         x.Property<int>("Id").HasComment(

@@ -104,11 +104,10 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                 foreach (var (conventionEntityType, exampleProperty) in entityTypesMissingConcurrencyColumn)
                 {
                     var providerType = exampleProperty.GetProviderClrType()
-                        ?? (exampleProperty.GetValueConverter() ??
-                            exampleProperty.FindTypeMapping()?.Converter)?.ProviderClrType
+                        ?? (exampleProperty.GetValueConverter() ?? exampleProperty.FindTypeMapping()?.Converter)?.ProviderClrType
                         ?? exampleProperty.ClrType;
                     conventionEntityType.Builder.CreateUniqueProperty(
-                        providerType,
+                            providerType,
                             ConcurrencyPropertyPrefix + exampleProperty.Name,
                             !exampleProperty.IsNullable)!
                         .HasColumnName(concurrencyColumnName)!

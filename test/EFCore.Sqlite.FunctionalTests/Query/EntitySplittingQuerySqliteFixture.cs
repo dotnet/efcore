@@ -5,5 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class EntitySplittingQuerySqliteFixture : EntitySplittingQueryFixtureBase
 {
-    protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqliteTestStoreFactory.Instance;
 }

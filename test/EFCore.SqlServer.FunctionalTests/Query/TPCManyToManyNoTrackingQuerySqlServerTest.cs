@@ -2346,8 +2346,8 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[UnidirectionalEntityComposite
     public override async Task Filtered_include_skip_navigation_order_by_skip_take_unidirectional(bool async)
     {
         await base.Filtered_include_skip_navigation_order_by_skip_take_unidirectional(async);
-AssertSql(
-    @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
+        AssertSql(
+            @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
     SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[Id0], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]
@@ -2477,8 +2477,8 @@ FROM [UnidirectionalBranches] AS [u]");
     public override async Task GetType_in_hierarchy_in_leaf_type_unidirectional(bool async)
     {
         await base.GetType_in_hierarchy_in_leaf_type_unidirectional(async);
-AssertSql(
-    @"SELECT [u].[Id], [u].[Name], [u].[Number], [u].[IsGreen], N'UnidirectionalEntityLeaf' AS [Discriminator]
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name], [u].[Number], [u].[IsGreen], N'UnidirectionalEntityLeaf' AS [Discriminator]
 FROM [UnidirectionalLeaves] AS [u]");
     }
 

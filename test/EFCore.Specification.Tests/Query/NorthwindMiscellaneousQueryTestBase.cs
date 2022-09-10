@@ -30,8 +30,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         using var context1 = CreateContext();
         using var context2 = CreateContext();
 
-        var message = async ?
-            (await Assert.ThrowsAsync<InvalidOperationException>(
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => (from c in context1.Customers
                        from o in context2.Orders
                        select c).FirstAsync())).Message
@@ -50,8 +50,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         using var context1 = CreateContext();
         using var context2 = CreateContext();
 
-        var message = async ?
-            (await Assert.ThrowsAsync<InvalidOperationException>(
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => (from c in context1.Customers
                        from o in context2.Set<Order>()
                        select c).FirstAsync())).Message
@@ -71,8 +71,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         using var context2 = CreateContext();
         var set = context2.Orders;
 
-        var message = async ?
-            (await Assert.ThrowsAsync<InvalidOperationException>(
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => (from c in context1.Customers
                        from o in set
                        select c).FirstAsync())).Message
@@ -91,8 +91,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         using var context1 = CreateContext();
         using var context2 = CreateContext();
 
-        var message = async ?
-            (await Assert.ThrowsAsync<InvalidOperationException>(
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => queryAsync(context2))).Message
             : Assert.Throws<InvalidOperationException>(
                 () => query(context2)).Message;
@@ -1304,7 +1304,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
+    public virtual async Task
+        Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
     {
         using var context = CreateContext();
         var actualQuery = context.Set<Order>()
@@ -1398,9 +1399,9 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
                   from o in ss.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                    .Distinct()
+                      .Where(o => o.OrderID < 10300)
+                      .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                      .Distinct()
                   select new { c, o },
             elementSorter: e => (e.c.CustomerID, e.o.Count),
             elementAsserter: (e, a) =>
@@ -2951,8 +2952,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => (from c in ss.Set<Customer>()
-                  orderby c.Region ?? "ZZ"
-                  select c).Select(x => x),
+                   orderby c.Region ?? "ZZ"
+                   select c).Select(x => x),
             entryCount: 91);
 
     [ConditionalFact]
@@ -2996,7 +2997,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                        .City
                        == "Seattle"
                    select od)
-            .Take(2),
+                .Take(2),
             entryCount: 2);
 
     [ConditionalTheory]
@@ -3017,7 +3018,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                        .City
                        == "Seattle"
                    select od)
-            .Take(2),
+                .Take(2),
             entryCount: 2);
 
     [ConditionalTheory]
@@ -3026,7 +3027,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(1)
-                      // ReSharper disable once UseMethodAny.0
+                  // ReSharper disable once UseMethodAny.0
                   where (from od in ss.Set<OrderDetail>().OrderBy(od => od.OrderID).Take(2)
                          where (from c in ss.Set<Customer>()
                                 where c.CustomerID == o.CustomerID
@@ -3513,10 +3514,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             () => AssertQuery(
                 async,
                 ss => ss.Set<Order>()
-                    .Where(o => (o.OrderID < 10400)
-                        && o.OrderDate.HasValue
-                        && o.OrderDate.Value.Month == dateFilter.Value.Month
-                        && o.OrderDate.Value.Year == dateFilter.Value.Year)));
+                    .Where(
+                        o => (o.OrderID < 10400)
+                            && o.OrderDate.HasValue
+                            && o.OrderDate.Value.Month == dateFilter.Value.Month
+                            && o.OrderDate.Value.Year == dateFilter.Value.Year)));
     }
 
     [ConditionalTheory]
@@ -5276,7 +5278,6 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     public virtual Task String_include_on_incorrect_property_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(
             async () => await AssertQuery(async, ss => ss.Set<Customer>().Include("OrderDetails")));
-
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

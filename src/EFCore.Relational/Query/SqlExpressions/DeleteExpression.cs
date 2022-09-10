@@ -57,7 +57,7 @@ public sealed class DeleteExpression : Expression, IPrintableExpression
         => typeof(object);
 
     /// <inheritdoc />
-    public sealed override ExpressionType NodeType
+    public override ExpressionType NodeType
         => ExpressionType.Extension;
 
     /// <inheritdoc />
@@ -86,6 +86,7 @@ public sealed class DeleteExpression : Expression, IPrintableExpression
         {
             expressionPrinter.Append($"-- {tag}");
         }
+
         expressionPrinter.AppendLine();
         expressionPrinter.AppendLine($"DELETE FROM {Table.Name} AS {Table.Alias}");
         expressionPrinter.Visit(SelectExpression);
@@ -100,8 +101,9 @@ public sealed class DeleteExpression : Expression, IPrintableExpression
 
     private bool Equals(DeleteExpression deleteExpression)
         => Table == deleteExpression.Table
-        && SelectExpression == deleteExpression.SelectExpression;
+            && SelectExpression == deleteExpression.SelectExpression;
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCode.Combine(Table, SelectExpression);
+    public override int GetHashCode()
+        => HashCode.Combine(Table, SelectExpression);
 }

@@ -2243,8 +2243,8 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId]");
     public override async Task Filtered_include_skip_navigation_order_by_unidirectional(bool async)
     {
         await base.Filtered_include_skip_navigation_order_by_unidirectional(async);
-AssertSql(
-    @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[Name], [u].[ReferenceInverseId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
+        AssertSql(
+            @"SELECT [u].[Id], [u].[CollectionInverseId], [u].[Name], [u].[ReferenceInverseId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
 FROM [UnidirectionalEntityThrees] AS [u]
 LEFT JOIN (
     SELECT [u1].[Id], [u1].[CollectionInverseId], [u1].[ExtraId], [u1].[Name], [u1].[ReferenceInverseId], [u0].[ThreeId], [u0].[TwoId]
@@ -2295,8 +2295,8 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[UnidirectionalEntityComposite
     public override async Task Filtered_include_skip_navigation_order_by_skip_take_unidirectional(bool async)
     {
         await base.Filtered_include_skip_navigation_order_by_skip_take_unidirectional(async);
-AssertSql(
-    @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
+        AssertSql(
+            @"SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
     SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[Id0], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]

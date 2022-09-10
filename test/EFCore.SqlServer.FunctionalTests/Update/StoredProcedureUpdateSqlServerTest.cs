@@ -76,20 +76,6 @@ SET NOCOUNT ON;
 EXEC [WithOutputParameterAndResultColumn_Insert] @p0 OUTPUT, @p1;");
     }
 
-    public override async Task Update_with_output_parameter_and_result_column_and_return_value(bool async)
-    {
-        await base.Update_with_output_parameter_and_result_column_and_return_value(async);
-
-        AssertSql(
-            @"@p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
-@p1='1'
-@p2='Updated' (Size = 4000)
-@p3=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
-
-SET NOCOUNT ON;
-EXEC @p0 = [WithOutputParameterAndResultColumnAndResultValue_Update] @p1, @p2, @p3 OUTPUT;");
-    }
-
     public override async Task Update(bool async)
     {
         await base.Update(async);
@@ -112,12 +98,25 @@ EXEC [WithOutputParameter_Update] @p0, @p1;");
 @p2='8'
 
 SET NOCOUNT ON;
-EXEC [WithTwoOutputParameters_Update] @p0, @p1, @p2;");
+EXEC [WithTwoInputParameters_Update] @p0, @p1, @p2;");
     }
 
     public override async Task Update_with_output_parameter_and_rows_affected_result_column(bool async)
     {
         await base.Update_with_output_parameter_and_rows_affected_result_column(async);
+
+        AssertSql(
+            @"@p0='1'
+@p1='Updated' (Size = 4000)
+@p2=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
+
+SET NOCOUNT ON;
+EXEC [WithOutputParameterAndRowsAffectedResultColumn_Update] @p0, @p1, @p2 OUTPUT;");
+    }
+
+    public override async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async)
+    {
+        await base.Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(async);
 
         AssertSql(
             @"@p0='1'
@@ -229,9 +228,9 @@ SET NOCOUNT ON;
 EXEC @p0 = [WithRowsAffectedReturnValue_Update] @p1, @p2;");
     }
 
-    public override async Task Store_generated_concurrency_token_as_inout_parameter(bool async)
+    public override async Task Store_generated_concurrency_token_as_in_out_parameter(bool async)
     {
-        await base.Store_generated_concurrency_token_as_inout_parameter(async);
+        await base.Store_generated_concurrency_token_as_in_out_parameter(async);
 
         // Can't assert SQL baseline as usual because the concurrency token changes
         Assert.Contains("(Size = 8) (Direction = InputOutput)", Fixture.TestSqlLoggerFactory.Sql);
@@ -241,7 +240,7 @@ EXEC @p0 = [WithRowsAffectedReturnValue_Update] @p1, @p2;");
 @p3='0' (Direction = Output)
 
 SET NOCOUNT ON;
-EXEC [WithStoreGeneratedConcurrencyTokenAsInoutParameter_Update] @p0, @p1 OUTPUT, @p2, @p3 OUTPUT;",
+EXEC [WithStoreGeneratedConcurrencyTokenAsInOutParameter_Update] @p0, @p1 OUTPUT, @p2, @p3 OUTPUT;",
             Fixture.TestSqlLoggerFactory.Sql.Substring(Fixture.TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)),
             ignoreLineEndingDifferences: true);
 
@@ -250,7 +249,7 @@ EXEC [WithStoreGeneratedConcurrencyTokenAsInoutParameter_Update] @p0, @p1 OUTPUT
 @p3='0' (Direction = Output)
 
 SET NOCOUNT ON;
-EXEC [WithStoreGeneratedConcurrencyTokenAsInoutParameter_Update] @p0, @p1 OUTPUT, @p2, @p3 OUTPUT;",
+EXEC [WithStoreGeneratedConcurrencyTokenAsInOutParameter_Update] @p0, @p1 OUTPUT, @p2, @p3 OUTPUT;",
             Fixture.TestSqlLoggerFactory.Sql.Substring(Fixture.TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)),
             ignoreLineEndingDifferences: true);
     }
@@ -307,12 +306,12 @@ EXEC [WithOriginalAndCurrentValueOnNonConcurrencyToken_Update] @p0, @p1, @p2;");
             @"@p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
 @p1='TphChild1' (Nullable = false) (Size = 4000)
 @p2='Child' (Size = 4000)
-@p3='8' (Nullable = true)
-@p4=NULL (DbType = Int32)
-@p5=NULL (Direction = Output) (DbType = Int32)
+@p3=NULL (DbType = Int32)
+@p4=NULL (Direction = Output) (DbType = Int32)
+@p5='8' (Nullable = true)
 
 SET NOCOUNT ON;
-EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3, @p4, @p5 OUTPUT;");
+EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3, @p4 OUTPUT, @p5;");
     }
 
     public override async Task Tpt(bool async)
@@ -366,11 +365,28 @@ SET NOCOUNT ON;
 EXEC [TpcChild_Insert] @p0 OUTPUT, @p1, @p2;");
     }
 
-    public override async Task Input_output_parameter_on_non_concurrency_token(bool async)
+    public override async Task Input_or_output_parameter_with_input(bool async)
     {
-        await base.Input_output_parameter_on_non_concurrency_token(async);
+        await base.Input_or_output_parameter_with_input(async);
 
-        AssertSql();
+        AssertSql(
+            @"@p0='1' (Direction = Output)
+@p1=NULL (Nullable = false) (Size = 4000) (Direction = InputOutput)
+
+SET NOCOUNT ON;
+EXEC [WithInputOrOutputParameter_Insert] @p0 OUTPUT, @p1 OUTPUT;");
+    }
+
+    public override async Task Input_or_output_parameter_with_output(bool async)
+    {
+        await base.Input_or_output_parameter_with_output(async);
+
+        AssertSql(
+            @"@p0='1' (Direction = Output)
+@p1='Some default value' (Nullable = false) (Size = 4000) (Direction = InputOutput)
+
+SET NOCOUNT ON;
+EXEC [WithInputOrOutputParameter_Insert] @p0 OUTPUT, @p1 OUTPUT;");
     }
 
     [ConditionalFact]
@@ -393,20 +409,19 @@ EXEC [TpcChild_Insert] @p0 OUTPUT, @p1, @p2;");
 
         private const string CleanDataSql = @"
 -- Regular tables without foreign keys
-TRUNCATE TABLE [WithInputOutputParameterOnNonConcurrencyToken];
+TRUNCATE TABLE [WithInputOrOutputParameter];
 TRUNCATE TABLE [WithOriginalAndCurrentValueOnNonConcurrencyToken];
 TRUNCATE TABLE [WithOutputParameter];
 TRUNCATE TABLE [WithOutputParameterAndResultColumn];
 TRUNCATE TABLE [WithOutputParameterAndRowsAffectedResultColumn];
-TRUNCATE TABLE [WithOutputParameterAndResultColumnAndResultValue];
 TRUNCATE TABLE [WithResultColumn];
 TRUNCATE TABLE [WithTwoResultColumns];
 TRUNCATE TABLE [WithRowsAffectedParameter];
 TRUNCATE TABLE [WithRowsAffectedResultColumn];
 TRUNCATE TABLE [WithRowsAffectedReturnValue];
-TRUNCATE TABLE [WithStoreGeneratedConcurrencyTokenAsInoutParameter];
+TRUNCATE TABLE [WithStoreGeneratedConcurrencyTokenAsInOutParameter];
 TRUNCATE TABLE [WithStoreGeneratedConcurrencyTokenAsTwoParameters];
-TRUNCATE TABLE [WithTwoOutputParameters];
+TRUNCATE TABLE [WithTwoInputParameters];
 TRUNCATE TABLE [WithUserManagedConcurrencyToken];
 TRUNCATE TABLE [Tph];
 TRUNCATE TABLE [TpcChild];
@@ -427,7 +442,7 @@ DELETE FROM [TptChild];
 DELETE FROM [TptParent];
 DBCC CHECKIDENT ('[TptParent]', RESEED, 0);";
 
-        class StoredProcedureTestStoryFactory : SqlServerTestStoreFactory
+        private class StoredProcedureTestStoryFactory : SqlServerTestStoreFactory
         {
             public static new StoredProcedureTestStoryFactory Instance { get; } = new();
 
@@ -480,8 +495,8 @@ END;
 
 GO
 
-CREATE PROCEDURE WithTwoOutputParameters_Update(@Id int, @Name varchar(max), @AdditionalProperty int)
-AS UPDATE [WithTwoOutputParameters] SET [Name] = @Name, [AdditionalProperty] = @AdditionalProperty WHERE [Id] = @id;
+CREATE PROCEDURE WithTwoInputParameters_Update(@Id int, @Name varchar(max), @AdditionalProperty int)
+AS UPDATE [WithTwoInputParameters] SET [Name] = @Name, [AdditionalProperty] = @AdditionalProperty WHERE [Id] = @id;
 
 GO
 
@@ -509,9 +524,9 @@ END;
 
 GO
 
-CREATE PROCEDURE WithStoreGeneratedConcurrencyTokenAsInoutParameter_Update(@Id int, @ConcurrencyToken rowversion OUT, @Name varchar(max), @RowsAffected int OUT)
+CREATE PROCEDURE WithStoreGeneratedConcurrencyTokenAsInOutParameter_Update(@Id int, @ConcurrencyToken rowversion OUT, @Name varchar(max), @RowsAffected int OUT)
 AS BEGIN
-    UPDATE [WithStoreGeneratedConcurrencyTokenAsInoutParameter] SET [Name] = @Name WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyToken;
+    UPDATE [WithStoreGeneratedConcurrencyTokenAsInOutParameter] SET [Name] = @Name WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyToken;
     SET @RowsAffected = @@ROWCOUNT;
 END;
 
@@ -543,24 +558,25 @@ END;
 
 GO
 
-CREATE PROCEDURE WithInputOutputParameterOnNonConcurrencyToken_Update(@Id int, @Name varchar(max) OUT)
+CREATE PROCEDURE WithInputOrOutputParameter_Insert(@Id int OUT, @Name varchar(max) OUT)
 AS BEGIN
-    SET @Name = @Name + 'WithSuffix';
-    UPDATE [WithInputOutputParameterOnNonConcurrencyToken] SET [Name] = @Name WHERE [Id] = @Id;
+    IF @Name IS NULL
+    BEGIN
+        INSERT INTO [WithInputOrOutputParameter] ([Name]) VALUES ('Some default value');
+        SET @Name = 'Some default value';
+    END
+    ELSE
+    BEGIN
+        INSERT INTO [WithInputOrOutputParameter] ([Name]) VALUES (@Name);
+        SET @Name = NULL;
+    END
+
+    SET @Id = SCOPE_IDENTITY();
 END;
 
 GO
 
-CREATE PROCEDURE WithOutputParameterAndResultColumnAndResultValue_Update(@Id int, @Name varchar(max), @AdditionalProperty1 int OUT)
-AS BEGIN
-    UPDATE [WithOutputParameterAndResultColumnAndResultValue] SET [Name] = @Name, @AdditionalProperty1 = [AdditionalProperty1] WHERE [Id] = @Id;
-    SELECT [AdditionalProperty2] FROM [WithOutputParameterAndResultColumnAndResultValue] WHERE [Id] = @Id
-    RETURN @@ROWCOUNT;
-END;
-
-GO
-
-CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child1Property int, @Child2InputProperty int, @Child2OutputParameterProperty int OUT)
+CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child2InputProperty int, @Child2OutputParameterProperty int OUT, @Child1Property int)
 AS BEGIN
     DECLARE @Table table ([Child2OutputParameterProperty] int);
     INSERT INTO [Tph] ([Discriminator], [Name], [Child1Property], [Child2InputProperty]) OUTPUT [Inserted].[Child2OutputParameterProperty] INTO @Table VALUES (@Discriminator, @Name, @Child1Property, @Child2InputProperty);

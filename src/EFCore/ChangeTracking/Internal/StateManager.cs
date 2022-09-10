@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -805,7 +804,7 @@ public class StateManager : IStateManager
                             existingEntry.Entity,
                             navigation,
                             referencedFromEntry!);
-                        
+
                         var navigationValue = referencedFromEntry![navigation];
                         if (navigationValue != null && navigation.IsCollection)
                         {
@@ -1386,7 +1385,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void SetEvents(
-        EventHandler<EntityTrackingEventArgs>? tracking, 
+        EventHandler<EntityTrackingEventArgs>? tracking,
         EventHandler<EntityTrackedEventArgs>? tracked,
         EventHandler<EntityStateChangingEventArgs>? stateChanging,
         EventHandler<EntityStateChangedEventArgs>? stateChanged)

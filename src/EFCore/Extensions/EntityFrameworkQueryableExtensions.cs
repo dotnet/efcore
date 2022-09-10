@@ -393,7 +393,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the first
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the first
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -539,7 +539,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the last
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the last
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -2687,20 +2687,14 @@ public static class EntityFrameworkQueryableExtensions
     #region Tagging
 
     internal static readonly MethodInfo TagWithMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(TagWith), new[]
-        {
-            typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-            typeof(string)
-        })!;
+        = typeof(EntityFrameworkQueryableExtensions).GetMethod(
+            nameof(TagWith), new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string) })!;
 
     internal static readonly MethodInfo TagWithCallSiteMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
-            .GetMethod(nameof(TagWithCallSite), new[]
-            {
-                typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-                typeof(string),
-                typeof(int)
-            })!;
+            .GetMethod(
+                nameof(TagWithCallSite),
+                new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int) })!;
 
     /// <summary>
     ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
-
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -39,7 +37,7 @@ public interface IConventionRelationalPropertyOverrides : IReadOnlyRelationalPro
     string? SetColumnName(string? name, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///    Removes the column name override.
+    ///     Removes the column name override.
     /// </summary>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>A value indicating whether the column name override was removed. </returns>

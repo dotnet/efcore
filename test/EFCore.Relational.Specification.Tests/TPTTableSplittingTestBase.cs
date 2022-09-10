@@ -22,12 +22,10 @@ public abstract class TPTTableSplittingTestBase : TableSplittingTestBase
         => Task.CompletedTask;
 
     public override async Task ExecuteUpdate_works_for_table_sharing(bool async)
-    {
-        Assert.Contains(
+        => Assert.Contains(
             RelationalStrings.NonQueryTranslationFailedWithDetails(
                 "", RelationalStrings.ExecuteOperationOnTPT("ExecuteUpdate", "Vehicle"))[21..],
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_works_for_table_sharing(async))).Message);
-    }
 
     protected override string StoreName
         => "TPTTableSplittingTest";

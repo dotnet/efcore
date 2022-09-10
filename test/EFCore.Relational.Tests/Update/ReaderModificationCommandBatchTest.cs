@@ -59,11 +59,13 @@ public class ReaderModificationCommandBatchTest
         Assert.True(batch.TryAddCommand(command2));
         batch.Complete(moreBatchesExpected: false);
 
-        Assert.Collection(batch.ModificationCommands,
+        Assert.Collection(
+            batch.ModificationCommands,
             m => Assert.Same(command1, m),
             m => Assert.Same(command2, m));
 
-        Assert.Equal(@"UPDATE ""T1"" SET ""Col2"" = @p0
+        Assert.Equal(
+            @"UPDATE ""T1"" SET ""Col2"" = @p0
 RETURNING 1;
 UPDATE ""T2"" SET ""Col2"" = @p1
 RETURNING 1;
@@ -120,7 +122,8 @@ RETURNING 1;
 
         Assert.Same(command1, Assert.Single(batch.ModificationCommands));
 
-        Assert.Equal(@"UPDATE ""T1"" SET ""Col2"" = @p0
+        Assert.Equal(
+            @"UPDATE ""T1"" SET ""Col2"" = @p0
 RETURNING 1;
 ",
             batch.CommandText,
@@ -690,11 +693,7 @@ RETURNING 1;
         var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
         return FakeRelationalTestHelpers.Instance.CreateInternalEntry(
-            model, entityState, new T1
-            {
-                Id = overrideKeyValues ? 1 : default,
-                Name = computeNonKeyValue ? null : "Test"
-            });
+            model, entityState, new T1 { Id = overrideKeyValues ? 1 : default, Name = computeNonKeyValue ? null : "Test" });
     }
 
     private static FakeDbDataReader CreateFakeDataReader(string[] columnNames = null, IList<object[]> results = null)
@@ -742,7 +741,6 @@ RETURNING 1;
                 logger,
                 new FakeDiagnosticsLogger<DbLoggerCategory.Update>());
         }
-
 
         public string CommandText
             => SqlBuilder.ToString();

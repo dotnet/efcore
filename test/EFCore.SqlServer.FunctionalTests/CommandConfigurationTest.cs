@@ -3,6 +3,7 @@
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationFixture>

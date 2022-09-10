@@ -16,18 +16,20 @@ public abstract class EntitySplittingQueryTestBase<TFixture> : QueryTestBase<TFi
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Can_query_entity_which_is_split(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<SplitEntityOne>());
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Can_query_entity_which_is_split_selecting_only_main_properties(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
-            ss => ss.Set<SplitEntityOne>().Select(e => new { e.Id, e.SharedValue, e.Value }));
-    }
+            ss => ss.Set<SplitEntityOne>().Select(
+                e => new
+                {
+                    e.Id,
+                    e.SharedValue,
+                    e.Value
+                }));
 }

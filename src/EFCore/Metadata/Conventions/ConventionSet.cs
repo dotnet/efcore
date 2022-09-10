@@ -223,8 +223,8 @@ public class ConventionSet
     public virtual List<IPropertyRemovedConvention> PropertyRemovedConventions { get; } = new();
 
     /// <summary>
-    ///      Replaces an existing convention with a derived convention. Also registers the new convention for any
-    ///      convention types not implemented by the existing convention.
+    ///     Replaces an existing convention with a derived convention. Also registers the new convention for any
+    ///     convention types not implemented by the existing convention.
     /// </summary>
     /// <typeparam name="TImplementation">The type of the old convention.</typeparam>
     /// <param name="newConvention">The new convention.</param>
@@ -319,7 +319,7 @@ public class ConventionSet
         if (newConvention is IForeignKeyPropertiesChangedConvention foreignKeyPropertiesChangedConvention
             && !Replace(ForeignKeyPropertiesChangedConventions, foreignKeyPropertiesChangedConvention, oldConvetionType))
         {
-           ForeignKeyPropertiesChangedConventions.Add(foreignKeyPropertiesChangedConvention);
+            ForeignKeyPropertiesChangedConventions.Add(foreignKeyPropertiesChangedConvention);
         }
 
         if (newConvention is IForeignKeyUniquenessChangedConvention foreignKeyUniquenessChangedConvention
@@ -335,7 +335,8 @@ public class ConventionSet
         }
 
         if (newConvention is IForeignKeyDependentRequirednessChangedConvention foreignKeyDependentRequirednessChangedConvention
-            && !Replace(ForeignKeyDependentRequirednessChangedConventions, foreignKeyDependentRequirednessChangedConvention, oldConvetionType))
+            && !Replace(
+                ForeignKeyDependentRequirednessChangedConventions, foreignKeyDependentRequirednessChangedConvention, oldConvetionType))
         {
             ForeignKeyDependentRequirednessChangedConventions.Add(foreignKeyDependentRequirednessChangedConvention);
         }

@@ -157,7 +157,7 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
                 return new IdentityMapFactoryFactory().Create(key);
             });
 
-    private readonly static MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
+    private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
 
     [UsedImplicitly]

@@ -47,8 +47,8 @@ public interface IReadOnlyCheckConstraint : IReadOnlyAnnotatable
     /// <returns>The default name that would be used for this check constraint.</returns>
     string? GetDefaultName(in StoreObjectIdentifier storeObject)
         => storeObject.StoreObjectType == StoreObjectType.Table
-        ? Uniquifier.Truncate(ModelName, EntityType.Model.GetMaxIdentifierLength())
-        : null;
+            ? Uniquifier.Truncate(ModelName, EntityType.Model.GetMaxIdentifierLength())
+            : null;
 
     /// <summary>
     ///     Gets the entity type on which this check constraint is defined.

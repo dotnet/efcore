@@ -273,7 +273,7 @@ public class LocalView<TEntity> :
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
 
-        return entry != null 
+        return entry != null
             && entry.EntityState != EntityState.Deleted
             && entry.EntityState != EntityState.Detached;
     }

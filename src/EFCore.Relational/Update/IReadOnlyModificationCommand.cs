@@ -43,12 +43,6 @@ public interface IReadOnlyModificationCommand
     public IReadOnlyList<IColumnModification> ColumnModifications { get; }
 
     /// <summary>
-    ///     Indicates whether the database will return values for some mapped properties
-    ///     that will then need to be propagated back to the tracked entities.
-    /// </summary>
-    public bool RequiresResultPropagation { get; }
-
-    /// <summary>
     ///     The <see cref="IUpdateEntry" /> that represent the entities that are mapped to the row to update.
     /// </summary>
     public IReadOnlyList<IUpdateEntry> Entries { get; }
@@ -79,7 +73,7 @@ public interface IReadOnlyModificationCommand
     /// </summary>
     /// <param name="parameterCollection">The parameter collection from which to propagate output values.</param>
     /// <param name="baseParameterIndex">
-    /// The index in <paramref name="parameterCollection" /> on which parameters for this <see cref="ModificationCommand" /> begin.
+    ///     The index in <paramref name="parameterCollection" /> on which parameters for this <see cref="ModificationCommand" /> begin.
     /// </param>
     public void PropagateOutputParameters(DbParameterCollection parameterCollection, int baseParameterIndex);
 }

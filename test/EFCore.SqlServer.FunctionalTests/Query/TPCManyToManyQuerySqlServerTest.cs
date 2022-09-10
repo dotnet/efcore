@@ -2164,8 +2164,8 @@ INNER JOIN (
     public override async Task Select_skip_navigation_unidirectional(bool async)
     {
         await base.Select_skip_navigation_unidirectional(async);
-AssertSql(
-    @"SELECT [u].[Id], [t].[Id], [t].[Name], [t].[LeftId], [t].[RightId]
+        AssertSql(
+            @"SELECT [u].[Id], [t].[Id], [t].[Name], [t].[LeftId], [t].[RightId]
 FROM [UnidirectionalEntityOnes] AS [u]
 LEFT JOIN (
     SELECT [u1].[Id], [u1].[Name], [u0].[LeftId], [u0].[RightId]
@@ -2486,8 +2486,8 @@ FROM [UnidirectionalRoots] AS [u]");
     public override async Task GetType_in_hierarchy_in_intermediate_type_unidirectional(bool async)
     {
         await base.GetType_in_hierarchy_in_intermediate_type_unidirectional(async);
-AssertSql(
-    @"SELECT [u].[Id], [u].[Name], [u].[Number], NULL AS [IsGreen], N'UnidirectionalEntityBranch' AS [Discriminator]
+        AssertSql(
+            @"SELECT [u].[Id], [u].[Name], [u].[Number], NULL AS [IsGreen], N'UnidirectionalEntityBranch' AS [Discriminator]
 FROM [UnidirectionalBranches] AS [u]");
     }
 

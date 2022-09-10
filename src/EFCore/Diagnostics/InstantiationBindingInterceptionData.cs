@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// </remarks>
 public readonly struct InstantiationBindingInterceptionData
 {
-
     /// <summary>
     ///     Constructs the parameter object.
     /// </summary>
@@ -20,7 +19,7 @@ public readonly struct InstantiationBindingInterceptionData
     {
         EntityType = entityType;
     }
-    
+
     /// <summary>
     ///     The entity type for which the binding is being used.
     /// </summary>

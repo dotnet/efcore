@@ -176,7 +176,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -184,7 +184,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<EntityTrackingEventArgs>? Tracking { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -192,7 +192,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<EntityTrackedEventArgs>? Tracked { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -200,7 +200,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<EntityStateChangingEventArgs>? StateChanging { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -208,7 +208,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<EntityStateChangedEventArgs>? StateChanged { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -216,7 +216,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<DetectChangesEventArgs>? DetectingAllChanges { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -224,7 +224,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<DetectedChangesEventArgs>? DetectedAllChanges { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -232,7 +232,7 @@ public sealed class DbContextPoolConfigurationSnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

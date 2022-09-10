@@ -22,7 +22,7 @@ public class EntityProjectionExpression : Expression
     /// <summary>
     ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
     /// </summary>
-    /// <param name="entityType">The entity type to shape.</param>
+    /// <param name="entityType">An entity type to shape.</param>
     /// <param name="propertyExpressionMap">A dictionary of column expressions corresponding to properties of the entity type.</param>
     /// <param name="discriminatorExpression">A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy.</param>
     public EntityProjectionExpression(
@@ -115,7 +115,6 @@ public class EntityProjectionExpression : Expression
             discriminatorExpression = ce.MakeNullable();
         }
 
-        var primaryKeyProperties = GetMappedKeyProperties(EntityType.FindPrimaryKey()!);
         var ownedNavigationMap = new Dictionary<INavigation, EntityShaperExpression>();
         foreach (var (navigation, shaper) in _ownedNavigationMap)
         {
@@ -123,18 +122,8 @@ public class EntityProjectionExpression : Expression
             {
                 // even if shaper is nullable, we need to make sure key property map contains nullable keys,
                 // if json entity itself is optional, the shaper would be null, but the PK of the owner entity would be non-nullable intially
-                Debug.Assert(primaryKeyProperties != null, "Json entity type can't be keyless");
-
                 var jsonQueryExpression = (JsonQueryExpression)shaper.ValueBufferExpression;
-                var ownedPrimaryKeyProperties = GetMappedKeyProperties(shaper.EntityType.FindPrimaryKey()!)!;
-                var nullableKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-                for (var i = 0; i < primaryKeyProperties.Count; i++)
-                {
-                    nullableKeyPropertyMap[ownedPrimaryKeyProperties[i]] = propertyExpressionMap[primaryKeyProperties[i]];
-                }
-
-                // reuse key columns from owner (that we just made nullable), so that the references are the same
-                var newJsonQueryExpression = jsonQueryExpression.MakeNullable(nullableKeyPropertyMap);
+                var newJsonQueryExpression = jsonQueryExpression.MakeNullable();
                 var newShaper = shaper.Update(newJsonQueryExpression).MakeNullable();
                 ownedNavigationMap[navigation] = newShaper;
             }
@@ -145,34 +134,6 @@ public class EntityProjectionExpression : Expression
             propertyExpressionMap,
             ownedNavigationMap,
             discriminatorExpression);
-
-        static IReadOnlyList<IProperty>? GetMappedKeyProperties(IKey? key)
-        {
-            if (key == null)
-            {
-                return null;
-            }
-
-            if (!key.DeclaringEntityType.IsMappedToJson())
-            {
-                return key.Properties;
-            }
-
-            // TODO: fix this once we enable json entity being owned by another owned non-json entity (issue #28441)
-
-            // for json collections we need to filter out the ordinal key as it's not mapped to any column
-            // there could be multiple of these in deeply nested structures,
-            // so we traverse to the outermost owner to see how many mapped keys there are
-            var currentEntity = key.DeclaringEntityType;
-            while (currentEntity.IsMappedToJson())
-            {
-                currentEntity = currentEntity.FindOwnership()!.PrincipalEntityType;
-            }
-
-            var count = currentEntity.FindPrimaryKey()!.Properties.Count;
-
-            return key.Properties.Take(count).ToList();
-        }
     }
 
     /// <summary>
@@ -212,7 +173,8 @@ public class EntityProjectionExpression : Expression
         var discriminatorExpression = DiscriminatorExpression;
         if (DiscriminatorExpression is CaseExpression caseExpression)
         {
-            var entityTypesToSelect = derivedType.GetConcreteDerivedTypesInclusive().Select(e => (string)e.GetDiscriminatorValue()!).ToList();
+            var entityTypesToSelect =
+                derivedType.GetConcreteDerivedTypesInclusive().Select(e => (string)e.GetDiscriminatorValue()!).ToList();
             var whenClauses = caseExpression.WhenClauses
                 .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value!))
                 .ToList();

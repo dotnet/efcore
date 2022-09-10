@@ -98,7 +98,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     {
         if (parameters.Unicode)
         {
-            parameters = new(
+            parameters = new RelationalTypeMappingParameters(
                 parameters.CoreParameters,
                 parameters.StoreType,
                 parameters.StoreTypePostfix,

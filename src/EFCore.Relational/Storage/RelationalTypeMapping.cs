@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -510,7 +509,8 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         if (nullable.HasValue)
         {
-            Check.DebugAssert(nullable.Value
+            Check.DebugAssert(
+                nullable.Value
                 || !direction.HasFlag(ParameterDirection.Input)
                 || value != null,
                 "Null value in a non-nullable input parameter");

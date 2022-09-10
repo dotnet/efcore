@@ -19,11 +19,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
     protected TFixture Fixture { get; }
 
-    public static IEnumerable<object[]> IsAsyncData = new[]
-    {
-        new object[] { true },
-        new object[] { false }
-    };
+    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { true }, new object[] { false } };
 
     [ConditionalTheory] // Issue #25905
     [InlineData(false)]
@@ -61,7 +57,6 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(rodney2).State);
                 Assert.Equal(EntityState.Detached, context.Entry(rodney1).State);
-
             });
 
     [ConditionalFact]

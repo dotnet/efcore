@@ -919,7 +919,7 @@ public class DbContext :
     {
         var stateManagerEvents = _dbContextDependencies?.StateManager.CaptureEvents();
         var changeDetectorEvents = _dbContextDependencies?.ChangeDetector.CaptureEvents();
-        
+
         _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
             _database != null,
             stateManagerEvents != null,

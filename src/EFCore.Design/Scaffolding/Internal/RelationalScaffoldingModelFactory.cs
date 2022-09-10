@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -167,9 +166,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         if (!string.IsNullOrEmpty(databaseModel.DatabaseName))
         {
             modelBuilder.Model.SetDatabaseName(
-                            !_options.UseDatabaseNames && !string.IsNullOrEmpty(databaseModel.DatabaseName)
+                !_options.UseDatabaseNames && !string.IsNullOrEmpty(databaseModel.DatabaseName)
                     ? _candidateNamingService.GenerateCandidateIdentifier(databaseModel.DatabaseName)
-                        : databaseModel.DatabaseName);
+                    : databaseModel.DatabaseName);
         }
 
         if (!string.IsNullOrEmpty(databaseModel.Collation))
@@ -304,13 +303,14 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         }
         else
         {
-            builder.ToTable(table.Name, table.Schema, tb =>
-            {
-                if (table.Comment != null)
+            builder.ToTable(
+                table.Name, table.Schema, tb =>
                 {
-                    tb.HasComment(table.Comment);
-                }
-            });
+                    if (table.Comment != null)
+                    {
+                        tb.HasComment(table.Comment);
+                    }
+                });
         }
 
         VisitColumns(builder, table.Columns);
@@ -337,9 +337,10 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
         foreach (var trigger in table.Triggers)
         {
-            builder.ToTable(table.Name, table.Schema, tb => tb
-                .HasTrigger(trigger.Name)
-                .Metadata.AddAnnotations(trigger.GetAnnotations()));
+            builder.ToTable(
+                table.Name, table.Schema, tb => tb
+                    .HasTrigger(trigger.Name)
+                    .Metadata.AddAnnotations(trigger.GetAnnotations()));
         }
 
         builder.Metadata.AddAnnotations(table.GetAnnotations());

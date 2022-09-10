@@ -82,6 +82,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
         {
             ((SqlParameter)parameter).SqlDbType = SqlDbType.Time;
         }
+
         if (Precision.HasValue)
         {
             parameter.Scale = unchecked((byte)Precision.Value);
@@ -120,9 +121,8 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     ///     The generated string.
     /// </returns>
     protected override string GenerateNonNullSqlLiteral(object value)
-    {
-        return value is TimeSpan timeSpan && timeSpan.Milliseconds == 0
-            ? string.Format(CultureInfo.InvariantCulture, _timeFormats[0], value) //handle trailing decimal separator when no fractional seconds
+        => value is TimeSpan timeSpan && timeSpan.Milliseconds == 0
+            ? string.Format(
+                CultureInfo.InvariantCulture, _timeFormats[0], value) //handle trailing decimal separator when no fractional seconds
             : string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
-    }
 }

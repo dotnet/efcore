@@ -59,9 +59,9 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
         => AssertDelete(
             async,
             ss => ss.Set<Animal>()
-                    .GroupBy(e => e.CountryId)
-                    .Where(g => g.Count() < 3)
-                    .Select(g => g.First()),
+                .GroupBy(e => e.CountryId)
+                .Where(g => g.Count() < 3)
+                .Select(g => g.First()),
             rowsAffectedCount: 1);
 
     [ConditionalTheory(Skip = "Issue#26753")]
@@ -69,8 +69,10 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
     public virtual Task Delete_GroupBy_Where_Select_First_2(bool async)
         => AssertDelete(
             async,
-            ss => ss.Set<Animal>().Where(e => e == ss.Set<Animal>().GroupBy(e => e.CountryId)
-                                                .Where(g => g.Count() < 3).Select(g => g.First()).FirstOrDefault()),
+            ss => ss.Set<Animal>().Where(
+                e => e
+                    == ss.Set<Animal>().GroupBy(e => e.CountryId)
+                        .Where(g => g.Count() < 3).Select(g => g.First()).FirstOrDefault()),
             rowsAffectedCount: 1);
 
     [ConditionalTheory]
@@ -78,8 +80,9 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
     public virtual Task Delete_GroupBy_Where_Select_First_3(bool async)
         => AssertDelete(
             async,
-            ss => ss.Set<Animal>().Where(e => ss.Set<Animal>().GroupBy(e => e.CountryId)
-                                                .Where(g => g.Count() < 3).Select(g => g.First()).Any(i => i == e)),
+            ss => ss.Set<Animal>().Where(
+                e => ss.Set<Animal>().GroupBy(e => e.CountryId)
+                    .Where(g => g.Count() < 3).Select(g => g.First()).Any(i => i == e)),
             rowsAffectedCount: 1);
 
     [ConditionalTheory]

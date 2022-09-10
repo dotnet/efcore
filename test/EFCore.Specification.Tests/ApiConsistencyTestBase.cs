@@ -70,7 +70,8 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                     if (method.ReturnType == type.BaseType
                         && !Fixture.UnmatchedMetadataMethods.Contains(method))
                     {
-                        var parameters = method.GetParameters().Select(p => GetEquivalentGenericType(p.ParameterType, type.GetGenericArguments())).ToArray();
+                        var parameters = method.GetParameters()
+                            .Select(p => GetEquivalentGenericType(p.ParameterType, type.GetGenericArguments())).ToArray();
                         var hidingMethod = type.GetMethod(
                             method.Name,
                             method.GetGenericArguments().Length,
@@ -106,10 +107,13 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                             || hidingMethod.GetGenericArguments().Length != genericType.GetGenericArguments().Length
                             || hidingMethod.ReturnType.GetGenericTypeDefinition() != genericType
                             || !hidingMethod.GetParameters().Skip(1).Select(p => p.ParameterType)
-                                .SequenceEqual(method.GetParameters().Skip(1).Select(p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
+                                .SequenceEqual(
+                                    method.GetParameters().Skip(1).Select(
+                                        p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
                         {
                             continue;
                         }
+
                         methodFound = true;
                         break;
                     }
@@ -143,7 +147,6 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         return parameterType;
     }
 
-
     [ConditionalFact]
     public void Builders_have_matching_methods()
     {
@@ -162,16 +165,19 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         if (targetMethod.Name == method.Name
                             && targetMethod.GetGenericArguments().Length == method.GetGenericArguments().Length
                             && method.GetParameters().Select(p => p.ParameterType)
-                                .SequenceEqual(targetMethod.GetParameters().Select(p => p.ParameterType),
+                                .SequenceEqual(
+                                    targetMethod.GetParameters().Select(p => p.ParameterType),
                                     new ParameterTypeEqualityComparer(method, targetMethod, this)))
                         {
-                            Check.DebugAssert(hidingMethod == null,
-                                "There should only be one method with the expected signature. Found: " + Environment.NewLine
-                                + Format(hidingMethod ?? targetMethod, tuple.Value) + Environment.NewLine
+                            Check.DebugAssert(
+                                hidingMethod == null,
+                                "There should only be one method with the expected signature. Found: "
+                                + Environment.NewLine
+                                + Format(hidingMethod ?? targetMethod, tuple.Value)
+                                + Environment.NewLine
                                 + Format(targetMethod, tuple.Value));
 
                             hidingMethod = targetMethod;
-                            continue;
                         }
                     }
 
@@ -180,7 +186,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         unmatchedMethods.Add((tuple.Key, method));
                     }
                     else if (method.ReturnType == tuple.Key
-                        && hidingMethod.ReturnType != tuple.Value)
+                             && hidingMethod.ReturnType != tuple.Value)
                     {
                         wrongReturnMethods.Add((tuple.Value, method));
                     }
@@ -1005,7 +1011,8 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             var sourceType = _sourceMethod.DeclaringType;
             var targetType = _targetMethod.DeclaringType;
             if (_targetMethod.DeclaringType.IsGenericType
-                && sourceParameterType == _tests.GetEquivalentGenericType(
+                && sourceParameterType
+                == _tests.GetEquivalentGenericType(
                     sourceParameterType, _targetMethod.DeclaringType.GetGenericArguments()))
             {
                 return true;
@@ -1204,7 +1211,10 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 IReadOnlyList<MethodInfo> Runtime)>
             MetadataMethods { get; } = new();
 
-        protected static MethodInfo GetMethod(Type type, string name, int genericParameterCount,
+        protected static MethodInfo GetMethod(
+            Type type,
+            string name,
+            int genericParameterCount,
             Func<Type[], Type[], Type[]> parameterGenerator)
             => type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .Single(

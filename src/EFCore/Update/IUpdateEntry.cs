@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public interface IUpdateEntry
 {
     /// <summary>
-    ///     The current <see cref="DbContext"/> being used.
+    ///     The current <see cref="DbContext" /> being used.
     /// </summary>
     DbContext Context { get; }
 

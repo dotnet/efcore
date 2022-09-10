@@ -175,7 +175,7 @@ public class ProxyFactory : IProxyFactory
         if ((bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true)
         {
             var checkEquality = (bool?)entityType.Model[ProxyAnnotationNames.CheckEquality] == true;
-            
+
             if (!NotifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
             {
                 interceptors.Add(new PropertyChangedInterceptor(entityType, checkEquality));

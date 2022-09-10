@@ -102,7 +102,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             }
 
             var sql = string.Join(
-                "," + indent + "//" + indent, SqlStatements.Skip(offset).Take(count).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""));
+                "," + indent + "//" + indent,
+                SqlStatements.Skip(offset).Take(count).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""));
 
             var newBaseLine = $@"        Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql(
             {string.Join("," + indent + "//" + indent, SqlStatements.Skip(offset).Take(count).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
@@ -156,7 +157,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
         void RewriteSourceWithNewBaseline(string fileName, int lineNumber)
         {
-            var fileInfo = _queryBaselineRewritingFileInfos.GetOrAdd(fileName, _ => new());
+            var fileInfo = _queryBaselineRewritingFileInfos.GetOrAdd(fileName, _ => new QueryBaselineRewritingFileInfo());
             lock (fileInfo.Lock)
             {
                 // First, adjust our lineNumber to take into account any baseline rewriting that already occured in this file
@@ -405,13 +406,13 @@ public class TestSqlLoggerFactory : ListLoggerFactory
     {
         public QueryBaselineRewritingFileInfo() { }
 
-        public object Lock { get; set; } = new();
+        public object Lock { get; } = new();
 
         /// <summary>
         ///     Contains information on where previous baseline rewriting caused line numbers to shift; this is used in adjusting line
         ///     numbers for later errors. The keys are (pre-rewriting) line numbers, and the values are offsets that have been applied to
         ///     them.
         /// </summary>
-        public SortedDictionary<int, int> LineDisplacements = new();
+        public readonly SortedDictionary<int, int> LineDisplacements = new();
     }
 }
