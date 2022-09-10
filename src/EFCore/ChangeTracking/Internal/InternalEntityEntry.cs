@@ -146,19 +146,28 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         EntityState entityState,
         bool acceptChanges = false,
         bool modifyProperties = true,
-        EntityState? forceStateWhenUnknownKey = null)
+        EntityState? forceStateWhenUnknownKey = null,
+        EntityState? fallbackState = null)
     {
         var oldState = _stateData.EntityState;
-        var adding = PrepareForAdd(entityState);
+        bool adding;
+        Setup();
 
-        entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
-
-        if (adding || oldState is EntityState.Detached)
+        if ((adding || oldState is EntityState.Detached)
+            && StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: adding)
+            && fallbackState.HasValue)
         {
-            StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: adding);
+            entityState = fallbackState.Value;
+            Setup();
         }
 
         SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
+
+        void Setup()
+        {
+            adding = PrepareForAdd(entityState);
+            entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
+        }
     }
 
     /// <summary>
@@ -172,20 +181,29 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         bool acceptChanges = false,
         bool modifyProperties = true,
         EntityState? forceStateWhenUnknownKey = null,
+        EntityState? fallbackState = null,
         CancellationToken cancellationToken = default)
     {
         var oldState = _stateData.EntityState;
-        var adding = PrepareForAdd(entityState);
+        bool adding;
+        Setup();
 
-        entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
-
-        if (adding || oldState is EntityState.Detached)
+        if ((adding || oldState is EntityState.Detached)
+            && await StateManager.ValueGenerationManager
+                .GenerateAsync(this, includePrimaryKey: adding, cancellationToken).ConfigureAwait(false)
+            && fallbackState.HasValue)
         {
-            await StateManager.ValueGenerationManager.GenerateAsync(this, includePrimaryKey: adding, cancellationToken)
-                .ConfigureAwait(false);
+            entityState = fallbackState.Value;
+            Setup();
         }
 
         SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
+
+        void Setup()
+        {
+            adding = PrepareForAdd(entityState);
+            entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
+        }
     }
 
     private EntityState PropagateToUnknownKey(
