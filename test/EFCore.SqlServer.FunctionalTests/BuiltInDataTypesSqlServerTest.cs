@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -21,6 +22,601 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
     {
         Fixture.TestSqlLoggerFactory.Clear();
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_BuiltInDataTypes()
+    {
+        using var context = CreateContext();
+
+        context.Add(new BuiltInDataTypes
+        {
+            Id = 54,
+            PartitionId = 1,
+            TestInt16 = -1234,
+            TestInt32 = -123456789,
+            TestInt64 = -1234567890123456789L,
+            TestDouble = -1.23456789,
+            TestDecimal = -1234567890.01M,
+            TestDateTime = Fixture.DefaultDateTime,
+            TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+            TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+            TestSingle = -1.234F,
+            TestBoolean = true,
+            TestByte = 255,
+            TestUnsignedInt16 = 1234,
+            TestUnsignedInt32 = 1234565789U,
+            TestUnsignedInt64 = 1234567890123456789UL,
+            TestCharacter = 'a',
+            TestSignedByte = -128,
+            Enum64 = Enum64.SomeValue,
+            Enum32 = Enum32.SomeValue,
+            Enum16 = Enum16.SomeValue,
+            Enum8 = Enum8.SomeValue,
+            EnumU64 = EnumU64.SomeValue,
+            EnumU32 = EnumU32.SomeValue,
+            EnumU16 = EnumU16.SomeValue,
+            EnumS8 = EnumS8.SomeValue
+        });
+
+        context.SaveChanges();
+        var set = context.Set<BuiltInDataTypes>();
+
+        var param1 = (short)-1234;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestInt16 == param1));
+
+        var param2 = -123456789;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestInt32 == param2));
+
+        var param3 = -1234567890123456789L;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestInt64 == param3));
+
+        double? param4 = -1.23456789;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDouble == param4));
+
+        var param5 = -1234567890.01M;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDecimal == param5));
+
+        var param6 = Fixture.DefaultDateTime;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDateTime == param6));
+
+        var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDateTimeOffset == param7));
+
+        var param8 = new TimeSpan(0, 10, 9, 8, 7);
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestTimeSpan == param8));
+
+        var param9 = -1.234F;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestSingle == param9));
+
+        var param10 = true;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestBoolean == param10));
+
+        var param11 = (byte)255;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestByte == param11));
+
+        var param12 = Enum64.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum64 == param12));
+
+        var param13 = Enum32.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum32 == param13));
+
+        var param14 = Enum16.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum16 == param14));
+
+        var param15 = Enum8.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum8 == param15));
+
+        var param16 = (ushort)1234;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt16 == param16));
+
+        var param17 = 1234565789U;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt32 == param17));
+
+        var param18 = 1234567890123456789UL;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt64 == param18));
+
+        var param19 = 'a';
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestCharacter == param19));
+
+        var param20 = (sbyte)-128;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestSignedByte == param20));
+
+        var param21 = EnumU64.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumU64 == param21));
+
+        var param22 = EnumU32.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumU32 == param22));
+
+        var param23 = EnumU16.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumU16 == param23));
+
+        var param24 = EnumS8.SomeValue;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumS8 == param24));
+
+        var param25 = 1;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum64 == (Enum64)param25));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum64 == param25));
+
+        var param26 = 1;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum32 == (Enum32)param26));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum32 == param26));
+
+        var param27 = 1;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum16 == (Enum16)param27));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum16 == param27));
+
+        var param28 = 1;
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum8 == (Enum8)param28));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum8 == param28));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_MaxLengthDataTypes()
+    {
+        using var context = CreateContext();
+
+        var shortString = "Sky";
+        var shortBinary = new byte[] { 8, 8, 7, 8, 7 };
+        var longString = new string('X', Fixture.LongStringLength);
+        var longBinary = new byte[Fixture.LongStringLength];
+        for (var i = 0; i < longBinary.Length; i++)
+        {
+            longBinary[i] = (byte)i;
+        }
+
+        context.Add(new MaxLengthDataTypes
+        {
+            Id = 54,
+            String3 = shortString,
+            ByteArray5 = shortBinary,
+            String9000 = longString,
+            ByteArray9000 = longBinary
+        });
+
+        context.SaveChanges();
+        var set = context.Set<MaxLengthDataTypes>();
+
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.String3 == shortString));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.ByteArray5 == shortBinary));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.String9000 == longString));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.ByteArray9000 == longBinary));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_UnicodeDataTypes()
+    {
+        using var context = CreateContext();
+
+        var shortString = Fixture.SupportsUnicodeToAnsiConversion ? "Ϩky" : "sky";
+        var longString = Fixture.SupportsUnicodeToAnsiConversion
+            ? new string('Ϩ', Fixture.LongStringLength)
+            : new string('s', Fixture.LongStringLength);
+
+        context.Add(new UnicodeDataTypes
+        {
+            Id = 54,
+            StringDefault = shortString,
+            StringAnsi = shortString,
+            StringAnsi3 = shortString,
+            StringAnsi9000 = longString,
+            StringUnicode = shortString
+        });
+
+        context.SaveChanges();
+        var set = context.Set<UnicodeDataTypes>();
+
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringDefault == shortString));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi == shortString));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi3 == shortString));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringUnicode == shortString));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi9000 == longString));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_MappedDataTypesWithIdentity()
+    {
+        using var context = CreateContext();
+
+        var longAsBigint = 78L;
+        var shortAsSmallint = (short)79;
+        var byteAsTinyint = (byte)80;
+        var uintAsInt = uint.MaxValue;
+        var ulongAsBigint = ulong.MaxValue;
+        var uShortAsSmallint = ushort.MaxValue;
+        var sbyteAsTinyint = sbyte.MinValue;
+        var boolAsBit = true;
+        var decimalAsMoney = 81.1m;
+        var decimalAsSmallmoney = 82.2m;
+        var doubleAsFloat = 83.3;
+        var floatAsReal = 84.4f;
+        var doubleAsDoublePrecision = 85.5;
+        var dateTimeAsDate = new DateTime(2015, 1, 2, 10, 11, 12);
+        var dateTimeOffsetAsDatetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12).AddTicks(7654321), TimeSpan.Zero);
+        var dateTimeAsDatetime2 = new DateTime(2017, 1, 2, 12, 11, 12).AddTicks(7654321);
+        var dateTimeAsSmalldatetime = new DateTime(2018, 1, 2, 13, 11, 12);
+        var dateTimeAsDatetime = new DateTime(2019, 1, 2, 14, 11, 12);
+        var timeSpanAsTime = new TimeSpan(11, 15, 12);
+        var stringAsVarcharMax = "C";
+        var stringAsCharVaryingMax = "Your";
+        var stringAsCharacterVaryingMax = "strong";
+        var stringAsNvarcharMax = "don't";
+        var stringAsNationalCharVaryingMax = "help";
+        var stringAsNationalCharacterVaryingMax = "anyone!";
+        var stringAsVarcharMaxUtf8 = "short";
+        var stringAsCharVaryingMaxUtf8 = "And now";
+        var stringAsCharacterVaryingMaxUtf8 = "this...";
+        var stringAsText = "Gumball Rules!";
+        var gumballRulesOk = "Gumball Rules OK!";
+        var bytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 };
+        var bytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 };
+        var bytesAsImage = new byte[] { 97, 98, 99, 100 };
+        var @decimal = 101m;
+        var decimalAsDec = 102m;
+        var decimalAsNumeric = 103m;
+        var guidAsUniqueidentifier = new Guid("A8F9F951-145F-4545-AC60-B92FF57ADA47");
+        var uintAsBigint = uint.MaxValue;
+        var ulongAsDecimal200 = ulong.MaxValue;
+        var uShortAsInt = ushort.MaxValue;
+        var sByteAsSmallint = sbyte.MinValue;
+        var charAsVarcharMax = 'A';
+        var charAsAsCharVaryingMax = 'B';
+        var charAsCharacterVaryingMax = 'C';
+        var charAsNvarcharMax = 'D';
+        var charAsNationalCharVaryingMax = 'E';
+        var charAsNationalCharacterVaryingMax = 'F';
+        var charAsText = 'G';
+        var charAsNtext = 'H';
+        var charAsInt = 'I';
+        var enumAsNvarchar20 = StringEnumU16.Value4;
+        var enumAsVarcharMax = StringEnum16.Value2;
+        var sqlVariantString = "Bang!";
+        var sqlVariantInt = 887876;
+
+        var entity = context.Add(
+            new MappedDataTypesWithIdentity
+            {
+                LongAsBigint = longAsBigint,
+                ShortAsSmallint = shortAsSmallint,
+                ByteAsTinyint = byteAsTinyint,
+                UintAsInt = uintAsInt,
+                UlongAsBigint = ulongAsBigint,
+                UShortAsSmallint = uShortAsSmallint,
+                SbyteAsTinyint = sbyteAsTinyint,
+                BoolAsBit = boolAsBit,
+                DecimalAsMoney = decimalAsMoney,
+                DecimalAsSmallmoney = decimalAsSmallmoney,
+                DoubleAsFloat = doubleAsFloat,
+                FloatAsReal = floatAsReal,
+                DoubleAsDoublePrecision = doubleAsDoublePrecision,
+                DateTimeAsDate = dateTimeAsDate,
+                DateTimeOffsetAsDatetimeoffset = dateTimeOffsetAsDatetimeoffset,
+                DateTimeAsDatetime2 = dateTimeAsDatetime2,
+                DateTimeAsSmalldatetime = dateTimeAsSmalldatetime,
+                DateTimeAsDatetime = dateTimeAsDatetime,
+                TimeSpanAsTime = timeSpanAsTime,
+                StringAsVarcharMax = stringAsVarcharMax,
+                StringAsCharVaryingMax = stringAsCharVaryingMax,
+                StringAsCharacterVaryingMax = stringAsCharacterVaryingMax,
+                StringAsNvarcharMax = stringAsNvarcharMax,
+                StringAsNationalCharVaryingMax = stringAsNationalCharVaryingMax,
+                StringAsNationalCharacterVaryingMax = stringAsNationalCharacterVaryingMax,
+                StringAsVarcharMaxUtf8 = stringAsVarcharMaxUtf8,
+                StringAsCharVaryingMaxUtf8 = stringAsCharVaryingMaxUtf8,
+                StringAsCharacterVaryingMaxUtf8 = stringAsCharacterVaryingMaxUtf8,
+                StringAsText = stringAsText,
+                StringAsNtext = gumballRulesOk,
+                BytesAsVarbinaryMax = bytesAsVarbinaryMax,
+                BytesAsBinaryVaryingMax = bytesAsBinaryVaryingMax,
+                BytesAsImage = bytesAsImage,
+                Decimal = @decimal,
+                DecimalAsDec = decimalAsDec,
+                DecimalAsNumeric = decimalAsNumeric,
+                GuidAsUniqueidentifier = guidAsUniqueidentifier,
+                UintAsBigint = uintAsBigint,
+                UlongAsDecimal200 = ulongAsDecimal200,
+                UShortAsInt = uShortAsInt,
+                SByteAsSmallint = sByteAsSmallint,
+                CharAsVarcharMax = charAsVarcharMax,
+                CharAsAsCharVaryingMax = charAsAsCharVaryingMax,
+                CharAsCharacterVaryingMax = charAsCharacterVaryingMax,
+                CharAsNvarcharMax = charAsNvarcharMax,
+                CharAsNationalCharVaryingMax = charAsNationalCharVaryingMax,
+                CharAsNationalCharacterVaryingMax = charAsNationalCharacterVaryingMax,
+                CharAsText = charAsText,
+                CharAsNtext = charAsNtext,
+                CharAsInt = charAsInt,
+                EnumAsNvarchar20 = enumAsNvarchar20,
+                EnumAsVarcharMax = enumAsVarcharMax,
+                SqlVariantString = sqlVariantString,
+                SqlVariantInt = sqlVariantInt
+            }).Entity;
+
+        context.SaveChanges();
+        var id = entity.Id;
+        var set = context.Set<MappedDataTypesWithIdentity>();
+
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.LongAsBigint == longAsBigint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.ShortAsSmallint == shortAsSmallint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.ByteAsTinyint == byteAsTinyint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UintAsInt == uintAsInt));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UlongAsBigint == ulongAsBigint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UShortAsSmallint == uShortAsSmallint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.SbyteAsTinyint == sbyteAsTinyint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BoolAsBit == boolAsBit));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsMoney == decimalAsMoney));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsSmallmoney == decimalAsSmallmoney));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DoubleAsFloat == doubleAsFloat));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsReal == floatAsReal));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DoubleAsDoublePrecision == doubleAsDoublePrecision));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDate == dateTimeAsDate));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeOffsetAsDatetimeoffset == dateTimeOffsetAsDatetimeoffset));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime2 == dateTimeAsDatetime2));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsSmalldatetime == dateTimeAsSmalldatetime));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime == dateTimeAsDatetime));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime == timeSpanAsTime));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarcharMax == stringAsVarcharMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVaryingMax == stringAsCharVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVaryingMax == stringAsCharacterVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNvarcharMax == stringAsNvarcharMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharVaryingMax == stringAsNationalCharVaryingMax));
+        ExecuteQuerySting(
+            context, id, set.Where(e => e.Id == id && e.StringAsNationalCharacterVaryingMax == stringAsNationalCharacterVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarcharMaxUtf8 == stringAsVarcharMaxUtf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVaryingMaxUtf8 == stringAsCharVaryingMaxUtf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVaryingMaxUtf8 == stringAsCharacterVaryingMaxUtf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsVarbinaryMax == bytesAsVarbinaryMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsBinaryVaryingMax == bytesAsBinaryVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.Decimal == @decimal));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDec == decimalAsDec));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric == decimalAsNumeric));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.GuidAsUniqueidentifier == guidAsUniqueidentifier));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UintAsBigint == uintAsBigint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UlongAsDecimal200 == ulongAsDecimal200));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UShortAsInt == uShortAsInt));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.SByteAsSmallint == sByteAsSmallint));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsVarcharMax == charAsVarcharMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVaryingMax == charAsAsCharVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsCharacterVaryingMax == charAsCharacterVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNvarcharMax == charAsNvarcharMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVaryingMax == charAsNationalCharVaryingMax));
+        ExecuteQuerySting(
+            context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVaryingMax == charAsNationalCharacterVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsInt == charAsInt));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.EnumAsNvarchar20 == enumAsNvarchar20));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.EnumAsVarcharMax == enumAsVarcharMax));
+
+        // The text, ntext, and image data types are invalid for local variables.
+        Assert.Contains(
+            "text",
+            Assert.Throws<SqlException>(
+                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsText == stringAsText))).Message);
+
+        Assert.Contains(
+            "ntext",
+            Assert.Throws<SqlException>(
+                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNtext == gumballRulesOk))).Message);
+
+        Assert.Contains(
+            "image",
+            Assert.Throws<SqlException>(
+                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsImage == bytesAsImage))).Message);
+
+        Assert.Contains(
+            "text",
+            Assert.Throws<SqlException>(
+                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsText == charAsText))).Message);
+
+        Assert.Contains(
+            "ntext",
+            Assert.Throws<SqlException>(
+                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNtext == charAsNtext))).Message);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_MappedSizedDataTypes()
+    {
+        using var context = CreateContext();
+
+        var stringAsChar3 = "Wor";
+        var stringAsCharacter3 = "Lon";
+        var stringAsVarchar3 = "Tha";
+        var stringAsCharVarying3 = "Thr";
+        var stringAsCharacterVarying3 = "Let";
+        var stringAsNchar3 = "Won";
+        var stringAsNationalCharacter3 = "Squ";
+        var stringAsNvarchar3 = "Int";
+        var stringAsNationalCharVarying3 = "The";
+        var stringAsNationalCharacterVarying3 = "Col";
+        var stringAsChar3Utf8 = "Wha";
+        var stringAsCharacter3Utf8 = "doe";
+        var stringAsVarchar3Utf8 = "the";
+        var stringAsCharVarying3Utf8 = "tex";
+        var stringAsCharacterVarying3Utf8 = "men";
+        var bytesAsBinary3 = new byte[] { 10, 11, 12 };
+        var bytesAsVarbinary3 = new byte[] { 11, 12, 13 };
+        var bytesAsBinaryVarying3 = new byte[] { 12, 13, 14 };
+        var charAsVarchar3 = 'A';
+        var charAsAsCharVarying3 = 'B';
+        var charAsCharacterVarying3 = 'C';
+        var charAsNvarchar3 = 'D';
+        var charAsNationalCharVarying3 = 'E';
+        var charAsNationalCharacterVarying3 = 'F';
+
+        var entity = context.Add(
+            new MappedSizedDataTypes
+            {
+                Id = 54,
+                StringAsChar3 = stringAsChar3,
+                StringAsCharacter3 = stringAsCharacter3,
+                StringAsVarchar3 = stringAsVarchar3,
+                StringAsCharVarying3 = stringAsCharVarying3,
+                StringAsCharacterVarying3 = stringAsCharacterVarying3,
+                StringAsNchar3 = stringAsNchar3,
+                StringAsNationalCharacter3 = stringAsNationalCharacter3,
+                StringAsNvarchar3 = stringAsNvarchar3,
+                StringAsNationalCharVarying3 = stringAsNationalCharVarying3,
+                StringAsNationalCharacterVarying3 = stringAsNationalCharacterVarying3,
+                StringAsChar3Utf8 = stringAsChar3Utf8,
+                StringAsCharacter3Utf8 = stringAsCharacter3Utf8,
+                StringAsVarchar3Utf8 = stringAsVarchar3Utf8,
+                StringAsCharVarying3Utf8 = stringAsCharVarying3Utf8,
+                StringAsCharacterVarying3Utf8 = stringAsCharacterVarying3Utf8,
+                BytesAsBinary3 = bytesAsBinary3,
+                BytesAsVarbinary3 = bytesAsVarbinary3,
+                BytesAsBinaryVarying3 = bytesAsBinaryVarying3,
+                CharAsVarchar3 = charAsVarchar3,
+                CharAsAsCharVarying3 = charAsAsCharVarying3,
+                CharAsCharacterVarying3 = charAsCharacterVarying3,
+                CharAsNvarchar3 = charAsNvarchar3,
+                CharAsNationalCharVarying3 = charAsNationalCharVarying3,
+                CharAsNationalCharacterVarying3 = charAsNationalCharacterVarying3
+            }).Entity;
+
+        context.SaveChanges();
+        var id = entity.Id;
+        var set = context.Set<MappedSizedDataTypes>();
+
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsChar3 == stringAsChar3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacter3 == stringAsCharacter3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarchar3 == stringAsVarchar3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVarying3 == stringAsCharVarying3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVarying3 == stringAsCharacterVarying3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNchar3 == stringAsNchar3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharacter3 == stringAsNationalCharacter3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNvarchar3 == stringAsNvarchar3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharVarying3 == stringAsNationalCharVarying3));
+        ExecuteQuerySting(
+            context, id, set.Where(e => e.Id == id && e.StringAsNationalCharacterVarying3 == stringAsNationalCharacterVarying3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsChar3Utf8 == stringAsChar3Utf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacter3Utf8 == stringAsCharacter3Utf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarchar3Utf8 == stringAsVarchar3Utf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVarying3Utf8 == stringAsCharVarying3Utf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVarying3Utf8 == stringAsCharacterVarying3Utf8));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsBinary3 == bytesAsBinary3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsVarbinary3 == bytesAsVarbinary3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsBinaryVarying3 == bytesAsBinaryVarying3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsVarchar3 == charAsVarchar3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVarying3 == charAsAsCharVarying3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsCharacterVarying3 == charAsCharacterVarying3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNvarchar3 == charAsNvarchar3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVarying3 == charAsNationalCharVarying3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVarying3 == charAsNationalCharacterVarying3));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_MappedScaledDataTypes()
+    {
+        using var context = CreateContext();
+
+        var floatAsFloat3 = 83.3f;
+        var floatAsDoublePrecision3 = 85.5f;
+        var floatAsFloat25 = 83.33f;
+        var floatAsDoublePrecision25 = 85.55f;
+        var dateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero);
+        var dateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 321);
+        var decimalAsDecimal3 = 101m;
+        var decimalAsDec3 = 102m;
+        var decimalAsNumeric3 = 103m;
+        var timeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture);
+        var entity = context.Add(
+            new MappedScaledDataTypes
+            {
+                Id = 54,
+                FloatAsFloat3 = floatAsFloat3,
+                FloatAsDoublePrecision3 = floatAsDoublePrecision3,
+                FloatAsFloat25 = floatAsFloat25,
+                FloatAsDoublePrecision25 = floatAsDoublePrecision25,
+                DateTimeOffsetAsDatetimeoffset3 = dateTimeOffsetAsDatetimeoffset3,
+                DateTimeAsDatetime23 = dateTimeAsDatetime23,
+                DecimalAsDecimal3 = decimalAsDecimal3,
+                DecimalAsDec3 = decimalAsDec3,
+                DecimalAsNumeric3 = decimalAsNumeric3,
+                TimeSpanAsTime3 = timeSpanAsTime3
+            }).Entity;
+
+        context.SaveChanges();
+        var id = entity.Id;
+        var set = context.Set<MappedScaledDataTypes>();
+
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsFloat3 == floatAsFloat3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsDoublePrecision3 == floatAsDoublePrecision3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsFloat25 == floatAsFloat25));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsDoublePrecision25 == floatAsDoublePrecision25));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeOffsetAsDatetimeoffset3 == dateTimeOffsetAsDatetimeoffset3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime23 == dateTimeAsDatetime23));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDecimal3 == decimalAsDecimal3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDec3 == decimalAsDec3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric3 == decimalAsNumeric3));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime3 == timeSpanAsTime3));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_MappedPrecisionAndScaledDataTypes()
+    {
+        using var context = CreateContext();
+
+        var decimalAsDecimal52 = 101.1m;
+        var decimalAsDec52 = 102.2m;
+        var decimalAsNumeric52 = 103.3m;
+        var entity = context.Add(
+            new MappedPrecisionAndScaledDataTypes
+            {
+                Id = 54,
+                DecimalAsDecimal52 = decimalAsDecimal52,
+                DecimalAsDec52 = decimalAsDec52,
+                DecimalAsNumeric52 = decimalAsNumeric52
+            }).Entity;
+
+        context.SaveChanges();
+        var id = entity.Id;
+        var set = context.Set<MappedPrecisionAndScaledDataTypes>();
+
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDecimal52 == decimalAsDecimal52));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDec52 == decimalAsDec52));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric52 == decimalAsNumeric52));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_debug_string_for_non_integer_values()
+    {
+        using var context = CreateContext();
+
+        var accumulator0 = 1L;
+        var accumulator1 = 1L;
+        for (var i = 0; i < 100; i++)
+        {
+            var temp = accumulator1;
+            accumulator1 += accumulator0;
+            accumulator0 = temp;
+
+            var @double = ((double)accumulator1) / accumulator0;
+            var @float = ((float)accumulator1) / accumulator0;
+
+            var entity = context.Add(
+                new MappedNullableDataTypesWithIdentity { DoubleAsFloat = @double, FloatAsReal = @float }).Entity;
+
+            context.SaveChanges();
+            var id = entity.Id;
+
+            ExecuteQuerySting(
+                context, id, context.Set<MappedNullableDataTypesWithIdentity>().Where(
+                    e => e.Id == id && e.DoubleAsFloat == @double && e.FloatAsReal == @float));
+        }
+    }
+
+    private void ExecuteQuerySting(DbContext context, int expectedId, IQueryable queryable)
+    {
+        var queryString = queryable.ToQueryString();
+        using var command = context.Database.GetDbConnection().CreateCommand();
+        command.CommandText = queryString;
+        using var reader = command.ExecuteReader();
+
+        Assert.True(reader.HasRows);
+        Assert.True(reader.Read());
+        Assert.Equal(expectedId, reader.GetFieldValue<int>(reader.GetOrdinal("Id")));
+        Assert.False(reader.Read());
+        reader.Close();
     }
 
     [ConditionalFact]
@@ -668,10 +1264,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17='2017-01-02T12:11:12.1234567'
 @p18='2018-01-02T13:11:12.0000000' (DbType = DateTime)
 @p19='2016-01-02T11:11:12.1234567+00:00'
-@p20='101.1' (Precision = 4) (Scale = 1)
-@p21='102.2' (Precision = 4) (Scale = 1)
+@p20='101' (Precision = 18)
+@p21='102' (Precision = 18)
 @p22='81.1' (DbType = Currency)
-@p23='103.3' (Precision = 4) (Scale = 1)
+@p23='103' (Precision = 18)
 @p24='82.2' (DbType = Currency)
 @p25='85.5'
 @p26='83.3'
@@ -820,9 +1416,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
             BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
             BytesAsImage = new byte[] { 97, 98, 99, 100 },
-            Decimal = 101.1m,
-            DecimalAsDec = 102.2m,
-            DecimalAsNumeric = 103.3m,
+            Decimal = 101m,
+            DecimalAsDec = 102m,
+            DecimalAsNumeric = 103m,
             GuidAsUniqueidentifier = new Guid("A8F9F951-145F-4545-AC60-B92FF57ADA47"),
             UintAsBigint = uint.MaxValue,
             UlongAsDecimal200 = ulong.MaxValue,
@@ -871,10 +1467,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p12='2017-01-02T12:11:12.1234567'
 @p13='2018-01-02T13:11:12.0000000' (DbType = DateTime)
 @p14='2016-01-02T11:11:12.1234567+00:00'
-@p15='101.1' (Precision = 4) (Scale = 1)
-@p16='102.2' (Precision = 4) (Scale = 1)
+@p15='101' (Precision = 18)
+@p16='102' (Precision = 18)
 @p17='81.1' (DbType = Currency)
-@p18='103.3' (Precision = 4) (Scale = 1)
+@p18='103' (Precision = 18)
 @p19='82.2' (DbType = Currency)
 @p20='83.3'
 @p21='Value4' (Nullable = false) (Size = 20)
@@ -988,9 +1584,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             StringAsNtext = "Gumball Rules OK!",
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
             BytesAsImage = new byte[] { 97, 98, 99, 100 },
-            Decimal = 101.1m,
-            DecimalAsDec = 102.2m,
-            DecimalAsNumeric = 103.3m,
+            Decimal = 101m,
+            DecimalAsDec = 102m,
+            DecimalAsNumeric = 103m,
             GuidAsUniqueidentifier = new Guid("A8F9F951-145F-4545-AC60-B92FF57ADA47"),
             UintAsBigint = uint.MaxValue,
             UlongAsDecimal200 = ulong.MaxValue,
@@ -1039,10 +1635,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17='2017-01-02T12:11:12.9876543' (Nullable = true)
 @p18='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
 @p19='2016-01-02T11:11:12.9876543+00:00' (Nullable = true)
-@p20='101.1' (Nullable = true) (Precision = 4) (Scale = 1)
-@p21='102.2' (Nullable = true) (Precision = 4) (Scale = 1)
+@p20='101' (Nullable = true) (Precision = 18)
+@p21='102' (Nullable = true) (Precision = 18)
 @p22='81.1' (Nullable = true) (DbType = Currency)
-@p23='103.3' (Nullable = true) (Precision = 4) (Scale = 1)
+@p23='103' (Nullable = true) (Precision = 18)
 @p24='82.2' (Nullable = true) (DbType = Currency)
 @p25='85.5' (Nullable = true)
 @p26='83.3' (Nullable = true)
@@ -1178,9 +1774,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
             BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
             BytesAsImage = new byte[] { 97, 98, 99, 100 },
-            Decimal = 101.1m,
-            DecimalAsDec = 102.2m,
-            DecimalAsNumeric = 103.3m,
+            Decimal = 101m,
+            DecimalAsDec = 102m,
+            DecimalAsNumeric = 103m,
             GuidAsUniqueidentifier = new Guid("A8F9F951-145F-4545-AC60-B92FF57ADA47"),
             UintAsBigint = uint.MaxValue,
             UlongAsDecimal200 = ulong.MaxValue,
@@ -1233,10 +1829,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p17=NULL (DbType = DateTime2)
 @p18=NULL (DbType = DateTime)
 @p19=NULL (DbType = DateTimeOffset)
-@p20=NULL (DbType = Decimal)
-@p21=NULL (DbType = Decimal)
+@p20=NULL (Precision = 18) (DbType = Decimal)
+@p21=NULL (Precision = 18) (DbType = Decimal)
 @p22=NULL (DbType = Currency)
-@p23=NULL (DbType = Decimal)
+@p23=NULL (Precision = 18) (DbType = Decimal)
 @p24=NULL (DbType = Currency)
 @p25=NULL (DbType = Double)
 @p26=NULL (DbType = Double)
@@ -1896,10 +2492,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16='2017-01-02T12:11:12.7654321'
 @p17='2018-01-02T13:11:12.0000000' (DbType = DateTime)
 @p18='2016-01-02T11:11:12.7654321+00:00'
-@p19='101.1' (Precision = 4) (Scale = 1)
-@p20='102.2' (Precision = 4) (Scale = 1)
+@p19='101' (Precision = 18)
+@p20='102' (Precision = 18)
 @p21='81.1' (DbType = Currency)
-@p22='103.3' (Precision = 4) (Scale = 1)
+@p22='103' (Precision = 18)
 @p23='82.2' (DbType = Currency)
 @p24='85.5'
 @p25='83.3'
@@ -2039,9 +2635,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
             BytesAsBinaryVaryingMax = new byte[] { 93, 94, 95, 96 },
             BytesAsImage = new byte[] { 97, 98, 99, 100 },
-            Decimal = 101.1m,
-            DecimalAsDec = 102.2m,
-            DecimalAsNumeric = 103.3m,
+            Decimal = 101m,
+            DecimalAsDec = 102m,
+            DecimalAsNumeric = 103m,
             GuidAsUniqueidentifier = new Guid("A8F9F951-145F-4545-AC60-B92FF57ADA47"),
             UintAsBigint = uint.MaxValue,
             UlongAsDecimal200 = ulong.MaxValue,
@@ -2093,10 +2689,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16='2017-01-02T12:11:12.2345678' (Nullable = true)
 @p17='2018-01-02T13:11:12.0000000' (Nullable = true) (DbType = DateTime)
 @p18='2016-01-02T11:11:12.2345678+00:00' (Nullable = true)
-@p19='101.1' (Nullable = true) (Precision = 4) (Scale = 1)
-@p20='102.2' (Nullable = true) (Precision = 4) (Scale = 1)
+@p19='101' (Nullable = true) (Precision = 18)
+@p20='102' (Nullable = true) (Precision = 18)
 @p21='81.1' (Nullable = true) (DbType = Currency)
-@p22='103.3' (Nullable = true) (Precision = 4) (Scale = 1)
+@p22='103' (Nullable = true) (Precision = 18)
 @p23='82.2' (Nullable = true) (DbType = Currency)
 @p24='85.5' (Nullable = true)
 @p25='83.3' (Nullable = true)
@@ -2233,9 +2829,9 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             BytesAsVarbinaryMax = new byte[] { 89, 90, 91, 92 },
             BytesAsVaryingMax = new byte[] { 93, 94, 95, 96 },
             BytesAsImage = new byte[] { 97, 98, 99, 100 },
-            Decimal = 101.1m,
-            DecimalAsDec = 102.2m,
-            DecimalAsNumeric = 103.3m,
+            Decimal = 101m,
+            DecimalAsDec = 102m,
+            DecimalAsNumeric = 103m,
             GuidAsUniqueidentifier = new Guid("A8F9F951-145F-4545-AC60-B92FF57ADA47"),
             UintAsBigint = uint.MaxValue,
             UlongAsDecimal200 = ulong.MaxValue,
@@ -2287,10 +2883,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p16=NULL (DbType = DateTime2)
 @p17=NULL (DbType = DateTime)
 @p18=NULL (DbType = DateTimeOffset)
-@p19=NULL (DbType = Decimal)
-@p20=NULL (DbType = Decimal)
+@p19=NULL (Precision = 18) (DbType = Decimal)
+@p20=NULL (Precision = 18) (DbType = Decimal)
 @p21=NULL (DbType = Currency)
-@p22=NULL (DbType = Decimal)
+@p22=NULL (Precision = 18) (DbType = Decimal)
 @p23=NULL (DbType = Currency)
 @p24=NULL (DbType = Double)
 @p25=NULL (DbType = Double)

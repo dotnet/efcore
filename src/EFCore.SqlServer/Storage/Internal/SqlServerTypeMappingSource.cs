@@ -88,6 +88,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     private readonly SqlServerDateTimeTypeMapping _date
         = new("date", DbType.Date);
 
+    private readonly SqlServerDateTimeTypeMapping _smallDatetime
+        = new("smalldatetime", DbType.DateTime, SqlDbType.SmallDateTime);
+
     private readonly SqlServerDateTimeTypeMapping _datetime
         = new("datetime", DbType.DateTime);
 
@@ -95,7 +98,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new("datetime2", DbType.DateTime2);
 
     private readonly SqlServerDateTimeTypeMapping _datetime2Alias
-        = new("placeholder", DbType.DateTime2, StoreTypePostfix.None);
+        = new("placeholder", DbType.DateTime2, null, StoreTypePostfix.None);
 
     private readonly DoubleTypeMapping _double
         = new SqlServerDoubleTypeMapping("float");
@@ -113,7 +116,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new("uniqueidentifier");
 
     private readonly DecimalTypeMapping _decimal
-        = new SqlServerDecimalTypeMapping("decimal");
+        = new SqlServerDecimalTypeMapping("decimal", precision: 18, scale: 0);
 
     private readonly DecimalTypeMapping _decimalAlias
         = new SqlServerDecimalTypeMapping("placeholder", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.None);
@@ -122,7 +125,11 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2);
 
     private readonly DecimalTypeMapping _money
-        = new SqlServerDecimalTypeMapping("money", DbType.Currency, storeTypePostfix: StoreTypePostfix.None);
+        = new SqlServerDecimalTypeMapping("money", DbType.Currency, sqlDbType: SqlDbType.Money, storeTypePostfix: StoreTypePostfix.None);
+
+    private readonly DecimalTypeMapping _smallMoney
+        = new SqlServerDecimalTypeMapping(
+            "smallmoney", DbType.Currency, sqlDbType: SqlDbType.SmallMoney, storeTypePostfix: StoreTypePostfix.None);
 
     private readonly TimeSpanTypeMapping _time
         = new SqlServerTimeSpanTypeMapping("time");
@@ -214,9 +221,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { "nvarchar(max)", _variableLengthMaxUnicodeString },
                 { "real", _real },
                 { "rowversion", _rowversion },
-                { "smalldatetime", _datetime },
+                { "smalldatetime", _smallDatetime },
                 { "smallint", _short },
-                { "smallmoney", _money },
+                { "smallmoney", _smallMoney },
                 { "sql_variant", _sqlVariant },
                 { "text", _textAnsiString },
                 { "time", _time },

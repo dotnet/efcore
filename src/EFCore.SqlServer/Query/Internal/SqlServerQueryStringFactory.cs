@@ -116,12 +116,25 @@ internal static class TypeNameBuilder
         return builder;
     }
 
+    private static StringBuilder AppendScale(this StringBuilder builder, DbParameter parameter)
+    {
+        if (parameter.Scale > 0)
+        {
+            builder
+                .Append('(')
+                .Append(parameter.Scale.ToString(CultureInfo.InvariantCulture))
+                .Append(')');
+        }
+
+        return builder;
+    }
+
     private static StringBuilder AppendPrecisionAndScale(this StringBuilder builder, DbParameter parameter)
     {
         if (parameter.Precision > 0
             && parameter.Scale > 0)
         {
-            builder
+            return builder
                 .Append('(')
                 .Append(parameter.Precision.ToString(CultureInfo.InvariantCulture))
                 .Append(',')
@@ -161,7 +174,7 @@ internal static class TypeNameBuilder
                 SqlDbType.SmallMoney => builder.Append("smallmoney"),
                 SqlDbType.Structured => builder.Append("structured"),
                 SqlDbType.Text => builder.Append("text"),
-                SqlDbType.Time => builder.Append("time").AppendPrecision(parameter),
+                SqlDbType.Time => builder.Append("time").AppendScale(parameter),
                 SqlDbType.Timestamp => builder.Append("rowversion"),
                 SqlDbType.TinyInt => builder.Append("tinyint"),
                 SqlDbType.Udt => builder.Append(sqlParameter.UdtTypeName),
