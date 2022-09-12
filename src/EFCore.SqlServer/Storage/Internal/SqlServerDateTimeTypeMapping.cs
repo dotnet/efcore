@@ -18,6 +18,8 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     private const string SmallDateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss}'";
     private const string DateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss.fff}'";
 
+    private readonly SqlDbType? _sqlDbType;
+
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
     private readonly string[] _dateTime2Formats =
@@ -41,13 +43,15 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     public SqlServerDateTimeTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.DateTime2,
+        SqlDbType? sqlDbType = null,
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
-        : base(
+        : this(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(typeof(DateTime)),
                 storeType,
                 storeTypePostfix,
-                dbType))
+                dbType),
+            sqlDbType)
     {
     }
 
@@ -57,10 +61,20 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqlServerDateTimeTypeMapping(RelationalTypeMappingParameters parameters)
+    protected SqlServerDateTimeTypeMapping(RelationalTypeMappingParameters parameters, SqlDbType? sqlDbType)
         : base(parameters)
     {
+        _sqlDbType = sqlDbType;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlDbType? SqlType
+        => _sqlDbType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,9 +86,13 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     {
         base.ConfigureParameter(parameter);
 
-        // Workaround for a SQLClient bug
-        if (DbType == System.Data.DbType.Date)
+        if (_sqlDbType != null)
         {
+            ((SqlParameter)parameter).SqlDbType = _sqlDbType.Value;
+        }
+        else if (DbType == System.Data.DbType.Date)
+        {
+            // Workaround for a SQLClient bug
             ((SqlParameter)parameter).SqlDbType = SqlDbType.Date;
         }
 
@@ -97,7 +115,7 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     /// <param name="parameters">The parameters for this mapping.</param>
     /// <returns>The newly created mapping.</returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqlServerDateTimeTypeMapping(parameters);
+        => new SqlServerDateTimeTypeMapping(parameters, _sqlDbType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -69,6 +69,11 @@ public abstract class RelationalTypeMappingTest
             null,
             null);
 
+        AssertClone(type, mapping);
+    }
+
+    protected static RelationalTypeMapping AssertClone(Type type, RelationalTypeMapping mapping)
+    {
         var clone = mapping.Clone("<clone>", null);
 
         Assert.NotSame(mapping, clone);
@@ -97,6 +102,8 @@ public abstract class RelationalTypeMappingTest
         Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
         Assert.Same(typeof(object), clone.ClrType);
         Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
+
+        return clone;
     }
 
     [ConditionalFact]
@@ -230,7 +237,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
     }
 
-    private class FakeTypeMapping : RelationalTypeMapping
+    protected class FakeTypeMapping : RelationalTypeMapping
     {
         private FakeTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
