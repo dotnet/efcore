@@ -91,7 +91,13 @@ public static class RelationalEntityTypeExtensions
                 continue;
             }
 
-            var propertyMappings = table.FindColumn(property)!.PropertyMappings;
+            var column = table.FindColumn(property);
+            if (column == null)
+            {
+                continue;
+            }
+
+            var propertyMappings = column.PropertyMappings;
             if (propertyMappings.Count() > 1
                 && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
             {
