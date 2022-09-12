@@ -191,7 +191,9 @@ public class ColumnModification : IColumnModification
         _sharedColumnModifications ??= new List<IColumnModification>();
 
         if (UseCurrentValueParameter
-            && !modification.Property.GetValueComparer().Equals(Value, modification.Value))
+            && !Property.GetProviderValueComparer().Equals(
+                Entry.GetCurrentProviderValue(Property),
+                modification.Entry.GetCurrentProviderValue(modification.Property)))
         {
             if (_sensitiveLoggingEnabled)
             {
@@ -215,13 +217,30 @@ public class ColumnModification : IColumnModification
         }
 
         if (UseOriginalValueParameter
-            && !modification.Property.GetValueComparer().Equals(OriginalValue, modification.OriginalValue))
+            && !Property.GetProviderValueComparer().Equals(
+                Entry.SharedIdentityEntry == null
+                    ? Entry.GetOriginalProviderValue(Property)
+                    : Entry.SharedIdentityEntry.GetOriginalProviderValue(Property),
+                modification.Entry.SharedIdentityEntry == null
+                    ? modification.Entry.GetOriginalProviderValue(modification.Property)
+                    : modification.Entry.SharedIdentityEntry.GetOriginalProviderValue(modification.Property)))
         {
             if (Entry.EntityState == EntityState.Modified
                 && modification.Entry.EntityState == EntityState.Added
                 && modification.Entry.SharedIdentityEntry == null)
             {
-                modification.Entry.SetOriginalValue(modification.Property, OriginalValue);
+                var originalValue = Entry.SharedIdentityEntry == null
+                    ? Entry.GetOriginalProviderValue(Property)
+                    : Entry.SharedIdentityEntry.GetOriginalProviderValue(Property);
+
+                var typeMapping = modification.Property.GetTypeMapping();
+                var converter = typeMapping.Converter;
+                if (converter != null)
+                {
+                    originalValue = converter.ConvertFromProvider(originalValue);
+                }
+
+                modification.Entry.SetOriginalValue(modification.Property, originalValue);
             }
             else
             {

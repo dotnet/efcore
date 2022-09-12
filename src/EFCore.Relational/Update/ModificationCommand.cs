@@ -976,7 +976,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 && (entry.EntityState == EntityState.Unchanged
                     || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
                     || (entry.EntityState == EntityState.Added
-                        && mapping.Column.ProviderValueComparer.Equals(_originalValue, entry.GetCurrentValue(property)))))
+                        && mapping.Column.ProviderValueComparer.Equals(_originalValue, entry.GetCurrentProviderValue(property)))))
             {
                 if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                     || entry.EntityState == EntityState.Added)

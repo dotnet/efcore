@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 # nullable enable
@@ -372,6 +372,34 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual void Can_change_enums_with_conversion()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var person = new Person("1", null) { Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini" };
+
+                context.Add(person);
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var person = context.Set<Person>().Single();
+                person.Address = new Address { Country = Country.Türkiye, City = "Konya" };
+                person.Country = "Türkiye";
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var person = context.Set<Person>().Single();
+
+                Assert.Equal(Country.Türkiye, person.Address!.Country);
+                Assert.Equal("Konya", person.Address.City);
+                Assert.Equal("Türkiye", person.Country);
+            });
+
+    [ConditionalFact]
     public virtual void Can_remove_partial()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -620,6 +648,11 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 .HasOne(p => p.Parent)
                 .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Person>()
+                .OwnsOne(p => p.Address)
+                .Property(p => p.Country)
+                .HasConversion<string>();
 
             modelBuilder.Entity<Category>().HasMany(e => e.ProductCategories).WithOne(e => e.Category)
                 .HasForeignKey(e => e.CategoryId);
