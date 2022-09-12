@@ -475,6 +475,7 @@ public class RelationalModelValidator : ModelValidator
                                             entityType.DisplayName(),
                                             property.GetBeforeSaveBehavior()));
                                 }
+
                                 break;
 
                             case StoreObjectType.UpdateStoredProcedure:
@@ -708,14 +709,26 @@ public class RelationalModelValidator : ModelValidator
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
-                foreach (var property in key.Properties.Where(p => !p.IsForeignKey()))
+                IProperty? propertyWithDefault = null;
+                foreach (var property in key.Properties)
                 {
                     var defaultValue = (IConventionAnnotation?)property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
-                    if (defaultValue?.Value != null
+                    if (!property.IsForeignKey()
+                        && defaultValue?.Value != null
                         && defaultValue.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
                     {
-                        logger.ModelValidationKeyDefaultValueWarning(property);
+                        propertyWithDefault ??= property;
                     }
+                    else
+                    {
+                        propertyWithDefault = null;
+                        break;
+                    }
+                }
+
+                if (propertyWithDefault != null)
+                {
+                    logger.ModelValidationKeyDefaultValueWarning(propertyWithDefault);
                 }
             }
         }

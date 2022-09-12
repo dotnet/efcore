@@ -567,6 +567,12 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public PrincipalA Principal { get; set; }
     }
 
+    protected class PrincipalB
+    {
+        public int Id1 { get; set; }
+        public int Id2 { get; set; }
+    }
+
     [ConditionalFact]
     public virtual IModel Key_and_column_work_together()
     {

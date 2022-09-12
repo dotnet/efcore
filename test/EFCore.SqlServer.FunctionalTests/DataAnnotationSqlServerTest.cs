@@ -56,6 +56,43 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         Validate(modelBuilder);
     }
 
+    [ConditionalFact]
+    public virtual void Default_for_part_of_composite_key_does_not_throw()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<PrincipalB>(
+            b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.Property(e => e.Id1).HasDefaultValue(77);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Default_for_all_parts_of_composite_key_throws()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        modelBuilder.Entity<PrincipalB>(
+            b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.Property(e => e.Id1).HasDefaultValue(77);
+                b.Property(e => e.Id2).HasDefaultValue(78);
+            });
+
+        Assert.Equal(
+            CoreStrings.WarningAsErrorTemplate(
+                RelationalEventId.ModelValidationKeyDefaultValueWarning,
+                RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage(nameof(PrincipalB.Id1), nameof(PrincipalB)),
+                "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
     public override IModel Non_public_annotations_are_enabled()
     {
         var model = base.Non_public_annotations_are_enabled();
