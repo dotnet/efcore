@@ -554,6 +554,25 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public virtual Login1 User { get; set; }
     }
 
+    protected class PrincipalA
+    {
+        public int Id { get; set; }
+        public DependantA Dependant { get; set; }
+    }
+
+    protected class DependantA
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
+        public PrincipalA Principal { get; set; }
+    }
+
+    protected class PrincipalB
+    {
+        public int Id1 { get; set; }
+        public int Id2 { get; set; }
+    }
+
     [ConditionalFact]
     public virtual IModel Key_and_column_work_together()
     {

@@ -79,12 +79,27 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 
     [ConditionalTheory]
     [InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
-    [InlineData(typeof(SqlServerDateTimeTypeMapping), typeof(DateTime))]
     [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
     [InlineData(typeof(SqlServerFloatTypeMapping), typeof(float))]
     [InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
+
+    [ConditionalFact]
+    public void Create_and_clone_SQL_Server_DateTime_mappings_with_converter()
+    {
+        var mapping = (RelationalTypeMapping)Activator.CreateInstance(
+            typeof(SqlServerDateTimeTypeMapping),
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
+            null,
+            new[] { FakeTypeMapping.CreateParameters(typeof(SqlServerDateTimeTypeMapping)), SqlDbType.SmallDateTime },
+            null,
+            null);
+
+        var clone = AssertClone(typeof(SqlServerDateTimeTypeMapping), mapping);
+
+        Assert.Equal(SqlDbType.SmallDateTime, ((SqlServerDateTimeTypeMapping)clone).SqlType);
+    }
 
     [ConditionalFact]
     public virtual void Create_and_clone_SQL_Server_sized_mappings_with_converter()

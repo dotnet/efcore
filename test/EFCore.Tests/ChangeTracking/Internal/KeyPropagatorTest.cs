@@ -13,7 +13,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void Foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
+    public async Task Foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
 
@@ -26,7 +26,14 @@ public class KeyPropagatorTest
         var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property, async);
+        if (async)
+        {
+            await keyPropagator.PropagateValueAsync(dependentEntry, property);
+        }
+        else
+        {
+            keyPropagator.PropagateValue(dependentEntry, property);
+        }
 
         Assert.Equal(11, dependentEntry[property]);
         Assert.False(dependentEntry.HasTemporaryValue(property));
@@ -37,7 +44,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection(bool generateTemporary, bool async)
+    public async Task Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
         var contextServices = CreateContextServices(model);
@@ -50,10 +57,12 @@ public class KeyPropagatorTest
 
         manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
         var dependentEntry = manager.GetOrCreateEntry(dependent);
-        var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
+        var property = model.FindEntityType(typeof(Product))!.FindProperty("CategoryId")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property)
+            : keyPropagator.PropagateValue(dependentEntry, property);
 
         Assert.Equal(11, dependentEntry[property]);
         Assert.False(dependentEntry.HasTemporaryValue(property));
@@ -64,7 +73,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void Non_identifying_foreign_key_value_is_not_generated_if_principal_key_not_set(bool generateTemporary, bool async)
+    public async Task Non_identifying_foreign_key_value_is_not_generated_if_principal_key_not_set(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
 
@@ -73,10 +82,12 @@ public class KeyPropagatorTest
 
         var contextServices = CreateContextServices(model);
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-        var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
+        var property = model.FindEntityType(typeof(Product))!.FindProperty("CategoryId")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property)
+            : keyPropagator.PropagateValue(dependentEntry, property);
 
         Assert.Equal(0, dependentEntry[property]);
         Assert.False(dependentEntry.HasTemporaryValue(property));
@@ -87,7 +98,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void One_to_one_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
+    public async Task One_to_one_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
 
@@ -97,10 +108,12 @@ public class KeyPropagatorTest
         var contextServices = CreateContextServices(model);
         model = contextServices.GetRequiredService<IModel>();
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-        var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(ProductDetail))!.FindProperty("Id")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property)
+            : keyPropagator.PropagateValue(dependentEntry, property);
 
         Assert.Equal(21, dependentEntry[property]);
         Assert.False(dependentEntry.HasTemporaryValue(property));
@@ -111,7 +124,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void One_to_one_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
+    public async Task One_to_one_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
         var contextServices = CreateContextServices(model);
@@ -123,10 +136,12 @@ public class KeyPropagatorTest
 
         manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
         var dependentEntry = manager.GetOrCreateEntry(dependent);
-        var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(ProductDetail))!.FindProperty("Id")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property)
+            : keyPropagator.PropagateValue(dependentEntry, property);
 
         Assert.Equal(21, dependentEntry[property]);
         Assert.False(dependentEntry.HasTemporaryValue(property));
@@ -137,7 +152,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void Identifying_foreign_key_value_is_generated_if_principal_key_not_set(bool generateTemporary, bool async)
+    public async Task Identifying_foreign_key_value_is_generated_if_principal_key_not_set(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
 
@@ -146,13 +161,15 @@ public class KeyPropagatorTest
 
         var contextServices = CreateContextServices(model);
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-        var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
+        var property = model.FindEntityType(typeof(ProductDetail))!.FindProperty("Id")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property)
+            : keyPropagator.PropagateValue(dependentEntry, property);
 
         Assert.NotEqual(0, dependentEntry[property]);
-        Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(property));
+        Assert.True(dependentEntry.HasTemporaryValue(property));
     }
 
     [ConditionalTheory]
@@ -160,7 +177,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void Identifying_foreign_key_value_is_propagated_if_principal_key_is_generated(bool generateTemporary, bool async)
+    public async Task Identifying_foreign_key_value_is_propagated_if_principal_key_is_generated(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
 
@@ -172,16 +189,18 @@ public class KeyPropagatorTest
         var principalEntry = stateManager.GetOrCreateEntry(principal);
         principalEntry.SetEntityState(EntityState.Added);
         var dependentEntry = stateManager.GetOrCreateEntry(dependent);
-        var principalProperty = model.FindEntityType(typeof(Product)).FindProperty(nameof(Product.Id));
-        var dependentProperty = model.FindEntityType(typeof(ProductDetail)).FindProperty(nameof(ProductDetail.Id));
+        var principalProperty = model.FindEntityType(typeof(Product))!.FindProperty(nameof(Product.Id))!;
+        var dependentProperty = model.FindEntityType(typeof(ProductDetail))!.FindProperty(nameof(ProductDetail.Id))!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, dependentProperty, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, dependentProperty)
+            : keyPropagator.PropagateValue(dependentEntry, dependentProperty);
 
         Assert.NotEqual(0, principalEntry[principalProperty]);
         Assert.Equal(generateTemporary, principalEntry.HasTemporaryValue(principalProperty));
         Assert.NotEqual(0, dependentEntry[dependentProperty]);
-        Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(dependentProperty));
+        Assert.True(dependentEntry.HasTemporaryValue(dependentProperty));
         Assert.Equal(principalEntry[principalProperty], dependentEntry[dependentProperty]);
     }
 
@@ -190,7 +209,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void Composite_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
+    public async Task Composite_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
 
@@ -200,12 +219,17 @@ public class KeyPropagatorTest
         var contextServices = CreateContextServices(model);
         model = contextServices.GetRequiredService<IModel>();
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-        var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
-        var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");
+        var property1 = model.FindEntityType(typeof(OrderLineDetail))!.FindProperty("OrderId")!;
+        var property2 = model.FindEntityType(typeof(OrderLineDetail))!.FindProperty("ProductId")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property1, async);
-        PropagateValue(keyPropagator, dependentEntry, property2, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property1)
+            : keyPropagator.PropagateValue(dependentEntry, property1);
+
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property2)
+            : keyPropagator.PropagateValue(dependentEntry, property2);
 
         Assert.Equal(11, dependentEntry[property1]);
         Assert.False(dependentEntry.HasTemporaryValue(property1));
@@ -218,7 +242,7 @@ public class KeyPropagatorTest
     [InlineData(false, true)]
     [InlineData(true, false)]
     [InlineData(true, true)]
-    public void Composite_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
+    public async Task Composite_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
         var contextServices = CreateContextServices(model);
@@ -235,12 +259,17 @@ public class KeyPropagatorTest
 
         manager.GetOrCreateEntry(principal).SetEntityState(EntityState.Unchanged);
         var dependentEntry = manager.GetOrCreateEntry(dependent);
-        var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
-        var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");
+        var property1 = model.FindEntityType(typeof(OrderLineDetail))!.FindProperty("OrderId")!;
+        var property2 = model.FindEntityType(typeof(OrderLineDetail))!.FindProperty("ProductId")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
-        PropagateValue(keyPropagator, dependentEntry, property1, async);
-        PropagateValue(keyPropagator, dependentEntry, property2, async);
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property1)
+            : keyPropagator.PropagateValue(dependentEntry, property1);
+
+        _ = async
+            ? await keyPropagator.PropagateValueAsync(dependentEntry, property2)
+            : keyPropagator.PropagateValue(dependentEntry, property2);
 
         Assert.Equal(11, dependentEntry[property1]);
         Assert.False(dependentEntry.HasTemporaryValue(property1));
@@ -250,18 +279,6 @@ public class KeyPropagatorTest
 
     private static IServiceProvider CreateContextServices(IModel model)
         => InMemoryTestHelpers.Instance.CreateContextServices(model);
-
-    private static void PropagateValue(IKeyPropagator keyPropagator, InternalEntityEntry dependentEntry, IProperty property, bool async)
-    {
-        if (async)
-        {
-            keyPropagator.PropagateValueAsync(dependentEntry, property).GetAwaiter().GetResult();
-        }
-        else
-        {
-            keyPropagator.PropagateValue(dependentEntry, property);
-        }
-    }
 
     private class BaseType
     {

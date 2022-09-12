@@ -1002,10 +1002,17 @@ public class RelationshipDiscoveryConvention :
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
-        => DiscoverRelationships(
+    {
+        DiscoverRelationships(
             entityTypeBuilder,
             context,
             Dependencies.MemberClassifier.GetInverseCandidateTypes(entityTypeBuilder.Metadata).ToHashSet());
+
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            context.StopProcessing();
+        }
+    }
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
@@ -1065,7 +1072,8 @@ public class RelationshipDiscoveryConvention :
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey.IsOwnership
+        if (entityTypeBuilder.Metadata.IsInModel
+            && foreignKey.IsOwnership
             && !entityTypeBuilder.Metadata.IsOwned())
         {
             DiscoverRelationships(
@@ -1083,14 +1091,15 @@ public class RelationshipDiscoveryConvention :
         MemberInfo? memberInfo,
         IConventionContext<string> context)
     {
-        if ((targetEntityTypeBuilder.Metadata.IsInModel
+        if (sourceEntityTypeBuilder.Metadata.IsInModel
+            && (targetEntityTypeBuilder.Metadata.IsInModel
                 || !sourceEntityTypeBuilder.ModelBuilder.IsIgnored(targetEntityTypeBuilder.Metadata.Name))
             && memberInfo != null
+            && sourceEntityTypeBuilder.Metadata.FindNavigation(navigationName) == null
             && IsCandidateNavigationProperty(
                 sourceEntityTypeBuilder.Metadata, navigationName, memberInfo)
             && Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                memberInfo, targetEntityTypeBuilder.Metadata.Model, out _)
-            != null)
+                memberInfo, targetEntityTypeBuilder.Metadata.Model, out _) != null)
         {
             Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo, context);
         }

@@ -136,13 +136,13 @@ public static class PropertyExtensions
     /// </summary>
     public static bool MayBeStoreGenerated(this IProperty property)
     {
-        if (property.ValueGenerated != ValueGenerated.Never)
+        if (property.ValueGenerated != ValueGenerated.Never
+            || property.IsForeignKey())
         {
             return true;
         }
 
-        if (property.IsKey()
-            || property.IsForeignKey())
+        if (property.IsKey())
         {
             var generationProperty = property.FindGenerationProperty();
             return (generationProperty != null)

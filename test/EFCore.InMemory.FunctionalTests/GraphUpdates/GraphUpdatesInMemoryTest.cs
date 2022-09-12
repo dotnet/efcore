@@ -11,6 +11,10 @@ public class GraphUpdatesInMemoryTest : GraphUpdatesTestBase<GraphUpdatesInMemor
     }
 
     // In-memory database does not have database default values
+    public override Task Can_insert_when_composite_FK_has_default_value_for_one_part(bool async)
+        => Task.CompletedTask;
+
+    // In-memory database does not have database default values
     public override Task Can_insert_when_FK_has_default_value(bool async)
         => Task.CompletedTask;
 

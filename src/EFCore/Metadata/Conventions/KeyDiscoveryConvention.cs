@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -230,7 +232,13 @@ public class KeyDiscoveryConvention :
     public virtual void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         IConventionContext<IConventionPropertyBuilder> context)
-        => TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
+    {
+        TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
+        if (!propertyBuilder.Metadata.IsInModel)
+        {
+            context.StopProcessing();
+        }
+    }
 
     /// <inheritdoc />
     public virtual void ProcessKeyRemoved(
@@ -238,6 +246,11 @@ public class KeyDiscoveryConvention :
         IConventionKey key,
         IConventionContext<IConventionKey> context)
     {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
         if (entityTypeBuilder.Metadata.FindPrimaryKey() == null)
         {
             TryConfigurePrimaryKey(entityTypeBuilder);
@@ -283,7 +296,8 @@ public class KeyDiscoveryConvention :
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey.IsOwnership)
+        if (entityTypeBuilder.Metadata.IsInModel
+            && foreignKey.IsOwnership)
         {
             TryConfigurePrimaryKey(entityTypeBuilder);
         }

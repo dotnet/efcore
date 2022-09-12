@@ -3549,6 +3549,23 @@ public class ChangeTrackerTest
         Assert.Equal(originalCount, context.Cats.Local.Count);
     }
 
+    [ConditionalFact] // Issue #26448
+    public void Stable_generated_values_do_not_force_Added_state()
+    {
+        using var context = new EarlyLearningCenter();
+
+        Assert.Equal(EntityState.Added, context.Add(new Stable()).State);
+
+        context.ChangeTracker.Clear();
+        Assert.Equal(EntityState.Modified, context.Update(new Stable()).State);
+
+        context.ChangeTracker.Clear();
+        Assert.Equal(EntityState.Unchanged, context.Attach(new Stable()).State);
+
+        context.ChangeTracker.Clear();
+        Assert.Equal(EntityState.Deleted, context.Remove(new Stable()).State);
+    }
+
     private static void AssertValuesSaved(int id, int someInt, string? someString)
     {
         using var context = new TheShadows();
@@ -3749,6 +3766,23 @@ public class ChangeTrackerTest
         public int Id { get; set; }
     }
 
+    private class Stable
+    {
+        public Guid Id { get; set; }
+    }
+
+    private class TenantIdGenerator : ValueGenerator<Guid>
+    {
+        public override Guid Next(EntityEntry entry)
+            => Guid.Parse("98D06A82-C691-4988-EA39-08D98E2C8D8F");
+
+        public override bool GeneratesTemporaryValues
+            => false;
+
+        public override bool GeneratesStableValues
+            => true;
+    }
+
     private class EarlyLearningCenter : DbContext
     {
         private readonly IInterceptor[] _interceptors;
@@ -3856,6 +3890,10 @@ public class ChangeTrackerTest
                         .HasForeignKey<Buggy>("BobbyId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
+
+            modelBuilder.Entity<Stable>()
+                .Property(e => e.Id)
+                .HasValueGenerator<TenantIdGenerator>();
         }
 
         private class DummyValueGenerator : ValueGenerator<int>
