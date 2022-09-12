@@ -845,11 +845,15 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                 {
                     b.HasMany(e => e.Dependents).WithOne(e => e.Principal).HasForeignKey(e => e.PrincipalId);
                     b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Id).HasConversion(v => v, v => (int)v);
+                    b.Property(e => e.Id).HasConversion<int>(v => v ?? 0, v => v);
                 });
 
             modelBuilder.Entity<NonNullableDependent>(
-                b => b.Property(e => e.Id).ValueGeneratedNever());
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.PrincipalId).HasConversion<int>(v => v, v => v);
+                });
 
             modelBuilder.Entity<User>(
                 b =>

@@ -108,6 +108,8 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         var ownerEntry = context.Entry(
             new OwnerClass { Id = 1, Owned = new OwnedClass { Value = "Kool" } }).GetInfrastructure();
 
+        ownerEntry.SetEntityState(EntityState.Unchanged);
+
         var entry = context.Entry(((OwnerClass)ownerEntry.Entity).Owned).GetInfrastructure();
         var valueProperty = entry.EntityType.FindProperty(nameof(OwnedClass.Value));
 

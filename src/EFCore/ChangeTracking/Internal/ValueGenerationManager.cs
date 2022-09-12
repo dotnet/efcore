@@ -63,6 +63,29 @@ public class ValueGenerationManager : IValueGenerationManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual async Task<InternalEntityEntry?> PropagateAsync(InternalEntityEntry entry, CancellationToken cancellationToken)
+    {
+        InternalEntityEntry? chosenPrincipal = null;
+        foreach (var property in entry.EntityType.GetForeignKeyProperties())
+        {
+            if (!entry.HasDefaultValue(property))
+            {
+                continue;
+            }
+
+            var principalEntry = await _keyPropagator.PropagateValueAsync(entry, property, cancellationToken).ConfigureAwait(false);
+            chosenPrincipal ??= principalEntry;
+        }
+
+        return chosenPrincipal;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual bool Generate(InternalEntityEntry entry, bool includePrimaryKey = true)
     {
         var entityEntry = new EntityEntry(entry);

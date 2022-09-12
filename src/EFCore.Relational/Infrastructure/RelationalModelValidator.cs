@@ -475,6 +475,7 @@ public class RelationalModelValidator : ModelValidator
                                             entityType.DisplayName(),
                                             property.GetBeforeSaveBehavior()));
                                 }
+
                                 break;
 
                             case StoreObjectType.UpdateStoredProcedure:
@@ -708,19 +709,31 @@ public class RelationalModelValidator : ModelValidator
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
+                IProperty? propertyWithDefault = null;
                 foreach (var property in key.Properties)
                 {
                     var defaultValue = (IConventionAnnotation?)property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
-                    if (defaultValue?.Value != null
+                    if (!property.IsForeignKey()
+                        && defaultValue?.Value != null
                         && defaultValue.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
                     {
-                        logger.ModelValidationKeyDefaultValueWarning(property);
+                        propertyWithDefault ??= property;
                     }
+                    else
+                    {
+                        propertyWithDefault = null;
+                        break;
+                    }
+                }
+
+                if (propertyWithDefault != null)
+                {
+                    logger.ModelValidationKeyDefaultValueWarning(propertyWithDefault);
                 }
             }
         }
     }
-    
+
     /// <summary>
     ///     Validates the mapping/configuration of mutable in the model.
     /// </summary>
