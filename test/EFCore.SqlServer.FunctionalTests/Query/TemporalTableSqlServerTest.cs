@@ -140,17 +140,13 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o] ON [m].[Id] = [o].[MainEntityDiffer
         AssertSql(
             @"@__p_0='3'
 
-SELECT [t0].[Id], [t0].[Description], [t0].[EndTime], [t0].[StartTime], [o].[MainEntityDifferentTableId], [o].[Description], [o].[EndTime], [o].[StartTime]
+SELECT TOP(@__p_0) [t].[Id], [t].[Description], [t].[EndTime], [t].[StartTime], [t].[MainEntityDifferentTableId], [t].[Description0], [t].[EndTime0], [t].[StartTime0]
 FROM (
-    SELECT TOP(@__p_0) [t].[Id], [t].[Description], [t].[EndTime], [t].[StartTime]
-    FROM (
-        SELECT DISTINCT [m].[Id], [m].[Description], [m].[EndTime], [m].[StartTime]
-        FROM [MainEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [m]
-    ) AS [t]
-    ORDER BY [t].[Id] DESC
-) AS [t0]
-LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o] ON [t0].[Id] = [o].[MainEntityDifferentTableId]
-ORDER BY [t0].[Id] DESC");
+    SELECT DISTINCT [m].[Id], [m].[Description], [m].[EndTime], [m].[StartTime], [o].[MainEntityDifferentTableId], [o].[Description] AS [Description0], [o].[EndTime] AS [EndTime0], [o].[StartTime] AS [StartTime0]
+    FROM [MainEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [m]
+    LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o] ON [m].[Id] = [o].[MainEntityDifferentTableId]
+) AS [t]
+ORDER BY [t].[Id] DESC");
     }
 
     [ConditionalTheory]
@@ -173,19 +169,19 @@ ORDER BY [t0].[Id] DESC");
         AssertSql(
             @"@__p_0='3'
 
-SELECT [t0].[Id], [t0].[Description], [t0].[EndTime], [t0].[StartTime], [o].[MainEntityDifferentTableId], [o].[Description], [o].[EndTime], [o].[StartTime], [t0].[Id0], [t0].[Description0], [t0].[EndTime0], [t0].[StartTime0], [o0].[MainEntityDifferentTableId], [o0].[Description], [o0].[EndTime], [o0].[StartTime], [m1].[Id], [m1].[Description], [m1].[EndTime], [m1].[StartTime], [o1].[MainEntityDifferentTableId], [o1].[Description], [o1].[EndTime], [o1].[StartTime]
+SELECT [t0].[Id], [t0].[Description], [t0].[EndTime], [t0].[StartTime], [t0].[MainEntityDifferentTableId], [t0].[Description1], [t0].[EndTime1], [t0].[StartTime1], [t0].[Id0], [t0].[Description0], [t0].[EndTime0], [t0].[StartTime0], [t0].[MainEntityDifferentTableId0], [t0].[Description2], [t0].[EndTime2], [t0].[StartTime2], [m1].[Id], [m1].[Description], [m1].[EndTime], [m1].[StartTime], [o1].[MainEntityDifferentTableId], [o1].[Description], [o1].[EndTime], [o1].[StartTime]
 FROM (
-    SELECT TOP(@__p_0) [t].[Id], [t].[Description], [t].[EndTime], [t].[StartTime], [t].[Id0], [t].[Description0], [t].[EndTime0], [t].[StartTime0]
+    SELECT TOP(@__p_0) [t].[Id], [t].[Description], [t].[EndTime], [t].[StartTime], [t].[Id0], [t].[Description0], [t].[EndTime0], [t].[StartTime0], [t].[MainEntityDifferentTableId], [t].[Description1], [t].[EndTime1], [t].[StartTime1], [t].[MainEntityDifferentTableId0], [t].[Description2], [t].[EndTime2], [t].[StartTime2]
     FROM (
-        SELECT DISTINCT [m].[Id], [m].[Description], [m].[EndTime], [m].[StartTime], [m0].[Id] AS [Id0], [m0].[Description] AS [Description0], [m0].[EndTime] AS [EndTime0], [m0].[StartTime] AS [StartTime0]
+        SELECT DISTINCT [m].[Id], [m].[Description], [m].[EndTime], [m].[StartTime], [m0].[Id] AS [Id0], [m0].[Description] AS [Description0], [m0].[EndTime] AS [EndTime0], [m0].[StartTime] AS [StartTime0], [o].[MainEntityDifferentTableId], [o].[Description] AS [Description1], [o].[EndTime] AS [EndTime1], [o].[StartTime] AS [StartTime1], [o0].[MainEntityDifferentTableId] AS [MainEntityDifferentTableId0], [o0].[Description] AS [Description2], [o0].[EndTime] AS [EndTime2], [o0].[StartTime] AS [StartTime2]
         FROM [MainEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [m]
         INNER JOIN [MainEntityDifferentTable] AS [m0] ON [m].[Id] = [m0].[Id]
+        LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o] ON [m].[Id] = [o].[MainEntityDifferentTableId]
+        LEFT JOIN [OwnedEntityDifferentTable] AS [o0] ON [m0].[Id] = [o0].[MainEntityDifferentTableId]
     ) AS [t]
     ORDER BY [t].[Id] DESC
 ) AS [t0]
 INNER JOIN [MainEntityDifferentTable] AS [m1] ON [t0].[Id] = [m1].[Id]
-LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o] ON [t0].[Id] = [o].[MainEntityDifferentTableId]
-LEFT JOIN [OwnedEntityDifferentTable] AS [o0] ON [t0].[Id0] = [o0].[MainEntityDifferentTableId]
 LEFT JOIN [OwnedEntityDifferentTable] AS [o1] ON [m1].[Id] = [o1].[MainEntityDifferentTableId]
 ORDER BY [t0].[Id] DESC");
     }
@@ -210,19 +206,19 @@ ORDER BY [t0].[Id] DESC");
         AssertSql(
             @"@__p_0='3'
 
-SELECT [t0].[Id], [t0].[Description], [t0].[EndTime], [t0].[StartTime], [o].[MainEntityDifferentTableId], [o].[Description], [o].[EndTime], [o].[StartTime], [t0].[Id0], [t0].[Description0], [t0].[EndTime0], [t0].[StartTime0], [o0].[MainEntityDifferentTableId], [o0].[Description], [o0].[EndTime], [o0].[StartTime], [m1].[Id], [m1].[Description], [m1].[EndTime], [m1].[StartTime], [o1].[MainEntityDifferentTableId], [o1].[Description], [o1].[EndTime], [o1].[StartTime]
+SELECT [t0].[Id], [t0].[Description], [t0].[EndTime], [t0].[StartTime], [t0].[MainEntityDifferentTableId], [t0].[Description1], [t0].[EndTime1], [t0].[StartTime1], [t0].[Id0], [t0].[Description0], [t0].[EndTime0], [t0].[StartTime0], [t0].[MainEntityDifferentTableId0], [t0].[Description2], [t0].[EndTime2], [t0].[StartTime2], [m1].[Id], [m1].[Description], [m1].[EndTime], [m1].[StartTime], [o1].[MainEntityDifferentTableId], [o1].[Description], [o1].[EndTime], [o1].[StartTime]
 FROM (
-    SELECT TOP(@__p_0) [t].[Id], [t].[Description], [t].[EndTime], [t].[StartTime], [t].[Id0], [t].[Description0], [t].[EndTime0], [t].[StartTime0]
+    SELECT TOP(@__p_0) [t].[Id], [t].[Description], [t].[EndTime], [t].[StartTime], [t].[Id0], [t].[Description0], [t].[EndTime0], [t].[StartTime0], [t].[MainEntityDifferentTableId], [t].[Description1], [t].[EndTime1], [t].[StartTime1], [t].[MainEntityDifferentTableId0], [t].[Description2], [t].[EndTime2], [t].[StartTime2]
     FROM (
-        SELECT DISTINCT [m].[Id], [m].[Description], [m].[EndTime], [m].[StartTime], [m0].[Id] AS [Id0], [m0].[Description] AS [Description0], [m0].[EndTime] AS [EndTime0], [m0].[StartTime] AS [StartTime0]
+        SELECT DISTINCT [m].[Id], [m].[Description], [m].[EndTime], [m].[StartTime], [m0].[Id] AS [Id0], [m0].[Description] AS [Description0], [m0].[EndTime] AS [EndTime0], [m0].[StartTime] AS [StartTime0], [o].[MainEntityDifferentTableId], [o].[Description] AS [Description1], [o].[EndTime] AS [EndTime1], [o].[StartTime] AS [StartTime1], [o0].[MainEntityDifferentTableId] AS [MainEntityDifferentTableId0], [o0].[Description] AS [Description2], [o0].[EndTime] AS [EndTime2], [o0].[StartTime] AS [StartTime2]
         FROM [MainEntityDifferentTable] AS [m]
         INNER JOIN [MainEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [m0] ON [m].[Id] = [m0].[Id]
+        LEFT JOIN [OwnedEntityDifferentTable] AS [o] ON [m].[Id] = [o].[MainEntityDifferentTableId]
+        LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o0] ON [m0].[Id] = [o0].[MainEntityDifferentTableId]
     ) AS [t]
     ORDER BY [t].[Id] DESC
 ) AS [t0]
 INNER JOIN [MainEntityDifferentTable] AS [m1] ON [t0].[Id] = [m1].[Id]
-LEFT JOIN [OwnedEntityDifferentTable] AS [o] ON [t0].[Id] = [o].[MainEntityDifferentTableId]
-LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [o0] ON [t0].[Id0] = [o0].[MainEntityDifferentTableId]
 LEFT JOIN [OwnedEntityDifferentTable] AS [o1] ON [m1].[Id] = [o1].[MainEntityDifferentTableId]
 ORDER BY [t0].[Id] DESC");
     }

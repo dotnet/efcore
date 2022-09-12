@@ -106,16 +106,12 @@ ORDER BY [l].[Id]");
         AssertSql(
             @"@__p_0='10'
 
-SELECT [t].[Id], [t].[Name], [t].[CompanyId], [t].[AdditionalCustomerData], [t].[Id0], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
-FROM (
-    SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id] AS [Id0]
-    FROM [Companies] AS [c]
-    LEFT JOIN [CustomerData] AS [c0] ON [c].[Id] = [c0].[CompanyId]
-    WHERE [c0].[CompanyId] IS NOT NULL
-    ORDER BY [c].[Id]
-) AS [t]
-LEFT JOIN [SupplierData] AS [s] ON [t].[Id] = [s].[CompanyId]
-ORDER BY [t].[Id]");
+SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
+FROM [Companies] AS [c]
+LEFT JOIN [CustomerData] AS [c0] ON [c].[Id] = [c0].[CompanyId]
+LEFT JOIN [SupplierData] AS [s] ON [c].[Id] = [s].[CompanyId]
+WHERE [c0].[CompanyId] IS NOT NULL
+ORDER BY [c].[Id]");
     }
 
     public override async Task Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(bool async)
@@ -125,17 +121,13 @@ ORDER BY [t].[Id]");
         AssertSql(
             @"@__p_0='10'
 
-SELECT [t].[Id], [t].[Name], [t].[OwnerId], [t].[Id0], [t].[Name0], [t].[IntermediateOwnedEntityOwnerId], [t].[AdditionalCustomerData], [t].[Id1], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
-FROM (
-    SELECT TOP(@__p_0) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id] AS [Id0], [i].[Name] AS [Name0], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id] AS [Id1]
-    FROM [Owners] AS [o]
-    LEFT JOIN [IntermediateOwnedEntity] AS [i] ON [o].[Id] = [i].[OwnerId]
-    LEFT JOIN [IM_CustomerData] AS [i0] ON [i].[OwnerId] = [i0].[IntermediateOwnedEntityOwnerId]
-    WHERE [i0].[IntermediateOwnedEntityOwnerId] IS NOT NULL
-    ORDER BY [o].[Id]
-) AS [t]
-LEFT JOIN [IM_SupplierData] AS [i1] ON [t].[OwnerId] = [i1].[IntermediateOwnedEntityOwnerId]
-ORDER BY [t].[Id]");
+SELECT TOP(@__p_0) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
+FROM [Owners] AS [o]
+LEFT JOIN [IntermediateOwnedEntity] AS [i] ON [o].[Id] = [i].[OwnerId]
+LEFT JOIN [IM_CustomerData] AS [i0] ON [i].[OwnerId] = [i0].[IntermediateOwnedEntityOwnerId]
+LEFT JOIN [IM_SupplierData] AS [i1] ON [i].[OwnerId] = [i1].[IntermediateOwnedEntityOwnerId]
+WHERE [i0].[IntermediateOwnedEntityOwnerId] IS NOT NULL
+ORDER BY [o].[Id]");
     }
 
     public override async Task Owned_entity_with_all_null_properties_materializes_when_not_containing_another_owned_entity(bool async)
