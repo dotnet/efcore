@@ -35,7 +35,6 @@ public class ModelCleanupConvention :
     {
         var principalKey = foreignKey.PrincipalKey;
         if (principalKey.IsInModel
-            && principalKey.DeclaringEntityType.IsInModel
             && !principalKey.IsPrimaryKey()
             && !principalKey.GetReferencingForeignKeys().Any())
         {
