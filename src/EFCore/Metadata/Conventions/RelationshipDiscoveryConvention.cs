@@ -809,7 +809,10 @@ public class RelationshipDiscoveryConvention :
             {
                 foreach (var inverseCandidateEntityType in model.FindEntityTypes(inverseCandidateType).ToList())
                 {
-                    DiscoverRelationships(inverseCandidateEntityType.Builder, context);
+                    if (inverseCandidateEntityType.IsInModel)
+                    {
+                        DiscoverRelationships(inverseCandidateEntityType.Builder, context);
+                    }
                 }
             }
         }

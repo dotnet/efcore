@@ -694,7 +694,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
-        var valueConverterType = (Type?)property[CoreAnnotationNames.ValueConverterType];
+        var valueConverterType = (Type?)property[CoreAnnotationNames.ValueConverterType]
+            ?? (Type?)property.FindFirstDifferentPrincipal()?[CoreAnnotationNames.ValueConverterType];
         if (valueConverterType == null
             && property.GetValueConverter() != null)
         {

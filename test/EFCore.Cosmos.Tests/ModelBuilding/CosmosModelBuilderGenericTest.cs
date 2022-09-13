@@ -338,20 +338,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
                 owned.DisplayName());
         }
 
-        [ConditionalFact]
-        public virtual void Inverse_discovered_after_entity_becomes_non_owned()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<QueryResult>();
-            modelBuilder.Entity<Value>();
-
-            var model = modelBuilder.FinalizeModel();
-
-            var queryResult = model.FindEntityType(typeof(QueryResult));
-            Assert.NotNull(queryResult.FindNavigation(nameof(QueryResult.Value)));
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }

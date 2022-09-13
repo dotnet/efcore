@@ -315,6 +315,14 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
             return null;
         }
 
+        foreach (var existingEntityType in Metadata.FindEntityTypes(type))
+        {
+            if (!existingEntityType.Builder.CanSetIsOwned(true, configurationSource))
+            {
+                return null;
+            }
+        }
+
         Metadata.RemoveIgnored(type);
         Metadata.AddOwned(type, ConfigurationSource.Explicit);
 
@@ -337,15 +345,8 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
             }
             else
             {
-                if (entityType.Builder.CanSetIsOwned(true, configurationSource))
-                {
-                    // Discover the ownership when the type is added back
-                    HasNoEntityType(entityType, configurationSource);
-                }
-                else
-                {
-                    return null;
-                }
+                // Discover the ownership when the type is added back
+                HasNoEntityType(entityType, configurationSource);
             }
         }
 
@@ -405,9 +406,8 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
         }
 
         if (!configurationType.IsEntityType()
-            && (!configurationSource.Overrides(Metadata.FindEntityType(type)?.GetConfigurationSource())
-                || !configurationSource.Overrides(Metadata.FindIsOwnedConfigurationSource(type))
-                || Metadata.IsShared(type)))
+            && (!configurationSource.Overrides(Metadata.FindIsOwnedConfigurationSource(type))
+                || Metadata.FindEntityTypes(type).Any(e => !configurationSource.Overrides(e.GetConfigurationSource()))))
         {
             return false;
         }
