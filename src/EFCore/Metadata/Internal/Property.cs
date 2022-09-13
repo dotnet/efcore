@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -658,8 +659,43 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueConverter? GetValueConverter()
-        => (ValueConverter?)this[CoreAnnotationNames.ValueConverter]
-            ?? this.FindFirstDifferentPrincipal()?.GetValueConverter();
+    {
+        var converter = (ValueConverter?)this[CoreAnnotationNames.ValueConverter];
+        if (converter != null)
+        {
+            return converter;
+        }
+
+        var property = this;
+        for (var i = 0; i < 10000; i++)
+        {
+            foreach (var foreignKey in property.GetContainingForeignKeys())
+            {
+                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                {
+                    if (property == foreignKey.Properties[propertyIndex])
+                    {
+                        var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
+                        if (principalProperty == this
+                            || principalProperty == property)
+                        {
+                            break;
+                        }
+
+                        property = principalProperty;
+
+                        converter = (ValueConverter?)property[CoreAnnotationNames.ValueConverter];
+                        if (converter != null)
+                        {
+                            return converter;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -702,8 +738,43 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Type? GetProviderClrType()
-        => (Type?)this[CoreAnnotationNames.ProviderClrType]
-            ?? this.FindFirstDifferentPrincipal()?.GetProviderClrType();
+    {
+        var type = (Type?)this[CoreAnnotationNames.ProviderClrType];
+        if (type != null)
+        {
+            return type;
+        }
+
+        var property = this;
+        for (var i = 0; i < 10000; i++)
+        {
+            foreach (var foreignKey in property.GetContainingForeignKeys())
+            {
+                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                {
+                    if (property == foreignKey.Properties[propertyIndex])
+                    {
+                        var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
+                        if (principalProperty == this
+                            || principalProperty == property)
+                        {
+                            break;
+                        }
+
+                        property = principalProperty;
+
+                        type = (Type?)property[CoreAnnotationNames.ProviderClrType];
+                        if (type != null)
+                        {
+                            return type;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

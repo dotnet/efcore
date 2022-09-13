@@ -694,8 +694,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
-        var valueConverterType = (Type?)property[CoreAnnotationNames.ValueConverterType]
-            ?? (Type?)property.FindFirstDifferentPrincipal()?[CoreAnnotationNames.ValueConverterType];
+        var valueConverterType = GetValueConverterType(property);
         if (valueConverterType == null
             && property.GetValueConverter() != null)
         {
@@ -846,6 +845,45 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             parameters with { TargetName = variableName });
 
         mainBuilder.AppendLine();
+    }
+
+    private static Type? GetValueConverterType(IProperty property)
+    {
+        var type = (Type?)property[CoreAnnotationNames.ValueConverterType];
+        if (type != null)
+        {
+            return type;
+        }
+
+        var principalProperty = property;
+        for (var i = 0; i < 10000; i++)
+        {
+            foreach (var foreignKey in principalProperty.GetContainingForeignKeys())
+            {
+                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                {
+                    if (principalProperty == foreignKey.Properties[propertyIndex])
+                    {
+                        var newPrincipalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
+                        if (property == principalProperty
+                            || newPrincipalProperty == principalProperty)
+                        {
+                            break;
+                        }
+
+                        principalProperty = newPrincipalProperty;
+
+                        type = (Type?)principalProperty[CoreAnnotationNames.ValueConverterType];
+                        if (type != null)
+                        {
+                            return type;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private void PropertyBaseParameters(
