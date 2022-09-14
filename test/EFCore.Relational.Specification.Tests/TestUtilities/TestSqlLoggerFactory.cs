@@ -103,10 +103,10 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             var sql = string.Join(
                 "," + indent + "//" + indent,
-                SqlStatements.Skip(offset).Take(count).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""));
+                SqlStatements.Skip(offset).Take(count).Select(sql => "\"\"\"" + FileNewLine + sql + FileNewLine + "\"\"\""));
 
             var newBaseLine = $@"        Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql(
-            {string.Join("," + indent + "//" + indent, SqlStatements.Skip(offset).Take(count).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
+{sql});
 
 ";
 
@@ -277,7 +277,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         indentBuilder.Append("    ");
                         var indent = indentBuilder.ToString();
                         var newBaseLine = $@"Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql(
-{indent}{string.Join("," + Environment.NewLine + indent + "//" + Environment.NewLine + indent, SqlStatements.Skip(offset).Take(count).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))})";
+{string.Join("," + Environment.NewLine + indent + "//" + Environment.NewLine, SqlStatements.Skip(offset).Take(count).Select(sql => "\"\"\"" + Environment.NewLine + sql + Environment.NewLine + "\"\"\""))})";
                         var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n' or '\r');
 
                         writer.Write(newBaseLine);
