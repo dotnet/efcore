@@ -78,6 +78,7 @@ public class CosmosDatabaseWrapper : Database
                     // #16707
                     ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                    entries.Add(root);
                 }
 
                 continue;
@@ -151,6 +152,7 @@ public class CosmosDatabaseWrapper : Database
                     // #16707
                     ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                    entries.Add(root);
                 }
 
                 continue;

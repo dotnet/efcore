@@ -48,14 +48,16 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
     [ConditionalFact]
     public async Task Etag_will_return_when_content_response_enabled_false()
     {
-        await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
+        await using var testDatabase = CosmosTestStore.CreateInitialized(
+            DatabaseName,
+            o => o.ContentResponseOnWriteEnabled(false));
 
         var customer = new Customer
         {
             Id = "4", Name = "Theon",
         };
 
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase, enableContentResponseOnWrite: false)))
+        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
         {
             await context.Database.EnsureCreatedAsync();
 
@@ -64,7 +66,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
             await context.SaveChangesAsync();
         }
 
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase, enableContentResponseOnWrite: false)))
+        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
         {
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
@@ -81,14 +83,16 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
     [ConditionalFact]
     public async Task Etag_will_return_when_content_response_enabled_true()
     {
-        await using var testDatabase = CosmosTestStore.Create(DatabaseName);
+        await using var testDatabase = CosmosTestStore.CreateInitialized(
+            DatabaseName,
+            o => o.ContentResponseOnWriteEnabled());
 
         var customer = new Customer
         {
             Id = "3", Name = "Theon",
         };
 
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase, enableContentResponseOnWrite: true)))
+        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
         {
             await context.Database.EnsureCreatedAsync();
 
@@ -97,7 +101,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
             await context.SaveChangesAsync();
         }
 
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase, enableContentResponseOnWrite: true)))
+        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
         {
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
@@ -108,6 +112,70 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
             context.Remove(customerFromStore);
 
             await context.SaveChangesAsync();
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(null)]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Etag_is_updated_in_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
+    {
+        await using var testDatabase = CosmosTestStore.CreateInitialized(
+            DatabaseName,
+            o =>
+            {
+                if (contentResponseOnWriteEnabled.HasValue)
+                {
+                    o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
+                }
+            });
+
+        var customer = new Customer
+        {
+            Id = "5",
+            Name = "Theon",
+            Children = { new DummyChild { Id = "0" } }
+        };
+
+        string etag = null;
+
+        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
+        {
+            await context.Database.EnsureCreatedAsync();
+
+            context.Add(customer);
+
+            await context.SaveChangesAsync();
+
+            etag = customer.ETag;
+        }
+
+        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
+        {
+            var customerFromStore = await context.Set<Customer>().SingleAsync();
+
+            Assert.NotEmpty(customerFromStore.ETag);
+            Assert.Equal(etag, customerFromStore.ETag);
+
+            customerFromStore.Children.Add(new DummyChild { Id = "1" });
+
+            await context.SaveChangesAsync();
+
+            Assert.NotEmpty(customerFromStore.ETag);
+            Assert.NotEqual(etag, customerFromStore.ETag);
+
+            customerFromStore.Children.Add(new DummyChild { Id = "2" });
+
+            Assert.NotEmpty(customerFromStore.ETag);
+            Assert.NotEqual(etag, customerFromStore.ETag);
+
+            customerFromStore.Children.Add(new DummyChild { Id = "3" });
+
+            await context.SaveChangesAsync();
+
+            Assert.NotEmpty(customerFromStore.ETag);
+            Assert.NotEqual(etag, customerFromStore.ETag);
         }
     }
 
@@ -186,21 +254,14 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
                 {
                     b.HasKey(c => c.Id);
                     b.Property(c => c.ETag).IsETagConcurrency();
+                    b.OwnsMany(x => x.Children);
                 });
     }
 
-    private DbContextOptions CreateOptions(CosmosTestStore testDatabase, bool enableContentResponseOnWrite)
-    {
-        var optionsBuilder = new DbContextOptionsBuilder();
-
-        new DbContextOptionsBuilder().UseCosmos(
-            testDatabase.ConnectionString, testDatabase.Name,
-            b => b.ApplyConfiguration().ContentResponseOnWriteEnabled(enabled: enableContentResponseOnWrite));
-
-        return testDatabase.AddProviderOptions(optionsBuilder)
+    private DbContextOptions CreateOptions(CosmosTestStore testDatabase)
+        => testDatabase.AddProviderOptions(new DbContextOptionsBuilder())
             .EnableDetailedErrors()
             .Options;
-    }
 
     public class Customer
     {
@@ -209,5 +270,12 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
         public string Name { get; set; }
 
         public string ETag { get; set; }
+
+        public ICollection<DummyChild> Children { get; } = new HashSet<DummyChild>();
+    }
+
+    public class DummyChild
+    {
+        public string Id { get; init; }
     }
 }
