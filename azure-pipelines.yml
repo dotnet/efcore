@@ -71,6 +71,7 @@ stages:
                 demands: ImageOverride -equals Build.Server.Amd64.VS2019
             variables:
               - _InternalBuildArgs: ''
+              - skipComponentGovernanceDetection: ${{ ne(variables['System.TeamProject'], 'internal') }}
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
                 - _SignType: real
                 - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
@@ -154,6 +155,7 @@ stages:
                 demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
+              - skipComponentGovernanceDetection: ${{ ne(variables['System.TeamProject'], 'internal') }}
               - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'PullRequest', 'Schedule')) }}:
                 - _CosmosConnectionUrl: 'true'
             steps:
@@ -203,6 +205,7 @@ stages:
                 name: NetCore1ESPool-Svc-Internal
                 demands: ImageOverride -equals Build.Server.Amd64.VS2019
             variables:
+              - skipComponentGovernanceDetection: ${{ ne(variables['System.TeamProject'], 'internal') }}
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
