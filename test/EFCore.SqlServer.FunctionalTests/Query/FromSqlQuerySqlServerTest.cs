@@ -391,7 +391,7 @@ SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL 
 
         AssertSql(
             @"p0='London' (Size = 4000)
-@__contactTitle_1='Sales Representative' (Size = 4000)
+@__contactTitle_1='Sales Representative' (Size = 30)
 
 SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (

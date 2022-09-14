@@ -318,7 +318,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                .Select(c => c.ContactName)
+                .Select(c => c.CompanyName)
                 .Union(ss.Set<Product>().Select(p => p.ProductName))
                 .Where(x => x.StartsWith("C"))
                 .OrderBy(x => x),
