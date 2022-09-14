@@ -683,9 +683,8 @@ SELECT
     [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
     [c].[collation_name],
-    [c].[is_sparse]";
-
-        commandText += @"FROM
+    [c].[is_sparse]
+FROM
 (
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
     FROM [sys].[views] v WHERE ";
