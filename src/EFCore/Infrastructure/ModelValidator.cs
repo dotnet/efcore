@@ -864,6 +864,7 @@ public class ModelValidator : IModelValidator
                     var type = converter.ModelClrType;
                     if (type != typeof(string)
                         && !(type == typeof(byte[]) && property.IsKey()) // Already special-cased elsewhere
+                        && !property.IsForeignKey()
                         && type.TryGetSequenceType() != null)
                     {
                         logger.CollectionWithoutComparer(property);

@@ -102,7 +102,8 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var newKey = Metadata.SetPrimaryKey(keyBuilder.Metadata.Properties, configurationSource);
                 foreach (var key in Metadata.GetDeclaredKeys().ToList())
                 {
-                    if (key == keyBuilder.Metadata)
+                    if (key == keyBuilder.Metadata
+                        || !key.IsInModel)
                     {
                         continue;
                     }
@@ -3956,6 +3957,12 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
         else
         {
+            if (targetEntityTypeBuilder != null
+                && targetEntityTypeBuilder.Metadata.GetConfigurationSource().OverridesStrictly(configurationSource))
+            {
+                return targetEntityTypeBuilder;
+            }
+
             targetEntityTypeBuilder = targetEntityType.IsNamed
                 ? ModelBuilder.SharedTypeEntity(targetTypeName, targetType, configurationSource.Value, targetShouldBeOwned)
                 : ModelBuilder.Entity(targetType, configurationSource.Value, targetShouldBeOwned);
@@ -4490,81 +4497,77 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         var clrProperties = Metadata.GetRuntimeProperties();
         var clrFields = Metadata.GetRuntimeFields();
         var canReuniquify = false;
-        using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
+        using var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator();
+        using var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator();
+        for (var i = 0;
+             i < propertyCount
+             && principalPropertyNamesEnumerator.MoveNext()
+             && principalPropertyTypesEnumerator.MoveNext();
+             i++)
         {
-            using var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator();
-            for (var i = 0;
-                 i < propertyCount
-                 && principalPropertyNamesEnumerator.MoveNext()
-                 && principalPropertyTypesEnumerator.MoveNext();
-                 i++)
+            var keyPropertyName = principalPropertyNamesEnumerator.Current;
+            var keyPropertyType = principalPropertyTypesEnumerator.Current;
+
+            var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
+                ? keyPropertyName
+                : baseName + keyPropertyName;
+            string propertyName;
+            var clrType = keyPropertyType.MakeNullable(!isRequired);
+            var index = -1;
+            while (true)
             {
-                var keyPropertyName = principalPropertyNamesEnumerator.Current;
-                var keyPropertyType = principalPropertyTypesEnumerator.Current;
-                var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
-                    ? keyPropertyName
-                    : baseName + keyPropertyName;
-                string propertyName;
-                var clrType = keyPropertyType.MakeNullable(!isRequired);
-                var index = -1;
-                while (true)
+                propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
+                if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
+                    && !clrProperties.ContainsKey(propertyName)
+                    && !clrFields.ContainsKey(propertyName)
+                    && !IsIgnored(propertyName, ConfigurationSource.Convention))
                 {
-                    propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
-                    if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
-                        && !clrProperties.ContainsKey(propertyName)
-                        && !clrFields.ContainsKey(propertyName)
-                        && !IsIgnored(propertyName, ConfigurationSource.Convention))
+                    if (currentProperties == null)
                     {
-                        if (currentProperties == null)
+                        var propertyBuilder = Property(
+                            clrType, propertyName, typeConfigurationSource: null,
+                            configurationSource: ConfigurationSource.Convention);
+
+                        if (propertyBuilder == null)
                         {
-                            var propertyBuilder = Property(
-                                clrType, propertyName, typeConfigurationSource: null,
-                                configurationSource: ConfigurationSource.Convention);
-
-                            if (propertyBuilder == null)
-                            {
-                                return (false, null);
-                            }
-
-                            if (index > 0)
-                            {
-                                propertyBuilder.HasAnnotation(
-                                    CoreAnnotationNames.PreUniquificationName,
-                                    keyModifiedBaseName,
-                                    ConfigurationSource.Convention);
-                            }
-
-                            if (clrType.IsNullableType())
-                            {
-                                propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
-                            }
-
-                            newProperties![i] = propertyBuilder.Metadata;
-                        }
-                        else if (!Metadata.Model.Builder.CanBeConfigured(
-                                     clrType, TypeConfigurationType.Property, ConfigurationSource.Convention))
-                        {
-                        }
-                        else
-                        {
-                            canReuniquify = true;
+                            return (false, null);
                         }
 
-                        break;
+                        if (index > 0)
+                        {
+                            propertyBuilder.HasAnnotation(
+                                CoreAnnotationNames.PreUniquificationName,
+                                keyModifiedBaseName,
+                                ConfigurationSource.Convention);
+                        }
+
+                        if (clrType.IsNullableType())
+                        {
+                            propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
+                        }
+
+                        newProperties![i] = propertyBuilder.Metadata;
+                    }
+                    else if (Metadata.Model.Builder.CanBeConfigured(
+                                 clrType, TypeConfigurationType.Property, ConfigurationSource.Convention))
+                    {
+                        canReuniquify = true;
                     }
 
-                    var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
-                    if (currentProperty != null)
-                    {
-                        if (((IConventionProperty)currentProperty).IsImplicitlyCreated()
-                            && currentProperty.ClrType != clrType
-                            && isRequired)
-                        {
-                            canReuniquify = true;
-                        }
+                    break;
+                }
 
-                        break;
+                var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
+                if (currentProperty != null)
+                {
+                    if (((IConventionProperty)currentProperty).IsImplicitlyCreated()
+                        && currentProperty.ClrType != clrType
+                        && isRequired)
+                    {
+                        canReuniquify = true;
                     }
+
+                    break;
                 }
             }
         }
