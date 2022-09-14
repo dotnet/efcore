@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -78,6 +79,10 @@ public class DbContext :
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
     ///     for more information and examples.
     /// </remarks>
+    [RequiresUnreferencedCode(
+        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. " +
+        "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for " +
+        "more details.")]
     protected DbContext()
         : this(new DbContextOptions<DbContext>())
     {
@@ -93,6 +98,10 @@ public class DbContext :
     ///     <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
     /// </remarks>
     /// <param name="options">The options for this context.</param>
+    [RequiresUnreferencedCode(
+        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. " +
+        "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for " +
+        "more details.")]
     public DbContext(DbContextOptions options)
     {
         Check.NotNull(options, nameof(options));
@@ -261,7 +270,9 @@ public class DbContext :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
+    object IDbSetCache.GetOrAddSet(
+        IDbSetSource source,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
     {
         CheckDisposed();
 
@@ -284,7 +295,10 @@ public class DbContext :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    object IDbSetCache.GetOrAddSet(IDbSetSource source, string entityTypeName, Type type)
+    object IDbSetCache.GetOrAddSet(
+        IDbSetSource source,
+        string entityTypeName,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
     {
         CheckDisposed();
 
@@ -328,7 +342,7 @@ public class DbContext :
     /// </remarks>
     /// <typeparam name="TEntity">The type of entity for which a set should be returned.</typeparam>
     /// <returns>A set for the given entity type.</returns>
-    public virtual DbSet<TEntity> Set<TEntity>()
+    public virtual DbSet<TEntity> Set<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>()
         where TEntity : class
         => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
@@ -349,11 +363,11 @@ public class DbContext :
     /// <param name="name">The name for the shared-type entity type to use.</param>
     /// <typeparam name="TEntity">The type of entity for which a set should be returned.</typeparam>
     /// <returns>A set for the given entity type.</returns>
-    public virtual DbSet<TEntity> Set<TEntity>(string name)
+    public virtual DbSet<TEntity> Set<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(string name)
         where TEntity : class
         => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, name, typeof(TEntity));
 
-    private IEntityFinder Finder(Type type)
+    private IEntityFinder Finder([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
     {
         var entityType = Model.FindEntityType(type);
         if (entityType == null)
@@ -2020,7 +2034,9 @@ public class DbContext :
     /// <param name="entityType">The type of entity to find.</param>
     /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
     /// <returns>The entity found, or <see langword="null" />.</returns>
-    public virtual object? Find(Type entityType, params object?[]? keyValues)
+    public virtual object? Find(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type entityType,
+        params object?[]? keyValues)
     {
         CheckDisposed();
 
@@ -2049,7 +2065,9 @@ public class DbContext :
     /// <param name="entityType">The type of entity to find.</param>
     /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
     /// <returns>The entity found, or <see langword="null" />.</returns>
-    public virtual ValueTask<object?> FindAsync(Type entityType, params object?[]? keyValues)
+    public virtual ValueTask<object?> FindAsync(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type entityType,
+        params object?[]? keyValues)
     {
         CheckDisposed();
 
@@ -2081,7 +2099,7 @@ public class DbContext :
     /// <returns>The entity found, or <see langword="null" />.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual ValueTask<object?> FindAsync(
-        Type entityType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type entityType,
         object?[]? keyValues,
         CancellationToken cancellationToken)
     {
@@ -2103,7 +2121,8 @@ public class DbContext :
     /// <typeparam name="TEntity">The type of entity to find.</typeparam>
     /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
     /// <returns>The entity found, or <see langword="null" />.</returns>
-    public virtual TEntity? Find<TEntity>(params object?[]? keyValues)
+    public virtual TEntity? Find<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(
+        params object?[]? keyValues)
         where TEntity : class
     {
         CheckDisposed();
@@ -2133,7 +2152,8 @@ public class DbContext :
     /// <typeparam name="TEntity">The type of entity to find.</typeparam>
     /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
     /// <returns>The entity found, or <see langword="null" />.</returns>
-    public virtual ValueTask<TEntity?> FindAsync<TEntity>(params object?[]? keyValues)
+    public virtual ValueTask<TEntity?> FindAsync<
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(params object?[]? keyValues)
         where TEntity : class
     {
         CheckDisposed();
@@ -2165,7 +2185,8 @@ public class DbContext :
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>The entity found, or <see langword="null" />.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public virtual ValueTask<TEntity?> FindAsync<TEntity>(object?[]? keyValues, CancellationToken cancellationToken)
+    public virtual ValueTask<TEntity?> FindAsync<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(
+        object?[]? keyValues, CancellationToken cancellationToken)
         where TEntity : class
     {
         CheckDisposed();
@@ -2232,4 +2253,14 @@ public class DbContext :
         => base.GetHashCode();
 
     #endregion
+
+    internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors
+        | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors
+        // We preserve public properties on contexts to make sure DbSet properties - and in particular their setters - aren't trimmed.
+        // Since EF implicitly injects DbSet properties via reflection and the user doesn't contain any explicit use, setters get trimmed
+        // and our injection logic no longer recognizes them for injection.
+        // Note that this works only using the DI APIs (e.g. AddDbContext) or DbContextFactory, but not when the context is instantiated
+        // directly (there's no API accepting Type where we'd put [DynamicallyAccessedMemberTypes]).
+        | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties;
 }

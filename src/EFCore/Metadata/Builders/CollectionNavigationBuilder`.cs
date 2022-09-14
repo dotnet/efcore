@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -16,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// </remarks>
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
 /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
-public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNavigationBuilder
+public class CollectionNavigationBuilder<
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity,
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TRelatedEntity> : CollectionNavigationBuilder
     where TEntity : class
     where TRelatedEntity : class
 {
