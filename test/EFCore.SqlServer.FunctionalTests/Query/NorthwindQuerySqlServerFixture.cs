@@ -15,9 +15,14 @@ public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRe
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<Customer>()
-            .Property(c => c.CustomerID)
-            .HasColumnType("nchar(5)");
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.Property(c => c.CustomerID).HasColumnType("nchar(5)");
+                b.Property(cm => cm.CompanyName).HasMaxLength(40);
+                b.Property(cm => cm.ContactName).HasMaxLength(30);
+                b.Property(cm => cm.ContactTitle).HasColumnType("NVarChar(30)");
+            });
 
         modelBuilder.Entity<Employee>(
             b =>
@@ -42,6 +47,7 @@ public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRe
             {
                 b.Property(p => p.UnitPrice).HasColumnType("money");
                 b.Property(p => p.UnitsInStock).HasColumnType("smallint");
+                b.Property(cm => cm.ProductName).HasMaxLength(40);
             });
 
         modelBuilder.Entity<MostExpensiveProduct>()
