@@ -1232,4 +1232,23 @@ public abstract partial class ModelBuilderTest
         public int? StoreId { get; set; }
         public Store? Store { get; set; }
     }
+
+    protected class MainOtter
+    {
+        public Guid Id { get; set; }
+        public decimal Number { get; set; }
+        public OwnedOtter OwnedEntity { get; set; } = null!;
+    }
+
+    protected class OtherOtter
+    {
+        public Guid Id { get; set; }
+        public decimal Number { get; set; }
+        public List<OwnedOtter> OwnedEntities { get; } = new();
+    }
+
+    protected class OwnedOtter
+    {
+        public decimal Number { get; set; }
+    }
 }

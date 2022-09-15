@@ -195,7 +195,7 @@ public abstract class AnnotatableBuilder<TMetadata, TModelBuilder> : IConvention
                         annotation.Name,
                         annotation.Value,
                         configurationSource,
-                        canOverrideSameSource: false)
+                        canOverrideSameSource: true)
                     ?? builder;
             }
         }
