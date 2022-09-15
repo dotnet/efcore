@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -65,7 +67,7 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     /// </returns>
     IConventionEntityTypeBuilder? SharedTypeEntity(
         string name,
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         bool? shouldBeOwned = false,
         bool fromDataAnnotation = false);
 
@@ -84,7 +86,10 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    IConventionEntityTypeBuilder? Entity(Type type, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
+    IConventionEntityTypeBuilder? Entity(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool? shouldBeOwned = false,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns an object that can be used to configure a given entity type with defining navigation.
@@ -119,7 +124,7 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     ///     <see langword="null" /> otherwise.
     /// </returns>
     IConventionEntityTypeBuilder? Entity(
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         string definingNavigationName,
         IConventionEntityType definingEntityType,
         bool fromDataAnnotation = false);
@@ -133,7 +138,9 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     /// <returns>
     ///     An object that can be used to provide default configuration for the owned entity types.
     /// </returns>
-    IConventionOwnedEntityTypeBuilder? Owned(Type type, bool fromDataAnnotation = false);
+    IConventionOwnedEntityTypeBuilder? Owned(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Indicates whether the given entity type name is ignored for the current configuration source.
@@ -141,7 +148,7 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     /// <param name="type">The name of the entity type that might be ignored.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given entity type name is ignored.</returns>
-    bool IsIgnored(Type type, bool fromDataAnnotation = false);
+    bool IsIgnored([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Indicates whether the given entity type name is ignored for the current configuration source.
@@ -160,7 +167,9 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     ///     The same builder instance so that additional configuration calls can be chained
     ///     if the given entity type was ignored, <see langword="null" /> otherwise.
     /// </returns>
-    IConventionModelBuilder? Ignore(Type type, bool fromDataAnnotation = false);
+    IConventionModelBuilder? Ignore(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Excludes the given entity type name from the model and prevents it from being added by convention.
@@ -189,7 +198,7 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     /// <param name="type">The entity type to be removed from the model.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given entity type can be ignored.</returns>
-    bool CanIgnore(Type type, bool fromDataAnnotation = false);
+    bool CanIgnore([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the given entity type name can be ignored from the current configuration source

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -61,7 +62,7 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
     /// </remarks>
     /// <param name="type">The CLR type.</param>
     /// <returns>Whether the CLR type is used by shared type entities in the model.</returns>
-    bool IsShared(Type type);
+    bool IsShared([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type);
 
     /// <summary>
     ///     Gets all entity types defined in the model.

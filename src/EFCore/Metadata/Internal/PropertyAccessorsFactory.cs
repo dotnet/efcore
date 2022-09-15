@@ -56,7 +56,7 @@ public class PropertyAccessorsFactory
         {
             currentValueExpression = Expression.Call(
                 entryParameter,
-                InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(typeof(TProperty)),
+                InternalEntityEntry.MakeReadShadowValueMethod(typeof(TProperty)),
                 Expression.Constant(shadowIndex));
         }
         else
@@ -93,7 +93,7 @@ public class PropertyAccessorsFactory
                         Expression.Constant(default(TProperty), typeof(TProperty))),
                     Expression.Call(
                         entryParameter,
-                        InternalEntityEntry.ReadStoreGeneratedValueMethod.MakeGenericMethod(typeof(TProperty)),
+                        InternalEntityEntry.MakeReadStoreGeneratedValueMethod(typeof(TProperty)),
                         Expression.Constant(storeGeneratedIndex)),
                     currentValueExpression);
             }
@@ -106,7 +106,7 @@ public class PropertyAccessorsFactory
                     Expression.Constant(default(TProperty), typeof(TProperty))),
                 Expression.Call(
                     entryParameter,
-                    InternalEntityEntry.ReadTemporaryValueMethod.MakeGenericMethod(typeof(TProperty)),
+                    InternalEntityEntry.MakeReadTemporaryValueMethod(typeof(TProperty)),
                     Expression.Constant(storeGeneratedIndex)),
                 currentValueExpression);
         }
@@ -127,7 +127,7 @@ public class PropertyAccessorsFactory
                 originalValuesIndex >= 0
                     ? Expression.Call(
                         entryParameter,
-                        InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
+                        InternalEntityEntry.MakeReadOriginalValueMethod(typeof(TProperty)),
                         Expression.Constant(property),
                         Expression.Constant(originalValuesIndex))
                     : Expression.Block(
@@ -152,12 +152,12 @@ public class PropertyAccessorsFactory
                 relationshipIndex >= 0
                     ? Expression.Call(
                         entryParameter,
-                        InternalEntityEntry.ReadRelationshipSnapshotValueMethod.MakeGenericMethod(typeof(TProperty)),
+                        InternalEntityEntry.MakeReadRelationshipSnapshotValueMethod(typeof(TProperty)),
                         Expression.Constant(propertyBase),
                         Expression.Constant(relationshipIndex))
                     : Expression.Call(
                         entryParameter,
-                        InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(typeof(TProperty)),
+                        InternalEntityEntry.MakeGetCurrentValueMethod(typeof(TProperty)),
                         Expression.Constant(propertyBase)),
                 updateParameter)
             .Compile();

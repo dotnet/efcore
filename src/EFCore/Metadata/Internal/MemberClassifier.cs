@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -134,7 +135,7 @@ public class MemberClassifier : IMemberClassifier
     }
 
     private bool IsCandidateNavigationPropertyType(
-        Type targetType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type targetType,
         MemberInfo memberInfo,
         Model model,
         out bool? shouldBeOwned)

@@ -225,7 +225,7 @@ public static class ExpressionExtensions
                 && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
                     ? Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                         Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(typeof(object)),
+                            EF.MakePropertyMethod(typeof(object)),
                             entityParameterExpression,
                             Expression.Constant(property.Name, typeof(string))),
                         Expression.Call(
@@ -234,7 +234,7 @@ public static class ExpressionExtensions
                             Expression.Constant(i)))
                     : Expression.Equal(
                         Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
+                            EF.MakePropertyMethod(property.ClrType),
                             entityParameterExpression,
                             Expression.Constant(property.Name, typeof(string))),
                         Expression.Convert(

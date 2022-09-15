@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -784,6 +785,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <param name="memberInfo">The corresponding member on the entity class.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created property.</returns>
+    [RequiresUnreferencedCode("Currently used only in tests")]
     IConventionProperty? AddProperty(MemberInfo memberInfo, bool fromDataAnnotation = false)
         => AddProperty(
             memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
@@ -807,7 +809,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <returns>The newly created property.</returns>
     IConventionProperty? AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         bool setTypeConfigurationSource = true,
         bool fromDataAnnotation = false);
 
@@ -829,7 +831,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <returns>The newly created property.</returns>
     IConventionProperty? AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
         bool setTypeConfigurationSource = true,
         bool fromDataAnnotation = false);
@@ -844,7 +846,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     /// <returns>The newly created property.</returns>
     IConventionProperty? AddIndexerProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         bool setTypeConfigurationSource = true,
         bool fromDataAnnotation = false)
     {

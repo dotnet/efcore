@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
@@ -359,7 +360,9 @@ public class EntityFrameworkServicesBuilder
     /// <typeparam name="TService">The contract for the service.</typeparam>
     /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
     /// <returns>This builder, such that further calls can be chained.</returns>
-    public virtual EntityFrameworkServicesBuilder TryAdd<TService, TImplementation>()
+    public virtual EntityFrameworkServicesBuilder TryAdd<
+        TService,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TImplementation>()
         where TService : class
         where TImplementation : class, TService
         => TryAdd(typeof(TService), typeof(TImplementation));
@@ -375,7 +378,9 @@ public class EntityFrameworkServicesBuilder
     /// <param name="serviceType">The contract for the service.</param>
     /// <param name="implementationType">The concrete type that implements the service.</param>
     /// <returns>This builder, such that further calls can be chained.</returns>
-    public virtual EntityFrameworkServicesBuilder TryAdd(Type serviceType, Type implementationType)
+    public virtual EntityFrameworkServicesBuilder TryAdd(
+        Type serviceType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType)
     {
         var characteristics = GetServiceCharacteristics(serviceType);
 
@@ -402,7 +407,8 @@ public class EntityFrameworkServicesBuilder
     /// <typeparam name="TService">The contract for the service.</typeparam>
     /// <param name="factory">The factory that will create the service instance.</param>
     /// <returns>This builder, such that further calls can be chained.</returns>
-    public virtual EntityFrameworkServicesBuilder TryAdd<TService>(Func<IServiceProvider, TService> factory)
+    public virtual EntityFrameworkServicesBuilder TryAdd
+        <[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>(Func<IServiceProvider, TService> factory)
         where TService : class
         => TryAdd(typeof(TService), typeof(TService), factory);
 
@@ -418,7 +424,8 @@ public class EntityFrameworkServicesBuilder
     /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
     /// <param name="factory">The factory that will create the service instance.</param>
     /// <returns>This builder, such that further calls can be chained.</returns>
-    public virtual EntityFrameworkServicesBuilder TryAdd<TService, TImplementation>(
+    public virtual EntityFrameworkServicesBuilder TryAdd
+        <TService, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TImplementation>(
         Func<IServiceProvider, TImplementation> factory)
         where TService : class
         where TImplementation : class, TService
@@ -438,7 +445,7 @@ public class EntityFrameworkServicesBuilder
     /// <returns>This builder, such that further calls can be chained.</returns>
     public virtual EntityFrameworkServicesBuilder TryAdd(
         Type serviceType,
-        Type implementationType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType,
         Func<IServiceProvider, object> factory)
     {
         var characteristics = GetServiceCharacteristics(serviceType);
